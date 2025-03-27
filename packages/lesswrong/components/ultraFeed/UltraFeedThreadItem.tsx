@@ -12,21 +12,15 @@ import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
 // Styles for the UltraFeedThreadItem component
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   root: {
-    // paddingTop: 24,
-    // paddingBottom: 24,
     paddingLeft: 16,
     paddingRight: 16,
     borderRadius: 4,
     backgroundColor: theme.palette.panelBackground.default,
-    
   },
   postStyleHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // marginBottom: 12,
-    // marginLeft: 2,
-    // textAlign: 'right',
     paddingTop: 24,
     paddingBottom: 20,
     marginLeft: -16,
@@ -44,12 +38,8 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     fontWeight: 600,
     opacity: 0.6,
     lineHeight: 1.15,
-
-    // lineWrap: 'balance',
-    // textWrap: 'balance',
     textDecoration: 'none',
     cursor: 'pointer',
-
     width: '100%',
     '&:hover': {
       opacity: 0.9,
@@ -58,7 +48,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   expandAllButton: {
     cursor: 'pointer',
     opacity: 0.2,
-    // fontSize: 1,
     paddingRight: 4,
     paddingLeft: 4,
     marginRight: -4,
@@ -66,6 +55,9 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.4,
     },
+  },
+  expandedPost: {
+    // borderBottom: theme.palette.border.itemSeparatorFeedTop,
   },
   commentsContainer: {
     display: 'flex',
@@ -75,34 +67,11 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   commentsList: {
     display: 'flex',
     flexDirection: 'column',
-  },
-  verticalLine: {
-    width: 24,
-    // backgroundColor: theme.palette.grey[400],
-    borderLeft: `3px solid ${theme.palette.grey[300]}`,
-    // borderTop: `2px solid ${theme.palette.grey[400]}`,
-    // borderBottom: `2px solid ${theme.palette.grey[400]}`,
-    // borderRadius: 4,
-    marginRight: 16,
-    marginTop: 30,
-    marginBottom: 16,
-    // marginTop: -20,
-    // marginBottom: -20,
-    // position: 'absolute',
-    // left: '50%', // Position at 30% of the width for better visual centering
-    // top: 0,
-    // bottom: 12,  // Match marginBottom of the last comment
-    // width: 3,
-    // backgroundColor: theme.palette.grey[400],
-    // zIndex: 0, // Ensure it's behind comments
-    // display: 'none',
+    position: 'relative', // Needed for absolute positioning of comment lines
   },
   commentItem: {
     position: 'relative',
     zIndex: 1, // Ensure comments are above the line
-    '&:not(:last-child)': {
-      borderBottom: theme.palette.border.itemSeparatorBottom,
-    },
     '&:last-child': {
       marginBottom: 12,
     },
@@ -227,10 +196,25 @@ const UltraFeedThreadItem = ({thread}: {
     return result;
   });
 
+  // Track which comments are highlighted (for green vertical line)
+  const [highlightStatuses, setHighlightStatuses] = useState<Record<string, boolean>>(() => {
+    // Initialize highlights only from commentMetaInfos
+    const result: Record<string, boolean> = {};
+    
+    for (const [commentId, _] of Object.entries(commentDisplayStatuses)) {
+      const metaInfo = commentMetaInfos[commentId];
+      
+      // Use the highlight value from metadata if available
+      result[commentId] = metaInfo?.highlight || false;
+    }
+    
+    return result;
+  });
+
   console.log("commentDisplayStatuses", commentDisplayStatuses);
+  console.log("highlightStatuses", highlightStatuses);
 
   const { UltraFeedCommentItem, UltraFeedPostItem, UltraFeedCompressedCommentsItem } = Components;
-
 
   // Get basic thread statistics
   const commentCount = comments.length;
@@ -246,6 +230,8 @@ const UltraFeedThreadItem = ({thread}: {
       ...prev,
       [commentId]: newStatus,
     }));
+    
+    // We no longer modify highlight status here - it's determined by the server
   };
 
   // Filter out hidden comments from the start
@@ -264,14 +250,15 @@ const UltraFeedThreadItem = ({thread}: {
     setPostExpanded(!postExpanded);
   }
 
+  const postTitleClickHandler = () => {
+    setPostExpanded(true);
+  }
+
   // Determine if we should show the post title as post-style heading
   const showPostStyleHeading = settings.commentTitleStyle === "postStyleHeading";
   
   // Always use the old props for first comment for backward compatibility
   const showInLineCommentThreadTitle = !showPostStyleHeading;
-      
-  // Get the showVerticalLine setting from ultraFeedSettings
-  const showVerticalLine = settings.showVerticalLine;
       
   // Only render the title element if we're using the post-style heading
   const titleElement = showPostStyleHeading ? (
@@ -293,9 +280,12 @@ const UltraFeedThreadItem = ({thread}: {
 
   return (
     <div className={classes.root}>
-      {postExpanded ? <UltraFeedPostItem post={thread.post} postMetaInfo={thread.postMetaInfo} initiallyExpanded={false} /> : titleElement}
+      {postExpanded 
+        ? <div className={classes.expandedPost}>
+          <UltraFeedPostItem post={thread.post} postMetaInfo={thread.postMetaInfo} initiallyExpanded={false} />
+        </div>
+        : titleElement}
       {comments.length > 0 && <div className={classes.commentsContainer}>
-        {showVerticalLine && <div className={classes.verticalLine} />}
         <div className={classes.commentsList}>
           {compressedItems.map((item, index) => {
             if ("placeholder" in item) {
@@ -311,12 +301,17 @@ const UltraFeedThreadItem = ({thread}: {
                       setDisplayStatus(h._id, "expanded");
                     });
                   }}
+                  isFirstComment={index === 0}
+                  isLastComment={index === compressedItems.length - 1}
                 />
               </div>
             );
           } else {
             // Normal comment
             const cId = item._id;
+            const isFirstItem = index === 0;
+            const isLastItem = index === compressedItems.length - 1;
+            
             return (
               <div key={cId} className={classes.commentItem}>
                 <UltraFeedCommentItem
@@ -324,7 +319,11 @@ const UltraFeedThreadItem = ({thread}: {
                   post={thread.post}
                   displayStatus={commentDisplayStatuses[cId]}
                   onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
-                  showInLineCommentThreadTitle={index === 0 && showInLineCommentThreadTitle}
+                  showInLineCommentThreadTitle={isFirstItem && showInLineCommentThreadTitle}
+                  highlight={highlightStatuses[cId] || false}
+                  isFirstComment={isFirstItem}
+                  isLastComment={isLastItem}
+                  onPostTitleClick={postTitleClickHandler}
                 />
               </div>
             );

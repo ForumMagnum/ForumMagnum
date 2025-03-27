@@ -421,11 +421,19 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
     const commentIds = thread.map((item: PreDisplayFeedComment) => item.commentId);
     const commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo} = thread.reduce((acc: {[commentId: string]: FeedCommentMetaInfo}, comment, index) => {
+      // Determine display status for this comment
+      const displayStatus = expandedIndices.has(index) ? 'expanded' : 'collapsed';
+      
+      // Randomly decide if expanded comments should be highlighted (50% chance)
+      // NOTE: Only expanded comments can be highlighted
+      const highlight = displayStatus === 'expanded' ? Math.random() >= 0.5 : false;
+      
       acc[comment.commentId] = {
         sources: comment.metaInfo?.sources || [],
-        displayStatus: expandedIndices.has(index) ? 'expanded' : 'collapsed',
+        displayStatus: displayStatus,
         alreadySeen: null,
         siblingCount: comment.metaInfo?.siblingCount ?? null,
+        highlight: highlight,
       };
       return acc;
     }, {});

@@ -15,12 +15,22 @@ import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
     paddingTop: 16,
+    display: 'flex',
+    flexDirection: 'row',
   },
   collapsedRoot: {
     paddingTop: 16,
   },
   compressedRoot: {
-    // paddingTop: 16,
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  commentContentWrapper: {
+    flex: 1,
+  },
+  commentContentWrapperWithBorder: {
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+    // paddingBottom: 16,
   },
   collapsedFooter: {
     paddingBottom: 16,
@@ -32,7 +42,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginBottom: 8,
   },
   contentWrapper: {
-    cursor: "pointer",
+    // cursor: "pointer",
   },
   replyButton: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -92,17 +102,77 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     fontStyle: 'italic',
   },
   inlineCommentThreadTitleLink: {
-    color: theme.palette.primary.main,
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    font: 'inherit',
+    cursor: 'pointer',
+    display: 'inline',
+    fontFamily: 'inherit',
+    fontSize: 'inherit',
+    fontWeight: 'inherit',
+    color: theme.palette.link.dim,
+    fontStyle: 'italic',
+    textAlign: 'left',
+    width: '100%',
+    '& span': {
+      color: theme.palette.primary.main,
+    },
+  },
+  verticalLineContainer: {
+    width: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    marginRight: 2,
+    marginTop: -18,
+    marginBottom: 0,
+  },
+  verticalLine: {
+    width: 0,
+    borderLeft: `4px solid ${theme.palette.grey[300]}`,
+    flex: 1,
+    marginLeft: -10
+  },
+  verticalLineHighlighted: {
+    borderLeft: `4px solid ${theme.palette.secondary.light}8c`,
+  },
+  verticalLineFirstComment: {
+    marginTop: 30, // Match the margin-top from thread item
+  },
+  verticalLineLastComment: {
+    marginBottom: 16, // Match the margin-bottom from thread item
   },
 }));
 
 
-const UltraFeedCompressedCommentsItem = ({numComments, setExpanded}: {numComments: number, setExpanded: () => void}) => {
+const UltraFeedCompressedCommentsItem = ({
+  numComments, 
+  setExpanded,
+  isFirstComment = false,
+  isLastComment = false,
+}: {
+  numComments: number, 
+  setExpanded: () => void,
+  isFirstComment?: boolean,
+  isLastComment?: boolean,
+}) => {
   const classes = useStyles(styles);
+  
   return (
     <div className={classes.compressedRoot} onClick={setExpanded}>
-      <div className={classes.numComments}>
-        <span>+{numComments} comments</span>
+      <div className={classes.verticalLineContainer}>
+        <div className={classNames(
+          classes.verticalLine,
+          { 
+            [classes.verticalLineFirstComment]: isFirstComment,
+            [classes.verticalLineLastComment]: isLastComment
+          }
+        )} />
+      </div>
+      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+        <div className={classes.numComments}>
+          <span>+{numComments} comments</span>
+        </div>
       </div>
     </div>
   );
@@ -116,6 +186,10 @@ export interface UltraFeedCommentItemProps {
   displayStatus: "expanded" | "collapsed" | "hidden";
   onChangeDisplayStatus: (newStatus: "expanded" | "collapsed" | "hidden") => void;
   showInLineCommentThreadTitle?: boolean;
+  highlight?: boolean;
+  isFirstComment?: boolean;
+  isLastComment?: boolean;
+  onPostTitleClick?: () => void;
 }
 
 interface CollapsedPlaceholder {
@@ -129,6 +203,10 @@ const UltraFeedCommentItem = ({
   displayStatus,
   onChangeDisplayStatus,
   showInLineCommentThreadTitle,
+  highlight = false,
+  isFirstComment = false,
+  isLastComment = false,
+  onPostTitleClick,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
@@ -151,7 +229,7 @@ const UltraFeedCommentItem = ({
   }, [onChangeDisplayStatus, captureEvent]);
 
   const expanded = displayStatus === "expanded";
-  const metaDataProps = displayStatus === "expanded" ? {} : {hideDate: true, hideVoteButtons: true, hideActionsMenu: true};
+  const metaDataProps = displayStatus === "expanded" ? { } : {hideDate: true, hideVoteButtons: true, hideActionsMenu: true};
   
   // Use the truncation breakpoints from settings
   const truncationBreakpoints = displayStatus === "expanded" 
@@ -169,65 +247,72 @@ const UltraFeedCommentItem = ({
   const titleAboveMetaInfo = shouldShowInlineTitle && 
     settings.commentTitleStyle === "commentReplyStyleAboveMetaInfo";
 
-  console.log("lineClamp relevant vars", {
-    shouldUseLineClamp, 
-    settings, 
-    expanded,
-    lineClampNumberOfLines: settings.lineClampNumberOfLines,
-  });
-
   return (
     <div className={classNames(classes.root, { [classes.collapsedRoot]: !expanded })} onClick={expanded ? undefined : handleExpand}>
-      {titleAboveMetaInfo && (
-        <div className={classes.inlineCommentThreadTitleAbove}>
-          <span>
-            Replying to&nbsp;
-            <Link to={`/posts/${post._id}`} className={classes.inlineCommentThreadTitleLink}>
-              {post.title}
-            </Link>
-          </span>
-        </div>
-      )}
-      <div className={classes.commentHeader}>
-        <UltraFeedCommentsItemMeta comment={comment} post={post} {...metaDataProps} />
-        {shouldShowInlineTitle && !titleAboveMetaInfo && (
-          <div className={classes.inlineCommentThreadTitle}>
-            <span>
-              Replying to&nbsp;
-              <Link to={`/posts/${post._id}`} className={classes.inlineCommentThreadTitleLink}>
-                {post.title}
-              </Link>
-            </span>
+      {/* Vertical line container */}
+      <div className={classes.verticalLineContainer}>
+        <div className={classNames(
+          classes.verticalLine,
+          { 
+            [classes.verticalLineHighlighted]: highlight,
+            [classes.verticalLineFirstComment]: isFirstComment,
+            [classes.verticalLineLastComment]: isLastComment
+          }
+        )} />
+      </div>
+      
+      {/* Comment content */}
+      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+        {titleAboveMetaInfo && (
+          <div className={classes.inlineCommentThreadTitleAbove}>
+            <button 
+              className={classes.inlineCommentThreadTitleLink}
+              onClick={onPostTitleClick}
+            >
+              Replying to <span>{post.title}</span>
+            </button>
           </div>
         )}
-      </div>
-      <div className={classes.contentWrapper}>
-        <FeedContentBody
-          comment={comment}
-          html={comment.contents?.html || ""}
-          breakpoints={truncationBreakpoints}
-          wordCount={comment.contents?.wordCount || 0}
-          linkToEntityOnFinalExpand={displayStatus === "expanded"}
-          initialExpansionLevel={0}
-          nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
-          clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
-        />
-      </div>
+        <div className={classes.commentHeader}>
+          <UltraFeedCommentsItemMeta comment={comment} post={post} {...metaDataProps} />
+          {shouldShowInlineTitle && !titleAboveMetaInfo && !comment.shortform && (
+            <div className={classes.inlineCommentThreadTitle}>
+              <button 
+                className={classes.inlineCommentThreadTitleLink}
+                onClick={onPostTitleClick}
+              >
+                Replying to <span>{post.title}</span>
+              </button>
+            </div>
+          )}
+        </div>
+        <div className={classes.contentWrapper}>
+          <FeedContentBody
+            comment={comment}
+            html={comment.contents?.html || ""}
+            breakpoints={truncationBreakpoints}
+            wordCount={comment.contents?.wordCount || 0}
+            linkToDocumentOnFinalExpand={displayStatus === "expanded"}
+            initialExpansionLevel={0}
+            nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+            clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
+          />
+        </div>
 
-      {expanded && <div className={classes.commentBottom}>
-        <CommentBottom
-          comment={comment}
-          post={post}
-          treeOptions={{}}
-          votingSystem={votingSystem}
-          voteProps={voteProps}
-          replyButton={<div className={classes.replyButton}>Reply</div>}
-        />
-      </div>}
-      {!expanded && <div className={classes.collapsedFooter}/>}
+        {expanded && <div className={classes.commentBottom}>
+          <CommentBottom
+            comment={comment}
+            post={post}
+            treeOptions={{}}
+            votingSystem={votingSystem}
+            voteProps={voteProps}
+            replyButton={<div className={classes.replyButton}>Reply</div>}
+          />
+        </div>}
+        {!expanded && <div className={classes.collapsedFooter}/>}
+      </div>
     </div>
   );
-
 };
 
 const UltraFeedCommentItemComponent = registerComponent("UltraFeedCommentItem", UltraFeedCommentItem);

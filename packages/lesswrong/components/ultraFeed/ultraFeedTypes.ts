@@ -24,6 +24,8 @@ export interface FeedCommentMetaInfo {
   alreadySeen: boolean | null;
   /** Display status (expanded/collapsed/hidden) */
   displayStatus?: FeedItemDisplayStatus;
+  /** Whether this comment should be highlighted with a green vertical line */
+  highlight?: boolean;
 }
 
 export interface FeedCommentFromDb {
