@@ -138,7 +138,7 @@ export const LessOnline2025Banner = () => {
   );
 }
 
-const LessOnline2025BannerComponent = registerComponent('LessOnline2025Banner', LessOnline2025Banner, {styles});
+const LessOnline2025BannerComponent = registerComponent('LessOnline2025Banner', LessOnline2025Banner);
 
 declare global {
   interface ComponentTypes {
