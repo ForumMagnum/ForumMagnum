@@ -108,12 +108,10 @@ export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Da
   const { CloudinaryImage2 } = Components
 
   const timeRemaining = priceIncreaseDate.getTime() - new Date().getTime();
-  const daysRemaining = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-  const hoursRemaining = Math.floor(timeRemaining / (1000 * 60 * 60));
-  const minutesRemaining = Math.floor(timeRemaining / (1000 * 60));
+  const daysRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
 
   const countdownText = daysRemaining > 0 
-    ? `in ${daysRemaining} days` 
+    ? `in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}` 
     : 'tomorrow';
 
   return (
