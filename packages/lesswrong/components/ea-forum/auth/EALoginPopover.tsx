@@ -503,8 +503,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
                     onClick={onClickGoogle}
                     className={classNames(classes.button, classes.socialButton)}
                   >
-                    <img src={links.googleLogo} alt="google logo" />
-                    Continue with Google
+                    <img src={links.googleLogo} alt="google logo" /> Continue with Google
                   </EAButton>
                 )}
                 {facebookEnabled && !isSignup && (
