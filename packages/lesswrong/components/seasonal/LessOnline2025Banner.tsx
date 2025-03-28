@@ -19,6 +19,7 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
     width: '100%',
     height: '80vh',
     objectFit: 'cover',
+    objectPosition: 'right',
   },
   gradientOverlay: {
     position: 'absolute',
