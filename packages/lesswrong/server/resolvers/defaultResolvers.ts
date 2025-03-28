@@ -59,6 +59,8 @@ const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInf
   };
 
   const fragmentsWithImplicitFragment = [implicitFragment, ...Object.values(fragments)];
+  // TODO: at some point, would be good to switch to just returning AST nodes and parsing those in SqlFragment directly
+  // since we're doing a bunch of hacky regex parsing over there
   const fragmentText = fragmentsWithImplicitFragment.map(print).join('\n\n');
   return {
     fragmentText,

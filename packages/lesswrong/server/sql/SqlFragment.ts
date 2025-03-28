@@ -93,7 +93,7 @@ function topologicalSort(fragments: Record<string, string>): [string, string[]][
     const dependencies: string[] = [];
     
     // Find fragment references (spread operators)
-    const spreadMatches = fragmentBody.matchAll(/\.\.\.([\w-]+)/g);
+    const spreadMatches = fragmentBody.matchAll(/\.\.\.([\w]+)/g);
     for (const match of spreadMatches) {
       const dependency = match[1];
       if (fragments[dependency]) { // Only include dependencies that exist in our fragments
@@ -238,7 +238,7 @@ export class SqlFragment {
         continue;
       }
 
-      match = line.match(/^\.\.\.([a-zA-Z0-9-_]+)$/)
+      match = line.match(/^\.\.\.([a-zA-Z0-9_]+)$/)
       if (match?.[1]) {
         const fragmentName = match[1];
         const fragment = this.sqlFragmentsByName[fragmentName];
