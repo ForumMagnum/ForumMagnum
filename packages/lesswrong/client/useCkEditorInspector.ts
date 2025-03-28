@@ -12,10 +12,6 @@ export function useCkEditorInspector(editorRef: RefObject<CKEditor<any>>) {
       //eslint-disable-next-line no-console
       console.log("Attaching CkEditor inspector");
       CKEditorInspector.attach(editorRef.current?.editor);
-    } else if (editorRef.current?.editor) {
-      console.log(`Not attaching to CkEditor: key=${ev.key}`);
-    } else {
-      console.log("Not attaching to CkEditor: Editor not ready");
     }
   });
 }
