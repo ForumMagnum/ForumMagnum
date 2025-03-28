@@ -5,7 +5,7 @@ import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/beta
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
-  EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
+  EditorTypeString, styles, FormProps, shouldSubmitContents, EditorComponent } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
@@ -513,7 +513,7 @@ export const EditorFormComponent = ({
       getNewPostLocalStorageHandlers={getNewPostLocalStorageHandlers}
     />}
     <CKEditorPortalProvider>
-    <Components.Editor
+    <EditorComponent
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}

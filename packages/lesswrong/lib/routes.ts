@@ -10,37 +10,15 @@ import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
-import { pluralize } from './vulcan-lib/pluralize';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations, hasSurveys } from './betas';
-import {isFriendlyUI} from '../themes/forumTheme'
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
 import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
 import { GUIDE_PATH_PAGES_MAPPING } from './arbital/paths';
 import isEmpty from 'lodash/isEmpty';
-const knownTagNames = ['tag', 'topic', 'concept', 'wikitag']
-const useShortAllTagsPath = isFriendlyUI;
+import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './routeConstants';
 
-/**
- * Get the path for the all tags page
- */
-export const getAllTagsPath = () => {
-  return useShortAllTagsPath ? `/${taggingNamePluralSetting.get()}` : `/${taggingNamePluralSetting.get()}/all`;
-}
-
-/**
- * Get all the paths that should redirect to the all tags page. This is all combinations of
- * known tag names (e.g. 'topics', 'concepts') with and without `/all` at the end.
- */
-export const getAllTagsRedirectPaths: () => string[] = () => {
-  const pathRoots = knownTagNames.map(tagName => `/${pluralize(tagName)}`)
-  const allPossiblePaths = pathRoots.map(root => [root, `${root}/all`])
-  const redirectPaths = ['/wiki', ...allPossiblePaths.flat().filter(path => path !== getAllTagsPath())]
-  return redirectPaths
-}
-
-export const communityPath = isEAForum ? '/groups' : '/community';
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };

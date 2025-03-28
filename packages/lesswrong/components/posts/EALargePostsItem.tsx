@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { siteImageSetting } from "../vulcan-core/App";
+import { siteImageSetting } from "@/lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";

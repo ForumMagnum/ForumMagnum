@@ -1,4 +1,4 @@
-import { Components as C, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -42,50 +42,51 @@ const AFSuggestUsersItem = ({user}: {
   }
 
   const { hover, anchorEl, eventHandlers } = useHover();
+  const { SunshineListItem, SidebarHoverOver, Typography, MetaInfo, SidebarActionMenu, SidebarAction } = Components;
 
   if (show) {
     return (
         <span {...eventHandlers}>
-          <C.SunshineListItem hover={hover}>
-            <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
-              <C.Typography variant="body2">
+          <SunshineListItem hover={hover}>
+            <SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
+              <Typography variant="body2">
                 <Link to={userGetProfileUrl(user)}>
                   { user.displayName }
                 </Link>
                 <br/>
-                <C.MetaInfo>
+                <MetaInfo>
                   <div>Alignment Posts: { user.afPostCount || 0 }</div>
                   <div>Alignment Comments: { user.afCommentCount || 0 }</div>
-                </C.MetaInfo>
+                </MetaInfo>
                 {user.afApplicationText && <p>
                   Application:
                   {user.afApplicationText}
                 </p>}
-              </C.Typography>
-            </C.SidebarHoverOver>
+              </Typography>
+            </SidebarHoverOver>
             <div>
-              <C.MetaInfo>
+              <MetaInfo>
                 <Link to={userGetProfileUrl(user)}>
                     {user.displayName}
                 </Link>
-              </C.MetaInfo>
-              <C.MetaInfo>
+              </MetaInfo>
+              <MetaInfo>
                 { user.karma || 0 }
-              </C.MetaInfo>
-              <C.MetaInfo>
+              </MetaInfo>
+              <MetaInfo>
                 Ω { user.afKarma || 0 }
-              </C.MetaInfo>
+              </MetaInfo>
               { user.reviewForAlignmentForumUserId }
             </div>
-            { hover && <C.SidebarActionMenu>
-              <C.SidebarAction title="Approve for AF" onClick={handleReview}>
+            { hover && <SidebarActionMenu>
+              <SidebarAction title="Approve for AF" onClick={handleReview}>
                 <DoneIcon />
-              </C.SidebarAction>
-              <C.SidebarAction warningHighlight={true} title="Ignore" onClick={handleIgnore}>
+              </SidebarAction>
+              <SidebarAction warningHighlight={true} title="Ignore" onClick={handleIgnore}>
                 <ClearIcon/>
-              </C.SidebarAction>
-            </C.SidebarActionMenu>}
-          </C.SunshineListItem>
+              </SidebarAction>
+            </SidebarActionMenu>}
+          </SunshineListItem>
         </span>
     )
   } else {

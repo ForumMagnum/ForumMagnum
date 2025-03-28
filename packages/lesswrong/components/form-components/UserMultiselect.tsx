@@ -62,7 +62,7 @@ const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
     void updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
 
-  return <Components.UserMultiselect
+  return <UserMultiselectComponent
     value={value}
     setValue={setValue}
     label={label}

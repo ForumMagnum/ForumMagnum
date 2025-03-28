@@ -5,7 +5,7 @@ import { isLWorAF } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 
 // Scroll restoration based on https://reacttraining.com/react-router/web/guides/scroll-restoration.
-export default function ScrollToTop() {
+function ScrollToTop() {
   const location = useSubscribedLocation();
   const { pathname, query, currentRoute } = location;
   const isNotFirstMountRef = useRef(false)

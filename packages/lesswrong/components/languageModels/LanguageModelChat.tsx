@@ -306,7 +306,7 @@ function useCurrentPostContext(): CurrentPostContext {
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
+  const { Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
   const { currentPostId, postContext } = useCurrentPostContext();
@@ -386,7 +386,7 @@ export const ChatInterface = ({classes}: {
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
     {llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
-      <LlmChatMessage key={index} message={message} />
+      <LlmChatMessageComponent key={index} message={message} />
     ))}
   </div>
 
@@ -476,7 +476,7 @@ export const ChatInterface = ({classes}: {
 
 
 // Wrapper component needed so we can use deferRender
-export const LanguageModelChat = ({classes}: {
+const LanguageModelChat = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <DeferRender ssr={false}>
@@ -489,7 +489,6 @@ export const LanguageModelChat = ({classes}: {
 }
 
 const LanguageModelChatComponent = registerComponent('LanguageModelChat', LanguageModelChat, {styles});
-
 const LlmChatMessageComponent = registerComponent('LlmChatMessage', LLMChatMessage, {styles});
 
 declare global {

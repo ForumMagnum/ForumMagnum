@@ -12,7 +12,7 @@ import {
   formatElasticSorting,
   getElasticSortingsForCollection,
 } from '../../lib/search/searchUtil';
-import { communityPath } from '../../lib/routes';
+import { communityPath } from '@/lib/routeConstants';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 
 const styles = (theme: ThemeType) => ({

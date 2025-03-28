@@ -5,8 +5,9 @@ import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const selectedTextToolbarStyles = (theme: ThemeType) => ({
+const selectedTextToolbarStyles = defineStyles("SelectedTextToolbar", (theme: ThemeType) => ({
   toolbarWrapper: {
     position: "absolute",
   },
@@ -28,7 +29,7 @@ const selectedTextToolbarStyles = (theme: ThemeType) => ({
       display: hasSideComments ? "none" : "initial",
     },
   },
-});
+}));
 
 type SelectedTextToolbarState =
     {open: false}
@@ -152,11 +153,11 @@ const CommentOnSelectionPageWrapper = ({children}: {
  * x, y: In the page coordinate system, ie, relative to the top-left corner when
  *   the page is scrolled to the top.
  */
-const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
+const SelectedTextToolbar = ({onClickComment, x, y}: {
   onClickComment: (ev: React.MouseEvent) => void,
   x: number, y: number,
-  classes: ClassesType<typeof selectedTextToolbarStyles>,
 }) => {
+  const classes = useStyles(selectedTextToolbarStyles);
   const { LWTooltip } = Components;
   const { captureEvent } = useTracking()
 
@@ -264,10 +265,7 @@ function selectionToBlockquoteHTML(selection: Selection|null): string {
 
 
 const CommentOnSelectionPageWrapperComponent = registerComponent('CommentOnSelectionPageWrapper', CommentOnSelectionPageWrapper);
-const SelectedTextToolbarComponent = registerComponent(
-  'SelectedTextToolbar', SelectedTextToolbar,
-  {styles: selectedTextToolbarStyles}
-);
+const SelectedTextToolbarComponent = registerComponent('SelectedTextToolbar', SelectedTextToolbar);
 const CommentOnSelectionContentWrapperComponent = registerComponent("CommentOnSelectionContentWrapper", CommentOnSelectionContentWrapper);
 
 declare global {
