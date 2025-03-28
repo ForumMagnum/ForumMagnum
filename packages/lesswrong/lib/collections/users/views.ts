@@ -147,6 +147,7 @@ function usersMapLocations() {
       mapLocationSet: true,
       deleted: {$ne: true},
       deleteContent: {$ne: true},
+      banned: {$exists: false},
     },
   }
 }
