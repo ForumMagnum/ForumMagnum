@@ -54,14 +54,11 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
       width: 300,
     },
     [theme.breakpoints.down(1380)]: {
-      width: 200,
-      '&& h2': {
-        fontSize: '3.5rem',
-      },
+      width: 200
     },
     pointerEvents: 'auto',
     '& h2': {
-      fontSize: '4rem',
+      fontSize: 'clamp(2.5rem, 3vw, 4rem)',
       lineHeight: '1.2',
       margin: 0,
       '& a': {
@@ -70,7 +67,7 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
       }
     },
     '& h3': {
-      fontSize: '2.2rem',
+      fontSize: 'clamp(1.5rem, 1.5vw, 2.2rem)',
       margin: 0,
       lineHeight: '1.2',
       marginBottom: 8
@@ -78,6 +75,7 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
     '& button': {
       ...theme.typography.commentStyle,
       backgroundColor: theme.palette.primary.main,
+      opacity: 0.8,
       border: 'none',
       color: theme.palette.text.alwaysWhite,
       borderRadius: '3px',
