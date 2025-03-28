@@ -1,6 +1,5 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle, schemaDefaultValue } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
-import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
 import { universalFields } from "../../collectionUtils";
@@ -20,22 +19,6 @@ export const ContentType = new SimpleSchema({
     }
   )
 })
-
-// Graphql doesn't allow union types that include scalars, which is necessary
-// to accurately represent the data field the ContentType simple schema.
-
-// defining a custom scalar seems to allow it to pass through any data type,
-// but this doesn't seem much more permissive than ContentType was originally
-addGraphQLSchema(`
-  scalar ContentTypeData
-`)
-
-addGraphQLSchema(`
-  type ContentType {
-    type: String
-    data: ContentTypeData
-  }
-`)
 
 const isSharable = (document: any): document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document

@@ -3,7 +3,7 @@ import { getEditableCollectionNames, getEditableFieldNamesForCollection } from "
 import { getCollection } from "../collections/allCollections";
 import { dataToWordCount } from "../editor/conversionUtils";
 import { Revisions } from "../../server/collections/revisions/collection";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 /**
  * This migration recomputes word counts in batches for all Revisions and editable

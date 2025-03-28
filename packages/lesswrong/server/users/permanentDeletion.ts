@@ -10,7 +10,7 @@ import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 import { dogstatsd } from "../datadog/tracer";
 import { isEAForum } from "@/lib/instanceSettings";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { deleteMutator, updateMutator } from "../vulcan-lib/mutators";
 
 type DeleteOptions = { includingNonForumData: boolean };

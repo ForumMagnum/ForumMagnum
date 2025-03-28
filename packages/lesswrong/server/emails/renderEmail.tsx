@@ -16,7 +16,6 @@ import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
-import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
@@ -144,6 +143,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
   // Set up Apollo
+  const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
   const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.

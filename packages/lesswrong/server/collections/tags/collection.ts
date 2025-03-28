@@ -3,6 +3,7 @@ import { userCanCreateTags } from '@/lib/betas';
 import { tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 
 export const Tags = createCollection({
   collectionName: 'Tags',
@@ -39,5 +40,7 @@ export const Tags = createCollection({
     timeDecayScoresCronjob: false,
   },
 });
+
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('Tags');
 
 export default Tags;

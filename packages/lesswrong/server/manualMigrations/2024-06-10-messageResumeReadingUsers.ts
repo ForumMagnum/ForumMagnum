@@ -6,7 +6,7 @@ import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { createMutator } from '../vulcan-lib/mutators';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { adminAccountSetting } from '@/lib/publicSettings';
-import { createAnonymousContext } from '../vulcan-lib/query';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 const messageResumeReadingUsers = async (user: DbUser) => {
   const context = createAnonymousContext();

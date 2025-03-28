@@ -1,4 +1,3 @@
-import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { hookToHoc } from './hocUtils'
@@ -9,17 +8,10 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
 import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
+import gql from 'graphql-tag';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
-
-addGraphQLSchema(`
-  type AnalyticsEvent {
-    type: String!,
-    timestamp: Date!,
-    props: JSON!
-  }
-`);
 
 // clientContextVars: A dictionary of variables that will be added to every
 // analytics event sent from the client. Client-side only, filled in side-

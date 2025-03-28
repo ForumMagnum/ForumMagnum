@@ -1,12 +1,9 @@
 import { isDialogueParticipant } from "@/lib/collections/posts/helpers";
 import TypingIndicatorsRepo from "../repos/TypingIndicatorsRepo";
-import {defineMutation} from "../utils/serverGraphqlUtil";
+import gql from "graphql-tag";
 
-defineMutation({
-  name: "upsertUserTypingIndicator",
-  resultType: "TypingIndicator",
-  argTypes: "(documentId: String!)",
-  fn: async (_, {documentId}: {documentId: string}, {currentUser, loaders}) => {
+export const typingIndicatorsGqlMutations = {
+  async upsertUserTypingIndicator (_: void, {documentId}: {documentId: string}, {currentUser, loaders}: ResolverContext) {
     if (!currentUser) throw new Error("No user was provided")
     const post = await loaders.Posts.load(documentId)
     if (!post) throw new Error("No post was provided")
@@ -15,4 +12,10 @@ defineMutation({
 
     await new TypingIndicatorsRepo().upsertTypingIndicator(currentUser._id, post._id)
   } 
-})
+}
+
+export const typingIndicatorsGqlTypeDefs = gql`
+  extend type Mutation {
+    upsertUserTypingIndicator(documentId: String!): TypingIndicator
+  }
+`

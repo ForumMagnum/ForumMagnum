@@ -1,7 +1,7 @@
 import { Sequences } from '../../server/collections/sequences/collection';
 import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
 import { Posts } from '../../server/collections/posts/collection'
-import { createAdminContext } from '../vulcan-lib/query';
+import { createAdminContext } from '../vulcan-lib/createContexts';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';

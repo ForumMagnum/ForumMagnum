@@ -3,7 +3,6 @@ import { messageGetLink } from '../lib/helpers';
 import Subscriptions from '../server/collections/subscriptions/collection';
 import Users from '../server/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
-import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
@@ -12,7 +11,7 @@ import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings, legacyToNewNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings } from '../lib/collections/users/newSchema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
-import { createAnonymousContext } from './vulcan-lib/query';
+import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
@@ -110,6 +109,7 @@ const notificationMessage = async (notificationType: string, documentType: Notif
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
+  const { Posts } = context
   let document = await getDocument(documentType, documentId, context);
   const notificationType = getNotificationTypeByName(notificationTypeName);
 

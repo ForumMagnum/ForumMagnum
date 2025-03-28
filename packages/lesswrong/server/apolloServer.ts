@@ -1,4 +1,4 @@
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { isDevelopment, isE2E } from '../lib/executionEnvironment';
@@ -8,8 +8,6 @@ import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
-
-import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
@@ -49,7 +47,7 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib/query';
+import { createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
@@ -63,6 +61,7 @@ import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
 import { makeAbsolute } from '@/lib/vulcan-lib/utils';
 import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { getGraphQLSchema } from './vulcan-lib/apollo-server/getTypeDefs';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -232,7 +231,7 @@ export function startWebserver() {
     introspection: true,
     debug: isDevelopment,
     
-    schema: getExecutableSchema(),
+    schema: makeExecutableSchema(getGraphQLSchema()),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
       const {message, ...properties} = e;

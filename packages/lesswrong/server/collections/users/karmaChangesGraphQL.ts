@@ -1,10 +1,9 @@
-import { addGraphQLResolvers, addGraphQLSchema } from '../../../lib/vulcan-lib/graphql';
 import type { TagCommentType } from "../../../lib/collections/comments/types";
 import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
-
+import gql from 'graphql-tag';
 // When adding fields here, you almost certainly want to update the
 // `UserKarmaChanges` fragment too
-addGraphQLSchema(`
+export const karmaChangesTypeDefs = gql`
   type PostKarmaChange {
     _id: String
     scoreChange: Int
@@ -58,18 +57,18 @@ addGraphQLSchema(`
     todaysKarmaChanges: KarmaChangesSimple
     thisWeeksKarmaChanges: KarmaChangesSimple
   }
-`);
+`;
 
-addGraphQLResolvers({
+export const karmaChangesFieldResolvers = {
   KarmaChanges: {
     updateFrequency: async (karmaChangesJSON: any, args: void, context: ResolverContext) => {
       const { currentUser } = context;
       if (!currentUser) return null;
       const settings = currentUser.karmaChangeNotifierSettings
       return settings.updateFrequency;
-    },
-  }
-})
+    }
+  },
+}
 
 export type KarmaChangesArgs = {
   userId: string,

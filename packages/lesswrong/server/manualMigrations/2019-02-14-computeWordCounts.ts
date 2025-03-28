@@ -3,7 +3,7 @@ import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '
 import { getCollection } from '../collections/allCollections';
 import { dataToWordCount } from '../editor/conversionUtils';
 import { Revisions } from '../../server/collections/revisions/collection';
-import { createAnonymousContext } from '../vulcan-lib/query';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 export default registerMigration({
   name: "computeWordCounts",
