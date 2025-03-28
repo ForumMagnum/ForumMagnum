@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { DatabasePublicSetting } from "@/lib/publicSettings";
 
-export const buttonBurstSetting = new DatabasePublicSetting<boolean>("buttonBurst.enabled", false);
+export const buttonBurstSetting = new DatabasePublicSetting<boolean>("buttonBurst.enabled", true);
 const buttonBurstImage = new DatabasePublicSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby-canonical.png");
 
 function onIdle(fn: () => void) {
@@ -45,6 +45,9 @@ export default function GlobalButtonBursts() {
           transform: translate(0px, 0px) rotate(0deg) scale(1);
           opacity: 1;
         }
+        50% {
+          opacity: 1;
+        }
         100% {
           transform: var(--transform);
           opacity: 0;
@@ -60,13 +63,14 @@ export default function GlobalButtonBursts() {
         const btn = ev.currentTarget as HTMLButtonElement | null;
         if (!btn) return;
 
-        const centerX = ev.clientX;
-        const centerY = ev.clientY;
+        // Manual adjustment to make it look centered
+        const centerX = ev.clientX - 30;
+        const centerY = ev.clientY - 25;
 
         const newItems: BurstItem[] = Array.from({ length: PNG_COUNT }).map(() => {
           const id = Math.random().toString(36).substring(2, 11);
           const angle = randomBetween(0, 2 * Math.PI);
-          const distance = randomBetween(80, 180);
+          const distance = randomBetween(120, 270);
 
           const endX = centerX + (distance * Math.cos(angle));
           const endY = centerY + (distance * Math.sin(angle));
@@ -88,7 +92,7 @@ export default function GlobalButtonBursts() {
           setBursts((prev) =>
             prev.filter((b) => !newItems.some((ni) => ni.id === b.id))
           );
-        }, 1000);
+        }, 1500);
       }
 
       function attachListener(btn: HTMLButtonElement) {
@@ -169,7 +173,7 @@ export default function GlobalButtonBursts() {
               pointerEvents: "none",
               zIndex: 9999,
               transform: "translate(0px, 0px)",
-              animation: "fly-out 1s ease-out forwards",
+              animation: "fly-out 1.5s ease-out forwards",
               // Pass dynamic end transform via custom property
               ["--transform" as any]: transform,
               translate: `${item.startX}px ${item.startY}px`,
