@@ -215,6 +215,29 @@ export const ultraFeedGraphQLQueries = {
       sessionIdProvided: !!sessionId
     });
 
+    const profiling = {
+      startTime: Date.now(),
+      sources: {
+        postThreads: { count: 0, time: 0 },
+        commentThreads: { count: 0, time: 0, totalComments: 0 },
+        spotlights: { count: 0, time: 0 },
+      },
+      sampling: { time: 0 },
+      transformation: { time: 0 },
+      dbLoading: { time: 0 },
+      sampledItems: { 
+        feedPost: 0,
+        feedCommentThread: 0,
+        feedSpotlight: 0
+      },
+      results: {
+        feedPost: 0,
+        feedCommentThread: 0,
+        feedSpotlight: 0,
+        totalComments: 0
+      }
+    };
+
     const { currentUser } = context;
     if (!currentUser) {
       throw new Error("Must be logged in to fetch UltraFeed.");
@@ -245,15 +268,31 @@ export const ultraFeedGraphQLQueries = {
       const TIMEOUT_MS = 5000; // 5 second timeout for each method
 
       // Get minimal data from repo methods - with timeout only for Recombee posts
-      const [postThreadsItems, commentThreadsItems, spotlightItems] = await Promise.all([
-        withTimeout(
-          ultraFeedRepo.getUltraFeedPostThreads(context, limit),
-          TIMEOUT_MS,
-          'getUltraFeedPostThreads'
-        ),
-        ultraFeedRepo.getUltraFeedCommentThreads(context, limit),
-        ultraFeedRepo.getUltraFeedSpotlights(context, limit/4)
-      ]);
+      // Profile the execution time of each source method
+      const startPostThreads = Date.now();
+      const postThreadsItems = await withTimeout(
+        ultraFeedRepo.getUltraFeedPostThreads(context, limit),
+        TIMEOUT_MS,
+        'getUltraFeedPostThreads'
+      );
+      profiling.sources.postThreads.time = Date.now() - startPostThreads;
+      profiling.sources.postThreads.count = postThreadsItems.length;
+
+      const startCommentThreads = Date.now();
+      const commentThreadsItems = await ultraFeedRepo.getUltraFeedCommentThreads(context, limit);
+      profiling.sources.commentThreads.time = Date.now() - startCommentThreads;
+      profiling.sources.commentThreads.count = commentThreadsItems.length;
+      
+      // Calculate total comments across all threads
+      commentThreadsItems.forEach(thread => {
+        const commentCount = thread.commentIds?.length || 0;
+        profiling.sources.commentThreads.totalComments += commentCount;
+      });
+
+      const startSpotlights = Date.now();
+      const spotlightItems = await ultraFeedRepo.getUltraFeedSpotlights(context, limit/4);
+      profiling.sources.spotlights.time = Date.now() - startSpotlights;
+      profiling.sources.spotlights.count = spotlightItems.length;
       
       // Create sources object for weighted sampling
       const sources: Record<UsedFeedItemSourceType, { weight: number, items: FeedItem[], renderAsType: FeedItemRenderType }> = {
@@ -282,8 +321,18 @@ export const ultraFeedGraphQLQueries = {
         requestedLimit: limit
       });
       
-      // Sample from the sources based on weights
+      // Profile the sampling process
+      const startSampling = Date.now();
       const sampledItems = weightedSample(sources, limit);
+      profiling.sampling.time = Date.now() - startSampling;
+      
+      // Count sampled items by type
+      sampledItems.forEach(item => {
+        profiling.sampledItems[item.renderAsType]++;
+      });
+      
+      // Profile the transformation and DB loading process
+      const startTransformation = Date.now();
       
       // Transform results for the feed
       const results: UltraFeedResolverType[] = filterNonnull(await Promise.all(
@@ -295,17 +344,22 @@ export const ultraFeedGraphQLQueries = {
         
         // Special case for spotlights which are handled differently
         if (item.renderAsType === "feedSpotlight") {
+          const startDbLoading = Date.now();
+          const spotlight = await context.loaders.Spotlights.load(item.feedSpotlight.spotlightId);
+          profiling.dbLoading.time += (Date.now() - startDbLoading);
+          
+          profiling.results.feedSpotlight++;
+          
           return {
             type: item.renderAsType,
             [item.renderAsType]: {
               _id: item.feedSpotlight.spotlightId,
-              spotlight: await context.loaders.Spotlights.load(item.feedSpotlight.spotlightId)
+              spotlight
             }
           };
         }
 
         if (item.renderAsType === "feedPost" || item.renderAsType === "feedCommentThread") {
-
           const { postId, postMetaInfo, commentMetaInfos, commentIds } = item.renderAsType === "feedPost" ? item.feedPost : item.feedCommentThread;
 
           if (!postId) {
@@ -313,13 +367,25 @@ export const ultraFeedGraphQLQueries = {
             return null;
           }
 
+          const startDbLoading = Date.now();
+          const post = await context.loaders.Posts.load(postId) ?? null;
+          const comments = await Promise.all(commentIds?.map( async (id: string) => context.loaders.Comments.load(id)) || []);
+          profiling.dbLoading.time += (Date.now() - startDbLoading);
+          
+          if (item.renderAsType === "feedPost") {
+            profiling.results.feedPost++;
+          } else {
+            profiling.results.feedCommentThread++;
+            profiling.results.totalComments += (comments?.length || 0);
+          }
+
           return {
             type: item.renderAsType,
             [item.renderAsType]: {
               _id: `feed-item-${index}-${Date.now()}`,
-              post: await context.loaders.Posts.load(postId) ?? null,
+              post,
               postMetaInfo: postMetaInfo || {},
-              comments: await Promise.all(commentIds?.map( async (id: string) => context.loaders.Comments.load(id)) || []),
+              comments,
               commentMetaInfos: commentMetaInfos || {},
             }
           };  
@@ -327,7 +393,9 @@ export const ultraFeedGraphQLQueries = {
 
         console.error("Unknown item renderAsType:", item);
         return null;
-      })))
+      })));
+      
+      profiling.transformation.time = Date.now() - startTransformation;
 
       // Determine if there are likely more results that could be returned
       const hasMoreResults = true;
@@ -339,6 +407,35 @@ export const ultraFeedGraphQLQueries = {
         results,
         sessionId // Include the sessionId in the response
       };
+
+      // Calculate total execution time
+      const totalTime = Date.now() - profiling.startTime;
+      
+      // Calculate main time components
+      const sourceTime = profiling.sources.postThreads.time + profiling.sources.commentThreads.time + profiling.sources.spotlights.time;
+      const trackedTime = sourceTime + profiling.sampling.time + profiling.dbLoading.time + profiling.transformation.time;
+      const otherTime = totalTime - trackedTime;
+      
+      // Generate comprehensive profiling log
+      console.log(`✨ UltraFeed PROFILING (${totalTime}ms) ✨ [${results.length} items]`, {
+        breakdown: {
+          sourceRetrieval: {
+            time: `${sourceTime}ms (${Math.round(sourceTime / totalTime * 100)}%)`,
+            postThreads: `${profiling.sources.postThreads.count} items in ${profiling.sources.postThreads.time}ms`,
+            commentThreads: `${profiling.sources.commentThreads.count} items with ${profiling.sources.commentThreads.totalComments} comments in ${profiling.sources.commentThreads.time}ms`,
+            spotlights: `${profiling.sources.spotlights.count} items in ${profiling.sources.spotlights.time}ms`,
+          },
+          dbLoading: `${profiling.dbLoading.time}ms (${Math.round(profiling.dbLoading.time / totalTime * 100)}%)`,
+          transformation: `${profiling.transformation.time}ms (${Math.round(profiling.transformation.time / totalTime * 100)}%)`,
+          other: `${otherTime}ms (${Math.round(otherTime / totalTime * 100)}%)`,
+        },
+        results: {
+          feedPost: profiling.results.feedPost,
+          feedCommentThread: profiling.results.feedCommentThread,
+          feedSpotlight: profiling.results.feedSpotlight,
+          totalComments: profiling.results.totalComments,
+        }
+      });
       
       return response;
     } catch (error) {

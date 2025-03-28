@@ -5,12 +5,10 @@
  * for the UltraFeed system.
  */
 
-import { FeedCommentFromDb, FeedCommentMetaInfo, FeedItemSourceType, FeedPostWithComments, FeedSpotlight, PreDisplayFeedComment, PreDisplayFeedCommentThread } from '../../components/ultraFeed/ultraFeedTypes';
+import { FeedCommentFromDb, FeedCommentMetaInfo, FeedItemSourceType, FeedPostWithComments, FeedSpotlight, PreDisplayFeedComment, PreDisplayFeedCommentThread, FeedItemDisplayStatus } from '../../components/ultraFeed/ultraFeedTypes';
 import Comments from '../../server/collections/comments/collection';
 import AbstractRepo from '../../server/repos/AbstractRepo';
 import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
-import { runQuery } from '@/server/vulcan-lib/query';
-import gql from 'graphql-tag';
 import { fragmentTextForQuery } from '../vulcan-lib/fragments';
 
 /**
@@ -31,9 +29,12 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   }
 
   public async getUltraFeedPostThreads(context: ResolverContext, limit = 20): Promise<FeedPostWithComments[]> {
-
-    // RECOMBEE HYBRID POSTS: LATEST + RECOMMENDED
-    // TODO: separate these out so can be selected independently
+    // Move the dependency outside the module scope to avoid circular dependencies
+    // This is a pattern used elsewhere in the codebase
+    const { runQuery } = await import('@/server/vulcan-lib/query');
+    const gql = await import('graphql-tag').then(module => module.default);
+    
+    // Use the same approach as RecombeePostsList but from the server side
     const GET_RECOMBEE_HYBRID_POSTS = gql`
       query getRecombeeHybridPosts($limit: Int, $settings: JSON) {
         RecombeeHybridPosts(limit: $limit, settings: $settings) {
@@ -55,29 +56,93 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         hybridScenarios: { fixed: 'forum-classic', configurable: 'recombee-lesswrong-custom' }
       }
     };
-    const result = await runQuery(GET_RECOMBEE_HYBRID_POSTS, variables, context);
+    
+    try {
+      // Dynamic import of runQuery avoids the circular dependency
+      const result = await runQuery(GET_RECOMBEE_HYBRID_POSTS, variables, context);
+      const recommendedData = result.data?.RecombeeHybridPosts?.results || [];
 
-    const recommendedData = result.data?.RecombeeHybridPosts?.results || [];
-
-    const displayPosts: FeedPostWithComments[] = recommendedData.map((item: any) => ({
-      postId: item.post._id,
-      comments: [],              // We leave comments empty, or retrieve them separately if desired.
-      postMetaInfo: {
-        sources: [item.scenario],
-        displayStatus: 'expanded',
-        recommInfo: {
-          recommId: item.recommId,
-          scenario: item.scenario,
-          generatedAt: item.generatedAt ? new Date(item.generatedAt) : null,
+      const displayPosts: FeedPostWithComments[] = recommendedData.map((item: any) => ({
+        postId: item.post._id,
+        comments: [],
+        postMetaInfo: {
+          sources: [item.scenario as FeedItemSourceType],
+          displayStatus: 'expanded' as FeedItemDisplayStatus,
+          recommInfo: {
+            recommId: item.recommId,
+            scenario: item.scenario,
+            generatedAt: item.generatedAt ? new Date(item.generatedAt) : null,
+          },
         },
-      },
-    }));
+      }));
 
-    // TODO: Get posts based on your subscriptions
+      // If we don't have enough recommended posts, supplement with recent posts
+      if (displayPosts.length < limit) {
+        const remainingLimit = limit - displayPosts.length;
+        const db = this.getRawDb();
+        
+        // Filter out undefined postIds before sending to SQL
+        const existingPostIds = displayPosts
+          .map(post => post.postId)
+          .filter((id): id is string => id !== undefined);
+        
+        const recentPosts = await db.manyOrNone(`
+          -- UltraFeedRepo.getRecentPosts
+          SELECT _id as "postId"
+          FROM "Posts"
+          WHERE "postedAt" > NOW() - INTERVAL '30 days'
+          AND "draft" IS NOT TRUE
+          AND "isFuture" IS NOT TRUE
+          AND "rejected" IS NOT TRUE
+          AND "baseScore" > 10
+          ${existingPostIds.length ? 'AND _id NOT IN ($(existingPostIds:csv))' : ''}
+          ORDER BY "postedAt" DESC
+          LIMIT $(limit)
+        `, {
+          existingPostIds,
+          limit: remainingLimit
+        });
+        
+        // Add recent posts to the result
+        displayPosts.push(...recentPosts.map((item: any) => ({
+          postId: item.postId,
+          comments: [],
+          postMetaInfo: {
+            sources: ['postThreads' as FeedItemSourceType],
+            displayStatus: 'expanded' as FeedItemDisplayStatus
+          },
+        })));
+      }
 
-    return displayPosts;
+      return displayPosts;
+    } catch (error) {
+      console.error("Error in getUltraFeedPostThreads:", error);
+      
+      // Fallback to direct DB query if Recombee query fails
+      const db = this.getRawDb();
+      const recentPosts = await db.manyOrNone(`
+        -- UltraFeedRepo.getRecentPosts (fallback)
+        SELECT _id as "postId"
+        FROM "Posts"
+        WHERE "postedAt" > NOW() - INTERVAL '30 days'
+        AND "draft" IS NOT TRUE
+        AND "isFuture" IS NOT TRUE
+        AND "rejected" IS NOT TRUE
+        AND "baseScore" > 10
+        ORDER BY "postedAt" DESC
+        LIMIT $(limit)
+      `, { limit });
+      
+      return recentPosts.map((item: any) => ({
+        postId: item.postId,
+        comments: [],
+        postMetaInfo: {
+          sources: ['postThreads' as FeedItemSourceType],
+          displayStatus: 'expanded' as FeedItemDisplayStatus
+        },
+      }));
+    }
   }
-
 
   //TODO: add comments on threads you've partificipated in/interacted with, especially replies to you
   //TODO: filter based on previous interactions with comments?

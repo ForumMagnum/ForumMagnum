@@ -117,7 +117,7 @@ const useSpotlightFeedItemStyles = defineStyles(
       ...theme.typography.postStyle,
       ...theme.typography.italic,
       color: theme.palette.grey[700],
-      fontSize: "1.4rem",
+      fontSize: "1.3rem",
       marginTop: -1,
     },
     imageContainer: {
@@ -163,7 +163,7 @@ const useSpotlightFeedItemStyles = defineStyles(
     },
     description: {
       ...descriptionStyles(theme),
-      fontSize: "1.4rem",
+      fontSize: "1.3rem",
       opacity: 0.9,
     },
     postPadding: {
