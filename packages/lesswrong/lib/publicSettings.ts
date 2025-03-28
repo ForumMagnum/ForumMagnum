@@ -208,3 +208,8 @@ export const lightconeFundraiserActive = new DatabasePublicSetting<boolean>('lig
 
 export const postsListViewTypeSetting = new DatabasePublicSetting<string>('posts.viewType', 'list');
 export const quickTakesMaxAgeDaysSetting = new DatabasePublicSetting<number>('feed.quickTakesMaxAgeDays', 5);
+
+export const auth0FacebookLoginEnabled = new DatabasePublicSetting<boolean>(
+  'auth0FacebookLoginEnabled',
+  new Date() < new Date('2025-04-07')
+);
