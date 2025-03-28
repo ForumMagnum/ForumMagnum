@@ -69,6 +69,9 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     opacity: .3,
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      opacity: 1,
+    }),
     width: iconWidth,
     height: 28,
     marginRight: 16,

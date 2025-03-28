@@ -166,6 +166,8 @@ import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
 import { DictionaryIcon } from "../icons/Dictionary";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { useTheme } from "../themes/useTheme";
+import { GhibliIcon, hasGhibliIcon } from "../themes/ghibli/GhibliIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -569,10 +571,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
 };
 
-type IconProps = {
+export type IconProps = {
   className?: string,
-  onClick?: MouseEventHandler<SVGElement>,
-  onMouseDown?: MouseEventHandler<SVGElement>,
+  onClick?: MouseEventHandler<SVGElement|HTMLImageElement>,
+  onMouseDown?: MouseEventHandler<SVGElement|HTMLImageElement>,
 }
 
 type IconComponent = ComponentType<Partial<IconProps>>;
@@ -636,7 +638,13 @@ const ForumIcon = ({
   className,
   ...props
 }: ForumIconProps) => {
+  const theme = useTheme();
   const classes = useStyles(styles);
+
+  if (theme.themeOptions.name === 'ghiblify' && hasGhibliIcon(icon)) {
+    return <GhibliIcon icon={icon} noDefaultStyles={noDefaultStyles} className={className}/>
+  }
+
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
