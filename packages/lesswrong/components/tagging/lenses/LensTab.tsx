@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
-import { getVotingSystemByName } from "@/lib/voting/votingSystems";
+import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import classNames from 'classnames';
 
 const styles = defineStyles("LensTab", (theme: ThemeType) => ({

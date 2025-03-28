@@ -29,7 +29,7 @@ import { formGroups } from "./formGroups";
 import SimpleSchema from "simpl-schema";
 import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/schema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { getVotingSystems } from "../../voting/votingSystems";
+import { getVotingSystems } from '../../voting/getVotingSystem';
 import {
   eaFrontpageDateDefault, fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum,
   isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting

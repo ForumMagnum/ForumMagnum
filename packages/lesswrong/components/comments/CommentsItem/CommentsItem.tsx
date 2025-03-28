@@ -12,7 +12,7 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } 
 import startCase from 'lodash/startCase';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { metaNoticeStyles } from './CommentsItemMeta';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';

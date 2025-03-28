@@ -35,7 +35,7 @@ import { RecombeeRecommendationsContextWrapper } from '../../recommendations/Rec
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
 import { useVote } from '@/components/votes/withVote';
-import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';

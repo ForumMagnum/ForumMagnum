@@ -3,7 +3,7 @@ import { Components } from '../vulcan-lib/components';
 import { calculateVotePower } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
-import { getVoteAxisStrength, registerVotingSystem } from './votingSystems';
+import { getVoteAxisStrength, defineVotingSystem } from './votingSystems';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { namesAttachedReactionsByName } from './reactions';
 import uniq from 'lodash/uniq';
@@ -20,7 +20,7 @@ export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNe
 export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
 export const downvoteExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.downvoteExistingReactKarmaThreshold", 20);
 
-registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
+export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
   userCanActivate: isLW,
   description: "Reacts (Two-axis plus Names-attached reactions)",

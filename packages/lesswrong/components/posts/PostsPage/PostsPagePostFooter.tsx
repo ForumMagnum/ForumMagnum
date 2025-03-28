@@ -5,7 +5,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
 import { isLW, isLWorAF } from '../../../lib/instanceSettings';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
 
