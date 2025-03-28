@@ -28,6 +28,9 @@ import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVis
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
+import { useGlobalKeydown } from '../common/withGlobalKeydown';
+import { isClient } from '@/lib/executionEnvironment';
+import { useCkEditorInspector } from '@/client/useCkEditorInspector';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -568,6 +571,7 @@ const CKPostEditor = ({
   };
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
+  useCkEditorInspector(editorRef);
 
   return <div>
     {isBlockOwnershipMode && <>
