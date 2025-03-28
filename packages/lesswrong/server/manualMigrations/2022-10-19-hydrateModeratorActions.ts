@@ -1,6 +1,6 @@
 import Users from "../../server/collections/users/collection";
 import { triggerAutomodIfNeededForUser } from "../callbacks/sunshineCallbackUtils";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { forEachDocumentBatchInCollection, registerMigration } from "./migrationUtils";
 
 export default registerMigration({

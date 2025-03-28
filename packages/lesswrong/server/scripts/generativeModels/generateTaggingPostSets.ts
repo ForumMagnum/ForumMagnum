@@ -12,7 +12,7 @@ import filter from 'lodash/filter';
 import fs from 'fs';
 import { getSiteUrl } from '../../../lib/vulcan-lib/utils';
 import { FetchedFragment, fetchFragment } from '../../fetchFragment';
-import { createAnonymousContext } from '@/server/vulcan-lib/query';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
 const postEndMarker  = "===TAGS===";
 

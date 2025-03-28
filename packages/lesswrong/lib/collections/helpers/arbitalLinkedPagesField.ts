@@ -1,13 +1,13 @@
-import { addGraphQLSchema } from '@/lib/vulcan-lib/graphql';
 import { resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '@/lib/loaders';
 import range from 'lodash/range';
+import gql from 'graphql-tag';
 
 interface ArbitalLinkedPagesFieldOptions<N extends CollectionNameString> {
   collectionName: N;
 }
 
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   type ArbitalLinkedPage {
     _id: String!
     name: String!
@@ -23,7 +23,7 @@ addGraphQLSchema(`
     parents: [ArbitalLinkedPage]
     children: [ArbitalLinkedPage]
   }
-`);
+`;
 
 export function getArbitalLinkedPagesFieldResolver<N extends CollectionNameString>(options: ArbitalLinkedPagesFieldOptions<N>) {
   const { collectionName } = options;

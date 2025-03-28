@@ -24,7 +24,7 @@ import {
   getDenormalizedCountOfReferencesGetValue,
   getDenormalizedFieldOnCreate,
   getDenormalizedFieldOnUpdate,
-  googleLocationToMongoLocation, schemaDefaultValue
+  googleLocationToMongoLocation,
 } from "../../utils/schemaUtils";
 import { postStatuses } from "../posts/constants";
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from "../../reviewUtils";
@@ -43,7 +43,6 @@ import {
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
@@ -52,6 +51,7 @@ import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleTo
 import { isFriendlyUI } from "@/themes/forumTheme";
 import GraphQLJSON from "graphql-type-json";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
+import gql from "graphql-tag";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -320,6 +320,16 @@ const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
   },
 } satisfies GraphQLFieldSpecification<"Users">;
 
+const dailyEmailBatchNotificationSettingOnCreate = {
+  onsite: defaultNotificationTypeSettings.onsite,
+  email: { ...defaultNotificationTypeSettings.email, enabled: true, batchingFrequency: "daily" },
+};
+
+const emailEnabledNotificationSettingOnCreate = {
+  onsite: defaultNotificationTypeSettings.onsite,
+  email: { ...defaultNotificationTypeSettings.email, enabled: true },
+};
+
 ///////////////////////////////////////////////
 // End migration of NotificationTypeSettings //
 ///////////////////////////////////////////////
@@ -499,21 +509,12 @@ export const PROGRAM_PARTICIPATION = [
 
 export type RateLimitReason = "moderator" | "lowKarma" | "downvoteRatio" | "universal";
 
-const latLng = new SimpleSchema({
-  lat: {
-    type: Number,
-  },
-  lng: {
-    type: Number,
-  },
-});
-
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   type LatLng {
     lat: Float!
     lng: Float!
   }
-`);
+`;
 
 const postsMetadataSchema = new SimpleSchema({
   postId: {
@@ -2459,7 +2460,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Comments on posts/events I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
@@ -2473,7 +2477,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: isEAForum
         ? "Quick takes by users I'm subscribed to"
@@ -2489,7 +2496,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Replies to my comments",
       control: "NotificationTypeSettingsWidget",
@@ -2503,7 +2513,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Replies to comments I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
@@ -2519,14 +2532,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => {
-        if (!isLWorAF) {
-          return {
-            onsite: { ...defaultNotificationTypeSettings.onsite },
-            email: { ...defaultNotificationTypeSettings.email, enabled: true },
-          };
-        }
-      },
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
     },
     form: {
       label: "Posts by users I'm subscribed to",
@@ -2541,7 +2547,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Comments by users I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
@@ -2658,7 +2667,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
+    },
     form: {
       hidden: true,
       label: "Karma powers gained",
@@ -2750,7 +2762,10 @@ const schema = {
       canAutofillDefault: true,
       nullable: false,
     },
-    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
+    },
     form: {
       label: "Someone has mentioned me in a post or a comment",
       control: "NotificationTypeSettingsWidget",

@@ -4,7 +4,7 @@ import { createDummyUser, createDummyTag, createDummyRevision, waitUntilCallback
 import { performVoteServer } from '../server/voteServer';
 import Tags from '../server/collections/tags/collection';
 import Revisions from '../server/collections/revisions/collection'
-import { createAdminContext } from "@/server/vulcan-lib/query";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 
 describe('Tagging', function() {
   describe('Contributors List', function() {

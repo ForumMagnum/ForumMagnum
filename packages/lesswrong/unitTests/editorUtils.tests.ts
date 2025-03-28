@@ -2,7 +2,7 @@ import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../server/draftConvert'
 import { htmlToDraftServer } from '../server/resolvers/toDraft'
 import { dataToWordCount } from "../server/editor/conversionUtils";
-import { createAnonymousContext } from "@/server/vulcan-lib/query";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 describe("draftToHtml", () => {
   it('correctly translates bold and italic and bold-italic', () => {

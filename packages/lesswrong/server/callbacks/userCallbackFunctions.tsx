@@ -29,7 +29,7 @@ import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";
 import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-import { nullifyVotesForUser } from "../voteServer";
+import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -37,7 +37,7 @@ import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 
 async function sendWelcomeMessageTo(userId: string) {

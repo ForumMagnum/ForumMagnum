@@ -66,4 +66,3 @@ export function setStripeIntentsCache(intents: SucceededPaymentIntent[]) {
   stripeIntentsCache.intents = intents;
 }
 
-void updateStripeIntentsCache();

@@ -2,7 +2,7 @@ import { createCollection } from "@/lib/vulcan-lib/collections";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
-
+import { getVoteGraphql } from "@/server/votingGraphQL";
 export const ElectionCandidates: ElectionCandidatesCollection = createCollection({
   collectionName: "ElectionCandidates",
   typeName: "ElectionCandidate",
@@ -19,5 +19,6 @@ export const ElectionCandidates: ElectionCandidatesCollection = createCollection
   },
 });
 
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('ElectionCandidates');
 
 export default ElectionCandidates;

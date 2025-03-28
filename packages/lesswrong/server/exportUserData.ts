@@ -38,7 +38,7 @@ import TypingIndicators from "@/server/collections/typingIndicators/collection";
 import UserEAGDetails from "@/server/collections/userEAGDetails/collection";
 import UserJobAds from "@/server/collections/userJobAds/collection";
 import { UserRateLimits } from "@/server/collections/userRateLimits/collection.ts";
-import { createAnonymousContext } from "./vulcan-lib/query";
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
 
 type Entry<N extends CollectionNameString> = [
   CollectionBase<N>,

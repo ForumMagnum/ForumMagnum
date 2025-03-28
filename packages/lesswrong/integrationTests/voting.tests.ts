@@ -12,7 +12,7 @@ import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";
 import isNil from "lodash/isNil";
 import { slugify } from "@/lib/utils/slugify";
-import { createAnonymousContext } from "@/server/vulcan-lib/query";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {

@@ -37,7 +37,7 @@ import ManifoldProbabilitiesCaches from "@/server/collections/manifoldProbabilit
 import { addField, dropField } from "./meta/utils";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { postGetMarketInfoFromManifold } from "@/lib/collections/posts/annualReviewMarkets";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 export const up = async ({db}: MigrationContext) => {
