@@ -1451,6 +1451,7 @@ const schema = {
   summaries: {
     graphql: {
       outputType: "[MultiDocument!]!",
+      inputType: "[MultiDocument!]",
       canRead: ["guests"],
       resolver: getSummariesFieldResolver("Tags"),
       sqlResolver: getSummariesFieldSqlResolver("Tags"),
