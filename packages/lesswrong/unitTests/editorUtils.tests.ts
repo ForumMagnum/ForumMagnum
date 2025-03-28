@@ -2,7 +2,6 @@ import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../server/draftConvert'
 import { htmlToDraftServer } from '../server/resolvers/toDraft'
 import { dataToWordCount } from "../server/editor/conversionUtils";
-import { createAnonymousContext } from "@/server/vulcan-lib/query";
 
 describe("draftToHtml", () => {
   it('correctly translates bold and italic and bold-italic', () => {
@@ -111,10 +110,10 @@ describe("htmlToDraft", () => {
 
 describe("dataToWordCount", () => {
   it("counts words in HTML content", async () => {
-    expect(await dataToWordCount("<div><p>A sample piece of content</p></div>", "html", createAnonymousContext())).toBe(5);
+    expect(await dataToWordCount("<div><p>A sample piece of content</p></div>", "html")).toBe(5);
   });
   it("counts words in CKEditor content", async () => {
-    expect(await dataToWordCount("A sample piece of content", "ckEditorMarkup", createAnonymousContext())).toBe(5);
+    expect(await dataToWordCount("A sample piece of content", "ckEditorMarkup")).toBe(5);
   });
   it("counts words in DraftJS content", async () => {
     expect(await dataToWordCount({
@@ -130,10 +129,10 @@ describe("dataToWordCount", () => {
         },
       ],
       entityMap: {},
-    }, "draftJS", createAnonymousContext())).toBe(5);
+    }, "draftJS")).toBe(5);
   });
   it("counts words in MD content", async () => {
-    expect(await dataToWordCount("A sample piece of content", "markdown", createAnonymousContext())).toBe(5);
+    expect(await dataToWordCount("A sample piece of content", "markdown")).toBe(5);
   });
   it("excludes simple footnotes", async () => {
     expect(await dataToWordCount(`
@@ -144,7 +143,7 @@ A sample piece of content[^1] that has simple footnotes[^2]
 [^2]:
 
   Second footnote
-    `, "markdown", createAnonymousContext())).toBe(9);
+    `, "markdown")).toBe(9);
   });
   it("excludes complex footnotes", async () => {
     expect(await dataToWordCount(`
@@ -157,7 +156,7 @@ A sample piece of content[^footnote1] that has complex footnotes[^footnote2]
 2.  ^**[^](#footnote2)**^
 
   Second footnote
-    `, "markdown", createAnonymousContext())).toBe(9);
+    `, "markdown")).toBe(9);
   });
   it("excludes appendices", async () => {
     // Construct the same document with and without an appendix added, and enforce
@@ -177,8 +176,8 @@ A sample piece of content[^footnote1] that has complex footnotes[^footnote2]
       +"==========\n"
       +"\n"
       +"Lorem ipsum dolor sit amet."
-    const wordCountWithoutAppendix = await dataToWordCount(nonAppendixMarkdown, "markdown", createAnonymousContext());
-    const wordCountWithAppendix = await dataToWordCount(nonAppendixMarkdown+appendixMarkdown, "markdown", createAnonymousContext());
+    const wordCountWithoutAppendix = await dataToWordCount(nonAppendixMarkdown, "markdown");
+    const wordCountWithAppendix = await dataToWordCount(nonAppendixMarkdown+appendixMarkdown, "markdown");
     expect(wordCountWithoutAppendix).toBe(wordCountWithAppendix);
   });
 });

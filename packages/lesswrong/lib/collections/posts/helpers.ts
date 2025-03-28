@@ -430,11 +430,3 @@ export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean =
 export const postIsPublic = (post: DbPost) => {
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 };
-
-export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>;
-
-export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
-  if (post.userId === userId) return true 
-  if (getConfirmedCoauthorIds(post).includes(userId)) return true
-  return false
-}

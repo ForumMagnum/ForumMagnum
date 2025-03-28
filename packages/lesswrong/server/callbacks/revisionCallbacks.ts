@@ -35,30 +35,30 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
 // Update the denormalized htmlWithContributorAnnotations when a tag revision
 // is created or edited
 // Users upvote their own tag-revisions
-afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions, context}) => {
+afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions}) => {
   const revision = await Revisions.findOne({_id: revisionID});
   if (!revision) return;
   if (!skipDenormalizedAttributions) {
-    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision, context);
+    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision);
   }
 });
 
-async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevision, context: ResolverContext) {
+async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevision) {
 
   if (revision.collectionName === 'Tags') {
     const tag = await Tags.findOne({_id: revision.documentId});
     if (!tag) return;
-    await updateDenormalizedHtmlAttributions({ document: tag, collectionName: 'Tags', fieldName: 'description', context });
+    await updateDenormalizedHtmlAttributions({ document: tag, collectionName: 'Tags', fieldName: 'description' });
   } else if (revision.collectionName === 'MultiDocuments') {
     const multiDoc = await MultiDocuments.findOne({_id: revision.documentId});
     if (!multiDoc) return;
-    await updateDenormalizedHtmlAttributions({ document: multiDoc, collectionName: 'MultiDocuments', fieldName: 'contents', context });
+    await updateDenormalizedHtmlAttributions({ document: multiDoc, collectionName: 'MultiDocuments', fieldName: 'contents' });
   }
 }
 
-getCollectionHooks("Revisions").updateAsync.add(async ({oldDocument, newDocument, context}) => {
+getCollectionHooks("Revisions").updateAsync.add(async ({oldDocument, newDocument}) => {
   if (oldDocument.skipAttributions !== newDocument.skipAttributions) {
-    await recomputeContributorScoresFor(newDocument, context);
-    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(newDocument, context);
+    await recomputeContributorScoresFor(newDocument);
+    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(newDocument);
   }
 });

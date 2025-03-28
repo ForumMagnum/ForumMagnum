@@ -1,4 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
+import { schema } from '@/lib/collections/splashArtCoordinates/schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
@@ -21,7 +22,8 @@ export const splashArtCoordinatesMutationOptions: MutationOptions<DbSplashArtCoo
 export const SplashArtCoordinates: SplashArtCoordinatesCollection = createCollection({ 
   collectionName: 'SplashArtCoordinates',
   typeName: 'SplashArtCoordinate',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('SplashArtCoordinates', { reviewWinnerArtId: 1, createdAt: 1 });
     return indexSet;

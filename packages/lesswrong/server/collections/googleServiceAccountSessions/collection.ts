@@ -1,4 +1,5 @@
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import schema from '@/lib/collections/googleServiceAccountSessions/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
@@ -21,7 +22,8 @@ const options: MutationOptions<DbGoogleServiceAccountSession> = {
 export const GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection = createCollection({
   collectionName: 'GoogleServiceAccountSessions',
   typeName: 'GoogleServiceAccountSession',
-    resolvers: getDefaultResolvers('GoogleServiceAccountSessions'),
+  schema,
+  resolvers: getDefaultResolvers('GoogleServiceAccountSessions'),
   mutations: getDefaultMutations('GoogleServiceAccountSessions', options),
   logChanges: false,
 });

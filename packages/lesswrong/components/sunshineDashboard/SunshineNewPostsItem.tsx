@@ -13,7 +13,7 @@ import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
 import { useCreate } from '../../lib/crud/withCreate';
-import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/newSchema';
+import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({

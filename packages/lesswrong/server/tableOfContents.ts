@@ -1,4 +1,6 @@
+import { Comments } from '../server/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
+import { Revisions } from '../server/collections/revisions/collection';
 import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
@@ -6,15 +8,13 @@ import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { parseDocumentFromString } from '../lib/domParser';
-import type { FetchedFragment } from './fetchFragment';
+import { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
 import { getEditableFieldNamesForCollection } from '@/lib/editor/make_editable';
 import { getCollectionAccessFilter } from './permissions/accessFilters';
 
-async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
-  const { Comments } = context;
-
+async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
 
   let answersTerms: MongoSelector<DbComment> = {
@@ -29,9 +29,7 @@ async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
   return getTocAnswers({post: document, answers})
 }
 
-async function getTocCommentsServer(document: DbPost, context: ResolverContext) {
-  const { Comments } = context;
-
+async function getTocCommentsServer (document: DbPost) {
   const commentSelector: any = {
     ...getDefaultViewSelector("Comments"),
     answer: false,
@@ -55,8 +53,6 @@ async function getHtmlWithContributorAnnotations({
   version: string | null,
   context: ResolverContext,
 }) {
-  const { Revisions } = context;
-
   if (!getEditableFieldNamesForCollection(collectionName).includes(fieldName)) {
     // eslint-disable-next-line no-console
     console.log(`Author annotation failed: Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
@@ -65,7 +61,7 @@ async function getHtmlWithContributorAnnotations({
 
   if (version) {
     try {
-      const html = await annotateAuthors(document._id, collectionName, fieldName, context, version);
+      const html = await annotateAuthors(document._id, collectionName, fieldName, version);
       return html;
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -85,8 +81,8 @@ async function getHtmlWithContributorAnnotations({
         return document.htmlWithContributorAnnotations;
       } else {
         const updateOptions: UpdateDenormalizedHtmlAttributionsOptions = collectionName === 'Tags'
-          ? {document, collectionName: 'Tags', fieldName: 'description', context}
-          : {document, collectionName: 'MultiDocuments', fieldName: 'contents', context};
+          ? {document, collectionName: 'Tags', fieldName: 'description'}
+          : {document, collectionName: 'MultiDocuments', fieldName: 'contents'};
         const html = await updateDenormalizedHtmlAttributions(updateOptions);
         return html;
       }
@@ -106,8 +102,6 @@ export const getToCforPost = async ({document, version, context}: {
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {
-  const { Revisions } = context;
-
   let html: string;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
@@ -127,8 +121,8 @@ export const getToCforPost = async ({document, version, context}: {
   let tocSections = tableOfContents?.sections || []
   
   if (shouldShowTableOfContents({ sections: tocSections, post: document })) {
-    const tocAnswers = await getTocAnswersServer(document, context)
-    const tocComments = await getTocCommentsServer(document, context)
+    const tocAnswers = await getTocAnswersServer(document)
+    const tocComments = await getTocCommentsServer(document)
     tocSections.push(...tocAnswers)
     tocSections.push(...tocComments)
   

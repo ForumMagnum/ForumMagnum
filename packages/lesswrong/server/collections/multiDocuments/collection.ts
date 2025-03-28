@@ -1,3 +1,4 @@
+import schema from "@/lib/collections/multiDocuments/schema";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { canMutateParentDocument } from "@/lib/collections/multiDocuments/helpers";
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
@@ -8,7 +9,8 @@ import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
   typeName: 'MultiDocument',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('MultiDocuments', { parentDocumentId: 1, collectionName: 1 });
     indexSet.addIndex('MultiDocuments', { slug: 1 });

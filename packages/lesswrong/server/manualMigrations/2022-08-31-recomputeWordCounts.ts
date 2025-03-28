@@ -3,7 +3,6 @@ import { getEditableCollectionNames, getEditableFieldNamesForCollection } from "
 import { getCollection } from "../collections/allCollections";
 import { dataToWordCount } from "../editor/conversionUtils";
 import { Revisions } from "../../server/collections/revisions/collection";
-import { createAnonymousContext } from "../vulcan-lib/query";
 
 /**
  * This migration recomputes word counts in batches for all Revisions and editable
@@ -15,8 +14,6 @@ export default registerMigration({
   dateWritten: "2022-08-31",
   idempotent: true,
   action: async () => {
-    const context = createAnonymousContext();
-
     await forEachDocumentBatchInCollection({
       collection: Revisions,
       batchSize: 1000,
@@ -25,7 +22,7 @@ export default registerMigration({
         for (const doc of documents) {
           if (!doc.originalContents) continue;
           const { data, type } = doc.originalContents;
-          const wordCount = await dataToWordCount(data, type, context);
+          const wordCount = await dataToWordCount(data, type);
           if (wordCount !== doc.wordCount) {
             updates.push({
               updateOne: {
@@ -57,7 +54,7 @@ export default registerMigration({
             for (const doc of documents) {
               if (doc[fieldName]) {
                 const { data, type } = doc[fieldName].originalContents;
-                const wordCount = await dataToWordCount(data, type, context);
+                const wordCount = await dataToWordCount(data, type);
                 if (wordCount !== doc[fieldName].wordCount) {
                   updates.push({
                     updateOne: {

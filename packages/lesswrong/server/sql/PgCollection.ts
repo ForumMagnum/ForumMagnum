@@ -71,7 +71,7 @@ class PgCollection<
 
   hasSlug(): this is PgCollection<CollectionNameWithSlug> {
     const schema = getSchema(this.collectionName);
-    return !!schema.slug;
+    return !!getSchema(this.collectionName).slug;
   }
 
   getTable() {

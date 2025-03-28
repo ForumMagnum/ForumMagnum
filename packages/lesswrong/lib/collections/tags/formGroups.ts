@@ -1,4 +1,4 @@
-export const formGroups = {
+export const formGroups: Partial<Record<string, FormGroupType<"Tags">>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 20,
@@ -23,4 +23,4 @@ export const formGroups = {
     label: "Summaries",
     startCollapsed: true,
   }
-} satisfies Partial<Record<string, FormGroupType<"Tags">>>;
+};

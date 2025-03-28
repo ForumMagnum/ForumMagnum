@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/userRateLimits/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
@@ -15,7 +16,8 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const UserRateLimits: UserRateLimitsCollection = createCollection({
   collectionName: 'UserRateLimits',
   typeName: 'UserRateLimit',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('UserRateLimits', { userId: 1, createdAt: -1, endedAt: -1 });
     return indexSet;

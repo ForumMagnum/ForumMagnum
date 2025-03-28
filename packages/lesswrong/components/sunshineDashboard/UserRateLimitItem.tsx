@@ -1,7 +1,7 @@
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/newSchema';
+import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/schema';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';

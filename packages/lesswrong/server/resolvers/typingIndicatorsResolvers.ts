@@ -1,4 +1,4 @@
-import { isDialogueParticipant } from "@/lib/collections/posts/helpers";
+import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
 import TypingIndicatorsRepo from "../repos/TypingIndicatorsRepo";
 import {defineMutation} from "../utils/serverGraphqlUtil";
 

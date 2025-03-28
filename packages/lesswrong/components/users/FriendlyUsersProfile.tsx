@@ -17,7 +17,7 @@ import {
 } from '../../lib/instanceSettings'
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-import { PROGRAM_PARTICIPATION } from '../../lib/collections/users/newSchema';
+import { PROGRAM_PARTICIPATION } from '../../lib/collections/users/schema';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from '../ea-forum/users/modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from './UsersProfile';
 import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info'

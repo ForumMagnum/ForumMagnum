@@ -1,7 +1,7 @@
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 import { isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
-export const formGroups = {
+export const formGroups: Record<string, FormGroupType<"Posts">> = {
   default: {
     name: "default",
     order: 0,
@@ -114,4 +114,4 @@ export const formGroups = {
     startCollapsed: false,
     hideHeader: true,
   }
-} satisfies Record<string, FormGroupType<"Posts">>;
+};

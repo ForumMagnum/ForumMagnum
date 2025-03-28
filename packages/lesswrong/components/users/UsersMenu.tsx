@@ -14,7 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/newSchema';
+import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';

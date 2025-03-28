@@ -18,14 +18,14 @@ export const GROUP_CATEGORIES = [
   {value: 'affiliation', label: 'Affiliation'},
 ]
 
-const formGroups = {
+const formGroups: Partial<Record<string, FormGroupType<"Localgroups">>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
     label: isFriendlyUI ? "Advanced options" : "Advanced Options",
     startCollapsed: true,
   },
-} satisfies Partial<Record<string, FormGroupType<"Localgroups">>>;
+};
 
 const schema: SchemaType<"Localgroups"> = {
   ...universalFields({}),
@@ -38,7 +38,7 @@ const schema: SchemaType<"Localgroups"> = {
       canUpdate: ['members'],
       canCreate: ['members']
     },
-    hintText: () => "Short description"
+    hintText: "Short description"
   }),
   
   name: {
@@ -105,7 +105,7 @@ const schema: SchemaType<"Localgroups"> = {
     ...schemaDefaultValue(["LW"]),
     minCount: 1, // Ensure that at least one type is selected
     form: {
-      options: () => localGroupTypeFormOptions
+      options: localGroupTypeFormOptions
     },
     hidden: !isLW,
   },
@@ -125,7 +125,7 @@ const schema: SchemaType<"Localgroups"> = {
     placeholder: 'Select all that apply',
     form: {
       label: "Group type / intended audience",
-      options: () => GROUP_CATEGORIES
+      options: GROUP_CATEGORIES
     },
     hidden: !isEAForum,
   },
@@ -283,7 +283,7 @@ const schema: SchemaType<"Localgroups"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: () => formGroups.advancedOptions,
+    group: formGroups.advancedOptions,
     optional: true,
     tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",
     ...schemaDefaultValue(false),

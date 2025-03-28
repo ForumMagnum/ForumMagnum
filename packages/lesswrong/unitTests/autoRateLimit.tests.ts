@@ -3,7 +3,8 @@ import groupBy from "lodash/groupBy";
 import range from "lodash/range";
 import moment from "moment";
 import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo, IsActiveFunction, RateLimitFeatures } from "../lib/rateLimits/types";
-import { calculateRecentKarmaInfo, getDownvoteRatio } from "../lib/rateLimits/utils";
+import { calculateRecentKarmaInfo } from "../lib/rateLimits/utils";
+import { getDownvoteRatio } from "../components/sunshineDashboard/UsersReviewInfoCard";
 
 function createVote(overrideVoteFields?: Partial<RecentVoteInfo>): RecentVoteInfo {
   const defaultVoteInfo = {

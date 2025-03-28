@@ -9,7 +9,7 @@ import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
 import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings, legacyToNewNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings } from '../lib/collections/users/newSchema';
+import { defaultNotificationTypeSettings, legacyToNewNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings } from '../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import { createAnonymousContext } from './vulcan-lib/query';

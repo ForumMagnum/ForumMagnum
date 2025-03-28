@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/revisions/schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
@@ -6,7 +7,8 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
-    resolvers: getDefaultResolvers('Revisions'),
+  schema,
+  resolvers: getDefaultResolvers('Revisions'),
   // This has mutators because of a few mutable metadata fields (eg
   // skipAttributions), but most parts of revisions are create-only immutable.
   mutations: getDefaultMutations('Revisions', {

@@ -29,7 +29,7 @@ export const expiredRateLimitsReturnToReviewQueueCron = addCronJob({
           text: "Rate limit expired",
           context,
         });
-        await triggerReview(user._id, context);
+        await triggerReview(user._id);
       })
       
       // log the action

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { getConfirmedCoauthorIds, isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -1053,6 +1053,13 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   </AnalyticsContext>
 }
 
+export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
+
+export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
+  if (post.userId === userId) return true 
+  if (getConfirmedCoauthorIds(post).includes(userId)) return true
+  return false
+}
 const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",

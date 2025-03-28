@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/useractivities/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -41,7 +42,8 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const UserActivities: UserActivitiesCollection = createCollection({
   collectionName: 'UserActivities',
   typeName: 'UserActivity',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('UserActivities', { visitorId: 1, type: 1 });
     return indexSet;

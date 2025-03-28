@@ -1,5 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { schema } from '@/lib/collections/postViewTimes/schema';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -10,7 +11,8 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const PostViewTimes = createCollection({
   collectionName: 'PostViewTimes',
   typeName: 'PostViewTime',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('PostViewTimes', { clientId: 1, postId: 1, windowStart: 1, windowEnd: 1 }, { unique: true });
     indexSet.addIndex('PostViewTimes', { postId: 1 });

@@ -4,11 +4,13 @@ import { canVoteOnTagAsync } from '@/lib/voting/tagRelVoteRules';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import schema from '@/lib/collections/tagRels/schema';
 
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('TagRels', {postId: 1});
     indexSet.addIndex('TagRels', {tagId: 1});

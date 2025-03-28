@@ -9,7 +9,7 @@ import { withTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
+import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettingsType } from '../../lib/collections/users/schema';
 import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 

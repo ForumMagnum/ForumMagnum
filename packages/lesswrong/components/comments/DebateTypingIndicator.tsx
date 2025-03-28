@@ -4,7 +4,7 @@ import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
-import { isDialogueParticipant } from '@/lib/collections/posts/helpers';
+import { isDialogueParticipant } from '../posts/PostsPage/PostsPage';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 

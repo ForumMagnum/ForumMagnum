@@ -1,6 +1,6 @@
 import { universalFields } from '../../collectionUtils';
 
-const schema: SchemaType<'DebouncerEvents'> = {
+const schema = {
   ...universalFields({}),
   name: {
     type: String,

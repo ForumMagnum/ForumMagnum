@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/posts/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '@/lib/vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
@@ -32,7 +33,8 @@ const options: MutationOptions<DbPost> = {
 export const Posts = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
-    resolvers: getDefaultResolvers('Posts'),
+  schema,
+  resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
   logChanges: true,
   voteable: {

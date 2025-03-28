@@ -62,7 +62,7 @@ defineMutation({
       throw new Error("Invalid event type to trigger DM");
     }
 
-    const lwAccount = await getAdminTeamAccount(context)
+    const lwAccount = await getAdminTeamAccount()
 
     if (!lwAccount) {
       throw new Error("Unable to find the lwAccount to send message to user")

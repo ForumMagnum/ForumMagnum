@@ -2,6 +2,7 @@ import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/de
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import DialogueChecks from "../dialogueChecks/collection";
+import schema from "@/lib/collections/dialogueMatchPreferences/schema";
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -29,7 +30,8 @@ const options: MutationOptions<DbDialogueMatchPreference> = {
 export const DialogueMatchPreferences: DialogueMatchPreferencesCollection = createCollection({
   collectionName: 'DialogueMatchPreferences',
   typeName: 'DialogueMatchPreference',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('DialogueMatchPreferences', { dialogueCheckId: 1 });
     return indexSet;

@@ -9,7 +9,7 @@ import { createAdminContext, createAnonymousContext } from './vulcan-lib/query';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';
-import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from '../lib/collections/moderatorActions/newSchema';
+import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from '../lib/collections/moderatorActions/schema';
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
@@ -190,7 +190,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       validate: false,
     });
 
-    await onVoteCancel(newDocument, vote, collection, user, context);
+    await onVoteCancel(newDocument, vote, collection, user);
   }
   // TODO: it seems possible we could do an early return here if we have zero vote cancellations, but I want to test it more thoroughly before doing that
   const newScores = await recalculateDocumentScores(document, collection.collectionName, context);

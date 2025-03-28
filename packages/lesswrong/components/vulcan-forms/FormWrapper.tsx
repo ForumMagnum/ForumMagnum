@@ -15,7 +15,7 @@ import { NavigationContext } from '@/lib/vulcan-core/appContext';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getFragment } from '@/lib/vulcan-lib/fragments';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
-import { getSimpleSchema } from '@/lib/schema/allSchemas';
+import { getSchema } from '@/lib/schema/allSchemas';
 
 const intlSuffix = '_intl';
 
@@ -51,7 +51,7 @@ function generateMutationFragment(mutationFragmentName: string, collectionTypeNa
  * Get fragment used to decide what data to load from the server to populate the form,
  * as well as what data to ask for as return value for the mutation
  */
-const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", props: WrappedSmartFormProps<N> & { schema: NewSimpleSchemaType<N> }) => {
+const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", props: WrappedSmartFormProps<N> & { schema: SchemaType<N> }) => {
   const { collectionName, schema } = props;
   const collectionTypeName = collectionNameToTypeName[collectionName];
   const fragmentName = `${props.collectionName}${capitalize(formType)}FormFragment`;
@@ -113,7 +113,7 @@ const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", pr
  * generating a default fragment if none is given.
  */
 const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}: WrappedSmartFormProps<N>) => {
-  const schema = getSimpleSchema(props.collectionName);
+  const schema = getSchema(props.collectionName);
 
   const navigationContext = useContext(NavigationContext);
   const history = navigationContext?.history;
@@ -135,7 +135,7 @@ const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}
  * Wrapper around a 'new' form, which adds createMutation. Should be used only
  * via FormWrapper.
  */
-const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormProps<N> & { schema: NewSimpleSchemaType<N> }) => {
+const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormProps<N> & { schema: SchemaType<N> }) => {
   const currentUser = useCurrentUser();
   const { collectionName } = props;
   const typeName = collectionNameToTypeName[collectionName];
@@ -159,7 +159,7 @@ const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormP
  * Wrapper around an 'edit' form, which adds updateMutation. Should be used only
  * via FormWrapper.
  */
-const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartFormProps<N> & { schema: NewSimpleSchemaType<N> }) => {
+const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartFormProps<N>&{schema: SchemaType<N>}) => {
   const currentUser = useCurrentUser();
   const { collectionName } = props;
   const typeName = collectionNameToTypeName[collectionName];

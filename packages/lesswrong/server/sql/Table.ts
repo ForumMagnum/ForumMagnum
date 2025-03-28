@@ -1,5 +1,5 @@
 import { getSchema } from "@/lib/schema/allSchemas";
-import { Type, IdType } from "./Type";
+import { Type, IdType, isResolverOnly } from "./Type";
 import { forumTypeSetting, ForumTypeString } from "@/lib/instanceSettings";
 
 /**
@@ -71,13 +71,13 @@ class Table<T extends DbObject> {
         table.addField("_id", new IdType());
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];
-        if (!fieldSchema.database) {
+        if (isResolverOnly(collection.collectionName, field, fieldSchema)) {
           table.resolverOnlyFields.add(field);
         } else {
           const indexSchema = schema[`${field}.$`];
           table.addField(
             field,
-            Type.fromSchema(collection.collectionName, field, fieldSchema.database, fieldSchema.graphql, forumType),
+            Type.fromSchema(collection.collectionName, field, fieldSchema, indexSchema, forumType),
           );
         }
       }

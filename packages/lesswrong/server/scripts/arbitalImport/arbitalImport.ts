@@ -1316,7 +1316,6 @@ async function importRevisions<N extends CollectionNameString>({
             data: ckEditorMarkup,
           },
           currentUser: revisionCreator,
-          context: resolverContext,
         }),
         fieldName,
         collectionName: collection.collectionName,
@@ -1337,7 +1336,6 @@ async function importRevisions<N extends CollectionNameString>({
     await afterCreateRevisionCallback.runCallbacksAsync([{
       revisionID: lwRevision._id,
       skipDenormalizedAttributions: true,
-      context: resolverContext,
     }]);
   }
   
@@ -2402,8 +2400,6 @@ export async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: s
     matchedUserId: string,
   }> = [];
 
-  const resolverContext = createAdminContext();
-
   for (const lens of lenses) {
     // get the first revision
     const initialRevision = await Revisions.findOne({
@@ -2454,13 +2450,11 @@ export async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: s
         document: lens,
         collectionName: "MultiDocuments",
         fieldName: "contents",
-        context: resolverContext,
       });
       await updateDenormalizedContributorsList({
         document: lens,
         collectionName: "MultiDocuments",
         fieldName: "contents",
-        context: resolverContext,
       });
 
       mismatches.push(mismatch);

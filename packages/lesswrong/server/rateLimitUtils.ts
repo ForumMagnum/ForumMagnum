@@ -1,21 +1,27 @@
 import moment from "moment"
+import Comments from "../server/collections/comments/collection"
 import { getTimeframeForRateLimit } from "../lib/collections/moderatorActions/helpers"
 import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, postAndCommentRateLimits } from "../lib/collections/moderatorActions/schema"
+import Posts from "../server/collections/posts/collection"
+import UserRateLimits from "../server/collections/userRateLimits/collection"
 import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
+import VotesRepo from "./repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
 import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserRateLimit } from "../lib/rateLimits/types"
-import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio } from "../lib/rateLimits/utils"
+import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours } from "../lib/rateLimits/utils"
+import Users from "../server/collections/users/collection"
 import { triggerReview } from "./callbacks/sunshineCallbackUtils"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
 import { isNonEmpty } from "fp-ts/Array"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
+import { getDownvoteRatio } from "../components/sunshineDashboard/UsersReviewInfoCard"
+import { ModeratorActions } from "../server/collections/moderatorActions/collection"
 
 /**
  * Fetches the most recent, active rate limit affecting a user.
  */
-function getModeratorRateLimit(userId: string, context: ResolverContext) {
-  const { ModeratorActions } = context;
+function getModeratorRateLimit(userId: string) {
   return ModeratorActions.findOne({
     userId: userId,
     type: {$in: postAndCommentRateLimits},
@@ -27,8 +33,7 @@ function getModeratorRateLimit(userId: string, context: ResolverContext) {
   }) as Promise<DbModeratorAction & {type: PostAndCommentRateLimitTypes} | null>
 }
 
-async function userHasActiveModeratorActionOfType(userId: string, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES, context: ResolverContext): Promise<boolean> {
-  const { ModeratorActions } = context;
+async function userHasActiveModeratorActionOfType(userId: string, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES): Promise<boolean> {
   const action = await ModeratorActions.findOne({
     userId: userId,
     type: moderatorActionType,
@@ -37,18 +42,17 @@ async function userHasActiveModeratorActionOfType(userId: string, moderatorActio
   return !!action;
 }
 
-async function getModRateLimitHours(userId: string, context: ResolverContext): Promise<number> {
-  const moderatorRateLimit = await getModeratorRateLimit(userId, context)
+async function getModRateLimitHours(userId: string): Promise<number> {
+  const moderatorRateLimit = await getModeratorRateLimit(userId)
   return moderatorRateLimit ? getTimeframeForRateLimit(moderatorRateLimit?.type) : 0
 }
 
-async function getModPostSpecificRateLimitHours(userId: string, context: ResolverContext): Promise<number> {
-  const hasPostSpecificRateLimit = await userHasActiveModeratorActionOfType(userId, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, context)
+async function getModPostSpecificRateLimitHours(userId: string): Promise<number> {
+  const hasPostSpecificRateLimit = await userHasActiveModeratorActionOfType(userId, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK)
   return hasPostSpecificRateLimit ? getTimeframeForRateLimit(RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK) : 0
 }
 
-async function getPostsInTimeframe(user: DbUser, maxHours: number, context: ResolverContext) {
-  const { Posts } = context;
+async function getPostsInTimeframe(user: DbUser, maxHours: number) {
   return await Posts.find({
     userId:user._id, 
     draft: false,
@@ -57,8 +61,7 @@ async function getPostsInTimeframe(user: DbUser, maxHours: number, context: Reso
   }, {sort: {postedAt: -1}, projection: {postedAt: 1}}).fetch()
 }
 
-function getManualRateLimit<T extends DbUserRateLimit['type']>(userId: string, type: T, context: ResolverContext) {
-  const { UserRateLimits } = context;
+function getManualRateLimit<T extends DbUserRateLimit['type']>(userId: string, type: T) {
   return UserRateLimits.findOne({
     userId,
     type,
@@ -96,8 +99,7 @@ function getPostRateLimitInfos(
   return [modRateLimitInfo, userPostRateLimitInfo, ...autoRateLimitInfos].filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
 }
 
-async function getCommentsInTimeframe(userId: string, maxTimeframe: number, context: ResolverContext) {
-  const { Comments } = context;
+async function getCommentsInTimeframe(userId: string, maxTimeframe: number) {
   const commentsInTimeframe = await Comments.find(
     { userId: userId, 
       postedAt: {$gte: moment().subtract(maxTimeframe, 'hours').toDate()},
@@ -118,7 +120,6 @@ async function getCommentsInTimeframe(userId: string, maxTimeframe: number, cont
  * On forums other than the EA Forum, the post author is always exempt on their own posts.
  */
 async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string|null, context: ResolverContext): Promise<boolean> {
-  const { ModeratorActions } = context;
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return true;
   }
@@ -155,8 +156,7 @@ function getModPostSpecificRateLimitInfo (comments: Array<DbComment>, modPostSpe
   return eligibleForCommentOnSpecificPostRateLimit ? getModRateLimitInfo(commentsOnPost, modPostSpecificRateLimitHours, 3) : null
 }
 
-async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: string, context: ResolverContext) {
-  const { Posts } = context;
+async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: string) {
   const postIds = comments
     .map(comment => comment.postId)
     .filter(postId => !!postId) //exclude null post IDs (eg comments on tags)
@@ -187,7 +187,7 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
 }): Promise<Array<RateLimitInfo>> {
   const [userIsAuthor, commentsOnOthersPostsInTimeframe] = await Promise.all([
     getUserIsAuthor(user._id, postId, context),
-    getCommentsOnOthersPosts(commentsInTimeframe, user._id, context)
+    getCommentsOnOthersPosts(commentsInTimeframe, user._id)
   ])
 
   // Deprecated! TODO: remove!
@@ -209,8 +209,7 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
   return [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, manualRateLimitInfo, ...autoRateLimitInfos].filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
 }
 
-async function shouldIgnorePostRateLimit(user: DbUser, context: ResolverContext) {
-  const { ModeratorActions } = context;
+async function shouldIgnorePostRateLimit(user: DbUser) {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")) return true
 
   const isRateLimitExempt = await ModeratorActions.findOne({
@@ -223,16 +222,16 @@ async function shouldIgnorePostRateLimit(user: DbUser, context: ResolverContext)
   return false
 }
 
-export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser, context: ResolverContext): Promise<RateLimitInfo|null> {
+export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {
   // Admins and Sunshines aren't rate-limited
-  if (await shouldIgnorePostRateLimit(user, context)) return null;
+  if (await shouldIgnorePostRateLimit(user)) return null;
   
   // does the user have a moderator-assigned rate limit?
   // also get the recent karma info, we'll need it later
   const [modRateLimitHours, manualPostRateLimit, recentKarmaInfo] = await Promise.all([
-    getModRateLimitHours(user._id, context),
-    getManualRateLimit(user._id, 'allPosts', context),
-    getRecentKarmaInfo(user._id, context)
+    getModRateLimitHours(user._id),
+    getManualRateLimit(user._id, 'allPosts'),
+    getRecentKarmaInfo(user._id)
   ]);
 
   // what's the longest rate limit timeframe being evaluated?
@@ -241,7 +240,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser, context:
   const maxHours = Math.max(modRateLimitHours, manualPostRateLimitHours, maxPostAutolimitHours);
 
   // fetch the posts from within the maxTimeframe
-  const postsInTimeframe = await getPostsInTimeframe(user, maxHours, context);
+  const postsInTimeframe = await getPostsInTimeframe(user, maxHours);
 
   const rateLimitInfos = getPostRateLimitInfos(user, postsInTimeframe, modRateLimitHours, manualPostRateLimit, recentKarmaInfo);
 
@@ -255,10 +254,10 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   // does the user have a moderator-assigned rate limit?
   // also get the recent karma info, we'll need it later
   const [modRateLimitHours, modPostSpecificRateLimitHours, manualCommentRateLimit, recentKarmaInfo] = await Promise.all([
-    getModRateLimitHours(user._id, context),
-    getModPostSpecificRateLimitHours(user._id, context),
-    getManualRateLimit(user._id, 'allComments', context),
-    getRecentKarmaInfo(user._id, context)
+    getModRateLimitHours(user._id),
+    getModPostSpecificRateLimitHours(user._id),
+    getManualRateLimit(user._id, 'allComments'),
+    getRecentKarmaInfo(user._id)
   ]);
 
   const manualCommentRateLimitHours = getManualRateLimitIntervalHours(manualCommentRateLimit);
@@ -268,7 +267,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours, manualCommentRateLimitHours);
 
   // fetch the comments from within the maxTimeframe
-  const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours, context);
+  const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);
 
   const features = {
     ...recentKarmaInfo, 
@@ -289,12 +288,13 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   return getStrictestRateLimitInfo(rateLimitInfos)
 }
 
-export async function getRecentKarmaInfo(userId: string, context: ResolverContext): Promise<RecentKarmaInfo> {
-  const allVotes = await context.repos.votes.getVotesOnRecentContent(userId)
+export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaInfo> {
+  const votesRepo = new VotesRepo()
+  const allVotes = await votesRepo.getVotesOnRecentContent(userId)
   return calculateRecentKarmaInfo(userId, allVotes)
 }
 
-async function getVotesForComparison(userId: string, currentVotes: NonEmptyArray<RecentVoteInfo>, context: ResolverContext) {
+async function getVotesForComparison(userId: string, currentVotes: NonEmptyArray<RecentVoteInfo>) {
   currentVotes = currentVotes.sort((a, b) => moment(b.votedAt).diff(a.votedAt));
   const [mostRecentVoteInfo] = currentVotes;
 
@@ -305,7 +305,8 @@ async function getVotesForComparison(userId: string, currentVotes: NonEmptyArray
     // Check whether it was a self-vote on a post or comment
     const { collectionName } = mostRecentVoteInfo;
     // Fetch all the votes on the post or comment that would've been pushed out of the 20-item window by this one, and use those instead
-    const votesOnNextMostRecentDocument = await context.repos.votes.getVotesOnPreviousContentItem(userId, collectionName, mostRecentVoteInfo.postedAt);
+    const votesRepo = new VotesRepo();
+    const votesOnNextMostRecentDocument = await votesRepo.getVotesOnPreviousContentItem(userId, collectionName, mostRecentVoteInfo.postedAt);
     comparisonVotes.push(...votesOnNextMostRecentDocument);
   }
 
@@ -325,7 +326,7 @@ function triggerReviewForStricterRateLimits(
   if (commentRateLimitComparison.isStricter) {
     const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = commentRateLimitComparison;
 
-    void triggerReview(userId, context);
+    void triggerReview(userId);
     void appendToSunshineNotes({
       moderatedUserId: userId,
       adminName: 'Automod',
@@ -337,7 +338,7 @@ function triggerReviewForStricterRateLimits(
   if (postRateLimitComparison.isStricter) {
     const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = postRateLimitComparison;
 
-    void triggerReview(userId, context);
+    void triggerReview(userId);
     void appendToSunshineNotes({
       moderatedUserId: userId,
       adminName: 'Automod',
@@ -348,7 +349,6 @@ function triggerReviewForStricterRateLimits(
 }
 
 export async function checkForStricterRateLimits(userId: string, context: ResolverContext) {
-  const { Users } = context;
   // We can't use a loader here because we need the user's karma which was just updated by this vote
   const votedOnUser = await Users.findOne({ _id: userId });
   if (!votedOnUser) {
@@ -357,7 +357,9 @@ export async function checkForStricterRateLimits(userId: string, context: Resolv
     return;
   }
 
-  const allVotes = await context.repos.votes.getVotesOnRecentContent(votedOnUser._id);
+  const votesRepo = new VotesRepo();
+
+  const allVotes = await votesRepo.getVotesOnRecentContent(votedOnUser._id);
 
   // This might happen if a new user creates a draft post as their first thing
   // That triggers a self-vote, but one that gets filtered out of getVotesOnRecentContent
@@ -366,7 +368,7 @@ export async function checkForStricterRateLimits(userId: string, context: Resolv
     return;
   }
 
-  const comparisonVotes = await getVotesForComparison(votedOnUser._id, allVotes, context);
+  const comparisonVotes = await getVotesForComparison(votedOnUser._id, allVotes);
 
   const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(votedOnUser, allVotes, comparisonVotes);
   const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow);

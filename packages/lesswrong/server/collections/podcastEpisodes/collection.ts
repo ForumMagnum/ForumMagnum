@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/podcastEpisodes/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userIsAdmin, userIsPodcaster } from '@/lib/vulcan-users/permissions';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
@@ -7,7 +8,8 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const PodcastEpisodes: PodcastEpisodesCollection = createCollection({
   collectionName: 'PodcastEpisodes',
   typeName: 'PodcastEpisode',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('PodcastEpisodes', { externalEpisodeId: 1 }, { unique: true });
     return indexSet;

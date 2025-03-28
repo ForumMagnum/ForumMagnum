@@ -1,6 +1,6 @@
 import Messages from '../../server/collections/messages/collection';
 import { ModeratorActions } from '../../server/collections/moderatorActions/collection';
-import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/newSchema';
+import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/schema';
 import { loggerConstructor } from '../../lib/utils/logging';
 import Users from '../../server/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
@@ -97,11 +97,11 @@ getCollectionHooks("Conversations").updateBefore.add(async function flagUserOnMa
   return data;
 });
 
-getCollectionHooks("Conversations").updateAsync.add(async function leavingNotication({newDocument, oldDocument, context}) {
+getCollectionHooks("Conversations").updateAsync.add(async function leavingNotication({newDocument, oldDocument}) {
   const usersWhoLeft = (oldDocument?.participantIds ?? [])
     .filter(id => !newDocument.participantIds?.includes(id))
   if (usersWhoLeft.length === 0) return;
-  const adminAccount = await getAdminTeamAccount(context);
+  const adminAccount = await getAdminTeamAccount();
   if (!adminAccount) {
     // Something has gone horribly wrong
     throw new Error("Could not find admin account");

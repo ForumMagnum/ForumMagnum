@@ -128,8 +128,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, co
       await syncDocumentWithLatestRevision(
         collection,
         document,
-        revision.fieldName,
-        context
+        revision.fieldName
       )
     }
   }

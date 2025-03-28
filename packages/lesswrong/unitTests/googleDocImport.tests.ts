@@ -1,4 +1,4 @@
-import { convertImportedGoogleDoc } from '@/server/editor/googleDocUtils';
+import { convertImportedGoogleDoc } from '@/server/editor/conversionUtils';
 
 describe("convertImportedGoogleDoc", () => {
 

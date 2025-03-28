@@ -3,7 +3,9 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { subscriptionTypes } from "../../../lib/collections/subscriptions/helpers";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
-import { isDialogueParticipant } from "@/lib/collections/posts/helpers";
+import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";
+import { isAdmin } from "../../../lib/vulcan-users/permissions";
+import { userHasSubscribeTabFeed } from "../../../lib/betas";
 
 /**
  * A list of props that go into each subscription menu item,

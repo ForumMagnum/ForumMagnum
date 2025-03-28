@@ -1,10 +1,12 @@
+import schema from '@/lib/collections/debouncerEvents/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const DebouncerEvents: DebouncerEventsCollection = createCollection({
   collectionName: 'DebouncerEvents',
   typeName: 'DebouncerEvents',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('DebouncerEvents', { dispatched:1, af:1, delayTime:1 });
     indexSet.addIndex('DebouncerEvents', { dispatched:1, af:1, upperBoundTime:1 });

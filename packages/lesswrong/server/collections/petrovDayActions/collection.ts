@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/petrovDayActions/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
@@ -47,7 +48,8 @@ export const PetrovDayActions: PetrovDayActionsCollection = createCollection({
   typeName: 'PetrovDayAction',
   resolvers: getDefaultResolvers('PetrovDayActions'),
   mutations: getDefaultMutations('PetrovDayActions', options),
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('PetrovDayActions', { userId: 1, actionType: 1 });
     return indexSet;

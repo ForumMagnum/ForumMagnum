@@ -43,11 +43,11 @@ interface EditAsyncEditableCallbackProperties<N extends CollectionNameString> {
   props: UpdateCallbackProperties<N>;
 }
 
-function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema, collection }: { schema: NewSchemaType<N>, collection: CollectionBase<N> }) {
+function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema, collection }: { schema: SchemaType<N>, collection: CollectionBase<N> }) {
   const editableFields = Object.entries(schema).filter(isEditableField);
   return editableFields.map(([fieldName, fieldSpec]) => {
     const { collectionName } = collection;
-    const { pingbacks, normalized } = fieldSpec.graphql.editableFieldOptions;
+    const { pingbacks, normalized } = fieldSpec.editableFieldOptions.callbackOptions;
     return {
       fieldName,
       pingbacks,
@@ -63,7 +63,6 @@ function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema
 interface AfterCreateRevisionCallbackContext {
   revisionID: string
   skipDenormalizedAttributions?: boolean
-  context: ResolverContext
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
@@ -82,19 +81,18 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
   return major===0;
 }
 
-export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions, context }: {
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
   originalContents: DbRevision["originalContents"],
   currentUser: DbUser,
   dataWithDiscardedSuggestions?: string,
-  context: ResolverContext,
 }) {
 
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
 
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !currentUser.isAdmin })
-  const wordCount = await dataToWordCount(readerVisibleData, type, context)
+  const html = await dataToHTML(readerVisibleData, type, { sanitize: !currentUser.isAdmin })
+  const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
     html, wordCount, originalContents,
@@ -105,9 +103,9 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string, context: ResolverContext): Promise<boolean> => {
+export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): Promise<boolean> => {
   const id = doc._id;
-  const previousVersion = await getLatestRev(id, fieldName, context);
+  const previousVersion = await getLatestRev(id, fieldName);
 
   if (!previousVersion)
     return true;
@@ -149,7 +147,6 @@ async function createInitialRevision<N extends CollectionNameString>(
     const revision = await buildRevision({
       originalContents,
       currentUser,
-      context,
     });
     const { html, wordCount } = revision;
     const version = getInitialVersion(doc)
@@ -252,7 +249,6 @@ async function createUpdateRevision<N extends CollectionNameString>(
       originalContents: (newDocument as AnyBecauseHard)[fieldName].originalContents,
       dataWithDiscardedSuggestions,
       currentUser,
-      context,
     });
     const { html, wordCount } = revision;
 
@@ -265,7 +261,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
     const userId = currentUser._id
     const editedAt = new Date()
-    const previousRev = await getLatestRev(newDocument._id, fieldName, context);
+    const previousRev = await getLatestRev(newDocument._id, fieldName);
     const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
     const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
@@ -292,7 +288,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const newRevisionId = newRevisionDoc.data._id;
 
     if (newRevisionId) {
-      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId, context }]);
+      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
     }
 
     return {
@@ -330,7 +326,7 @@ async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: 
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
     );
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID, context }]);
+    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
   }
   return newDoc;
 }
@@ -368,10 +364,10 @@ async function notifyUsersAboutPingbackMentionsInUpdate<N extends CollectionName
 }
 
 // newAsync
-async function reuploadImagesInNew(doc: DbObject, options: EditableCallbackProperties<CollectionNameString>, context: ResolverContext) {
+async function reuploadImagesInNew(doc: DbObject, options: EditableCallbackProperties<CollectionNameString>) {
   const { fieldName = "contents", collectionName } = options;
 
-  await convertImagesInObject(collectionName, doc._id, context, fieldName)
+  await convertImagesInObject(collectionName, doc._id, fieldName)
 }
 
 // editAsync
@@ -384,7 +380,7 @@ async function reuploadImagesInNew(doc: DbObject, options: EditableCallbackPrope
  * See: https://app.asana.com/0/628521446211730/1203311932993130/f
  * It's fine to leave it here just in case though
  */
-async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: EditableCallbackProperties<CollectionNameString>, context: ResolverContext) {
+async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: EditableCallbackProperties<CollectionNameString>) {
   const { fieldName = "contents", collectionName } = options;
 
   const latestField = `${fieldName}_latest`;
@@ -392,7 +388,7 @@ async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: Ed
 
   if (!hasChanged) return;
 
-  await convertImagesInObject(collectionName, doc._id, context, fieldName);
+  await convertImagesInObject(collectionName, doc._id, fieldName);
 }
 
 export async function runCreateBeforeEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: CreateBeforeEditableCallbackProperties<N>) {
@@ -423,12 +419,11 @@ export async function runCreateAfterEditableCallbacks<N extends CollectionNameSt
 
 export async function runNewAsyncEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: NewAsyncEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
-  const { context } = props;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
 
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
-    await reuploadImagesInNew(newDoc, editableFieldCallbackProps, context);
+    await reuploadImagesInNew(newDoc, editableFieldCallbackProps);
   }
 }
 
@@ -458,11 +453,10 @@ export async function runUpdateAfterEditableCallbacks<N extends CollectionNameSt
 
 export async function runEditAsyncEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: EditAsyncEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
-  const { context } = props;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
 
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
-    await reuploadImagesInEdit(newDoc, props.oldDocument, editableFieldCallbackProps, context);
+    await reuploadImagesInEdit(newDoc, props.oldDocument, editableFieldCallbackProps);
   }
 }

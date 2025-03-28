@@ -192,10 +192,11 @@ export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|nu
 
 // Check if a user can view a field
 export const userCanReadField = <N extends CollectionNameString>(
-  user: UsersCurrent | DbUser | null,
-  canRead: FieldPermissions | undefined,
+  user: UsersCurrent|DbUser|null,
+  field: CollectionFieldSpecification<N>,
   document: ObjectsByCollectionName[N],
 ): boolean => {
+  const canRead = field.canRead;
   const userGroups = userGetGroups(user);
   if (canRead) {
     return userHasFieldPermissions(user, userGroups, canRead, document);
@@ -285,7 +286,7 @@ export const restrictViewableFieldsSingle = function <N extends CollectionNameSt
   for (const fieldName in doc) {
     const fieldSchema = schema[fieldName];
     if (fieldSchema) {
-      const canRead = fieldSchema.graphql?.canRead;
+      const canRead = fieldSchema.canRead;
       if (canRead && userHasFieldPermissions(user, userGroups, canRead, doc)) {
         restrictedDocument[fieldName] = doc[fieldName];
       }
@@ -296,10 +297,11 @@ export const restrictViewableFieldsSingle = function <N extends CollectionNameSt
 }
 
 // Check if a user can submit a field
-export const userCanCreateField = (
-  user: DbUser | UsersCurrent | null,
-  canCreate: FieldCreatePermissions | undefined,
+export const userCanCreateField = <N extends CollectionNameString>(
+  user: DbUser|UsersCurrent|null,
+  field: CollectionFieldSpecification<N>,
 ): boolean => {
+  const canCreate = field.canCreate; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
       // if canCreate is a function, execute it with user and document passed. it must return a boolean
@@ -310,7 +312,7 @@ export const userCanCreateField = (
       return canCreate === 'guests' || userIsMemberOf(user, canCreate);
     } else if (Array.isArray(canCreate) && canCreate.length > 0) {
       // if canCreate is an array, we do a recursion on every item and return true if one of the items return true
-      return canCreate.some(group => userCanCreateField(user, group));
+      return canCreate.some(group => userCanCreateField(user, { canCreate: group }));
     }
   }
   return false;
@@ -318,10 +320,12 @@ export const userCanCreateField = (
 
 // Check if a user can edit a field
 export const userCanUpdateField = <N extends CollectionNameString>(
-  user: DbUser | UsersCurrent | null,
-  canUpdate: FieldPermissions | undefined,
+  user: DbUser|UsersCurrent|null,
+  field: CollectionFieldSpecification<N>,
   document: Partial<ObjectsByCollectionName[N]>,
 ): boolean => {
+  const canUpdate = field.canUpdate;
+
   if (canUpdate) {
     if (typeof canUpdate === 'function') {
       // if canUpdate is a function, execute it with user and document passed. it must return a boolean
@@ -332,7 +336,7 @@ export const userCanUpdateField = <N extends CollectionNameString>(
       return canUpdate === 'guests' || userIsMemberOf(user, canUpdate);
     } else if (Array.isArray(canUpdate) && canUpdate.length > 0) {
       // if canUpdate is an array, we look at every item and return true if one of the items return true
-      return canUpdate.some(group => userCanUpdateField(user, group, document));
+      return canUpdate.some(group => userCanUpdateField(user, { canUpdate: group }, document));
 
     }
   }

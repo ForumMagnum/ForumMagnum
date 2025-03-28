@@ -179,7 +179,7 @@ defineQuery({
     
     // Diff the contents between the RSS feed and the LW version
     const newHtml = sanitize(getRssPostContents(matchingPost));
-    const oldHtml = sanitize(await dataToHTML(post.contents?.originalContents.data, post.contents?.originalContents.type ?? "", context, { sanitize: true }));
+    const oldHtml = sanitize(await dataToHTML(post.contents?.originalContents.data, post.contents?.originalContents.type ?? "", { sanitize: true }));
     const htmlDiff = diffHtml(oldHtml, newHtml, false);
 
     return {

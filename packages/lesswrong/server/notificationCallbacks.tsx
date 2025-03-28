@@ -10,7 +10,7 @@ import './emailComponents/EmailCuratedAuthors';
 import * as _ from 'underscore';
 import { getCollectionHooks } from './mutationCallbacks';
 
-import type { RSVPType } from '../lib/collections/posts/newSchema';
+import { RSVPType } from '../lib/collections/posts/schema';
 import { createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';

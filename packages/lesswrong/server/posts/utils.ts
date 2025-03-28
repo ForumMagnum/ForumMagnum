@@ -1,3 +1,4 @@
+import Localgroups from '../../server/collections/localgroups/collection';
 import { cheerioParse } from "../utils/htmlUtil";
 import type { FetchedFragment } from '../fetchFragment';
 import { getLatestContentsRevision } from '../collections/revisions/helpers';
@@ -13,8 +14,7 @@ export const getPostHTML = async (
   return revision?.html ?? "";
 }
 
-export async function getDefaultPostLocationFields(post: DbPost, context: ResolverContext) {
-  const { Localgroups } = context;
+export async function getDefaultPostLocationFields(post: DbPost) {
   if (post.isEvent && post.groupId && !post.location) {
     const localgroup = await Localgroups.findOne(post.groupId)
     if (!localgroup) throw Error(`Can't find localgroup to get default post location fields for post: ${post}`)

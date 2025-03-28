@@ -8,6 +8,7 @@ import CommentsRepo from '../repos/CommentsRepo';
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { fetchFragmentSingle } from '../fetchFragment';
 
 const specificResolvers = {
   Mutation: {
@@ -82,3 +83,47 @@ createPaginatedResolver({
   cacheMaxAgeMs: 300000, // 5 mins
 });
 
+type TopicRecommendation = {
+  comment: DbComment,
+  yourVote?: string,
+  theirVote?: string,
+  recommendationReason: string
+}
+
+export const commentResolvers = {
+  postVersion: {
+    onCreate: async ({newDocument}) => {
+      if (!newDocument.postId) {
+        return "1.0.0";
+      }
+      const post = await fetchFragmentSingle({
+        collectionName: "Posts",
+        fragmentName: "PostsRevision",
+        currentUser: null,
+        selector: {_id: newDocument.postId},
+      });
+      return (post && post.contents && post.contents.version) || "1.0.0";
+    },
+  },
+  promotedByUserId: {
+    onUpdate: async ({data, currentUser, document, oldDocument, context}: {
+      data: Partial<DbComment>,
+      currentUser: DbUser|null,
+      document: DbComment,
+      oldDocument: DbComment,
+      context: ResolverContext,
+    }) => {
+      if (data?.promoted && !oldDocument.promoted && document.postId) {
+        void updateMutator({
+          collection: context.Posts,
+          context,
+          documentId: document.postId,
+          data: { lastCommentPromotedAt: new Date() },
+          currentUser,
+          validate: false
+        })
+        return currentUser!._id
+      }
+    },
+  },
+} satisfies Record<string, CollectionFieldSpecification<"Comments">>;

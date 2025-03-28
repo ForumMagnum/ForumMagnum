@@ -3,15 +3,13 @@ import { defineQuery } from "../utils/serverGraphqlUtil";
 import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
 import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { isLWorAF } from "../../lib/instanceSettings";
-import { createAdminContext } from "../vulcan-lib/query";
 
 
 export async function initReviewWinnerCache() {
   if (isLWorAF) {
-    const context = createAdminContext();
     await Promise.all([
-      reviewWinnerCache.get(context),
-      splashArtCoordinateCache.get(context),
+      reviewWinnerCache.get(),
+      splashArtCoordinateCache.get(),
     ]);
   }
 }
@@ -27,7 +25,7 @@ defineQuery({
   name: 'GetAllReviewWinners',
   resultType: '[Post!]!',
   fn: async (root, args, context) => {
-    const { reviewWinners } = await reviewWinnerCache.get(context);
+    const { reviewWinners } = await reviewWinnerCache.get();
     return restrictReviewWinnerPostFields(reviewWinners, context);
   }
 });

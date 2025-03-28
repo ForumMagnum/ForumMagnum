@@ -13,7 +13,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
-import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/newSchema';
+import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
 

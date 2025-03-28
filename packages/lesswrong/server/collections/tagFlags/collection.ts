@@ -4,6 +4,7 @@ import '@/lib/collections/tagFlags/fragments'
 import { userCanDo } from '@/lib/vulcan-users/permissions';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import schema from '@/lib/collections/tagFlags/schema';
 
 const options: MutationOptions<DbTagFlag> = {
   newCheck: (user: DbUser|null, document: DbTagFlag|null) => {
@@ -26,7 +27,8 @@ const options: MutationOptions<DbTagFlag> = {
 export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('TagFlags', {deleted: 1, order: 1, name: 1});
     return indexSet;

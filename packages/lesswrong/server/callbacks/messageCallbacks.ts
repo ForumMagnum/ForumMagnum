@@ -1,4 +1,4 @@
-import { SENT_MODERATOR_MESSAGE } from '../../lib/collections/moderatorActions/newSchema';
+import { SENT_MODERATOR_MESSAGE } from '../../lib/collections/moderatorActions/schema';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { loadByIds } from '../../lib/loaders';
 import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';

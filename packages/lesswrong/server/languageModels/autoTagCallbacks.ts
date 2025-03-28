@@ -1,9 +1,11 @@
 import { LanguageModelTemplate, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
 import { dataToMarkdown } from '../editor/conversionUtils';
 import type OpenAI from "openai";
+import { Tags } from '../../server/collections/tags/collection';
 import { autoFrontpageModelSetting, autoFrontpagePromptSetting, tagBotAccountSlug } from '../databaseSettings';
+import { Users } from '../../server/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
-import type { FetchedFragment } from '../fetchFragment';
+import { FetchedFragment } from '../fetchFragment';
 
 /**
  * To set up automatic tagging:
@@ -200,9 +202,8 @@ export async function checkTags(
   post: FetchedFragment<"PostsHTML">,
   tags: DbTag[],
   openAIApi: OpenAI,
-  context: ResolverContext,
 ) {
-  const template = await wikiSlugToTemplate("lm-config-autotag", context);
+  const template = await wikiSlugToTemplate("lm-config-autotag");
   
   let tagsApplied: Record<string,boolean> = {};
   
@@ -226,9 +227,8 @@ export async function checkTags(
 export async function checkFrontpage(
   post: FetchedFragment<"PostsHTML">,
   openAIApi: OpenAI,
-  context: ResolverContext,
 ) {
-  const template = await wikiSlugToTemplate("lm-config-autotag", context);
+  const template = await wikiSlugToTemplate("lm-config-autotag");
 
   const autoFrontpageModel = autoFrontpageModelSetting.get()
   const autoFrontpagePrompt = autoFrontpagePromptSetting.get()
@@ -249,7 +249,6 @@ export async function checkFrontpage(
 
 
 export async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> {
-  const { Users } = context;
   const accountSlug = tagBotAccountSlug.get();
   if (!accountSlug) return null;
   const account = await Users.findOne({slug: accountSlug});
@@ -292,8 +291,7 @@ export async function getTagBotUserId(context: ResolverContext): Promise<string|
   return tagBotUserId ?? null;
 }
 
-export async function getAutoAppliedTags(context: ResolverContext): Promise<DbTag[]> {
-  const { Tags } = context;
+export async function getAutoAppliedTags(): Promise<DbTag[]> {
   return await Tags.find({
     autoTagPrompt: {$exists: true, $ne: ""},
     deleted: false,

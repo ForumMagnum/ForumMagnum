@@ -50,13 +50,13 @@ export const recomputeDenormalizedValues = async <N extends CollectionNameString
       // eslint-disable-next-line no-console
       throw new Error(`${collectionName} does not have field ${fieldName}, not computing denormalized values`)
     }
-    if (!schema[fieldName].database?.denormalized) {
+    if (!schema[fieldName].denormalized) {
       throw new Error(`${collectionName}.${fieldName} is not marked as a denormalized field`)
     }
-    if (!schema[fieldName].database?.canAutoDenormalize) {
+    if (!schema[fieldName].canAutoDenormalize) {
       throw new Error(`${collectionName}.${fieldName} is not marked as canAutoDenormalize`)
     }
-    const getValue = schema[fieldName].database?.getValue
+    const getValue = schema[fieldName].getValue
     if (!getValue) {
       throw new Error(`${collectionName}.${fieldName} is missing its getValue function`)
     }
@@ -75,7 +75,7 @@ export const recomputeDenormalizedValues = async <N extends CollectionNameString
 
     for (let j=0; j<denormalizedFields.length; j++) {
       const fieldName = denormalizedFields[j] as keyof ObjectsByCollectionName[N] & string;
-      const getValue = schema[fieldName].database?.getValue
+      const getValue = schema[fieldName].getValue
       await runDenormalizedFieldMigration({ collection, fieldName, getValue, projection, validateOnly, nullToZero })
     }
   }

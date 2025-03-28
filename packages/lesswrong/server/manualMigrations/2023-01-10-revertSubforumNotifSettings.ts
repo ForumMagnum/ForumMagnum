@@ -3,7 +3,7 @@ import { LWEvents } from '../../server/collections/lwevents/collection';
 import { Subscriptions } from '../../server/collections/subscriptions/collection';
 import UserTagRels from '../../server/collections/userTagRels/collection';
 import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
-import userTagRelsSchema from '@/lib/collections/userTagRels/newSchema';
+import userTagRelsSchema from '@/lib/collections/userTagRels/schema';
 import { registerMigration } from './migrationUtils';
 
 export default registerMigration({
@@ -95,7 +95,7 @@ export default registerMigration({
     }
     
     // Update all other UserTagRels to have the default value (false)
-    const defaultValue = userTagRelsSchema["subforumEmailNotifications"].database.defaultValue;
+    const defaultValue = userTagRelsSchema["subforumEmailNotifications"].defaultValue;
     console.log(`Setting subforumEmailNotifications to ${defaultValue} for all but ${userEditedTagRelIds.length} rows`)
     await UserTagRels.rawUpdateMany({_id: {$nin: userEditedTagRelIds}, subforumEmailNotifications: {$ne: defaultValue}}, {$set: {subforumEmailNotifications: defaultValue}})
   }

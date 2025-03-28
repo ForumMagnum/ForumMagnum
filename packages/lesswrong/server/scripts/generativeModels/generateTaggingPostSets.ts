@@ -12,7 +12,6 @@ import filter from 'lodash/filter';
 import fs from 'fs';
 import { getSiteUrl } from '../../../lib/vulcan-lib/utils';
 import { FetchedFragment, fetchFragment } from '../../fetchFragment';
-import { createAnonymousContext } from '@/server/vulcan-lib/query';
 
 const postEndMarker  = "===TAGS===";
 
@@ -91,10 +90,9 @@ async function generateClassifierTuningFile({description, posts, postBodyCache, 
   classifyPost: (post: DbPost) => boolean,
   postBodyCache?: PostBodyCache
 }) {
-  const context = createAnonymousContext();
   const postsById = keyBy(posts, post=>post._id);
   const result: string[] = [];
-  const template = await wikiSlugToTemplate("lm-config-autotag", context);
+  const template = await wikiSlugToTemplate("lm-config-autotag");
   
   let postsWritten = 0;
   
@@ -124,7 +122,6 @@ export const generateTagClassifierData = async (args: {
   trainingSetFilename?: string,
   testSetFilename?: string,
 }) => {
-  const context = createAnonymousContext();
   const {tagSlug, trainingSetFilename="ml/tagClassificationPostIds.train.json", testSetFilename="ml/tagClassificationPostIds.test.json"} = args||{};
   const trainingSetPostIds = JSON.parse(fs.readFileSync(trainingSetFilename, 'utf-8'));
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetFilename, 'utf-8'));
@@ -149,7 +146,7 @@ export const generateTagClassifierData = async (args: {
   
   const tags: DbTag[] = tagSlug
     ? [singleTag!]
-    : await getAutoAppliedTags(context);
+    : await getAutoAppliedTags();
   
   console.log(`Will generate training and test sets for ${tags.length} tags: ${tags.map(t=>t.slug).join(', ')}`); //eslint-disable-line no-console
   console.log(`Preprocessing post body for ${trainingSet.length} posts in training set`); //eslint-disable-line no-console
@@ -235,7 +232,6 @@ export const generateIsFrontpageClassifierData = async () => {
 
 // Exported to allow running with "yarn repl"
 export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFilename: string) => {
-  const context = createAnonymousContext();
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
   const posts = await fetchFragment({
     collectionName: "Posts",
@@ -244,7 +240,7 @@ export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFi
     currentUser: null,
     skipFiltering: true,
   });
-  const tags = await getAutoAppliedTags(context);
+  const tags = await getAutoAppliedTags();
   const openAIApi = await getOpenAI();
   if (!openAIApi) throw new Error("OpenAI API not configured");
   const sb: string[] = [];
@@ -258,7 +254,7 @@ export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFi
     const tagsByHumans = filter(tags, t=>post.tagRelevance?.[t._id] > 0).map(t=>t.name);
     
     try {
-      const tagsPredicted = await checkTags(post, tags, openAIApi, context);
+      const tagsPredicted = await checkTags(post, tags, openAIApi);
       
       writeResult(`${post.title}\n`
         + `    ${getSiteUrl()}/posts/${post._id}/${post.slug}\n`
@@ -278,9 +274,8 @@ export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFi
 
 // Exported to allow running with "yarn repl"
 export const evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, outputFilename: string) => {
-  const context = createAnonymousContext();
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
-  const template = await wikiSlugToTemplate("lm-config-autotag", context);
+  const template = await wikiSlugToTemplate("lm-config-autotag");
   const posts = await fetchFragment({
     collectionName: "Posts",
     fragmentName: "PostsHTML",
@@ -348,8 +343,7 @@ export const evaluateFrontPageClassifier = async (testSetPostIdsFilename: string
 
 // Exported to allow running with "yarn repl"
 export async function printLanguageModelTemplate(templateName: string) {
-  const context = createAnonymousContext();
-  const template = await wikiSlugToTemplate("lm-config-autotag", context);
+  const template = await wikiSlugToTemplate("lm-config-autotag");
   //eslint-disable-next-line no-console
   console.log(JSON.stringify(template));
 }

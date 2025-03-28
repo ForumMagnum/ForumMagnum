@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { Tags } from '../../server/collections/tags/collection';
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { DatabaseServerSetting, openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import { encode as gpt3encode, decode as gpt3decode } from 'gpt-3-encoder'
@@ -66,7 +67,6 @@ function taskToWikiSlug(task: LanguageModelTask): string {
  * text of an admin-only wiki page, formatted as Markdown.
  */
 async function getLMConfigForTask(task: LanguageModelTask, context: ResolverContext): Promise<LanguageModelConfig> {
-  const { Tags } = context;
   const wikiPageSlug = taskToWikiSlug(task);
   const tag = await Tags.findOne({slug: wikiPageSlug});
   
@@ -97,8 +97,7 @@ function tagToLMConfig(tag: DbTag, task: LanguageModelTask): LanguageModelConfig
   };
 }
 
-export async function wikiSlugToTemplate(slug: string, context: ResolverContext): Promise<LanguageModelTemplate> {
-  const { Tags } = context;
+export async function wikiSlugToTemplate(slug: string): Promise<LanguageModelTemplate> {
   const wikiConfig = await Tags.findOne({slug});
   if (!wikiConfig) throw new Error(`No LM config page ${slug}`);
   return wikiPageToTemplate(wikiConfig);

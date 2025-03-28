@@ -11,14 +11,13 @@ function getTypeName(collectionName: string) {
 }
 
 function getSchemaFile(collectionName: string) {
-  return `import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
+  return `import { universalFields } from '@/lib/collectionUtils';
 
-const schema = {
-  _id: DEFAULT_ID_FIELD,
-  createdAt: DEFAULT_CREATED_AT_FIELD,
+const schema: SchemaType<'${collectionName}'> = {
+  ...universalFields({}),
 
   // Add your collection's fields here
-} satisfies Record<string, NewCollectionFieldSpecification<"${collectionName}">>;
+};
 
 export default schema;
 `;
@@ -55,7 +54,8 @@ function getCollectionFile(collectionName: string) {
   const collectionNameLower = uncapitalize(collectionName);
   const typeName = getTypeName(collectionName);
 
-  return `import { createCollection } from '@/lib/vulcan-lib/collections';
+  return `import schema from '@/lib/collections/${uncapitalize(collectionName)}/schema';
+import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /**
@@ -78,6 +78,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const ${collectionName}: ${collectionName}Collection = createCollection({
   collectionName: '${collectionName}',
   typeName: '${typeName}',
+  schema,
 
   // This is where you can add indexes for the collection.
   getIndexes: () => {
@@ -111,7 +112,7 @@ async function insertIntoAllSchemas(collectionName: string) {
   const lines = allSchemas.split('\n');
   
   const collectionNameLower = uncapitalize(collectionName);
-  const importLine = `import { default as ${collectionName} } from '../collections/${collectionNameLower}/newSchema';`;
+  const importLine = `import { default as ${collectionName} } from '../collections/${collectionNameLower}/schema';`;
   
   // Find the "Collection imports" section
   const collectionImportsIndex = lines.findIndex(line => line.includes('// Collection imports'));
@@ -498,7 +499,7 @@ export async function generateNewCollection(collectionName?: string) {
   await mkdir(libPath, { recursive: true });
 
   await Promise.all([
-    writeFile(path.join(libPath, 'newSchema.ts'), schemaFile),
+    writeFile(path.join(libPath, 'schema.ts'), schemaFile),
     writeFile(path.join(libPath, 'views.ts'), viewFile),
     writeFile(path.join(libPath, 'fragments.ts'), fragmentFile),
   ]);

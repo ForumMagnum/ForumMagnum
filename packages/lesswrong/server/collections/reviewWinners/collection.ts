@@ -1,5 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
+import { schema } from '@/lib/collections/reviewWinners/schema';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -24,7 +25,8 @@ export const reviewWinnerMutationOptions: MutationOptions<DbReviewWinner> = {
 export const ReviewWinners = createCollection({
   collectionName: 'ReviewWinners',
   typeName: 'ReviewWinner',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('ReviewWinners', { postId: 1 }, { unique: true });
     indexSet.addIndex('ReviewWinners', { curatedOrder: 1, category: 1 }, { unique: true });

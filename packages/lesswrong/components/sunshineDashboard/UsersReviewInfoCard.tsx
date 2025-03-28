@@ -7,6 +7,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { UserKarmaInfo } from '../../lib/rateLimits/types';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
 
@@ -157,6 +158,38 @@ const styles = (theme: ThemeType) => ({
 
 export const DEFAULT_BIO_WORDCOUNT = 250
 export const MAX_BIO_WORDCOUNT = 10000
+
+export function getDownvoteRatio(user: UserKarmaInfo): number {
+  // First check if the sum of the individual vote count fields
+  // add up to something close (with 5%) to the voteReceivedCount field.
+  // (They should be equal, but we know there are bugs around counting votes,
+  // so to be fair to users we don't want to rate limit them if it's too buggy.)
+
+  let {
+    smallUpvoteReceivedCount,
+    bigUpvoteReceivedCount,
+    smallDownvoteReceivedCount,
+    bigDownvoteReceivedCount,
+    voteReceivedCount
+  } = user;
+
+  smallUpvoteReceivedCount ??= 0;
+  bigUpvoteReceivedCount ??= 0;
+  smallDownvoteReceivedCount ??= 0;
+  bigDownvoteReceivedCount ??= 0;
+  voteReceivedCount ??= 0;
+
+  const sumOfVoteCounts = smallUpvoteReceivedCount + bigUpvoteReceivedCount + smallDownvoteReceivedCount + bigDownvoteReceivedCount;
+  const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - voteReceivedCount);
+  const voteCountsAreValid = voteReceivedCount > 0
+    && (denormalizedVoteCountSumDiff / voteReceivedCount) <= 0.05;
+
+  const totalDownvoteCount = smallDownvoteReceivedCount + bigDownvoteReceivedCount;
+  // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
+  const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / voteReceivedCount) : 0
+
+  return downvoteRatio
+}
 
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,

@@ -123,7 +123,7 @@ const schema: SchemaType<"GardenCodes"> = {
     control: "radiogroup",
     ...schemaDefaultValue(eventTypes[0].value),
     form: {
-      options: () => eventTypes
+      options: eventTypes
     },
     order: 30,
   },

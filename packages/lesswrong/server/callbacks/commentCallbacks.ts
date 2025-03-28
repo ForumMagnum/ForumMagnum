@@ -1,6 +1,6 @@
 
 import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, DeleteCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { addReferrerToComment, alignmentCommentsNewOperations, checkCommentForSpamWithAkismet, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, commentsRemovePostCommenters, commentsRemoveChildrenComments, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updateUserNotesOnCommentRejection, validateDeleteOperations, assignPostVersion, updatePostLastCommentPromotedAt } from './commentCallbackFunctions';
+import { addReferrerToComment, alignmentCommentsNewOperations, checkCommentForSpamWithAkismet, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, commentsRemovePostCommenters, commentsRemoveChildrenComments, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updateUserNotesOnCommentRejection, validateDeleteOperations } from './commentCallbackFunctions';
 import { sendAlignmentSubmissionApprovalNotifications } from './postCallbackFunctions';
 
 
@@ -14,7 +14,6 @@ async function commentCreateValidate(validationErrors: CallbackValidationErrors,
 async function commentCreateBefore(doc: DbInsertion<DbComment>, props: CreateCallbackProperties<'Comments'>): Promise<DbInsertion<DbComment>> {
   let mutableComment = doc;
 
-  mutableComment = await assignPostVersion(mutableComment);
   mutableComment = await createShortformPost(mutableComment, props);
   mutableComment = addReferrerToComment(mutableComment, props) ?? mutableComment;
   mutableComment = await handleReplyToAnswer(mutableComment, props);
@@ -74,7 +73,6 @@ async function commentUpdateValidate(validationErrors: CallbackValidationErrors,
 }
 
 async function commentUpdateBefore(comment: Partial<DbComment>, props: UpdateCallbackProperties<'Comments'>): Promise<Partial<DbComment>> {
-  comment = updatePostLastCommentPromotedAt(comment, props);
   comment = await validateDeleteOperations(comment, props);
 
   // editorSerializationEdit

@@ -29,14 +29,14 @@ import {
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
-import { getSchema } from '@/lib/schema/allSchemas';
+import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
 import { pluralize } from "../../../lib/vulcan-lib/pluralize";
 import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
-import { getAllCollections } from "../../collections/allCollections";
+import { getAllCollections, getCollectionByTypeName } from "../../collections/allCollections";
 import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
@@ -106,16 +106,50 @@ const getTypeDefs = () => {
   };
 }
 
-// get GraphQL type for a given field
+// get GraphQL type for a given schema and field name
 const getGraphQLType = <N extends CollectionNameString>(
-  graphql: GraphQLFieldSpecification<N>,
+  schema: SchemaType<N>,
+  fieldName: string,
   isInput = false,
-) => {
-  if (isInput && 'inputType' in graphql && graphql.inputType) {
-    return graphql.inputType;
-  }
+): string|null => {
+  const field = schema[fieldName];
+  const type = field.type.singleType;
+  const typeName =
+    typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
 
-  return graphql.outputType;
+  switch (typeName) {
+    case 'String':
+      return 'String';
+
+    case 'Boolean':
+      return 'Boolean';
+
+    case 'Number':
+      return 'Float';
+
+    case 'SimpleSchema.Integer':
+      return 'Int';
+
+    // for arrays, look for type of associated schema field or default to [String]
+    case 'Array':
+      const arrayItemFieldName = `${fieldName}.$`;
+      // note: make sure field has an associated array
+      if (schema[arrayItemFieldName]) {
+        // try to get array type from associated array
+        const arrayItemType = getGraphQLType(schema, arrayItemFieldName);
+        return arrayItemType ? `[${arrayItemType}]` : null;
+      }
+      return null;
+
+    case 'Object':
+      return 'JSON';
+
+    case 'Date':
+      return 'Date';
+
+    default:
+      return null;
+  }
 };
 
 /**
@@ -169,7 +203,7 @@ type SchemaGraphQLFields = {
 
 // for a given schema, return main type fields, selector fields,
 // unique selector fields, orderBy fields, creatable fields, and updatable fields
-const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typeName: string): {
+const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeName: string): {
   fields: SchemaGraphQLFields
   resolvers: any
 }=> {
@@ -185,114 +219,124 @@ const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typ
 
   Object.keys(schema).forEach(fieldName => {
     const field = schema[fieldName];
-    const { graphql } = field;
-    // only include fields that are viewable/insertable/editable
-    if (!graphql || (!(graphql.canRead.length || graphql.canCreate?.length || graphql.canUpdate?.length) && !graphql.forceIncludeInExecutableSchema)) {
-      return;
-    }
+    const fieldType = getGraphQLType(schema, fieldName);
+    const inputFieldType = getGraphQLType(schema, fieldName, true);
 
-    const fieldType = getGraphQLType(graphql);
-    const inputFieldType = getGraphQLType(graphql, true);
+    // only include fields that are viewable/insertable/editable and don't contain "$" in their name
+    // note: insertable/editable fields must be included in main schema in case they're returned by a mutation
+    // OpenCRUD backwards compatibility
+    if (
+      (field.canRead || field.canCreate || field.canUpdate)
+      && fieldName.indexOf('$') === -1
+    ) {
+      const fieldDescription = field.description;
+      const fieldDirective = '';
+      const fieldArguments: Array<any> = [];
 
-    const fieldDirective = '';
-    const fieldArguments: Array<any> = [];
+      // if field has a resolveAs, push it to schema
+      if (field.resolveAs) {
+        // get resolver name from resolveAs object, or else default to field name
+        const resolverName = field.resolveAs.fieldName || fieldName;
 
-    // if field has a resolveAs, push it to schema
-    if (graphql.resolver) {
-      const resolverName = fieldName;
+        // use specified GraphQL type or else convert schema type
+        const fieldGraphQLType = field.resolveAs.type || fieldType;
 
-      // first push its type definition
-      // include arguments if there are any
-      fields.mainType.push({
-        description: '',
-        name: resolverName,
-        args: graphql.arguments,
-        type: fieldType,
-      });
-
-      const permissionData = getSqlResolverPermissionsData(fieldType);
-
-      // then build actual resolver object and pass it to addGraphQLResolvers
-      const resolver = {
-        [typeName]: {
-          [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext) => {
-            // Check that current user has permission to access the original
-            // non-resolved field.
-            if (!userCanReadField(context.currentUser, graphql.canRead, document)) {
-              return null;
-            }
-
-            // First, check if the value was already fetched by a SQL resolver.
-            // A field with a SQL resolver that returns no value (for instance,
-            // if it uses a LEFT JOIN and no matching object is found) can be
-            // distinguished from a field with no SQL resolver as the former
-            // will be `null` and the latter will be `undefined`.
-            if (graphql.sqlResolver) {
-              const typedName = resolverName as keyof ObjectsByCollectionName[N];
-              let existingValue = document[typedName];
-              if (existingValue !== undefined) {
-                const {sqlPostProcess} = graphql;
-                if (sqlPostProcess) {
-                  existingValue = sqlPostProcess(existingValue, document, context);
-                }
-                if (permissionData) {
-                  const filter = permissionData.isArray
-                    ? accessFilterMultiple
-                    : accessFilterSingle;
-                  return filter(
-                    context.currentUser,
-                    permissionData.collectionName,
-                    existingValue as AnyBecauseHard,
-                    context,
-                  );
-                }
-                return existingValue;
-              }
-            }
-
-            // If the value wasn't supplied by a SQL resolver then we need
-            // to run the code resolver instead.
-            return graphql.resolver!(document, args, context);
-          },
-        },
-      };
-
-      addedResolvers.push(resolver);
-    } else {
-      // try to guess GraphQL type
-      if (fieldType) {
+        // if resolveAs is an object, first push its type definition
+        // include arguments if there are any
+        // note: resolved fields are not internationalized
         fields.mainType.push({
-          description: '',
+          description: field.resolveAs.description,
+          name: resolverName,
+          args: field.resolveAs.arguments,
+          type: fieldGraphQLType,
+        });
+
+        const permissionData = getSqlResolverPermissionsData(field.resolveAs!.type);
+
+        // then build actual resolver object and pass it to addGraphQLResolvers
+        const resolver = {
+          [typeName]: {
+            [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext) => {
+              // Check that current user has permission to access the original
+              // non-resolved field.
+              if (!userCanReadField(context.currentUser, field, document)) {
+                return null;
+              }
+
+              // First, check if the value was already fetched by a SQL resolver.
+              // A field with a SQL resolver that returns no value (for instance,
+              // if it uses a LEFT JOIN and no matching object is found) can be
+              // distinguished from a field with no SQL resolver as the former
+              // will be `null` and the latter will be `undefined`.
+              if (field.resolveAs!.sqlResolver) {
+                const typedName = resolverName as keyof ObjectsByCollectionName[N];
+                let existingValue = document[typedName];
+                if (existingValue !== undefined) {
+                  const {sqlPostProcess} = field.resolveAs!;
+                  if (sqlPostProcess) {
+                    existingValue = sqlPostProcess(existingValue, document, context);
+                  }
+                  if (permissionData) {
+                    const filter = permissionData.isArray
+                      ? accessFilterMultiple
+                      : accessFilterSingle;
+                    return filter(
+                      context.currentUser,
+                      permissionData.collectionName,
+                      existingValue as AnyBecauseHard,
+                      context,
+                    );
+                  }
+                  return existingValue;
+                }
+              }
+
+              // If the value wasn't supplied by a SQL resolver then we need
+              // to run the code resolver instead.
+              return field.resolveAs!.resolver(document, args, context);
+            },
+          },
+        };
+        addedResolvers.push(resolver);
+
+        // if addOriginalField option is enabled, also add original field to schema
+        if (field.resolveAs.addOriginalField && fieldType) {
+          fields.mainType.push({
+            description: fieldDescription,
+            name: fieldName,
+            args: fieldArguments,
+            type: fieldType,
+            directive: fieldDirective,
+          });
+        }
+      } else {
+        // try to guess GraphQL type
+        if (fieldType) {
+          fields.mainType.push({
+            description: fieldDescription,
+            name: fieldName,
+            args: fieldArguments,
+            type: fieldType,
+            directive: fieldDirective,
+          });
+        }
+      }
+
+      // OpenCRUD backwards compatibility
+      if (field.canCreate) {
+        fields.create.push({
           name: fieldName,
-          args: fieldArguments,
-          type: fieldType,
-          directive: fieldDirective,
+          type: inputFieldType,
+          required: !field.optional,
         });
       }
-    }
-
-    const createFieldType = inputFieldType === 'Revision'
-      ? 'JSON'
-      : inputFieldType;
-
-    // Fields should not be required for updates
-    const updateFieldType = (typeof createFieldType === 'string' && createFieldType.endsWith('!'))
-      ? createFieldType.slice(0, -1)
-      : createFieldType;
-
-    // OpenCRUD backwards compatibility
-    if (graphql.canCreate?.length) {
-      fields.create.push({
-        name: fieldName,
-        type: createFieldType,
-      });
-    }
-    // OpenCRUD backwards compatibility
-    if (graphql.canUpdate?.length) {
-      fields.update.push({
-        name: fieldName,
-        type: updateFieldType,
-      });
+      // OpenCRUD backwards compatibility
+      if (field.canUpdate) {
+        fields.update.push({
+          name: fieldName,
+          type: inputFieldType,
+        });
+      }
     }
   });
   return { fields, resolvers: addedResolvers };
@@ -310,7 +354,7 @@ const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
     ? collection.typeName
     : camelToSpaces(_.initial(collectionName).join('')); // default to posts -> Post
 
-  const schema = getSchema(collectionName);
+  const schema = getSimpleSchema(collectionName)._schema;
 
   const { fields, resolvers: fieldResolvers } = getFields(schema, typeName);
 

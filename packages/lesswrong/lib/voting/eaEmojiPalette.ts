@@ -5,7 +5,6 @@ import { HeartReactionIcon } from "../../components/icons/reactions/HeartReactio
 import { HandshakeReactionIcon } from "../../components/icons/reactions/HandshakeReactionIcon";
 import { LightbulbReactionIcon } from "../../components/icons/reactions/LightbulbReactionIcon";
 import { DeltaReactionIcon } from "../../components/icons/reactions/DeltaReactionIcon";
-import { LaughReactionIcon } from "@/components/icons/reactions/LaughReactionIcon";
 
 export type EmojiOption = {
   Component: FC,
@@ -48,11 +47,6 @@ export const eaEmojiPalette: EmojiOption[] = [
     Component: DeltaReactionIcon,
     name: "changed-mind",
     label: "Changed my mind",
-  },
-  {
-    Component: LaughReactionIcon,
-    name: "laugh",
-    label: "Made me laugh",
   },
 ];
 

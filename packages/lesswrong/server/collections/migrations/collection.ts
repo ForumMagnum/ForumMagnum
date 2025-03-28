@@ -1,4 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
+import schema from '@/lib/collections/migrations/schema';
 
 /*
  * NOTE: This collection only tracks the use of migrations located in
@@ -15,7 +16,8 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 export const Migrations: MigrationsCollection = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
-    //resolvers: getDefaultResolvers("Migrations"),
+  schema,
+  //resolvers: getDefaultResolvers("Migrations"),
   //mutations: getDefaultMutations("Migrations"),
 });
 

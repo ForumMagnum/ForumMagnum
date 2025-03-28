@@ -1,10 +1,12 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import schema from '@/lib/collections/readStatus/schema';
 
 export const ReadStatuses: ReadStatusesCollection = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addCustomPgIndex(`
       CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId"

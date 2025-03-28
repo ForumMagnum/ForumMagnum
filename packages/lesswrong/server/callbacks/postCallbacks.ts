@@ -31,7 +31,7 @@ async function postNewSync(post: DbPost, currentUser: DbUser | null, context: Re
   }
 
   post = await checkRecentRepost(post, currentUser, context);
-  post = await postsNewDefaultLocation(post, currentUser, context);
+  post = await postsNewDefaultLocation(post);
   post = await postsNewDefaultTypes(post, currentUser, context);
   post = await postsNewUserApprovedStatus(post, currentUser, context);
   post = await fixEventStartAndEndTimes(post);

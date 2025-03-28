@@ -143,7 +143,7 @@ defineMutation({
     } else {
       // eslint-disable-next-line no-console
       console.log("Reverting to a non-collaborative revision");
-      if (await revisionIsChange(revision, "contents", context)) {
+      if (await revisionIsChange(revision, "contents")) {
         // Edit the document to set contents to match this revision. Edit callbacks
         // take care of the rest.
         await updateMutator({

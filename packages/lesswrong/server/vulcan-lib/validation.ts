@@ -1,6 +1,7 @@
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
 import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/permissions';
+import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import * as _ from 'underscore';
 
 interface SimpleSchemaValidationError {
@@ -32,8 +33,6 @@ export const validateDocument = <N extends CollectionNameString>(
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
-  const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
-
   const schema = getSchema(collection.collectionName);
 
   let validationErrors: Array<any> = [];
@@ -43,7 +42,7 @@ export const validateDocument = <N extends CollectionNameString>(
     const fieldSchema = schema[fieldName];
 
     // 1. check that the current user has permission to insert each field
-    if (!fieldSchema?.graphql || !userCanCreateField(currentUser, fieldSchema.graphql.canCreate)) {
+    if (!fieldSchema || !userCanCreateField(currentUser, fieldSchema)) {
       validationErrors.push({
         id: 'errors.disallowed_property_detected',
         properties: { name: fieldName },
@@ -95,9 +94,6 @@ export const validateModifier = <N extends CollectionNameString>(
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
-
-  const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
-
   const schema = getSchema(collection.collectionName);
   const set = modifier.$set;
   const unset = modifier.$unset;
@@ -108,7 +104,7 @@ export const validateModifier = <N extends CollectionNameString>(
   const modifiedProperties = _.keys(set).concat(_.keys(unset));
   modifiedProperties.forEach(function(fieldName) {
     var field = schema[fieldName];
-    if (!field?.graphql || !userCanUpdateField(currentUser, field.graphql.canUpdate, document)) {
+    if (!field || !userCanUpdateField(currentUser, field, document)) {
       validationErrors.push({
         id: 'errors.disallowed_property_detected',
         properties: { name: fieldName },

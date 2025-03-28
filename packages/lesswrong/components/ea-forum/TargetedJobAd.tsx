@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import OpenInNew from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import moment from 'moment';
 import { Link } from '../../lib/reactRouterWrapper';
-import type { CareerStageValue } from '../../lib/collections/users/newSchema';
+import { CareerStageValue } from '../../lib/collections/users/schema';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType) => ({

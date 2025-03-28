@@ -13,11 +13,7 @@ interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
   createdAt: Date
   interestedInMetaculus: boolean
-  jobAds: Array<{
-    state: "seen" | "expanded" | "interested" | "uninterested",
-    uninterestedReason: string | null,
-    lastUpdated: Date,
-  }> | null
+  jobAds: any /*{"definitions":[{"blackbox":true}]}*/
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   userId: string
 }
@@ -67,7 +63,7 @@ type BooksCollection = CollectionBase<"Books">;
 
 interface DbBook extends DbObject {
   __collectionName?: "Books"
-  collectionId: string
+  collectionId: string | null
   contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
@@ -138,8 +134,8 @@ interface DbCollection extends DbObject {
   hideStartReadingButton: boolean | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   noindex: boolean
-  slug: string
-  title: string
+  slug: string | null
+  title: string | null
   userId: string
 }
 
@@ -306,7 +302,7 @@ interface DbDatabaseMetadata extends DbObject {
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   name: string
-  value: any
+  value: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type DebouncerEventsCollection = CollectionBase<"DebouncerEvents">;
@@ -378,11 +374,11 @@ interface DbDigest extends DbObject {
   createdAt: Date
   endDate: Date | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  num: number
+  num: number | null
   onsiteImageId: string | null
   onsitePrimaryColor: string | null
   publishedDate: Date | null
-  startDate: Date
+  startDate: Date | null
 }
 
 type ElectionCandidatesCollection = CollectionBase<"ElectionCandidates">;
@@ -409,7 +405,7 @@ interface DbElectionCandidate extends DbObject {
   name: string
   postCount: number
   score: number
-  tagId: string
+  tagId: string | null
   targetAmount: number | null
   userId: string
   voteCount: number
@@ -850,11 +846,11 @@ type PodcastEpisodesCollection = CollectionBase<"PodcastEpisodes">;
 interface DbPodcastEpisode extends DbObject {
   __collectionName?: "PodcastEpisodes"
   createdAt: Date
-  episodeLink: string
-  externalEpisodeId: string
+  episodeLink: string | null
+  externalEpisodeId: string | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   podcastId: string
-  title: string
+  title: string | null
 }
 
 type PodcastsCollection = CollectionBase<"Podcasts">;
@@ -865,7 +861,7 @@ interface DbPodcast extends DbObject {
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   spotifyPodcastLink: string | null
-  title: string
+  title: string | null
 }
 
 type PostEmbeddingsCollection = CollectionBase<"PostEmbeddings">;
@@ -1183,7 +1179,7 @@ interface DbReport extends DbObject {
   createdAt: Date
   description: string | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  link: string
+  link: string | null
   markedAsSpam: boolean | null
   postId: string | null
   reportedAsSpam: boolean | null
@@ -1286,7 +1282,7 @@ interface DbSequence extends DbObject {
   lastUpdated: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   noindex: boolean
-  title: string
+  title: string | null
   userId: string
   userProfileOrder: number | null
 }
@@ -1676,9 +1672,7 @@ interface DbUser extends DbObject {
   biography: EditableFieldContents | null
   biography_latest: string | null
   blueskyProfileURL: string | null
-  bookmarkedPostsMetadata: Array<{
-    postId: string,
-  }>
+  bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
   careerStage: Array<string> | null
   collapseModerationGuidelines: boolean | null
   commentCount: number
@@ -1697,10 +1691,7 @@ interface DbUser extends DbObject {
   draftsListSorting: string | null
   email: string | null
   emailSubscribedToCurated: boolean | null
-  emails: Array<{
-    address: string,
-    verified: boolean,
-  }> | null
+  emails: Array<any /*{"definitions":[{}]}*/> | null
   expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
@@ -1720,9 +1711,7 @@ interface DbUser extends DbObject {
   goodHeartTokens: number | null
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   groups: Array<string> | null
-  hiddenPostsMetadata: Array<{
-    postId: string,
-  }>
+  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
   hideAFNonMemberInitialWarning: boolean
   hideActiveDialogueUsers: boolean
   hideCommunitySection: boolean
@@ -2209,7 +2198,7 @@ interface DbUser extends DbObject {
   postGlossariesPinned: boolean
   postingDisabled: boolean | null
   previousDisplayName: string | null
-  profile: any
+  profile: any /*{"definitions":[{"blackbox":true}]}*/
   profileImageId: string | null
   profileTagIds: Array<string>
   profileUpdatedAt: Date
@@ -2313,7 +2302,7 @@ interface DbVote extends DbObject {
   createdAt: Date
   documentId: string
   documentIsAf: boolean
-  extendedVoteType: any /*{"definitions":[{}]}*/
+  extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
   isUnvote: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   power: number

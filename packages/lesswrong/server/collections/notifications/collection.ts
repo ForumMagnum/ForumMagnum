@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/notifications/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
@@ -24,7 +25,8 @@ const options: MutationOptions<DbNotification> = {
 export const Notifications: NotificationsCollection = createCollection({
   collectionName: 'Notifications',
   typeName: 'Notification',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Notifications', {userId:1, emailed:1, waitingForBatch:1, createdAt:-1, type:1});
     indexSet.addIndex('Notifications', {userId:1, type:1, createdAt:-1});

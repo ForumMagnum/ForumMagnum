@@ -2,12 +2,12 @@
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
 import { Posts } from "../../server/collections/posts/collection";
-import RevisionSchema from "@/lib/collections/revisions/newSchema";
+import { revisionResolvers } from "../../server/resolvers/revisionResolvers";
 import { createAnonymousContext } from "../vulcan-lib/query";
 
 /** For visually inspecting that our descriptions match the post content well */
 export const testPostDescription = async () => {
-  const plaintextResolver = RevisionSchema.plaintextDescription.graphql.resolver;
+  const plaintextResolver = revisionResolvers.plaintextDescription.resolveAs.resolver;
   console.log("running");
   console.log('plaintextResolver', plaintextResolver);
   if (!plaintextResolver) throw new Error('no plaintextResolver');

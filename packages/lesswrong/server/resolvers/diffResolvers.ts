@@ -49,7 +49,7 @@ addGraphQLResolvers({
           fieldName: fieldName,
         })
       } else {
-        beforeUnfiltered = await getPrecedingRev(afterUnfiltered, context);
+        beforeUnfiltered = await getPrecedingRev(afterUnfiltered);
       }
       
       const before: Partial<DbRevision>|null = await accessFilterSingle(currentUser, 'Revisions', beforeUnfiltered, context);

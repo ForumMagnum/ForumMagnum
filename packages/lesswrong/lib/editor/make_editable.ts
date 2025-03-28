@@ -1,6 +1,6 @@
 import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
-import { ContentType, getOriginalContents } from '../collections/revisions/newSchema'
+import { ContentType, getOriginalContents } from '../collections/revisions/schema'
 import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
@@ -66,30 +66,25 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
     canCreate: ['members']
   },
   order: 0,
-  hintText: () => defaultEditorPlaceholder,
+  hintText: defaultEditorPlaceholder,
   pingbacks: false,
   revisionsHaveCommitMessages: false,
 }
 
-interface EditableField<N extends CollectionNameString> extends NewCollectionFieldSpecification<N> {
-  graphql: GraphQLFieldSpecification<N> & {
-    editableFieldOptions: EditableFieldCallbackOptions;
-  }
-  form: FormFieldSpecification<N> & {
-    editableFieldOptions: EditableFieldClientOptions;
-  }
+interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
+  editableFieldOptions: EditableFieldOptions;
 };
 
-export function isEditableField<N extends CollectionNameString>(field: [string, NewCollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
-  const { graphql, form } = field[1];
-  return !!graphql && 'editableFieldOptions' in graphql && !!graphql.editableFieldOptions && !!form?.editableFieldOptions;
+export function isEditableField<N extends CollectionNameString>(field: [string, CollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
+  return !!field[1].editableFieldOptions;
 }
 
 export const getEditableFieldsByCollection = (() => {
   let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
   return () => {
-    const { allSchemas }: typeof import('../schema/allSchemas') = require('../schema/allSchemas');
+    const { allSchemas }: { allSchemas: Record<string, SchemaType<CollectionNameString>> } = require('../schema/allSchemas');
     if (!editableFieldsByCollection) {
+      // const allCollections = getAllCollections();
       editableFieldsByCollection = Object.entries(allSchemas).reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, [collectionName, schema]) => {
         const editableFields = Object.entries(schema).filter(isEditableField);
         if (editableFields.length > 0) {
@@ -106,125 +101,7 @@ export const getEditableFieldsByCollection = (() => {
 export const getEditableCollectionNames = () => Object.keys(getEditableFieldsByCollection()) as CollectionNameString[];
 export const getEditableFieldNamesForCollection = (collectionName: CollectionNameString) => Object.keys(getEditableFieldsByCollection()[collectionName] ?? {});
 export const getEditableFieldInCollection = <N extends CollectionNameString>(collectionName: N, fieldName: string) => getEditableFieldsByCollection()[collectionName]?.[fieldName];
-export const editableFieldIsNormalized = (collectionName: CollectionNameString, fieldName: string) => !!getEditableFieldInCollection(collectionName, fieldName)?.graphql.editableFieldOptions.normalized;
-
-export function getNormalizedEditableResolver<N extends CollectionNameString>(fieldName: string) {
-  return async function normalizedEditableResolver(
-    doc: ObjectsByCollectionName[N],
-    args: {version?: string},
-    context: ResolverContext,
-  ): Promise<DbRevision|null> {
-    const {currentUser, Revisions} = context;
-    const checkAccess = getCollectionAccessFilter('Revisions');
-
-    let revision: DbRevision|null;
-    if (args.version) {
-      revision = await Revisions.findOne({
-        documentId: doc._id,
-        version: args.version,
-        fieldName,
-      });
-    } else {
-      const revisionId = doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]] as string;
-      if (revisionId) {
-        revision = await context.loaders.Revisions.load(revisionId);
-      } else {
-        revision = null;
-      }
-    }
-    return (revision && await checkAccess(currentUser, revision, context))
-      ? revision
-      : null;
-  }
-}
-
-export function getNormalizedEditableSqlResolver<N extends CollectionNameString>(fieldName: string) {
-  return function normalizedEditableSqlResolver({field, resolverArg, join}: SqlResolverArgs<N>) {
-    return join({
-      table: "Revisions",
-      type: "left",
-      /**
-       * WARNING: we manually interpolate `fieldName` into the SQL query below.
-       * In this case it's safe because we control the value of `fieldName` (though we need to take care not to allow the creation of an editable field name with e.g. any escape characters),
-       * and it'd be pretty annoying to pass it in as an argument given how the dynamic sql construction works.
-       * But you should not do this kind of thing elsewhere, as a rule.
-       */
-      on: (revisionField) => `CASE WHEN ${resolverArg("version")} IS NULL
-        THEN
-          ${field(`${fieldName}_latest` as FieldName<N>)} = ${revisionField("_id")}
-        WHEN ${resolverArg("version")} = 'draft' THEN
-          ${revisionField("_id")} = (SELECT _id FROM "Revisions" WHERE "documentId" = ${field("_id")} AND "fieldName" = '${fieldName}' ORDER BY "editedAt" DESC LIMIT 1)
-        ELSE
-          ${resolverArg("version")} = ${revisionField("version")} AND
-          ${field("_id")} = ${revisionField("documentId")}
-        END
-      `,
-      resolver: (revisionField) => revisionField("*"),
-    });
-  }
-}
-
-export function getDenormalizedEditableResolver<N extends CollectionNameString>(collectionName: N, fieldName: string) {
-  return async function denormalizedEditableResolver(
-    doc: ObjectsByCollectionName[N],
-    {version}: {version?: string},
-    context: ResolverContext,
-  ): Promise<DbRevision|null> {
-    const {currentUser, Revisions} = context;
-    if (version) {
-      const checkAccess = getCollectionAccessFilter('Revisions');
-      if (version === "draft") {
-        // If version is the special string "draft", that means
-        // instead of returning the latest non-draft version
-        // (what we'd normally do), we instead return the latest
-        // version period, including draft versions.
-        const revision = await Revisions.findOne({
-          documentId: doc._id,
-          fieldName,
-        }, {sort: {editedAt: -1}});
-        return revision && await checkAccess(currentUser, revision, context)
-          ? revision
-          : null;
-      } else {
-        const revision = await Revisions.findOne({
-          documentId: doc._id,
-          version,
-          fieldName,
-        });
-        return revision && await checkAccess(currentUser, revision, context)
-          ? revision
-          : null;
-      }
-    }
-
-    const typedFieldName = fieldName as keyof ObjectsByCollectionName[N];
-    const docField = doc[typedFieldName] as EditableFieldContents;
-    if (!docField) {
-      return null;
-    }
-
-    const result = {
-      ...docField,
-      // we're specifying these fields manually because docField doesn't have
-      // them, or because we need to control the permissions on them.
-      // The reason we need to return documentId and collectionName is because
-      // this entire result gets recursively resolved by revision field
-      // resolvers, and those resolvers depend on these fields existing.
-      _id: `${doc._id}_${fieldName}`, //HACK
-      documentId: doc._id,
-      collectionName,
-      editedAt: new Date(docField?.editedAt ?? Date.now()),
-      originalContents: getOriginalContents(
-        context.currentUser,
-        doc,
-        docField.originalContents,
-      ),
-    } as DbRevision;
-    // HACK: Pretend that this denormalized field is a DbRevision (even though
-    // it's missing an _id and some other fields)
-    return result
-  }
-}
+export const editableFieldIsNormalized = (collectionName: CollectionNameString, fieldName: string) => !!getEditableFieldInCollection(collectionName, fieldName)?.editableFieldOptions.callbackOptions.normalized;
 
 const buildEditableResolver = <N extends CollectionNameString>(
   collectionName: N,
@@ -235,15 +112,119 @@ const buildEditableResolver = <N extends CollectionNameString>(
     return {
       type: "Revision",
       arguments: "version: String",
-      resolver: getNormalizedEditableResolver(fieldName),
-      sqlResolver: getNormalizedEditableSqlResolver(fieldName),
+      resolver: async (
+        doc: ObjectsByCollectionName[N],
+        args: {version?: string},
+        context: ResolverContext,
+      ): Promise<DbRevision|null> => {
+        const {currentUser, Revisions} = context;
+        const checkAccess = getCollectionAccessFilter('Revisions');
+
+        let revision: DbRevision|null;
+        if (args.version) {
+          revision = await Revisions.findOne({
+            documentId: doc._id,
+            version: args.version,
+            fieldName,
+          });
+        } else {
+          const revisionId = doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]] as string;
+          if (revisionId) {
+            revision = await context.loaders.Revisions.load(revisionId);
+          } else {
+            revision = null;
+          }
+        }
+        return (revision && await checkAccess(currentUser, revision, context))
+          ? revision
+          : null;
+      },
+      sqlResolver: ({field, resolverArg, join}) => join({
+        table: "Revisions",
+        type: "left",
+        /**
+         * WARNING: we manually interpolate `fieldName` into the SQL query below.
+         * In this case it's safe because we control the value of `fieldName` (though we need to take care not to allow the creation of an editable field name with e.g. any escape characters),
+         * and it'd be pretty annoying to pass it in as an argument given how the dynamic sql construction works.
+         * But you should not do this kind of thing elsewhere, as a rule.
+         */
+        on: (revisionField) => `CASE WHEN ${resolverArg("version")} IS NULL
+          THEN
+            ${field(`${fieldName}_latest` as FieldName<N>)} = ${revisionField("_id")}
+          WHEN ${resolverArg("version")} = 'draft' THEN
+            ${revisionField("_id")} = (SELECT _id FROM "Revisions" WHERE "documentId" = ${field("_id")} AND "fieldName" = '${fieldName}' ORDER BY "editedAt" DESC LIMIT 1)
+          ELSE
+            ${resolverArg("version")} = ${revisionField("version")} AND
+            ${field("_id")} = ${revisionField("documentId")}
+          END
+        `,
+        resolver: (revisionField) => revisionField("*"),
+      }),
     };
   }
 
   return {
     type: "Revision",
     arguments: "version: String",
-    resolver: getDenormalizedEditableResolver(collectionName, fieldName),
+    resolver: async (
+      doc: ObjectsByCollectionName[N],
+      {version}: {version?: string},
+      context: ResolverContext,
+    ): Promise<DbRevision|null> => {
+      const {currentUser, Revisions} = context;
+      if (version) {
+        const checkAccess = getCollectionAccessFilter('Revisions');
+        if (version === "draft") {
+          // If version is the special string "draft", that means
+          // instead of returning the latest non-draft version
+          // (what we'd normally do), we instead return the latest
+          // version period, including draft versions.
+          const revision = await Revisions.findOne({
+            documentId: doc._id,
+            fieldName,
+          }, {sort: {editedAt: -1}});
+          return revision && await checkAccess(currentUser, revision, context)
+            ? revision
+            : null;
+        } else {
+          const revision = await Revisions.findOne({
+            documentId: doc._id,
+            version,
+            fieldName,
+          });
+          return revision && await checkAccess(currentUser, revision, context)
+            ? revision
+            : null;
+        }
+      }
+
+      const typedFieldName = fieldName as keyof ObjectsByCollectionName[N];
+      const docField = doc[typedFieldName] as EditableFieldContents;
+      if (!docField) {
+        return null;
+      }
+
+      const result = {
+        ...docField,
+        // we're specifying these fields manually because docField doesn't have
+        // them, or because we need to control the permissions on them.
+        // The reason we need to return documentId and collectionName is because
+        // this entire result gets recursively resolved by revision field
+        // resolvers, and those resolvers depend on these fields existing.
+        _id: `${doc._id}_${fieldName}`, //HACK
+        documentId: doc._id,
+        collectionName,
+        editedAt: new Date(docField?.editedAt ?? Date.now()),
+        originalContents: getOriginalContents(
+          context.currentUser,
+          doc,
+          docField.originalContents,
+        ),
+      } as DbRevision;
+      // HACK: Pretend that this denormalized field is a DbRevision (even though
+      // it's missing an _id and some other fields)
+      return result
+    },
   };
 }
 
@@ -265,50 +246,6 @@ const defaultPingbackFields = {
     type: String,
   },
 } as const;
-
-export function getDefaultLocalStorageIdGenerator<N extends CollectionNameString>(collectionName: N) {
-  return function defaultLocalStorageIdGenerator(doc: any, name: string): {id: string, verify: boolean} {
-    const { _id, conversationId } = doc
-    if (_id && name) { return {id: `${_id}${name}`, verify: true}}
-    else if (_id) { return {id: _id, verify: true }}
-    else if (conversationId) { return {id: conversationId, verify: true }}
-    else if (name) { return {id: `${collectionName}_new_${name}`, verify: true }}
-    else {
-      throw Error(`Can't get storage ID for this document: ${doc}`)
-    }
-  }
-}
-
-export function getRevisionsResolver(fieldName: string) {
-  return async function revisionsResolver<N extends CollectionNameString>(
-    post: ObjectsByCollectionName[N],
-    args: {limit: number},
-    context: ResolverContext,
-  ) {
-    const { limit } = args;
-    const { currentUser, Revisions } = context;
-
-    // getWithLoader is used here to fix a performance bug for a particularly nasty bot which resolves `revisions` for thousands of comments.
-    // Previously, this would cause a query for every comment whereas now it only causes one (admittedly quite slow) query
-    const loaderResults = await getWithLoader(
-      context,
-      Revisions,
-      `revisionsByDocumentId_${fieldName}_${limit}`,
-      {fieldName},
-      "documentId",
-      post._id,
-      {sort: {editedAt: -1}, limit},
-    );
-
-    return await accessFilterMultiple(currentUser, 'Revisions', loaderResults, context);
-  }
-}
-
-export function getVersionResolver(fieldName: string) {
-  return function versionResolver<N extends CollectionNameString>(doc: ObjectsByCollectionName[N]): string {
-    return (doc as AnyBecauseTodo)[fieldName]?.version
-  }
-}
 
 export function editableFields<N extends CollectionNameString>(collectionName: N, options: MakeEditableOptions<N> = {}): Record<string, CollectionFieldSpecification<N>> {  
   const optionsWithDefaults = { ...defaultOptions, ...options };
@@ -337,7 +274,16 @@ export function editableFields<N extends CollectionNameString>(collectionName: N
     throw new Error(`Invalid characters in ${fieldName}; only a-z & A-Z are allowed.`);
   }
 
-  const getLocalStorageId = options.getLocalStorageId || getDefaultLocalStorageIdGenerator(collectionName);
+  const getLocalStorageId = options.getLocalStorageId || ((doc: any, name: string): {id: string, verify: boolean} => {
+    const { _id, conversationId } = doc
+    if (_id && name) { return {id: `${_id}${name}`, verify: true}}
+    else if (_id) { return {id: _id, verify: true }}
+    else if (conversationId) { return {id: conversationId, verify: true }}
+    else if (name) { return {id: `${collectionName}_new_${name}`, verify: true }}
+    else {
+      throw Error(`Can't get storage ID for this document: ${doc}`)
+    }
+  });
 
   const callbackOptions: EditableFieldCallbackOptions = {
     pingbacks,
@@ -399,7 +345,24 @@ export function editableFields<N extends CollectionNameString>(collectionName: N
     resolveAs: {
       type: '[Revision]',
       arguments: 'limit: Int = 5',
-      resolver: getRevisionsResolver(fieldName),
+      resolver: async (post: ObjectsByCollectionName[N], args: { limit: number }, context: ResolverContext) => {
+        const { limit } = args;
+        const { currentUser, Revisions } = context;
+
+        // getWithLoader is used here to fix a performance bug for a particularly nasty bot which resolves `revisions` for thousands of comments.
+        // Previously, this would cause a query for every comment whereas now it only causes one (admittedly quite slow) query
+        const loaderResults = await getWithLoader(
+          context,
+          Revisions,
+          `revisionsByDocumentId_${fieldName}_${limit}`,
+          {fieldName},
+          "documentId",
+          post._id,
+          {sort: {editedAt: -1}, limit},
+        );
+
+        return await accessFilterMultiple(currentUser, 'Revisions', loaderResults, context);
+      }
     },
   };
 
@@ -413,7 +376,9 @@ export function editableFields<N extends CollectionNameString>(collectionName: N
     optional: true,
     resolveAs: {
       type: 'String',
-      resolver: getVersionResolver(fieldName),
+      resolver: (doc: ObjectsByCollectionName[N]): string => {
+        return (doc as AnyBecauseTodo)[fieldName]?.version
+      }
     },
   };
 

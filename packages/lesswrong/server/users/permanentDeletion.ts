@@ -85,7 +85,7 @@ const permanentlyDeleteFromMailchimpList = async ({
 async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   const logger = loggerConstructor(`permanentlyDeleteUsers`);
   const adminContext = createAdminContext();
-  const adminTeamAccount = await getAdminTeamAccount(adminContext);
+  const adminTeamAccount = await getAdminTeamAccount();
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
   // Precaution: Ensure the soft-deleting callbacks have run (unsubscribing from mailchimp, reindexing elasticsearch content)

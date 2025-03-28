@@ -1,6 +1,6 @@
 import { registerMigration } from "./migrationUtils";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { karmaChangeNotifierDefaultSettings } from "@/lib/collections/users/helpers";
+import { karmaChangeNotifierDefaultSettings } from "@/lib/collections/users/schema";
 import Users from "@/server/collections/users/collection";
 
 /**

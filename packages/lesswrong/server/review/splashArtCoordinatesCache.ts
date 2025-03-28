@@ -1,12 +1,12 @@
 import { SwrCache } from "@/lib/utils/swrCache";
+import SplashArtCoordinatesRepo from "@/server/repos/SplashArtCoordinatesRepo";
 import keyBy from "lodash/keyBy";
 
 export const splashArtCoordinateCache = new SwrCache<{
   coordinatesByReviewWinnerArtId: Record<string, DbSplashArtCoordinate>;
-}, [ResolverContext]>({
-  generate: async (context) => {
-    const { repos } = context;
-    const activeSplashArtCoordinates = await repos.splashArtCoordinates.getActiveSplashArtCoordinates();
+}>({
+  generate: async () => {
+    const activeSplashArtCoordinates = await new SplashArtCoordinatesRepo().getActiveSplashArtCoordinates();
     return {
       coordinatesByReviewWinnerArtId: keyBy(activeSplashArtCoordinates, (sac) => sac.reviewWinnerArtId)
     };
@@ -15,7 +15,7 @@ export const splashArtCoordinateCache = new SwrCache<{
 });
 
 export async function getReviewWinnerArtCoordinates(reviewWinnerArtId: string, context: ResolverContext): Promise<DbSplashArtCoordinate | null> {
-  const { coordinatesByReviewWinnerArtId } = await splashArtCoordinateCache.get(context);
+  const { coordinatesByReviewWinnerArtId } = await splashArtCoordinateCache.get();
   return (
     coordinatesByReviewWinnerArtId[reviewWinnerArtId]
       ?? await context.SplashArtCoordinates.findOne({ reviewWinnerArtId }, { sort: { createdAt: -1 } })

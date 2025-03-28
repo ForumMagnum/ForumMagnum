@@ -1,5 +1,6 @@
 import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "@/lib/reviewUtils";
 import { SwrCache } from "@/lib/utils/swrCache";
+import ReviewWinnersRepo from "@/server/repos/ReviewWinnersRepo";
 import keyBy from "lodash/keyBy";
 import mapValues from "lodash/mapValues";
 
@@ -8,10 +9,9 @@ export type ReviewWinnerWithPost = DbPost & { reviewWinner: DbReviewWinner & { r
 export const reviewWinnerCache = new SwrCache<{
   reviewWinners: ReviewWinnerWithPost[],
   reviewWinnersByPostId: Record<string, DbReviewWinner>
-}, [ResolverContext]>({
-  generate: async (context) => {
-    const { repos } = context;
-    const updatedReviewWinners = await repos.reviewWinners.getAllReviewWinnersWithPosts();
+}>({
+  generate: async () => {
+    const updatedReviewWinners = await new ReviewWinnersRepo().getAllReviewWinnersWithPosts();
     return {
       reviewWinners: updatedReviewWinners,
       reviewWinnersByPostId: mapValues(
@@ -24,7 +24,7 @@ export const reviewWinnerCache = new SwrCache<{
 });
 
 export async function getPostReviewWinnerInfo(postId: string, context: ResolverContext): Promise<DbReviewWinner | null> {
-  const { reviewWinnersByPostId } = await reviewWinnerCache.get(context);
+  const { reviewWinnersByPostId } = await reviewWinnerCache.get();
   return reviewWinnersByPostId[postId]
     ?? await context.ReviewWinners.findOne({ postId, reviewYear: {$lte: BEST_OF_LESSWRONG_PUBLISH_YEAR} });
 }

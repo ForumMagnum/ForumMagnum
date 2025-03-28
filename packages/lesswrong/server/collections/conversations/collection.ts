@@ -1,4 +1,5 @@
 import { userCanDo } from '@/lib/vulcan-users/permissions';
+import schema from '@/lib/collections/conversations/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
@@ -29,7 +30,8 @@ const options: MutationOptions<DbConversation> = {
 export const Conversations: ConversationsCollection = createCollection({
   collectionName: 'Conversations',
   typeName: 'Conversation',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Conversations', { moderator: 1, messageCount: 1, latestActivity: -1, participantIds: 1 })
     indexSet.addIndex('Conversations', { participantIds: 1, messageCount: 1, latestActivity: -1 })

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/newSchema';
+import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';

@@ -565,12 +565,7 @@ export const SpotlightItem = ({
         </div>
         <div className={classes.reviews}>
           {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
-            <CommentsNode comment={review} treeOptions={{
-              singleLineCollapse: true,
-              forceSingleLine: true,
-              hideSingleLineMeta: true,
-              post: spotlight.post ?? undefined,
-            }} nestingLevel={1}/>
+            <CommentsNode comment={review} treeOptions={{singleLineCollapse: true, forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
           </div>)}
         </div>
         {hideBanner && (

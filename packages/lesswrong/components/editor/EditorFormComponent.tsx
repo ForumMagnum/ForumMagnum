@@ -102,14 +102,14 @@ export const EditorFormComponent = ({
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
   const { captureEvent } = useTracking()
-  const { form: { editableFieldOptions } } = getEditableFieldInCollection(collectionName, fieldName)!;
+  const { editableFieldOptions } = getEditableFieldInCollection(collectionName, fieldName)!;
 
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
-    const getLocalStorageId = editableFieldOptions.getLocalStorageId;
+    const getLocalStorageId = editableFieldOptions.clientOptions.getLocalStorageId;
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
-  }, [document, name, editableFieldOptions.getLocalStorageId]);
+  }, [document, name, editableFieldOptions.clientOptions.getLocalStorageId]);
 
 
   const getNewPostLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
@@ -124,11 +124,11 @@ export const EditorFormComponent = ({
       };
     }
     // pass in {_id: null} to getLocalStorageId to treat this like a new post, without having to change how makeEditableOptions works
-    const getLocalStorageId = (_: any, name: string) => editableFieldOptions.getLocalStorageId?.({_id: null}, name);
+    const getLocalStorageId = (_: any, name: string) => editableFieldOptions.clientOptions.getLocalStorageId?.({_id: null}, name);
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
-  }, [document, name, editableFieldOptions, formType]);
+  }, [document, name, editableFieldOptions.clientOptions, formType]);
   
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
@@ -325,7 +325,7 @@ export const EditorFormComponent = ({
   
   const wrappedSetContents = useStabilizedCallback((change: EditorChangeEvent) => {
     const {contents: newContents, autosave} = change;
-    if (dynamicTableOfContents && editableFieldOptions.hasToc) {
+    if (dynamicTableOfContents && editableFieldOptions.clientOptions.hasToc) {
       dynamicTableOfContents.setToc(change.contents);
     }
     setContents(newContents);
@@ -367,11 +367,11 @@ export const EditorFormComponent = ({
   
   const hasGeneratedFirstToC = useRef({generated: false});
   useEffect(() => {
-    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.hasToc) {
+    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.clientOptions.hasToc) {
       dynamicTableOfContents.setToc(contents);
       hasGeneratedFirstToC.current.generated = true;
     }
-  }, [contents, dynamicTableOfContents, editableFieldOptions.hasToc]);
+  }, [contents, dynamicTableOfContents, editableFieldOptions.clientOptions.hasToc]);
 
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
@@ -468,7 +468,7 @@ export const EditorFormComponent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType, addToSuccessForm, addToSubmitForm]);
   
-  const fieldHasCommitMessages = editableFieldOptions.revisionsHaveCommitMessages;
+  const fieldHasCommitMessages = getEditableFieldInCollection(collectionName as CollectionNameString, fieldName)?.editableFieldOptions.clientOptions.revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || updatedFormType==="edit");

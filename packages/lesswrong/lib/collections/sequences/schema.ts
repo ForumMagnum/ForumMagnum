@@ -5,7 +5,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import { editableFields } from '@/lib/editor/make_editable';
 import { universalFields } from '../../collectionUtils';
 
-const formGroups = {
+const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
   adminOptions: {
     name: "adminOptions",
     order: 2,
@@ -18,7 +18,7 @@ const formGroups = {
     label: preferredHeadingCase("Advanced Options"),
     startCollapsed: true,
   },
-} satisfies Partial<Record<string, FormGroupType<"Sequences">>>;
+};
 
 const schema: SchemaType<"Sequences"> = {
   ...universalFields({}),
@@ -52,7 +52,7 @@ const schema: SchemaType<"Sequences"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
-    group: () => formGroups.adminOptions,
+    group: formGroups.adminOptions,
     control: 'FormUserSelect',
     form: {
       label: "Set author",
@@ -118,7 +118,7 @@ const schema: SchemaType<"Sequences"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     canCreate: ['members'],
-    group: () => formGroups.advancedOptions,
+    group: formGroups.advancedOptions,
     label: "Delete",
     tooltip: "Make sure you want to delete this sequence - it will be completely hidden from the forum.",
     control: "checkbox",
@@ -131,7 +131,7 @@ const schema: SchemaType<"Sequences"> = {
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
-    group: () => formGroups.adminOptions,
+    group: formGroups.adminOptions,
   },
 
   userProfileOrder: {
@@ -140,7 +140,7 @@ const schema: SchemaType<"Sequences"> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    group: () => formGroups.adminOptions,
+    group: formGroups.adminOptions,
   },
 
   canonicalCollectionSlug: {
@@ -154,7 +154,7 @@ const schema: SchemaType<"Sequences"> = {
     canUpdate: ['admins'],
     canCreate: ['admins'],
     hidden: false,
-    group: () => formGroups.adminOptions,
+    group: formGroups.adminOptions,
     control: "text",
     label: preferredHeadingCase("Collection Slug"),
     tooltip: "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
@@ -179,7 +179,7 @@ const schema: SchemaType<"Sequences"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
-    group: () => formGroups.adminOptions,
+    group: formGroups.adminOptions,
     tooltip: "Hidden sequences don't show up on lists/search results on this site, but can still be accessed directly by anyone",
   },
 
@@ -190,7 +190,7 @@ const schema: SchemaType<"Sequences"> = {
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
-    group: () => formGroups.adminOptions,
+    group: formGroups.adminOptions,
   },
 
   postsCount: resolverOnlyField({

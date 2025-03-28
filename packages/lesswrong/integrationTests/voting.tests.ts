@@ -12,7 +12,6 @@ import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";
 import isNil from "lodash/isNil";
 import { slugify } from "@/lib/utils/slugify";
-import { createAnonymousContext } from "@/server/vulcan-lib/query";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -288,7 +287,6 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
-        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);
@@ -327,7 +325,6 @@ describe('Voting', function() {
         user: coauthor,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
-        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);
@@ -364,7 +361,6 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 1),
         endDate: new Date(Date.now() + 10000),
-        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(0);
@@ -390,7 +386,6 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
-        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);

@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
-import PropTypes from 'prop-types';
 import {
   DayOfWeek,
   NotificationTypeSettings,
@@ -10,8 +9,8 @@ import {
   legacyToNewNotificationTypeSettings,
   NotificationBatchingFrequency,
   NotificationChannel,
-  NotificationChannelSettings
-} from '../../lib/collections/users/newSchema';
+  NotificationChannelSettings,
+} from "../../lib/collections/users/schema";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';

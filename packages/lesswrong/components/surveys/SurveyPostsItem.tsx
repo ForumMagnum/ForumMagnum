@@ -14,7 +14,7 @@ import range from "lodash/range";
 import {
   SurveyQuestionFormat,
   surveyQuestionFormats,
-} from "@/lib/collections/surveyQuestions/newSchema";
+} from "@/lib/collections/surveyQuestions/schema";
 
 const styles = (theme: ThemeType) => ({
   root: {

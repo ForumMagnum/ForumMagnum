@@ -1,4 +1,3 @@
-import type { ConvertedFormSchema } from '../vulcan-forms/schema_utils';
 import { getString } from '../vulcan-lib/intl';
 import { camelToSpaces } from '../vulcan-lib/utils';
 
@@ -22,11 +21,7 @@ export const formatMessage = (
  * @return {string}                           The translated label
  */
 export const formatLabel = (
-  { fieldName, collectionName, schema }: {
-    fieldName: string,
-    collectionName: string,
-    schema: ConvertedFormSchema | null,
-  },
+  { fieldName, collectionName, schema }: AnyBecauseTodo,
   values?: AnyBecauseTodo
 ) => {
   if (!fieldName) {
@@ -54,6 +49,6 @@ export const formatLabel = (
   }
 
   // define the schemaLabel. If the schema has been initialized with SimpleSchema, the label should be here even if it has not been declared https://github.com/aldeed/simple-schema-js#label
-  let schemaLabel = schema?.[fieldName]?.label;
+  let schemaLabel = schema && schema[fieldName] ? schema[fieldName].label : null;
   return schemaLabel || camelToSpaces(fieldName);
 };

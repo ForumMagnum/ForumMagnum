@@ -37,11 +37,9 @@ import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
-import { createAnonymousContext } from "../vulcan-lib/query";
 
 
 async function sendWelcomeMessageTo(userId: string) {
-  const context = createAnonymousContext();
   const postId = welcomeEmailPostId.get();
   if (!postId || !postId.length) {
     // eslint-disable-next-line no-console
@@ -68,7 +66,7 @@ async function sendWelcomeMessageTo(userId: string) {
   const adminUserId = forumTeamUserId.get()
   let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
   if (!adminsAccount) {
-    adminsAccount = await getAdminTeamAccount(context)
+    adminsAccount = await getAdminTeamAccount()
     if (!adminsAccount) {
       throw new Error("Could not find admin account")
     }
@@ -519,10 +517,10 @@ export function syncProfileUpdatedAt(modifier: MongoModifier<DbUser>, user: DbUs
 // 4x notifyUsersAboutMentions
 
 /* UPDATE ASYNC */
-export function updateUserMayTriggerReview({document, data, context}: UpdateCallbackProperties<"Users">) {
+export function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
-    void triggerReviewIfNeeded(document._id, context);
+    void triggerReviewIfNeeded(document._id)
   }
 }
 

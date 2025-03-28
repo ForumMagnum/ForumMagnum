@@ -52,7 +52,7 @@ export const getOriginalContents = <N extends CollectionNameString>(
     currentUser,
     // We need `userIsPodcaster` here to make it possible for podcasters to open post edit forms to add/update podcast episode info
     // Without it, `originalContents` may resolve to undefined, which causes issues in revisionResolvers
-    [userOwns, canViewOriginalContents, userIsPodcaster, 'admins', 'sunshineRegiment'],
+    { canRead: [userOwns, canViewOriginalContents, userIsPodcaster, 'admins', 'sunshineRegiment'] },
     document
   )
 

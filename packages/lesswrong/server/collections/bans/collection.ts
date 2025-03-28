@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/bans/schema';
 import { userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
@@ -24,7 +25,8 @@ const options: MutationOptions<DbBan> = {
 export const Bans: BansCollection = createCollection({
   collectionName: 'Bans',
   typeName: 'Ban',
-    getIndexes: () => {
+  schema,
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Bans', { ip: 1 })
     return indexSet;

@@ -26,7 +26,6 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 import { getCollection } from "@/server/collections/allCollections";
 import { createMutator } from "@/server/vulcan-lib/mutators";
-import { createAdminContext } from "@/server/vulcan-lib/query";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -227,7 +226,6 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
 }) => {
   const db = maybeDb ?? getSqlClientOrThrow();
   const collection = getCollection(collectionName);
-  const context = createAdminContext();
 
   // First, check if the field is already normalized - this will be the
   // case if we're running the migration on a new forum instance that's been
@@ -254,7 +252,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   const documentBatches = chunk(documents, 20);
   let existingRevUsed = 0;
   let revCreated = 0;
-  const currentUser = await getAdminTeamAccount(context);
+  const currentUser = await getAdminTeamAccount();
   if (!currentUser) {
     throw new Error("Can't find admin user account");
   }
@@ -273,7 +271,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
       }
 
       try {
-        const existingLatestRev = await getLatestRev(document._id, "contents", context);
+        const existingLatestRev = await getLatestRev(document._id, "contents");
         if (
           existingLatestRev
           && existingLatestRev?.html === editableField?.html
@@ -294,7 +292,6 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
               originalContents: editableField.originalContents,
               dataWithDiscardedSuggestions,
               currentUser,
-              context,
             })
             : {
               html: "",
@@ -320,7 +317,6 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
           await Promise.all([
             afterCreateRevisionCallback.runCallbacksAsync([{
               revisionID: revision.data._id,
-              context,
             }]),
             collection.rawUpdateOne({_id: document._id}, {
               $set: {[latestFieldName]: revision.data._id},

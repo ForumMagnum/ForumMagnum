@@ -1,6 +1,6 @@
 import React from "react";
 import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
-import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/newSchema";
+import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/schema";
 import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
@@ -141,8 +141,8 @@ const utils = {
    * Check whether the given user can post a post right now. If they can, does
    * nothing; if they would exceed a rate limit, throws an exception.
    */
-  enforcePostRateLimit: async (user: DbUser, context: ResolverContext) => {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
+  enforcePostRateLimit: async (user: DbUser) => {
+    const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
     if (rateLimit) {
       const {nextEligible} = rateLimit;
       if (nextEligible > new Date()) {
@@ -220,7 +220,7 @@ const utils = {
       return;
     }
     
-    const tags = await getAutoAppliedTags(context);
+    const tags = await getAutoAppliedTags();
     const postHTML = await fetchFragmentSingle({
       collectionName: "Posts",
       fragmentName: "PostsHTML",
@@ -232,7 +232,7 @@ const utils = {
     if (!postHTML) {
       return;
     }
-    const tagsApplied = await checkTags(postHTML, tags, api, context);
+    const tagsApplied = await checkTags(postHTML, tags, api);
     
     //eslint-disable-next-line no-console
     console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
@@ -265,7 +265,7 @@ const utils = {
       return
     }
   
-    const autoFrontpageReview = await checkFrontpage(postHTML, api, context);
+    const autoFrontpageReview = await checkFrontpage(postHTML, api);
   
     // eslint-disable-next-line no-console
     console.log(
@@ -417,9 +417,9 @@ export function debateMustHaveCoauthor(validationErrors: CallbackValidationError
   return validationErrors;
 }
 
-export async function postsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: post, currentUser, context }: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
+export async function postsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: post, currentUser }: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
   if (!post.draft && !post.isEvent) {
-    await utils.enforcePostRateLimit(currentUser!, context);
+    await utils.enforcePostRateLimit(currentUser!);
   }
   return validationErrors;
 }
@@ -473,10 +473,10 @@ export async function checkRecentRepost(post: DbPost, user: DbUser | null, conte
   return post;
 }
 
-export async function postsNewDefaultLocation(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function postsNewDefaultLocation(post: DbPost): Promise<DbPost> {
   return {
     ...post,
-    ...(await getDefaultPostLocationFields(post, context))
+    ...(await getDefaultPostLocationFields(post))
   };
 }
 
@@ -567,8 +567,7 @@ export async function applyNewPostTags(post: DbPost, props: AfterCreateCallbackP
 }
 
 export async function createNewJargonTermsCallback(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
-  const { context } = callbackProperties;
-  const { currentUser, loaders, JargonTerms } = context;
+  const { context: { currentUser, loaders, JargonTerms } } = callbackProperties;
   const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
 
   if (!currentUser) return post;
@@ -594,7 +593,7 @@ export async function createNewJargonTermsCallback(post: DbPost, callbackPropert
   // TODO: do we want different behavior for new vs updated posts?
   if (changeMetrics.added > 1000 || !existingJargon.length) {
     // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
-    void createNewJargonTerms({ postId: post._id, currentUser, context });
+    void createNewJargonTerms({ postId: post._id, currentUser });
   }
 
   return post;
@@ -727,9 +726,9 @@ export async function notifyUsersAddedAsPostCoauthors({ document: post }: AfterC
   await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 }
 
-export async function triggerReviewForNewPostIfNeeded({ document, context }: AfterCreateCallbackProperties<'Posts'>) {
+export async function triggerReviewForNewPostIfNeeded({ document }: AfterCreateCallbackProperties<'Posts'>) {
   if (!document.draft) {
-    await triggerReviewIfNeeded(document.userId, context)
+    await triggerReviewIfNeeded(document.userId)
   }
 }
 
@@ -749,10 +748,10 @@ export async function sendUsersSharedOnPostNotifications(post: DbPost) {
 }
 
 /* UPDATE VALIDATE */
-export async function postsUndraftRateLimit(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, currentUser, context }: UpdateCallbackProperties<'Posts'>) {
+export async function postsUndraftRateLimit(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, currentUser }: UpdateCallbackProperties<'Posts'>) {
   // Only undrafting is rate limited, not other edits
   if (oldDocument.draft && !newDocument.draft && !newDocument.isEvent) {
-    await utils.enforcePostRateLimit(currentUser!, context);
+    await utils.enforcePostRateLimit(currentUser!);
   }
   return validationErrors;
 }
@@ -951,7 +950,7 @@ export async function updatePostEmbeddingsOnChange(newPost: DbPost, oldPost?: Db
 export async function updatedPostMaybeTriggerReview({document, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
   if (document.draft || document.rejected) return
 
-  await triggerReviewIfNeeded(oldDocument.userId, context)
+  await triggerReviewIfNeeded(oldDocument.userId)
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,
@@ -975,7 +974,7 @@ export async function sendRejectionPM({ newDocument: post, oldDocument: oldPost,
     ? false 
     : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
     
-    const adminAccount = currentUser ?? await getAdminTeamAccount(context);
+    const adminAccount = currentUser ?? await getAdminTeamAccount();
     if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
   
     await utils.sendPostRejectionPM({

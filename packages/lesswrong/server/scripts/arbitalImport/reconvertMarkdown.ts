@@ -3,7 +3,7 @@
 import Revisions from "@/server/collections/revisions/collection";
 import groupBy from "lodash/groupBy";
 import { ArbitalImportOptions, buildConversionContext, connectAndLoadArbitalDatabase, defaultArbitalImportOptions } from "./arbitalImport";
-import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/query.ts";
+import { createAdminContext } from "@/server/vulcan-lib/query.ts";
 import { arbitalMarkdownToCkEditorMarkup } from "./markdownService";
 import { Comments } from "@/server/collections/comments/collection.ts";
 import Tags from "@/server/collections/tags/collection";
@@ -11,7 +11,7 @@ import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
 import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import { getLatestRev } from "@/server/editor/utils";
 import pick from "lodash/pick";
-import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
+import { updateDenormalizedHtmlAttributions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
 import { buildRevision } from "@/server/editor/make_editable_callbacks";
 import { Users } from "@/server/collections/users/collection";
@@ -75,7 +75,6 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
             data: newHtml,
           },
           currentUser: user,
-          context: resolverContext,
         });
         await Revisions.rawUpdateOne(
           {_id: rev._id},
@@ -115,21 +114,19 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
   }
   for (const tagId of tagIdsChanged.values()) {
     await updateDenormalizedEditable(tagId, "Tags", "description");
-    await recomputeContributorAnnotations({ documentId: tagId, collectionName: "Tags", fieldName: "description", context: resolverContext });
+    await recomputeContributorAnnotations(tagId, "Tags", "description");
   }
   for (const multiDocumentId of multiDocumentIdsChanged.values()) {
     await updateDenormalizedEditable(multiDocumentId, "MultiDocuments", "contents");
-    await recomputeContributorAnnotations({ documentId: multiDocumentId, collectionName: "MultiDocuments", fieldName: "contents", context: resolverContext });
+    await recomputeContributorAnnotations(multiDocumentId, "MultiDocuments", "contents");
   }
 }
 
 
 async function updateDenormalizedEditable<N extends CollectionNameString>(documentId: string, collectionName: N, fieldName: string) {
   const collection = getCollection(collectionName);
-  const context = createAnonymousContext();
-  
-  if (!getEditableFieldInCollection(collectionName, fieldName)?.graphql.editableFieldOptions.normalized) {
-    const latestRev = await getLatestRev(documentId, fieldName, context);
+  if (!getEditableFieldInCollection(collectionName, fieldName)?.editableFieldOptions.callbackOptions.normalized) {
+    const latestRev = await getLatestRev(documentId, fieldName);
     if (!latestRev) throw new Error(`Could not get latest rev for ${collectionName}["${documentId}"].${fieldName}`);
     await collection.rawUpdateOne(
       {_id: documentId},
@@ -145,18 +142,18 @@ async function updateDenormalizedEditable<N extends CollectionNameString>(docume
   }
 }
 
-async function recomputeContributorAnnotations(options: Omit<UpdateDenormalizedHtmlAttributionsOptions, 'document'> & { documentId: string }) {
-  const { documentId, context, ...rest } = options;
-  const collection = context[rest.collectionName] as CollectionBase<'Tags' | 'MultiDocuments'>;
+async function recomputeContributorAnnotations(documentId: string, collectionName: "MultiDocuments"|"Tags", fieldName: "description"|"contents") {
+  const collection = getCollection(collectionName);
   const document = await collection.findOne({_id: documentId});
-  if (!document) throw new Error(`Could not find ${rest.collectionName}[${documentId}]`);
-
-  const updateOptions = {
-    ...rest,
-    document,
-    context,
-  } as UpdateDenormalizedHtmlAttributionsOptions;
-  
-  await updateDenormalizedHtmlAttributions(updateOptions);
-  await updateDenormalizedContributorsList(updateOptions);
+  if (!document) throw new Error(`Could not find ${collectionName}[${documentId}]`);
+  await updateDenormalizedHtmlAttributions({
+    document: document,
+    collectionName,
+    fieldName,
+  } as any);
+  await updateDenormalizedContributorsList({
+    document: document,
+    collectionName,
+    fieldName,
+  } as any);
 }
