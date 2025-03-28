@@ -67,7 +67,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
   refreshText: {
     color: theme.palette.primary.dark,
-    fontSize: '1.4rem',
+    fontSize: '1.3rem',
     fontFamily: theme.palette.fonts.sansSerifStack,
     pointerEvents: 'none',
     marginRight: -60,

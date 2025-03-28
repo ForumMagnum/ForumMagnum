@@ -14,7 +14,7 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
     rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "1.4rem",
+    fontSize: "1.3rem",
     "& > *": {
       marginRight: 5,
     },

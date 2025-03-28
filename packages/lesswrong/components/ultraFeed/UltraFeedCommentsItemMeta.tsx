@@ -13,13 +13,14 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     position: "relative",
     display: "flex",
     flexWrap: "wrap",
+    marginBottom: 8,
     
     alignItems: "center",
     rowGap: "6px",
     // marginBottom: 8,
     color: `${theme.palette.text.dim3} !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "1.4rem !important",
+    fontSize: "1.3rem !important",
     "& > *": {
       marginRight: 5,
     },

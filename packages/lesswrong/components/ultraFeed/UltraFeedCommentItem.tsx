@@ -61,7 +61,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "center",
     padding: 6,
-    fontSize: '1.4rem',
+    fontSize: '1.3rem',
     opacity: 0.5,
     cursor: "pointer",
     '&:hover': {
@@ -73,7 +73,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginBottom: 12,
     marginRight: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.4rem',
+    fontSize: '1.3rem',
     fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
     width: '100%',
@@ -88,7 +88,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginBottom: 12,
     marginRight: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.4rem',
+    fontSize: '1.3rem',
     fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
     width: '100%',
@@ -134,10 +134,10 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     borderLeft: `4px solid ${theme.palette.secondary.light}8c`,
   },
   verticalLineFirstComment: {
-    marginTop: 30, // Match the margin-top from thread item
+    marginTop: 20, // Match the margin-top from thread item
   },
   verticalLineLastComment: {
-    marginBottom: 16, // Match the margin-bottom from thread item
+    marginBottom: 8, // Match the margin-bottom from thread item
   },
 }));
 

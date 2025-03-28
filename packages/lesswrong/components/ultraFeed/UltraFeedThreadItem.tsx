@@ -72,9 +72,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   commentItem: {
     position: 'relative',
     zIndex: 1, // Ensure comments are above the line
-    '&:last-child': {
-      marginBottom: 12,
-    },
   },
   collapsedCommentItem: {
     position: 'relative',
