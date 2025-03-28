@@ -10,7 +10,7 @@ import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 import { dogstatsd } from "../datadog/tracer";
 import { isEAForum } from "@/lib/instanceSettings";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { deleteMutator, updateMutator } from "../vulcan-lib/mutators";
 
 type DeleteOptions = { includingNonForumData: boolean };
@@ -85,7 +85,7 @@ const permanentlyDeleteFromMailchimpList = async ({
 async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   const logger = loggerConstructor(`permanentlyDeleteUsers`);
   const adminContext = createAdminContext();
-  const adminTeamAccount = await getAdminTeamAccount();
+  const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
   // Precaution: Ensure the soft-deleting callbacks have run (unsubscribing from mailchimp, reindexing elasticsearch content)

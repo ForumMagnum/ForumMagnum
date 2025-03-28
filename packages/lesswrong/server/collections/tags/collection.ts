@@ -1,15 +1,14 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanCreateTags } from '@/lib/betas';
-import schema from '@/lib/collections/tags/schema';
 import { tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 
 export const Tags = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
-  schema,
-  resolvers: getDefaultResolvers('Tags'),
+    resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
       if (!user) return false;
@@ -41,5 +40,7 @@ export const Tags = createCollection({
     timeDecayScoresCronjob: false,
   },
 });
+
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('Tags');
 
 export default Tags;

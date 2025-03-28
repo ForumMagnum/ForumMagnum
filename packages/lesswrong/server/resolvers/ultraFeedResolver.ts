@@ -1,20 +1,16 @@
-import { defineFeedResolver } from "../utils/feedUtil";
-import { addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
-import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import UltraFeedRepo from "../../lib/ultraFeed/UltraFeedRepo";
 import { 
   FeedItemSourceType,
   UltraFeedResolverType, 
   FeedItemRenderType,
   FeedItem,
-  FeedItemResolverType,
   FeedPostWithComments,
   FeedSpotlight,
-  FeedSpotlightItem
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import gql from 'graphql-tag';
 
-addGraphQLSchema(`
+export const ultraFeedGraphQLTypeDefs = gql`
   type UltraFeedPostWithComments {
     _id: String!
     postMetaInfo: JSON                 # Metadata about the post display
@@ -27,7 +23,30 @@ addGraphQLSchema(`
     _id: String!
     spotlight: Spotlight               # The actual spotlight data, loaded via ID
   }
-`);
+
+  type UltraFeedQueryResults {
+    cutoff: Date
+    endOffset: Int!
+    results: [UltraFeedEntryType!]
+    sessionId: String
+  }
+
+  type UltraFeedEntryType {
+    type: String!
+    feedCommentThread: UltraFeedPostWithComments
+    feedPost: UltraFeedPostWithComments
+    feedSpotlight: FeedSpotlightItem
+  }
+
+  extend type Query {
+    UltraFeed(
+      limit: Int,
+      cutoff: Date,
+      offset: Int,
+      sessionId: String
+    ): UltraFeedQueryResults!
+  }
+`
 
 // Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
@@ -178,37 +197,16 @@ async function fetchSubscribedContent({
   
 */
 
-
 /**
  * UltraFeed resolver
  * 
  * Uses a weighted sampling approach to mix different content types
  * while providing fragment names so GraphQL can load the full content.
  */
-defineFeedResolver<Date>({
-  name: "UltraFeed",
-  cutoffTypeGraphQL: "Date", 
-  args: "",
-  resultTypesGraphQL: `
-    feedCommentThread: UltraFeedPostWithComments
-    feedPost: UltraFeedPostWithComments
-    feedSpotlight: FeedSpotlightItem
-  `,
-  resolver: async ({
-    limit = 20,
-    cutoff,
-    offset,
-    sessionId,
-    args,
-    context
-  }: {
-    limit?: number,
-    cutoff?: Date|null,
-    offset?: number,
-    sessionId?: string,
-    args: any,
-    context: ResolverContext
-  }) => {
+export const ultraFeedGraphQLQueries = {
+  UltraFeed: async (_root: void, args: any, context: ResolverContext) => {
+    const {limit = 20, cutoff, offset, sessionId} = args;
+    
     console.log("UltraFeed resolver called with:", {
       limit,
       cutoff: cutoff ? cutoff.toISOString() : null,
@@ -335,6 +333,7 @@ defineFeedResolver<Date>({
       const hasMoreResults = true;
       
       const response = {
+        __typename: "UltraFeedQueryResults",
         cutoff: hasMoreResults ? new Date() : null, // null signals end of results
         endOffset: (offset || 0) + results.length,
         results,
@@ -347,4 +346,4 @@ defineFeedResolver<Date>({
       throw error;
     }
   }
-});
+};

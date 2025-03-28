@@ -14,7 +14,7 @@ import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
 import { addStaticRoute } from "./vulcan-lib/staticRoutes";
-import { createAnonymousContext } from "./vulcan-lib/query";
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
 
 export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();

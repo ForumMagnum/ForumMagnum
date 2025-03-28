@@ -1,9 +1,9 @@
+import gql from 'graphql-tag';
 import { Tags } from '../../server/collections/tags/collection';
 import { TagRels } from '../../server/collections/tagRels/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { createMutator } from "../vulcan-lib/mutators";
-import { addGraphQLMutation, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";
 
 export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context, selfVote = false}: {
   tagId: string,
@@ -56,30 +56,33 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
   }
 }
 
-addGraphQLResolvers({
-  Mutation: {
-    addOrUpvoteTag: async (root: void, {tagId, postId}: {tagId: string, postId: string}, context: ResolverContext) => {
-      const { currentUser } = context;
-      if (!currentUser) throw new Error("You must be logged in to tag");
-      if (!postId) throw new Error("Missing argument: postId");
-      if (!tagId) throw new Error("Missing argument: tagId");
-      
-      return addOrUpvoteTag({tagId, postId, currentUser, context});
-    },
-    
-    addTags: async (root: void, {postId, tagIds}: {postId: string, tagIds: Array<string>}, context: ResolverContext) => {
-      const { currentUser } = context;
-      if (!currentUser) throw new Error("You must be logged in to tag");
-      if (!postId) throw new Error("Missing argument: postId");
-      if (!tagIds) throw new Error("Missing argument: tagIds");
-      
-      await Promise.all(tagIds.map(tagId =>
-        addOrUpvoteTag({ tagId, postId, currentUser, context })
-      ));
-      
-      return true;
-    },
+export const tagsGqlTypeDefs = gql`
+  extend type Mutation {
+    addOrUpvoteTag(tagId: String, postId: String): TagRel
+    addTags(postId: String, tagIds: [String]): Boolean
   }
-});
-addGraphQLMutation('addOrUpvoteTag(tagId: String, postId: String): TagRel');
-addGraphQLMutation('addTags(postId: String, tagIds: [String]): Boolean');
+`
+
+export const tagsGqlMutations = {
+  addOrUpvoteTag: async (root: void, {tagId, postId}: {tagId: string, postId: string}, context: ResolverContext) => {
+    const { currentUser } = context;
+    if (!currentUser) throw new Error("You must be logged in to tag");
+    if (!postId) throw new Error("Missing argument: postId");
+    if (!tagId) throw new Error("Missing argument: tagId");
+    
+    return addOrUpvoteTag({tagId, postId, currentUser, context});
+  },
+  
+  addTags: async (root: void, {postId, tagIds}: {postId: string, tagIds: Array<string>}, context: ResolverContext) => {
+    const { currentUser } = context;
+    if (!currentUser) throw new Error("You must be logged in to tag");
+    if (!postId) throw new Error("Missing argument: postId");
+    if (!tagIds) throw new Error("Missing argument: tagIds");
+    
+    await Promise.all(tagIds.map(tagId =>
+      addOrUpvoteTag({ tagId, postId, currentUser, context })
+    ));
+    
+    return true;
+  },
+}

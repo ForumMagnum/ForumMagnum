@@ -453,28 +453,6 @@ export const FeaturedResourcesDefaultFragment = `
   }
 `;
 
-export const FeedItemServingsDefaultFragment = `
-  fragment FeedItemServingsDefaultFragment on FeedItemServing {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-    userId
-    sessionId
-    servedAt
-    renderAsType
-    sources
-    primaryDocumentId
-    primaryDocumentCollectionName
-    secondaryDocumentIds
-    secondaryDocumentsCollectionName
-    position
-    originalServingId
-    mostRecentServingId
-    itemContent
-  }
-`;
-
 export const FieldChangesDefaultFragment = `
   fragment FieldChangesDefaultFragment on FieldChange {
     _id
@@ -512,6 +490,8 @@ export const ForumEventsDefaultFragment = `
     includesPoll
     eventFormat
     pollQuestion_latest
+    pollAgreeWording
+    pollDisagreeWording
     maxStickersPerUser
     customComponent
     commentPrompt
@@ -548,7 +528,6 @@ export const GoogleServiceAccountSessionsDefaultFragment = `
     createdAt
     legacyData
     email
-    refreshToken
     estimatedExpiry
     active
     revoked
@@ -1243,10 +1222,6 @@ export const SideCommentCachesDefaultFragment = `
     schemaVersion
     createdAt
     legacyData
-    postId
-    annotatedHtml
-    commentsByBlock
-    version
   }
 `;
 
@@ -1631,6 +1606,7 @@ export const UsersDefaultFragment = `
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsFilter
     allPostsSorting
@@ -1832,5 +1808,47 @@ export const VotesDefaultFragment = `
     votedAt
     documentIsAf
     silenceNotification
+  }
+`;
+
+export const TestCollectionDefaultFragment = `
+  fragment TestCollectionDefaultFragment on undefined {
+    _id
+    a
+    b
+    c
+    d
+    schemaVersion
+  }
+`;
+
+export const TestCollection2DefaultFragment = `
+  fragment TestCollection2DefaultFragment on undefined {
+    _id
+    data
+    schemaVersion
+  }
+`;
+
+export const TestCollection3DefaultFragment = `
+  fragment TestCollection3DefaultFragment on undefined {
+    _id
+    notNullData
+  }
+`;
+
+export const TestCollection4DefaultFragment = `
+  fragment TestCollection4DefaultFragment on undefined {
+    _id
+    testCollection3Id
+    schemaVersion
+  }
+`;
+
+export const TestCollection5DefaultFragment = `
+  fragment TestCollection5DefaultFragment on undefined {
+    _id
+    jsonField
+    schemaVersion
   }
 `;

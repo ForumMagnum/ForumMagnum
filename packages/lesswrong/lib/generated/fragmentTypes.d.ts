@@ -14,7 +14,11 @@ interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly userId: string,
   readonly interestedInMetaculus: boolean,
-  readonly jobAds: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly jobAds: Array<{
+    state: "seen" | "expanded" | "interested" | "uninterested",
+    uninterestedReason: string | null,
+    lastUpdated: Date,
+  }> | null,
 }
 
 interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
@@ -22,7 +26,11 @@ interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
   readonly userId: string,
   readonly createdAt: Date,
   readonly interestedInMetaculus: boolean,
-  readonly jobAds: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly jobAds: Array<{
+    state: "seen" | "expanded" | "interested" | "uninterested",
+    uninterestedReason: string | null,
+    lastUpdated: Date,
+  }> | null,
 }
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
@@ -787,7 +795,7 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly gwwcLink: string | null,
   readonly gwwcId: string | null,
   readonly description: string,
-  readonly tagId: string | null,
+  readonly tagId: string,
   readonly tag: TagBasicInfo|null,
   readonly postCount: number,
   readonly baseScore: number,
@@ -822,7 +830,7 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly description: string,
   readonly userId: string,
   readonly postCount: number,
-  readonly tagId: string | null,
+  readonly tagId: string,
   readonly isElectionFundraiser: boolean,
   readonly amountRaised: number | null,
   readonly targetAmount: number | null,
@@ -974,26 +982,6 @@ interface FeedCommentItemFragment_contents { // fragment on Revisions
   readonly wordCount: number,
 }
 
-interface FeedItemServingsDefaultFragment { // fragment on FeedItemServings
-  readonly _id: string,
-  readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly sessionId: string,
-  readonly servedAt: Date,
-  readonly renderAsType: string,
-  readonly sources: Array<string> | null,
-  readonly primaryDocumentId: string | null,
-  readonly primaryDocumentCollectionName: string | null,
-  readonly secondaryDocumentIds: Array<string> | null,
-  readonly secondaryDocumentsCollectionName: string | null,
-  readonly position: number,
-  readonly originalServingId: string | null,
-  readonly mostRecentServingId: string | null,
-  readonly itemContent: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
 interface FeedPostWithCommentsFragment { // fragment on non-collection type
   readonly _id: any,
   readonly postMetaInfo: any,
@@ -1052,6 +1040,8 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly includesPoll: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly pollQuestion_latest: string,
+  readonly pollAgreeWording: string | null,
+  readonly pollDisagreeWording: string | null,
   readonly maxStickersPerUser: number,
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
@@ -1111,6 +1101,8 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
+  readonly pollAgreeWording: string | null,
+  readonly pollDisagreeWording: string | null,
   readonly maxStickersPerUser: number,
 }
 
@@ -1181,7 +1173,6 @@ interface GoogleServiceAccountSessionsDefaultFragment { // fragment on GoogleSer
   readonly createdAt: Date,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly email: string,
-  readonly refreshToken: string,
   readonly estimatedExpiry: Date,
   readonly active: boolean,
   readonly revoked: boolean,
@@ -1425,7 +1416,7 @@ interface ModeratorClientIDInfo { // fragment on ClientIds
 }
 
 interface MultiDocumentContentDisplay extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly tableOfContents: any,
   readonly textLastUpdatedAt: Date|null,
   readonly contents: RevisionEdit|null,
 }
@@ -1468,7 +1459,7 @@ interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on
 
 interface MultiDocumentRevision extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly contents: RevisionEdit|null,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly tableOfContents: any,
 }
 
 interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment on MultiDocuments
@@ -1823,7 +1814,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly annualReviewMarketYear: number|null,
   readonly annualReviewMarketUrl: string|null,
   readonly group: PostsBase_group|null,
-  readonly rsvpCounts: any /*JSON*/,
+  readonly rsvpCounts: any,
   readonly podcastEpisodeId: string | null,
   readonly forceAllowType3Audio: boolean,
   readonly nominationCount2019: number,
@@ -2593,7 +2584,7 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
 interface RevisionDisplay { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly updateType: "initial" | "patch" | "minor" | "major" | null,
   readonly editedAt: Date,
   readonly userId: string,
   readonly html: string,
@@ -2606,13 +2597,13 @@ interface RevisionDisplay { // fragment on Revisions
 interface RevisionEdit { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly updateType: "initial" | "patch" | "minor" | "major" | null,
   readonly editedAt: Date,
   readonly userId: string,
   readonly originalContents: any,
   readonly html: string,
   readonly markdown: string|null,
-  readonly draftJS: any /*JSON*/,
+  readonly draftJS: any,
   readonly ckEditorMarkup: string|null,
   readonly wordCount: number,
   readonly htmlHighlight: string,
@@ -2687,7 +2678,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly collectionName: string,
   readonly fieldName: string,
   readonly editedAt: Date,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly updateType: "initial" | "patch" | "minor" | "major" | null,
   readonly version: string,
   readonly commitMessage: string,
   readonly userId: string,
@@ -2814,10 +2805,6 @@ interface SideCommentCachesDefaultFragment { // fragment on SideCommentCaches
   readonly schemaVersion: number,
   readonly createdAt: Date,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly postId: string,
-  readonly annotatedHtml: string,
-  readonly commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly version: number,
 }
 
 interface SplashArtCoordinates { // fragment on SplashArtCoordinates
@@ -2871,10 +2858,7 @@ interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlig
   readonly description: SpotlightDisplay_description|null,
 }
 
-interface SpotlightDisplay_post { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
+interface SpotlightDisplay_post extends PostsMinimumInfo { // fragment on Posts
   readonly user: SpotlightDisplay_post_user|null,
   readonly reviews: Array<CommentsList>,
 }
@@ -3121,7 +3105,10 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly website: string,
   readonly createdAt: Date,
   readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly commentCount: number,
   readonly maxCommentCount: number,
   readonly postCount: number,
@@ -3378,7 +3365,7 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -3418,7 +3405,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly forceAllowType3Audio: boolean,
   readonly textLastUpdatedAt: Date|null,
 }
@@ -3446,7 +3433,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly forceAllowType3Audio: boolean,
 }
 
@@ -3460,7 +3447,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly isArbitalImport: boolean|null,
 }
 
@@ -3571,7 +3558,7 @@ interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagSectionPreviewFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
 }
 
 interface TagSectionPreviewFragment_description { // fragment on Revisions
@@ -3655,7 +3642,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumIntroPostId: string,
@@ -3674,6 +3661,38 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly afBaseScore: number,
   readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afVoteCount: number,
+}
+
+interface TestCollection2DefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly data: any,
+  readonly schemaVersion: any,
+}
+
+interface TestCollection3DefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly notNullData: any,
+}
+
+interface TestCollection4DefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly testCollection3Id: any,
+  readonly schemaVersion: any,
+}
+
+interface TestCollection5DefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly jsonField: any,
+  readonly schemaVersion: any,
+}
+
+interface TestCollectionDefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly a: any,
+  readonly b: any,
+  readonly c: any,
+  readonly d: any,
+  readonly schemaVersion: any,
 }
 
 interface TweetsDefaultFragment { // fragment on Tweets
@@ -3994,7 +4013,10 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly whenConfirmationEmailSent: Date,
   readonly hideSubscribePoke: boolean,
   readonly hideMeetupsPoke: boolean,
@@ -4048,8 +4070,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   },
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
+  readonly bookmarkedPostsMetadata: Array<{
+    postId: string,
+  }>,
+  readonly hiddenPostsMetadata: Array<{
+    postId: string,
+  }>,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
@@ -4070,12 +4096,20 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly lastUsedTimezone: string,
   readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly notificationSubforumUnread: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
-  readonly subforumPreferredLayout: "card" | "list",
+  readonly subforumPreferredLayout: "card" | "list" | null,
   readonly hideJobAdUntil: Date | null,
   readonly criticismTipsDismissed: boolean,
   readonly allowDatadogSessionReplay: boolean,
@@ -4084,16 +4118,32 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly optedInToDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
   readonly notificationNewDialogueChecks: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationYourTurnMatchForm: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly showDialoguesList: boolean,
   readonly showMyDialogues: boolean,
@@ -4129,7 +4179,10 @@ interface UsersDefaultFragment { // fragment on Users
   readonly oldSlugs: Array<string>,
   readonly biography_latest: string,
   readonly username: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly isAdmin: boolean,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly displayName: string,
@@ -4178,6 +4231,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly currentFrontpageFilter: string,
   readonly frontpageSelectedTab: string | null,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly hideFrontpageFilterSettingsDesktop: boolean | null,
   readonly allPostsTimeframe: string,
   readonly allPostsFilter: string,
   readonly allPostsSorting: string,
@@ -4196,8 +4250,12 @@ interface UsersDefaultFragment { // fragment on Users
   readonly collapseModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
+  readonly bookmarkedPostsMetadata: Array<{
+    postId: string,
+  }>,
+  readonly hiddenPostsMetadata: Array<{
+    postId: string,
+  }>,
   readonly legacyId: string,
   readonly deleted: boolean,
   readonly permanentDeletionRequestedAt: Date | null,
@@ -4209,172 +4267,396 @@ interface UsersDefaultFragment { // fragment on Users
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
   readonly notificationCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationShortformContent: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRepliesToMyComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRepliesToSubscribedComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedUserPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedUserComment: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPostsInGroups: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedTagPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedSequencePost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPrivateMessage: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSharedWithMe: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationAlignmentSubmissionApproved: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationEventInRadius: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationKarmaPowersGained: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRSVPs: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationGroupAdministration: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationCommentsOnDraft: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPostsNominatedReview: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubforumUnread: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationNewMention: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationDialogueMessages: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPublishedDialogueMessages: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationAddedAsCoauthor: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationDebateCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationDebateReplies: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationDialogueMatch: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationNewDialogueChecks: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationYourTurnMatchForm: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly hideDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
@@ -4494,7 +4776,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
-  readonly subforumPreferredLayout: "card" | "list",
+  readonly subforumPreferredLayout: "card" | "list" | null,
   readonly hideJobAdUntil: Date | null,
   readonly criticismTipsDismissed: boolean,
   readonly hideFromPeopleDirectory: boolean,
@@ -4600,130 +4882,298 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
     showNegativeKarma: boolean,
   },
   readonly notificationShortformContent: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRepliesToMyComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRepliesToSubscribedComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedUserPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedUserComment: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedTagPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedSequencePost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPostsInGroups: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPrivateMessage: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSharedWithMe: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationAlignmentSubmissionApproved: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationEventInRadius: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRSVPs: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationCommentsOnDraft: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPostsNominatedReview: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationGroupAdministration: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubforumUnread: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationNewMention: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationNewDialogueChecks: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationYourTurnMatchForm: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
@@ -4819,7 +5269,10 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly petrovOptOut: boolean,
   readonly sortDraftsBy: string,
   readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly banned: Date,
   readonly noindex: boolean,
   readonly paymentEmail: string,
@@ -4874,7 +5327,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly userId: string,
   readonly authorIds: Array<string>,
   readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
-  readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedVoteType: any /*{"definitions":[{}]}*/,
   readonly power: number,
   readonly afPower: number,
   readonly cancelled: boolean,
@@ -5093,7 +5546,10 @@ interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on 
 
 interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
   readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
 }
 
 interface FragmentTypes {
@@ -5166,7 +5622,6 @@ interface FragmentTypes {
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
   FeedCommentItemFragment: FeedCommentItemFragment
-  FeedItemServingsDefaultFragment: FeedItemServingsDefaultFragment
   FeedPostWithCommentsFragment: FeedPostWithCommentsFragment
   FeedSpotlightFragment: FeedSpotlightFragment
   FieldChangeFragment: FieldChangeFragment
@@ -5367,6 +5822,11 @@ interface FragmentTypes {
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagsDefaultFragment: TagsDefaultFragment
+  TestCollection2DefaultFragment: TestCollection2DefaultFragment
+  TestCollection3DefaultFragment: TestCollection3DefaultFragment
+  TestCollection4DefaultFragment: TestCollection4DefaultFragment
+  TestCollection5DefaultFragment: TestCollection5DefaultFragment
+  TestCollectionDefaultFragment: TestCollectionDefaultFragment
   TweetsDefaultFragment: TweetsDefaultFragment
   TypingIndicatorInfo: TypingIndicatorInfo
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
@@ -5457,7 +5917,6 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionFragment"|"ElicitQuestionsDefaultFragment"
   EmailTokenses: "EmailTokensDefaultFragment"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
-  FeedItemServings: "FeedItemServingsDefaultFragment"
   FeedSpotlightItems: "FeedSpotlightFragment"
   FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
@@ -5521,6 +5980,7 @@ interface FragmentTypesByCollection {
   UserTagRels: "UserTagRelDetails"|"UserTagRelsDefaultFragment"
   Users: "SharedUserBooleans"|"SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersAdmin"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersOptedInToDialogueFacilitation"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"|"VotesDefaultFragment"
+  undefineds: "TestCollection2DefaultFragment"|"TestCollection3DefaultFragment"|"TestCollection4DefaultFragment"|"TestCollection5DefaultFragment"|"TestCollectionDefaultFragment"
 }
 
 interface CollectionNamesByFragmentName {
@@ -5593,7 +6053,6 @@ interface CollectionNamesByFragmentName {
   FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
   FeedCommentItemFragment: "Comments"
-  FeedItemServingsDefaultFragment: "FeedItemServings"
   FeedPostWithCommentsFragment: never
   FeedSpotlightFragment: never
   FieldChangeFragment: "FieldChanges"
@@ -5794,6 +6253,11 @@ interface CollectionNamesByFragmentName {
   TagWithFlagsAndRevisionFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagsDefaultFragment: "Tags"
+  TestCollection2DefaultFragment: never
+  TestCollection3DefaultFragment: never
+  TestCollection4DefaultFragment: never
+  TestCollection5DefaultFragment: never
+  TestCollectionDefaultFragment: never
   TweetsDefaultFragment: "Tweets"
   TypingIndicatorInfo: "TypingIndicators"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
@@ -5855,9 +6319,9 @@ interface CollectionNamesByFragmentName {
   reviewVoteWithUserAndPost: "ReviewVotes"
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FeedItemServings"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FeedItemServings"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

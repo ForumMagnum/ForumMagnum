@@ -2,6 +2,7 @@ import Revisions from "@/server/collections/revisions/collection";
 import { Tags } from "@/server/collections/tags/collection";
 import { getLatestRev } from "@/server/editor/utils";
 import { forEachDocumentBatchInCollection , registerMigration } from "./migrationUtils";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 //eslint-disable-file no-console
 
@@ -10,6 +11,7 @@ export default registerMigration({
   dateWritten: "2024-09-03",
   idempotent: true,
   action: async () => {
+    const context = createAnonymousContext();
     //let latestMismatched: Date|null = null;
     await forEachDocumentBatchInCollection({
       collection: Tags,
@@ -21,7 +23,7 @@ export default registerMigration({
           const pointedAtRevId = tag.description_latest;
           const [pointedAtRev,actualLatestRev] = await Promise.all([
             Revisions.findOne({_id: pointedAtRevId}),
-            getLatestRev(tag._id, "description")
+            getLatestRev(tag._id, "description", context)
           ]);
           if (!actualLatestRev) {
             if (!isBlank(tag.description)) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/schema';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/newSchema';
 
 const styles = (theme: ThemeType) => ({
   root: {}

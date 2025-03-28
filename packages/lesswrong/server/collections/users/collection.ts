@@ -1,15 +1,13 @@
-import schema from '@/lib/collections/users/schema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { addGraphQLQuery, addGraphQLResolvers } from "@/lib/vulcan-lib/graphql";
 import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
+import gql from 'graphql-tag';
 
 export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  schema,
-  resolvers: getDefaultResolvers('Users'),
+    resolvers: getDefaultResolvers('Users'),
   mutations: getDefaultMutations('Users', {
     editCheck: (user: DbUser|null, document: DbUser) => {
       if (!user || !document)
@@ -34,9 +32,14 @@ export const Users = createCollection({
   ],
 });
 
-addGraphQLResolvers({
-  Query: {
-    async currentUser(root: void, args: void, context: ResolverContext) {
+export const usersGraphQLTypeDefs = gql`
+  extend type Query {
+    currentUser: User
+  }
+`
+
+export const usersGraphQLQueries = {
+  async currentUser(root: void, args: void, context: ResolverContext) {
       let user: any = null;
       const userId: string|null = (context as any)?.userId;
       if (userId) {
@@ -49,10 +52,8 @@ addGraphQLResolvers({
         }
       }
       return user;
-    },
   },
-});
-addGraphQLQuery('currentUser: User');
+};
 
 Users.postProcess = (user: DbUser): DbUser => {
   // The `node-postgres` library is smart enough to automatically convert string

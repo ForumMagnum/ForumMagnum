@@ -1,9 +1,6 @@
 import Bans from "@/server/collections/bans/collection";
-import Comments from "@/server/collections/comments/collection";
-import Posts from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import Reports from "@/server/collections/reports/collection";
-import Revisions from "@/server/collections/revisions/collection";
 import Sequences from "@/server/collections/sequences/collection";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { getCollection } from "@/server/collections/allCollections";
@@ -12,8 +9,6 @@ import { syncDocumentWithLatestRevision } from "../editor/utils";
 import UsersRepo from "../repos/UsersRepo";
 import { createMutator, updateMutator, deleteMutator } from "../vulcan-lib/mutators";
 import { runQuery } from "../vulcan-lib/query";
-import Tags from "@/server/collections/tags/collection";
-import Notifications from "@/server/collections/notifications/collection";
 import { userGetGroups } from "@/lib/vulcan-users/permissions";
 import type { VoteDocTuple } from "@/lib/voting/vote";
 
@@ -128,7 +123,8 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, co
       await syncDocumentWithLatestRevision(
         collection,
         document,
-        revision.fieldName
+        revision.fieldName,
+        context
       )
     }
   }

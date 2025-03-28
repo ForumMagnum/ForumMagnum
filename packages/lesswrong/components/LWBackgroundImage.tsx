@@ -4,6 +4,7 @@ import { useLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
+import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -60,91 +61,6 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
       right: '0px',
     }
   },
-  // from LessOnline
-  // bannerText: {
-  //   ...theme.typography.postStyle,
-  //   ['@media(max-width: 1375px)']: {
-  //     width: 250
-  //   },
-  //   ['@media(max-width: 1325px)']: {
-  //     width: 200
-  //   },
-  //   ['@media(max-width: 1200px)']: {
-  //     display: "none"
-  //   },
-  //   position: 'absolute',
-  //   right: 16,
-  //   bottom: 79,
-  //   color: theme.palette.grey[900],
-  //   display: "flex",
-  //   flexDirection: "column",
-  //   alignItems: "flex-end",
-  //   textAlign: "right",
-  //   width: 300,
-  //   '& h2': {
-  //     fontSize: '2.4rem',
-  //     lineHeight: '2.6rem',
-  //     marginTop: 20,
-  //     marginBottom: 0,
-  //     textShadow: `
-  //       0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-  //       0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-  //       0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-  //       0 0 15px ${theme.palette.background.pageActiveAreaBackground}
-  //     `,
-  //     '& a:hover': {
-  //       opacity: 1
-  //     }
-  //   },
-  //   '& h3': {
-  //     fontSize: '20px',
-  //     margin: 0,
-  //     lineHeight: '1.2',
-  //     marginBottom: 6,
-  //     textShadow: `
-  //       0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-  //       0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-  //       0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-  //       0 0 15px ${theme.palette.background.pageActiveAreaBackground}
-  //     `,
-  //   },
-  //   '& button': {
-  //     ...theme.typography.commentStyle,
-  //     backgroundColor: theme.palette.primary.main,
-  //     opacity: .9,
-  //     border: 'none',
-  //     color: theme.palette.text.alwaysWhite,
-  //     fontWeight: 600,
-  //     borderRadius: '3px',
-  //     textAlign: 'center',
-  //     padding: 8,
-  //     fontSize: '14px',
-  //     marginTop: 6
-  //   },
-  //   '& p': {
-  //     ...commentBodyStyles(theme),
-  //     fontSize: '14px',
-  //     marginBottom: 10,
-  //   },
-  //   '& p a': {
-  //     color: theme.palette.primary.main,
-  //   }
-  // },
-  // ticketPricesRaise: {
-  //   ...theme.typography.commentStyle,
-  //   fontStyle: 'italic',
-  //   fontSize: 14,
-  //   marginTop: 10,
-  //   '& p': {
-  //     margin: 4
-  //   }
-  // },
-  // lessOnlineBannerDateAndLocation: {
-  //   ...theme.typography.commentStyle,
-  //   fontSize: '16px !important',
-  //   fontStyle: 'normal',
-  //   marginBottom: '16px !important',
-  // },
   votingResultsLink: {
     position: 'relative',
     zIndex: theme.zIndexes.reviewVotingCanvas,
@@ -218,12 +134,18 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       />
   </div>
 
-  const renderDefaultImage = currentRoute?.name !== 'home' || (getReviewPhase() !== 'VOTING' && getReviewPhase() !== 'RESULTS')
+  let homePageImage = defaultImage
+  if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
+  if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
+
+  // TODO: comment this out after we're done with LessOnline banner
+  const priceIncreaseDate = new Date('2025-04-02T08:00:00Z')
+  if (new Date() < priceIncreaseDate) {
+    homePageImage = <LessOnline2025Banner priceIncreaseDate={priceIncreaseDate} />
+  }
 
   return <div className={classes.root}>
-      {getReviewPhase() === 'VOTING' && currentRoute?.name === 'home' && <ReviewVotingCanvas />}
-      {getReviewPhase() === 'RESULTS' && currentRoute?.name === 'home' && reviewCompleteImage}
-      {renderDefaultImage && defaultImage}
+    {currentRoute?.name === 'home' ? homePageImage : defaultImage}
   </div>;
 }
 

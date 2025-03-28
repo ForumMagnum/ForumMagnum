@@ -4,14 +4,20 @@ import { EVENT_FORMATS } from "./types";
 import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
 import { universalFields } from "../../collectionUtils";
 
-const formGroups: Partial<Record<string, FormGroupType<"ForumEvents">>> = {
+const formGroups = {
+  pollEventOptions: {
+    name: "pollEventOptions",
+    order: 10,
+    label: '"POLL" Event Options',
+    startCollapsed: true,
+  },
   stickerEventOptions: {
     name: "stickerEventOptions",
-    order: 10,
+    order: 20,
     label: '"STICKER" Event Options',
     startCollapsed: true,
   },
-}
+} satisfies Partial<Record<string, FormGroupType<"ForumEvents">>>;
 
 const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: nullable,
@@ -183,7 +189,7 @@ const schema: SchemaType<"ForumEvents"> = {
   ...editableFields("ForumEvents", {
     fieldName: "pollQuestion",
     label: "Poll question",
-    hintText: 'Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage',
+    hintText: () => 'Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage',
     getLocalStorageId: (forumEvent) => {
       return {
         id: `forumEvent:pollQuestion:${forumEvent?._id ?? "create"}`,
@@ -193,12 +199,26 @@ const schema: SchemaType<"ForumEvents"> = {
     normalized: true,
     ...defaultEditableProps,
   }),
+  pollAgreeWording: {
+    ...defaultProps(true),
+    type: String,
+    optional: true,
+    nullable: true,
+    group: () => formGroups.pollEventOptions,
+  },
+  pollDisagreeWording: {
+    ...defaultProps(true),
+    type: String,
+    optional: true,
+    nullable: true,
+    group: () => formGroups.pollEventOptions,
+  },
   maxStickersPerUser: {
     ...defaultProps(),
     ...schemaDefaultValue(1),
     type: Number,
     optional: true,
-    group: formGroups.stickerEventOptions
+    group: () => formGroups.stickerEventOptions
   },
   customComponent: {
     ...defaultProps(true),
