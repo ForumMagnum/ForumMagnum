@@ -19,7 +19,7 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
   function shareClicked() {
     // navigator.canShare will be present on mobile devices with sharing-intents,
     // absent on desktop.
-    if (isMobile() && !!navigator.canShare) {
+    if (isMobile() && !!navigator.canShare?.()) {
       const sharingOptions = {
         title: post.title,
         text: post.title,
@@ -33,7 +33,7 @@ const SharePostSubmenu = ({post, closeMenu, classes}: {
     }
   }
   
-  const hasSubmenu = isServer || !navigator.canShare;
+  const hasSubmenu = isServer || !navigator.canShare?.();
   const MaybeWrapWithSubmenu = hasSubmenu
     ? ({children}: {children: React.ReactNode}) => <LWTooltip
         title={<SharePostActions post={post} onClick={closeMenu} />}
