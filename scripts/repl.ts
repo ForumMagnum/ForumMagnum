@@ -135,6 +135,8 @@ async function replMain() {
       try {
         const result = await repl.evalCode(commandLineOptions.command);
         console.log(result);
+      } catch(e) {
+        console.error(e);
       } finally {
         process.exit(0);
       }
@@ -142,6 +144,8 @@ async function replMain() {
       try {
         const result = await defaultExport();
         console.log(result);
+      } catch(e) {
+        console.error(e);
       } finally {
         process.exit(0);
       }
