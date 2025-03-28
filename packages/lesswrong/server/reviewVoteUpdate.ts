@@ -8,7 +8,7 @@ import moment from "moment";
 import { userBigVotePower } from "@/lib/voting/voteTypes";
 import ReviewWinners from "@/server/collections/reviewWinners/collection";
 import { Tags } from "@/server/collections/tags/collection";
-import { createAdminContext } from "./vulcan-lib/query";
+import { createAdminContext } from "./vulcan-lib/createContexts";
 import { createMutator } from "./vulcan-lib/mutators";
 
 export interface Dictionary<T> {

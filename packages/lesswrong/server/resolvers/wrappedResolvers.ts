@@ -1,8 +1,8 @@
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { isWrappedYear } from '@/components/ea-forum/wrapped/hooks';
 import { getWrappedDataByYear } from '../wrapped/wrappedDataByYear';
+import gql from 'graphql-tag';
 
-addGraphQLSchema(`
+export const wrappedResolversGqlTypeDefs = gql`
   type MostReadTopic {
     slug: String,
     name: String,
@@ -68,21 +68,20 @@ addGraphQLSchema(`
     mostReceivedReacts: [MostReceivedReact],
     personality: String!,
   }
-`);
+  extend type Query {
+    UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear
+  }
+`
 
-addGraphQLResolvers({
-  Query: {
-    async UserWrappedDataByYear(
-      _root: void,
-      {userId, year}: {userId: string, year: number},
-      {currentUser, repos}: ResolverContext,
-    ) {
-      if (!isWrappedYear(year)) {
-        throw new Error(`${year} is not a valid wrapped year`)
-      }
-      return getWrappedDataByYear(currentUser, userId, year, repos);
-    },
+export const wrappedResolversGraphQLQueries = {
+  async UserWrappedDataByYear(
+    _root: void,
+    {userId, year}: {userId: string, year: number},
+    {currentUser, repos}: ResolverContext,
+  ) {
+    if (!isWrappedYear(year)) {
+      throw new Error(`${year} is not a valid wrapped year`)
+    }
+    return getWrappedDataByYear(currentUser, userId, year, repos);
   },
-})
-
-addGraphQLQuery('UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear')
+}

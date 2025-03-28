@@ -22,7 +22,6 @@ import { universalFields } from '../../collectionUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { DeferredForumSelect } from '../../forumTypeUtils';
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import { editableFields } from '@/lib/editor/make_editable';
 import { recommendationSettingsField } from '@/lib/collections/users/recommendationSettings';
 import { PartialDeep } from 'type-fest';
@@ -492,12 +491,8 @@ const latLng = new SimpleSchema({
     type: Number,
   },
 });
-addGraphQLSchema(`
-  type LatLng {
-    lat: Float!
-    lng: Float!
-  }
-`);
+
+
 
 /**
  * @summary Users schema

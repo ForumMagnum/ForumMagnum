@@ -48,7 +48,6 @@ import {
 import { allOf } from "../../utils/functionUtils";
 import { crosspostKarmaThreshold } from "../../publicSettings";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
-import { addGraphQLSchema } from "../../vulcan-lib/graphql";
 import {
   hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms,
   userCanViewJargonTerms
@@ -80,6 +79,16 @@ import { cheerioParse } from "@/server/utils/htmlUtil";
 import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import gql from "graphql-tag";
+
+export const graphqlTypeDefs = gql`
+  type SocialPreviewType {
+    _id: String
+    imageId: String
+    imageUrl: String
+    text: String
+  }
+`
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -157,15 +166,6 @@ const socialPreviewSchema = new SimpleSchema({
     nullable: true,
   },
 });
-
-addGraphQLSchema(`
-  type SocialPreviewType {
-    _id: String
-    imageId: String
-    imageUrl: String
-    text: String
-  }
-`);
 
 const crosspostSchema = new SimpleSchema({
   isCrosspost: Boolean,
@@ -379,7 +379,7 @@ const schema = {
       outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
-      canCreate: [userHasModerationGuidelines],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
       editableFieldOptions: { pingbacks: false, normalized: true },
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("moderationGuidelines"),

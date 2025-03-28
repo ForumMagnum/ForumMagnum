@@ -6,7 +6,7 @@ import { getAllRepos } from "../repos";
 import type { WrappedYear } from "@/components/ea-forum/wrapped/hooks";
 import sampleSize from "lodash/fp/sampleSize";
 import chunk from "lodash/chunk";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 const getRelevantUsers = async (year: WrappedYear, totalUsers?: number) => {
   const users = await getWrappedUsers(year);

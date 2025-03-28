@@ -4,7 +4,7 @@ import Users from "../server/collections/users/collection";
 import { getAdminTeamAccount } from "./utils/adminTeamAccount";
 import { exportUserData } from "./exportUserData";
 import { sleep } from "../lib/utils/asyncUtils";
-import { createAdminContext } from "./vulcan-lib/query";
+import { createAdminContext } from "./vulcan-lib/createContexts";
 import { updateMutator } from "./vulcan-lib/mutators";
 
 

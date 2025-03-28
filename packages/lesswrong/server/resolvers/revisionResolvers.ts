@@ -1,5 +1,4 @@
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
-import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
@@ -9,64 +8,25 @@ import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import gql from 'graphql-tag';
 
-defineQuery({
-  name: "convertDocument",
-  resultType: "JSON",
-  argTypes: "(document: JSON, targetFormat: String)",
-  fn: async (root: void, {document, targetFormat}: {document: any, targetFormat: string}, context: ResolverContext) => {
-    switch (targetFormat) {
-      case "html":
-        return {
-          type: "html",
-          value: await dataToHTML(document.value, document.type, context),
-        };
-        break;
-      case "draftJS":
-        return {
-          type: "draftJS",
-          value: dataToDraftJS(document.value, document.type)
-        };
-      case "ckEditorMarkup":
-        return {
-          type: "ckEditorMarkup",
-          value: await dataToCkEditor(document.value, document.type),
-        };
-        break;
-      case "markdown":
-        return {
-          type: "markdown",
-          value: dataToMarkdown(document.value, document.type),
-        };
-    }
-  },
-});
+export const revisionResolversGraphQLTypeDefs = gql`
+  input AutosaveContentType {
+    type: String
+    value: ContentTypeData
+  }
+  extend type Query {
+    convertDocument(document: JSON, targetFormat: String): JSON
+    latestGoogleDocMetadata(postId: String!, version: String): JSON
+  }
+  extend type Mutation {
+    revertTagToRevision(tagId: String!, revertToRevisionId: String!): Tag
+    autosaveRevision(postId: String!, contents: AutosaveContentType!): Revision
+  }
+`;
 
-defineQuery({
-  name: "latestGoogleDocMetadata",
-  resultType: "JSON",
-  argTypes: "(postId: String!, version: String)",
-  fn: async (root: void, { postId, version }: { postId: string; version?: string }, context: ResolverContext) => {
-    const { Revisions } = context;
-    const query = {
-      documentId: postId,
-      googleDocMetadata: { $exists: true },
-      ...(version && { version: { $lte: version } }),
-    };
-    const latestRevisionWithMetadata = await Revisions.findOne(
-      query,
-      { sort: { editedAt: -1 } },
-      { googleDocMetadata: 1 }
-    );
-    return latestRevisionWithMetadata ? latestRevisionWithMetadata.googleDocMetadata : null;
-  },
-});
-
-defineMutation({
-  name: "revertTagToRevision",
-  resultType: "Tag",
-  argTypes: "(tagId: String!, revertToRevisionId: String!)",
-  fn: async (root: void, { tagId, revertToRevisionId }: { tagId: string, revertToRevisionId: string }, context: ResolverContext) => {
+export const revisionResolversGraphQLMutations = {
+  revertTagToRevision: async (root: void, { tagId, revertToRevisionId }: { tagId: string, revertToRevisionId: string }, context: ResolverContext) => {
     const { currentUser, loaders, Tags } = context;
     if (!tagUserHasSufficientKarma(currentUser, 'edit')) {
       throw new Error(`Must be logged in and have ${tagMinimumKarmaPermissions['edit']} karma to revert tags to older revisions`);
@@ -97,20 +57,8 @@ defineMutation({
       },
       currentUser,
     });
-  }
-});
-
-defineMutation({
-  name: "autosaveRevision",
-  resultType: "Revision",
-  schema: `
-    input AutosaveContentType {
-      type: String
-      value: ContentTypeData
-    }
-  `,
-  argTypes: "(postId: String!, contents: AutosaveContentType!)",
-  fn: async (_, { postId, contents }: { postId: string, contents: EditorContents }, context): Promise<DbRevision> => {
+  },
+  autosaveRevision: async (root: void, { postId, contents }: { postId: string, contents: EditorContents }, context: ResolverContext) => {
     const { currentUser, loaders, Revisions } = context;
     if (!currentUser) {
       throw new Error('Cannot autosave revision while logged out');
@@ -168,4 +116,46 @@ defineMutation({
 
     return createdRevision;
   }
-});
+}
+
+export const revisionResolversGraphQLQueries = {
+  convertDocument: async (root: void, {document, targetFormat}: {document: any, targetFormat: string}, context: ResolverContext) => {
+    switch (targetFormat) {
+      case "html":
+        return {
+          type: "html",
+          value: await dataToHTML(document.value, document.type, context),
+        };
+        break;
+      case "draftJS":
+        return {
+          type: "draftJS",
+          value: dataToDraftJS(document.value, document.type)
+        };
+      case "ckEditorMarkup":
+        return {
+          type: "ckEditorMarkup",
+          value: await dataToCkEditor(document.value, document.type),
+        };
+        break;
+      case "markdown":
+        return {
+          type: "markdown",
+          value: dataToMarkdown(document.value, document.type),
+        };
+    }
+  },
+  latestGoogleDocMetadata: async (root: void, { postId, version }: { postId: string; version?: string }, { Revisions }: ResolverContext) => {
+    const query = {
+      documentId: postId,
+      googleDocMetadata: { $exists: true },
+      ...(version && { version: { $lte: version } }),
+    };
+    const latestRevisionWithMetadata = await Revisions.findOne(
+      query,
+      { sort: { editedAt: -1 } },
+      { googleDocMetadata: 1 }
+    );
+    return latestRevisionWithMetadata ? latestRevisionWithMetadata.googleDocMetadata : null;
+  },
+}

@@ -8,7 +8,7 @@ import { sleep } from '../../../lib/utils/asyncUtils.ts';
 import shuffle from 'lodash/shuffle';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
-import { createAdminContext } from "../../vulcan-lib/query";
+import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createMutator } from "../../vulcan-lib/mutators";
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()

@@ -108,7 +108,6 @@ import './server/resolvers/spotlightResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/wrappedResolvers';
 import './server/resolvers/coronaLinkDatabase';
-import './server/resolvers/mozillaHubsData';
 import './server/resolvers/arbitalPageData';
 import './server/resolvers/tagHistoryFeed';
 import './server/resolvers/tagResolvers';

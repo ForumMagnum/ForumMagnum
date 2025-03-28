@@ -3,14 +3,12 @@ import Posts from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
 import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
 import { createMutator } from "../vulcan-lib/mutators";
-import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
 import { verifyToken } from "./tokens";
-import { getAllRepos } from "@/server/repos";
 import {
   ConnectCrossposterPayloadValidator,
   CrosspostPayloadValidator,
@@ -111,6 +109,7 @@ export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (r
 };
 
 export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
+  const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
   const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
   const query = getGraphQLSingleQueryFromOptions({

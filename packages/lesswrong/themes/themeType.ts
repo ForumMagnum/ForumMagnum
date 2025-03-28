@@ -363,7 +363,6 @@ declare global {
       appBar: string,
       sequencesGridItemHover: string,
       eventCard: string,
-      mozillaHubPreview: string,
       featuredResourcesCard: string,
       spreadsheetPage1: string,
       spreadsheetPage2: string,

@@ -1,4 +1,4 @@
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { forEachDocumentBatchInCollection, registerMigration } from "./migrationUtils";
 import { dataToWordCount } from "@/server/editor/conversionUtils";
 

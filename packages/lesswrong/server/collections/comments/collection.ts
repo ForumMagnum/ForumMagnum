@@ -4,6 +4,7 @@ import { userIsAllowedToComment } from '@/lib/collections/users/helpers';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { commentVotingOptions } from '@/lib/collections/comments/voting';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: async (user: DbUser|null, document: DbComment|null, context: ResolverContext) => {
@@ -45,5 +46,5 @@ export const Comments = createCollection({
   voteable: commentVotingOptions,
 });
 
-
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('Comments');
 export default Comments;
