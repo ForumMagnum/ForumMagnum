@@ -9,10 +9,16 @@ interface PostReviewWinnerArtsViewTerms extends ViewTermsBase {
   postId: string;
 }
 
+interface AllForYearViewTerms extends ViewTermsBase {
+  view: 'allForYear';
+  year: number;
+}
+
 declare global {
   type ReviewWinnerArtsViewTerms =
     | NoViewTerms
-    | PostReviewWinnerArtsViewTerms;
+    | PostReviewWinnerArtsViewTerms
+    | AllForYearViewTerms;
 }
 
 function postArt(terms: PostReviewWinnerArtsViewTerms) {
@@ -23,6 +29,19 @@ function postArt(terms: PostReviewWinnerArtsViewTerms) {
   };
 }
 
+function allForYear({year}: AllForYearViewTerms) {
+  return {
+    selector: {
+      createdAt: {
+        $gte: new Date(year, 0, 1), // January 1st of current year
+        $lte: new Date(year + 1, 0, 1) // January 1st of next yea
+      }
+    }
+  };
+}
+
 export const ReviewWinnerArtsViews = new CollectionViewSet('ReviewWinnerArts', {
-  postArt
+  postArt,
+  allForYear
 });
+

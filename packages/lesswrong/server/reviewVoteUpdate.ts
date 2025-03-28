@@ -346,7 +346,7 @@ const getReviewWinnerPosts = async () => {
     finalReviewVoteScoreAllKarma: {$gte: 1},
     reviewCount: {$gte: 1},
     positiveReviewVoteCount: {$gte: 1}
-  }, {sort: {finalReviewVoteScoreHighKarma: 1}, limit: 1}).fetch()
+  }, {sort: {finalReviewVoteScoreHighKarma: -1}, limit: 51}).fetch()
 }
 
 const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWinnerCategory, adminContext: ResolverContext) => { 
@@ -378,7 +378,6 @@ export const checkReviewWinners = async () => {
   })
 }
 
-// Exported to allow running manually with "yarn repl"
 export const createReviewWinners = async () => {
   const posts = await getReviewWinnerPosts()
   const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
@@ -388,5 +387,4 @@ export const createReviewWinners = async () => {
     const category = getPostCategory(post, coreTags, aiStrategyTags)
     return createReviewWinner(post, idx, category, adminContext)
   }))
-
 }

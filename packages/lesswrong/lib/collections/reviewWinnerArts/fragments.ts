@@ -5,7 +5,18 @@ export const ReviewWinnerArtImages = `
     splashArtImagePrompt
     splashArtImageUrl
     activeSplashArtCoordinates {
-      ...SplashArtCoordinates
+      ...SplashArtCoordinatesEdit
+    }
+  }
+`
+
+export const ReviewWinnerArtImagesForYear = `
+  fragment ReviewWinnerArtImagesForYear on ReviewWinnerArt {
+    ...ReviewWinnerArtImages
+    post {
+      _id
+      title
+      slug
     }
   }
 `

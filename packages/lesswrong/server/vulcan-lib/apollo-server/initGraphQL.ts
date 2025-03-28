@@ -103,6 +103,7 @@ import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolver
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { getSchema } from '@/lib/schema/allSchemas';
+import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 
 export const typeDefs = gql`
   # type Query
@@ -180,6 +181,8 @@ export const typeDefs = gql`
   ${diffGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
+  ${generateCoverImagesForPostGraphQLTypeDefs}
+  ${flipSplashArtImageGraphQLTypeDefs}
 `
 
 export const resolvers = {
@@ -257,6 +260,8 @@ export const resolvers = {
     ...cronGraphQLMutations,
     ...partiallyReadSequencesMutations,
     ...jargonTermsGraphQLMutations,
+    ...generateCoverImagesForPostGraphQLMutations,
+    ...flipSplashArtImageGraphQLMutations,
     ...rsvpToEventsMutations,
     ...tagsGqlMutations,
     ...analyticsEventGraphQLMutations,

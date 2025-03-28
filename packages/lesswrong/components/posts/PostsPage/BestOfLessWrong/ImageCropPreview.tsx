@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useEffect, RefObject, useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
-import { useEventListener } from '../../hooks/useEventListener';
-import { useCreate } from '../../../lib/crud/withCreate';
-import { useWindowSize } from '../../hooks/useScreenWidth';
-import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../sequences/TopPostsPage';
+import { registerComponent } from '../../../../lib/vulcan-lib/components';
+import { useImageContext, ReviewWinnerImageInfo } from '../ImageContext';
+import { useEventListener } from '../../../hooks/useEventListener';
+import { useCreate } from '../../../../lib/crud/withCreate';
+import { useWindowSize } from '../../../hooks/useScreenWidth';
+import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../../sequences/TopPostsPage';
 import classNames from 'classnames';
 
 const initialHeight = 480;
@@ -63,7 +63,7 @@ function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coor
 
 const styles = (theme: ThemeType) => ({
   button: {
-    padding: '10px 20px',
+    padding: '8px 20px',
     cursor: 'pointer',
     backgroundColor: theme.palette.panelBackground.reviewGold,
     color: theme.palette.inverseGreyAlpha(1),
@@ -84,7 +84,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     marginBottom: '40px', 
-    position: 'absolute',
+    position: 'fixed',
     background: 'transparent',
     border: '2px solid',
     borderColor: theme.palette.inverseGreyAlpha(1),
@@ -217,9 +217,8 @@ const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveA
   return <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
 }
 
-const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
+const ImageCropPreview = ({ imgRef, classes, flipped }: {
   imgRef: RefObject<HTMLImageElement>,
-  setCropPreview: (coordinates?: Coordinates) => void,
   classes: ClassesType<typeof styles>,
   flipped: boolean
 }) => {
@@ -245,13 +244,9 @@ const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
 
   const updateBoxCoordinates = (newCoordinates: BoxCoordinates) => {
     setBoxCoordinates(newCoordinates);
-    setCropPreview(newCoordinates);
   }
 
   const toggleBoxVisibility = () => {
-    // If we're closing the box, pass that back to undo all the relevant styling
-    const newCropPreviewCoords = isBoxVisible ? undefined : boxCoordinates;
-    setCropPreview(newCropPreviewCoords);
     setIsBoxVisible(!isBoxVisible);
   }
 
@@ -388,7 +383,7 @@ const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
   }, [selectedImageInfo, createSplashArtCoordinateMutation, cachedBoxCoordinates, imgRef]);
 
   if (!selectedImageInfo) {
-    return null;
+    return <button className={classes.button} onClick={toggleBoxVisibility}>Show Box</button>;
   }
 
   const moveableBoxStyle = {
@@ -442,7 +437,10 @@ const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
           </div>
           {showSaveSuccess && <div className={classes.successNotification}>
             Coordinates saved successfully!
-            <div onClick={() => setShowSaveSuccess(false)}>
+            <div onClick={() => {
+              setShowSaveSuccess(false);
+              toggleBoxVisibility();
+            }}>
               (click here to close)
             </div>
           </div>}

@@ -25,7 +25,6 @@ import './server/robots';
 import './server/ckEditor/ckEditorToken';
 import './server/ckEditor/ckEditorWebhook';
 import './server/ckEditor/ckEditorCallbacks';
-
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 
@@ -44,6 +43,7 @@ import './server/rsvpToEvent';
 import './server/acceptCoauthorRequest';
 import './server/bookmarkMutation';
 import './server/hidePostMutation';
+import './server/resolvers/aiArtResolvers/coverImageMutations';
 import './server/rss';
 import './server/akismet';
 import './server/votingCron';

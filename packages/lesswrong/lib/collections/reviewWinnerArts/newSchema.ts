@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { accessFilterSingle, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { getReviewWinnerArtCoordinates } from "@/server/review/splashArtCoordinatesCache";
 
 const schema = {
@@ -18,6 +18,13 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
+    },
+  },
+  post: {
+    graphql: {
+      outputType: "Post",
+      canRead: ["guests"],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" })
     },
   },
   splashArtImagePrompt: {
