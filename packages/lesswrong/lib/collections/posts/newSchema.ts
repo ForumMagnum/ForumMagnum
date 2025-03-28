@@ -379,7 +379,7 @@ const schema = {
       outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
-      canCreate: [userHasModerationGuidelines],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
       editableFieldOptions: { pingbacks: false, normalized: true },
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("moderationGuidelines"),
