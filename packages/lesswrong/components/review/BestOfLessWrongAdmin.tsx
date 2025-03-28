@@ -141,6 +141,7 @@ export const BestOfLessWrongAdmin = () => {
     <p>Showing art created in {year}</p>
       {(reviewWinnersLoading || imagesLoading) && <Loading/>}
       <div>
+        <div>{images?.length} images</div>
         <div>{Object.entries(groupedImages).length} Posts with art</div>
         <div>{reviewWinnersWithoutArt.length} Posts without art</div>
       </div>

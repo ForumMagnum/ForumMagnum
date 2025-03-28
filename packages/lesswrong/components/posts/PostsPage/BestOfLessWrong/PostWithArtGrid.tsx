@@ -84,21 +84,25 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   });   
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
+    // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
     const { errors } = await createSplashArtCoordinateMutation({ data: {
       reviewWinnerArtId: image._id,
-      leftXPct: .35,
-      leftYPct: 0,
-      leftWidthPct: .5,
+      leftXPct: .2, // note: XPcts are right-aligned, not left-aligned like you might expect
+      leftYPct: .25,
+      leftWidthPct: .16, // widths need to be < .33 of the image, because they'll be 3x'd 
+      // when we render them on the /bestoflesswrong page (so that when you expand the panel
+      // to 3x it's size there is a background image the whole way
       leftHeightPct: 1,
-      leftFlipped: false,
+      leftFlipped: true, // for the 2025+ styling (for the 2023) and onward, we want to flip
+      // the left-side images because the images are designed to have most of the content on the right side by default (but we want it to show up on the left there)
       middleXPct: .35,
-      middleYPct: 0,
-      middleWidthPct: .5,
+      middleYPct: .15,
+      middleWidthPct: .16,
       middleHeightPct: 1,
       middleFlipped: false,
-      rightXPct: .35,
-      rightYPct: 0,
-      rightWidthPct: .5,
+      rightXPct: .2,
+      rightYPct: .25,
+      rightWidthPct: .16,
       rightHeightPct: 1, 
       rightFlipped: false,
     } });

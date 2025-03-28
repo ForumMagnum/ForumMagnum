@@ -12,12 +12,12 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
   },
   backgroundImageWrapper: {
     position: 'fixed',
-    width: 'calc(100vw + 100px)',
+    width: 'calc(100vw + 200px)',
     top: -100,
-    right: -100,
+    right: -200,
     [theme.breakpoints.down('xs')]: {
-      top: -175,
-      right: -100,
+      top: -260,
+      right: 0,
     },
   },
   backgroundImage: {
@@ -86,6 +86,13 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
   const currentUser = useCurrentUser();
   
   const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (post.reviewWinner?.reviewWinnerArt) {
+      setImageInfo(post.reviewWinner?.reviewWinnerArt);
+      console.log(selectedImageInfo);
+    }
+  }, [post.reviewWinner?.reviewWinnerArt, setImageInfo]);
 
   useEffect(() => {
     const postLastSavedImage = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl;

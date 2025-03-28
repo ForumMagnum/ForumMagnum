@@ -63,7 +63,7 @@ function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coor
 
 const styles = (theme: ThemeType) => ({
   button: {
-    padding: '10px 20px',
+    padding: '8px 20px',
     cursor: 'pointer',
     backgroundColor: theme.palette.panelBackground.reviewGold,
     color: theme.palette.inverseGreyAlpha(1),
@@ -383,7 +383,7 @@ const ImageCropPreview = ({ imgRef, classes, flipped }: {
   }, [selectedImageInfo, createSplashArtCoordinateMutation, cachedBoxCoordinates, imgRef]);
 
   if (!selectedImageInfo) {
-    return null;
+    return <button className={classes.button} onClick={toggleBoxVisibility}>Show Box</button>;
   }
 
   const moveableBoxStyle = {

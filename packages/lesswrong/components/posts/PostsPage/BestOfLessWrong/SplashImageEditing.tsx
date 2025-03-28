@@ -16,7 +16,7 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
     paddingRight: 8,
     paddingBottom: 8,
     zIndex: 2,
-    opacity: .1,
+    opacity: 1,
     gap: '8px',
     '&:hover': {
       opacity: 1
@@ -38,6 +38,8 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
   },
   splashContent: {
     padding: 8,
+    minHeight: '50vh',
+    minWidth: '100vw',
     backgroundColor: theme.palette.background.paper,
   }
 }));
@@ -61,15 +63,15 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
 
   return <div className={classes.root}>
     <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
+    <ImageCropPreview imgRef={imgRef} flipped={imageFlipped} />
     <div {...eventHandlers}>
       <div className={classes.changeImageBox}>Change image</div>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-end" clickable={true} flip={true}>
         <div className={classes.splashContent}>
           <SplashHeaderImageOptions post={post}/>
         </div>
       </LWPopper>
     </div>
-    <ImageCropPreview imgRef={imgRef} flipped={imageFlipped} />
   </div>
 }
 
