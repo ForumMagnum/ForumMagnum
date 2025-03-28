@@ -53,7 +53,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
     },
     background: {
-      default: '#f8f4ee'
+      default: '#f8f4ee',
     },
     link: {
       color: "#327E09",
@@ -69,9 +69,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
       intercomButton: 1030,
     },
     typography: {
-      fontFamily: sansSerifStack,
+      fontFamily: palette.fonts.sansSerifStack,
       postStyle: {
-        fontFamily: serifStack,
+        fontFamily: palette.fonts.serifStack,
       },
       headerStyle: {
         fontFamily: headerStack,
@@ -86,27 +86,27 @@ export const lessWrongTheme: SiteThemeSpecification = {
         lineHeight: "19.8px"
       },
       commentStyle: {
-        fontFamily: sansSerifStack,
+        fontFamily: palette.fonts.sansSerifStack,
         '& b, & strong': {
           fontWeight: 600
         }
       },
       errorStyle: {
         color: palette.error.main,
-        fontFamily: sansSerifStack
+        fontFamily: palette.fonts.sansSerifStack
       },
       headline: {
-        fontFamily: serifStack,
+        fontFamily: palette.fonts.serifStack,
       },
       subheading: {
-        fontFamily: serifStack,
+        fontFamily: palette.fonts.serifStack,
       },
       title: {
         fontFamily: headerStack,
         fontWeight: 500,
       },
       uiSecondary: {
-        fontFamily: serifStack,
+        fontFamily: palette.fonts.serifStack,
       },
     },
     overrides: {
@@ -124,14 +124,14 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
       MuiDialogContent: {
         root: {
-          fontFamily: sansSerifStack,
+          fontFamily: palette.fonts.sansSerifStack,
           fontSize: 15.08,
           lineHeight: "1.5em"
         }
       },
       MuiMenuItem: {
         root: {
-          fontFamily: sansSerifStack,
+          fontFamily: palette.fonts.sansSerifStack,
           color: palette.grey[800],
           fontSize: 14.3,
           lineHeight: "1.1em"

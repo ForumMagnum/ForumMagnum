@@ -4,6 +4,7 @@ import { useLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
+import { useTheme } from './themes/useTheme';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -17,6 +18,11 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     top: '-70px',
     right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      right: 0,
+      '-webkit-mask-image': `radial-gradient(ellipse at right top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    }),
     
     [theme.breakpoints.up(2000)]: {
       right: '0px',
@@ -191,18 +197,26 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   const classes = useStyles(styles);
   const { ReviewVotingCanvas, CloudinaryImage2 } = Components
   const { currentRoute } = useLocation();
+  const theme = useTheme();
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
     * loading="lazy" prevents downloading the image if the
     * screen-size is such that the image will be hidden by a
     * breakpoint. */}
-    <CloudinaryImage2
-      loading="lazy"
-      className={classes.backgroundImage}
-      publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-      darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
-    />
+    {theme.themeOptions.name === 'ghiblify'
+      ? <img
+          loading="lazy"
+          className={classes.backgroundImage}
+          src="/landscape.jpg"
+        />
+      : <CloudinaryImage2
+          loading="lazy"
+          className={classes.backgroundImage}
+          publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+          darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+        />
+    }
   </div> : null
 
   const reviewCompleteImage = <div>

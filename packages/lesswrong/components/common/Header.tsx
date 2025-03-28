@@ -101,9 +101,13 @@ const textColorOverrideStyles = ({
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
-    boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.header.text,
+    boxShadow: theme.palette.boxShadow.appBar,
     backgroundColor: theme.palette.header.background,
+    ...(theme.themeOptions.name === "ghiblify" && {
+      backgroundColor: undefined,
+      boxShadow: undefined,
+    }),
     position: "static",
     width: "100%",
     display: "flex",

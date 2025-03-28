@@ -60,7 +60,10 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.9
   },
   icon: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[500]
+    color: isFriendlyUI ? undefined : theme.palette.grey[500],
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      color: "#3187cb",
+    }),
   },
   deactivatedTooltip: {
     maxWidth: 230

@@ -2,7 +2,7 @@ import { DeferredForumSelect } from '../lib/forumTypeUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
-export const userThemeNames = new TupleSet(["default", "dark"] as const);
+export const userThemeNames = new TupleSet(["default", "dark", "ghiblify"] as const);
 export const userThemeSettings = new TupleSet([...userThemeNames, "auto"] as const);
 export const muiThemeNames = new TupleSet(["light", "dark"] as const);
 
@@ -52,6 +52,10 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
     {
       name: "dark",
       label: "Dark Mode",
+    },
+    {
+      name: "ghiblify",
+      label: "Ghibli Mode",
     },
     {
       name: "auto",
