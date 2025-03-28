@@ -70,7 +70,7 @@ Here are some bad examples:
 4. A labyrinth of forking paths
 5. A interlocking mechanism of gears
 
-Please generate 10 visual illustrations for the essay that will appear on Lesswrong. The essay will appear after the "===".
+Please generate ${promptsGenerated} visual illustrations for the essay that will appear on Lesswrong. The essay will appear after the "===".
 
 Please format your response as follows:
 
@@ -82,7 +82,7 @@ ILLUSTRATIONS: A JSON list of your final ${promptsGenerated} visual illustration
 
 You must respond in valid JSON format with the following structure:
 {  
-  "illustrations": ["illustration 1", "illustration 2", "illustration 3", "illustration 4", "illustration 5", "illustration 6", "illustration 7", "illustration 8", "illustration 9", "illustration 10"]
+  "illustrations": ["illustration 1", "illustration 2", "illustration 3", etc...]
 }
 
 ===
@@ -332,6 +332,7 @@ export const getReviewWinnerArts = async () => {
 export const generateCoverImagesForPost = async (postId: string, prompt?: string): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
   console.time('running generateCoverImagesForPost');
+  console.log(postId, prompt)
   
   const post = await fetchFragment({
     collectionName: "Posts",

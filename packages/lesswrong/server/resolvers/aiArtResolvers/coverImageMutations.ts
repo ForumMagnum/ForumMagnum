@@ -3,10 +3,8 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection';
 import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection';
 import { gql } from 'apollo-server';
-import { ReviewWinnerArtImages } from '@/lib/collections/reviewWinnerArts/fragments';
 
 export const generateCoverImagesForPostGraphQLTypeDefs = gql`
-  ${ReviewWinnerArtImages}
   extend type Mutation {
     generateCoverImagesForPost(postId: String!, prompt: String): [ReviewWinnerArt]
   }
@@ -20,7 +18,8 @@ export const generateCoverImagesForPostGraphQLMutations = {
     }
     try {
       const results = await generateCoverImagesForPost(postId, prompt);
-      return results;
+      const reviewWinnerArts = results.map(result => result.reviewWinnerArt);
+      return reviewWinnerArts;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error generating cover images:', error);

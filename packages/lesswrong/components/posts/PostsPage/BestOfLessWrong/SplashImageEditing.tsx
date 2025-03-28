@@ -61,7 +61,6 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
 
   return <div className={classes.root}>
     <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
-    <ImageCropPreview imgRef={imgRef} flipped={imageFlipped} />
     <div {...eventHandlers}>
       <div className={classes.changeImageBox}>Change image</div>
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
@@ -70,6 +69,7 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
         </div>
       </LWPopper>
     </div>
+    <ImageCropPreview imgRef={imgRef} flipped={imageFlipped} />
   </div>
 }
 

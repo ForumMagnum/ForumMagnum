@@ -12,12 +12,12 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
   },
   backgroundImageWrapper: {
     position: 'fixed',
-    width: '100vw',
+    width: 'calc(100vw + 100px)',
     top: -100,
-    right: 0,
+    right: -100,
     [theme.breakpoints.down('xs')]: {
       top: -175,
-      right: 0,
+      right: -100,
     },
   },
   backgroundImage: {
