@@ -18,9 +18,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'row',
   },
-  collapsedRoot: {
-    paddingTop: 16,
-  },
   compressedRoot: {
     display: 'flex',
     flexDirection: 'row',
@@ -182,7 +179,7 @@ const UltraFeedCompressedCommentsItemComponent = registerComponent("UltraFeedCom
 
 export interface UltraFeedCommentItemProps {
   comment: CommentsList;
-  post: PostsMinimumInfo;
+  post: PostsListWithVotes;
   displayStatus: "expanded" | "collapsed" | "hidden";
   onChangeDisplayStatus: (newStatus: "expanded" | "collapsed" | "hidden") => void;
   showInLineCommentThreadTitle?: boolean;
@@ -210,12 +207,14 @@ const UltraFeedCommentItem = ({
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-  const { UltraFeedCommentsItemMeta, ContentStyles, CommentBottom, FeedContentBody } = Components;
-  const { settings } = useUltraFeedSettings();
 
-  const votingSystemName = comment.votingSystem || "default";
-  const votingSystem = getVotingSystemByName(votingSystemName);
-  const voteProps = useVote(comment, "Comments", votingSystem);
+  const { UltraFeedCommentsItemMeta, CommentBottom, FeedContentBody, UltraFeedCommentItemFooter } = Components;
+  const { settings } = useUltraFeedSettings();
+  const { commentTruncationBreakpoints, collapsedCommentTruncation, lineClampNumberOfLines, commentTitleStyle } = settings;
+
+  // const votingSystemName = comment.votingSystem || "default";
+  // const votingSystem = getVotingSystemByName(votingSystemName);
+  // const voteProps = useVote(comment, "Comments", votingSystem);
 
   // Decide if we should truncate the content if collapsed
   const shouldTruncate = useMemo(() => {
@@ -229,26 +228,18 @@ const UltraFeedCommentItem = ({
   }, [onChangeDisplayStatus, captureEvent]);
 
   const expanded = displayStatus === "expanded";
-  const metaDataProps = displayStatus === "expanded" ? { } : {hideDate: true, hideVoteButtons: true, hideActionsMenu: true};
+  const metaDataProps = { hideVoteButtons: true, hideActionsMenu: false, setShowEdit: () => {} }
   
   // Use the truncation breakpoints from settings
-  const truncationBreakpoints = displayStatus === "expanded" 
-    ? settings.commentTruncationBreakpoints 
-    : [settings.collapsedCommentTruncation]; // Use the dedicated collapsed comment truncation setting
-
-  // Check if line clamp should be used (only for collapsed comments)
-  const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
+  const truncationBreakpoints = displayStatus === "expanded" ? commentTruncationBreakpoints : [collapsedCommentTruncation];
+  const shouldUseLineClamp = !expanded && lineClampNumberOfLines > 0;
 
   // Determine if and how we should show the title
-  const shouldShowInlineTitle = showInLineCommentThreadTitle && 
-    (settings.commentTitleStyle === "commentReplyStyleBeneathMetaInfo" || 
-     settings.commentTitleStyle === "commentReplyStyleAboveMetaInfo");
-  
-  const titleAboveMetaInfo = shouldShowInlineTitle && 
-    settings.commentTitleStyle === "commentReplyStyleAboveMetaInfo";
+  const shouldShowInlineTitle = showInLineCommentThreadTitle && (commentTitleStyle === "commentReplyStyleBeneathMetaInfo" || commentTitleStyle === "commentReplyStyleAboveMetaInfo");
+  const titleAboveMetaInfo = shouldShowInlineTitle && (commentTitleStyle === "commentReplyStyleAboveMetaInfo");
 
   return (
-    <div className={classNames(classes.root, { [classes.collapsedRoot]: !expanded })} onClick={expanded ? undefined : handleExpand}>
+    <div className={classNames(classes.root)} >
       {/* Vertical line container */}
       <div className={classes.verticalLineContainer}>
         <div className={classNames(
@@ -298,18 +289,7 @@ const UltraFeedCommentItem = ({
             clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
           />
         </div>
-
-        {expanded && <div className={classes.commentBottom}>
-          <CommentBottom
-            comment={comment}
-            post={post}
-            treeOptions={{}}
-            votingSystem={votingSystem}
-            voteProps={voteProps}
-            replyButton={<div className={classes.replyButton}>Reply</div>}
-          />
-        </div>}
-        {!expanded && <div className={classes.collapsedFooter}/>}
+        <UltraFeedCommentItemFooter comment={comment} post={post} />
       </div>
     </div>
   );
