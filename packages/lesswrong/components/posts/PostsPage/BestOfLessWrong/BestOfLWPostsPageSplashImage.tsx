@@ -14,7 +14,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     position: 'fixed',
     width: '100vw',
     top: -100,
-    right: -200,
+    right: 0,
     [theme.breakpoints.down('xs')]: {
       top: -175,
       right: 0,
@@ -78,6 +78,7 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
 }) => {
   const classes = useStyles(styles);
   const { selectedImageInfo, setImageInfo } = useImageContext();
+  const [backgroundImage, setBackgroundImage] = useState(selectedImageInfo?.splashArtImageUrl || post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl);
 
   const [imageFlipped, setImageFlipped] = useState(false);
   const [opacity, setOpacity] = useState(1);

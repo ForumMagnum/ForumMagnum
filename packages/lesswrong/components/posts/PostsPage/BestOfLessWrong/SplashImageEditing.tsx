@@ -66,9 +66,9 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
       <div className={classes.changeImageBox}>Change image</div>
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
         <div className={classes.splashContent}>
-        <SplashHeaderImageOptions post={post}/>
-      </div>
-    </LWPopper>
+          <SplashHeaderImageOptions post={post}/>
+        </div>
+      </LWPopper>
     </div>
   </div>
 }

@@ -7,12 +7,12 @@ import ReviewWinners from '@/server/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { fal } from '@fal-ai/client';
-import { createAdminContext } from '../../vulcan-lib/query.ts';
 import { createMutator } from '../../vulcan-lib/mutators.ts';
 import sample from 'lodash/sample';
 import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection.ts';
 import { falApiKey } from '@/lib/instanceSettings.ts';
 import { artPrompt } from '@/components/review/GenerateImagesButton.tsx';
+import { createAdminContext } from '@/server/vulcan-lib/createContexts.ts';
 
 /*
 This script makes AI-generated images for Best of LessWrong posts.

@@ -1,14 +1,20 @@
-import { defineMutation } from '@/server/utils/serverGraphqlUtil';
 import { generateCoverImagesForPost } from '@/server/scripts/generativeModels/coverImages-2023Review';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection';
 import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection';
+import { gql } from 'apollo-server';
+import { ReviewWinnerArtImages } from '@/lib/collections/reviewWinnerArts/fragments';
 
-defineMutation({
-  name: 'generateCoverImagesForPost',
-  argTypes: '(postId: String!, prompt: String)',
-  resultType: 'JSON',
-  fn: async (_root: any, { postId, prompt }: { postId: string, prompt?: string }, { currentUser }: { currentUser: any }) => {
+export const generateCoverImagesForPostGraphQLTypeDefs = gql`
+  ${ReviewWinnerArtImages}
+  extend type Mutation {
+    generateCoverImagesForPost(postId: String!, prompt: String): [ReviewWinnerArt]
+  }
+`
+
+export const generateCoverImagesForPostGraphQLMutations = {
+  generateCoverImagesForPost: async (root: void, { postId, prompt }: { postId: string, prompt?: string }, context: ResolverContext) => {
+    const { currentUser } = context;
     if (!currentUser || !userIsAdmin(currentUser)) {
       throw new Error('You must be an admin to generate cover images');
     }
@@ -21,15 +27,16 @@ defineMutation({
       throw new Error(`Error generating cover images: ${error.message}`);
     }
   },
-});
+}
 
-// Flipping an image needs to flip both the current image and the most recent splash coordiantes
-// for that image.
-defineMutation({
-  name: 'flipSplashArtImage',
-  argTypes: '(reviewWinnerArtId: String!)',
-  resultType: 'JSON',
-  fn: async (_root: any, { reviewWinnerArtId }: { reviewWinnerArtId: string }, { currentUser }: { currentUser: any }) => {
+export const flipSplashArtImageGraphQLTypeDefs = gql`
+  extend type Mutation {
+    flipSplashArtImage(reviewWinnerArtId: String!): Boolean
+  }
+`
+
+export const flipSplashArtImageGraphQLMutations = {
+  flipSplashArtImage: async (root: void, { reviewWinnerArtId }: { reviewWinnerArtId: string }, context: ResolverContext) => {
     const currentSplashCoordinates = await SplashArtCoordinates.findOne({ reviewWinnerArtId }, { sort: { createdAt: -1 } });
     const reviewWinnerArt = await ReviewWinnerArts.findOne({ _id: reviewWinnerArtId });
 
@@ -57,4 +64,4 @@ defineMutation({
     ]);
     return true;
   },
-});
+}
