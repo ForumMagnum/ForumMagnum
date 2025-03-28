@@ -23,6 +23,11 @@ const styles = (theme: ThemeType) => ({
 
 const postIds = [
   'ZhNaizQgYY9dXdQkM', // Intro to EA
+  'HqmQMmKgX7nfSLaNX', // Moral error as an existential risk
+  'aHqCaNCmrhRreuyBN', // US aid freeze – how to help & where to donate: GWWC's February Newsletter
+  'rxTPv3MdrsHiqK7kM', // Money, Population, and Insecticide Resistance: Why malaria cases haven’t declined since 2015
+  'DZnSFYPzoL2oT3pXX', // Announcing: Existential Choices Debate Week (March 17-24)
+  'S9H86osFKhfFBCday', // How bad would human extinction be?
   'jCwuozHHjeoLPLemB', // How Long Do Policy Changes Matter?
   'DgpRaCdvupy6cMbdk', // Nuance in Proxies
   'RLCfqw9DKchfngv3f', // We need a new Artesunate - the miracle drug fades
@@ -40,26 +45,6 @@ const postIds = [
   'KbREamTda2sZhKtTz', // Will a food carbon tax lead to more animals being slaughtered? A quantitative model
   'mMYSLTedzLpqwp2Fk', // The EA Opportunity Board is back
   'SkfMyerJ5bGK7scnW', // What I'm celebrating from EA and adjacent work in 2024
-  's9dyyge6uLG5ScwEp', // It looks like there are some good funding opportunities in AI safety right now
-  'sEsguXTiKBA6LzX55', // Takes on "Alignment faking in llms"
-  'vHiDeQnCepvwnv8Fm', // AWF AMA
-  '5zzbzbYZcocoLnLif', // There is no EA sorting hat
-  '4P2qKX7wegdEgMMnb', // GWWC AMA
-  'hKfXxfkQ8XCT5ZBRX', // AGB AMA
-  '9pkjXwe2nFun32hR2', // mirror bacteria
-  '3ZSG22tDuDLxTLY4n', // Allan AMA
-  'mEQTxDGp4MxMSZA74', // Still donating half
-  'SDJKMbvuLyppJNiGD', // RP
-  'g2reCF86jukN9WMSJ', // AWF
-  'ZYktdzJRMsp2JhwYg', // AMF
-  'aYxuFeCcqRvaszHPb', // PauseAI
-  'pEtxF6fJr5M6H5fbC', // WAI
-  '9fuJgLik6FNtgrDAD', // Arthropoda Foundation
-  'hcpA7ufW6zZzeFaT4', // ORCG
-  'HXqzmahbjJwwiX9Si', // ARMoR
-  'XmtyNTS8eaT2PMzx4', // NAO
-  'rsRDu3u3wF6ctcQPn', // THL
-  'k8NLM6QoEjMkEGEmG', // Donation election results
 ]
 
 /**

@@ -9,10 +9,11 @@ import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import {quickTakesTagsEnabledSetting} from '../../publicSettings'
 import { ForumEventCommentMetadataSchema } from '../forumEvents/types';
-import { updateMutator } from '@/server/vulcan-lib/mutators';
 import { editableFields } from '@/lib/editor/make_editable';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
+import { publicScoreOptions } from './voting';
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -41,7 +42,7 @@ const schema: SchemaType<"Comments"> = {
       if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
       return {id: ('post:' + comment.postId), verify: false}
     },
-    hintText: isFriendlyUI ? 'Write a new comment...' : undefined,
+    hintText: () => isFriendlyUI ? 'Write a new comment...' : undefined,
     order: 25,
     pingbacks: true,
   }),
@@ -395,25 +396,7 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
-    onUpdate: async ({data, currentUser, document, oldDocument, context}: {
-      data: Partial<DbComment>,
-      currentUser: DbUser|null,
-      document: DbComment,
-      oldDocument: DbComment,
-      context: ResolverContext,
-    }) => {
-      if (data?.promoted && !oldDocument.promoted && document.postId) {
-        void updateMutator({
-          collection: context.Posts,
-          context,
-          documentId: document.postId,
-          data: { lastCommentPromotedAt: new Date() },
-          currentUser,
-          validate: false
-        })
-        return currentUser!._id
-      }
-    }
+    // onUpdate defined in `commentResolvers.ts` to avoid dependency cycle
   },
 
   promotedAt: {
@@ -623,7 +606,7 @@ const schema: SchemaType<"Comments"> = {
   repliesBlockedUntil: {
     type: Date,
     optional: true,
-    group: moderationOptionsGroup,
+    group: () => moderationOptionsGroup,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     control: 'datetime'
@@ -657,7 +640,7 @@ const schema: SchemaType<"Comments"> = {
   // old deleted comments from LW 1.0
   hideAuthor: {
     type: Boolean,
-    group: moderationOptionsGroup,
+    group: () => moderationOptionsGroup,
     optional: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
@@ -866,7 +849,7 @@ const schema: SchemaType<"Comments"> = {
     optional: true,
     label: "Suggested for Alignment by",
     control: "FormUserMultiselect",
-    group: alignmentOptionsGroup,
+    group: () => alignmentOptionsGroup,
     hidden: true
   },
   'suggestForAlignmentUserIds.$': {
@@ -877,7 +860,7 @@ const schema: SchemaType<"Comments"> = {
   reviewForAlignmentUserId: {
     type: String,
     optional: true,
-    group: alignmentOptionsGroup,
+    group: () => alignmentOptionsGroup,
     canRead: ['guests'],
     canUpdate: ['alignmentForumAdmins', 'admins'],
     label: "AF Review UserId",
@@ -893,7 +876,7 @@ const schema: SchemaType<"Comments"> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
     canCreate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
-    group: alignmentOptionsGroup,
+    group: () => alignmentOptionsGroup,
   },
 
   moveToAlignmentUserId: {
@@ -907,7 +890,7 @@ const schema: SchemaType<"Comments"> = {
     hidden: true,
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'alignmentForumAdmins', 'admins'],
-    group: alignmentOptionsGroup,
+    group: () => alignmentOptionsGroup,
     label: "Move to Alignment UserId",
   },
 
@@ -934,7 +917,9 @@ const schema: SchemaType<"Comments"> = {
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-  } 
+  },
+
+  ...getVoteableSchemaFields('Comments', { publicScoreOptions }),
 };
 
 export default schema;

@@ -6,6 +6,7 @@ import { formGroups } from "./formGroups";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { editableFields } from "@/lib/editor/make_editable";
 import { universalFields } from "@/lib/collectionUtils";
+import { getVoteableSchemaFields } from "@/lib/make_voteable";
 
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
@@ -120,7 +121,7 @@ const schema: SchemaType<"MultiDocuments"> = {
       }
 
       const parentTag = await loaders.Tags.load(multiDocument.parentDocumentId);
-      return accessFilterSingle(currentUser, Tags, parentTag, context);
+      return accessFilterSingle(currentUser, 'Tags', parentTag, context);
     },
     sqlResolver: ({ field, join }) => join({
       table: 'Tags',
@@ -140,7 +141,7 @@ const schema: SchemaType<"MultiDocuments"> = {
       }
 
       const parentMultiDocuments = await loaders.MultiDocuments.load(multiDocument.parentDocumentId);
-      return accessFilterSingle(currentUser, MultiDocuments, parentMultiDocuments, context);
+      return accessFilterSingle(currentUser, 'MultiDocuments', parentMultiDocuments, context);
     },
     sqlResolver: ({ field, join }) => join({
       table: 'MultiDocuments',
@@ -223,7 +224,7 @@ const schema: SchemaType<"MultiDocuments"> = {
     denormalized: true,
   },
 
-  ...summariesField('MultiDocuments', { group: formGroups.summaries }),
+  ...summariesField('MultiDocuments', { group: () => formGroups.summaries }),
 
   ...textLastUpdatedAtField('MultiDocuments'),
   
@@ -235,6 +236,8 @@ const schema: SchemaType<"MultiDocuments"> = {
     logChanges: true,
     ...schemaDefaultValue(false),
   },
+
+  ...getVoteableSchemaFields('MultiDocuments'),
 };
 
 export default schema;

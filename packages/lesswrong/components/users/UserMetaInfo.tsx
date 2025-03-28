@@ -1,9 +1,9 @@
 // TODO: Reconcile this file with user meta info the LW user profile page
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import DescriptionIcon from '@material-ui/icons/Description';
-import MessageIcon from '@material-ui/icons/Message';
-import TagIcon from '@material-ui/icons/LocalOffer';
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
+import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
+import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import classNames from 'classnames';
 
 

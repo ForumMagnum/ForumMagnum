@@ -1,20 +1,20 @@
-import Notifications from '../lib/collections/notifications/collection';
-import Users from '../lib/collections/users/collection';
-import { Posts } from '../lib/collections/posts/collection';
+import Notifications from '../server/collections/notifications/collection';
+import Users from '../server/collections/users/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import './emailComponents/EmailWrapper';
-import './emailComponents/NewPostEmail';
+import './emailComponents/PostsEmail';
 import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EmailCuratedAuthors';
 import * as _ from 'underscore';
 import { getCollectionHooks } from './mutationCallbacks';
 
-import { RSVPType } from '../lib/collections/posts/schema';
+import type { RSVPType } from '../lib/collections/posts/newSchema';
 import { createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
-import Messages from '../lib/collections/messages/collection';
+import Messages from '../server/collections/messages/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 

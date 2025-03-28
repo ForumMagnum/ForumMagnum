@@ -1,10 +1,9 @@
 import * as _ from 'underscore';
-import { Posts } from '../lib/collections/posts/collection';
-import { Sequences } from '../lib/collections/sequences/collection';
-import { Collections } from '../lib/collections/collections/collection';
+import { Posts } from '../server/collections/posts/collection';
+import { Sequences } from '../server/collections/sequences/collection';
+import { Collections } from '../server/collections/collections/collection';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../lib/vulcan-lib/graphql';
 import { WeightedList } from './weightedList';
 import {
   DefaultRecommendationsAlgorithm,
@@ -18,6 +17,7 @@ import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/helpers';
 import RecommendationService from './recommendations/RecommendationService';
 import PgCollection from './sql/PgCollection';
+import gql from 'graphql-tag';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -349,9 +349,9 @@ const getResumeSequences = async (currentUser: DbUser|null, context: ResolverCon
       ]);
       
       return {
-        sequence: await accessFilterSingle(currentUser, Sequences, sequence, context),
-        collection: await accessFilterSingle(currentUser, Collections, collection, context),
-        nextPost: await accessFilterSingle(currentUser, Posts, nextPost, context),
+        sequence: await accessFilterSingle(currentUser, 'Sequences', sequence, context),
+        collection: await accessFilterSingle(currentUser, 'Collections', collection, context),
+        nextPost: await accessFilterSingle(currentUser, 'Posts', nextPost, context),
         numRead: numRead,
         numTotal: numTotal,
         lastReadTime: lastReadTime,
@@ -365,10 +365,8 @@ const getResumeSequences = async (currentUser: DbUser|null, context: ResolverCon
   return _.filter(results, result=>!!result.nextPost);
 }
 
-
-addGraphQLResolvers({
-  Query: {
-    async ContinueReading(root: void, args: void, context: ResolverContext) {
+export const graphqlQueries = {
+  async ContinueReading(root: void, args: void, context: ResolverContext) {
       const { currentUser } = context;
 
       return await getResumeSequences(currentUser, context);
@@ -389,17 +387,18 @@ addGraphQLResolvers({
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
-      const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, 'Posts', recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
       return accessFilteredPosts;
-    }
   },
-  Mutation: {
-    async dismissRecommendation(root: void, {postId}: {postId: string}, context: ResolverContext) {
-      const { currentUser } = context;
+}
+
+export const graphqlMutations = {
+  async dismissRecommendation(root: void, {postId}: {postId: string}, context: ResolverContext) {
+    const { currentUser } = context;
       if (!currentUser) return false;
 
       if (currentUser.partiallyReadSequences?.some((s)=>s.nextPostId===postId)) {
@@ -409,11 +408,10 @@ addGraphQLResolvers({
         return true;
       }
       return false;
-    }
-  },
-});
+  }
+}
 
-addGraphQLSchema(`
+export const graphqlTypeDefs = gql`
   type RecommendResumeSequence {
     sequence: Sequence
     collection: Collection
@@ -422,8 +420,11 @@ addGraphQLSchema(`
     numTotal: Int
     lastReadTime: Date
   }
-`);
-
-addGraphQLQuery("ContinueReading: [RecommendResumeSequence!]");
-addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
-addGraphQLMutation("dismissRecommendation(postId: String): Boolean");
+  extend type Query {
+    ContinueReading: [RecommendResumeSequence!]
+    Recommendations(count: Int, algorithm: JSON): [Post!]
+  }
+  extend type Mutation {
+    dismissRecommendation(postId: String): Boolean
+  }
+`;

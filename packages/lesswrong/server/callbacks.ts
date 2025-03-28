@@ -1,10 +1,10 @@
-import { Votes } from '../lib/collections/votes/collection';
-import { getVoteableCollections } from '../lib/make_voteable';
+import { Votes } from '../server/collections/votes/collection';
+import { getVoteableCollections } from '@/server/collections/allCollections';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { silentlyReverseVote } from './voteServer';
 import { getCollectionHooks } from './mutationCallbacks';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
-import { createAdminContext } from "./vulcan-lib/query";
+import { createAdminContext } from "./vulcan-lib/createContexts";
 
 interface DateRange {
   after?: Date;

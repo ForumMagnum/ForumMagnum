@@ -1,8 +1,8 @@
 import React from "react";
 import { commentIsHidden } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
-import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/schema";
-import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID, subforumGetSubscribedUsers } from "@/lib/collections/tags/helpers";
+import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/newSchema";
+import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum } from "@/lib/instanceSettings";
@@ -26,7 +26,7 @@ import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { Components } from "@/lib/vulcan-lib/components";
-import { subscriptionTypes } from "@/lib/collections/subscriptions/schema";
+import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import _ from "underscore";
@@ -166,7 +166,7 @@ const utils = {
   },
 
   sendNewCommentNotifications: async (comment: DbComment, context: ResolverContext) => {
-    const { UserTagRels, loaders, repos } = context;
+    const { Users, UserTagRels, loaders, repos } = context;
     const post = comment.postId ? await loaders.Posts.load(comment.postId) : null;
     
     if (comment.legacyData?.arbitalPageId) return;
@@ -305,7 +305,8 @@ const utils = {
       !comment.topLevelCommentId &&
       !comment.authorIsUnreviewed // FIXME: make this more general, and possibly queue up notifications from unreviewed users to send once they are approved
     ) {
-      const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId })).map((u) => u._id);
+      const subforumSubcribedUsers = await Users.find({profileTagIds: comment.tagId}).fetch();
+      const subforumSubscriberIds = subforumSubcribedUsers.map((u) => u._id);
       const subforumSubscriberIdsMaybeNotify = (
         await UserTagRels.find({
           userId: { $in: subforumSubscriberIds },
@@ -418,7 +419,7 @@ const utils = {
         );
       const moderatingUser = comment.deletedByUserId ? await loaders.Users.load(comment.deletedByUserId) : null;
       const commentUser = await loaders.Users.load(comment.userId)
-      const lwAccount = await getAdminTeamAccount() ?? commentUser;
+      const lwAccount = await getAdminTeamAccount(context) ?? commentUser;
       if (!lwAccount) {
         // Something has gone horribly wrong
         throw new Error("Could not find admin account to send PM from");
@@ -542,6 +543,30 @@ export async function newCommentsRateLimit(validationErrors: CallbackValidationE
 }
 
 /* CREATE BEFORE */
+export async function assignPostVersion(comment: DbInsertion<DbComment>): Promise<DbInsertion<DbComment>> {
+  if (!comment.postId) {
+    return {
+      ...comment,
+      postVersion: "1.0.0",
+    };
+  }
+  
+  const post = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsRevision",
+    currentUser: null,
+    selector: {
+      _id: comment.postId,
+    },
+  });
+
+  const postVersion = (post && post.contents && post.contents.version) || "1.0.0";
+  return {
+    ...comment,
+    postVersion,
+  };
+}
+
 export async function createShortformPost(comment: DbInsertion<DbComment>, { currentUser, context: { Users, Posts } }: CreateCallbackProperties<"Comments">) {
   if (!currentUser) {
     throw new Error("Must be logged in");
@@ -768,7 +793,8 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
 }
 
 export async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null, properties: AfterCreateCallbackProperties<'Comments'>) {
-  const { Comments } = properties.context;
+  const { context } = properties;
+  const { Comments } = context;
   if (!currentUser) throw new Error("Submitted comment has no associated user");
   
   // Don't spam-check imported comments
@@ -781,7 +807,7 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
   if (unreviewedUser && akismetKeySetting.get()) {
     const start = Date.now();
 
-    const spam = await checkForAkismetSpam({document: comment, type: "comment"})
+    const spam = await checkForAkismetSpam({document: comment, type: "comment", context})
 
     const timeElapsed = Date.now() - start;
     captureEvent('checkForAkismetSpamCompleted', {
@@ -815,8 +841,8 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
 
 
 /* CREATE ASYNC */
-export async function newCommentTriggerReview({document}: AfterCreateCallbackProperties<'Comments'>) {
-  await triggerReviewIfNeeded(document.userId);
+export async function newCommentTriggerReview({document, context}: AfterCreateCallbackProperties<'Comments'>) {
+  await triggerReviewIfNeeded(document.userId, context);
 }
 
 export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {
@@ -837,7 +863,7 @@ export async function trackCommentRateLimitHit({document, context}: AfterCreateC
   }
 }
 
-export async function checkModGPTOnCommentCreate({document}: AfterCreateCallbackProperties<'Comments'>) {
+export async function checkModGPTOnCommentCreate({document, context}: AfterCreateCallbackProperties<'Comments'>) {
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
@@ -869,7 +895,7 @@ export async function checkModGPTOnCommentCreate({document}: AfterCreateCallback
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(document, post)
+  void checkModGPT(document, post, context)
 }
 
 // Elastic callback might go here
@@ -899,6 +925,25 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 
 
 /* UPDATE BEFORE */
+export function updatePostLastCommentPromotedAt(data: Partial<DbComment>, { oldDocument, document, context, currentUser }: UpdateCallbackProperties<"Comments">) {
+  if (data?.promoted && !oldDocument.promoted && document.postId) {
+    void updateMutator({
+      collection: context.Posts,
+      context,
+      documentId: document.postId,
+      data: {
+        lastCommentPromotedAt: new Date(),
+      },
+      currentUser,
+      validate: false,
+    });
+    const promotedByUserId = currentUser?._id;
+    return { ...data, promotedByUserId };
+  }
+
+  return data;
+}
+
 export async function validateDeleteOperations(data: Partial<DbComment>, properties: UpdateCallbackProperties<"Comments">) {
   const { Comments } = properties.context;
   // Validate changes to comment deletion fields (deleted, deletedPublic,
@@ -1006,7 +1051,8 @@ export async function updateDescendentCommentCountsOnEdit(comment: DbComment, pr
 
 
 /* UPDATE ASYNC */
-export async function updatedCommentMaybeTriggerReview({ currentUser, context: { Users } }: UpdateCallbackProperties<"Comments">) {
+export async function updatedCommentMaybeTriggerReview({ currentUser, context }: UpdateCallbackProperties<"Comments">) {
+  const { Users } = context;
   if (!currentUser) return;
   currentUser.snoozedUntilContentCount && await updateMutator({
     collection: Users,
@@ -1016,7 +1062,7 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context: {
     },
     validate: false,
   })
-  await triggerReviewIfNeeded(currentUser._id)
+  await triggerReviewIfNeeded(currentUser._id, context)
 }
 
 export async function updateUserNotesOnCommentRejection({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
@@ -1034,7 +1080,7 @@ export async function updateUserNotesOnCommentRejection({ document, oldDocument,
   }
 }
 
-export async function checkModGPTOnCommentUpdate({oldDocument, newDocument}: UpdateCallbackProperties<"Comments">) {
+export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, context}: UpdateCallbackProperties<"Comments">) {
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
@@ -1070,7 +1116,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument}: Upd
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(newDocument, post)
+  void checkModGPT(newDocument, post, context)
 }
 
 /* EDIT ASYNC */

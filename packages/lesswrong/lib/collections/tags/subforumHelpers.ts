@@ -1,5 +1,3 @@
-import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
-
 /**
  * This is the one-source-of-truth for sortings that are available on subforums.
  * As well as defining the GraphQL types for sorting, this also defines the order

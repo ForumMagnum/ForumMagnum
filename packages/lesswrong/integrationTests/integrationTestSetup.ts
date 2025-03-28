@@ -7,7 +7,7 @@ import {
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../server/testingSqlClient';
-import { Collections } from '../lib/vulcan-lib/getCollection';
+import { getAllCollections } from '../server/collections/allCollections';
 import PgCollection from '../server/sql/PgCollection';
 import { waitUntilCallbacksFinished } from './utils';
 import "@/lib"
@@ -19,7 +19,7 @@ require('iconv-lite').encodingExists('UTF-8')
 require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
 
 const preparePgTables = () => {
-  for (let collection of Collections) {
+  for (let collection of getAllCollections()) {
     if (collection instanceof PgCollection) {
       if (!collection.getTable()) {
         collection.buildPostgresTable();

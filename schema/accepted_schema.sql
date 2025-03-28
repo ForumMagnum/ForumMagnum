@@ -79,7 +79,7 @@ CREATE TABLE "Bans" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "expirationDate" TIMESTAMPTZ NOT NULL,
+  "expirationDate" TIMESTAMPTZ,
   "userId" VARCHAR(27) NOT NULL,
   "ip" TEXT,
   "reason" TEXT,
@@ -914,6 +914,29 @@ CREATE TABLE "FeaturedResources" (
 -- Index "idx_FeaturedResources_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedResources" USING btree ("schemaVersion");
 
+-- Table "FieldChanges"
+CREATE TABLE "FieldChanges" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "userId" VARCHAR(27),
+  "changeGroup" TEXT,
+  "documentId" TEXT,
+  "fieldName" TEXT,
+  "oldValue" JSONB,
+  "newValue" JSONB
+);
+
+-- Index "idx_FieldChanges_schemaVersion"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_schemaVersion" ON "FieldChanges" USING btree ("schemaVersion");
+
+-- Index "idx_FieldChanges_documentId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_documentId_createdAt" ON "FieldChanges" USING btree ("documentId", "createdAt");
+
+-- Index "idx_FieldChanges_userId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_FieldChanges_userId_createdAt" ON "FieldChanges" USING btree ("userId", "createdAt");
+
 -- Table "ForumEvents"
 CREATE TABLE "ForumEvents" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -938,6 +961,9 @@ CREATE TABLE "ForumEvents" (
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
+  "pollQuestion_latest" TEXT,
+  "pollAgreeWording" TEXT,
+  "pollDisagreeWording" TEXT,
   "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "customComponent" TEXT,
   "commentPrompt" TEXT,
@@ -3286,34 +3312,34 @@ CREATE TABLE "Users" (
   "auto_subscribe_to_my_posts" BOOL NOT NULL DEFAULT TRUE,
   "auto_subscribe_to_my_comments" BOOL NOT NULL DEFAULT TRUE,
   "autoSubscribeAsOrganizer" BOOL NOT NULL DEFAULT TRUE,
-  "notificationCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationShortformContent" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationRepliesToSubscribedComments" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubscribedUserPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubscribedUserComment" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationPostsInGroups" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubscribedTagPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubscribedSequencePost" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationPrivateMessage" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSharedWithMe" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationAlignmentSubmissionApproved" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationEventInRadius" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationKarmaPowersGained" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationRSVPs" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationGroupAdministration" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationCommentsOnDraft" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationPostsNominatedReview" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubforumUnread" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationNewMention" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationDialogueMessages" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationPublishedDialogueMessages" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationAddedAsCoauthor" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationDebateCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationDebateReplies" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationDialogueMatch" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationNewDialogueChecks" JSONB NOT NULL DEFAULT '{"channel":"none","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationYourTurnMatchForm" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationShortformContent" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRepliesToSubscribedComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubscribedUserPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubscribedUserComment" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationPostsInGroups" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubscribedTagPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubscribedSequencePost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationPrivateMessage" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSharedWithMe" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationAlignmentSubmissionApproved" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationEventInRadius" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationKarmaPowersGained" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRSVPs" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationGroupAdministration" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationCommentsOnDraft" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationPostsNominatedReview" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubforumUnread" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationNewMention" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationDialogueMessages" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationPublishedDialogueMessages" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationAddedAsCoauthor" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationDebateCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationDebateReplies" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationDialogueMatch" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationNewDialogueChecks" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationYourTurnMatchForm" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "hideDialogueFacilitation" BOOL NOT NULL DEFAULT FALSE,
   "revealChecksToAdmins" BOOL NOT NULL DEFAULT FALSE,
   "optedInToDialogueFacilitation" BOOL NOT NULL DEFAULT FALSE,
@@ -3979,14 +4005,12 @@ CREATE OR
 REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
           SELECT COALESCE(
             (SELECT "createdAt"
-            FROM (
-              SELECT JSONB_OBJECT_KEYS("properties"->'after') AS "key", "createdAt"
-              FROM "LWEvents"
-              WHERE "documentId" = userid AND "name" = 'fieldChanges'
-            ) q
-            WHERE "key" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'blueskyProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
-            ORDER BY "createdAt" DESC
-            LIMIT 1),
+              FROM "FieldChanges"
+              WHERE "documentId" = userid
+                AND "fieldName" IN ('username', 'displayName', 'organizerOfGroupIds', 'programParticipation', 'googleLocation', 'location', 'mapLocation', 'profileImageId', 'jobTitle', 'organization', 'careerStage', 'website', 'linkedinProfileURL', 'facebookProfileURL', 'blueskyProfileURL', 'twitterProfileURL', 'githubProfileURL', 'profileTagIds', 'biography', 'howOthersCanHelpMe', 'howICanHelpOthers')
+              ORDER BY "createdAt" DESC
+              LIMIT 1
+            ),
             (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),
             TO_TIMESTAMP(0)
           )

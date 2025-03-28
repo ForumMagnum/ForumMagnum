@@ -2,10 +2,9 @@ import { isDevelopment } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
 import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
-import { addGraphQLMutation, addGraphQLResolvers } from '@/lib/vulcan-lib/graphql';
 import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
-import { constructPerfMetricBatchInsertQuery, insertAndCacheNormalizedDataInBatch, perfMetricsColumnSet } from '@/server/perfMetricsWriter/perfMetricsWriter';
+import gql from 'graphql-tag';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -14,14 +13,17 @@ export const serverId = randomId();
 
 const isValidEventAge = (age: number) => age>=0 && age<=60*60*1000;
 
-addGraphQLResolvers({
-  Mutation: {
-    analyticsEvent(root: void, { events, now: clientTime }: AnyBecauseTodo, context: ResolverContext) {
-      void handleAnalyticsEventWriteRequest(events, clientTime);
-    },
+export const analyticsEventTypeDefs = gql`
+  extend type Mutation {
+    analyticsEvent(events: [JSON!], now: Date): Boolean
   }
-});
-addGraphQLMutation('analyticsEvent(events: [JSON!], now: Date): Boolean');
+`
+
+export const analyticsEventGraphQLMutations = {
+  analyticsEvent(root: void, { events, now: clientTime }: AnyBecauseTodo, context: ResolverContext) {
+    void handleAnalyticsEventWriteRequest(events, clientTime);
+  },
+}
 
 addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -126,6 +128,15 @@ async function flushPerfMetrics() {
 
   const connection = getAnalyticsConnection();
   if (!connection) return;
+
+  // I really needed to break an import cycle involving `analyticsEvents.tsx` and `Table.ts`
+  // This seemed like the least-bad place to do it.
+  // TODO: If you can figure out a better way, please do.
+  const {
+    constructPerfMetricBatchInsertQuery,
+    insertAndCacheNormalizedDataInBatch,
+    perfMetricsColumnSet
+  }: typeof import('@/server/perfMetricsWriter/perfMetricsWriter') = require('@/server/perfMetricsWriter/perfMetricsWriter');
    
   const metricsToWrite = queuedPerfMetrics.splice(0);
   for (const batch of chunk(metricsToWrite, batchSize)) {

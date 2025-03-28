@@ -36,6 +36,7 @@ const commentEditorToolbarConfig = {
     // because the behavior of creating a collapsible section while text is selected is non-obvious and we want to fix it first
     ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
     'footnote',
+    ...(isLWorAF ? ['collapsibleSectionButton'] : []),
     ...(isLWorAF ? ['insertClaimButton'] : []),
   ],
 };

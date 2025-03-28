@@ -84,7 +84,7 @@ export type ContentReplacedSubstringComponentInfo = {
   props: AnyBecauseHard
 };
 
-interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps, WithTrackingProps {}
+interface ContentItemBodyProps extends ExternalProps, WithTrackingProps {}
 interface ContentItemBodyState {
   updatedElements: boolean,
   renderIndex: number
@@ -636,6 +636,9 @@ const addNofollowToHTML = (html: string): string => {
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
   hocs: [withTracking],
   
+  // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
+  allowRef: true,
+
   // Memoization options. If this spuriously rerenders, then voting on a comment
   // that contains a YouTube embed causes that embed to visually flash and lose
   // its place.

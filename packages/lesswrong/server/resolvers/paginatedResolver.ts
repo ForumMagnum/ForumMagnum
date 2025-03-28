@@ -1,6 +1,7 @@
+import { DocumentNode } from "graphql";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
-import { getCollectionByTypeName } from "../../lib/vulcan-lib/getCollection";
+import { getCollectionByTypeName } from "../collections/allCollections";
+import gql from "graphql-tag";
 
 /**
  * Checks if a graphql type passed in as a string literal is one of those that corresponds a collection's DbObject type
@@ -10,6 +11,13 @@ type MaybeCollectionType<GraphQLType extends string, Fallback> =
   GraphQLType extends keyof ObjectsByTypeName
     ? ObjectsByTypeName[GraphQLType]
     : Fallback;
+
+
+type QueryType = (
+  _: void,
+  args: Record<string, unknown> & {limit: number},
+  context: ResolverContext,
+) => Promise<{results: MaybeCollectionType<string, unknown>[]}>
 
 /**
  * Create a paginated resolver for use on the frontend with `usePaginatedResolver`.
@@ -55,7 +63,7 @@ export const createPaginatedResolver = <
    * Note that the cache is _global_ and not per-user.
    */
   cacheMaxAgeMs?: number,
-}) => {
+}): {Query: {[name: string]: QueryType}, typeDefs: DocumentNode} => {
   let cachedAt = Date.now();
   let cached: ReturnType[] = [];
 
@@ -68,7 +76,13 @@ export const createPaginatedResolver = <
     // We can't yet distinguish between getting passed a GraphQL type which is real but not a collection-derived type, and one that isn't real
   }
 
-  addGraphQLResolvers({
+  const allArgs = {...args, limit: "Int"};
+  const argString = Object
+    .keys(allArgs)
+    .map((arg) => `${arg}: ${allArgs[arg as keyof typeof allArgs]}`)
+    .join(", ");
+
+  return {
     Query: {
       [name]: async (
         _: void,
@@ -76,7 +90,7 @@ export const createPaginatedResolver = <
         context: ResolverContext,
       ): Promise<{results: ReturnType[]}> => {
         const accessFilterFunction = collection
-          ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!, records as AnyBecauseHard[], context)
+          ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!.collectionName, records as AnyBecauseHard[], context)
           : undefined;
 
         const limit = args.limit;
@@ -97,18 +111,12 @@ export const createPaginatedResolver = <
         return {results: filteredResults as ReturnType[]};
       },
     },
-  });
-
-  addGraphQLSchema(`
-    type ${name}Result {
-      results: [${graphQLType}!]!
+    typeDefs: gql`
+      type ${name}Result {
+        results: [${graphQLType}!]!
+      }
+      extend type Query{
+        ${name}(${argString}): ${name}Result,
+      }`
     }
-  `);
-
-  const allArgs = {...args, limit: "Int"};
-  const argString = Object
-    .keys(allArgs)
-    .map((arg) => `${arg}: ${allArgs[arg as keyof typeof allArgs]}`)
-    .join(", ");
-  addGraphQLQuery(`${name}(${argString}): ${name}Result`);
-}
+  }

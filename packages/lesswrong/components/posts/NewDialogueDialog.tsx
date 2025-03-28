@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 

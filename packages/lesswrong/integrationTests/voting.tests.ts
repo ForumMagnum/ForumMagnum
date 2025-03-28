@@ -4,14 +4,15 @@ import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
 import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes, waitUntilCallbacksFinished } from './utils'
-import { Users } from '../lib/collections/users/collection'
-import { Posts } from '../lib/collections/posts/collection'
-import { Comments } from '../lib/collections/comments/collection'
+import { Users } from '../server/collections/users/collection'
+import { Posts } from '../server/collections/posts/collection'
+import { Comments } from '../server/collections/comments/collection'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";
 import isNil from "lodash/isNil";
 import { slugify } from "@/lib/utils/slugify";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -287,6 +288,7 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
+        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);
@@ -325,6 +327,7 @@ describe('Voting', function() {
         user: coauthor,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
+        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);
@@ -361,6 +364,7 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 1),
         endDate: new Date(Date.now() + 10000),
+        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(0);
@@ -386,6 +390,7 @@ describe('Voting', function() {
         user: poster,
         startDate: new Date(Date.now() - 10000),
         endDate: new Date(Date.now() + 10000),
+        context: createAnonymousContext(),
       });
 
       (karmaChanges.totalChange as any).should.equal(1);

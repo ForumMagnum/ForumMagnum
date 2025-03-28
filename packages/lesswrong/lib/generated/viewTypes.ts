@@ -25,12 +25,13 @@ type ElicitQuestionPredictionsViewName = never
 type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
+type FieldChangesViewName = never
 type ForumEventsViewName = "currentForumEvent"|"pastForumEvents"|"upcomingForumEvents";
 type GardenCodesViewName = "gardenCodeByCode"|"publicGardenCodes"|"usersPrivateGardenCodes";
 type GoogleServiceAccountSessionsViewName = never
 type ImagesViewName = never
 type JargonTermsViewName = "glossaryEditAll"|"postEditorJargonTerms"|"postsApprovedJargon";
-type LWEventsViewName = "adminView"|"emailHistory"|"gatherTownUsers"|"postEverPublished"|"postVisits";
+type LWEventsViewName = "adminView"|"emailHistory"|"gatherTownUsers"|"postVisits";
 type LegacyDataViewName = never
 type LlmConversationsViewName = "llmConversationsAll"|"llmConversationsWithUser";
 type LlmMessagesViewName = never
@@ -113,6 +114,7 @@ interface ViewTermsByCollectionName {
   ElicitQuestions: ViewTermsBase
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
+  FieldChanges: ViewTermsBase
   ForumEvents: ForumEventsViewTerms
   GardenCodes: GardenCodesViewTerms
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViewTerms

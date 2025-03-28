@@ -6,7 +6,7 @@ import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { getContentTypes } from '../posts/PostsPage/ContentType';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
-import Card from '@material-ui/core/Card';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';

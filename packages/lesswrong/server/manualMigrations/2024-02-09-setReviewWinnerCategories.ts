@@ -1,6 +1,6 @@
-import ReviewWinners from "../../lib/collections/reviewWinners/collection";
+import ReviewWinners from "../../server/collections/reviewWinners/collection";
 import { updateMutator } from "../vulcan-lib/mutators";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { registerMigration } from "./migrationUtils";
 
 type ReviewWinnerCategoryAndOrder = {

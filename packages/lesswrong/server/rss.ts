@@ -1,7 +1,7 @@
 import RSS from 'rss';
-import { Comments } from '../lib/collections/comments/collection';
+import { Comments } from '../server/collections/comments/collection';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
-import { Posts } from '../lib/collections/posts/collection';
+import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
@@ -14,7 +14,7 @@ import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
 import { addStaticRoute } from "./vulcan-lib/staticRoutes";
-import { createAnonymousContext } from "./vulcan-lib/query";
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
 
 export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();
@@ -106,11 +106,11 @@ const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string
   let parameters = viewTermsToQuery("Comments", terms);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
-  const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null) as DbComment[];
+  const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];
 
   await asyncForeachSequential(restrictedComments, async (comment) => {
     const url = await commentGetPageUrlFromDB(comment, context, true);
-    const parentTitle = await getCommentParentTitle(comment)
+    const parentTitle = await getCommentParentTitle(comment, context)
     feed.item({
      title: 'Comment on ' + parentTitle,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${url}'>Discuss</a>`,

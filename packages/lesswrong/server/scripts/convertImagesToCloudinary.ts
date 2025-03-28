@@ -1,5 +1,4 @@
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { Images } from '../../lib/collections/images/collection';
+import { Images } from '../../server/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
@@ -8,10 +7,9 @@ import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
 import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { getAtPath, setAtPath } from '../../lib/helpers';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
@@ -19,7 +17,8 @@ import crypto from 'crypto';
 import Papa from 'papaparse';
 import fs from "node:fs";
 import { sleep } from '@/lib/utils/asyncUtils';
-import SideCommentCaches from '@/lib/collections/sideCommentCaches/collection';
+import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -317,16 +316,18 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
 export async function convertImagesInObject<N extends CollectionNameString>(
   collectionName: N,
   _id: string,
+  context: ResolverContext,
   fieldName = "contents",
   urlFilterFn: (url: string) => boolean = ()=>true
 ): Promise<{
   numUploaded: number
   failedUrls: string[]
 }> {
+  const { Revisions } = context;
   const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;
   try {
-    const collection = getCollection(collectionName);
+    const collection: CollectionBase<CollectionNameString> = context[collectionName];
     const obj = await collection.findOne({_id});
 
     if (!obj) {
@@ -335,7 +336,7 @@ export async function convertImagesInObject<N extends CollectionNameString>(
       return {numUploaded: 0, failedUrls: []};
     }
     
-    const latestRev = await getLatestRev(_id, fieldName);
+    const latestRev = await getLatestRev(_id, fieldName, context);
     if (!latestRev) {
       // If this field doesn't have a latest rev, it's empty (common eg for
       // moderation guidelines).
@@ -570,6 +571,7 @@ export async function importImageMirrors(csvFilename: string) {
 // Exported to allow use in "yarn repl"
 export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, urlFilter = (url: string) => true) {
   let stats = getEmptyImageUploadStats();
+  const context = createAnonymousContext();
 
   await forEachDocumentBatchInCollection({
     collection: Posts,
@@ -578,7 +580,7 @@ export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, 
     callback: async (posts) => {
       const uploadResults = await Promise.all(
         posts.map(async (post) => {
-          const {numUploaded, failedUrls} = await convertImagesInObject("Posts", post._id, "contents", urlFilter)
+          const {numUploaded, failedUrls} = await convertImagesInObject("Posts", post._id, context, "contents", urlFilter)
           stats.documentCount++;
           stats.uploadedImageCount += numUploaded;
           for (const failedUrl of failedUrls) {
@@ -596,7 +598,8 @@ export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, 
 // Exported to allow use in "yarn repl"
 export async function rehostImagesInPost(_id: string) {
   let stats = getEmptyImageUploadStats();
-  const {numUploaded, failedUrls} = await convertImagesInObject("Posts", _id, "contents")
+  const context = createAnonymousContext();
+  const {numUploaded, failedUrls} = await convertImagesInObject("Posts", _id, context, "contents")
   stats.documentCount++;
   stats.uploadedImageCount += numUploaded;
   for (const failedUrl of failedUrls) {

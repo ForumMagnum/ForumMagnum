@@ -1,13 +1,6 @@
-import { Tags } from '../lib/collections/tags/collection';
-import {
-  KarmaChangeSettingsType,
-  KarmaChangeUpdateFrequency,
-  karmaChangeNotifierDefaultSettings,
-} from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import VotesRepo from './repos/VotesRepo';
 import type {
   KarmaChanges,
   KarmaChangesArgs,
@@ -16,8 +9,10 @@ import type {
   TagRevisionKarmaChange,
   AnyKarmaChange,
   KarmaChangesSimple,
-} from '../lib/collections/users/karmaChangesGraphQL';
+} from './collections/users/karmaChangesGraphQL';
 import { isFriendlyUI } from '../themes/forumTheme';
+import type VotesRepo from './repos/VotesRepo';
+import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType, KarmaChangeUpdateFrequency } from '@/lib/collections/users/helpers';
 
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
 const htmlToTextDefault = compileHtmlToText();
@@ -167,7 +162,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   endDate: Date,
   nextBatchDate?: Date|null,
   af?: boolean,
-  context?: ResolverContext,
+  context: ResolverContext,
 }): Promise<KarmaChanges> => {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
@@ -178,7 +173,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   const {showNegativeKarma, updateFrequency} = user.karmaChangeNotifierSettings ??
     karmaChangeNotifierDefaultSettings.get();
 
-  const votesRepo = context?.repos.votes ?? new VotesRepo();
+  const votesRepo = context.repos.votes;
   const queryArgs: KarmaChangesArgs = {
     userId: user._id,
     startDate,
@@ -243,11 +238,12 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   };
 }
 
-const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,{slug: string, name: string}>> => {
+const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext): Promise<Record<string,{slug: string, name: string}>> => {
+  const { Tags, loaders } = context;
   const mapping: Record<string,{slug: string, name: string}> = {};
   await Promise.all(tagIds.map(async (tagId: string) => {
     const tag = context
-      ? await context.loaders.Tags.load(tagId)
+      ? await loaders.Tags.load(tagId)
       : await Tags.findOne(tagId)
     if (tag?.slug) {
       mapping[tagId] = {

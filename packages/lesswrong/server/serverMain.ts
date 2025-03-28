@@ -1,6 +1,4 @@
 import { startWebserver } from './apolloServer';
-import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
-import { createVoteableUnionType } from './votingGraphQL';
 import { scheduleQueueProcessing } from './cache/swr';
 import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
 import { serverInitSentry, startMemoryUsageMonitor } from './logging';
@@ -8,7 +6,6 @@ import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 import { initGoogleVertex } from './google-vertex/client';
-import { addElicitResolvers } from './resolvers/elicitPredictions';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
@@ -18,6 +15,8 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
 import type { CommandLineArguments } from './commandLine';
+import { captureEvent } from '@/lib/analyticsEvents';
+import { updateStripeIntentsCache } from './lesswrongFundraiser/stripeIntentsCache';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -51,15 +50,12 @@ export async function runServerOnStartupFunctions() {
   await startupSanityChecks();
   await refreshKarmaInflationCache();
   initGoogleVertex();
-  addElicitResolvers();
   addLegacyRssRoutes();
   void initReviewWinnerCache();
-
-  // define executableSchema
-  createVoteableUnionType();
-  initGraphQL();
+  void updateStripeIntentsCache();
 
   startSyncedCron();
+  captureEvent("serverStarted", {});
 }
 
 

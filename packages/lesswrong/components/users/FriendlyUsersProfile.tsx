@@ -17,13 +17,13 @@ import {
 } from '../../lib/instanceSettings'
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-import { PROGRAM_PARTICIPATION } from '../../lib/collections/users/schema';
+import { PROGRAM_PARTICIPATION } from '../../lib/collections/users/newSchema';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from '../ea-forum/users/modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from './UsersProfile';
-import InfoIcon from '@material-ui/icons/Info'
-import DescriptionIcon from '@material-ui/icons/Description'
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
-import Button from '@material-ui/core/Button';
+import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info'
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd'
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';

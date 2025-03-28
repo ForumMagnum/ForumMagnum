@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import Card from '@material-ui/core/Card';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import SupervisorAccountIcon from '@/lib/vendor/@material-ui/icons/src/SupervisorAccount';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
@@ -472,107 +472,6 @@ const DefaultPreview = ({href, onsite=false, id, rel, children}: {
   );
 }
 const DefaultPreviewComponent = registerComponent('DefaultPreview', DefaultPreview);
-
-const mozillaHubStyles = defineStyles("MozillaHubPreview", (theme: ThemeType) => ({
-  users: {
-    marginLeft: 3,
-    fontSize: "1.2rem",
-    fontWeight: 600
-  },
-  usersPreview: {
-    fontSize: "1.1rem"
-  },
-  icon: {
-    height: 18,
-    position: "relative",
-    top: 3
-  },
-  image: {
-    width: 350,
-    height: 200
-  },
-  roomInfo: {
-    padding: 16
-  },
-  roomHover: {
-    position: "relative",
-  },
-  roomTitle: {
-    fontWeight: 600,
-    fontSize: "1.3rem"
-  },
-  card: {
-    boxShadow: theme.palette.boxShadow.mozillaHubPreview,
-    width: 350,
-    backgroundColor: theme.palette.panelBackground.default,
-  },
-  description: {
-    marginTop: 8,
-    fontSize: "1.1rem"
-  }
-}))
-
-const MozillaHubPreview = ({href, id, children}: {
-  href: string,
-  id?: string,
-  children: ReactNode,
-}) => {
-  const classes = useStyles(mozillaHubStyles);
-  const roomId = href.split("/")[3]
-  const { data: rawData, loading } = useQuery(gql`
-    query MozillaHubsRoomData {
-      MozillaHubsRoomData(roomId: "${roomId || 'asdasd'}") {
-        id
-        previewImage
-        lobbyCount
-        memberCount
-        roomSize
-        description
-        url
-        name
-      }
-    }
-  `, {
-    ssr: true
-  });
-  
-  const data = rawData?.MozillaHubsRoomData
-  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
-  const { anchorEl, hover, eventHandlers } = useHover();
-  if (loading || !data) return <a href={href}>
-    <span>{children}</span>
-  </a>  
-
-  return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
-    <span {...eventHandlers}>
-      <a href={data.url} id={id}>
-        <span>{children}</span>
-        <span className={classes.users}>
-          (<SupervisorAccountIcon className={classes.icon}/> 
-          {data.memberCount}/{data.roomSize})
-        </span>
-      </a>
-      
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-        <div className={classes.card}>
-          <img className={classes.image} src={data.previewImage}/>
-          <ContentStyles contentType="postHighlight" className={classes.roomInfo}>
-            <div className={classes.roomTitle}>{data.name}</div>
-            <div className={classes.usersPreview}>
-              <SupervisorAccountIcon className={classes.icon}/> 
-              {data.memberCount}/{data.roomSize} users online ({data.lobbyCount} in lobby)
-            </div>
-            {data.description && <div className={classes.description}>
-              {data.description}
-            </div>}
-          </ContentStyles>
-        </div>
-      </LWPopper>
-    </span>
-  </AnalyticsTracker>
-}
-
-const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', MozillaHubPreview)
 
 const owidStyles = defineStyles("OWIDPreview", (theme: ThemeType) => ({
   iframeStyling: {
@@ -1064,7 +963,6 @@ declare global {
     PostLinkCommentPreview: typeof PostLinkCommentPreviewComponent,
     PostLinkPreviewWithPost: typeof PostLinkPreviewWithPostComponent,
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
-    MozillaHubPreview: typeof MozillaHubPreviewComponent,
     FatebookPreview: typeof FatebookPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ManifoldPreview: typeof ManifoldPreviewComponent,

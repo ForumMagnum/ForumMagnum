@@ -6,8 +6,8 @@ import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
-import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
-import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
+import type { KarmaChanges } from "@/server/collections/users/karmaChangesGraphQL";
+import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";
@@ -88,14 +88,6 @@ const styles = (theme: ThemeType) => ({
     height: 350,
   },
 });
-
-const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
-  switch (batchingFrequency) {
-    case "daily":  return " since yesterday";
-    case "weekly": return " since last week";
-    default:       return "";
-  }
-}
 
 const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
   switch (batchingFrequency) {

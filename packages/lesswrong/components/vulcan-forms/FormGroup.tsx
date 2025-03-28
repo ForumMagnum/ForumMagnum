@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { useLocation } from '../../lib/routeUtil';
@@ -51,7 +51,7 @@ const FormGroupHeader = ({ toggle, collapsed, label }: {
 
 const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupHeader);
 
-interface FormControlProps {
+interface PassedThroughFormGroupProps {
   disabled: boolean;
   errors: any[];
   throwError: any;
@@ -63,9 +63,14 @@ interface FormControlProps {
   formType: "new" | "edit";
   formProps: any;
   formComponents?: FormComponentOverridesType;
+  submitForm: any
+  addToSubmitForm: any
+  addToSuccessForm: any
+  getLabel: (fieldName: string, fieldLocale?: any) => string,
+  getDocument: any,
 }
 
-interface FormGroupProps<N extends CollectionNameString> extends FormControlProps {
+interface FormGroupProps<N extends CollectionNameString> extends PassedThroughFormGroupProps {
   group: FormGroupType<N>
   fields: FormField<N>[]
 }
@@ -83,7 +88,12 @@ const FormGroup = ({
   addToDeletedValues,
   clearFieldErrors,
   formType,
-  formProps
+  formProps,
+  submitForm,
+  addToSubmitForm,
+  addToSuccessForm,
+  getLabel,
+  getDocument,
 }: FormGroupProps<CollectionNameString>) => {
   const { query } = useLocation();
   const { name, label, startCollapsed, helpText, hideHeader, layoutComponent, layoutComponentProps } = group;
@@ -127,7 +137,7 @@ const FormGroup = ({
     || formComponents?.FormGroupLayout
     || Components.FormGroupLayout;
 
-  const formControlProps: FormControlProps = {
+  const formControlProps: PassedThroughFormGroupProps = {
     disabled,
     errors,
     throwError,
@@ -139,6 +149,11 @@ const FormGroup = ({
     formType,
     formProps,
     formComponents,
+    submitForm,
+    addToSubmitForm,
+    addToSuccessForm,
+    getLabel,
+    getDocument,
   };
 
   return (

@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import type { Color as MuiColorShades } from '@material-ui/core';
+import type { Color as MuiColorShades } from '@/lib/vendor/@material-ui/core/src';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
@@ -363,7 +363,6 @@ declare global {
       appBar: string,
       sequencesGridItemHover: string,
       eventCard: string,
-      mozillaHubPreview: string,
       featuredResourcesCard: string,
       spreadsheetPage1: string,
       spreadsheetPage2: string,

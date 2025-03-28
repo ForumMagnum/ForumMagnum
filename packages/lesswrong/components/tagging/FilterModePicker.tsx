@@ -4,7 +4,7 @@ import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../li
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
@@ -13,7 +13,7 @@ import { taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';

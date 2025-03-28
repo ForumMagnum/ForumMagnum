@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import Info from '@material-ui/icons/Info';
+import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../lib/reviewUtils';

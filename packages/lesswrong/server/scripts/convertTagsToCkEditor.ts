@@ -1,12 +1,9 @@
 import { forEachDocumentInCollection } from "../manualMigrations/migrationUtils";
-import { Users } from "@/lib/collections/users/collection";
-import { Revisions } from "@/lib/collections/revisions/collection";
-import Tags from "@/lib/collections/tags/collection";
-import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators";
-import { afterCreateRevisionCallback, buildRevision } from "../editor/make_editable_callbacks";
+import { Users } from "@/server/collections/users/collection";
+import Tags from "@/server/collections/tags/collection";
+import { updateMutator } from "@/server/vulcan-lib/mutators";
 import { dataToCkEditor } from "../editor/conversionUtils";
 import { parseSemver } from "@/lib/editor/utils";
-import { updateDenormalizedHtmlAttributions } from "../tagging/updateDenormalizedHtmlAttributions";
 
 // Exported to allow running manually with "yarn repl"
 export const convertTagsToCkEditor = async (conversionUserSlug?: string) => {

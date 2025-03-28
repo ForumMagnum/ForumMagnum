@@ -1,10 +1,10 @@
-import Comments from "../lib/collections/comments/collection";
-import Posts from "../lib/collections/posts/collection";
-import Users from "../lib/collections/users/collection";
+import Comments from "../server/collections/comments/collection";
+import Posts from "../server/collections/posts/collection";
+import Users from "../server/collections/users/collection";
 import { getAdminTeamAccount } from "./utils/adminTeamAccount";
 import { exportUserData } from "./exportUserData";
 import { sleep } from "../lib/utils/asyncUtils";
-import { createAdminContext } from "./vulcan-lib/query";
+import { createAdminContext } from "./vulcan-lib/createContexts";
 import { updateMutator } from "./vulcan-lib/mutators";
 
 
@@ -43,7 +43,7 @@ export const deleteUserContent = async (
   }
 
   const adminContext = createAdminContext();
-  const adminTeamAccount = await getAdminTeamAccount();
+  const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
   for (const userComment of userComments) {

@@ -1,4 +1,4 @@
-import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
+import { spamRiskScoreThreshold } from './helpers';
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
@@ -144,7 +144,10 @@ function allUsers(terms: UsersViewTerms) {
 function usersMapLocations() {
   return {
     selector: {
-      mapLocationSet: true
+      mapLocationSet: true,
+      deleted: {$ne: true},
+      deleteContent: {$ne: true},
+      banned: {$exists: false},
     },
   }
 }

@@ -1,12 +1,12 @@
 import moment from 'moment';
 import React, { useState } from 'react';
 import { isLowAverageKarmaContent } from '../../../lib/collections/moderatorActions/helpers';
-import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from '../../../lib/collections/moderatorActions/schema';
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from '../../../lib/collections/moderatorActions/newSchema';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { sortBy } from 'underscore';
-import Input from '@material-ui/core/Input';
-import DoneIcon from '@material-ui/icons/Done'
-import ClearIcon from '@material-ui/icons/Clear'
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done'
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 

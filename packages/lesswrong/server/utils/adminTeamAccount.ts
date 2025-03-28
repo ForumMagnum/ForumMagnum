@@ -1,14 +1,14 @@
 import { adminAccountSetting } from "@/lib/publicSettings";
-import { createMutator } from "../vulcan-lib/mutators";
-import Users from "@/lib/collections/users/collection";
 
-export const getAdminTeamAccount = async () => {
+export const getAdminTeamAccount = async (context: ResolverContext) => {
+  const { Users } = context;
   const adminAccountData = adminAccountSetting.get();
   if (!adminAccountData) {
     return null;
   }
   let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
+    const { createMutator }: { createMutator: typeof import("../vulcan-lib/mutators").createMutator } = require("../vulcan-lib/mutators");
     const newAccount = await createMutator({
       collection: Users,
       document: adminAccountData,
@@ -21,9 +21,9 @@ export const getAdminTeamAccount = async () => {
 
 export const getAdminTeamAccountId = (() => {
   let teamAccountId: string|null = null;
-  return async () => {
+  return async (context: ResolverContext) => {
     if (!teamAccountId) {
-      const teamAccount = await getAdminTeamAccount()
+      const teamAccount = await getAdminTeamAccount(context)
       if (!teamAccount) return null;
       teamAccountId = teamAccount._id;
     }

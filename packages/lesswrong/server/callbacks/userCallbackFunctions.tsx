@@ -1,8 +1,8 @@
 import React from "react";
 import { hasDigests } from "@/lib/betas";
-import Conversations from "@/lib/collections/conversations/collection";
-import Messages from "@/lib/collections/messages/collection";
-import Users from "@/lib/collections/users/collection";
+import Conversations from "@/server/collections/conversations/collection";
+import Messages from "@/server/collections/messages/collection";
+import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";
@@ -29,16 +29,19 @@ import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";
 import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-import { nullifyVotesForUser } from "../voteServer";
+import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
+import { FieldChanges } from "@/server/collections/fieldChanges/collection";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 
 async function sendWelcomeMessageTo(userId: string) {
+  const context = createAnonymousContext();
   const postId = welcomeEmailPostId.get();
   if (!postId || !postId.length) {
     // eslint-disable-next-line no-console
@@ -65,7 +68,7 @@ async function sendWelcomeMessageTo(userId: string) {
   const adminUserId = forumTeamUserId.get()
   let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
   if (!adminsAccount) {
-    adminsAccount = await getAdminTeamAccount()
+    adminsAccount = await getAdminTeamAccount(context)
     if (!adminsAccount) {
       throw new Error("Could not find admin account")
     }
@@ -144,14 +147,28 @@ const utils = {
     if (!isEAForum) return;
   
     const sinceDaysAgo = sinceDaysAgoSetting.get();
+    const MS_PER_DAY = 24*60*60*1000;
+    const sinceDate = new Date(new Date().getTime() - (sinceDaysAgo*MS_PER_DAY))
     const changesAllowed = changesAllowedSetting.get();
   
-    const nameChangeCount = await repos.lwEvents.countDisplayNameChanges({
-      userId: userToUpdate._id,
-      sinceDaysAgo,
-    });
+    // Count username changes in the relevant timeframe
+    const nameChangeCount = await FieldChanges.find({
+      documentId: userToUpdate._id,
+      fieldName: "displayName",
+      userId: userToUpdate._id, // Only count changes the user made themself (ie, not changes by admins)
+      createdAt: {$gt: sinceDate},
+    }).count();
+    
+    // If `usernameUnset` changed, that means one of the changes was setting
+    // your displayName for the first time, which doesn't count towards the limit
+    const changesThatWereSettingForTheFirstTime = await FieldChanges.find({
+      documentId: userToUpdate._id,
+      fieldName: "usernameUnset",
+      createdAt: {$gt: sinceDate},
+      newValue: "false",
+    }).count();
   
-    if (nameChangeCount >= changesAllowed) {
+    if (nameChangeCount - changesThatWereSettingForTheFirstTime >= changesAllowed) {
       const times = changesAllowed === 1 ? 'time' : 'times';
       throw new Error(`You can only change your display name ${changesAllowed} ${times} every ${sinceDaysAgo} days. Please contact support if you would like to change it again`);
     }
@@ -502,20 +519,20 @@ export function syncProfileUpdatedAt(modifier: MongoModifier<DbUser>, user: DbUs
 // 4x notifyUsersAboutMentions
 
 /* UPDATE ASYNC */
-export function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<"Users">) {
+export function updateUserMayTriggerReview({document, data, context}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
-    void triggerReviewIfNeeded(document._id)
+    void triggerReviewIfNeeded(document._id, context);
   }
 }
 
 // updateAsync
-export async function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}: UpdateCallbackProperties<"Users">) {
+export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
     await nullifyVotesForUser(newDocument);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
-    void userDeleteContent(newDocument, currentUser);
+    void userDeleteContent(newDocument, currentUser, context);
   }
 }
 

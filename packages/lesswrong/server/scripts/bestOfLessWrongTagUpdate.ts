@@ -1,9 +1,9 @@
 import moment from "moment";
-import { Posts } from "../../lib/collections/posts/collection";
+import { Posts } from "../../server/collections/posts/collection";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
-import Tags from "../../lib/collections/tags/collection";
-import Users from "../../lib/collections/users/collection";
-import { createAdminContext } from "../vulcan-lib/query";
+import Tags from "../../server/collections/tags/collection";
+import Users from "../../server/collections/users/collection";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createMutator } from "../vulcan-lib/mutators";
 
 // Exported to allow running manually with "yarn repl"

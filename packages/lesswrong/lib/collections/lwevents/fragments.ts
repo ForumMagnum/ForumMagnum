@@ -1,5 +1,3 @@
-import { addGraphQLSchema } from '../../vulcan-lib/graphql';
-
 export const newEventFragment = `
   fragment newEventFragment on LWEvent {
     _id
@@ -48,36 +46,5 @@ export const emailHistoryFragment = `
     userId
     name
     properties
-  }
-`
-
-addGraphQLSchema(`
-  type FieldChange {
-    _id: String!
-    createdAt: Date!
-    userId: String!
-    documentId: String!
-    before: JSON!
-    after: JSON!
-  }
-`);
-
-export type FieldChangeResult<N extends CollectionNameString> = {
-  _id: string
-  createdAt: Date
-  userId: string
-  documentId: string
-  before: Partial<ObjectsByCollectionName[N]>
-  after: Partial<ObjectsByCollectionName[N]>
-}
-
-export const FieldChangeFragment = `
-  fragment FieldChangeFragment on FieldChange {
-    _id
-    createdAt
-    userId
-    documentId
-    before
-    after
   }
 `

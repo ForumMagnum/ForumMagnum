@@ -1,5 +1,5 @@
 import { randomId } from "@/lib/random";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { registerMigration } from "./migrationUtils";
 import groupBy from "lodash/groupBy";
 import uniq from "lodash/uniq";

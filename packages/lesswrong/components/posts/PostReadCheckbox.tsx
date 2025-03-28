@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
+import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
+import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import classNames from 'classnames';

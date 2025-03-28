@@ -2,20 +2,19 @@ import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
-import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
-import EyeIcon from '@material-ui/icons/Visibility';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import EyeIconCrossed from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
+import EyeIcon from '@/lib/vendor/@material-ui/icons/src/Visibility';
 
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userCanPost } from '../../lib/collections/posts/collection';
-import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
+import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/newSchema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
@@ -24,7 +23,7 @@ import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequenc
 import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import Card from '@material-ui/core/Card';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { InteractionWrapper } from '../common/useClickableCell';
 
 const styles = (theme: ThemeType) => ({

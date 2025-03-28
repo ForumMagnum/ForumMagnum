@@ -6,6 +6,7 @@ import { getAllRepos } from "../repos";
 import type { WrappedYear } from "@/components/ea-forum/wrapped/hooks";
 import sampleSize from "lodash/fp/sampleSize";
 import chunk from "lodash/chunk";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 const getRelevantUsers = async (year: WrappedYear, totalUsers?: number) => {
   const users = await getWrappedUsers(year);
@@ -19,8 +20,9 @@ export const sampleWrappedPersonalities = async (
   year: WrappedYear,
   totalUsers?: number,
 ) => {
+  const context = createAnonymousContext();
   const repos = getAllRepos();
-  const currentUser = await getAdminTeamAccount();
+  const currentUser = await getAdminTeamAccount(context);
   const users = await getRelevantUsers(year, totalUsers);
   const chunks = chunk(users, 10);
 

@@ -1,7 +1,6 @@
 import { annotateAuthors } from '../attributeEdits';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
 
-export type UpdateDenormalizedHtmlAttributionsOptions = {
+export type UpdateDenormalizedHtmlAttributionsOptions = ({
   document: DbTag;
   collectionName: 'Tags';
   fieldName: 'description';
@@ -9,14 +8,16 @@ export type UpdateDenormalizedHtmlAttributionsOptions = {
   document: DbMultiDocument;
   collectionName: 'MultiDocuments';
   fieldName: 'contents';
+}) & {
+  context: ResolverContext;
 }
 
 export async function updateDenormalizedHtmlAttributions(
   updateOptions: UpdateDenormalizedHtmlAttributionsOptions
 ) {
-  const { document, collectionName, fieldName } = updateOptions;
-  const html = await annotateAuthors(document._id, collectionName, fieldName);
-  const collection = getCollection(collectionName);
+  const { document, collectionName, fieldName, context } = updateOptions;
+  const html = await annotateAuthors(document._id, collectionName, fieldName, context);
+  const collection = context[collectionName];
   await collection.rawUpdateOne({ _id: document._id }, { $set: {
     htmlWithContributorAnnotations: html,
   }});

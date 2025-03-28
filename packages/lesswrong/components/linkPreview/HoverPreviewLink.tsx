@@ -106,11 +106,6 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
         }
       }
     } else {
-      if (linkTargetAbsolute.host === "hubs.mozilla.com") {
-        return <Components.MozillaHubPreview href={href} id={id}>
-          {children}
-        </Components.MozillaHubPreview>
-      }
       if (linkTargetAbsolute.host === "metaculus.com" || linkTargetAbsolute.host === "www.metaculus.com") {
         return <Components.MetaculusPreview href={href} id={id}>
           {children}

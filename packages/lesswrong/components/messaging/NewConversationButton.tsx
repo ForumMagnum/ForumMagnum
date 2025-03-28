@@ -4,7 +4,7 @@ import qs from 'qs';
 import { useDialog } from '../common/withDialog';
 import { useNavigate } from '../../lib/routeUtil';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
-import { userCanStartConversations } from '../../lib/collections/conversations/collection';
+import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 
 export interface TemplateQueryStrings {
   templateId: string;

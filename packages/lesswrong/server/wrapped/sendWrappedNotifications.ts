@@ -1,6 +1,6 @@
 import uniq from "lodash/uniq";
-import ReadStatuses from "../../lib/collections/readStatus/collection";
-import Users from "../../lib/collections/users/collection";
+import ReadStatuses from "../../server/collections/readStatus/collection";
+import Users from "../../server/collections/users/collection";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { WrappedYear, isWrappedYear } from "@/components/ea-forum/wrapped/hooks";
 
@@ -46,10 +46,18 @@ export const sendWrappedNotifications = async (year: WrappedYear) => {
     documentType: null,
     extraData: {year},
     fallbackNotificationTypeSettings: {
-      channel: "onsite",
-      batchingFrequency: "realtime",
-      timeOfDayGMT: 12,
-      dayOfWeekGMT: "Monday",
+      onsite: {
+        enabled: true,
+        batchingFrequency: "realtime",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+      },
+      email: {
+        enabled: false,
+        batchingFrequency: "realtime",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+      }
     },
   });
 
@@ -62,10 +70,18 @@ export const sendWrappedNotifications = async (year: WrappedYear) => {
     documentType: null,
     extraData: {year},
     fallbackNotificationTypeSettings: {
-      channel: "email",
-      batchingFrequency: "realtime",
-      timeOfDayGMT: 12,
-      dayOfWeekGMT: "Monday",
+      onsite: {
+        enabled: false,
+        batchingFrequency: "realtime",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+      },
+      email: {
+        enabled: true,
+        batchingFrequency: "realtime",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+      }
     },
   });
 }

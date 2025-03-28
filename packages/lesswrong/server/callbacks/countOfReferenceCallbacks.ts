@@ -1,8 +1,10 @@
-import { getSchema } from "@/lib/utils/getSchema";
 import { loggerConstructor } from "@/lib/utils/logging";
-import { collectionNameToTypeName, getAllCollections, getCollection } from "@/lib/vulcan-lib/getCollection";
+// TODO: move the getAllCountOfReferenceFieldsByTargetCollection function out of this file to reduce cyclical dependencies?
+import { getCollection } from "@/server/collections/allCollections";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
 import type { AfterCreateCallbackProperties, DeleteCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
+import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
+import { allSchemas } from "@/lib/schema/allSchemas";
 
 interface InvertedCountOfReferenceOptions {
   sourceCollectionName: CollectionNameString,
@@ -14,11 +16,12 @@ interface InvertedCountOfReferenceOptions {
 
 type CountOfReferenceMap = Record<string, InvertedCountOfReferenceOptions[] | undefined>;
 
-type CollectionFieldEntry = [string, CollectionFieldSpecification<CollectionNameString>];
-type CollectionFieldEntryWithCountOfReferences = [string, CollectionFieldSpecification<CollectionNameString> & { countOfReferences: CountOfReferenceOptions }];
+type CollectionFieldEntry = [string, NewCollectionFieldSpecification<CollectionNameString>];
+type CollectionFieldEntryWithCountOfReferences = [string, NewCollectionFieldSpecification<CollectionNameString> & { graphql: GraphQLWriteableFieldSpecification<CollectionNameString> & { countOfReferences: CountOfReferenceOptions } }];
 
 function isCountOfReferencesField(field: CollectionFieldEntry): field is CollectionFieldEntryWithCountOfReferences {
-  return !!field[1].countOfReferences;
+  const { graphql } = field[1];
+  return !!graphql && 'countOfReferences' in graphql;
 }
 
 /**
@@ -39,15 +42,14 @@ const getAllCountOfReferenceFieldsByTargetCollection = (() => {
   let allCountOfReferenceFields: CountOfReferenceMap;
   return () => {
     if (!allCountOfReferenceFields) {
-      allCountOfReferenceFields = getAllCollections().reduce<CountOfReferenceMap>((acc, collection): CountOfReferenceMap => {
-        const schema = getSchema(collection);
-        const sourceCollectionName: CollectionNameString = collection.collectionName;
+      allCountOfReferenceFields = Object.entries(allSchemas).reduce<CountOfReferenceMap>((acc, [collectionName, schema]): CountOfReferenceMap => {
+        const sourceCollectionName = collectionName as CollectionNameString;
 
         Object
           .entries(schema)
           .filter(isCountOfReferencesField)
           .forEach(([referenceFieldName, fieldSpec]) => {
-            const { countOfReferences: { foreignCollectionName, foreignFieldName, filterFn, resyncElastic } } = fieldSpec;
+            const { graphql: { countOfReferences: { foreignCollectionName, foreignFieldName, filterFn, resyncElastic } } } = fieldSpec;
             const invertedOptions: InvertedCountOfReferenceOptions = {
               sourceCollectionName,
               referenceFieldName,
@@ -220,7 +222,7 @@ function getSharedCountOfReferenceFunctionOptions<N extends CollectionNameString
 
   const denormalizedLogger = loggerConstructor(`callbacks-${targetCollectionName.toLowerCase()}-denormalized-${referenceFieldName}`)
   
-  const targetTypeName = collectionNameToTypeName(targetCollectionName);
+  const targetTypeName = collectionNameToTypeName[targetCollectionName];
   const filter = filterFn ?? ((doc: AnyBecauseHard) => true);
 
   return { denormalizedLogger, targetTypeName, targetKeyFieldName, filter, sourceCollectionName, referenceFieldName, resync };

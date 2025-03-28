@@ -1,4 +1,4 @@
-import CurationEmails from "../../lib/collections/curationEmails/collection";
+import CurationEmails from "../../server/collections/curationEmails/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 

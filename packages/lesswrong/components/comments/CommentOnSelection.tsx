@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import CommentIcon from '@material-ui/icons/ModeComment';
+import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
@@ -165,7 +165,7 @@ const SelectedTextToolbar = ({onClickComment, x, y}: {
     <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
       <div className={classes.toolbar}>
         <AnalyticsContext pageElementContext="selectedTextToolbar">
-          <CommentIcon onClick={ev => {
+          <CommentIcon onClick={(ev: React.MouseEvent) => {
             captureEvent("commentOnSelectionClicked");
             onClickComment(ev);
           }}/>

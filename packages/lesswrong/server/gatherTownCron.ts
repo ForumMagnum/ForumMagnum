@@ -1,5 +1,5 @@
 import { addCronJob, removeCronJob } from './cronUtil';
-import { LWEvents } from '../lib/collections/lwevents/collection';
+import { LWEvents } from '../server/collections/lwevents/collection';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';

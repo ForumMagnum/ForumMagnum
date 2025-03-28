@@ -1,14 +1,16 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable'
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { getCollection } from '../collections/allCollections';
 import { dataToWordCount } from '../editor/conversionUtils';
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 export default registerMigration({
   name: "computeWordCounts",
   dateWritten: "2019-02-14",
   idempotent: true,
   action: async () => {
+    const context = createAnonymousContext();
     // Fill in wordCount in the Revisions table
     await migrateDocuments({
       description: `Compute word counts in the Revisions table`,
@@ -24,7 +26,7 @@ export default registerMigration({
         for (let doc of documents) {
           if (!doc.originalContents) continue;
           const { data, type } = doc.originalContents;
-          const wordCount = await dataToWordCount(data, type);
+          const wordCount = await dataToWordCount(data, type, context);
           
           updates.push({
             updateOne: {
@@ -60,7 +62,7 @@ export default registerMigration({
             for (let doc of documents) {
               if (doc[fieldName]) {
                 const { data, type } = doc[fieldName].originalContents;
-                const wordCount = await dataToWordCount(data, type);
+                const wordCount = await dataToWordCount(data, type, context);
                 updates.push({
                   updateOne: {
                     filter: { _id: doc._id },

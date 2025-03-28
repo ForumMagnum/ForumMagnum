@@ -1,11 +1,10 @@
-import Localgroups from '../../lib/collections/localgroups/collection';
 import { cheerioParse } from "../utils/htmlUtil";
 import type { FetchedFragment } from '../fetchFragment';
-import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { getLatestContentsRevision } from '../collections/revisions/helpers';
 
 export const getPostHTML = async (
   post: DbPost|FetchedFragment<"PostsHTML">,
-  context?: ResolverContext,
+  context: ResolverContext,
 ): Promise<string> => {
   if ("contents" in post && post.contents) {
     return post.contents?.html ?? "";
@@ -14,7 +13,8 @@ export const getPostHTML = async (
   return revision?.html ?? "";
 }
 
-export async function getDefaultPostLocationFields(post: DbPost) {
+export async function getDefaultPostLocationFields(post: DbPost, context: ResolverContext) {
+  const { Localgroups } = context;
   if (post.isEvent && post.groupId && !post.location) {
     const localgroup = await Localgroups.findOne(post.groupId)
     if (!localgroup) throw Error(`Can't find localgroup to get default post location fields for post: ${post}`)
@@ -26,7 +26,7 @@ export async function getDefaultPostLocationFields(post: DbPost) {
 
 export const getDialogueResponseIds = async (
   post: DbPost,
-  context?: ResolverContext,
+  context: ResolverContext,
 ): Promise<string[]> => {
   const html = await getPostHTML(post, context);
   if (!html) return [];
@@ -44,7 +44,7 @@ export const getDialogueResponseIds = async (
 
 export const getDialogueMessageTimestamps = async (
   post: DbPost,
-  context?: ResolverContext,
+  context: ResolverContext,
 ): Promise<Date[]> => {
   const html = await getPostHTML(post, context);
   if (!html) return [];

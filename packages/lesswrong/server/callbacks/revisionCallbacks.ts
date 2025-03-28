@@ -1,10 +1,10 @@
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { Tags } from '../../lib/collections/tags/collection';
-import { Users } from '../../lib/collections/users/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { Users } from '../../server/collections/users/collection';
 import { afterCreateRevisionCallback } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { recomputeContributorScoresFor } from './votingCallbacks';
 
@@ -35,30 +35,30 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
 // Update the denormalized htmlWithContributorAnnotations when a tag revision
 // is created or edited
 // Users upvote their own tag-revisions
-afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions}) => {
+afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions, context}) => {
   const revision = await Revisions.findOne({_id: revisionID});
   if (!revision) return;
   if (!skipDenormalizedAttributions) {
-    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision);
+    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision, context);
   }
 });
 
-async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevision) {
+async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevision, context: ResolverContext) {
 
   if (revision.collectionName === 'Tags') {
     const tag = await Tags.findOne({_id: revision.documentId});
     if (!tag) return;
-    await updateDenormalizedHtmlAttributions({ document: tag, collectionName: 'Tags', fieldName: 'description' });
+    await updateDenormalizedHtmlAttributions({ document: tag, collectionName: 'Tags', fieldName: 'description', context });
   } else if (revision.collectionName === 'MultiDocuments') {
     const multiDoc = await MultiDocuments.findOne({_id: revision.documentId});
     if (!multiDoc) return;
-    await updateDenormalizedHtmlAttributions({ document: multiDoc, collectionName: 'MultiDocuments', fieldName: 'contents' });
+    await updateDenormalizedHtmlAttributions({ document: multiDoc, collectionName: 'MultiDocuments', fieldName: 'contents', context });
   }
 }
 
-getCollectionHooks("Revisions").updateAsync.add(async ({oldDocument, newDocument}) => {
+getCollectionHooks("Revisions").updateAsync.add(async ({oldDocument, newDocument, context}) => {
   if (oldDocument.skipAttributions !== newDocument.skipAttributions) {
-    await recomputeContributorScoresFor(newDocument);
-    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(newDocument);
+    await recomputeContributorScoresFor(newDocument, context);
+    await maybeUpdateDenormalizedHtmlAttributionsDueToRev(newDocument, context);
   }
 });

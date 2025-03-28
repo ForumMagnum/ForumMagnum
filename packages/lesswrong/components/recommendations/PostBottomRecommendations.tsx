@@ -89,7 +89,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     results: curatedAndPopularPosts,
     loading: curatedAndPopularLoading,
   } = usePaginatedResolver({
-    fragmentName: "PostsPage",
+    fragmentName: "PostsListWithVotes",
     resolverName: "CuratedAndPopularThisWeek",
     limit: 3,
     ssr

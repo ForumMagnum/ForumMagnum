@@ -1,13 +1,13 @@
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React, { useCallback, useEffect } from 'react';
-import type { RSVPType } from '../../../lib/collections/posts/schema';
+import type { RSVPType } from '../../../lib/collections/posts/newSchema';
 import { useLocation } from '../../../lib/routeUtil';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { responseToText, RsvpResponse } from './RSVPForm';
-import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import CheckCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/CheckCircleOutline';
+import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
+import HighlightOffIcon from '@/lib/vendor/@material-ui/icons/src/HighlightOff';
 import { gql, useMutation } from '@apollo/client';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";

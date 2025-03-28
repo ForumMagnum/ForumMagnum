@@ -1,12 +1,14 @@
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { forEachDocumentBatchInCollection, registerMigration } from "./migrationUtils";
 import { dataToWordCount } from "@/server/editor/conversionUtils";
-import Revisions from "@/lib/collections/revisions/collection";
 
 export default registerMigration({
   name: "fillMissingWordCounts",
   dateWritten: "2024-08-29",
   idempotent: true,
   action: async () => {
+    const context = createAnonymousContext();
+    const { Revisions } = context;
     const totalCount = await Revisions.find({wordCount: {$exists: false}}).count();
     const batchSize = 500;
     const totalBatches = Math.ceil(totalCount / batchSize);
@@ -23,7 +25,7 @@ export default registerMigration({
         for (const revision of revisions) {
           const {data, type} = revision.originalContents ?? {};
           const wordCount = data && type
-            ? await dataToWordCount(data, type)
+            ? await dataToWordCount(data, type, context)
             : 0;
           updates.push({
             updateOne: {

@@ -1,9 +1,9 @@
-import Users from '../../lib/collections/users/collection'
-import { Posts } from '../../lib/collections/posts/collection'
-import { Comments } from '../../lib/collections/comments/collection'
+import Users from '../../server/collections/users/collection'
+import { Posts } from '../../server/collections/posts/collection'
+import { Comments } from '../../server/collections/comments/collection'
 import { bulkUpdateWithJS, wrapVulcanAsyncScript } from '../scripts/utils'
 import { recalculateDocumentScores } from '../voteServer';
-import { createAdminContext } from '../vulcan-lib/query';
+import { createAdminContext } from '../vulcan-lib/createContexts';
 
 export const renameDuplicateUsernames = wrapVulcanAsyncScript('renameDuplicateUsernames', async () => {
   await bulkUpdateWithJS({

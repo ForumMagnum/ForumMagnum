@@ -36,6 +36,8 @@ import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
 
+import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
+
 const STICKY_SECTION_TOP_MARGIN = 20;
 
 /**
@@ -384,6 +386,7 @@ const Layout = ({currentUser, children, classes}: {
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
         )} id="wrapper">
+          {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
               <Helmet>

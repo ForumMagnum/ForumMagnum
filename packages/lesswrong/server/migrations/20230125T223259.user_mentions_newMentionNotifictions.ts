@@ -1,5 +1,5 @@
-import Users from '../../lib/collections/users/collection'
-import { Comments } from '../../lib/collections/comments/collection'
+import Users from '../../server/collections/users/collection'
+import { Comments } from '../../server/collections/comments/collection'
 import {addField, dropField} from './meta/utils'
 
 /**

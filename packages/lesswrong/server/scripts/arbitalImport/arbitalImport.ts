@@ -2,30 +2,30 @@
 
 import mysql from 'mysql2/promise';
 import fs from 'node:fs';
-import Users from '@/lib/collections/users/collection';
+import Users from '@/server/collections/users/collection';
 import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import Tags from '@/lib/collections/tags/collection';
-import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
+import Tags from '@/server/collections/tags/collection';
+import ArbitalTagContentRels from '@/server/collections/arbitalTagContentRels/collection';
 import { randomId } from '@/lib/random';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils';
 import path from 'path';
 import { arbitalMarkdownToCkEditorMarkup } from './markdownService';
-import Revisions from '@/lib/collections/revisions/collection';
+import Revisions from '@/server/collections/revisions/collection';
 import { afterCreateRevisionCallback, buildRevision } from '@/server/editor/make_editable_callbacks';
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
 import { getSqlClientOrThrow, runSqlQuery } from '@/server/sql/sqlClient';
-import { Comments } from '@/lib/collections/comments/collection.ts';
+import { Comments } from '@/server/collections/comments/collection.ts';
 import uniq from 'lodash/uniq';
 import maxBy from 'lodash/maxBy';
 import { recomputePingbacks } from '@/server/pingbacks';
 import { performVoteServer } from '@/server/voteServer';
-import { Votes } from '@/lib/collections/votes/collection.ts';
+import { Votes } from '@/server/collections/votes/collection.ts';
 import mapValues from 'lodash/mapValues';
 import flatMap from 'lodash/flatMap';
 import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
@@ -36,9 +36,9 @@ import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
 import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
-import { createAdminContext } from "@/server/vulcan-lib/query.ts";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts.ts";
 import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
-import { getCollection } from "@/lib/vulcan-lib/getCollection.ts";
+import { getCollection } from "@/server/collections/allCollections";
 
 export type ArbitalImportOptions = {
   /**
@@ -1316,6 +1316,7 @@ async function importRevisions<N extends CollectionNameString>({
             data: ckEditorMarkup,
           },
           currentUser: revisionCreator,
+          context: resolverContext,
         }),
         fieldName,
         collectionName: collection.collectionName,
@@ -1336,6 +1337,7 @@ async function importRevisions<N extends CollectionNameString>({
     await afterCreateRevisionCallback.runCallbacksAsync([{
       revisionID: lwRevision._id,
       skipDenormalizedAttributions: true,
+      context: resolverContext,
     }]);
   }
   
@@ -2400,6 +2402,8 @@ export async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: s
     matchedUserId: string,
   }> = [];
 
+  const resolverContext = createAdminContext();
+
   for (const lens of lenses) {
     // get the first revision
     const initialRevision = await Revisions.findOne({
@@ -2450,11 +2454,13 @@ export async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: s
         document: lens,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context: resolverContext,
       });
       await updateDenormalizedContributorsList({
         document: lens,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context: resolverContext,
       });
 
       mismatches.push(mismatch);

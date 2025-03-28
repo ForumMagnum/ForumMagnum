@@ -6,8 +6,9 @@ import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
 import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
-import { getCollection } from '@/lib/vulcan-lib/getCollection';
+import { getCollection } from '@/server/collections/allCollections';
 import { getLatestRev } from './editor/utils';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
@@ -17,13 +18,15 @@ type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 //   html: The document to extract links from
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName: string, documentId: string}>|null): Promise<PingbacksIndex> => {
+export const htmlToPingbacks = async (html: string, exclusions: Array<{collectionName: string, documentId: string}>|null): Promise<PingbacksIndex> => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   
   // collection name => array of distinct referenced document IDs in that
   // collection, in order of first appearance.
   const pingbacks: Partial<Record<CollectionNameString, Array<string>>> = {};
+
+  const context = createAnonymousContext();
   
   for (let link of links)
   {
@@ -43,7 +46,7 @@ export const htmlToPingbacks = async (html: string, exclusions?: Array<{collecti
           onError: (pathname) => {} // Ignore malformed links
         });
         if (parsedUrl?.currentRoute?.getPingback) {
-          const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
+          const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl, context);
           if (pingback) {
             if (exclusions && _.find(exclusions,
               exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))
@@ -81,6 +84,8 @@ const extractLinks = (html: string): Array<string> => {
 export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N) {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
+  const context = createAnonymousContext();
+
   await forEachDocumentBatchInCollection({
     collection,
     callback: async (batch) => {
@@ -89,10 +94,10 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
         if (!editableFields) return;
 
         for (const [fieldName, editableField] of Object.entries(editableFields)) {
-          const editableFieldOptions = editableField.editableFieldOptions.callbackOptions;
+          const editableFieldOptions = editableField.graphql.editableFieldOptions;
           if (!editableFieldOptions.pingbacks) continue;
           const fieldContents = editableFieldOptions.normalized
-            ? await getLatestRev(doc._id, fieldName)
+            ? await getLatestRev(doc._id, fieldName, context)
             : doc[fieldName as keyof T] as AnyBecauseHard;
           const html = fieldContents?.html ?? "";
           const pingbacks = await htmlToPingbacks(html, [{
@@ -122,7 +127,7 @@ export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(c
   if (!editableFields) return;
   
   for (const [fieldName, editableField] of Object.entries(editableFields)) {
-    if (!editableField.editableFieldOptions.callbackOptions.pingbacks) continue;
+    if (!editableField.graphql.editableFieldOptions.pingbacks) continue;
     const fieldContents = doc[fieldName as keyof T] as AnyBecauseHard;
     const html = fieldContents?.html ?? "";
     const pingbacks = await htmlToPingbacks(html, [{

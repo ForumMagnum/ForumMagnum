@@ -4,7 +4,7 @@ import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { writeFile } from "fs/promises";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { htmlToTextDefault } from "@/lib/htmlToText";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 type DateFieldOf<T> = {
   [k in keyof T & string]: IfAny<T[k], never, T[k] extends Date | null ? k : never>;

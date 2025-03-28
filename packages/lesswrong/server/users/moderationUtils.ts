@@ -1,19 +1,14 @@
-import Bans from "@/lib/collections/bans/collection";
-import Comments from "@/lib/collections/comments/collection";
-import Posts from "@/lib/collections/posts/collection";
+import Bans from "@/server/collections/bans/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
-import Reports from "@/lib/collections/reports/collection";
-import Revisions from "@/lib/collections/revisions/collection";
-import Sequences from "@/lib/collections/sequences/collection";
+import Reports from "@/server/collections/reports/collection";
+import Sequences from "@/server/collections/sequences/collection";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
-import { getCollection } from "@/lib/vulcan-lib/getCollection";
+import { getCollection } from "@/server/collections/allCollections";
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from "../akismet";
 import { syncDocumentWithLatestRevision } from "../editor/utils";
 import UsersRepo from "../repos/UsersRepo";
 import { createMutator, updateMutator, deleteMutator } from "../vulcan-lib/mutators";
 import { runQuery } from "../vulcan-lib/query";
-import Tags from "@/lib/collections/tags/collection";
-import Notifications from "@/lib/collections/notifications/collection";
 import { userGetGroups } from "@/lib/vulcan-users/permissions";
 import type { VoteDocTuple } from "@/lib/voting/vote";
 
@@ -89,7 +84,8 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
 }
 
 
-async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
+async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, context: ResolverContext) {
+  const { Tags, Revisions } = context;
   const tags = await Tags.find({userId: user._id}).fetch()
   // eslint-disable-next-line no-console
   console.info("Deleting tags: ", tags)
@@ -127,13 +123,15 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
       await syncDocumentWithLatestRevision(
         collection,
         document,
-        revision.fieldName
+        revision.fieldName,
+        context
       )
     }
   }
 }
 
-export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
+export async function userDeleteContent(user: DbUser, deletingUser: DbUser, context: ResolverContext, deleteTags=true) {
+  const { Posts, Comments, Notifications } = context;
   //eslint-disable-next-line no-console
   console.log("Deleting all content of user: ", user)
   const posts = await Posts.find({userId: user._id}).fetch();
@@ -174,7 +172,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
       })
     }
     
-    await postReportPurgeAsSpam(post);
+    await postReportPurgeAsSpam(post, context);
   }
 
   const comments = await Comments.find({userId: user._id}).fetch();
@@ -224,7 +222,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
       })
     }
 
-    await commentReportPurgeAsSpam(comment);
+    await commentReportPurgeAsSpam(comment, context);
   }
   
   const sequences = await Sequences.find({userId: user._id}).fetch();
@@ -242,7 +240,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
   }
   
   if (deleteTags) {
-    await deleteUserTagsAndRevisions(user, deletingUser)
+    await deleteUserTagsAndRevisions(user, deletingUser, context)
   }
 
   //eslint-disable-next-line no-console

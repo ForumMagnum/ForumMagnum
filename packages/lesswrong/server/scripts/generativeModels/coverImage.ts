@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
-import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
-import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
+import ReviewWinners from '../../../server/collections/reviewWinners/collection.ts';
+import ReviewWinnerArts from '../../../server/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { myMidjourneyAPIKeySetting } from '../../../lib/instanceSettings.ts';
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
@@ -8,7 +8,7 @@ import { sleep } from '../../../lib/utils/asyncUtils.ts';
 import shuffle from 'lodash/shuffle';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
-import { createAdminContext } from "../../vulcan-lib/query";
+import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createMutator } from "../../vulcan-lib/mutators";
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()

@@ -1,14 +1,14 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
-import { userCanPost } from '../../lib/collections/posts/collection';
+import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {useMulti} from "../../lib/crud/withMulti";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import {useLocation} from "../../lib/routeUtil";
 import {Link} from "../../lib/reactRouterWrapper";
-import DescriptionIcon from "@material-ui/icons/Description";
-import ListIcon from '@material-ui/icons/List';
+import DescriptionIcon from "@/lib/vendor/@material-ui/icons/src/Description";
+import ListIcon from '@/lib/vendor/@material-ui/icons/src/List';
 
 const styles = (_theme: ThemeType) => ({
   draftsHeaderRow: {

@@ -1,7 +1,6 @@
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
 import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/permissions';
-import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
 interface SimpleSchemaValidationError {
@@ -33,7 +32,9 @@ export const validateDocument = <N extends CollectionNameString>(
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
-  const schema = getSchema(collection);
+  const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+
+  const schema = getSchema(collection.collectionName);
 
   let validationErrors: Array<any> = [];
 
@@ -42,7 +43,7 @@ export const validateDocument = <N extends CollectionNameString>(
     const fieldSchema = schema[fieldName];
 
     // 1. check that the current user has permission to insert each field
-    if (!fieldSchema || !userCanCreateField(currentUser, fieldSchema)) {
+    if (!fieldSchema?.graphql || !userCanCreateField(currentUser, fieldSchema.graphql.canCreate)) {
       validationErrors.push({
         id: 'errors.disallowed_property_detected',
         properties: { name: fieldName },
@@ -51,7 +52,7 @@ export const validateDocument = <N extends CollectionNameString>(
   });
 
   // 5. run SS validation
-  const validationContext = getSimpleSchema(collection).newContext();
+  const validationContext = getSimpleSchema(collection.collectionName).newContext();
   validationContext.validate(document);
 
   if (!validationContext.isValid()) {
@@ -94,7 +95,10 @@ export const validateModifier = <N extends CollectionNameString>(
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
-  const schema = getSchema(collection);
+
+  const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+
+  const schema = getSchema(collection.collectionName);
   const set = modifier.$set;
   const unset = modifier.$unset;
 
@@ -104,7 +108,7 @@ export const validateModifier = <N extends CollectionNameString>(
   const modifiedProperties = _.keys(set).concat(_.keys(unset));
   modifiedProperties.forEach(function(fieldName) {
     var field = schema[fieldName];
-    if (!field || !userCanUpdateField(currentUser, field, document)) {
+    if (!field?.graphql || !userCanUpdateField(currentUser, field.graphql.canUpdate, document)) {
       validationErrors.push({
         id: 'errors.disallowed_property_detected',
         properties: { name: fieldName },
@@ -113,7 +117,7 @@ export const validateModifier = <N extends CollectionNameString>(
   });
 
   // 2. run SS validation
-  const validationContext = getSimpleSchema(collection).newContext();
+  const validationContext = getSimpleSchema(collection.collectionName).newContext();
   validationContext.validate({ $set: set, $unset: unset }, { modifier: true });
 
   if (!validationContext.isValid()) {

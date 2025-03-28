@@ -5,12 +5,11 @@ import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
-import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema } from "../../../lib/vulcan-lib/graphql";
 import { getClientIP } from '@/server/utils/getClientIP';
-import { LWEvents } from "../../../lib/collections/lwevents/collection";
-import Users from "../../../lib/collections/users/collection";
+import { LWEvents } from "../../../server/collections/lwevents/collection";
+import Users from "../../../server/collections/users/collection";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
-import { LegacyData } from '../../../lib/collections/legacyData/collection';
+import { LegacyData } from '../../../server/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
@@ -22,6 +21,7 @@ import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import {userFindOneByEmail} from "../../commonQueries";
 import UsersRepo from '../../repos/UsersRepo';
+import gql from 'graphql-tag';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -114,11 +114,6 @@ function isValidCharInUsername(ch: string): boolean {
   return !restrictedChars.includes(ch);
 }
 
-const loginData = `type LoginReturnData {
-  token: String
-}`
-
-addGraphQLSchema(loginData);
 
 type PassportAuthenticateCallback = Exclude<Parameters<typeof passport.authenticate>[2], undefined>;
 // `options` should be `passport.AuthenticateOptions`, but those don't contain `username` and `password` in the type definition.
@@ -197,126 +192,131 @@ const ResetPasswordToken = new EmailTokenType({
   path: "resetPassword" // Defined in routes.ts
 });
 
-const authenticationResolvers = {
-  Mutation: {
-    async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
-      let token: string | null = null
+export const loginDataGraphQLTypeDefs = gql`
+  type LoginReturnData {
+    token: String
+  }
+  extend type Mutation {
+    login(username: String, password: String): LoginReturnData
+    signup(username: String, email: String, password: String, subscribeToCurated: Boolean, reCaptchaToken: String, abTestKey: String): LoginReturnData
+    logout: LoginReturnData
+    resetPassword(email: String): String
+  }
+`
 
-      await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
-        return new Promise((resolve, reject) => {
-          if (err) throw Error(err)
-          if (!user) throw new AuthenticationError("Invalid username/password")
-          if (userIsBanned(user)) throw new AuthenticationError("This user is banned")
+export const loginDataGraphQLMutations = {
+  async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
+    let token: string | null = null
 
-          req!.logIn(user, async (err: AnyBecauseTodo) => {
-            if (err) throw new AuthenticationError(err)
-            token = await createAndSetToken(req, res, user)
-            resolve(token)
-          })
+    await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
+      return new Promise((resolve, reject) => {
+        if (err) throw Error(err)
+        if (!user) throw new AuthenticationError("Invalid username/password")
+        if (userIsBanned(user)) throw new AuthenticationError("This user is banned")
+
+        req!.logIn(user, async (err: AnyBecauseTodo) => {
+          if (err) throw new AuthenticationError(err)
+          token = await createAndSetToken(req, res, user)
+          resolve(token)
         })
       })
-      return { token }
-    },
-    async logout(root: void, args: {}, { req, res }: ResolverContext) {
-      if (req) {
-        req.logOut()
-        clearCookie(req, res, "loginToken");
-        clearCookie(req, res, "meteor_login_token");  
-      }
-      return {
-        token: null
-      }
-    },
-    async signup(root: void, args: AnyBecauseTodo, context: ResolverContext) {
-      const { email, username, password, subscribeToCurated, reCaptchaToken, abTestKey } = args;
-      
-      if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
-      if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
-      const validatePasswordResponse = validatePassword(password)
-      if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
-      const validateUsernameResponse = validateUsername(username);
-      if (!validateUsernameResponse.validUsername) throw Error(validateUsernameResponse.reason)
-      
-      if (await userFindOneByEmail(email)) {
-        throw Error("Email address is already taken");
-      }
-      if (await context.Users.findOne({ username })) {
-        throw Error("Username is already taken");
-      }
+    })
+    return { token }
+  },
+  async logout(root: void, args: {}, { req, res }: ResolverContext) {
+    if (req) {
+      req.logOut()
+      clearCookie(req, res, "loginToken");
+      clearCookie(req, res, "meteor_login_token");  
+    }
+    return {
+      token: null
+    }
+  },
+  async signup(root: void, args: AnyBecauseTodo, context: ResolverContext) {
+    const { email, username, password, subscribeToCurated, reCaptchaToken, abTestKey } = args;
+    
+    if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
+    if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
+    const validatePasswordResponse = validatePassword(password)
+    if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
+    const validateUsernameResponse = validateUsername(username);
+    if (!validateUsernameResponse.validUsername) throw Error(validateUsernameResponse.reason)
+    
+    if (await userFindOneByEmail(email)) {
+      throw Error("Email address is already taken");
+    }
+    if (await context.Users.findOne({ username })) {
+      throw Error("Username is already taken");
+    }
 
-      const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
-      let recaptchaScore: number | undefined = undefined
-      if (reCaptchaResponse) {
-        const reCaptchaData = JSON.parse(reCaptchaResponse)
-        if (reCaptchaData.success && reCaptchaData.action === "login/signup") {
-          recaptchaScore = reCaptchaData.score
-        } else {
-          // eslint-disable-next-line no-console
-          console.log("reCaptcha check failed:", reCaptchaData)
-        }
+    const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
+    let recaptchaScore: number | undefined = undefined
+    if (reCaptchaResponse) {
+      const reCaptchaData = JSON.parse(reCaptchaResponse)
+      if (reCaptchaData.success && reCaptchaData.action === "login/signup") {
+        recaptchaScore = reCaptchaData.score
+      } else {
+        // eslint-disable-next-line no-console
+        console.log("reCaptcha check failed:", reCaptchaData)
       }
+    }
 
-      const { req, res } = context
-      const { data: user } = await createMutator({
-        collection: Users,
-        document: {
-          email,
-          services: {
-            password: {
-              bcrypt: await createPasswordHash(password)
-            },
-            resume: {
-              loginTokens: []
-            }
+    const { req, res } = context
+    const { data: user } = await createMutator({
+      collection: Users,
+      document: {
+        email,
+        services: {
+          password: {
+            bcrypt: await createPasswordHash(password)
           },
-          emails: [{
-            address: email, verified: false
-          }],
-          username: username,
-          emailSubscribedToCurated: subscribeToCurated,
-          signUpReCaptchaRating: recaptchaScore,
-          abTestKey,
+          resume: {
+            loginTokens: []
+          }
         },
-        validate: false,
-        currentUser: null,
-        context
-      })
-      const token = await createAndSetToken(req, res, user)
-      return { 
-        token
-      }
-    },
-    async resetPassword(root: void, { email }: {email: string}, context: ResolverContext) {
-      if (!email) throw Error("Email is required for resetting passwords")
-      const user = await userFindOneByEmail(email)
-      if (!user) throw Error("Can't find user with given email address")
-      const tokenLink = await ResetPasswordToken.generateLink(user._id)
-      const emailSucceeded = await wrapAndSendEmail({
-        user,
-        force: true,
-        subject: "Password Reset Request",
-        body: <div>
-          <p>
-            You requested a password reset. Follow the following link to reset your password: 
-          </p>
-          <p>
-            <a href={tokenLink}>{tokenLink}</a>
-          </p>
-        </div>
-      });  
-      if (emailSucceeded)
-        return `Successfully sent password reset email to ${email}`; //FIXME: Is this revealing user emails that would otherwise be hidden?
-      else
-        return `Failed to send password reset email. The account might not have a valid email address configured.`;
-    },
-  } 
-};
+        emails: [{
+          address: email, verified: false
+        }],
+        username: username,
+        emailSubscribedToCurated: subscribeToCurated,
+        signUpReCaptchaRating: recaptchaScore,
+        abTestKey,
+      },
+      validate: false,
+      currentUser: null,
+      context
+    })
+    const token = await createAndSetToken(req, res, user)
+    return { 
+      token
+    }
+  },
+  async resetPassword(root: void, { email }: {email: string}, context: ResolverContext) {
+    if (!email) throw Error("Email is required for resetting passwords")
+    const user = await userFindOneByEmail(email)
+    if (!user) throw Error("Can't find user with given email address")
+    const tokenLink = await ResetPasswordToken.generateLink(user._id)
+    const emailSucceeded = await wrapAndSendEmail({
+      user,
+      force: true,
+      subject: "Password Reset Request",
+      body: <div>
+        <p>
+          You requested a password reset. Follow the following link to reset your password: 
+        </p>
+        <p>
+          <a href={tokenLink}>{tokenLink}</a>
+        </p>
+      </div>
+    });  
+    if (emailSucceeded)
+      return `Successfully sent password reset email to ${email}`; //FIXME: Is this revealing user emails that would otherwise be hidden?
+    else
+      return `Failed to send password reset email. The account might not have a valid email address configured.`;
+  },
+}
 
-addGraphQLResolvers(authenticationResolvers);
-addGraphQLMutation('login(username: String, password: String): LoginReturnData');
-addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean, reCaptchaToken: String, abTestKey: String): LoginReturnData');
-addGraphQLMutation('logout: LoginReturnData');
-addGraphQLMutation('resetPassword(email: String): String');
 
 async function insertHashedLoginToken(userId: string, hashedToken: string) {
   const tokenWithMetadata = {

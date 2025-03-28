@@ -1,4 +1,4 @@
-import Posts from "../../lib/collections/posts/collection";
+import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
@@ -560,6 +560,16 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ORDER BY rs."lastUpdated" DESC
       LIMIT $3
     `, [userId, targetUserId, limit]);
+  }
+
+  async getPostWithContents(postId: string): Promise<DbPostWithContents> {
+    return await this.getRawDb().one(`
+      -- PostsRepo.getPostWithContents
+      SELECT p.*, ROW_TO_JSON(r.*) "contents"
+      FROM "Posts" p
+      INNER JOIN "Revisions" r ON p."contents_latest" = r."_id"
+      WHERE p."_id" = $1
+    `, [postId]);
   }
 
   async getPostsWithElicitData(): Promise<DbPostWithContents[]> {

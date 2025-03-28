@@ -2,7 +2,6 @@ import intersection from 'lodash/intersection';
 import moment from 'moment';
 import * as _ from 'underscore';
 import { isLW } from '../instanceSettings';
-import { getSchema } from'../utils/getSchema';
 import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
 import { allUserGroupsByName } from '../permissions';
 
@@ -193,11 +192,10 @@ export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|nu
 
 // Check if a user can view a field
 export const userCanReadField = <N extends CollectionNameString>(
-  user: UsersCurrent|DbUser|null,
-  field: CollectionFieldSpecification<N>,
+  user: UsersCurrent | DbUser | null,
+  canRead: FieldPermissions | undefined,
   document: ObjectsByCollectionName[N],
 ): boolean => {
-  const canRead = field.canRead;
   const userGroups = userGetGroups(user);
   if (canRead) {
     return userHasFieldPermissions(user, userGroups, canRead, document);
@@ -242,49 +240,52 @@ const userHasFieldPermissions = <T extends DbObject>(
 // TODO: Integrate permissions-filtered DbObjects into the type system
 export function restrictViewableFields<N extends CollectionNameString>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   docOrDocs: ObjectsByCollectionName[N] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]>;
 export function restrictViewableFields<N extends CollectionNameString>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   docOrDocs: ObjectsByCollectionName[N][] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]>[];
 export function restrictViewableFields<N extends CollectionNameString>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   docOrDocs?: ObjectsByCollectionName[N][] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]> | Partial<ObjectsByCollectionName[N]>[] {
   if (Array.isArray(docOrDocs)) {
-    return restrictViewableFieldsMultiple(user, collection, docOrDocs);
+    return restrictViewableFieldsMultiple(user, collectionName, docOrDocs);
   } else {
-    return restrictViewableFieldsSingle(user, collection, docOrDocs);
+    return restrictViewableFieldsSingle(user, collectionName, docOrDocs);
   }
 };
 
 export const restrictViewableFieldsMultiple = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   docs: DocType[],
 ): Partial<DocType>[] {
   if (!docs) return [];
-  return docs.map(doc => restrictViewableFieldsSingle(user, collection, doc));
+  return docs.map(doc => restrictViewableFieldsSingle(user, collectionName, doc));
 };
 
 export const restrictViewableFieldsSingle = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: UsersCurrent|DbUser|null,
-  collection: CollectionBase<N>,
+  collectionName: N,
   doc: DocType | undefined | null,
 ): Partial<DocType> {
   if (!doc) return {};
-  const schema = getSchema(collection);
+  // This is to avoid a dependency cycle, since obviously many schemas import helper functions from this file or others that depend on them.
+  // TODO: does this need fixing to avoid esbuild headaches?  Probably not this one.
+  const { getSchema }: (typeof import('../schema/allSchemas')) = require('../schema/allSchemas');
+  const schema = getSchema(collectionName);
   const restrictedDocument: Partial<DocType> = {};
   const userGroups = userGetGroups(user);
 
   for (const fieldName in doc) {
     const fieldSchema = schema[fieldName];
     if (fieldSchema) {
-      const canRead = fieldSchema.canRead;
+      const canRead = fieldSchema.graphql?.canRead;
       if (canRead && userHasFieldPermissions(user, userGroups, canRead, doc)) {
         restrictedDocument[fieldName] = doc[fieldName];
       }
@@ -295,11 +296,10 @@ export const restrictViewableFieldsSingle = function <N extends CollectionNameSt
 }
 
 // Check if a user can submit a field
-export const userCanCreateField = <N extends CollectionNameString>(
-  user: DbUser|UsersCurrent|null,
-  field: CollectionFieldSpecification<N>,
+export const userCanCreateField = (
+  user: DbUser | UsersCurrent | null,
+  canCreate: FieldCreatePermissions | undefined,
 ): boolean => {
-  const canCreate = field.canCreate; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
       // if canCreate is a function, execute it with user and document passed. it must return a boolean
@@ -310,7 +310,7 @@ export const userCanCreateField = <N extends CollectionNameString>(
       return canCreate === 'guests' || userIsMemberOf(user, canCreate);
     } else if (Array.isArray(canCreate) && canCreate.length > 0) {
       // if canCreate is an array, we do a recursion on every item and return true if one of the items return true
-      return canCreate.some(group => userCanCreateField(user, { canCreate: group }));
+      return canCreate.some(group => userCanCreateField(user, group));
     }
   }
   return false;
@@ -318,12 +318,10 @@ export const userCanCreateField = <N extends CollectionNameString>(
 
 // Check if a user can edit a field
 export const userCanUpdateField = <N extends CollectionNameString>(
-  user: DbUser|UsersCurrent|null,
-  field: CollectionFieldSpecification<N>,
+  user: DbUser | UsersCurrent | null,
+  canUpdate: FieldPermissions | undefined,
   document: Partial<ObjectsByCollectionName[N]>,
 ): boolean => {
-  const canUpdate = field.canUpdate;
-
   if (canUpdate) {
     if (typeof canUpdate === 'function') {
       // if canUpdate is a function, execute it with user and document passed. it must return a boolean
@@ -334,7 +332,7 @@ export const userCanUpdateField = <N extends CollectionNameString>(
       return canUpdate === 'guests' || userIsMemberOf(user, canUpdate);
     } else if (Array.isArray(canUpdate) && canUpdate.length > 0) {
       // if canUpdate is an array, we look at every item and return true if one of the items return true
-      return canUpdate.some(group => userCanUpdateField(user, { canUpdate: group }, document));
+      return canUpdate.some(group => userCanUpdateField(user, group, document));
 
     }
   }

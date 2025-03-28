@@ -7,13 +7,13 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary';
-import Button from '@material-ui/core/Button';
-import PersonIcon from '@material-ui/icons/Person'
-import HomeIcon from '@material-ui/icons/Home';
-import ClearIcon from '@material-ui/icons/Clear';
-import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
+import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
+import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
 import { useCreate } from '../../lib/crud/withCreate';
-import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
+import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/newSchema';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({

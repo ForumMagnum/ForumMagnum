@@ -1,16 +1,16 @@
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments, registerMigration } from '../manualMigrations/migrationUtils'
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import * as _ from 'underscore';
-import { Collections } from "../../lib/vulcan-lib/getCollection";
+import { getAllCollections } from "@/server/collections/allCollections";
 
 registerMigration({
   name: "fillMissingValues",
   dateWritten: "2018-12-26",
   idempotent: true,
   action: async () => {
-    for(let collection of Collections) {
-      const schema = getSchema(collection);
+    for(let collection of getAllCollections()) {
+      const schema = getSchema(collection.collectionName);
       if (!schema) continue;
       
       const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
@@ -20,7 +20,7 @@ registerMigration({
       console.log(`Filling in missing values on ${collection.collectionName} in fields: ${fieldsWithAutofill}`);
   
       for (let fieldName of fieldsWithAutofill) {
-        const defaultValue = schema[fieldName].defaultValue
+        const defaultValue = schema[fieldName].database?.defaultValue
         await migrateDocuments({
           description: `Filling in missing values for ${collection.collectionName} in field: ${fieldName} (default value: ${defaultValue})`,
           collection,
@@ -52,8 +52,8 @@ registerMigration({
 
 // Exported to allow running manually with "yarn repl"
 export const checkForMissingValues = async () => {
-  for(let collection of Collections) {
-    const schema = getSchema(collection);
+  for(let collection of getAllCollections()) {
+    const schema = getSchema(collection.collectionName);
     if (!schema) continue;
     
     const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')

@@ -1,9 +1,10 @@
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { nullifyVotesForUserByTarget } from '../callbacks';
 import VotesRepo from '../repos/VotesRepo';
-import { Votes } from '../../lib/collections/votes/collection';
-import { createAdminContext } from "../vulcan-lib/query";
-import { nullifyVotesForUser, silentlyReverseVote } from '../voteServer';
+import { Votes } from '../../server/collections/votes/collection';
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { silentlyReverseVote } from '../voteServer';
+import { nullifyVotesForUser } from '../nullifyVotesForUser';
 
 // Exported to allow running manually with "yarn repl"
 export const nullifyVotesForNullifiedUsers = async () => {

@@ -37,7 +37,7 @@
  */
 export const acceptsSchemaHash = "2d5747e2acdbe83c754cbbda258623ed";
 
-import DialogueChecks from "../../lib/collections/dialogueChecks/collection"
+import DialogueChecks from "../../server/collections/dialogueChecks/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

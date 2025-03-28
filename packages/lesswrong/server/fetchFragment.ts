@@ -2,7 +2,6 @@ import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
-import { getCollection } from "../lib/vulcan-lib/getCollection";
 import { getSqlFragment } from "@/lib/vulcan-lib/fragments";
 
 type FetchFragmentOptions<
@@ -94,7 +93,7 @@ export const fetchFragment = async <
 
   const filtered = await accessFilterMultiple(
     currentUser,
-    getCollection(collectionName),
+    collectionName,
     results,
     context ?? null,
   );

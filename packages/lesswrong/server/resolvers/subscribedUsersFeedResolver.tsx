@@ -1,5 +1,3 @@
-import { defineFeedResolver } from "../utils/feedUtil";
-import { addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
 import { loadByIds } from "../../lib/loaders";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
@@ -8,6 +6,7 @@ import keyBy from "lodash/keyBy";
 import sortBy from "lodash/sortBy";
 import filter from "lodash/fp/filter";
 import type { PostAndCommentsResultRow } from "../repos/PostsRepo";
+import gql from "graphql-tag";
 
 function ensureHasId<T extends DbObject>(record: Partial<T>): record is Partial<T> & HasIdType {
   return !!record._id;
@@ -40,7 +39,7 @@ function getExpandedCommentIds(postAndCommentsRow: PostAndCommentsResultRow, com
   return expandCommentIds;
 }
 
-addGraphQLSchema(`
+export const subscribedUsersFeedGraphQLTypeDefs = gql`
   type SubscribedPostAndComments {
     _id: String!
     post: Post!
@@ -48,20 +47,29 @@ addGraphQLSchema(`
     expandCommentIds: [String!]
     postIsFromSubscribedUser: Boolean!
   }
-`);
-
-defineFeedResolver<Date>({
-  name: "SubscribedFeed",
-  cutoffTypeGraphQL: "Date",
-  args: "af: Boolean",
-  resultTypesGraphQL: `
+  type SubscribedFeedQueryResults {
+    cutoff: Date
+    endOffset: Int!
+    results: [SubscribedFeedEntryType!]
+  }
+  type SubscribedFeedEntryType {
+    type: String!
     postCommented: SubscribedPostAndComments
-  `,
-  resolver: async ({limit=20, cutoff, offset, args, context}: {
-    limit?: number, cutoff?: Date, offset?: number,
-    args: {af: boolean},
-    context: ResolverContext
-  }) => {
+  }
+  extend type Query {
+    SubscribedFeed(
+      limit: Int,
+      cutoff: Date,
+      offset: Int,
+      af: Boolean
+    ): SubscribedFeedQueryResults!
+  }
+`
+
+export const subscribedUsersFeedGraphQLQueries = {
+  SubscribedFeed: async (_root: void, args: any, context: ResolverContext) => {
+    const {limit, cutoff, offset, ...rest} = args;
+
     const currentUser = context.currentUser;
     if (!currentUser) throw new Error("Must be logged in");
 
@@ -76,11 +84,11 @@ defineFeedResolver<Date>({
     
     const [posts, comments] = await Promise.all([
       loadByIds(context, "Posts", postIds)
-        .then(posts => accessFilterMultiple(currentUser, context.Posts, posts, context))
+        .then(posts => accessFilterMultiple(currentUser, 'Posts', posts, context))
         .then(filterNonnull)
         .then(filter(ensureHasId)),
       loadByIds(context, "Comments", commentIds)
-        .then(comments => accessFilterMultiple(currentUser, context.Comments, comments, context))
+        .then(comments => accessFilterMultiple(currentUser, 'Comments', comments, context))
         .then(filterNonnull)
         .then(filter(ensureHasId)),
     ]);
@@ -89,6 +97,7 @@ defineFeedResolver<Date>({
     const commentsById = keyBy(comments, c=>c._id);
     
     return {
+      __typename: "SubscribedFeedQueryResults",
       cutoff: nextCutoff,
       endOffset: (offset??0)+postsAndComments.length,
       results: postsAndComments.map(postAndCommentsRow => {
@@ -108,4 +117,4 @@ defineFeedResolver<Date>({
       })
     };
   }
-});
+}

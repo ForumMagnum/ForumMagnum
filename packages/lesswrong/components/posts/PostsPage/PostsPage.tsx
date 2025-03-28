@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -23,7 +23,7 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
@@ -473,7 +473,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar
+    disabled: disableProgressBar,
+    useFixedToCScrollCalculation: false
   });
   
   // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
@@ -1052,13 +1053,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   </AnalyticsContext>
 }
 
-export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
-
-export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
-  if (post.userId === userId) return true 
-  if (getConfirmedCoauthorIds(post).includes(userId)) return true
-  return false
-}
 const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",
