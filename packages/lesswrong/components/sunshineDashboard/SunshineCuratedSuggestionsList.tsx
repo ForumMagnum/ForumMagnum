@@ -7,6 +7,9 @@ import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    padding: 16,
+  },
   loadMorePadding: {
     paddingLeft: 16,
   },
@@ -111,7 +114,7 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
     LoadMore, LWTooltip, ForumIcon } = Components
 
   return (
-    <div className={statusClass}>
+    <div className={classNames(classes.root, statusClass)}>
       <SunshineListTitle>
         <Link to={`/admin/curation`}>Suggestions for Curated{needsDraftsText}</Link>
         <MetaInfo>
