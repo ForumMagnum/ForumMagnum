@@ -10,11 +10,6 @@ import { isAnyTest } from '../executionEnvironment';
 // Generated default fragments
 import * as defaultFragments from '@/lib/generated/defaultFragments';
 
-// Alignment Forum imports
-import * as alignmentCommentsFragments from '../alignment-forum/comments/fragments';
-import * as alignmentPostsFragments from '../alignment-forum/posts/fragments';
-import * as alignmentUsersFragments from '../alignment-forum/users/fragments';
-
 // Collection imports
 import * as advisorRequestsFragments from '../collections/advisorRequests/fragments';
 import * as bansFragments from '../collections/bans/fragments';
@@ -95,11 +90,6 @@ if (isAnyTest) {
 }
 
 const staticFragments = {
-  // Alignment Forum fragments
-  ...alignmentCommentsFragments,
-  ...alignmentPostsFragments,
-  ...alignmentUsersFragments,
-
   // Collection fragments
   ...advisorRequestsFragments,
   ...bansFragments,
