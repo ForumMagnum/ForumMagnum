@@ -27,6 +27,11 @@ function unArchiveConversations({ document, context }: CreateCallbackProperties<
  */
 async function updateUserNotesOnModMessage({ document, currentUser, context }: CreateCallbackProperties<'Messages'>) {
   const { conversationId } = document;
+  // In practice this should never happen, we just don't have types set up for handling required fields
+  if (!conversationId) {
+    return;
+  }
+
   const conversation = await context.loaders.Conversations.load(conversationId);
   if (conversation.moderator) {
     const [conversationParticipants, conversationMessageCount] = await Promise.all([
@@ -61,6 +66,10 @@ async function addParticipantIfNew({ document, currentUser, context }: CreateCal
   const { Conversations, loaders } = context;
 
   const { conversationId } = document;
+  if (!conversationId) {
+    return;
+  }
+
   const conversation = await loaders.Conversations.load(conversationId);
   if (
     currentUser &&

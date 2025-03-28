@@ -42,7 +42,7 @@ import { PartialDeep } from 'type-fest';
 // Anything else..
 ///////////////////////////////////////
 
-export const createDisplayName = (user: DbInsertion<DbUser>): string => {
+export const createDisplayName = (user: Partial<DbInsertion<DbUser>>): string => {
   const profileName = getNestedProperty(user, 'profile.name');
   const twitterName = getNestedProperty(user, 'services.twitter.screenName');
   const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');

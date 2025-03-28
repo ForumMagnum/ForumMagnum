@@ -464,7 +464,8 @@ const schema = {
       canRead: ["guests"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Posts"],
-        getTitle: (post) => post.title,
+        // The cast is somewhat unfortunately but posts can't be missing titles
+        getTitle: (post) => post.title!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
       },
@@ -642,8 +643,8 @@ const schema = {
       outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members"],
-      onUpdate: ({ data, document, oldDocument, currentUser }) => {
-        if (!currentUser?.isAdmin && oldDocument.deletedDraft && !document.deletedDraft) {
+      onUpdate: ({ data, newDocument, oldDocument, currentUser }) => {
+        if (!currentUser?.isAdmin && oldDocument.deletedDraft && !newDocument.deletedDraft) {
           throw new Error("You cannot un-delete posts");
         }
         return data.deletedDraft;
@@ -672,7 +673,7 @@ const schema = {
           return postGetDefaultStatus(currentUser!);
         }
       },
-      onUpdate: ({ modifier, document, currentUser }) => {
+      onUpdate: ({ modifier, currentUser }) => {
         // if for some reason post status has been removed, give it default status
         if (modifier.$unset && modifier.$unset.status) {
           return postGetDefaultStatus(currentUser!);
@@ -834,7 +835,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: [documentIsNotDeleted],
-      onUpdate: async ({ modifier, document, currentUser, context }) => {
+      onUpdate: async ({ modifier, context }) => {
         // if userId is changing, change the author name too
         if (modifier.$set && modifier.$set.userId) {
           return await userGetDisplayNameById(modifier.$set.userId, context);
@@ -1089,10 +1090,10 @@ const schema = {
         if ("submitToFrontpage" in newDocument) return newDocument.submitToFrontpage;
         return true;
       },
-      onUpdate: ({ data, document }) => {
-        const updatedDocIsEvent = "isEvent" in document ? document.isEvent : false;
+      onUpdate: ({ newDocument }) => {
+        const updatedDocIsEvent = "isEvent" in newDocument ? newDocument.isEvent : false;
         if (updatedDocIsEvent) return false;
-        return "submitToFrontpage" in document ? document.submitToFrontpage : true;
+        return "submitToFrontpage" in newDocument ? newDocument.submitToFrontpage : true;
       },
       validation: {
         optional: true,
@@ -2192,7 +2193,7 @@ const schema = {
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "PodcastEpisodes", fieldName: "podcastEpisodeId" }),
       sqlResolver: getForeignKeySqlResolver({
-        collectionName: "Posts",
+        collectionName: "PodcastEpisodes",
         nullable: true,
         idFieldName: "podcastEpisodeId",
       }),
@@ -2702,7 +2703,7 @@ const schema = {
         ) {
           throw new Error("Cannot change the foreign post ID of a crosspost");
         }
-        return fmCrosspostOnUpdate(args);
+        return fmCrosspostOnUpdate<'Posts'>(args);
       },
       validation: {
         simpleSchema: crosspostSchema,
@@ -4638,7 +4639,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-      onUpdate: ({ modifier, document, currentUser }) => {
+      onUpdate: ({ modifier, currentUser }) => {
         if (modifier.$set?.rejected && currentUser) {
           return modifier.$set.rejectedByUserId || currentUser._id;
         }

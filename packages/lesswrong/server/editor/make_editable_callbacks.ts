@@ -19,7 +19,7 @@ interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString>
 }
 
 interface UpdateBeforeEditableCallbackProperties<N extends CollectionNameString> {
-  docData: Partial<ObjectsByCollectionName[N]>;
+  docData: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   props: UpdateCallbackProperties<N>;
 }
 
@@ -39,7 +39,7 @@ interface NewAsyncEditableCallbackProperties<N extends CollectionNameString> {
 }
 
 interface EditAsyncEditableCallbackProperties<N extends CollectionNameString> {
-  newDoc: ObjectsByCollectionName[N];
+  newDoc: ObjectsByCollectionName[N] | UpdatePreviewDocument<ObjectsByCollectionName[N]>;
   props: UpdateCallbackProperties<N>;
 }
 
@@ -216,7 +216,7 @@ async function createInitialRevision<N extends CollectionNameString>(
 
 // updateBefore
 async function createUpdateRevision<N extends CollectionNameString>(
-  docData: Partial<ObjectsByCollectionName[N]>,
+  docData: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
   { oldDocument: document, newDocument, currentUser, context }: UpdateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
 ) {

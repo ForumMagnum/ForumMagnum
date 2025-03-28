@@ -146,7 +146,7 @@ export const validateModifier = <N extends CollectionNameString>(
 
 export const validateData = <N extends CollectionNameString>(
   data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-  document: ObjectsByCollectionName[N],
+  document: ObjectsByCollectionName[N] | DbInsertion<ObjectsByCollectionName[N]>,
   collection: CollectionBase<N>,
   context: ResolverContext,
 ) => {

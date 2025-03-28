@@ -26,14 +26,10 @@ export interface AfterCreateCallbackProperties<N extends CollectionNameString> e
 }
 
 export interface UpdateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
-  data: Partial<ObjectsByCollectionName[N]>
+  data: Partial<DbInsertion<ObjectsByCollectionName[N]>>
   oldDocument: ObjectsByCollectionName[N]
-  /**
-   * @deprecated Is a "preview" of the new document. Use newDocument instead
-   */
-  document: ObjectsByCollectionName[N]
   /** Is a "preview" of the new document */
-  newDocument: ObjectsByCollectionName[N]
+  newDocument: ObjectsByCollectionName[N] & Partial<DbInsertion<ObjectsByCollectionName[N]>> // UpdatePreviewDocument<ObjectsByCollectionName[N]>
 }
 
 export interface DeleteCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {

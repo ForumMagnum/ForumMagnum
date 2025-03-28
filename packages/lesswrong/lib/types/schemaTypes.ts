@@ -131,7 +131,7 @@ interface SlugCallbackOptions<N extends CollectionNameString> {
    * Returns the title that will be used to generate slugs. (This does not have
    * to already be slugified.)
    */
-  getTitle: (obj: ObjectsByCollectionName[N] | DbInsertion<ObjectsByCollectionName[N]>) => string,
+  getTitle: (obj: ObjectsByCollectionName[N] | Partial<DbInsertion<ObjectsByCollectionName[N]>>) => string,
   
   /**
    * How to handle it when a newly created document's slug, or the new slug in
@@ -183,10 +183,9 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
     fieldName: string
   }) => any, 
   onUpdate?: (args: {
-    data: Partial<ObjectsByCollectionName[N]>,
+    data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     oldDocument: ObjectsByCollectionName[N],
-    newDocument: ObjectsByCollectionName[N],
-    document: ObjectsByCollectionName[N],
+    newDocument: ObjectsByCollectionName[N] & Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
     context: ResolverContext,

@@ -1,4 +1,4 @@
-import { convertDocumentIdToIdInSelector } from '@/lib/vulcan-lib/utils';
+import { convertDocumentIdToIdInSelector, UpdateSelector } from '@/lib/vulcan-lib/utils';
 import { collectionNameToGraphQLType } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
@@ -25,7 +25,7 @@ const getDeleteMutationName = (typeName: string): string => `delete${typeName}`;
 const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
 type CreateFunction<N extends CollectionNameString> = (data: Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
-type UpdateFunction<N extends CollectionNameString> = (selector: MongoSelector<ObjectsByCollectionName[N]>, data: Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
+type UpdateFunction<N extends CollectionNameString> = (selector: UpdateSelector, data: Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
 
 interface DefaultMutationFunctionProps<N extends CollectionNameString> {
   createFunction?: CreateFunction<N>;

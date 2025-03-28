@@ -67,7 +67,7 @@ const schema = {
       canRead: ["guests"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["TagFlags"],
-        getTitle: (tf) => tf.name,
+        getTitle: (tf) => tf.name!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
       },

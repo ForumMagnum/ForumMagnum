@@ -1,17 +1,17 @@
 import { userCanPost } from "@/lib/collections/users/helpers";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, checkRecentRepost, checkTosAccepted, createNewJargonTermsCallback, debateMustHaveCoauthor, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsPostCoauthors, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendCoauthorRequestNotifications, sendUsersSharedOnPostNotifications, triggerReviewForNewPostIfNeeded, updateFirstDebateCommentPostId, updatePostEmbeddingsOnChange } from "@/server/callbacks/postCallbackFunctions";
-import { AfterCreateCallbackProperties } from "@/server/mutationCallbacks";
+import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, debateMustHaveCoauthor, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendAlignmentSubmissionApprovalNotifications, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updateFirstDebateCommentPostId, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from "@/server/callbacks/postCallbackFunctions";
+import { AfterCreateCallbackProperties, UpdateCallbackProperties } from "@/server/mutationCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { throwError } from "@/server/vulcan-lib/errors";
-import { runFieldOnCreateCallbacks, updateMutator } from "@/server/vulcan-lib/mutators";
+import { assignUserIdToData, checkPermissionsAndReturnArguments, createAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, updateMutator } from "@/server/vulcan-lib/mutators";
 import { performCheck } from "@/server/vulcan-lib/utils";
-import { validateDocument } from "@/server/vulcan-lib/validation";
+import { dataToModifier, validateData, validateDocument } from "@/server/vulcan-lib/validation";
 import schema from "@/lib/collections/posts/newSchema";
-import { runSlugCreateBeforeCallback } from "@/server/utils/slugUtil";
-import { isEAForum, isElasticEnabled } from "@/lib/instanceSettings";
-import { performCrosspost } from "@/server/fmCrosspost/crosspost";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runNewAsyncEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
+import { isEAForum, isElasticEnabled, isLWorAF } from "@/lib/instanceSettings";
+import { handleCrosspostUpdate, performCrosspost } from "@/server/fmCrosspost/crosspost";
+import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
@@ -20,8 +20,12 @@ import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import { userCanDo, userIsMemberOf, userIsPodcaster } from "@/lib/vulcan-users/permissions";
 import isEmpty from "lodash/isEmpty";
-import { convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
+import { convertDocumentIdToIdInSelector, UpdateSelector } from "@/lib/vulcan-lib/utils";
 import cloneDeep from "lodash/cloneDeep";
+import pickBy from "lodash/pickBy";
+import clone from "lodash/clone";
+import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
+import { logFieldChanges } from "@/server/fieldChanges";
 
 async function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbPost>> | null, context: ResolverContext) {
   if (!user) return false;
@@ -74,9 +78,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     await postsNewRateLimit([], callbackProps);
 
     // assign userId
-    if (currentUser && schema.userId && !data.userId) {
-      data.userId = currentUser._id;
-    }
+    assignUserIdToData(data, currentUser, schema);
 
     // onCreate callbacks
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
@@ -110,15 +112,8 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     data = addLinkSharingKey(data);  
 
     // insert into db
-    const insertedId = await Posts.rawInsert(data);
-
-    // afterCreate properties
-    let documentWithId = {_id: insertedId, ...data} as DbPost;
-    const afterCreateProperties: AfterCreateCallbackProperties<'Posts'> = {
-      ...callbackProps,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+    const afterCreateProperties = await createAndReturnCreateAfterProps(data, 'Posts', callbackProps);
+    let documentWithId = afterCreateProperties.document;
 
     // createAfter
     await swrInvalidatePostRoute(documentWithId._id);
@@ -149,13 +144,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     documentWithId = postsNewPostRelation(documentWithId, afterCreateProperties);
     documentWithId = await extractSocialPreviewImage(documentWithId, afterCreateProperties);
 
-    // fetch document from db
-    const insertedPost = await Posts.findOne(insertedId);
-    // Something went horribly wrong if we don't have the post we just inserted
-    if (insertedPost) {
-      documentWithId = insertedPost;
-    }
-
     const asyncProperties = {
       ...afterCreateProperties,
       document: documentWithId,
@@ -169,7 +157,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
 
     // elasticSync
     if (isElasticEnabled) {
-      void elasticSyncDocument('Posts', insertedId);
+      void elasticSyncDocument('Posts', documentWithId._id);
     }
 
     // newAsync
@@ -192,48 +180,139 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     return filteredReturnValue;
   },
   updateFunction: async (selector, data, context) => {
-    const { currentUser, Posts } = context;
-    const operationName = 'post.update';
-
-    if (isEmpty(selector)) {
-      throw new Error('Selector cannot be empty');
-    }
-
-    // get entire unmodified document from database
-    const document = await Posts.findOne(convertDocumentIdToIdInSelector(selector));
-
-    if (!document) {
-      throw new Error(
-        `Could not find document to update for selector: ${JSON.stringify(selector)}`
-      );
-    }
-
-    await performCheck(
-      editCheck,
-      currentUser,
-      document,
-      context,
-      '',
-      operationName,
-      'Posts'
-    );
+    const { currentUser } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
     // logging in FieldChanges
     const origData = cloneDeep(data);
 
-    const returnValue = await updateMutator({
-      collection: Posts,
-      selector,
-      data,
-      currentUser,
-      validate: true,
-      context,
-      document,
+    const {
+      documentSelector: postSelector,
+      previewDocument, 
+      updateCallbackProperties,
+    } = await checkPermissionsAndReturnArguments('Posts', { selector, context, data, editCheck, schema });
+
+    const { collection: Posts, oldDocument } = updateCallbackProperties;
+
+    // validation
+    const validationErrors = validateData(data, previewDocument, Posts, context);
+    if (validationErrors.length) {
+      throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+    }
+
+    // validation callbacks
+    await postsUndraftRateLimit([], updateCallbackProperties);
+
+    // dataAsModifier
+    const dataAsModifier = dataToModifier(clone(data));
+
+    // onUpdate field callbacks
+    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+
+    // runSlugUpdateBeforeCallback
+    data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
+
+    // updateBefore
+    if (isEAForum) {
+      data = checkTosAccepted(currentUser, data);
+      assertPostTitleHasNoEmojis(data);
+    }
+  
+    await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
+    data = setPostUndraftedFields(data, updateCallbackProperties);
+    data = scheduleCoauthoredPostWhenUndrafted(data, updateCallbackProperties);
+    // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
+    // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
+    data = await handleCrosspostUpdate(data, updateCallbackProperties);
+    data = onEditAddLinkSharingKey(data, updateCallbackProperties);
+
+    // runUpdateBeforeEditableCallbacks
+    data = await runUpdateBeforeEditableCallbacks({
+      docData: data,
+      props: updateCallbackProperties,
     });
 
+    // editSync
+    let modifier = dataToModifier(data);
+    modifier = clearCourseEndTime(modifier, oldDocument);
+    modifier = removeFrontpageDate(modifier, oldDocument);
+    modifier = resetPostApprovedDate(modifier, oldDocument);
+
+    // DB Operation
+    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
+    // The only difference could be in the case where there's no update (due to an empty modifier) and
+    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
+    let updatedDocument = await updateAndReturnDocument(modifier, Posts, postSelector, context) ?? previewDocument as DbPost;
+
+    // updateAfter
+    await swrInvalidatePostRoute(updatedDocument._id);
+    updatedDocument = await sendCoauthorRequestNotifications(updatedDocument, updateCallbackProperties);
+    updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
+    updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
+    updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
+
+    // runUpdateAfterEditableCallbacks
+    updatedDocument = await runUpdateAfterEditableCallbacks({
+      newDoc: updatedDocument,
+      props: updateCallbackProperties,
+    });
+
+    // runCountOfReferenceCallbacks
+    await runCountOfReferenceCallbacks({
+      collectionName: 'Posts',
+      newDocument: updatedDocument,
+      callbackStage: "updateAfter",
+      updateAfterProperties: updateCallbackProperties,
+    });
+
+    // updateAsync
+    await eventUpdatedNotifications(updateCallbackProperties);
+    await notifyUsersAddedAsCoauthors(updateCallbackProperties);
+    await updatePostEmbeddingsOnChange(updateCallbackProperties.newDocument, updateCallbackProperties.oldDocument);
+    await updatedPostMaybeTriggerReview(updateCallbackProperties);
+    await sendRejectionPM(updateCallbackProperties);
+    await updateUserNotesOnPostDraft(updateCallbackProperties);
+    await updateUserNotesOnPostRejection(updateCallbackProperties);
+    await updateRecombeePost(updateCallbackProperties);
+    await autoTagUndraftedPost(updateCallbackProperties);
+
+    // editAsync
+    await moveToAFUpdatesUserAFKarma(updatedDocument, oldDocument);
+    sendPostApprovalNotifications(updatedDocument, oldDocument);
+    await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
+    await removeRedraftNotifications(updatedDocument, oldDocument, context);
+  
+    if (isEAForum) {
+      await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
+    }
+  
+    if (isLWorAF) {
+      await sendLWAFPostCurationEmails(updatedDocument, oldDocument);
+    }
+  
+    await sendPostSharedWithUserNotifications(updatedDocument, oldDocument);
+    await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);
+    await updatePostShortform(updatedDocument, oldDocument, context);
+    await updateCommentHideKarma(updatedDocument, oldDocument, context);
+    await extractSocialPreviewImage(updatedDocument, updateCallbackProperties);
+    await oldPostsLastCommentedAt(updatedDocument, context);  
+
+    // runEditAsyncEditableCallbacks
+    await runEditAsyncEditableCallbacks({
+      newDoc: updatedDocument,
+      props: updateCallbackProperties,
+    });
+
+    // elasticSync
+    if (isElasticEnabled) {
+      void elasticSyncDocument('Posts', updatedDocument._id);
+    }
+
+    // logFieldChanges
+    void logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData });
+
     // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(context.currentUser, 'Posts', returnValue.data, context);
+    const filteredReturnValue = await accessFilterSingle(context.currentUser, 'Posts', updatedDocument, context);
     return filteredReturnValue;
   },
 });

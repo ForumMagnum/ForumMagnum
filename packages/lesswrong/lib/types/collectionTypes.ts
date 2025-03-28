@@ -417,6 +417,8 @@ type DbInsertion<T extends DbObject> = Omit<
   "_id"
 >
 
+type UpdatePreviewDocument<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldContents | EditableFieldInsertion>
+
 type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
 interface SpotlightFirstPost {
   _id: string;

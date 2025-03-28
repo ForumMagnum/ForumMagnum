@@ -45,7 +45,7 @@ import _ from "underscore";
 import { getRejectionMessage } from "./commentCallbackFunctions";
 
 /** Create notifications for a new post being published */
-export async function sendNewPostNotifications(post: DbPost) {
+export async function sendNewPostNotifications(post: DbPost | UpdatePreviewDocument<DbPost>) {
   const context = createAnonymousContext();
   const { Localgroups } = context;
 
@@ -100,7 +100,7 @@ export async function sendNewPostNotifications(post: DbPost) {
 }
 
 const onPublishUtils = {
-  updateRecombeeWithPublishedPost: (post: DbPost, context: ResolverContext) => {
+  updateRecombeeWithPublishedPost: (post: DbPost | UpdatePreviewDocument<DbPost>, context: ResolverContext) => {
     if (!isRecombeeRecommendablePost(post)) return;
   
     if (recombeeEnabledSetting.get()) {
@@ -116,7 +116,7 @@ const onPublishUtils = {
     }
   },
 
-  ensureNonzeroRevisionVersionsAfterUndraft: async (post: DbPost, context: ResolverContext) => {
+  ensureNonzeroRevisionVersionsAfterUndraft: async (post: { _id: string }, context: ResolverContext) => {
     // When a post is published, ensure that the version number of its contents
     // revision does not have `draft` set or an 0.x version number (which would
     // affect permissions).
@@ -128,7 +128,7 @@ const onPublishUtils = {
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
-export async function onPostPublished(post: DbPost, context: ResolverContext) {
+export async function onPostPublished(post: DbPost | UpdatePreviewDocument<DbPost>, context: ResolverContext) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
   await sendNewPostNotifications(post);
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
@@ -202,7 +202,7 @@ const utils = {
     await Promise.all(tagRels.map(clearOneTag))
   },
 
-  applyAutoTags: async (post: DbPost, context: ResolverContext) => {
+  applyAutoTags: async (post: Pick<DbPost, '_id' | 'title' | 'isEvent' | 'submitToFrontpage' | 'draft'>, context: ResolverContext) => {
     const api = await getOpenAI();
     if (!api) {
       if (!isAnyTest && !isE2E) {
@@ -314,7 +314,7 @@ const utils = {
     }
   },
 
-  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbPost) => {
+  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbInsertion<DbPost>) => {
     const oldLocation = oldPost.googleLocation?.geometry?.location;
     const newLocation = newPost.googleLocation?.geometry?.location;
     if (!!oldLocation !== !!newLocation) {
@@ -361,7 +361,7 @@ const utils = {
   sendPostRejectionPM: async ({ messageContents, lwAccount, post, noEmail, context }: {
     messageContents: string,
     lwAccount: DbUser,
-    post: DbPost,
+    post: DbPost | UpdatePreviewDocument<DbPost>,
     noEmail: boolean,
     context: ResolverContext,
   }) => {
@@ -568,7 +568,7 @@ export async function applyNewPostTags(post: DbPost, props: AfterCreateCallbackP
   return post;
 }
 
-export async function createNewJargonTermsCallback(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
+export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'generateDraftJargon' | 'userId'>>(post: T, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
   const { context } = callbackProperties;
   const { currentUser, loaders, JargonTerms } = context;
   const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
@@ -633,7 +633,7 @@ export async function updateFirstDebateCommentPostId(newDoc: DbPost, { context, 
 }
 
 /* NEW AFTER */
-export async function sendCoauthorRequestNotifications(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
+export async function sendCoauthorRequestNotifications<T extends Pick<DbPost, '_id' | 'coauthorStatuses' | 'hasCoauthorPermission'>>(post: T, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
   const { context: { Posts } } = callbackProperties;
   const { _id, coauthorStatuses, hasCoauthorPermission } = post;
 
@@ -687,7 +687,7 @@ export function postsNewPostRelation(post: DbPost, callbackProperties: AfterCrea
 }
 
 // Use the first image in the post as the social preview image
-export async function extractSocialPreviewImage(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
+export async function extractSocialPreviewImage(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
   const { context } = callbackProperties;
   const { Posts } = context;
   
@@ -762,7 +762,7 @@ export async function postsUndraftRateLimit(validationErrors: CallbackValidation
 /* UPDATE BEFORE */
 
 // TODO: check the order of this function in the updateBefore callbacks
-export function onEditAddLinkSharingKey(data: Partial<DbPost>, { oldDocument }: UpdateCallbackProperties<'Posts'>): Partial<DbPost> {
+export function onEditAddLinkSharingKey(data: Partial<DbInsertion<DbPost>>, { oldDocument }: UpdateCallbackProperties<'Posts'>): Partial<DbInsertion<DbPost>> {
   if (!oldDocument.linkSharingKey) {
     return {
       ...data,
@@ -773,7 +773,7 @@ export function onEditAddLinkSharingKey(data: Partial<DbPost>, { oldDocument }: 
   }
 }
 
-export function setPostUndraftedFields(data: Partial<DbPost>, { oldDocument: post }: UpdateCallbackProperties<'Posts'>) {
+export function setPostUndraftedFields(data: Partial<DbInsertion<DbPost>>, { oldDocument: post }: UpdateCallbackProperties<'Posts'>) {
   // Set postedAt and wasEverUndrafted when a post is moved out of drafts.
   // If the post has previously been published then moved to drafts, and now
   // it's being republished then we shouldn't reset the `postedAt` date.
@@ -786,7 +786,7 @@ export function setPostUndraftedFields(data: Partial<DbPost>, { oldDocument: pos
 }
 
 // TODO: this, plus the scheduleCoauthoredPost function, should probably be converted to one of the on-publish callbacks?
-export function scheduleCoauthoredPostWhenUndrafted(post: Partial<DbPost>, {oldDocument: oldPost, newDocument: newPost}: UpdateCallbackProperties<"Posts">) {
+export function scheduleCoauthoredPostWhenUndrafted(post: Partial<DbInsertion<DbPost>>, {oldDocument: oldPost, newDocument: newPost}: UpdateCallbackProperties<"Posts">) {
   // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
   // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
   // NOTE: EA FORUM: this used to use `post` rather than `newPost`, but `post` is merely the diff, which isn't what you want to pass into those
@@ -827,7 +827,7 @@ export function resetPostApprovedDate(modifier: MongoModifier<DbPost>, post: DbP
 }
 
 /* UPDATE AFTER */
-export async function syncTagRelevance(post: DbPost, props: UpdateCallbackProperties<'Posts'>) {
+export async function syncTagRelevance<T extends Pick<DbPost, '_id' | 'tagRelevance'>>(post: T, props: UpdateCallbackProperties<'Posts'>) {
   const { currentUser, context } = props;
   const { TagRels } = context;
   if (!currentUser) return post; // Shouldn't happen, but just in case
@@ -856,7 +856,7 @@ export async function syncTagRelevance(post: DbPost, props: UpdateCallbackProper
   return post;
 }
 
-export async function resetDialogueMatches(post: DbPost, props: UpdateCallbackProperties<'Posts'>) {
+export async function resetDialogueMatches<T extends Pick<DbPost, '_id' | 'collabEditorDialogue' | 'draft'>>(post: T, props: UpdateCallbackProperties<'Posts'>) {
   const { oldDocument: oldPost } = props;
 
   const adminContext = createAdminContext();
@@ -870,7 +870,7 @@ export async function resetDialogueMatches(post: DbPost, props: UpdateCallbackPr
 }
 
 /* UPDATE ASYNC */
-export async function eventUpdatedNotifications({document: newPost, oldDocument: oldPost, context}: UpdateCallbackProperties<'Posts'>) {
+export async function eventUpdatedNotifications({newDocument: newPost, oldDocument: oldPost, context}: UpdateCallbackProperties<'Posts'>) {
   const { Users } = context;
   // don't bother notifying people about past or unscheduled events
   const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
@@ -926,7 +926,7 @@ export async function autoTagUndraftedPost({oldDocument, newDocument, context}: 
   }
 }
 
-export async function updatePostEmbeddingsOnChange(newPost: DbPost, oldPost?: DbPost) {
+export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'deletedDraft' | 'status'>, oldPost?: DbPost) {
   const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
   if (hasChanged &&
     !newPost.draft &&
@@ -950,16 +950,16 @@ export async function updatePostEmbeddingsOnChange(newPost: DbPost, oldPost?: Db
 //   await updateEmbeddings(document, oldDocument);
 // }
 
-export async function updatedPostMaybeTriggerReview({document, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
-  if (document.draft || document.rejected) return
+export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
+  if (newDocument.draft || newDocument.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId, context)
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,
   // then we consider this "publishing" the post
-  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await onPostPublished(document, context);
+  if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
+    await onPostPublished(newDocument, context);
   }
 }
 
@@ -994,14 +994,14 @@ export async function sendRejectionPM({ newDocument: post, oldDocument: oldPost,
  * Creates a moderator action when an admin sets one of the user's posts back to draft
  * This also adds a note to a user's sunshineNotes
  */
-export async function updateUserNotesOnPostDraft({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
-  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
+export async function updateUserNotesOnPostDraft({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
+  if (!oldDocument.draft && newDocument.draft && userIsAdmin(currentUser)) {
     void createMutator({
       collection: context.ModeratorActions,
       context,
       currentUser,
       document: {
-        userId: document.userId,
+        userId: newDocument.userId,
         type: MOVED_POST_TO_DRAFT,
         endedAt: new Date()
       }
@@ -1009,14 +1009,14 @@ export async function updateUserNotesOnPostDraft({ document, oldDocument, curren
   }
 }
 
-export async function updateUserNotesOnPostRejection({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
-  if (!oldDocument.rejected && document.rejected) {
+export async function updateUserNotesOnPostRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
+  if (!oldDocument.rejected && newDocument.rejected) {
     void createMutator({
       collection: context.ModeratorActions,
       context,
       currentUser,
       document: {
-        userId: document.userId,
+        userId: newDocument.userId,
         type: REJECTED_POST,
         endedAt: new Date()
       }
@@ -1045,7 +1045,7 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
 }
 
 /* EDIT ASYNC */
-export function sendPostApprovalNotifications(post: DbPost, oldPost: DbPost) {
+export function sendPostApprovalNotifications(post: Pick<DbPost, '_id' | 'userId' | 'status'>, oldPost: DbPost) {
   if (postIsApproved(post) && !postIsApproved(oldPost)) {
     void createNotifications({userIds: [post.userId], notificationType: 'postApproved', documentType: 'post', documentId: post._id});
   }
@@ -1079,7 +1079,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
   }
 }
 
-export async function removeRedraftNotifications(newPost: DbPost, oldPost: DbPost, context: ResolverContext) {
+export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | 'draft' | 'status'>, oldPost: DbPost, context: ResolverContext) {
   const { Notifications, TagRels } = context;
 
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {

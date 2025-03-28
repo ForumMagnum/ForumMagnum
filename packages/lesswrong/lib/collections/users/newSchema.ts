@@ -69,7 +69,7 @@ import gql from "graphql-tag";
 // Anything else..
 ///////////////////////////////////////
 
-export const createDisplayName = (user: DbInsertion<DbUser>): string => {
+export const createDisplayName = (user: Partial<DbInsertion<DbUser>>): string => {
   const profileName = getNestedProperty(user, "profile.name");
   const twitterName = getNestedProperty(user, "services.twitter.screenName");
   const linkedinFirstName = getNestedProperty(user, "services.linkedin.firstName");
@@ -956,8 +956,8 @@ const schema = {
         return undefined;
       },
       onUpdate: (props) => {
-        const { data, document, oldDocument } = props;
-        if (oldDocument.email?.length && !document.email) {
+        const { data, newDocument, oldDocument } = props;
+        if (oldDocument.email?.length && !newDocument.email) {
           throw new Error("You cannot remove your email address");
         }
         return data.email;

@@ -670,7 +670,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     ...schemaDefaultValue(true),
-    onCreate: ({newDocument}: { newDocument: DbPost }) => {
+    onCreate: ({ newDocument }) => {
       if (newDocument.isEvent) return false
       if ('submitToFrontpage' in newDocument) return newDocument.submitToFrontpage
       return true
@@ -2107,7 +2107,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onCreate: ({document}) => document.baseScore >= 2 ? new Date() : null
+    onCreate: ({document}) => document.baseScore && document.baseScore >= 2 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 30
   scoreExceeded30Date: {
@@ -2115,7 +2115,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onCreate: ({document}) => document.baseScore >= 30 ? new Date() : null
+    onCreate: ({document}) => document.baseScore && document.baseScore >= 30 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 45
   scoreExceeded45Date: {
@@ -2123,7 +2123,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onCreate: ({document}) => document.baseScore >= 45 ? new Date() : null
+    onCreate: ({document}) => document.baseScore && document.baseScore >= 45 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 75
   scoreExceeded75Date: {
@@ -2131,7 +2131,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onCreate: ({document}) => document.baseScore >= 75 ? new Date() : null
+    onCreate: ({document}) => document.baseScore && document.baseScore >= 75 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 125
   scoreExceeded125Date: {
@@ -2139,7 +2139,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onCreate: ({document}) => document.baseScore >= 125 ? new Date() : null
+    onCreate: ({document}) => document.baseScore && document.baseScore >= 125 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 200
   scoreExceeded200Date: {
@@ -2147,7 +2147,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onCreate: ({document}) => document.baseScore >= 200 ? new Date() : null
+    onCreate: ({document}) => document.baseScore && document.baseScore >= 200 ? new Date() : null
   },
   bannedUserIds: {
     type: Array,
@@ -2254,7 +2254,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     ...schemaDefaultValue(false),
     
-    onCreate: ({newDocument}: {newDocument: DbInsertion<DbPost>}) => {
+    onCreate: ({ newDocument }) => {
       // HACK: This replaces the `onCreate` that normally comes with
       // `schemaDefaultValue`. In addition to enforcing that the field must
       // be present (not undefined), it also enforces that it cannot be null.

@@ -112,17 +112,17 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   return restrictedDocs;
 }
 
-export function getForeignKeySqlResolver<CollectionName extends CollectionNameString>({ collectionName, nullable, idFieldName }: {
-  collectionName: CollectionName,
+export function getForeignKeySqlResolver({ collectionName, nullable, idFieldName }: {
+  collectionName: CollectionNameString,
   nullable: boolean,
   idFieldName: string,
 }) {
-  return function foreignKeySqlResolver({field, join}: SqlResolverArgs<CollectionName>) {
+  return function foreignKeySqlResolver({field, join}: SqlResolverArgs<CollectionNameString>) {
     return join<HasIdCollectionNames>({
       table: collectionName,
       type: nullable ? "left" : "inner",
       on: {
-        _id: field(idFieldName as FieldName<CollectionName>),
+        _id: field(idFieldName as FieldName<CollectionNameString>),
       },
       resolver: (foreignField) => foreignField("*"),
     });
@@ -175,7 +175,7 @@ export const foreignKeyField = <const CollectionName extends CollectionNameStrin
       // to make SQL resolvers useable by arbitrary resolvers then we (probably)
       // need to add some permission checks here somehow.
       ...(autoJoin ? {
-        sqlResolver: getForeignKeySqlResolver<CollectionNameString>({ collectionName, nullable, idFieldName }),
+        sqlResolver: getForeignKeySqlResolver({ collectionName, nullable, idFieldName }),
       } : {}),
       addOriginalField: true,
     },
@@ -375,16 +375,16 @@ export function getDenormalizedFieldOnCreate<N extends CollectionNameString>({ n
 }
 
 export function getDenormalizedFieldOnUpdate<N extends CollectionNameString>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
-  getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
+  needsUpdate?: (doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N] & Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => any,
 }): Exclude<GraphQLWriteableFieldSpecification<N>['onUpdate'], undefined> {
-  return async function denormalizedFieldOnUpdate({data, document, context}: {
-    data: Partial<ObjectsByCollectionName[N]>,
-    document: ObjectsByCollectionName[N],
+  return async function denormalizedFieldOnUpdate({data, newDocument, context}: {
+    data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    newDocument: ObjectsByCollectionName[N] & Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     context: ResolverContext,
   }) {
     if (!needsUpdate || needsUpdate(data)) {
-      return await getValue(document, context)
+      return await getValue(newDocument, context)
     }
   }
 }
@@ -399,7 +399,7 @@ export function denormalizedField<N extends CollectionNameString>({ needsUpdate,
   getValue: (doc: ObjectsByCollectionName[N] | Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => any,
 }): CollectionFieldSpecification<N> {
   return {
-    onUpdate: getDenormalizedFieldOnUpdate({ needsUpdate, getValue }),
+    onUpdate: getDenormalizedFieldOnUpdate({ needsUpdate, getValue }) as CollectionFieldSpecification<N>['onUpdate'],
     onCreate: getDenormalizedFieldOnCreate({ needsUpdate, getValue }),
     denormalized: true,
     canAutoDenormalize: true,
@@ -519,14 +519,14 @@ export function getFillIfMissing(defaultValue: any) {
   };
 }
 
-export function throwIfSetToNull<N extends CollectionNameString>({ oldDocument, document, fieldName }: {
+export function throwIfSetToNull<N extends CollectionNameString>({ oldDocument, newDocument, fieldName }: {
   oldDocument: ObjectsByCollectionName[N];
-  document: ObjectsByCollectionName[N];
+  newDocument: ObjectsByCollectionName[N] | UpdatePreviewDocument<ObjectsByCollectionName[N]>;
   fieldName: string;
 }) {
   const typedName = fieldName as keyof ObjectsByCollectionName[N];
   const wasValid = oldDocument[typedName] !== undefined && oldDocument[typedName] !== null;
-  const isValid = document[typedName] !== undefined && document[typedName] !== null;
+  const isValid = newDocument[typedName] !== undefined && newDocument[typedName] !== null;
   if (wasValid && !isValid) {
     throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
   }

@@ -2,7 +2,7 @@ import { sanitize } from "@/lib/vulcan-lib/utils";
 import { getCollectionHooks } from "../mutationCallbacks";
 
 // TODO: test that this works correctly in both the case where it's called before make_editable and after make_editable callback that creates the normalized contents
-export function sanitizeJargonTerm<T extends DbJargonTerm|DbInsertion<DbJargonTerm>>(jargonTerm: T) {
+export function sanitizeJargonTerm<T extends DbJargonTerm|Partial<DbInsertion<DbJargonTerm>>>(jargonTerm: T) {
   const sanitizedJargonTerm = { ...jargonTerm };
 
   if (sanitizedJargonTerm.term) {

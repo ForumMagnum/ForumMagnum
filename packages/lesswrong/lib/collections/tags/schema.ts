@@ -618,11 +618,12 @@ const schema: SchemaType<"Tags"> = {
     tooltip: "Parent tag which will also be applied whenever this tag is applied to a post for the first time",
     group: () => formGroups.advancedOptions,
     control: 'TagSelect',
-    onCreate: async ({newDocument: tag, context }) => {
+    onCreate: async ({ newDocument: tag, context }) => {
       if (tag.parentTagId) {
         // don't allow chained parent tag relationships
         const { Tags } = context;
-        if ((await Tags.find({parentTagId: tag._id}).count())) {
+        // Actually I think this is nonsensical; tags don't have _id until after they're created
+        if ((await Tags.find({parentTagId: (tag as DbTag)._id}).count())) {
           throw Error(`Tag ${tag.name} is a parent tag of another tag.`);
         }
       }

@@ -717,7 +717,7 @@ const recombeeApi = {
     return [...topOfListPosts, ...interleavedRecommendedPosts];
   },
 
-  async upsertPost(post: DbPost, context: ResolverContext) {
+  async upsertPost(post: DbPost | UpdatePreviewDocument<DbPost>, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
     const contents = await fetchFragmentSingle({

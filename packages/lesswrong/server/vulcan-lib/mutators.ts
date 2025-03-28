@@ -29,7 +29,7 @@ Finally, *after* the operation is performed, we execute any async callbacks.
 
 */
 
-import { convertDocumentIdToIdInSelector } from '../../lib/vulcan-lib/utils';
+import { convertDocumentIdToIdInSelector, UpdateSelector } from '../../lib/vulcan-lib/utils';
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
 import { throwError } from './errors';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
@@ -124,6 +124,144 @@ export async function runFieldOnCreateCallbacks<
   }
 
   return data;
+}
+
+export async function runFieldOnUpdateCallbacks<
+  D extends Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
+  S extends NewSchemaType<CollectionName>,
+  CollectionName extends CollectionNameString
+>(
+  schema: S,
+  data: D,
+  dataAsModifier: MongoModifier<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
+  properties: UpdateCallbackProperties<CollectionName>
+): Promise<D> {
+  for (let fieldName in schema) {
+    let autoValue;
+    const { graphql } = schema[fieldName];
+    if (graphql && 'onUpdate' in graphql && !!graphql.onUpdate) {
+      autoValue = await graphql.onUpdate({ ...properties, fieldName, modifier: dataAsModifier });
+    }
+    if (typeof autoValue !== 'undefined') {
+      Object.assign(data, { [fieldName]: autoValue });
+    }
+  }
+
+  return data;
+}
+
+interface CheckPermissionsAndReturnArgumentsProps<T extends CollectionNameString, S extends NewSchemaType<T>> {
+  selector: UpdateSelector;
+  context: ResolverContext;
+  data: Partial<DbInsertion<ObjectsByCollectionName[T]>>;
+  editCheck: (user: DbUser | null, document: ObjectsByCollectionName[T] | null, context: ResolverContext) => Promise<boolean> | boolean,
+  schema: S,
+}
+
+/**
+ * @deprecated This function returns updateCallbackProperties, which
+ * is a legacy holdover from mutation callbacks.  If you're creating
+ * a new collection with default mutations, just pass in whatever
+ * arguments you need to functions you have before/after the db update.
+ */
+export async function checkPermissionsAndReturnArguments<const T extends CollectionNameString, S extends NewSchemaType<T>>(
+  collectionName: T,
+  { selector, context, data, editCheck, schema }: CheckPermissionsAndReturnArgumentsProps<T, S>
+) {
+  const { currentUser } = context;
+  const collection = context[collectionName] as CollectionBase<T>;
+
+  if (isEmpty(selector)) {
+    throw new Error('Selector cannot be empty');
+  }
+
+  // get entire unmodified document from database
+  const documentSelector = convertDocumentIdToIdInSelector(selector);
+  const oldDocument = await collection.findOne(documentSelector);
+
+  if (!oldDocument) {
+    throwError({ id: 'app.document_not_found', data: { documentId: documentSelector._id } });
+  }
+
+  if (!(await editCheck(currentUser, oldDocument, context))) {
+    throwError({ id: 'app.operation_not_allowed', data: { documentId: documentSelector._id } });
+  }
+
+  let previewDocument = { ...oldDocument, ...data };
+  // FIXME: Filtering out null-valued fields here is a very sketchy, probably
+  // wrong thing to do. This originates from Vulcan, and it's not clear why it's
+  // doing it. Explicit cast to make it type-check anyways.
+  previewDocument = pickBy(previewDocument, f => f !== null) as any;
+
+  const updateCallbackProperties: UpdateCallbackProperties<T> = {
+    data,
+    oldDocument,
+    newDocument: previewDocument,
+    currentUser,
+    collection,
+    context,
+    schema
+  };
+
+  return {
+    documentSelector,
+    previewDocument,
+    updateCallbackProperties,
+  };
+}
+
+export function assignUserIdToData(data: Partial<DbInsertion<Extract<ObjectsByCollectionName[CollectionNameString], { userId: string }>>>, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString>) {
+  // You know, it occurs to me that this seems to allow users to insert arbitrary userIds
+  // for documents they're creating if they have a userId field and canCreate: member.
+  if (currentUser && schema.userId && !data.userId) {
+    data.userId = currentUser._id;
+  }
+}
+
+export async function createAndReturnCreateAfterProps<T extends ObjectsByCollectionName[CollectionNameString]>(data: Partial<DbInsertion<T>>, collectionName: CollectionNameOfObject<T>, createCallbackProperties: CreateCallbackProperties<CollectionNameOfObject<T>>) {
+  const collection = createCallbackProperties.context[collectionName] as CollectionBase<CollectionNameOfObject<T>>;
+  const insertedId = await collection.rawInsert(data);
+  const insertedDocument = (await collection.findOne(insertedId))!;
+
+  const afterCreateProperties: AfterCreateCallbackProperties<CollectionNameOfObject<T>> = {
+    ...createCallbackProperties,
+    document: insertedDocument,
+    newDocument: insertedDocument
+  };
+
+  return afterCreateProperties;
+}
+
+export async function updateAndReturnDocument<N extends CollectionNameString>(modifier: MongoModifier<DbInsertion<ObjectsByCollectionName[N]>>, collection: CollectionBase<N>, selector: UpdateSelector, context: ResolverContext) {
+  // remove empty modifiers
+  if (isEmpty(modifier.$set)) {
+    delete modifier.$set;
+  }
+  if (isEmpty(modifier.$unset)) {
+    delete modifier.$unset;
+  }
+
+  // if there's nothing to update, return
+  if (isEmpty(modifier)) {
+    return;
+  }
+
+  // update document
+  await collection.rawUpdateOne(selector, modifier);
+
+  // get fresh copy of document from db
+  const updatedDocument = await collection.findOne(selector);
+  if (!updatedDocument) {
+    throw new Error("Could not find updated document after applying update");
+  }
+
+  // This used to be documentId, but I think the fact that it was documentId
+  // and not _id was just a bug???
+  if (selector._id && context) {
+    context.loaders.Posts.clear(selector._id);
+  }
+
+  return updatedDocument;
 }
 
 /**
@@ -441,7 +579,6 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   const properties: UpdateCallbackProperties<N> = {
     data: data||{},
     oldDocument,
-    document,
     newDocument: document,
     currentUser, collection, context, schema
   };

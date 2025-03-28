@@ -127,7 +127,7 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
 }
 
 
-export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{rsvp: RSVPType, userId: string|null, email: string|undefined}[]> {
+export async function getUsersToNotifyAboutEvent(post: DbPost | DbInsertion<DbPost>): Promise<{rsvp: RSVPType, userId: string|null, email: string|undefined}[]> {
   if (!post.rsvps || !post.rsvps.length) {
     return [];
   }

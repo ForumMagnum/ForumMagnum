@@ -99,7 +99,7 @@ const schema = {
       canRead: ["guests"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
-        getTitle: (md) => md.title ?? md.tabTitle,
+        getTitle: (md) => md.title ?? md.tabTitle!,
         onCollision: "rejectNewDocument",
         includesOldSlugs: true,
       },

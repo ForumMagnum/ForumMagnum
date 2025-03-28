@@ -13,7 +13,7 @@ type ClientSettings<T extends ClientSettingDependencies<`${string}Setting`>> = {
 }
 
 interface CreateGoogleMediaDocumentMetadataArgs {
-  post: DbPost;
+  post: DbPost | UpdatePreviewDocument<DbPost>;
   tags?: {
     _id: string;
     name: string;

@@ -168,7 +168,7 @@ const schema: SchemaType<"Spotlights"> = {
       const endBound = lastSpotlightByPosition.position + 1;
 
       // Don't let us create a new spotlight with an arbitrarily large position
-      if (newDocument.position > endBound) {
+      if (startBound > endBound) {
         return endBound;
       }
 

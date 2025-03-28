@@ -925,12 +925,12 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 
 
 /* UPDATE BEFORE */
-export function updatePostLastCommentPromotedAt(data: Partial<DbComment>, { oldDocument, document, context, currentUser }: UpdateCallbackProperties<"Comments">) {
-  if (data?.promoted && !oldDocument.promoted && document.postId) {
+export function updatePostLastCommentPromotedAt(data: Partial<DbComment>, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
+  if (data?.promoted && !oldDocument.promoted && newDocument.postId) {
     void updateMutator({
       collection: context.Posts,
       context,
-      documentId: document.postId,
+      documentId: newDocument.postId,
       data: {
         lastCommentPromotedAt: new Date(),
       },
@@ -1065,14 +1065,14 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context }:
   await triggerReviewIfNeeded(currentUser._id, context)
 }
 
-export async function updateUserNotesOnCommentRejection({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
-  if (!oldDocument.rejected && document.rejected) {
+export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
+  if (!oldDocument.rejected && newDocument.rejected) {
     void createMutator({
       collection: context.ModeratorActions,
       context,
       currentUser,
       document: {
-        userId: document.userId,
+        userId: newDocument.userId,
         type: REJECTED_COMMENT,
         endedAt: new Date()
       }

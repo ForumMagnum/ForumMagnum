@@ -109,7 +109,7 @@ export const fetchFragmentSingle = async <
 >(
   options: FetchFragmentOptions<CollectionName, FragmentName>,
 ): Promise<FetchedFragment<FragmentName> | null> => {
-  const results = await fetchFragment({
+  const results = await fetchFragment<CollectionName, FragmentName>({
     ...options,
     options: {
       ...options.options,

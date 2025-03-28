@@ -92,7 +92,7 @@ const schema = {
       canRead: ["guests"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["GardenCodes"],
-        getTitle: (gc) => gc.title,
+        getTitle: (gc) => gc.title!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
       },

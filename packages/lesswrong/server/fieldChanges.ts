@@ -9,7 +9,7 @@ export const logFieldChanges = async <
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
   oldDocument: ObjectsByCollectionName[N],
-  data: Partial<ObjectsByCollectionName[N]>,
+  data: Partial<ObjectsByCollectionName[N]> | Partial<DbInsertion<ObjectsByCollectionName[N]>>,
 }) => {
   let loggedChangesBefore: any = {};
   let loggedChangesAfter: any = {};
@@ -17,7 +17,7 @@ export const logFieldChanges = async <
   
   for (let key of Object.keys(data)) {
     let before = oldDocument[key as keyof ObjectsByCollectionName[N]];
-    let after = data[key as keyof ObjectsByCollectionName[N]];
+    let after = (data as AnyBecauseHard)[key];
     // Don't log if:
     //  * The field didn't change
     //  * It's a denormalized field

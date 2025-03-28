@@ -103,19 +103,19 @@ const slugIsUsed = async ({collectionsToCheck, slug, useOldSlugs, excludedId}: {
 
 type ValidSlugCreateCallbackProps<N extends CollectionNameWithSlug> = CreateCallbackProperties<N> & {
   schema: NewSchemaType<N> & { slug: NewCollectionFieldSpecification<N> & { graphql: GraphQLWriteableFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions<N> } } },
-  document: DbInsertion<ObjectsByCollectionName[N]>,
+  document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
 }
 
 type ValidSlugUpdateCallbackProps<N extends CollectionNameWithSlug> = UpdateCallbackProperties<N> & {
   schema: NewSchemaType<N> & { slug: NewCollectionFieldSpecification<N> & { graphql: GraphQLWriteableFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions<N> } } },
   oldDocument: ObjectsByCollectionName[N],
-  newDocument: ObjectsByCollectionName[N],
-  data: Partial<ObjectsByCollectionName[N]>,
+  newDocument: ObjectsByCollectionName[N] & Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
 };
 
 function isCreateBeforeCallbackForSlugCollection<
   N extends CollectionNameString,
-  Props extends CreateCallbackProperties<N>
+  Props extends CreateCallbackProperties<N> = CreateCallbackProperties<N>
 >(props: Props): props is Props & ValidSlugCreateCallbackProps<CollectionNameWithSlug> {
   const graphqlSpec = props.schema.slug?.graphql;
   return !!graphqlSpec && 'slugCallbackOptions' in graphqlSpec;
@@ -123,14 +123,14 @@ function isCreateBeforeCallbackForSlugCollection<
 
 function isUpdateBeforeCallbackForSlugCollection<
   N extends CollectionNameString,
-  Props extends UpdateCallbackProperties<N>
+  Props extends UpdateCallbackProperties<N> = UpdateCallbackProperties<N>
 >(props: Props): props is Props & ValidSlugUpdateCallbackProps<CollectionNameWithSlug> {
   const graphqlSpec = props.schema.slug?.graphql;
   return !!graphqlSpec && 'slugCallbackOptions' in graphqlSpec;
 }
 
 export async function runSlugCreateBeforeCallback<P extends CreateCallbackProperties<N>, N extends CollectionNameString>(createProps: P): Promise<P['document']> {
-  if (!isCreateBeforeCallbackForSlugCollection(createProps)) {
+  if (!isCreateBeforeCallbackForSlugCollection<N>(createProps)) {
     return createProps.document;
   }
 
@@ -166,7 +166,7 @@ export async function runSlugCreateBeforeCallback<P extends CreateCallbackProper
 }
 
 export async function runSlugUpdateBeforeCallback<N extends CollectionNameString>(updateProps: UpdateCallbackProperties<N>) {
-  if (!isUpdateBeforeCallbackForSlugCollection(updateProps)) {
+  if (!isUpdateBeforeCallbackForSlugCollection<N>(updateProps)) {
     return updateProps.data;
   }
   
