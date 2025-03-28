@@ -29,7 +29,7 @@ import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";
 import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-import { nullifyVotesForUser } from "../voteServer";
+import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -37,9 +37,11 @@ import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 
 async function sendWelcomeMessageTo(userId: string) {
+  const context = createAnonymousContext();
   const postId = welcomeEmailPostId.get();
   if (!postId || !postId.length) {
     // eslint-disable-next-line no-console
@@ -66,7 +68,7 @@ async function sendWelcomeMessageTo(userId: string) {
   const adminUserId = forumTeamUserId.get()
   let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
   if (!adminsAccount) {
-    adminsAccount = await getAdminTeamAccount()
+    adminsAccount = await getAdminTeamAccount(context)
     if (!adminsAccount) {
       throw new Error("Could not find admin account")
     }
@@ -517,10 +519,10 @@ export function syncProfileUpdatedAt(modifier: MongoModifier<DbUser>, user: DbUs
 // 4x notifyUsersAboutMentions
 
 /* UPDATE ASYNC */
-export function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<"Users">) {
+export function updateUserMayTriggerReview({document, data, context}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
-    void triggerReviewIfNeeded(document._id)
+    void triggerReviewIfNeeded(document._id, context);
   }
 }
 

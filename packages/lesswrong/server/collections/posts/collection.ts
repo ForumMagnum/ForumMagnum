@@ -1,10 +1,10 @@
-import schema from '@/lib/collections/posts/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '@/lib/vulcan-users/permissions';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from '@/lib/collections/posts/helpers';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { userCanPost } from '@/lib/collections/users/helpers';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 
 const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {
@@ -33,8 +33,7 @@ const options: MutationOptions<DbPost> = {
 export const Posts = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
-  schema,
-  resolvers: getDefaultResolvers('Posts'),
+    resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
   logChanges: true,
   voteable: {
@@ -45,5 +44,7 @@ export const Posts = createCollection({
     {type: "extension", name: "earthdistance"},
   ],
 });
+
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('Posts');
 
 export default Posts;

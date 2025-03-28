@@ -15,7 +15,6 @@ import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFil
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import { panic } from './utils/errorUtil';
-import { augmentSchemas } from '@/server/resolvers/allFieldAugmentations';
 
 const numCPUs = cpus().length;
 
@@ -80,7 +79,6 @@ const initSettings = () => {
 }
 
 const initPostgres = async () => {
-  augmentSchemas();
   if (getAllCollections().some(collection => collection instanceof PgCollection)) {
     for (const collection of getAllCollections()) {
       if (collection instanceof PgCollection) {

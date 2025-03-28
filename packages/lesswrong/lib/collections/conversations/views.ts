@@ -1,4 +1,4 @@
-import { isAF } from '../../instanceSettings';
+import { isAF, isLW } from '../../instanceSettings';
 import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
@@ -36,8 +36,9 @@ function moderatorConversations(terms: ConversationsViewTerms) {
 // notifications for a specific user (what you see in the notifications menu)
 function userConversations(terms: ConversationsViewTerms) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
+  const moderatorSelector = isLW ? {moderator: {$ne: true}} : {}
   return {
-    selector: {participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter},
+    selector: {participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter, ...moderatorSelector},
     options: {sort: {latestActivity: -1}}
   };
 }

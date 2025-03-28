@@ -2,7 +2,7 @@ import { wrapVulcanAsyncScript } from './utils'
 import { userIPBanAndResetLoginTokens, userDeleteContent } from '../users/moderationUtils'
 import Users from '../../server/collections/users/collection'
 import moment from 'moment'
-import { createAdminContext } from '../vulcan-lib/query'
+import { createAdminContext } from '../vulcan-lib/createContexts'
 
 const banUser = async (user: DbUser, adminUser: DbUser) => {
   // this was not updated when we moved from the "bio" field to the "biography" field,

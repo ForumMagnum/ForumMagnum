@@ -1,7 +1,6 @@
 import Table from "../Table";
 import Query from "../Query";
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { testSchema, testSchema2, testSchema3, testSchema4, testSchema5 } from "./testSchemas";
 
 export type DbTestObject = {
   _id: string,
@@ -19,7 +18,6 @@ export type DbTestObject = {
 export const TestCollection = createCollection({
   collectionName: "TestCollection" as CollectionNameString,
   typeName: "TestCollection",
-  schema: testSchema,
 });
 
 export const testTable = Table.fromCollection<CollectionNameString, DbTestObject>(TestCollection);
@@ -34,7 +32,6 @@ export type DbTestObject2 = {
 export const TestCollection2 = createCollection({
   collectionName: "TestCollection2" as CollectionNameString,
   typeName: "TestCollection2",
-  schema: testSchema2,
 });
 
 export const testTable2 = Table.fromCollection<CollectionNameString, DbTestObject2>(TestCollection2);
@@ -49,7 +46,6 @@ export type DbTestObject3 = {
 export const TestCollection3 = createCollection({
   collectionName: "TestCollection3" as CollectionNameString,
   typeName: "TestCollection3",
-  schema: testSchema3,
 });
 
 export const testTable3 = Table.fromCollection<CollectionNameString, DbTestObject3>(TestCollection3);
@@ -64,7 +60,6 @@ export type DbTestObject4 = {
 export const TestCollection4 = createCollection({
   collectionName: "TestCollection4" as CollectionNameString,
   typeName: "TestCollection4",
-  schema: testSchema4,
 });
 
 export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObject4>(TestCollection4);
@@ -80,7 +75,6 @@ export type DbTestObject5 = {
 export const TestCollection5 = createCollection({
   collectionName: "TestCollection5" as CollectionNameString,
   typeName: "TestCollection5",
-  schema: testSchema5
 });
 
 export const testTable5 = Table.fromCollection<CollectionNameString, DbTestObject5>(TestCollection5);

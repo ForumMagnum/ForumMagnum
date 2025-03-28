@@ -1,13 +1,18 @@
+import gql from "graphql-tag";
 import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
-import { defineMutation } from "../utils/serverGraphqlUtil";
 import type { PostEvent } from "../google-vertex/types";
 import { captureException } from "@sentry/core";
 
-defineMutation({
-  name: 'sendVertexViewItemEvent',
-  argTypes: '(postId: String!, attributionId: String)',
-  resultType: 'Boolean!',
-  fn(root, args: { postId: string, attributionId: string | null }, context) {
+export const googleVertexGqlTypeDefs = gql`
+  extend type Mutation {
+    sendVertexViewItemEvent(postId: String!, attributionId: String): Boolean!
+    sendVertexMediaCompleteEvent(postId: String!, attributionId: String): Boolean!
+    sendVertexViewHomePageEvent: Boolean!
+  }
+`
+
+export const googleVertexGqlMutations = {
+  sendVertexViewItemEvent (root: void, args: { postId: string, attributionId: string | null }, context: ResolverContext) {
     const { currentUser } = context;
 
     try {
@@ -29,13 +34,25 @@ defineMutation({
       return false;
     }
   },
-});
+  sendVertexViewHomePageEvent (root: void, args: void, context: ResolverContext) {
+    const { currentUser } = context;
 
-defineMutation({
-  name: 'sendVertexMediaCompleteEvent',
-  argTypes: '(postId: String!, attributionId: String)',
-  resultType: 'Boolean!',
-  fn(root, args: { postId: string, attributionId: string | null }, context) {
+    try {
+      if (!currentUser) {
+        throw new Error('Must be logged in to record Vertex events');
+      }
+      
+      const now = new Date();
+      const viewHomePageEvent = googleVertexHelpers.createViewHomePageEvent({ userId: currentUser._id, timestamp: now });
+  
+      void googleVertexApi.writeUserEvent(viewHomePageEvent);
+      return true;
+    } catch(e) {
+      captureException(e);
+      return false;
+    }
+  },
+  sendVertexMediaCompleteEvent (root: void, args: { postId: string, attributionId: string | null }, context: ResolverContext) {
     const { currentUser } = context;
 
     try {
@@ -54,28 +71,5 @@ defineMutation({
       captureException(e);
       return false;
     }
-  },
-});
-
-defineMutation({
-  name: 'sendVertexViewHomePageEvent',
-  resultType: 'Boolean!',
-  fn(root, args, context) {
-    const { currentUser } = context;
-
-    try {
-      if (!currentUser) {
-        throw new Error('Must be logged in to record Vertex events');
-      }
-      
-      const now = new Date();
-      const viewHomePageEvent = googleVertexHelpers.createViewHomePageEvent({ userId: currentUser._id, timestamp: now });
-  
-      void googleVertexApi.writeUserEvent(viewHomePageEvent);
-      return true;
-    } catch(e) {
-      captureException(e);
-      return false;
-    }
-  },
-});
+  }
+}

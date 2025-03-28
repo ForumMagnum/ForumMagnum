@@ -15,6 +15,9 @@ export const ForumEventsMinimumInfo = `
     customComponent
     commentPrompt
 
+    pollAgreeWording
+    pollDisagreeWording
+
     maxStickersPerUser
   }
 `

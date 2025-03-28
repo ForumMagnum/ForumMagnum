@@ -4,7 +4,7 @@ import { capitalize } from '../lib/vulcan-lib/utils';
 import { silentlyReverseVote } from './voteServer';
 import { getCollectionHooks } from './mutationCallbacks';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
-import { createAdminContext } from "./vulcan-lib/query";
+import { createAdminContext } from "./vulcan-lib/createContexts";
 
 interface DateRange {
   after?: Date;

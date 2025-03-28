@@ -62,7 +62,8 @@ import './collections/lwevents/views';
 import './collections/tagFlags/views';
 
 // FieldChanges
-import '../server/collections/fieldChanges/collection';
+import './collections/fieldChanges/fragments';
+import './collections/fieldChanges/views';
 
 // GardenCodes
 // import "./collections/gardencodes/collection";
@@ -100,7 +101,7 @@ import './collections/reviewVotes/views'
 import './collections/reviewVotes/fragments'
 
 // import './collections/manifoldProbabilitiesCaches/collection';
-import './collections/manifoldProbabilitiesCaches/schema';
+import './collections/manifoldProbabilitiesCaches/newSchema';
 
 // import './collections/localgroups/collection'
 import './collections/localgroups/views';
@@ -127,7 +128,7 @@ import './collections/userTagRels/fragments';
 import './collections/tags/views';
 import './collections/tags/fragments';
 import './collections/tags/helpers';
-import './collections/tags/schema';
+import './collections/tags/newSchema';
 import './collections/tags/permissions';
 
 // import './collections/tweets/collection'
@@ -151,18 +152,18 @@ import './collections/userMostValuablePosts/fragments';
 import './collections/userMostValuablePosts/views';
 
 // import './collections/useractivities/collection';
-import './collections/useractivities/schema';
+import './collections/useractivities/newSchema';
 
 // import './collections/pagecache/collection';
-import './collections/pagecache/schema';
+import './collections/pagecache/newSchema';
 
 // import './collections/digestPosts/collection';
 import './collections/digestPosts/fragments';
-import './collections/digestPosts/schema';
+import './collections/digestPosts/newSchema';
 
 // import './collections/digests/collection';
 import './collections/digests/fragments';
-import './collections/digests/schema';
+import './collections/digests/newSchema';
 import './collections/digests/views';
 
 // Forum events
@@ -184,7 +185,7 @@ import './collections/podcastEpisodes/fragments';
 import './collections/podcastEpisodes/views';
 
 // Posts
-import './collections/posts/schema';
+import './collections/posts/newSchema';
 import './collections/posts/views';
 import './collections/posts/helpers';
 
@@ -200,7 +201,7 @@ import './collections/revisions/views'
 //
 // Users
 import './collections/users/helpers';
-import './collections/users/schema';
+import './collections/users/newSchema';
 import './collections/users/recommendationSettings';
 import './collections/users/views';
 import './collections/users/fragments';
@@ -390,4 +391,4 @@ import './subscribedUsersFeed';
 // import './collections/jargonTerms/collection';
 import './collections/jargonTerms/views';
 import './collections/jargonTerms/fragments';
-import './collections/jargonTerms/schema';
+import './collections/jargonTerms/newSchema';

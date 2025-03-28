@@ -2,9 +2,9 @@ import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { EmailTokens } from '../../server/collections/emailTokens/collection';
 import { randomSecret } from '../../lib/random';
 import Users from '../../server/collections/users/collection';
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 import { updateMutator } from '../vulcan-lib/mutators';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import gql from 'graphql-tag';
 
 let emailTokenTypesByName: Partial<Record<string,EmailTokenType>> = {};
 
@@ -84,11 +84,14 @@ async function getAndValidateToken(token: string): Promise<{tokenObj: DbEmailTok
   return { tokenObj, tokenType }
 }
 
-addGraphQLMutation('useEmailToken(token: String, args: JSON): JSON');
-addGraphQLQuery('getTokenParams(token: String): JSON');
-addGraphQLResolvers({
-  Mutation: {
-    async useEmailToken(root: void, {token, args}: {token: string, args: any}, context: ResolverContext) {
+export const emailTokensGraphQLTypeDefs = gql`
+  extend type Mutation {
+    useEmailToken(token: String, args: JSON): JSON
+  }
+`
+
+export const emailTokensGraphQLMutations = {
+  async useEmailToken(root: void, {token, args}: {token: string, args: any}, context: ResolverContext) {
       try {
         const { tokenObj, tokenType } = await getAndValidateToken(token)
 
@@ -115,8 +118,7 @@ addGraphQLResolvers({
         };
       }
     }
-  }
-});
+};
 
 
 export const UnsubscribeAllToken = new EmailTokenType({

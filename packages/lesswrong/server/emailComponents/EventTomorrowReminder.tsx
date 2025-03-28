@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-import type { RSVPType } from '../../lib/collections/posts/schema';
+import type { RSVPType } from '../../lib/collections/posts/newSchema';
 
 const styles = (theme: ThemeType) => ({
 });
@@ -9,8 +9,8 @@ const EventTomorrowReminder = ({postId, rsvp}: {
   postId: string,
   rsvp: RSVPType,
 }) => {
-  return <Components.NewPostEmail
-    documentId={postId}
+  return <Components.PostsEmail
+    postIds={[postId]}
     hideRecommendations
     reason={`you RSVPed ${rsvp.response} to this event`}
   />
