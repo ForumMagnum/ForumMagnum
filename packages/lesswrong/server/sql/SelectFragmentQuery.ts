@@ -1,6 +1,6 @@
 import SelectQuery from "./SelectQuery";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
-import type SqlFragment from "./SqlFragment";
+import type { SqlFragment } from "./SqlFragment";
 
 /**
  * `SelectFragmentQuery` is the main external interface for running select

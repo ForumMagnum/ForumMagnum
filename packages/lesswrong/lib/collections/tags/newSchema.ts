@@ -15,7 +15,7 @@ import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPage
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
 import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtField";
 import uniqBy from "lodash/uniqBy";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { userIsSubforumModerator } from "./helpers";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { getToCforTag } from "@/server/tableOfContents";
