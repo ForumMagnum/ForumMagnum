@@ -19,6 +19,7 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
     width: '100%',
     height: '80vh',
     objectFit: 'cover',
+    objectPosition: 'right',
   },
   gradientOverlay: {
     position: 'absolute',
@@ -34,9 +35,9 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
   imageColumn: {
     position: 'absolute',
     top: 0,
-    right: '-140px',
+    right: '0px',
     height: "100vh",
-    width: '50vw',
+    width: '34vw',
     ['@media(max-width: 1000px)']: {
       display: 'none'
     },
@@ -45,7 +46,7 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     position: 'fixed',
     right: 16,
-    bottom: 200,
+    bottom: 80,
     color: theme.palette.greyAlpha(0.87),
     textShadow: `0 0 3px ${theme.palette.background.default}, 0 0 3px ${theme.palette.background.default}`,
     textAlign: 'right',
@@ -119,7 +120,7 @@ export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Da
             <CloudinaryImage2
               loading="lazy"
               className={classes.image}
-              publicId="v1741048939/cover_image_qmzcby"
+              publicId="ChatGPT_Image_Mar_27_2025_07_12_57_PM_yngfv5.png"
             />
             <div className={classes.gradientOverlay} />
         </div>
