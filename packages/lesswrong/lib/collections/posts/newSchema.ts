@@ -2187,7 +2187,7 @@ const schema = {
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "PodcastEpisodes", fieldName: "podcastEpisodeId" }),
       sqlResolver: getForeignKeySqlResolver({
-        collectionName: "Posts",
+        collectionName: "PodcastEpisodes",
         nullable: true,
         idFieldName: "podcastEpisodeId",
       }),
