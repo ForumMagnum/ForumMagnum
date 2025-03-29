@@ -642,7 +642,7 @@ const ForumIcon = ({
   const classes = useStyles(styles);
 
   if (theme.themeOptions.name === 'ghiblify' && hasGhibliIcon(icon)) {
-    return <GhibliIcon icon={icon} noDefaultStyles={noDefaultStyles} className={className}/>
+    return <GhibliIcon icon={icon} noDefaultStyles={noDefaultStyles} className={className} {...props} />
   }
 
   const icons = forumSelect(ICONS);

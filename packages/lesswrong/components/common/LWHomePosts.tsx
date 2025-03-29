@@ -78,6 +78,12 @@ const styles = (theme: ThemeType) => ({
       borderRadius: 3,
       background: theme.palette.panelBackground.default,
       padding: "5.5px",
+      ...(theme.themeOptions.name === 'ghiblify' && {
+        background: "transparent",
+        border: undefined,
+        padding: 0,
+        transform: "scale(1.5)",
+      }),
     },
   },
   tagFilterSettingsButtonContainerMobile: {
@@ -99,6 +105,12 @@ const styles = (theme: ThemeType) => ({
       [theme.breakpoints.down('xs')]: {
         padding: "4.5px",
       },
+      ...(theme.themeOptions.name === 'ghiblify' && {
+        background: "transparent",
+        padding: 0,
+        border: "none",
+        transform: "scale(1.5)",
+      }),
     },
     [theme.breakpoints.up('md')]: {
       display: "none",

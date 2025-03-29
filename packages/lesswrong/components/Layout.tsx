@@ -162,6 +162,9 @@ const styles = (theme: ThemeType) => ({
   },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      background: undefined,
+    }),
   },
   '@global': {
     ...globalStyles(theme),

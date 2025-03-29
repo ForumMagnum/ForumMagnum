@@ -44,6 +44,9 @@ const styles = (theme: ThemeType) => ({
   icon: {
     display: "block",
     opacity: isFriendlyUI ? 1 : 0.45,
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      opacity: 1.0,
+    }),
     width: smallIconSize,
     height: smallIconSize,
     '& svg': {

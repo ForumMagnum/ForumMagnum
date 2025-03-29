@@ -27,6 +27,7 @@ const ghibliIcons: Partial<Record<ForumIconName,string>> = {
   Karma: "/ghibli/star.png",
   KarmaOutline: "/ghibli/star.png",
   Menu: "/ghibli/hamburger.png",
+  Settings: "/ghibli/gear.png",
 };
 
 export const GhibliIcon = ({icon, noDefaultStyles, className, style, onClick, onMouseDown}: IconProps & {
