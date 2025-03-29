@@ -379,7 +379,7 @@ const schema = {
       outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
-      canCreate: [userHasModerationGuidelines],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
       editableFieldOptions: { pingbacks: false, normalized: true },
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("moderationGuidelines"),
@@ -2187,7 +2187,7 @@ const schema = {
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "PodcastEpisodes", fieldName: "podcastEpisodeId" }),
       sqlResolver: getForeignKeySqlResolver({
-        collectionName: "Posts",
+        collectionName: "PodcastEpisodes",
         nullable: true,
         idFieldName: "podcastEpisodeId",
       }),

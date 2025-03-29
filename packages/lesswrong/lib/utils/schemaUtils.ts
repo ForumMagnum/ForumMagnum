@@ -110,17 +110,17 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   return restrictedDocs;
 }
 
-export function getForeignKeySqlResolver<CollectionName extends CollectionNameString>({ collectionName, nullable, idFieldName }: {
-  collectionName: CollectionName,
+export function getForeignKeySqlResolver({ collectionName, nullable, idFieldName }: {
+  collectionName: CollectionNameString,
   nullable: boolean,
   idFieldName: string,
 }) {
-  return function foreignKeySqlResolver({field, join}: SqlResolverArgs<CollectionName>) {
+  return function foreignKeySqlResolver({field, join}: SqlResolverArgs<CollectionNameString>) {
     return join<HasIdCollectionNames>({
       table: collectionName,
       type: nullable ? "left" : "inner",
       on: {
-        _id: field(idFieldName as FieldName<CollectionName>),
+        _id: field(idFieldName as FieldName<CollectionNameString>),
       },
       resolver: (foreignField) => foreignField("*"),
     });
@@ -173,7 +173,7 @@ export const foreignKeyField = <const CollectionName extends CollectionNameStrin
       // to make SQL resolvers useable by arbitrary resolvers then we (probably)
       // need to add some permission checks here somehow.
       ...(autoJoin ? {
-        sqlResolver: getForeignKeySqlResolver<CollectionNameString>({ collectionName, nullable, idFieldName }),
+        sqlResolver: getForeignKeySqlResolver({ collectionName, nullable, idFieldName }),
       } : {}),
       addOriginalField: true,
     },

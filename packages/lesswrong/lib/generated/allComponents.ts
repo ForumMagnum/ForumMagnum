@@ -840,6 +840,7 @@ importComponent("AprilFools2022", () => require("../../components/seasonal/April
 importComponent("CoronavirusFrontpageWidget", () => require("../../components/seasonal/CoronavirusFrontpageWidget.tsx"));
 importComponent(["LocalEventWrapperPopUp", "LocalEventMapMarkerWrappers", "HomepageCommunityMap"], () => require("../../components/seasonal/HomepageMap/HomepageCommunityMap.tsx"));
 importComponent("HomepageMapFilter", () => require("../../components/seasonal/HomepageMap/HomepageMapFilter.tsx"));
+importComponent("LessOnline2025Banner", () => require("../../components/seasonal/LessOnline2025Banner.tsx"));
 importComponent("PetrovDayButton", () => require("../../components/seasonal/PetrovDayButton.tsx"));
 importComponent("PetrovDayLossScreen", () => require("../../components/seasonal/PetrovDayLossScreen.tsx"));
 importComponent("PetrovDayWrapper", () => require("../../components/seasonal/PetrovDayWrapper.tsx"));

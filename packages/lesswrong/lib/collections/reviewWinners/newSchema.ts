@@ -27,7 +27,7 @@ const schema = {
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
       sqlResolver: getForeignKeySqlResolver({
-        collectionName: "ReviewWinners",
+        collectionName: "Posts",
         nullable: false,
         idFieldName: "postId",
       }),
