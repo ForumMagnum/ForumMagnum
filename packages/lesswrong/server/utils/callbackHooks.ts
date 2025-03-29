@@ -26,6 +26,10 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   constructor(name: string) {
     this._name = name;
   }
+
+  any = () => {
+    return this._callbacks.length > 0;
+  }
   
   add = (fn: CallbackChainFn<IteratorType,ArgumentsType>) => {
     this._callbacks.push(fn);
@@ -115,6 +119,10 @@ export class CallbackHook<ArgumentsType extends any[]> {
   
   constructor(name: string) {
     this._name = name;
+  }
+
+  any = () => {
+    return this._callbacks.length > 0;
   }
   
   add = (fn: (...args: ArgumentsType) => void|Promise<void>) => {

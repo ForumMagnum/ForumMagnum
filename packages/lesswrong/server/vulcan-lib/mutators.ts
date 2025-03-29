@@ -107,6 +107,9 @@ export const validateCreateMutation = async <N extends CollectionNameString>(
   return document;
 };
 
+/**
+ * @deprecated Prefer to avoid using onCreate callbacks on fields for new collections.
+ */
 export async function runFieldOnCreateCallbacks<
   D extends Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
   S extends NewSchemaType<CollectionName>,
@@ -126,6 +129,9 @@ export async function runFieldOnCreateCallbacks<
   return data;
 }
 
+/**
+ * @deprecated Prefer to avoid using onUpdate callbacks on fields for new collections.
+ */
 export async function runFieldOnUpdateCallbacks<
   D extends Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
   S extends NewSchemaType<CollectionName>,
@@ -150,7 +156,14 @@ export async function runFieldOnUpdateCallbacks<
   return data;
 }
 
-interface CheckPermissionsAndReturnArgumentsProps<T extends CollectionNameString, S extends NewSchemaType<T>> {
+interface CheckCreatePermissionsAndReturnArgumentsProps<T extends CollectionNameString, S extends NewSchemaType<T>> {
+  context: ResolverContext;
+  data: Partial<DbInsertion<ObjectsByCollectionName[T]>>;
+  newCheck: (user: DbUser | null, document: Partial<DbInsertion<ObjectsByCollectionName[T]>> | null, context: ResolverContext) => Promise<boolean> | boolean,
+  schema: S,
+}
+
+interface CheckUpdatePermissionsAndReturnArgumentsProps<T extends CollectionNameString, S extends NewSchemaType<T>> {
   selector: UpdateSelector;
   context: ResolverContext;
   data: Partial<DbInsertion<ObjectsByCollectionName[T]>>;
@@ -159,14 +172,52 @@ interface CheckPermissionsAndReturnArgumentsProps<T extends CollectionNameString
 }
 
 /**
+ * @deprecated This function returns createCallbackProperties, which
+ * is a legacy holdover from mutation callbacks.  If you're creating
+ * a new collection with default mutations, just pass in whatever
+ * arguments you need to functions you have before/after the db update.
+ */
+export async function checkCreatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>>(
+  collectionName: T,
+  { context, data, newCheck, schema }: CheckCreatePermissionsAndReturnArgumentsProps<T, S>
+) {
+  const { currentUser } = context;
+  const collection = context[collectionName] as CollectionBase<T>;
+
+  if (!(await newCheck(currentUser, data, context))) {
+    throwError({ id: 'app.operation_not_allowed' });
+  }
+
+  const callbackProps: CreateCallbackProperties<T> = {
+    collection,
+    document: data,
+    newDocument: data,
+    currentUser,
+    context,
+    schema,
+  };
+
+  // TODO: should validation be optional, the way it is with createMutator?
+  const validationErrors = validateDocument(data, collection, context);
+  if (validationErrors.length) {
+    throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+  }
+
+  // assign userId
+  assignUserIdToData(data, currentUser, schema);
+
+  return callbackProps;
+}
+
+/**
  * @deprecated This function returns updateCallbackProperties, which
  * is a legacy holdover from mutation callbacks.  If you're creating
  * a new collection with default mutations, just pass in whatever
  * arguments you need to functions you have before/after the db update.
  */
-export async function checkPermissionsAndReturnArguments<const T extends CollectionNameString, S extends NewSchemaType<T>>(
+export async function checkUpdatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>>(
   collectionName: T,
-  { selector, context, data, editCheck, schema }: CheckPermissionsAndReturnArgumentsProps<T, S>
+  { selector, context, data, editCheck, schema }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S>
 ) {
   const { currentUser } = context;
   const collection = context[collectionName] as CollectionBase<T>;
@@ -193,6 +244,12 @@ export async function checkPermissionsAndReturnArguments<const T extends Collect
   // doing it. Explicit cast to make it type-check anyways.
   previewDocument = pickBy(previewDocument, f => f !== null) as any;
 
+  // validation
+  const validationErrors = validateData(data, previewDocument, collection, context);
+  if (validationErrors.length) {
+    throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+  }
+
   const updateCallbackProperties: UpdateCallbackProperties<T> = {
     data,
     oldDocument,
@@ -210,15 +267,15 @@ export async function checkPermissionsAndReturnArguments<const T extends Collect
   };
 }
 
-export function assignUserIdToData(data: Partial<DbInsertion<Extract<ObjectsByCollectionName[CollectionNameString], { userId: string }>>>, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString>) {
+export function assignUserIdToData(data: Partial<DbInsertion<ObjectsByCollectionName[CollectionNameString]>>, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString>) {
   // You know, it occurs to me that this seems to allow users to insert arbitrary userIds
   // for documents they're creating if they have a userId field and canCreate: member.
-  if (currentUser && schema.userId && !data.userId) {
-    data.userId = currentUser._id;
+  if (currentUser && schema.userId && !(data as HasUserIdType).userId) {
+    (data as HasUserIdType).userId = currentUser._id;
   }
 }
 
-export async function createAndReturnCreateAfterProps<T extends ObjectsByCollectionName[CollectionNameString]>(data: Partial<DbInsertion<T>>, collectionName: CollectionNameOfObject<T>, createCallbackProperties: CreateCallbackProperties<CollectionNameOfObject<T>>) {
+export async function insertAndReturnCreateAfterProps<T extends ObjectsByCollectionName[CollectionNameString]>(data: Partial<DbInsertion<T>>, collectionName: CollectionNameOfObject<T>, createCallbackProperties: CreateCallbackProperties<CollectionNameOfObject<T>>) {
   const collection = createCallbackProperties.context[collectionName] as CollectionBase<CollectionNameOfObject<T>>;
   const insertedId = await collection.rawInsert(data);
   const insertedDocument = (await collection.findOne(insertedId))!;

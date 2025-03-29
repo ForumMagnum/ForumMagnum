@@ -174,6 +174,7 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
   canRead: FieldPermissions,
   canUpdate?: FieldPermissions,
   canCreate?: FieldCreatePermissions,
+  /** @deprecated Prefer to avoid using onCreate callbacks on fields for new collections. */
   onCreate?: (args: {
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
@@ -181,7 +182,8 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
     document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     fieldName: string
-  }) => any, 
+  }) => any,
+  /** @deprecated Prefer to avoid using onCreate callbacks on fields for new collections. */
   onUpdate?: (args: {
     data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     oldDocument: ObjectsByCollectionName[N],
@@ -192,7 +194,6 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
     fieldName: string
     modifier: MongoModifier<ObjectsByCollectionName[N]>
   }) => any,
-  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
   countOfReferences?: CountOfReferenceOptions;
   editableFieldOptions?: EditableFieldCallbackOptions,
   slugCallbackOptions?: SlugCallbackOptions<N>;

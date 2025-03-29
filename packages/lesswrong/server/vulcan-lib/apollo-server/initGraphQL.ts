@@ -23,6 +23,7 @@ import {
   updateMutationTemplate,
   upsertMutationTemplate,
   deleteMutationTemplate,
+  convertToGraphQL,
 } from './graphqlTemplates';
 import type { GraphQLScalarType } from 'graphql';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
@@ -103,6 +104,10 @@ import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolver
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { getSchema } from '@/lib/schema/allSchemas';
+
+function addRootArg<T extends (args: any, context: ResolverContext) => any>(func: T) {
+  return (root: void, args: Parameters<T>[0], context: ResolverContext) => func(args, context);
+}
 
 export const typeDefs = gql`
   # type Query
@@ -270,7 +275,12 @@ export const resolvers = {
   },
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
-}
+} satisfies {
+  Query: Record<string, (root: void, args: any, context: ResolverContext) => any>,
+  Mutation: Record<string, (root: void, args: any, context: ResolverContext) => any>,
+  KarmaChanges: { updateFrequency: (root: void, args: any, context: ResolverContext) => any },
+  ElicitUser: { lwUser: (root: void, args: any, context: ResolverContext) => any },
+};
 
 
 // get GraphQL type for a given schema and field name
@@ -334,9 +344,52 @@ type SchemaGraphQLFields = {
   orderBy: SchemaGraphQLFieldDescription[],
 }
 
+export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
+  const fieldDescriptions = Object.entries(schema)
+    .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
+    .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canRead?.length)
+    .map(([fieldName, fieldGraphql]) => {
+      const inputFieldType = getGraphQLType(fieldGraphql, true);
+      const createFieldType = inputFieldType === 'Revision'
+        ? 'JSON'
+        : inputFieldType;
+
+      return {
+        name: fieldName,
+        type: createFieldType,
+      };
+    });
+
+  return convertToGraphQL(fieldDescriptions, padding);
+}
+
+export function getUpdatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
+  const fieldDescriptions = Object.entries(schema)
+    .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
+    .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canUpdate?.length)
+    .map(([fieldName, fieldGraphql]) => {
+      const inputFieldType = getGraphQLType(fieldGraphql, true);
+      const createFieldType = inputFieldType === 'Revision'
+        ? 'JSON'
+        : inputFieldType;
+
+      // Fields should not be required for updates
+      const updateFieldType = (typeof createFieldType === 'string' && createFieldType.endsWith('!'))
+        ? createFieldType.slice(0, -1)
+        : createFieldType;
+
+      return {
+        name: fieldName,
+        type: updateFieldType,
+      };
+    });
+
+  return convertToGraphQL(fieldDescriptions, padding);
+}
+
 // for a given schema, return main type fields, selector fields,
 // unique selector fields, orderBy fields, creatable fields, and updatable fields
-const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typeName: string): {
+export const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typeName: string): {
   fields: SchemaGraphQLFields
   resolvers: any
 }=> {

@@ -298,5 +298,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
     };
   }
 
+  mutations.options = options;
+
   return mutations;
 }

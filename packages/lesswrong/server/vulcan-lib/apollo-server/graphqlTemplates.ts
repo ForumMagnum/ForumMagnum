@@ -2,7 +2,7 @@ import type { SchemaGraphQLFieldDescription, SchemaGraphQLFieldArgument } from '
 import { camelCaseify } from "../../../lib/vulcan-lib/utils";
 import { pluralize } from "../../../lib/vulcan-lib/pluralize";
 
-const convertToGraphQL = (fields: SchemaGraphQLFieldDescription[], indentation: string) => {
+export const convertToGraphQL = (fields: SchemaGraphQLFieldDescription[], indentation: string) => {
   return fields.length > 0 ? fields.map(f => fieldTemplate(f, indentation)).join('\n') : '';
 };
 
