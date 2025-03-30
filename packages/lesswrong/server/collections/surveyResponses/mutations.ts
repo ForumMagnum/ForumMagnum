@@ -4,7 +4,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
+import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -53,7 +53,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyRe
     return filteredReturnValue;
   },
 
-  updateFunction: async (selector, data, context) => {
+  updateFunction: async ({ selector, data }, context) => {
     const { currentUser, SurveyResponses } = context;
 
     const {

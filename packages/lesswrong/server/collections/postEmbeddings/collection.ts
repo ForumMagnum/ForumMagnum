@@ -12,7 +12,6 @@ export const PostEmbeddings: PostEmbeddingsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers("PostEmbeddings"),
-  mutations: getDefaultMutations("PostEmbeddings"),
   logChanges: false,
 });
 

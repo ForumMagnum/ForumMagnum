@@ -15,7 +15,6 @@ export const GardenCodes: GardenCodesCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('GardenCodes'),
-  mutations: getDefaultMutations('GardenCodes'), //, options),
   logChanges: true,
 });
 

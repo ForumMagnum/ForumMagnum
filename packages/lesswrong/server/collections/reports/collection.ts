@@ -14,7 +14,6 @@ export const Reports: ReportsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('Reports'),
-  mutations: getDefaultMutations('Reports'),
   logChanges: true,
 });
 

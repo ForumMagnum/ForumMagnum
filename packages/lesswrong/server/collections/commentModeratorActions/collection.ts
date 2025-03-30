@@ -12,7 +12,6 @@ export const CommentModeratorActions: CommentModeratorActionsCollection = create
     return indexSet;
   },
   resolvers: getDefaultResolvers('CommentModeratorActions'),
-  mutations: getDefaultMutations('CommentModeratorActions'),
   logChanges: true,
 });
 

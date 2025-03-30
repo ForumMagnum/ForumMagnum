@@ -12,7 +12,6 @@ export const UserEAGDetails: UserEAGDetailsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('UserEAGDetails'),
-  mutations: getDefaultMutations('UserEAGDetails'),
   logChanges: true,
 });
 

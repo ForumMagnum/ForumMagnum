@@ -13,7 +13,6 @@ export const Collections: CollectionsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('Collections'),
-  mutations: getDefaultMutations('Collections'),
   logChanges: true,
 });
 

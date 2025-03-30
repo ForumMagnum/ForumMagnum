@@ -6,7 +6,6 @@ export const ArbitalTagContentRels = createCollection({
   collectionName: 'ArbitalTagContentRels',
   typeName: 'ArbitalTagContentRel',
     resolvers: getDefaultResolvers('ArbitalTagContentRels'),
-  mutations: getDefaultMutations('ArbitalTagContentRels'),
 });
 
 

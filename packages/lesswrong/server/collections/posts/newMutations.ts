@@ -17,7 +17,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
+import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -151,7 +151,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     return filteredReturnValue;
   },
 
-  updateFunction: async (selector, data, context) => {
+  updateFunction: async ({ selector, data }, context) => {
     const { currentUser, Posts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for

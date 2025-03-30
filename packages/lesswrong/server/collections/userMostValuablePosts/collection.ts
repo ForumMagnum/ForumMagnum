@@ -13,7 +13,6 @@ export const UserMostValuablePosts: UserMostValuablePostsCollection = createColl
     return indexSet;
   },
   resolvers: getDefaultResolvers('UserMostValuablePosts'),
-  mutations: getDefaultMutations('UserMostValuablePosts'),
   logChanges: true,
 });
 

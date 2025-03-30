@@ -21,7 +21,6 @@ export const UserRateLimits: UserRateLimitsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('UserRateLimits'),
-  mutations: getDefaultMutations('UserRateLimits'),
   logChanges: true,
 });
 

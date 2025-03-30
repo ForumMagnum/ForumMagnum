@@ -103,6 +103,60 @@ import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGrap
 import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
+import { createAdvisorRequest, updateAdvisorRequest } from "@/server/collections/advisorRequests/mutations";
+import { createArbitalTagContentRel, updateArbitalTagContentRel } from "@/server/collections/arbitalTagContentRels/mutations";
+import { createBan, updateBan } from "@/server/collections/bans/mutations";
+import { createBook, updateBook } from "@/server/collections/books/mutations";
+import { createChapter, updateChapter } from "@/server/collections/chapters/mutations";
+import { createCollection, updateCollection } from "@/server/collections/collections/mutations";
+import { createCommentModeratorAction, updateCommentModeratorAction } from "@/server/collections/commentModeratorActions/mutations";
+import { createComment, updateComment } from "@/server/collections/comments/mutations";
+import { createConversation, updateConversation } from "@/server/collections/conversations/mutations";
+import { createCurationNotice, updateCurationNotice } from "@/server/collections/curationNotices/mutations";
+import { createDialogueMatchPreference, updateDialogueMatchPreference } from "@/server/collections/dialogueMatchPreferences/mutations";
+import { createDigestPost, updateDigestPost } from "@/server/collections/digestPosts/mutations";
+import { createDigest, updateDigest } from "@/server/collections/digests/mutations";
+import { createElectionCandidate, updateElectionCandidate } from "@/server/collections/electionCandidates/mutations";
+import { createElectionVote, updateElectionVote } from "@/server/collections/electionVotes/mutations";
+import { createElicitQuestion, updateElicitQuestion } from "@/server/collections/elicitQuestions/mutations";
+import { createForumEvent, updateForumEvent } from "@/server/collections/forumEvents/mutations";
+import { createGardenCode, updateGardenCode } from "@/server/collections/gardencodes/mutations";
+import { createGoogleServiceAccountSession, updateGoogleServiceAccountSession } from "@/server/collections/googleServiceAccountSessions/mutations";
+import { createJargonTerm, updateJargonTerm } from "@/server/collections/jargonTerms/mutations";
+import { createLWEvent, updateLWEvent } from "@/server/collections/lwevents/mutations";
+import { updateLlmConversation } from "@/server/collections/llmConversations/mutations";
+import { createLocalgroup, updateLocalgroup } from "@/server/collections/localgroups/mutations";
+import { createMessage, updateMessage } from "@/server/collections/messages/mutations";
+import { createModerationTemplate, updateModerationTemplate } from "@/server/collections/moderationTemplates/mutations";
+import { createModeratorAction, updateModeratorAction } from "@/server/collections/moderatorActions/mutations";
+import { createMultiDocument, updateMultiDocument } from "@/server/collections/multiDocuments/mutations";
+import { createNotification, updateNotification } from "@/server/collections/notifications/mutations";
+import { createPetrovDayAction } from "@/server/collections/petrovDayActions/mutations";
+import { createPodcastEpisode, updatePodcastEpisode } from "@/server/collections/podcastEpisodes/mutations";
+import { createPostEmbedding, updatePostEmbedding } from "@/server/collections/postEmbeddings/mutations";
+import { createPostViewTime, updatePostViewTime } from "@/server/collections/postViewTimes/mutations";
+import { createPostViews, updatePostViews } from "@/server/collections/postViews/mutations";
+import { createPost, updatePost } from "@/server/collections/posts/mutations";
+import { createRSSFeed, updateRSSFeed } from "@/server/collections/rssfeeds/mutations";
+import { createReport, updateReport } from "@/server/collections/reports/mutations";
+import { updateRevision } from "@/server/collections/revisions/mutations";
+import { createSequence, updateSequence } from "@/server/collections/sequences/mutations";
+import { createSplashArtCoordinate, updateSplashArtCoordinate } from "@/server/collections/splashArtCoordinates/mutations";
+import { createSpotlight, updateSpotlight } from "@/server/collections/spotlights/mutations";
+import { createSubscription } from "@/server/collections/subscriptions/mutations";
+import { createSurveyQuestion, updateSurveyQuestion } from "@/server/collections/surveyQuestions/mutations";
+import { createSurveyResponse, updateSurveyResponse } from "@/server/collections/surveyResponses/mutations";
+import { createSurveySchedule, updateSurveySchedule } from "@/server/collections/surveySchedules/mutations";
+import { createSurvey, updateSurvey } from "@/server/collections/surveys/mutations";
+import { createTagFlag, updateTagFlag } from "@/server/collections/tagFlags/mutations";
+import { createTagRel, updateTagRel } from "@/server/collections/tagRels/mutations";
+import { createTag, updateTag } from "@/server/collections/tags/mutations";
+import { createUserEAGDetail, updateUserEAGDetail } from "@/server/collections/userEAGDetails/mutations";
+import { createUserJobAd, updateUserJobAd } from "@/server/collections/userJobAds/mutations";
+import { createUserMostValuablePost, updateUserMostValuablePost } from "@/server/collections/userMostValuablePosts/mutations";
+import { createUserRateLimit, updateUserRateLimit } from "@/server/collections/userRateLimits/mutations";
+import { createUserTagRel, updateUserTagRel } from "@/server/collections/userTagRels/mutations";
+import { createUser, updateUser } from "@/server/collections/users/mutations";
 import { getSchema } from '@/lib/schema/allSchemas';
 
 function addRootArg<T extends (args: any, context: ResolverContext) => any>(func: T) {
@@ -272,6 +326,110 @@ export const resolvers = {
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
+    createAdvisorRequest: addRootArg(createAdvisorRequest),
+    updateAdvisorRequest: addRootArg(updateAdvisorRequest),
+    createArbitalTagContentRel: addRootArg(createArbitalTagContentRel),
+    updateArbitalTagContentRel: addRootArg(updateArbitalTagContentRel),
+    createBan: addRootArg(createBan),
+    updateBan: addRootArg(updateBan),
+    createBook: addRootArg(createBook),
+    updateBook: addRootArg(updateBook),
+    createChapter: addRootArg(createChapter),
+    updateChapter: addRootArg(updateChapter),
+    createCollection: addRootArg(createCollection),
+    updateCollection: addRootArg(updateCollection),
+    createCommentModeratorAction: addRootArg(createCommentModeratorAction),
+    updateCommentModeratorAction: addRootArg(updateCommentModeratorAction),
+    createComment: addRootArg(createComment),
+    updateComment: addRootArg(updateComment),
+    createConversation: addRootArg(createConversation),
+    updateConversation: addRootArg(updateConversation),
+    createCurationNotice: addRootArg(createCurationNotice),
+    updateCurationNotice: addRootArg(updateCurationNotice),
+    createDialogueMatchPreference: addRootArg(createDialogueMatchPreference),
+    updateDialogueMatchPreference: addRootArg(updateDialogueMatchPreference),
+    createDigestPost: addRootArg(createDigestPost),
+    updateDigestPost: addRootArg(updateDigestPost),
+    createDigest: addRootArg(createDigest),
+    updateDigest: addRootArg(updateDigest),
+    createElectionCandidate: addRootArg(createElectionCandidate),
+    updateElectionCandidate: addRootArg(updateElectionCandidate),
+    createElectionVote: addRootArg(createElectionVote),
+    updateElectionVote: addRootArg(updateElectionVote),
+    createElicitQuestion: addRootArg(createElicitQuestion),
+    updateElicitQuestion: addRootArg(updateElicitQuestion),
+    createForumEvent: addRootArg(createForumEvent),
+    updateForumEvent: addRootArg(updateForumEvent),
+    createGardenCode: addRootArg(createGardenCode),
+    updateGardenCode: addRootArg(updateGardenCode),
+    createGoogleServiceAccountSession: addRootArg(createGoogleServiceAccountSession),
+    updateGoogleServiceAccountSession: addRootArg(updateGoogleServiceAccountSession),
+    createJargonTerm: addRootArg(createJargonTerm),
+    updateJargonTerm: addRootArg(updateJargonTerm),
+    createLWEvent: addRootArg(createLWEvent),
+    updateLWEvent: addRootArg(updateLWEvent),
+    updateLlmConversation: addRootArg(updateLlmConversation),
+    createLocalgroup: addRootArg(createLocalgroup),
+    updateLocalgroup: addRootArg(updateLocalgroup),
+    createMessage: addRootArg(createMessage),
+    updateMessage: addRootArg(updateMessage),
+    createModerationTemplate: addRootArg(createModerationTemplate),
+    updateModerationTemplate: addRootArg(updateModerationTemplate),
+    createModeratorAction: addRootArg(createModeratorAction),
+    updateModeratorAction: addRootArg(updateModeratorAction),
+    createMultiDocument: addRootArg(createMultiDocument),
+    updateMultiDocument: addRootArg(updateMultiDocument),
+    createNotification: addRootArg(createNotification),
+    updateNotification: addRootArg(updateNotification),
+    createPetrovDayAction: addRootArg(createPetrovDayAction),
+    createPodcastEpisode: addRootArg(createPodcastEpisode),
+    updatePodcastEpisode: addRootArg(updatePodcastEpisode),
+    createPostEmbedding: addRootArg(createPostEmbedding),
+    updatePostEmbedding: addRootArg(updatePostEmbedding),
+    createPostViewTime: addRootArg(createPostViewTime),
+    updatePostViewTime: addRootArg(updatePostViewTime),
+    createPostViews: addRootArg(createPostViews),
+    updatePostViews: addRootArg(updatePostViews),
+    createPost: addRootArg(createPost),
+    updatePost: addRootArg(updatePost),
+    createRSSFeed: addRootArg(createRSSFeed),
+    updateRSSFeed: addRootArg(updateRSSFeed),
+    createReport: addRootArg(createReport),
+    updateReport: addRootArg(updateReport),
+    updateRevision: addRootArg(updateRevision),
+    createSequence: addRootArg(createSequence),
+    updateSequence: addRootArg(updateSequence),
+    createSplashArtCoordinate: addRootArg(createSplashArtCoordinate),
+    updateSplashArtCoordinate: addRootArg(updateSplashArtCoordinate),
+    createSpotlight: addRootArg(createSpotlight),
+    updateSpotlight: addRootArg(updateSpotlight),
+    createSubscription: addRootArg(createSubscription),
+    createSurveyQuestion: addRootArg(createSurveyQuestion),
+    updateSurveyQuestion: addRootArg(updateSurveyQuestion),
+    createSurveyResponse: addRootArg(createSurveyResponse),
+    updateSurveyResponse: addRootArg(updateSurveyResponse),
+    createSurveySchedule: addRootArg(createSurveySchedule),
+    updateSurveySchedule: addRootArg(updateSurveySchedule),
+    createSurvey: addRootArg(createSurvey),
+    updateSurvey: addRootArg(updateSurvey),
+    createTagFlag: addRootArg(createTagFlag),
+    updateTagFlag: addRootArg(updateTagFlag),
+    createTagRel: addRootArg(createTagRel),
+    updateTagRel: addRootArg(updateTagRel),
+    createTag: addRootArg(createTag),
+    updateTag: addRootArg(updateTag),
+    createUserEAGDetail: addRootArg(createUserEAGDetail),
+    updateUserEAGDetail: addRootArg(updateUserEAGDetail),
+    createUserJobAd: addRootArg(createUserJobAd),
+    updateUserJobAd: addRootArg(updateUserJobAd),
+    createUserMostValuablePost: addRootArg(createUserMostValuablePost),
+    updateUserMostValuablePost: addRootArg(updateUserMostValuablePost),
+    createUserRateLimit: addRootArg(createUserRateLimit),
+    updateUserRateLimit: addRootArg(updateUserRateLimit),
+    createUserTagRel: addRootArg(createUserTagRel),
+    updateUserTagRel: addRootArg(updateUserTagRel),
+    createUser: addRootArg(createUser),
+    updateUser: addRootArg(updateUser),
   },
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
@@ -342,49 +500,6 @@ type SchemaGraphQLFields = {
   selector: SchemaGraphQLFieldDescription[],
   selectorUnique: SchemaGraphQLFieldDescription[],
   orderBy: SchemaGraphQLFieldDescription[],
-}
-
-export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
-  const fieldDescriptions = Object.entries(schema)
-    .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
-    .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canRead?.length)
-    .map(([fieldName, fieldGraphql]) => {
-      const inputFieldType = getGraphQLType(fieldGraphql, true);
-      const createFieldType = inputFieldType === 'Revision'
-        ? 'JSON'
-        : inputFieldType;
-
-      return {
-        name: fieldName,
-        type: createFieldType,
-      };
-    });
-
-  return convertToGraphQL(fieldDescriptions, padding);
-}
-
-export function getUpdatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
-  const fieldDescriptions = Object.entries(schema)
-    .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
-    .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canUpdate?.length)
-    .map(([fieldName, fieldGraphql]) => {
-      const inputFieldType = getGraphQLType(fieldGraphql, true);
-      const createFieldType = inputFieldType === 'Revision'
-        ? 'JSON'
-        : inputFieldType;
-
-      // Fields should not be required for updates
-      const updateFieldType = (typeof createFieldType === 'string' && createFieldType.endsWith('!'))
-        ? createFieldType.slice(0, -1)
-        : createFieldType;
-
-      return {
-        name: fieldName,
-        type: updateFieldType,
-      };
-    });
-
-  return convertToGraphQL(fieldDescriptions, padding);
 }
 
 // for a given schema, return main type fields, selector fields,

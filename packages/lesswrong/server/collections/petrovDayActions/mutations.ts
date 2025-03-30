@@ -3,7 +3,7 @@ import schema from "@/lib/collections/petrovDayActions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
+import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 

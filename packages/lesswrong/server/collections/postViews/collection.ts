@@ -19,7 +19,6 @@ export const PostViews = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('PostViews'),
-  mutations: getDefaultMutations('PostViews'),
   logChanges: true,
 });
 

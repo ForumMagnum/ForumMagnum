@@ -13,7 +13,6 @@ export const ModerationTemplates: ModerationTemplatesCollection = createCollecti
     return indexSet;
   },
   resolvers: getDefaultResolvers('ModerationTemplates'),
-  mutations: getDefaultMutations('ModerationTemplates'),
   logChanges: true,
 });
 

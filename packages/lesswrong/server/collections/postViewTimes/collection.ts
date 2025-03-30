@@ -19,7 +19,6 @@ export const PostViewTimes = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('PostViewTimes'),
-  mutations: getDefaultMutations('PostViewTimes'),
   logChanges: true,
 });
 

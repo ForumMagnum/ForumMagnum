@@ -6,7 +6,6 @@ export const Surveys: SurveysCollection = createCollection({
   collectionName: "Surveys",
   typeName: "Survey",
     resolvers: getDefaultResolvers("Surveys"),
-  mutations: getDefaultMutations("Surveys"),
   logChanges: true,
 });
 

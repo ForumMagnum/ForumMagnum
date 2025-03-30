@@ -8,7 +8,7 @@ import { getEditableFieldNamesForCollection } from "@/lib/editor/make_editable";
 import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections";
 import { allUserGroups } from "@/lib/permissions";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "../vulcan-lib/apollo-server/initGraphQL";
+import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "../vulcan-lib/apollo-server/graphqlTemplates";
 
 const getPermissionsImportLine = (collection: CollectionBase<CollectionNameString>) => {
   const createPermissionCheckSection = getCreatePermissionCheckSection(collection);
@@ -238,7 +238,7 @@ const createFilteredReturnValueSection = (collectionName: string) => `
 const updateFunctionOpeningSection = (collectionName: CollectionNameString, collection: CollectionBase<CollectionNameString>, needsOldDocument: boolean) => {
   const typeName = collectionNameToTypeName[collectionName];
   return `
-  updateFunction: async (selector, data, context) => {
+  updateFunction: async ({ selector, data }, context) => {
     const { currentUser, ${collectionName} } = context;
 ${collection.options.logChanges ? `
     // Save the original mutation (before callbacks add more changes to it) for
@@ -528,7 +528,7 @@ export async function moveMutations() {
     const collectionName = collection.collectionName;
     const collectionMutations = collection.options.mutations;
 
-    if (!collectionMutations || collectionName === 'Posts') continue;
+    if (!collectionMutations) continue;
 
     const mutationFilePath = join(__dirname, `../collections/${collectionName}/mutations.ts`);
 
@@ -536,6 +536,34 @@ export async function moveMutations() {
 
     await writeFile(mutationFilePath, mutationFileContents);
   }
+}
+
+export async function generateMutationImports() {
+  const allCollections = getAllCollections();
+  const imports: string[] = [];
+  const functionNames: string[] = [];
+
+  for (const collection of allCollections) {
+    const collectionName = collection.collectionName;
+    const collectionMutations = collection.options.mutations;
+
+    if (!collectionMutations) continue;
+
+    const createFunctionName = `create${collectionNameToTypeName[collectionName]}`;
+    const updateFunctionName = `update${collectionNameToTypeName[collectionName]}`;
+
+    const collectionPathPart = collectionName[0].toLowerCase() + collectionName.slice(1);
+
+    const importLine = `import { ${createFunctionName}, ${updateFunctionName} } from "@/server/collections/${collectionPathPart}/mutations";`;
+    imports.push(importLine);
+    functionNames.push(createFunctionName);
+    functionNames.push(updateFunctionName);
+  }
+
+  const importBlock = imports.join('\n');
+  const mutationBlock = functionNames.map(functionName => `${functionName}: addRootArg(${functionName})`).join(',\n');
+
+  await writeFile('./packages/lesswrong/server/initGraphQLImports.ts', importBlock + '\n\n' + mutationBlock);
 }
 
 export async function moveReviewVoteMutations() {

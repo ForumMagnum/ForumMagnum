@@ -12,7 +12,6 @@ export const Books: BooksCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('Books'),
-  mutations: getDefaultMutations('Books'),
   logChanges: true,
 });
 

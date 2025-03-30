@@ -12,7 +12,6 @@ export const ElectionCandidates: ElectionCandidatesCollection = createCollection
     return indexSet;
   },
   resolvers: getDefaultResolvers("ElectionCandidates"),
-  mutations: getDefaultMutations("ElectionCandidates"),
   logChanges: true,
   voteable: {
     timeDecayScoresCronjob: false,

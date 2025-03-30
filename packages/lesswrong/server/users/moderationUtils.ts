@@ -8,7 +8,6 @@ import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from "../akismet";
 import { syncDocumentWithLatestRevision } from "../editor/utils";
 import UsersRepo from "../repos/UsersRepo";
 import { createMutator, updateMutator, deleteMutator } from "../vulcan-lib/mutators";
-import { runQuery } from "../vulcan-lib/query";
 import { userGetGroups } from "@/lib/vulcan-users/permissions";
 import type { VoteDocTuple } from "@/lib/voting/vote";
 
@@ -48,6 +47,7 @@ export async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTupl
  * assumed to work.
  */
 export async function userIPBanAndResetLoginTokens(user: DbUser) {
+  const { runQuery }: typeof import('../vulcan-lib/query') = require('../vulcan-lib/query');
   // IP ban
   const query = `
     query UserIPBan($userId:String) {

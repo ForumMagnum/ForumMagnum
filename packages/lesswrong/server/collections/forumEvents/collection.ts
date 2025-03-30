@@ -12,7 +12,6 @@ export const ForumEvents: ForumEventsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers("ForumEvents"),
-  mutations: getDefaultMutations("ForumEvents"),
   logChanges: true,
 });
 

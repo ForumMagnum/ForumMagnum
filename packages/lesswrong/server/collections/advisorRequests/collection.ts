@@ -12,7 +12,6 @@ export const AdvisorRequests: AdvisorRequestsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('AdvisorRequests'),
-  mutations: getDefaultMutations('AdvisorRequests'),
   logChanges: true,
 });
 

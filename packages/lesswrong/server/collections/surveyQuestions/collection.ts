@@ -12,7 +12,6 @@ export const SurveyQuestions: SurveyQuestionsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers("SurveyQuestions"),
-  mutations: getDefaultMutations("SurveyQuestions"),
   logChanges: true,
 });
 

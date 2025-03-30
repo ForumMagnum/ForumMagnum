@@ -13,7 +13,6 @@ export const Spotlights: SpotlightsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('Spotlights'),
-  mutations: getDefaultMutations('Spotlights')
 });
 
 

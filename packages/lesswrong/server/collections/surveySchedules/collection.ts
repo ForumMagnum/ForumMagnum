@@ -13,7 +13,6 @@ export const SurveySchedules = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers("SurveySchedules"),
-  mutations: getDefaultMutations("SurveySchedules"),
   logChanges: true,
 });
 

@@ -54,7 +54,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
     return filteredReturnValue;
   },
 
-  updateFunction: async (selector, data, context) => {
+  updateFunction: async ({ selector, data }, context) => {
     const { currentUser, ReviewVotes } = context;
 
     const {

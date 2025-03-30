@@ -24,8 +24,13 @@ const getUpdateMutationName = (typeName: string): string => `update${typeName}`;
 const getDeleteMutationName = (typeName: string): string => `delete${typeName}`;
 const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
+interface UpdateFunctionArgs<N extends CollectionNameString> {
+  selector: UpdateSelector;
+  data: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+}
+
 type CreateFunction<N extends CollectionNameString> = (data: Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
-type UpdateFunction<N extends CollectionNameString> = (selector: UpdateSelector, data: Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
+type UpdateFunction<N extends CollectionNameString> = ({ selector, data }: UpdateFunctionArgs<N>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
 
 interface DefaultMutationFunctionProps<N extends CollectionNameString> {
   createFunction?: CreateFunction<N>;

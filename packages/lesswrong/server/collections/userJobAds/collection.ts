@@ -16,7 +16,6 @@ export const UserJobAds: UserJobAdsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('UserJobAds'),
-  mutations: getDefaultMutations('UserJobAds'),
   logChanges: true,
 });
 

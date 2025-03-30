@@ -23,6 +23,61 @@ const getArguments = (args: string|SchemaGraphQLFieldArgument[]|null|undefined) 
   }
 };
 
+// get GraphQL type for a given schema and field name
+const getGraphQLType = <N extends CollectionNameString>(
+  graphql: GraphQLFieldSpecification<N>,
+  isInput = false,
+) => {
+  if (isInput && 'inputType' in graphql && graphql.inputType) {
+    return graphql.inputType;
+  }
+
+  return graphql.outputType;
+};
+
+export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
+  const fieldDescriptions = Object.entries(schema)
+    .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
+    .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canRead?.length)
+    .map(([fieldName, fieldGraphql]) => {
+      const inputFieldType = getGraphQLType(fieldGraphql, true);
+      const createFieldType = inputFieldType === 'Revision'
+        ? 'JSON'
+        : inputFieldType;
+
+      return {
+        name: fieldName,
+        type: createFieldType,
+      };
+    });
+
+  return convertToGraphQL(fieldDescriptions, padding);
+}
+
+export function getUpdatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
+  const fieldDescriptions = Object.entries(schema)
+    .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
+    .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canUpdate?.length)
+    .map(([fieldName, fieldGraphql]) => {
+      const inputFieldType = getGraphQLType(fieldGraphql, true);
+      const createFieldType = inputFieldType === 'Revision'
+        ? 'JSON'
+        : inputFieldType;
+
+      // Fields should not be required for updates
+      const updateFieldType = (typeof createFieldType === 'string' && createFieldType.endsWith('!'))
+        ? createFieldType.slice(0, -1)
+        : createFieldType;
+
+      return {
+        name: fieldName,
+        type: updateFieldType,
+      };
+    });
+
+  return convertToGraphQL(fieldDescriptions, padding);
+}
+
 /* ------------------------------------- Generic Field Template ------------------------------------- */
 
 // export const fieldTemplate = ({ name, type, args, directive, description, required }, indentation = '') =>

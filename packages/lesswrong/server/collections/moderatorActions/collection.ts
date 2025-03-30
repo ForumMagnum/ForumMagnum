@@ -22,7 +22,6 @@ export const ModeratorActions: ModeratorActionsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('ModeratorActions'),
-  mutations: getDefaultMutations('ModeratorActions'),
   logChanges: true,
 });
 

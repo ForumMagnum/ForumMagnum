@@ -12,7 +12,6 @@ export const Digests: DigestsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('Digests'),
-  mutations: getDefaultMutations('Digests'),
   logChanges: true,
 });
 
