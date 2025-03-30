@@ -1,7 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { userIsAdmin, userIsPodcaster } from '@/lib/vulcan-users/permissions';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
-import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const PodcastEpisodes: PodcastEpisodesCollection = createCollection({
@@ -13,14 +11,6 @@ export const PodcastEpisodes: PodcastEpisodesCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('PodcastEpisodes'),
-  mutations: getDefaultMutations('PodcastEpisodes', {
-    newCheck(user) {
-      return userIsAdmin(user) || userIsPodcaster(user);
-    },
-    editCheck(user) {
-      return userIsAdmin(user) || userIsPodcaster(user);
-    },
-  })
 });
 
 

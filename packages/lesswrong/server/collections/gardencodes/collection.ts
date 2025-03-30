@@ -1,7 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import '@/lib/collections/gardencodes/fragments';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
-import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const GardenCodes: GardenCodesCollection = createCollection({

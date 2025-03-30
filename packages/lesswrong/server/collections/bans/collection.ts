@@ -1,25 +1,7 @@
-import { userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-const options: MutationOptions<DbBan> = {
-  newCheck: (user: DbUser|null, document: DbBan|null) => {
-    if (!user || !document) return false;
-    return userCanDo(user, 'bans.new');
-  },
-
-  editCheck: (user: DbUser|null, document: DbBan|null) => {
-    if (!user || !document) return false;
-    return userCanDo(user, `bans.edit.all`)
-  },
-
-  removeCheck: (user: DbUser|null, document: DbBan|null) => {
-    if (!user || !document) return false;
-    return userCanDo(user, `bans.remove.all`)
-  },
-}
 
 export const Bans: BansCollection = createCollection({
   collectionName: 'Bans',
@@ -30,7 +12,6 @@ export const Bans: BansCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('Bans'),
-  mutations: getDefaultMutations('Bans', options),
   logChanges: true,
 });
 

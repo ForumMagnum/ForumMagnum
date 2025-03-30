@@ -18,6 +18,8 @@ function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
 }
 
+// This has mutators because of a few mutable metadata fields (eg
+// skipAttributions), but most parts of revisions are create-only immutable.
 const { updateFunction } = getDefaultMutationFunctions('Revisions', {
   updateFunction: async ({ selector, data }, context) => {
     const { currentUser, Revisions } = context;

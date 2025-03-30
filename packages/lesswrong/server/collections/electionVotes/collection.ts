@@ -1,7 +1,4 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { isAdmin, userOwns } from "@/lib/vulcan-users/permissions";
-import { isPastVotingDeadline, userCanVoteInDonationElection } from "@/lib/collections/electionVotes/helpers";
-import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -15,35 +12,6 @@ export const ElectionVotes: ElectionVotesCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers("ElectionVotes"),
-  mutations: getDefaultMutations("ElectionVotes", {
-    newCheck: (user: DbUser|null) => {
-      if (!user) return false;
-      if (isAdmin(user)) return true;
-
-      if (!userCanVoteInDonationElection(user)) {
-        throw new Error("Accounts created after 22nd Oct 2023 cannot vote in this election");
-      }
-      if (isPastVotingDeadline()) {
-        throw new Error("Voting has closed");
-      }
-
-      return true;
-    },
-    editCheck: async (user: DbUser|null, document: DbElectionVote|null) => {
-      if (!user || !document) return false;
-      if (isAdmin(user)) return true;
-
-      if (!userCanVoteInDonationElection(user)) {
-        throw new Error("Accounts created after 22nd Oct 2023 cannot vote in this election");
-      }
-      if (isPastVotingDeadline()) {
-        throw new Error("Voting has closed, you can no longer edit your vote");
-      }
-      if (userOwns(user, document)) return true;
-
-      return false;
-    },
-  }),
   logChanges: true,
 });
 

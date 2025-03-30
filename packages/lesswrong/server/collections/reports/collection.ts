@@ -1,6 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
-import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const Reports: ReportsCollection = createCollection({

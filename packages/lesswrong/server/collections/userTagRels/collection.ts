@@ -1,6 +1,4 @@
-import { userCanUseTags } from "@/lib/betas";
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -13,17 +11,6 @@ export const UserTagRels: UserTagRelsCollection = createCollection({
     return indexSet;
   },
   resolvers: getDefaultResolvers('UserTagRels'),
-  mutations: getDefaultMutations('UserTagRels', {
-    newCheck: (user: DbUser|null, userTagRel: DbUserTagRel|null) => {
-      return userCanUseTags(user);
-    },
-    editCheck: (user: DbUser|null, userTagRel: DbUserTagRel|null) => {
-      return userCanUseTags(user);
-    },
-    removeCheck: (user: DbUser|null, userTagRel: DbUserTagRel|null) => {
-      return false;
-    },
-  }),
   logChanges: true,
 });
 
