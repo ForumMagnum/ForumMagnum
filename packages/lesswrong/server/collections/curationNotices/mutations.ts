@@ -1,6 +1,7 @@
 
 import schema from "@/lib/collections/curationNotices/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
@@ -12,9 +13,13 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, document: DbCurationNotice | null) {
+  return userIsAdminOrMod(user)
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, document: DbCurationNotice | null) {
+  return userIsAdminOrMod(user)
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('CurationNotices', {
   createFunction: async (data, context) => {

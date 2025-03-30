@@ -1,55 +1,24 @@
 
 import schema from "@/lib/collections/revisions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { recomputeWhenSkipAttributionChanged } from "@/server/callbacks/revisionCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
+import { checkUpdatePermissionsAndReturnProps, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbRevision>> | null, context: ResolverContext) {
-  return userIsAdmin(user);
+function editCheck(user: DbUser | null) {
+  return userIsAdminOrMod(user);
 }
 
-// Collection has custom editCheck
-
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Revisions', {
-  createFunction: async (data, context) => {
-    const { currentUser } = context;
-
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Revisions', {
-      context,
-      data,
-      newCheck,
-      schema,
-    });
-
-    data = callbackProps.document;
-
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
-
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
-    let documentWithId = afterCreateProperties.document;
-
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Revisions',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
-
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Revisions', documentWithId, context);
-
-    return filteredReturnValue;
-  },
-
+const { updateFunction } = getDefaultMutationFunctions('Revisions', {
   updateFunction: async (selector, data, context) => {
     const { currentUser, Revisions } = context;
 
@@ -82,9 +51,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing updateAsync callbacks here!!!
-    // ****************************************************
+    await recomputeWhenSkipAttributionChanged(updateCallbackProperties);
 
     void logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData });
 
@@ -96,16 +63,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
 });
 
 
-export { createFunction as createRevision, updateFunction as updateRevision };
+export { updateFunction as updateRevision };
 
 
 export const graphqlRevisionTypeDefs = gql`
-  input CreateRevisionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
-  }
-  
   input UpdateRevisionInput {
     selector: SelectorInput
     data: {
@@ -114,7 +75,6 @@ export const graphqlRevisionTypeDefs = gql`
   }
   
   extend type Mutation {
-    createRevision(input: CreateRevisionInput!): Revision
     updateRevision(input: UpdateRevisionInput!): Revision
   }
 `;

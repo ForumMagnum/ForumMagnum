@@ -1,8 +1,12 @@
 
 import schema from "@/lib/collections/comments/newSchema";
+import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
+import { addReferrerToComment, assignPostVersion, checkCommentForSpamWithAkismet, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/postCallbackFunctions";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -14,9 +18,29 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+async function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbComment>> | null, context: ResolverContext) {
+  if (!user) return false;
+  if (!document || !document.postId) return userCanDo(user, 'comments.new')
+  const post = await context.loaders.Posts.load(document.postId)
+  if (!post) return true
 
-// Collection has custom editCheck
+  const author = await context.loaders.Users.load(post.userId);
+  const isReply = !!document.parentCommentId;
+  if (!userIsAllowedToComment(user, post, author, isReply)) {
+    return userCanDo(user, `posts.moderate.all`)
+  }
+
+  return userCanDo(user, 'comments.new')
+}
+
+async function editCheck(user: DbUser | null, document: DbComment | null, context: ResolverContext) {
+  if (!user || !document) return false;
+  if (userCanDo(user, 'comments.alignment.move.all') ||
+      userCanDo(user, 'comments.alignment.suggest')) {
+    return true
+  }
+  return userOwns(user, document) ? userCanDo(user, 'comments.edit.own') : userCanDo(user, `comments.edit.all`)
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments', {
   createFunction: async (data, context) => {
@@ -31,31 +55,31 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
 
     data = callbackProps.document;
 
-    // ****************************************************
-    // TODO: add missing createValidate callbacks here!!!
-    // ****************************************************
+    newCommentsEmptyCheck(callbackProps);
+    await newCommentsRateLimit(callbackProps);
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    // ****************************************************
-    // TODO: add missing createBefore callbacks here!!!
-    // ****************************************************
+    data = await assignPostVersion(data);
+    data = await createShortformPost(data, callbackProps);
+    data = addReferrerToComment(data, callbackProps) ?? data;
+    data = await handleReplyToAnswer(data, callbackProps);
+    data = await setTopLevelCommentId(data, callbackProps);  
 
     data = await runCreateBeforeEditableCallbacks({
       doc: data,
       props: callbackProps,
     });
 
-    // ****************************************************
-    // TODO: add missing newSync callbacks here!!!
-    // ****************************************************
+    data = await commentsNewOperations(data, currentUser, context);
+    data = await commentsNewUserApprovedStatus(data, context);
+    data = await handleForumEventMetadataNew(data, context);
 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    // ****************************************************
-    // TODO: add missing createAfter callbacks here!!!
-    // ****************************************************
+    invalidatePostOnCommentCreate(documentWithId);
+    documentWithId = await updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties);  
 
     documentWithId = await runCreateAfterEditableCallbacks({
       newDoc: documentWithId,
@@ -69,9 +93,8 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
       afterCreateProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing newAfter callbacks here!!!
-    // ****************************************************
+    documentWithId = await lwCommentsNewUpvoteOwnComment(documentWithId, currentUser, afterCreateProperties);
+    documentWithId = await checkCommentForSpamWithAkismet(documentWithId, currentUser, afterCreateProperties);
 
     const asyncProperties = {
       ...afterCreateProperties,
@@ -79,17 +102,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
       newDocument: documentWithId,
     };
 
-    // ****************************************************
-    // TODO: add missing createAsync callbacks here!!!
-    // ****************************************************
+    await newCommentTriggerReview(asyncProperties);
+    await trackCommentRateLimitHit(asyncProperties);
+    await checkModGPTOnCommentCreate(asyncProperties);
 
     if (isElasticEnabled) {
       void elasticSyncDocument('Comments', documentWithId._id);
     }
 
-    // ****************************************************
-    // TODO: add missing newAsync callbacks here!!!
-    // ****************************************************
+    await commentsAlignmentNew(documentWithId, context);
+    await commentsNewNotifications(documentWithId, context);
 
     await runNewAsyncEditableCallbacks({
       newDoc: documentWithId,
@@ -117,16 +139,11 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
 
     const { oldDocument } = updateCallbackProperties;
 
-    // ****************************************************
-    // TODO: add missing updateValidate callbacks here!!!
-    // ****************************************************
-
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
-    // ****************************************************
-    // TODO: add missing updateBefore callbacks here!!!
-    // ****************************************************
+    data = updatePostLastCommentPromotedAt(data, updateCallbackProperties);
+    data = await validateDeleteOperations(data, updateCallbackProperties);  
 
     data = await runUpdateBeforeEditableCallbacks({
       docData: data,
@@ -135,18 +152,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
 
     let modifier = dataToModifier(data);
 
-    // ****************************************************
-    // TODO: add missing editSync callbacks here!!!
-    // ****************************************************
+    modifier = await moveToAnswers(modifier, oldDocument, context);
+    modifier = await handleForumEventMetadataEdit(modifier, oldDocument, context);  
 
     // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
     // The only difference could be in the case where there's no update (due to an empty modifier) and
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, Comments, commentSelector, context) ?? previewDocument as DbComment;
 
-    // ****************************************************
-    // TODO: add missing updateAfter callbacks here!!!
-    // ****************************************************
+    invalidatePostOnCommentUpdate(updatedDocument);
+    updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
 
     updatedDocument = await runUpdateAfterEditableCallbacks({
       newDoc: updatedDocument,
@@ -160,13 +175,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing updateAsync callbacks here!!!
-    // ****************************************************
+    await updatedCommentMaybeTriggerReview(updateCallbackProperties);
+    await updateUserNotesOnCommentRejection(updateCallbackProperties);
+    await checkModGPTOnCommentUpdate(updateCallbackProperties);  
 
-    // ****************************************************
-    // TODO: add missing editAsync callbacks here!!!
-    // ****************************************************
+    await commentsAlignmentEdit(updatedDocument, oldDocument, context);
+    // There really has to be a currentUser here.
+    await commentsEditSoftDeleteCallback(updatedDocument, oldDocument, currentUser!, context);
+    await commentsPublishedNotifications(updatedDocument, oldDocument, context);
+    await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
 
     await runEditAsyncEditableCallbacks({
       newDoc: updatedDocument,

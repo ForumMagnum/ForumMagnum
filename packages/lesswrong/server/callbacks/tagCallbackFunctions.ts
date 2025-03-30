@@ -30,7 +30,7 @@ const utils = {
 /* TAG CALLBACKS */
 
 /* CREATE VALIDATE */
-export async function validateTagCreate(validationErrors: CallbackValidationErrors, { document: tag, context }: CreateCallbackProperties<'Tags'>): Promise<CallbackValidationErrors> {
+export async function validateTagCreate({ document: tag, context }: CreateCallbackProperties<'Tags'>): Promise<void> {
   const { Tags } = context;
 
   if (!tag.name || !tag.name.length)
@@ -51,8 +51,6 @@ export async function validateTagCreate(validationErrors: CallbackValidationErro
   const existing = await Tags.find({name: normalizedName, deleted:false}).fetch();
   if (existing.length > 0)
     throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
-  
-  return validationErrors;
 }
 
 /* CREATE BEFORE */
@@ -75,7 +73,7 @@ export async function validateTagCreate(validationErrors: CallbackValidationErro
 // 3x convertImagesInObject
 
 /* UPDATE VALIDATE */
-export async function validateTagUpdate(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, context }: UpdateCallbackProperties<'Tags'>): Promise<CallbackValidationErrors> {
+export async function validateTagUpdate({ oldDocument, newDocument, context }: UpdateCallbackProperties<'Tags'>): Promise<void> {
   const { Tags } = context;
 
   if (!utils.isValidTagName(newDocument.name))
@@ -93,8 +91,6 @@ export async function validateTagUpdate(validationErrors: CallbackValidationErro
       ...newDocument, name: newName
     }
   }
-  
-  return validationErrors;
 }
 
 /* UPDATE BEFORE */
@@ -181,12 +177,12 @@ export async function reexportProfileTagUsersToElastic(newDocument: DbTag, { old
 /* TAG REL CALLBACKS */
 
 /* CREATE BEFORE */
-export async function validateTagRelCreate(newDocument: DbInsertion<DbTagRel>, { currentUser, context }: CreateCallbackProperties<'TagRels'>): Promise<DbInsertion<DbTagRel>> {
+export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTagRel>>, { currentUser, context }: CreateCallbackProperties<'TagRels'>): Promise<Partial<DbInsertion<DbTagRel>>> {
   const { Posts } = context;
 
   const {tagId, postId} = newDocument;
 
-  if (!userCanUseTags(currentUser) || !currentUser || !tagId) {
+  if (!userCanUseTags(currentUser) || !currentUser || !tagId || !postId || typeof newDocument.baseScore !== "number") {
     throw new Error(`You do not have permission to add this ${taggingNameSetting.get()}`);
   }
 

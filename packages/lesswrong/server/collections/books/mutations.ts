@@ -2,6 +2,7 @@
 import schema from "@/lib/collections/books/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { updateCollectionLinks } from "@/server/callbacks/bookCallbacks";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
@@ -20,7 +21,6 @@ function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbBook>> | 
 
 function editCheck(user: DbUser | null, document: DbBook | null, context: ResolverContext) {
   if (!user || !document) return false;
-
   return userIsAdmin(user);
 }
 
@@ -119,9 +119,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Books', 
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing editAsync callbacks here!!!
-    // ****************************************************
+    await updateCollectionLinks(updatedDocument);
 
     await runEditAsyncEditableCallbacks({
       newDoc: updatedDocument,

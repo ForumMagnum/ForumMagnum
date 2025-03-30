@@ -1,6 +1,7 @@
 
 import schema from "@/lib/collections/splashArtCoordinates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -9,9 +10,13 @@ import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null) {
+  return userIsAdminOrMod(user);
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null) {
+  return userIsAdminOrMod(user);
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashArtCoordinates', {
   createFunction: async (data, context) => {

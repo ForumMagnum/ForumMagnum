@@ -1,8 +1,11 @@
 
+import { userCanCreateTags } from "@/lib/betas";
+import { tagUserHasSufficientKarma } from "@/lib/collections/tags/helpers";
 import schema from "@/lib/collections/tags/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { cascadeSoftDeleteToTagRels, reexportProfileTagUsersToElastic, updateParentTagSubTagIds, validateTagCreate, validateTagUpdate } from "@/server/callbacks/tagCallbackFunctions";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -15,9 +18,28 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, tag: Partial<DbInsertion<DbTag>> | null) {
+  if (!user) return false;
+  if (user.deleted) return false;
 
-// Collection has custom editCheck
+  if (!user.isAdmin) {  // skip further checks for admins
+    if (!tagUserHasSufficientKarma(user, "new")) return false
+  }
+  return userCanCreateTags(user);
+}
+
+function editCheck(user: DbUser | null, tag: DbTag | null) {
+  if (!user) return false;
+  if (user.deleted) return false;
+
+  if (!user.isAdmin) {  // skip further checks for admins
+    // If canEditUserIds is set only those users can edit the tag
+    const restricted = tag && tag.canEditUserIds
+    if (restricted && !tag.canEditUserIds?.includes(user._id)) return false;
+    if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
+  }
+  return userCanCreateTags(user);
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
   createFunction: async (data, context) => {
@@ -32,33 +54,19 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
 
     data = callbackProps.document;
 
-    // ****************************************************
-    // TODO: add missing createValidate callbacks here!!!
-    // ****************************************************
+    await validateTagCreate(callbackProps);
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
     data = await runSlugCreateBeforeCallback(callbackProps);
-
-    // ****************************************************
-    // TODO: add missing createBefore callbacks here!!!
-    // ****************************************************
 
     data = await runCreateBeforeEditableCallbacks({
       doc: data,
       props: callbackProps,
     });
 
-    // ****************************************************
-    // TODO: add missing newSync callbacks here!!!
-    // ****************************************************
-
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Tags', callbackProps);
     let documentWithId = afterCreateProperties.document;
-
-    // ****************************************************
-    // TODO: add missing createAfter callbacks here!!!
-    // ****************************************************
 
     documentWithId = await runCreateAfterEditableCallbacks({
       newDoc: documentWithId,
@@ -72,27 +80,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
       afterCreateProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing newAfter callbacks here!!!
-    // ****************************************************
-
     const asyncProperties = {
       ...afterCreateProperties,
       document: documentWithId,
       newDocument: documentWithId,
     };
 
-    // ****************************************************
-    // TODO: add missing createAsync callbacks here!!!
-    // ****************************************************
-
     if (isElasticEnabled) {
       void elasticSyncDocument('Tags', documentWithId._id);
     }
-
-    // ****************************************************
-    // TODO: add missing newAsync callbacks here!!!
-    // ****************************************************
 
     await runNewAsyncEditableCallbacks({
       newDoc: documentWithId,
@@ -120,18 +116,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
 
     const { oldDocument } = updateCallbackProperties;
 
-    // ****************************************************
-    // TODO: add missing updateValidate callbacks here!!!
-    // ****************************************************
+    await validateTagUpdate(updateCallbackProperties);
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
     data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
-
-    // ****************************************************
-    // TODO: add missing updateBefore callbacks here!!!
-    // ****************************************************
 
     data = await runUpdateBeforeEditableCallbacks({
       docData: data,
@@ -140,18 +130,14 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
 
     let modifier = dataToModifier(data);
 
-    // ****************************************************
-    // TODO: add missing editSync callbacks here!!!
-    // ****************************************************
-
     // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
     // The only difference could be in the case where there's no update (due to an empty modifier) and
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, Tags, tagSelector, context) ?? previewDocument as DbTag;
 
-    // ****************************************************
-    // TODO: add missing updateAfter callbacks here!!!
-    // ****************************************************
+    updatedDocument = await cascadeSoftDeleteToTagRels(updatedDocument, updateCallbackProperties);
+    updatedDocument = await updateParentTagSubTagIds(updatedDocument, updateCallbackProperties);
+    updatedDocument = await reexportProfileTagUsersToElastic(updatedDocument, updateCallbackProperties);
 
     updatedDocument = await runUpdateAfterEditableCallbacks({
       newDoc: updatedDocument,
@@ -164,14 +150,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
       callbackStage: "updateAfter",
       updateAfterProperties: updateCallbackProperties,
     });
-
-    // ****************************************************
-    // TODO: add missing updateAsync callbacks here!!!
-    // ****************************************************
-
-    // ****************************************************
-    // TODO: add missing editAsync callbacks here!!!
-    // ****************************************************
 
     await runEditAsyncEditableCallbacks({
       newDoc: updatedDocument,

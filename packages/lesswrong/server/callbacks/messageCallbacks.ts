@@ -1,31 +1,28 @@
 import { SENT_MODERATOR_MESSAGE } from '../../lib/collections/moderatorActions/newSchema';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { loadByIds } from '../../lib/loaders';
-import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
+import { CreateCallbackProperties } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { createNotifications } from '../notificationCallbacksHelpers';
 
-/* CREATE VALIDATE */
-function checkIfNewMessageIsEmpty(validationErrors: CallbackValidationErrors, {document: message}: CreateCallbackProperties<'Messages'>) {
+export function checkIfNewMessageIsEmpty(message: Partial<DbInsertion<DbMessage>>) {
   const { data } = (message.contents && message.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot send an empty message");
   }
 }
 
-function unArchiveConversations({ document, context }: CreateCallbackProperties<'Messages'>) {
+export function unArchiveConversations({ document, context }: CreateCallbackProperties<'Messages'>) {
   const { Conversations } = context;
 
   void Conversations.rawUpdateOne({_id:document.conversationId}, {$set: {archivedByIds: []}});
 }
 
-/* CREATE ASYNC */
-
 /**
  * Creates a moderator action when the first message in a mod conversation is sent to the user
  * This also adds a note to a user's sunshineNotes
  */
-async function updateUserNotesOnModMessage({ document, currentUser, context }: CreateCallbackProperties<'Messages'>) {
+export async function updateUserNotesOnModMessage({ document, currentUser, context }: CreateCallbackProperties<'Messages'>) {
   const { conversationId } = document;
   // In practice this should never happen, we just don't have types set up for handling required fields
   if (!conversationId) {
@@ -62,7 +59,7 @@ async function updateUserNotesOnModMessage({ document, currentUser, context }: C
  * sure they get notified about future messages (only mods have permission to
  * add themselves to conversations).
  */
-async function addParticipantIfNew({ document, currentUser, context }: CreateCallbackProperties<'Messages'>) {
+export async function addParticipantIfNew({ document, currentUser, context }: CreateCallbackProperties<'Messages'>) {
   const { Conversations, loaders } = context;
 
   const { conversationId } = document;
@@ -88,8 +85,7 @@ async function addParticipantIfNew({ document, currentUser, context }: CreateCal
   }
 }
 
-/* NEW ASYNC */
-async function updateConversationActivity (message: DbMessage, context: ResolverContext) {
+export async function updateConversationActivity(message: DbMessage, context: ResolverContext) {
   const { Conversations, Users } = context;
 
   // Update latest Activity timestamp on conversation when new message is added
@@ -105,7 +101,7 @@ async function updateConversationActivity (message: DbMessage, context: Resolver
   });
 }
 
-async function messageNewNotification(message: DbMessage, context: ResolverContext) {
+export async function sendMessageNotifications(message: DbMessage, context: ResolverContext) {
   const { Conversations } = context;
 
   const conversationId = message.conversationId;
@@ -121,57 +117,3 @@ async function messageNewNotification(message: DbMessage, context: ResolverConte
   // Create notification
   await createNotifications({userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
 }
-
-
-// Aggregate stage functions
-
-function messageCreateValidate(validationErrors: CallbackValidationErrors, props: CreateCallbackProperties<'Messages'>) {
-  checkIfNewMessageIsEmpty(validationErrors, props);
-  return validationErrors;
-}
-
-function messageCreateBefore(doc: DbInsertion<DbMessage>, props: CreateCallbackProperties<'Messages'>): DbInsertion<DbMessage> {
-  // editorSerializationBeforeCreate
-
-  return doc;
-}
-
-function messageCreateAfter(doc: DbMessage, props: CreateCallbackProperties<'Messages'>): DbMessage {
-  // editorSerializationAfterCreate
-  // notifyUsersAboutMentions
-  // countOfReferenceCallbacks
-
-  return doc;
-}
-
-async function messageCreateAsync(props: AfterCreateCallbackProperties<'Messages'>) {
-  unArchiveConversations(props);
-  await updateUserNotesOnModMessage(props);
-  await addParticipantIfNew(props);
-}
-
-async function messageNewAsync(newMessage: DbMessage, currentUser: DbUser | null, collection: CollectionBase<'Messages'>, props: AfterCreateCallbackProperties<'Messages'>) {
-  await updateConversationActivity(newMessage, props.context);
-  await messageNewNotification(newMessage, props.context);
-}
-
-function messageUpdateAfter(message: DbMessage, props: UpdateCallbackProperties<'Messages'>): DbMessage {
-  // editorSerializationEdit
-  // notifyUsersAboutMentions
-  // countOfReferenceCallbacks
-
-  return message;
-}
-
-function messageEditAsync(message: DbMessage, oldMessage: DbMessage, currentUser: DbUser | null, collection: CollectionBase<'Messages'>, props: UpdateCallbackProperties<'Messages'>) {
-  // convertImagesInObject
-}
-
-getCollectionHooks('Messages').createValidate.add(messageCreateValidate);
-getCollectionHooks('Messages').createBefore.add(messageCreateBefore);
-getCollectionHooks('Messages').createAfter.add(messageCreateAfter);
-getCollectionHooks('Messages').createAsync.add(messageCreateAsync);
-getCollectionHooks('Messages').newAsync.add(messageNewAsync);
-
-getCollectionHooks('Messages').updateAfter.add(messageUpdateAfter);
-getCollectionHooks('Messages').editAsync.add(messageEditAsync);

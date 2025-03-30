@@ -1,11 +1,10 @@
-import Messages from '../../server/collections/messages/collection';
-import { ModeratorActions } from '../../server/collections/moderatorActions/collection';
 import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/newSchema';
 import { loggerConstructor } from '../../lib/utils/logging';
-import Users from '../../server/collections/users/collection';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
+import { createNotifications } from '../notificationCallbacksHelpers';
+import difference from 'lodash/difference';
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -16,7 +15,7 @@ import { getAdminTeamAccount } from '../utils/adminTeamAccount';
  * In the case where a user should be blocked, this will throw an error, so we
  * should make sure to handle that on the frontend.
  */
-async function flagOrBlockUserOnManyDMs({
+export async function flagOrBlockUserOnManyDMs({
   currentConversation,
   oldConversation,
   currentUser,
@@ -27,6 +26,7 @@ async function flagOrBlockUserOnManyDMs({
   currentUser: DbUser|null,
   context: ResolverContext,
 }): Promise<void> {
+  const { ModeratorActions, Users } = context;
   const logger = loggerConstructor('callbacks-conversations');
   logger('flagOrBlockUserOnManyDMs()')
   if (!currentUser) {
@@ -87,17 +87,9 @@ async function flagOrBlockUserOnManyDMs({
   logger('flagOrBlockUserOnManyDMs() return')
 }
 
-getCollectionHooks("Conversations").createBefore.add(async function flagUserOnManyDMsCreate(document, properties) {
-  await flagOrBlockUserOnManyDMs({currentConversation: document, currentUser: properties.currentUser, context: properties.context});
-  return document;
-});
+export async function sendUserLeavingConversationNotication({newDocument, oldDocument, context}: UpdateCallbackProperties<'Conversations'>) {
+  const { Messages, Users } = context;
 
-getCollectionHooks("Conversations").updateBefore.add(async function flagUserOnManyDMsCreate(data, properties) {
-  await flagOrBlockUserOnManyDMs({currentConversation: data, oldConversation: properties.oldDocument, currentUser: properties.currentUser, context: properties.context});
-  return data;
-});
-
-getCollectionHooks("Conversations").updateAsync.add(async function leavingNotication({newDocument, oldDocument, context}) {
   const usersWhoLeft = (oldDocument?.participantIds ?? [])
     .filter(id => !newDocument.participantIds?.includes(id))
   if (usersWhoLeft.length === 0) return;
@@ -127,4 +119,27 @@ getCollectionHooks("Conversations").updateAsync.add(async function leavingNotica
       validate: false,
     })
   }
-})
+}
+
+export async function conversationEditNotification(
+  conversation: DbConversation,
+  oldConversation: DbConversation,
+  currentUser: DbUser | null,
+  context: ResolverContext,
+) {
+  const { Messages } = context;
+
+  // Filter out the new participant if the user added themselves (which can
+  // happen with mods)
+  const newParticipantIds = difference(
+    conversation.participantIds || [],
+    oldConversation.participantIds || [],
+  ).filter((id) => id !== currentUser?._id);
+
+  if (newParticipantIds.length) {
+    // Notify newly added users of the most recent message
+    const mostRecentMessage = await Messages.findOne({conversationId: conversation._id}, {sort: {createdAt: -1}});
+    if (mostRecentMessage) // don't notify if there are no messages, they will still be notified when they receive the first message
+      await createNotifications({userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
+  }
+}

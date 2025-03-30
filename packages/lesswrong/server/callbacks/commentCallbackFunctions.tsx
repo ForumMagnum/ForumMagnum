@@ -526,24 +526,22 @@ const utils = {
 
 
 /* CREATE VALIDATE */
-export function newCommentsEmptyCheck(validationErrors: CallbackValidationErrors, {document: comment}: CreateCallbackProperties<"Comments">) {
+export function newCommentsEmptyCheck({document: comment}: CreateCallbackProperties<"Comments">) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot submit an empty comment");
   }
 }
 
-export async function newCommentsRateLimit(validationErrors: CallbackValidationErrors, { newDocument: comment, currentUser, context }: CreateCallbackProperties<"Comments">) {
+export async function newCommentsRateLimit({ newDocument: comment, currentUser, context }: CreateCallbackProperties<"Comments">) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
   await utils.enforceCommentRateLimit({user: currentUser, comment, context});
-
-  return validationErrors;
 }
 
 /* CREATE BEFORE */
-export async function assignPostVersion(comment: DbInsertion<DbComment>): Promise<DbInsertion<DbComment>> {
+export async function assignPostVersion(comment: Partial<DbInsertion<DbComment>>): Promise<Partial<DbInsertion<DbComment>>> {
   if (!comment.postId) {
     return {
       ...comment,
@@ -567,7 +565,7 @@ export async function assignPostVersion(comment: DbInsertion<DbComment>): Promis
   };
 }
 
-export async function createShortformPost(comment: DbInsertion<DbComment>, { currentUser, context: { Users, Posts } }: CreateCallbackProperties<"Comments">) {
+export async function createShortformPost(comment: Partial<DbInsertion<DbComment>>, { currentUser, context: { Users, Posts } }: CreateCallbackProperties<"Comments">) {
   if (!currentUser) {
     throw new Error("Must be logged in");
   }
@@ -609,7 +607,7 @@ export async function createShortformPost(comment: DbInsertion<DbComment>, { cur
   return comment;
 }
 
-export function addReferrerToComment(comment: DbInsertion<DbComment>, properties: CreateCallbackProperties<"Comments">) {
+export function addReferrerToComment(comment: Partial<DbInsertion<DbComment>>, properties: CreateCallbackProperties<"Comments">) {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
     let userAgent = properties.context.headers["user-agent"];
@@ -622,7 +620,7 @@ export function addReferrerToComment(comment: DbInsertion<DbComment>, properties
   }
 }
 
-export async function handleReplyToAnswer(comment: DbInsertion<DbComment>, properties: CreateCallbackProperties<"Comments">) {
+export async function handleReplyToAnswer(comment: Partial<DbInsertion<DbComment>>, properties: CreateCallbackProperties<"Comments">) {
   const { context: { Comments } } = properties;
   
   if (comment.parentCommentId) {
@@ -650,7 +648,7 @@ export async function handleReplyToAnswer(comment: DbInsertion<DbComment>, prope
   return comment;
 }
 
-export async function setTopLevelCommentId(comment: DbInsertion<DbComment>, properties: CreateCallbackProperties<"Comments">) {
+export async function setTopLevelCommentId(comment: Partial<DbInsertion<DbComment>>, properties: CreateCallbackProperties<"Comments">) {
   const { context: { Comments } } = properties;
   
   let visited: Partial<Record<string,boolean>> = {};
@@ -679,7 +677,7 @@ export async function setTopLevelCommentId(comment: DbInsertion<DbComment>, prop
 
 
 /* NEW SYNC */
-export async function commentsNewOperations(comment: DbComment, _: DbUser | null, context: ResolverContext) {
+export async function commentsNewOperations(comment: Partial<DbInsertion<DbComment>>, _: DbUser | null, context: ResolverContext) {
   const { Posts, Tags, ReadStatuses, loaders } = context;
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
@@ -728,7 +726,7 @@ export async function commentsNewOperations(comment: DbComment, _: DbUser | null
 }
 
 // Duplicate of PostsNewUserApprovedStatus
-export async function commentsNewUserApprovedStatus(comment: DbComment, context: ResolverContext) {
+export async function commentsNewUserApprovedStatus(comment: Partial<DbInsertion<DbComment>>, context: ResolverContext) {
   const { Users } = context;
 
   const commentAuthor = await Users.findOne(comment.userId);
@@ -738,11 +736,11 @@ export async function commentsNewUserApprovedStatus(comment: DbComment, context:
   return comment;
 }
 
-export async function handleForumEventMetadataNew(comment: DbComment, context: ResolverContext) {
+export async function handleForumEventMetadataNew(comment: Partial<DbInsertion<DbComment>> & { _id?: string }, context: ResolverContext) {
   if (comment.forumEventMetadata) {
     // Side effects may need to reference the comment, so set the _id now
     comment._id = comment._id || randomId();
-    await utils.forumEventSideEffects({ comment, forumEventMetadata: comment.forumEventMetadata, context });
+    await utils.forumEventSideEffects({ comment: comment as DbComment, forumEventMetadata: comment.forumEventMetadata, context });
   }
   return comment;
 }
@@ -925,7 +923,7 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 
 
 /* UPDATE BEFORE */
-export function updatePostLastCommentPromotedAt(data: Partial<DbComment>, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
+export function updatePostLastCommentPromotedAt(data: Partial<DbInsertion<DbComment>>, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
   if (data?.promoted && !oldDocument.promoted && newDocument.postId) {
     void updateMutator({
       collection: context.Posts,
@@ -944,7 +942,7 @@ export function updatePostLastCommentPromotedAt(data: Partial<DbComment>, { oldD
   return data;
 }
 
-export async function validateDeleteOperations(data: Partial<DbComment>, properties: UpdateCallbackProperties<"Comments">) {
+export async function validateDeleteOperations(data: Partial<DbInsertion<DbComment>>, properties: UpdateCallbackProperties<"Comments">) {
   const { Comments } = properties.context;
   // Validate changes to comment deletion fields (deleted, deletedPublic,
   // deletedReason). This could be deleting a comment, undoing a delete, or

@@ -3,6 +3,7 @@ import schema from "@/lib/collections/digests/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { backdatePreviousDigest, createNextDigestOnPublish } from "@/server/callbacks/digestCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -87,9 +88,8 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing updateAsync callbacks here!!!
-    // ****************************************************
+    await createNextDigestOnPublish(updateCallbackProperties);
+    await backdatePreviousDigest(updateCallbackProperties);
 
     void logFieldChanges({ currentUser, collection: Digests, oldDocument, data: origData });
 

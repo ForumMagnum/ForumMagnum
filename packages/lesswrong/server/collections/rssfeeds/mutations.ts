@@ -1,9 +1,11 @@
 
-import schema from "@/lib/collections/rSSFeeds/newSchema";
+import schema from "@/lib/collections/rssfeeds/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
+import { populateRawFeed } from "@/server/rss-integration/callbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
@@ -11,9 +13,17 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, document: DbRSSFeed | null) {
+  if (!document || !user) return false;
+  return userCanDo(user, 'rssfeeds.new.all')
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, document: DbRSSFeed | null) {
+  if (!document || !user) return false;
+  return userOwns(user, document)
+    ? userCanDo(user, 'rssfeeds.edit.own')
+    : userCanDo(user, 'rssfeeds.edit.all')
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds', {
   createFunction: async (data, context) => {
@@ -30,9 +40,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    // ****************************************************
-    // TODO: add missing newSync callbacks here!!!
-    // ****************************************************
+    data = await populateRawFeed(data);
 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'RSSFeeds', callbackProps);
     let documentWithId = afterCreateProperties.document;

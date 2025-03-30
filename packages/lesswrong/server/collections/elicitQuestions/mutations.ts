@@ -1,6 +1,7 @@
 
 import schema from "@/lib/collections/elicitQuestions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -11,9 +12,15 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null) {
+  if (!user) return false;
+  if (user.deleted) return false;
+  return true;
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null) {
+  return userIsAdminOrMod(user);
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQuestions', {
   createFunction: async (data, context) => {

@@ -4490,8 +4490,6 @@ const schema = {
     graphql: {
       outputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: ["debaters", "sunshineRegiment", "admins"],
       validation: {
         optional: true,
       },

@@ -1,7 +1,11 @@
 
+import { userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import schema from "@/lib/collections/jargonTerms/newSchema";
+import { userIsPostCoauthor } from "@/lib/collections/posts/helpers";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { sanitizeJargonTerm } from "@/server/callbacks/jargonTermCallbacks";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -12,9 +16,37 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function userHasJargonTermPostPermission(user: DbUser | null, post: DbPost) {
+  return userIsAdmin(user) || userOwns(user, post) || userIsPostCoauthor(user, post);
+}
 
-// Collection has custom editCheck
+// TODO: come back to this to see if there are any other posts which can't have jargon terms
+function postCanHaveJargonTerms(post: DbPost) {
+  return !post.isEvent;
+}
+
+async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | Partial<DbInsertion<DbJargonTerm>> | null, context: ResolverContext) {
+  const { Posts } = context;
+
+  if (!jargonTerm || !userCanCreateAndEditJargonTerms(user)) {
+    return false;
+  }
+
+  const post = await Posts.findOne({ _id: jargonTerm.postId });
+  if (!post || !postCanHaveJargonTerms(post)) {
+    return false;
+  }
+
+  return userHasJargonTermPostPermission(user, post);
+}
+
+function newCheck(user: DbUser | null, jargonTerm: Partial<DbInsertion<DbJargonTerm>> | null, context: ResolverContext) {
+  return userCanCreateJargonTermForPost(user, jargonTerm, context);
+}
+
+function editCheck(user: DbUser | null, jargonTerm: DbJargonTerm | null, context: ResolverContext) {
+  return userCanCreateJargonTermForPost(user, jargonTerm, context);
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTerms', {
   createFunction: async (data, context) => {
@@ -31,9 +63,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    // ****************************************************
-    // TODO: add missing createBefore callbacks here!!!
-    // ****************************************************
+    data = sanitizeJargonTerm(data);
 
     data = await runCreateBeforeEditableCallbacks({
       doc: data,
@@ -90,9 +120,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
-    // ****************************************************
-    // TODO: add missing updateBefore callbacks here!!!
-    // ****************************************************
+    data = sanitizeJargonTerm(data);
 
     data = await runUpdateBeforeEditableCallbacks({
       docData: data,

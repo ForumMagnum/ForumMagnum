@@ -1,6 +1,7 @@
 
 import schema from "@/lib/collections/tagFlags/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
@@ -13,9 +14,15 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, document: DbTagFlag | null) {
+  if (!user || !document) return false;
+  return userCanDo(user, `tagFlags.new`)
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, document: DbTagFlag | null) {
+  if (!user || !document) return false;
+  return userCanDo(user, `tagFlags.edit.all`)
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags', {
   createFunction: async (data, context) => {

@@ -215,7 +215,7 @@ const utils = {
 // 4x editorSerializationBeforeCreate
 
 /* NEW SYNC */
-export async function makeFirstUserAdminAndApproved(user: DbUser, context: ResolverContext) {
+export async function makeFirstUserAdminAndApproved(user: Partial<DbInsertion<DbUser>>, context: ResolverContext) {
   const { Users } = context;
 
   if (isAnyTest) return user;
@@ -317,11 +317,10 @@ export async function sendWelcomingPM(user: DbUser) {
 // 4x convertImagesInObject
 
 /* UPDATE VALIDATE */
-export async function changeDisplayNameRateLimit(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
+export async function changeDisplayNameRateLimit({ oldDocument, newDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (oldDocument.displayName !== newDocument.displayName) {
     await utils.enforceDisplayNameRateLimit({ userToUpdate: oldDocument, currentUser: currentUser! }, context);
   }
-  return validationErrors;
 }
 
 /* UPDATE BEFORE */
@@ -332,7 +331,7 @@ export async function changeDisplayNameRateLimit(validationErrors: CallbackValid
  * Handle subscribing/unsubscribing in mailchimp when `subscribedToDigest` is changed, including cases where this
  * happens implicitly due to changing another field
  */
-export async function updateDigestSubscription(data: Partial<DbUser>, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
+export async function updateDigestSubscription(data: Partial<DbInsertion<DbUser>>, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
   // Handle cases which force you to unsubscribe from the digest:
   // - When a user explicitly unsubscribes from all emails. If they want they can then explicitly re-subscribe
   // to the digest while keeping "unsubscribeFromAll" checked
@@ -407,7 +406,7 @@ export async function updateDigestSubscription(data: Partial<DbUser>, {oldDocume
   return handleErrorCase(`Error updating digest subscription: ${json.detail || res?.statusText || 'Unknown error'}`)
 }
 
-export async function updateDisplayName(data: Partial<DbUser>, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
+export async function updateDisplayName(data: Partial<DbInsertion<DbUser>>, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
   const { Posts } = context;
 
   if (data.displayName !== undefined && data.displayName !== oldDocument.displayName) {

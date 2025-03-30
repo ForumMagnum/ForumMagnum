@@ -2,6 +2,7 @@
 import schema from "@/lib/collections/reports/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
+import { maybeSendAkismetReport } from "@/server/akismet";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -103,9 +104,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Reports'
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing editAsync callbacks here!!!
-    // ****************************************************
+    await maybeSendAkismetReport(updatedDocument, oldDocument, context);
 
     void logFieldChanges({ currentUser, collection: Reports, oldDocument, data: origData });
 

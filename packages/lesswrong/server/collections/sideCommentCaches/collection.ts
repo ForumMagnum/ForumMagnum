@@ -10,8 +10,6 @@ export const SideCommentCaches: SideCommentCachesCollection = createCollection({
     indexSet.addIndex('SideCommentCaches', {postId: 1, version: 1}, {unique: true});
     return indexSet;
   },
-  resolvers: {},
-  mutations: {},
   logChanges: false,
 });
 

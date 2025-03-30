@@ -1,8 +1,8 @@
-import { getCollectionHooks } from '../mutationCallbacks';
-import Digests from '../../server/collections/digests/collection';
+import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { createMutator } from '../vulcan-lib/mutators';
 
-getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, context}: {newDocument: DbDigest, oldDocument: DbDigest, context: ResolverContext}) => {
+export async function createNextDigestOnPublish({newDocument, oldDocument, context}: UpdateCallbackProperties<"Digests">) {
+  const { Digests } = context;
   // if we are not currently setting the end date of this digest, skip
   if (!newDocument.endDate || oldDocument.endDate) return
   // if a newer digest already exists, skip
@@ -19,9 +19,10 @@ getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, 
     validate: false,
     context
   })
-})
+}
 
-getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, context}: {newDocument: DbDigest, oldDocument: DbDigest, context: ResolverContext}) => {
+export async function backdatePreviousDigest({newDocument, oldDocument, context}: UpdateCallbackProperties<"Digests">) {
+  const { Digests } = context;
   // if we change a digest's start date, make sure to update the preceeding digest's end date to match,
   // so that we don't miss any eligible posts
   if (!newDocument.num) return
@@ -40,4 +41,4 @@ getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, 
       {$set: {startDate: newDocument.endDate}},
     );
   }
-});
+}

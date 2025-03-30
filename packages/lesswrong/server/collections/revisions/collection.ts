@@ -3,6 +3,7 @@ import { createCollection } from "@/lib/vulcan-lib/collections";
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getVoteGraphql } from '@/server/votingGraphQL';
+
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
@@ -10,7 +11,7 @@ export const Revisions: RevisionsCollection = createCollection({
   // This has mutators because of a few mutable metadata fields (eg
   // skipAttributions), but most parts of revisions are create-only immutable.
   mutations: getDefaultMutations('Revisions', {
-    create: false ,update: true, upsert: false, delete: false,
+    create: false, update: true, upsert: false, delete: false,
     editCheck: (user: DbUser|null) => {
       return userIsAdminOrMod(user);
     }

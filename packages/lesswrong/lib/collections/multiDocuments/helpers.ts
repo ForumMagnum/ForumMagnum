@@ -4,7 +4,12 @@ export function isMultiDocument(document: DbTag | DbMultiDocument): document is 
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;
 }
 
-export async function getRootDocument(multiDocument: DbMultiDocument | DbInsertion<DbMultiDocument>, context: ResolverContext) {
+export type InsertableMultiDocument = Partial<DbInsertion<DbMultiDocument>> & { collectionName: string, parentDocumentId: string };
+
+export async function getRootDocument(
+  multiDocument: DbMultiDocument | InsertableMultiDocument,
+  context: ResolverContext
+) {
   const multiDocumentId = '_id' in multiDocument ? [multiDocument._id] : [];
   const visitedDocumentIds = new Set<string>(multiDocumentId);
   let parentCollectionName = multiDocument.collectionName;
@@ -40,7 +45,7 @@ export async function getRootDocument(multiDocument: DbMultiDocument | DbInserti
  * The logic for validating whether a user can either create or update a multi-document is basically the same.
  * In both cases, we defer to the `check` defined on the parent document's collection to see if the user would be allowed to mutate the parent document.
  */
-export async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | DbInsertion<DbMultiDocument> | null, mutation: 'create' | 'update', context: ResolverContext) {
+export async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | InsertableMultiDocument | null, mutation: 'create' | 'update', context: ResolverContext) {
   if (!multiDocument) {
     return false;
   }

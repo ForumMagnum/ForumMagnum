@@ -3,6 +3,7 @@ import schema from "@/lib/collections/electionCandidates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { setDefaultVotingFields } from "@/server/callbacks/electionCandidateCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -39,9 +40,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    // ****************************************************
-    // TODO: add missing createBefore callbacks here!!!
-    // ****************************************************
+    data = setDefaultVotingFields(data);
 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ElectionCandidates', callbackProps);
     let documentWithId = afterCreateProperties.document;

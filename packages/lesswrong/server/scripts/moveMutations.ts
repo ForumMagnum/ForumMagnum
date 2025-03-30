@@ -538,10 +538,10 @@ export async function moveMutations() {
   }
 }
 
-export async function movePostMutations() {
-  const mutationFilePath = join(__dirname, `../collections/posts/newMutations.ts`);
+export async function moveReviewVoteMutations() {
+  const mutationFilePath = join(__dirname, `../collections/reviewVotes/mutations.ts`);
 
-  const postMutations = generateMutationFunctions('Posts');
+  const reviewVoteMutations = generateMutationFunctions('ReviewVotes');
 
-  await writeFile(mutationFilePath, postMutations);
+  await writeFile(mutationFilePath, reviewVoteMutations);
 }

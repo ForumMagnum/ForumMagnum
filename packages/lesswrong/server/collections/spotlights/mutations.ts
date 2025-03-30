@@ -19,20 +19,7 @@ function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbSpotlight
 function editCheck(user: DbUser | null, document: DbSpotlight | null, context: ResolverContext) {
   if (!user || !document) return false;
 
-  // If we have legacy action permissions defined
-  // for this collection, check if user can perform
-  // the current action based on whether they own the
-  // document or not.  Otherwise, check if user is an
-  // admin.
-  return userOwns(user, document as HasUserIdType)
-    ? userCanDo(user, [
-      'spotlight.update.own',
-      'spotlights.edit.own',
-    ])
-    : userCanDo(user, [
-      'spotlight.update.all',
-      'spotlights.edit.all',
-    ]);
+  return userIsAdmin(user);
 }
 
 

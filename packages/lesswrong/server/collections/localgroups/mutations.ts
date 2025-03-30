@@ -1,7 +1,9 @@
 
 import schema from "@/lib/collections/localgroups/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { createGroupNotifications, handleOrganizerUpdates, validateGroupIsOnlineOrHasLocation } from "@/server/callbacks/localgroupCallbacks";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -12,9 +14,19 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, document: DbLocalgroup | null) {
+  if (!user || !document) return false;
+  return document.organizerIds.includes(user._id)
+    ? userCanDo(user, 'localgroups.new.own')
+    : userCanDo(user, `localgroups.new.all`)
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, document: DbLocalgroup | null) {
+  if (!user || !document) return false;
+  return document.organizerIds.includes(user._id)
+    ? userCanDo(user, 'localgroups.edit.own')
+    : userCanDo(user, `localgroups.edit.all`)
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgroups', {
   createFunction: async (data, context) => {
@@ -29,9 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
 
     data = callbackProps.document;
 
-    // ****************************************************
-    // TODO: add missing createValidate callbacks here!!!
-    // ****************************************************
+    validateGroupIsOnlineOrHasLocation(data);
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
@@ -61,9 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
       newDocument: documentWithId,
     };
 
-    // ****************************************************
-    // TODO: add missing createAsync callbacks here!!!
-    // ****************************************************
+    await createGroupNotifications(asyncProperties);
 
     await runNewAsyncEditableCallbacks({
       newDoc: documentWithId,
@@ -89,11 +97,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('Localgroups', { selector, context, data, editCheck, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+    const { oldDocument, newDocument } = updateCallbackProperties;
 
-    // ****************************************************
-    // TODO: add missing updateValidate callbacks here!!!
-    // ****************************************************
+    validateGroupIsOnlineOrHasLocation(newDocument);
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -122,9 +128,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing updateAsync callbacks here!!!
-    // ****************************************************
+    await handleOrganizerUpdates(updateCallbackProperties);
 
     await runEditAsyncEditableCallbacks({
       newDoc: updatedDocument,

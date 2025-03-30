@@ -2,7 +2,6 @@ import Collections from "../../server/collections/collections/collection";
 import Sequences from "../../server/collections/sequences/collection";
 import { Posts } from "../../server/collections/posts/collection";
 import { runQuery } from '../vulcan-lib/query';
-import { getCollectionHooks } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
@@ -105,7 +104,7 @@ async function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: strin
   })
 }
 
-getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (book: DbBook) {
+export async function updateCollectionLinks(book: DbBook) {
   const collectionId = book.collectionId
   const results = await getAllCollectionPosts(collectionId)
 
@@ -130,4 +129,4 @@ getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (
 
   //eslint-disable-next-line no-console
   // console.log(`...finished Updating Collection Links for ${collectionId}`)
-});
+}

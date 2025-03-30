@@ -5,14 +5,13 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
+import { checkUpdatePermissionsAndReturnProps, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
 
 function editCheck(user: DbUser | null, document: DbLlmConversation | null, context: ResolverContext) {
   if (!user || !document) return false;
@@ -21,36 +20,8 @@ function editCheck(user: DbUser | null, document: DbLlmConversation | null, cont
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConversations', {
-  createFunction: async (data, context) => {
-    const { currentUser } = context;
-
-    const callbackProps = await checkCreatePermissionsAndReturnProps('LlmConversations', {
-      context,
-      data,
-      newCheck,
-      schema,
-    });
-
-    data = callbackProps.document;
-
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
-
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'LlmConversations', callbackProps);
-    let documentWithId = afterCreateProperties.document;
-
-    await runCountOfReferenceCallbacks({
-      collectionName: 'LlmConversations',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
-
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'LlmConversations', documentWithId, context);
-
-    return filteredReturnValue;
-  },
+const { updateFunction } = getDefaultMutationFunctions('LlmConversations', {
+  // LlmConversations don't have a "default" create function; they're created when necessary in the `/api/sendLlmChat` endpoint
 
   updateFunction: async (selector, data, context) => {
     const { currentUser, LlmConversations } = context;
@@ -94,16 +65,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConve
 });
 
 
-export { createFunction as createLlmConversation, updateFunction as updateLlmConversation };
+export { updateFunction as updateLlmConversation };
 
 
 export const graphqlLlmConversationTypeDefs = gql`
-  input CreateLlmConversationInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
-  }
-  
   input UpdateLlmConversationInput {
     selector: SelectorInput
     data: {
@@ -112,7 +77,6 @@ export const graphqlLlmConversationTypeDefs = gql`
   }
   
   extend type Mutation {
-    createLlmConversation(input: CreateLlmConversationInput!): LlmConversation
     updateLlmConversation(input: UpdateLlmConversationInput!): LlmConversation
   }
 `;

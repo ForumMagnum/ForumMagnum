@@ -1,7 +1,10 @@
 
+import { canMutateParentDocument, InsertableMultiDocument } from "@/lib/collections/multiDocuments/helpers";
 import schema from "@/lib/collections/multiDocuments/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { reindexParentTagIfNeeded } from "@/server/callbacks/multiDocumentCallbacks";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -13,9 +16,27 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, multiDocument: Partial<DbInsertion<DbMultiDocument>> | null, context: ResolverContext) {
+  return canMutateParentDocument(user, multiDocument as InsertableMultiDocument | null, 'create', context);
+}
 
-// Collection has custom editCheck
+async function editCheck(user: DbUser | null, multiDocument: DbMultiDocument | null, context: ResolverContext) {
+  if (!multiDocument) {
+    return false;
+  }
+
+  const canEditParent = await canMutateParentDocument(user, multiDocument, 'update', context);
+  if (!canEditParent) {
+    return false;
+  }
+
+  // If the multi-document is deleted, we also need to check if the user owns it
+  if (multiDocument.deleted) {
+    return userIsAdmin(user) || userOwns(user, multiDocument);
+  }
+
+  return true;
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDocuments', {
   createFunction: async (data, context) => {
@@ -60,9 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       newDocument: documentWithId,
     };
 
-    // ****************************************************
-    // TODO: add missing createAsync callbacks here!!!
-    // ****************************************************
+    reindexParentTagIfNeeded(documentWithId);
 
     await runNewAsyncEditableCallbacks({
       newDoc: documentWithId,
@@ -119,9 +138,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing editAsync callbacks here!!!
-    // ****************************************************
+    reindexParentTagIfNeeded(updatedDocument);
 
     await runEditAsyncEditableCallbacks({
       newDoc: updatedDocument,

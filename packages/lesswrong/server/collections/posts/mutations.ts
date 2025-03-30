@@ -73,7 +73,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
 
     // former newSync callbacks
     if (isEAForum) {
-      // TODO: were the errors thrown by these previously being swallowed?
       data = checkTosAccepted(currentUser, data);
       assertPostTitleHasNoEmojis(data);
     }

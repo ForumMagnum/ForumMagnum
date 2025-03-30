@@ -1,6 +1,7 @@
 
-import schema from "@/lib/collections/lWEvents/newSchema";
+import schema from "@/lib/collections/lwevents/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -8,10 +9,17 @@ import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnPr
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
+import { sendIntercomEvent, updatePartiallyReadSequences, updateReadStatus } from "./helpers";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, document: DbLWEvent | null) {
+  if (!user || !document) return false;
+  return userOwns(user, document) ? userCanDo(user, 'events.new.own') : userCanDo(user, `events.new.all`)
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, document: DbLWEvent | null) {
+  if (!user || !document) return false;
+  return userCanDo(user, `events.edit.all`)
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents', {
   createFunction: async (data, context) => {
@@ -28,9 +36,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    // ****************************************************
-    // TODO: add missing newSync callbacks here!!!
-    // ****************************************************
+    await updateReadStatus(data, context);
 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'LWEvents', callbackProps);
     let documentWithId = afterCreateProperties.document;
@@ -48,13 +54,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
       newDocument: documentWithId,
     };
 
-    // ****************************************************
-    // TODO: add missing createAsync callbacks here!!!
-    // ****************************************************
-
-    // ****************************************************
-    // TODO: add missing newAsync callbacks here!!!
-    // ****************************************************
+    await updatePartiallyReadSequences(asyncProperties);
+    
+    await sendIntercomEvent(documentWithId, currentUser);
 
     // There are some fields that users who have permission to create a document don't have permission to read.
     const filteredReturnValue = await accessFilterSingle(currentUser, 'LWEvents', documentWithId, context);

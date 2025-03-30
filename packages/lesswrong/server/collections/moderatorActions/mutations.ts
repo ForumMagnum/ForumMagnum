@@ -3,6 +3,7 @@ import schema from "@/lib/collections/moderatorActions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { triggerReviewAfterModeration } from "@/server/callbacks/moderatorActionCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -55,9 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
       newDocument: documentWithId,
     };
 
-    // ****************************************************
-    // TODO: add missing createAsync callbacks here!!!
-    // ****************************************************
+    await triggerReviewAfterModeration(asyncProperties);
 
     // There are some fields that users who have permission to create a document don't have permission to read.
     const filteredReturnValue = await accessFilterSingle(currentUser, 'ModeratorActions', documentWithId, context);

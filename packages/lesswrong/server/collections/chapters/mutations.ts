@@ -1,6 +1,8 @@
 
 import schema from "@/lib/collections/chapters/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
+import { canonizeChapterPostInfo, notifyUsersOfNewPosts, updateSequenceLastUpdated } from "@/server/callbacks/chapterCallbacks";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
@@ -12,9 +14,21 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+async function newCheck(user: DbUser|null, document: DbChapter|null, context: ResolverContext) {
+  const { Sequences } = context;
+  if (!user || !document) return false;
+  let parentSequence = await Sequences.findOne({_id: document.sequenceId});
+  if (!parentSequence) return false
+  return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.new.own') : userCanDo(user, `chapters.new.all`)
+}
 
-// Collection has custom editCheck
+async function editCheck(user: DbUser|null, document: DbChapter|null, context: ResolverContext) {
+  const { Sequences } = context;
+  if (!user || !document) return false;
+  let parentSequence = await Sequences.findOne({_id: document.sequenceId});
+  if (!parentSequence) return false
+  return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.edit.own') : userCanDo(user, `chapters.edit.all`)
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters', {
   createFunction: async (data, context) => {
@@ -57,9 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
       newDocument: documentWithId,
     };
 
-    // ****************************************************
-    // TODO: add missing newAsync callbacks here!!!
-    // ****************************************************
+    await canonizeChapterPostInfo(documentWithId, context);
 
     await runNewAsyncEditableCallbacks({
       newDoc: documentWithId,
@@ -114,13 +126,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing updateAsync callbacks here!!!
-    // ****************************************************
+    await updateSequenceLastUpdated(updateCallbackProperties);
+    await notifyUsersOfNewPosts(updateCallbackProperties);
 
-    // ****************************************************
-    // TODO: add missing editAsync callbacks here!!!
-    // ****************************************************
+    await canonizeChapterPostInfo(updatedDocument, context);
 
     await runEditAsyncEditableCallbacks({
       newDoc: updatedDocument,

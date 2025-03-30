@@ -5,7 +5,6 @@ import { Collections } from '../server/collections/collections/collection';
 import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers';
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
-import { getCollectionHooks, CreateCallbackProperties } from './mutationCallbacks';
 import { runSqlQuery } from '../server/sql/sqlClient';
 import { updateMutator } from "./vulcan-lib/mutators";
 import gql from 'graphql-tag';
@@ -14,7 +13,7 @@ import gql from 'graphql-tag';
 // that they read it in the context of, determine whether this means they have
 // a partially-read sequence, and update their user object to reflect this
 // status.
-const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string, context: ResolverContext) => {
+export const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string, context: ResolverContext) => {
   const user = await context.loaders.Users.load(userId);
   if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
   const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
@@ -105,29 +104,6 @@ export const setUserPartiallyReadSequences = async (userId: string, newPartially
     validate: false,
   });
 }
-
-const userHasPartiallyReadSequence = (user: DbUser, sequenceId: string): boolean => {
-  if (!user.partiallyReadSequences)
-    return false;
-  return _.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId);
-}
-
-getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartialReadStatusCallback(props: CreateCallbackProperties<"LWEvents">) {
-  const {document: event, context} = props;
-  if (event.name === 'post-view' && event.properties.sequenceId) {
-    const user = await Users.findOne({_id: event.userId});
-    if (!user) return;
-    const { sequenceId } = event.properties;
-    
-    // Don't add posts to the continue reading section just because a user reads
-    // a post. But if the sequence is already there, update their position in
-    // the sequence.
-    if (userHasPartiallyReadSequence(user, sequenceId) && event.documentId) {
-      // Deliberately lacks an await - this runs concurrently in the background
-      await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId, context);
-    }
-  }
-});
 
 const getReadPostIds = async (user: DbUser, postIDs: Array<string>): Promise<string[]> => {
   const result = await runSqlQuery(`

@@ -1,6 +1,9 @@
 
+import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 import schema from "@/lib/collections/conversations/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo } from "@/lib/vulcan-users/permissions";
+import { conversationEditNotification, flagOrBlockUserOnManyDMs, sendUserLeavingConversationNotication } from "@/server/callbacks/conversationCallbacks";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -9,9 +12,19 @@ import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, document: DbConversation | null) {
+  if (!user || !document) return false;
+  if (!userCanStartConversations(user)) return false
+  return document.participantIds.includes(user._id) ? userCanDo(user, 'conversations.new.own')
+   : userCanDo(user, `conversations.new.all`)
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, document: DbConversation | null) {
+  if (!user || !document) return false;
+  return document.participantIds.includes(user._id) ? userCanDo(user, 'conversations.edit.own')
+  : userCanDo(user, `conversations.edit.all`)
+}
+
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversations', {
   createFunction: async (data, context) => {
@@ -28,9 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    // ****************************************************
-    // TODO: add missing createBefore callbacks here!!!
-    // ****************************************************
+    await flagOrBlockUserOnManyDMs({ currentConversation: data, currentUser, context });
 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Conversations', callbackProps);
     let documentWithId = afterCreateProperties.document;
@@ -62,9 +73,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
-    // ****************************************************
-    // TODO: add missing updateBefore callbacks here!!!
-    // ****************************************************
+    await flagOrBlockUserOnManyDMs({ currentConversation: data, oldConversation: oldDocument, currentUser, context });
 
     let modifier = dataToModifier(data);
 
@@ -80,13 +89,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing updateAsync callbacks here!!!
-    // ****************************************************
+    await sendUserLeavingConversationNotication(updateCallbackProperties);
 
-    // ****************************************************
-    // TODO: add missing editAsync callbacks here!!!
-    // ****************************************************
+    await conversationEditNotification(updatedDocument, oldDocument, currentUser, context);
 
     // There are some fields that users who have permission to edit a document don't have permission to read.
     const filteredReturnValue = await accessFilterSingle(currentUser, 'Conversations', updatedDocument, context);

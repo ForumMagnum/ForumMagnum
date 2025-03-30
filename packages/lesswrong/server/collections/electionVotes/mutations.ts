@@ -1,6 +1,8 @@
 
+import { isPastVotingDeadline, userCanVoteInDonationElection } from "@/lib/collections/electionVotes/helpers";
 import schema from "@/lib/collections/electionVotes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { isAdmin, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -11,9 +13,34 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null) {
+  if (!user) return false;
+  if (isAdmin(user)) return true;
 
-// Collection has custom editCheck
+  if (!userCanVoteInDonationElection(user)) {
+    throw new Error("Accounts created after 22nd Oct 2023 cannot vote in this election");
+  }
+  if (isPastVotingDeadline()) {
+    throw new Error("Voting has closed");
+  }
+
+  return true;
+}
+
+function editCheck(user: DbUser | null, document: DbElectionVote | null) {
+  if (!user || !document) return false;
+  if (userIsAdmin(user)) return true;
+
+  if (!userCanVoteInDonationElection(user)) {
+    throw new Error("Accounts created after 22nd Oct 2023 cannot vote in this election");
+  }
+  if (isPastVotingDeadline()) {
+    throw new Error("Voting has closed, you can no longer edit your vote");
+  }
+  if (userOwns(user, document)) return true;
+
+  return false;
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElectionVotes', {
   createFunction: async (data, context) => {

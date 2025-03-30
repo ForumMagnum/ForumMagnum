@@ -1,5 +1,5 @@
 
-import schema from "@/lib/collections/gardenCodes/newSchema";
+import schema from "@/lib/collections/gardencodes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";

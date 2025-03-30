@@ -3,7 +3,7 @@ import {htmlToPingbacks} from '../pingbacks'
 import { isEditableField } from '../../lib/editor/make_editable'
 import { collectionNameToTypeName } from '../../lib/generated/collectionTypeNames'
 import { CallbackHook } from '../utils/callbackHooks'
-import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
+import {createMutator} from '../vulcan-lib/mutators'
 import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
@@ -156,26 +156,6 @@ async function createInitialRevision<N extends CollectionNameString>(
     const userId = currentUser._id
     const editedAt = new Date()
     const changeMetrics = htmlToChangeMetrics("", html);
-    const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
-      ? (!!doc.debate && fieldName === 'contents')
-      : false;
-
-    if (isFirstDebatePostComment) {
-      const createFirstCommentParams: CreateMutatorParams<"Comments"> = {
-        collection: Comments,
-        document: {
-          userId,
-          contents: editableField,
-          debateResponse: true,
-        },
-        context,
-        currentUser,
-      };
-
-      // We need to validate that we'll be able to successfully create the comment in the updateFirstDebateCommentPostId callback
-      // If we can't, we'll be stuck with a malformed debate post with no comments
-      await validateCreateMutation(createFirstCommentParams);
-    }
 
     const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
       ...revision,

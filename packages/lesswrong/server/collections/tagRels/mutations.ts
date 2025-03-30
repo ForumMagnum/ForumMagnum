@@ -1,7 +1,9 @@
 
+import { userCanUseTags } from "@/lib/betas";
 import schema from "@/lib/collections/tagRels/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { taggedPostNewNotifications, validateTagRelCreate, voteForTagWhenCreated } from "@/server/callbacks/tagCallbackFunctions";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
@@ -9,9 +11,13 @@ import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, tag: DbTagRel | null) {
+  return userCanUseTags(user);
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, tag: DbTagRel | null) {
+  return userCanUseTags(user);
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels', {
   createFunction: async (data, context) => {
@@ -28,16 +34,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    // ****************************************************
-    // TODO: add missing createBefore callbacks here!!!
-    // ****************************************************
+    data = await validateTagRelCreate(data, callbackProps);
 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'TagRels', callbackProps);
     let documentWithId = afterCreateProperties.document;
-
-    // ****************************************************
-    // TODO: add missing createAfter callbacks here!!!
-    // ****************************************************
 
     await runCountOfReferenceCallbacks({
       collectionName: 'TagRels',
@@ -46,13 +46,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
       afterCreateProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing newAfter callbacks here!!!
-    // ****************************************************
+    documentWithId = await voteForTagWhenCreated(documentWithId, afterCreateProperties);
 
-    // ****************************************************
-    // TODO: add missing newAsync callbacks here!!!
-    // ****************************************************
+    await taggedPostNewNotifications(documentWithId, afterCreateProperties);
 
     // There are some fields that users who have permission to create a document don't have permission to read.
     const filteredReturnValue = await accessFilterSingle(currentUser, 'TagRels', documentWithId, context);
@@ -78,10 +74,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
     // The only difference could be in the case where there's no update (due to an empty modifier) and
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, TagRels, tagrelSelector, context) ?? previewDocument as DbTagRel;
-
-    // ****************************************************
-    // TODO: add missing updateAfter callbacks here!!!
-    // ****************************************************
 
     await runCountOfReferenceCallbacks({
       collectionName: 'TagRels',

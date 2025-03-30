@@ -1,4 +1,5 @@
 
+import { userCanUseTags } from "@/lib/betas";
 import schema from "@/lib/collections/userTagRels/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
@@ -11,9 +12,13 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, userTagRel: DbUserTagRel | null) {
+  return userCanUseTags(user);
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, userTagRel: DbUserTagRel | null) {
+  return userCanUseTags(user);
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagRels', {
   createFunction: async (data, context) => {

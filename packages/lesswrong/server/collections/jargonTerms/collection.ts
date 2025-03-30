@@ -15,7 +15,7 @@ function postCanHaveJargonTerms(post: DbPost) {
   return !post.isEvent;
 }
 
-async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | null, context: ResolverContext) {
+async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | DbInsertion<DbJargonTerm> | null, context: ResolverContext) {
   const { Posts } = context;
 
   if (!jargonTerm || !userCanCreateAndEditJargonTerms(user)) {

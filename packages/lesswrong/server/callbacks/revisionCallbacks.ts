@@ -5,7 +5,7 @@ import { afterCreateRevisionCallback } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { recomputeContributorScoresFor } from './votingCallbacks';
 
 // TODO: Now that the make_editable callbacks use createMutator to create
@@ -56,9 +56,9 @@ async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevis
   }
 }
 
-getCollectionHooks("Revisions").updateAsync.add(async ({oldDocument, newDocument, context}) => {
+export async function recomputeWhenSkipAttributionChanged({oldDocument, newDocument, context}: UpdateCallbackProperties<'Revisions'>) {
   if (oldDocument.skipAttributions !== newDocument.skipAttributions) {
     await recomputeContributorScoresFor(newDocument, context);
     await maybeUpdateDenormalizedHtmlAttributionsDueToRev(newDocument, context);
   }
-});
+}

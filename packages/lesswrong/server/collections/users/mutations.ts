@@ -2,7 +2,9 @@
 import schema from "@/lib/collections/users/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { approveUnreviewedSubmissions, changeDisplayNameRateLimit, clearKarmaChangeBatchOnSettingsChange, createRecombeeUser, handleSetShortformPost, makeFirstUserAdminAndApproved, maybeSendVerificationEmail, newAlignmentUserMoveShortform, newAlignmentUserSendPMAsync, newSubforumMemberNotifyMods, reindexDeletedUserContent, sendWelcomingPM, subscribeOnSignup, subscribeToEAForumAudience, syncProfileUpdatedAt, updateDigestSubscription, updateDisplayName, updateUserMayTriggerReview, updatingPostAudio, userEditBannedCallbacksAsync, userEditChangeDisplayNameCallbacksAsync, userEditDeleteContentCallbacksAsync, usersEditCheckEmail } from "@/server/callbacks/userCallbackFunctions";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -15,9 +17,22 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+function newCheck() {
+  return true;
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, document: DbUser) {
+  if (!user || !document)
+    return false;
+
+  if (userCanDo(user, 'alignment.sidebar'))
+    return true
+
+  // OpenCRUD backwards compatibility
+  return userOwns(user, document)
+    ? userCanDo(user, ['user.update.own', 'users.edit.own'])
+    : userCanDo(user, ['user.update.all', 'users.edit.all']);
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', {
   createFunction: async (data, context) => {
@@ -32,33 +47,19 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
 
     data = callbackProps.document;
 
-    // ****************************************************
-    // TODO: add missing createValidate callbacks here!!!
-    // ****************************************************
-
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
     data = await runSlugCreateBeforeCallback(callbackProps);
-
-    // ****************************************************
-    // TODO: add missing createBefore callbacks here!!!
-    // ****************************************************
 
     data = await runCreateBeforeEditableCallbacks({
       doc: data,
       props: callbackProps,
     });
 
-    // ****************************************************
-    // TODO: add missing newSync callbacks here!!!
-    // ****************************************************
+    data = await makeFirstUserAdminAndApproved(data, context);
 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Users', callbackProps);
     let documentWithId = afterCreateProperties.document;
-
-    // ****************************************************
-    // TODO: add missing createAfter callbacks here!!!
-    // ****************************************************
 
     documentWithId = await runCreateAfterEditableCallbacks({
       newDoc: documentWithId,
@@ -72,27 +73,21 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
       afterCreateProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing newAfter callbacks here!!!
-    // ****************************************************
-
     const asyncProperties = {
       ...afterCreateProperties,
       document: documentWithId,
       newDocument: documentWithId,
     };
 
-    // ****************************************************
-    // TODO: add missing createAsync callbacks here!!!
-    // ****************************************************
+    createRecombeeUser(asyncProperties);
 
     if (isElasticEnabled) {
       void elasticSyncDocument('Users', documentWithId._id);
     }
 
-    // ****************************************************
-    // TODO: add missing newAsync callbacks here!!!
-    // ****************************************************
+    await subscribeOnSignup(documentWithId);
+    await subscribeToEAForumAudience(documentWithId);
+    await sendWelcomingPM(documentWithId);
 
     await runNewAsyncEditableCallbacks({
       newDoc: documentWithId,
@@ -120,18 +115,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
 
     const { oldDocument } = updateCallbackProperties;
 
-    // ****************************************************
-    // TODO: add missing updateValidate callbacks here!!!
-    // ****************************************************
+    await changeDisplayNameRateLimit(updateCallbackProperties);
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
     data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-    // ****************************************************
-    // TODO: add missing updateBefore callbacks here!!!
-    // ****************************************************
+    await updateDigestSubscription(data, updateCallbackProperties);
+    await updateDisplayName(data, updateCallbackProperties);
 
     data = await runUpdateBeforeEditableCallbacks({
       docData: data,
@@ -140,18 +132,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
 
     let modifier = dataToModifier(data);
 
-    // ****************************************************
-    // TODO: add missing editSync callbacks here!!!
-    // ****************************************************
+    maybeSendVerificationEmail(modifier, oldDocument);
+    modifier = clearKarmaChangeBatchOnSettingsChange(modifier, oldDocument);
+    modifier = await usersEditCheckEmail(modifier, oldDocument);
+    modifier = syncProfileUpdatedAt(modifier, oldDocument);
 
     // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
     // The only difference could be in the case where there's no update (due to an empty modifier) and
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, Users, userSelector, context) ?? previewDocument as DbUser;
-
-    // ****************************************************
-    // TODO: add missing updateAfter callbacks here!!!
-    // ****************************************************
 
     updatedDocument = await runUpdateAfterEditableCallbacks({
       newDoc: updatedDocument,
@@ -165,13 +154,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // ****************************************************
-    // TODO: add missing updateAsync callbacks here!!!
-    // ****************************************************
+    updateUserMayTriggerReview(updateCallbackProperties);
+    await userEditDeleteContentCallbacksAsync(updateCallbackProperties);
 
-    // ****************************************************
-    // TODO: add missing editAsync callbacks here!!!
-    // ****************************************************
+    await newSubforumMemberNotifyMods(updatedDocument, oldDocument, context);
+    await approveUnreviewedSubmissions(updatedDocument, oldDocument, context);
+    await handleSetShortformPost(updatedDocument, oldDocument, context);
+    await updatingPostAudio(updatedDocument, oldDocument);
+    await userEditChangeDisplayNameCallbacksAsync(updatedDocument, oldDocument, context);
+    userEditBannedCallbacksAsync(updatedDocument, oldDocument);
+    await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);
+    await newAlignmentUserMoveShortform(updatedDocument, oldDocument, context);
 
     await runEditAsyncEditableCallbacks({
       newDoc: updatedDocument,
@@ -181,6 +174,8 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     if (isElasticEnabled) {
       void elasticSyncDocument('Users', updatedDocument._id);
     }
+
+    await reindexDeletedUserContent(updatedDocument, oldDocument, context);
 
     void logFieldChanges({ currentUser, collection: Users, oldDocument, data: origData });
 

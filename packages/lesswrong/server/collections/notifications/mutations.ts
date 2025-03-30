@@ -1,6 +1,7 @@
 
 import schema from "@/lib/collections/notifications/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -9,9 +10,20 @@ import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, document: DbNotification | null) {
+  if (!user || !document) return false;
+  return userOwns(user, document)
+    ? userCanDo(user, 'notifications.new.own')
+    : userCanDo(user, `notifications.new.all`)
+}
 
-// Collection has custom editCheck
+// TODO: I'm pretty sure we shouldn't actually allow users who own notifications to edit them...
+function editCheck(user: DbUser | null, document: DbNotification | null) {
+  if (!user || !document) return false;
+  return userOwns(user, document)
+    ? userCanDo(user, 'notifications.edit.own')
+    : userCanDo(user, `notifications.edit.all`)
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifications', {
   createFunction: async (data, context) => {

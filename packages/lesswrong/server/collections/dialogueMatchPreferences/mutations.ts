@@ -1,6 +1,7 @@
 
 import schema from "@/lib/collections/dialogueMatchPreferences/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -11,9 +12,23 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-// Collection has custom newCheck
+async function newCheck(user: DbUser | null, document: DbDialogueMatchPreference | null, context: ResolverContext) {
+  const { DialogueChecks } = context;
 
-// Collection has custom editCheck
+  if (!user || !document) return false;
+  const dialogueCheck = await DialogueChecks.findOne(document.dialogueCheckId);
+  return !!dialogueCheck && userOwns(user, dialogueCheck);
+}
+
+async function editCheck(user: DbUser | null, document: DbDialogueMatchPreference|null, context: ResolverContext) {
+  const { DialogueChecks } = context;
+
+  if (!user || !document) return false;
+  const dialogueCheck = await DialogueChecks.findOne(document.dialogueCheckId);
+  if (!dialogueCheck) return false;
+
+  return userOwns(user, dialogueCheck) || userIsAdmin(user);
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('DialogueMatchPreferences', {
   createFunction: async (data, context) => {

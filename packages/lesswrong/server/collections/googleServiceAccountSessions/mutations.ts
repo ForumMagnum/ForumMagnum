@@ -1,6 +1,7 @@
 
 import schema from "@/lib/collections/googleServiceAccountSessions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -9,9 +10,15 @@ import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
 
-// Collection has custom newCheck
+function newCheck(user: DbUser | null, document: DbGoogleServiceAccountSession | null) {
+  if (!user || !document) return false;
+  return userIsAdmin(user)
+}
 
-// Collection has custom editCheck
+function editCheck(user: DbUser | null, document: DbGoogleServiceAccountSession | null) {
+  if (!user || !document) return false;
+  return userIsAdmin(user)
+}
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleServiceAccountSessions', {
   createFunction: async (data, context) => {
