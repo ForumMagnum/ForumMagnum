@@ -1793,7 +1793,6 @@ export const UsersDefaultFragment = `
     inactiveSurveyEmailSentAt
     userSurveyEmailSentAt
     recommendationSettings
-    unlocks
   }
 `;
 

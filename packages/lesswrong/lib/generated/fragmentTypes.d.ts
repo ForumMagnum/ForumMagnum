@@ -4779,7 +4779,6 @@ interface UsersDefaultFragment { // fragment on Users
       onlyUnread: boolean,
     },
   },
-  readonly unlocks: any /*{"definitions":[{}]}*/,
 }
 
 interface UsersEdit extends UsersCurrent { // fragment on Users
@@ -5176,7 +5175,6 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string,
-  readonly unlocks: any /*{"definitions":[{}]}*/,
 }
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users

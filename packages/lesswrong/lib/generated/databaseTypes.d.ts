@@ -2297,7 +2297,6 @@ interface DbUser extends DbObject {
   }
   twitterProfileURL: string | null
   twitterProfileURLAdmin: string | null
-  unlocks: any /*{"definitions":[{}]}*/
   unsubscribeFromAll: boolean | null
   userSurveyEmailSentAt: Date | null
   username: string | null

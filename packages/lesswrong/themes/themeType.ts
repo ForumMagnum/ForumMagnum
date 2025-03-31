@@ -65,6 +65,7 @@ declare global {
     650: ColorString,
     680: ColorString,
     710: ColorString,
+    750: ColorString,
   }
   type ThemeShadePalette = {
     grey: ThemeGreyscale,
@@ -580,7 +581,12 @@ declare global {
         backgroundImage: string,
         backgroundImageHover: string,
         backgroundImageActive: string,
-      }
+      },
+      buyModal: {
+        buyButtonBackground: string,
+        buyButtonBackgroundHover: string,
+        buyButtonBackgroundActive: string,
+      },
     },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>

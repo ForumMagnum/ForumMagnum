@@ -48,6 +48,8 @@ declare global {
     spinsPerformed: number
     spinsRemaining: number
     cooldownEndsAt: number
+    lwBucks: number
+    picoLightcones: number
   };
 }
 
@@ -56,6 +58,8 @@ export const defaultUserUnlockablesState: UserUnlockablesState = {
   spinsPerformed: 0,
   spinsRemaining: 1,
   cooldownEndsAt: 0,
+  lwBucks: 0,
+  picoLightcones: 0,
 };
 
 type UnlocksContextType = {

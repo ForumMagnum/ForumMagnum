@@ -3469,8 +3469,7 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
-  "recommendationSettings" JSONB,
-  "unlocks" JSONB
+  "recommendationSettings" JSONB
 );
 
 -- Index "idx_Users_username"

@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -40,7 +39,7 @@ const styles = defineStyles('BuyButton', (theme: ThemeType) => ({
   }
 }));
 
-export const BuyButton = () => {
+const BuyButton = () => {
   const classes = useStyles(styles);
 
   async function handleClick() {
@@ -59,6 +58,8 @@ export const BuyButton = () => {
 }
 
 const BuyButtonComponent = registerComponent('BuyButton', BuyButton);
+
+export default BuyButtonComponent;
 
 declare global {
   interface ComponentTypes {

@@ -11,7 +11,9 @@ import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import TreasureChestOpening from './TreasureChestOpening';
-import { BuyButton } from '../loot/BuyButton';
+import BuyButton from '../loot/BuyButton';
+import ConvertLWBucksButton from '../loot/ConvertLWBucksButton';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -41,6 +43,13 @@ const getStructuredData = () => ({
   }),
 })
 
+const styles = defineStyles('LWHome', (theme: ThemeType) => ({
+  ctaButtons: {
+    display: 'flex',
+    gap: '10px',
+  },
+}));
+
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
@@ -48,7 +57,8 @@ const LWHome = () => {
   } = Components;
 
   const currentUser = useCurrentUser();
-
+  const classes = useStyles(styles);
+  
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
@@ -60,7 +70,10 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           <TreasureChestOpening />
-          <BuyButton />
+          <div className={classes.ctaButtons}>
+            <BuyButton />
+            <ConvertLWBucksButton />
+          </div>
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
             <DismissibleSpotlightItem current/>

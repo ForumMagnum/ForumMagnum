@@ -660,5 +660,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       backgroundImageHover: 'linear-gradient(to bottom, #33FF77 50%, #00CC44 50%)',
       backgroundImageActive: 'linear-gradient(to bottom, #00B33C 50%, #00802B 50%)',
     },
+    buyModal: {
+      buyButtonBackground: 'linear-gradient(180deg, #f7d04f 0%, #e5a934 100%)',
+      buyButtonBackgroundHover: 'linear-gradient(180deg, #ffe070 0%, #f5b944 100%)',
+      buyButtonBackgroundActive: 'linear-gradient(180deg, #e5a934 0%, #d3982a 100%)',
+    },
   },
 })
