@@ -152,7 +152,7 @@ const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) =>
   if (!showEventTag) {
     return undefined;
   }
-  const event = isEventPost(post)
+  const event = isEventPost(post, {includeRecent: true});
   if (event?.tag) {
     if (event.tag._id === currentForumEvent?.tag?._id) {
       return {event: event, current: true};
@@ -268,11 +268,11 @@ const PostsTitle = ({
                 className={classes.eventTag}
                 style={{
                   "--post-title-tag-background": taggedEventIsCurrent ?
-                    theme.palette.tag.background :
-                    taggedEvent.lightColor,
+                    taggedEvent.lightColor :
+                    theme.palette.grey[140],
                   "--post-title-tag-foreground": taggedEventIsCurrent ?
-                    theme.palette.tag.text :
-                    taggedEvent.darkColor,
+                    taggedEvent.darkColor :
+                    theme.palette.tag.text,
                 } as CSSProperties}
               >
                 {taggedEvent.tag.shortName || taggedEvent.tag.name}

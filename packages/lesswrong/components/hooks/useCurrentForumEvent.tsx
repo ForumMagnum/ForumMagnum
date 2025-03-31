@@ -30,15 +30,11 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   });
 
   const forumEvents: ForumEventsDisplay[] = useMemo(() => results ?? [], [results]);
-  // console.log('🚀 ~ forumEvents:', forumEvents)
   
   // Derive the current forum event as the first event whose endDate is in the
   // future -- we know the start date is in the past from the view query.
   const now = new Date();
-  const fakecurrentevent = forumEvents[0] ?? undefined
-  // console.log('🚀 ~ fakecurrentevent.endDate and typeof:', fakecurrentevent?.endDate, typeof fakecurrentevent?.endDate)
   const currentForumEvent = forumEvents.find(event => new Date(event.endDate) >= now) || null;
-  // console.log('🚀 ~ currentForumEvent:', currentForumEvent)
 
   const isEventPost = useCallback((
     post: PostsBase,
