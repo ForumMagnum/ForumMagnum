@@ -87,23 +87,23 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
     // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
     const { errors } = await createSplashArtCoordinateMutation({ data: {
       reviewWinnerArtId: image._id,
-      leftXPct: .2, // note: XPcts are right-aligned, not left-aligned like you might expect
-      leftYPct: .25,
-      leftWidthPct: .16, // widths need to be < .33 of the image, because they'll be 3x'd 
+      leftXPct: .33, // note: XPcts are right-aligned, not left-aligned like you might expect
+      leftYPct: .15,
+      leftWidthPct: .33, // widths need to be < .33 of the image, because they'll be 3x'd 
       // when we render them on the /bestoflesswrong page (so that when you expand the panel
       // to 3x it's size there is a background image the whole way
-      leftHeightPct: 1,
+      leftHeightPct: .65,
       leftFlipped: true, // for the 2025+ styling (for the 2023) and onward, we want to flip
       // the left-side images because the images are designed to have most of the content on the right side by default (but we want it to show up on the left there)
-      middleXPct: .35,
+      middleXPct: .66,
       middleYPct: .15,
-      middleWidthPct: .16,
+      middleWidthPct: .33,
       middleHeightPct: 1,
       middleFlipped: false,
-      rightXPct: .2,
-      rightYPct: .25,
-      rightWidthPct: .16,
-      rightHeightPct: 1, 
+      rightXPct: 0,
+      rightYPct: .15,
+      rightWidthPct: .33,
+      rightHeightPct: .65, 
       rightFlipped: false,
     } });
     if (errors) {

@@ -90,7 +90,6 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
   useEffect(() => {
     if (post.reviewWinner?.reviewWinnerArt) {
       setImageInfo(post.reviewWinner?.reviewWinnerArt);
-      console.log(selectedImageInfo);
     }
   }, [post.reviewWinner?.reviewWinnerArt, setImageInfo]);
 

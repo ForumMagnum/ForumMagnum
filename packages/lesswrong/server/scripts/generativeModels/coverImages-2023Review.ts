@@ -332,7 +332,6 @@ export const getReviewWinnerArts = async () => {
 export const generateCoverImagesForPost = async (postId: string, prompt?: string): Promise<EssayResult[]> => {
   // eslint-disable-next-line no-console
   console.time('running generateCoverImagesForPost');
-  console.log(postId, prompt)
   
   const post = await fetchFragment({
     collectionName: "Posts",
