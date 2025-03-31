@@ -99,12 +99,19 @@ async function fetchUnlockableState(userId: string|null, clientId: string|null, 
       return relevantUnlockableStates[0];
     }
   }
+
+  const convertedLwBucks = context.currentUser
+    ? context.currentUser.karma
+    : 0;
   
   const resultId = await Unlockables.rawInsert({
     _id: randomId(),
     userId: userId,
     clientId: clientId,
-    unlockablesState: defaultUserUnlockablesState,
+    unlockablesState: {
+      ...defaultUserUnlockablesState,
+      lwBucks: convertedLwBucks,
+    },
   });
   const result = await Unlockables.findOne({_id: resultId});
   return result!;
