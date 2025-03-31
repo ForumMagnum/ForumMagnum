@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { FilterSettings, FilterMode, isCustomFilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
-import { filteringStyles } from './FilterMode';
+import { filteringStyles } from './FilterModePicker';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
@@ -72,7 +72,7 @@ const TagFilterSettings = ({
   flexWrapEndGrow?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { AddTagButton, FilterMode, LWTooltip } = Components
+  const { AddTagButton, FilterModePicker, LWTooltip } = Components
   const currentUser = useCurrentUser()
 
   const {
@@ -83,7 +83,7 @@ const TagFilterSettings = ({
   
   return <span className={classes.root}>
     {filterSettings.tags.map(tagSettings =>
-      <FilterMode
+      <FilterModePicker
         label={tagSettings.tagName}
         key={tagSettings.tagId}
         tagId={tagSettings.tagId}
@@ -103,7 +103,7 @@ const TagFilterSettings = ({
 
     {/* Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
     <div className={classes.personalAndPlus}>
-      <FilterMode
+      <FilterModePicker
         label={personalBlogpostName}
         description={personalBlogpostTooltip}
         mode={filterSettings.personalBlog}

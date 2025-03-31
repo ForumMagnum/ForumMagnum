@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import { Link } from "../../../lib/reactRouterWrapper";
 import { CAREER_STAGES } from "../../../lib/collections/users/schema";
 import { SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "../../../lib/collections/users/helpers";
-import { communityPath } from "../../../lib/routes";
+import { communityPath } from "../../../lib/routeConstants";
 
 const styles = (theme: ThemeType) => ({
   iconsRow: {

@@ -1,8 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("Loading", (theme: ThemeType) => ({
   spinner: {
     height: 10,
     maxWidth: 100,
@@ -48,13 +49,13 @@ const styles = (theme: ThemeType) => ({
       transform: "scale(1.0)"
     }
   }
-});
+}));
 
-const Loading = ({classes, className, white}: {
-  classes: ClassesType<typeof styles>,
+const Loading = ({className, white}: {
   className?: string,
   white?: boolean
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classNames(classes.spinner, className, {[classes.whiteSpinner]: white})}>
       <div className={classes.bounce1}></div>
@@ -64,12 +65,10 @@ const Loading = ({classes, className, white}: {
   );
 };
 
-const LoadingComponent = registerComponent('Loading', Loading, {styles});
+const LoadingComponent = registerComponent('Loading', Loading);
 
 declare global {
   interface ComponentTypes {
     Loading: typeof LoadingComponent
   }
 }
-
-export default Loading;

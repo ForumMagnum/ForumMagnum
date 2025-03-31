@@ -13,9 +13,10 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RSVPs", (theme: ThemeType) => ({
   body: {
     marginBottom: 48
   },
@@ -103,12 +104,12 @@ const styles = (theme: ThemeType) => ({
     : {
       fontStyle: "italic",
     },
-});
+}));
 
-const RSVPs = ({post, classes}: {
+const RSVPs = ({post}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { ResponseIcon, ContentStyles } = Components;
   const { openDialog } = useDialog()
   const { query } = useLocation()
@@ -181,7 +182,7 @@ const RSVPs = ({post, classes}: {
   </ContentStyles>;
 }
 
-const responseIconStyles = (theme: ThemeType) => ({
+const responseIconStyles = defineStyles("ResponseIcon", (theme: ThemeType) => ({
   goingIcon: {
     height: 14,
     color: theme.palette.primary.main
@@ -194,12 +195,12 @@ const responseIconStyles = (theme: ThemeType) => ({
     height: 14,
     color: theme.palette.grey[500]
   },
-});
+}));
 
-export function ResponseIcon({response, classes}: {
+function ResponseIcon({response}: {
   response: RsvpResponse
-  classes: ClassesType<typeof responseIconStyles>
 }) {
+  const classes = useStyles(responseIconStyles);
   switch (response) {
     case "yes":
       return <CheckCircleOutlineIcon className={classes.goingIcon} />
@@ -212,8 +213,8 @@ export function ResponseIcon({response, classes}: {
   }
 }
 
-const RSVPsComponent = registerComponent('RSVPs', RSVPs, {styles});
-const ResponseIconComponent = registerComponent('ResponseIcon', ResponseIcon, {styles: responseIconStyles});
+const RSVPsComponent = registerComponent('RSVPs', RSVPs);
+const ResponseIconComponent = registerComponent('ResponseIcon', ResponseIcon);
 
 declare global {
   interface ComponentTypes {

@@ -626,6 +626,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   }
 }
 
+export type ContentItemBodyType = ContentItemBody;
+export type ContentItemBodyRef = React.RefObject<ContentItemBody>;
+
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
