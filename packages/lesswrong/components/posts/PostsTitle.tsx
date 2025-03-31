@@ -126,6 +126,10 @@ const styles = (theme: ThemeType) => ({
       ? "var(--post-title-tag-background)"
       : "var(--post-title-tag-foreground)",
   },
+  eventTagBordered: {
+    border: theme.palette.border.normal,
+    borderRadius: 2,
+  },
   highlightedTagTooltip: {
     marginTop: -2,
   },
@@ -265,11 +269,14 @@ const PostsTitle = ({
           >
             <Link doOnDown={true} to={tagGetUrl(taggedEvent.tag)} className={classes.eventTagLink}>
               <span
-                className={classes.eventTag}
+                className={classNames(
+                  classes.eventTag,
+                  {[classes.eventTagBordered]: !taggedEventIsCurrent}
+                )}
                 style={{
                   "--post-title-tag-background": taggedEventIsCurrent ?
                     taggedEvent.lightColor :
-                    theme.palette.grey[140],
+                    theme.palette.tag.background,
                   "--post-title-tag-foreground": taggedEventIsCurrent ?
                     taggedEvent.darkColor :
                     theme.palette.tag.text,
