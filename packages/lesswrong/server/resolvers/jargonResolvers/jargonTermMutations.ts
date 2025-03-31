@@ -84,7 +84,7 @@ class AdvisoryLockError extends Error {}
  * - If the lock is acquired but the callback throws an error, the lock is released and the error is thrown.
  * - If the lock is acquired and the callback completes successfully, the lock is released and the callback's return value is returned.
  */
-async function executeWithLock<T>(rawLockId: string, callback: () => Promise<T>): Promise<T> {
+export async function executeWithLock<T>(rawLockId: string, callback: () => Promise<T>): Promise<T> {
   const db = getSqlClientOrThrow();
   // We need to convert the lockId to a number because the advisory lock is a 64-bit integer
   // cyrb53Rand returns a double between 0 and 1, so multiplying by 1e15 gives us a number between 0 and 1e15

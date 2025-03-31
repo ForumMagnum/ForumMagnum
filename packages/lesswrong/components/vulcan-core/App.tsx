@@ -19,6 +19,7 @@ import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
 import { RefetchCurrentUserContext } from '../common/withUser';
 import { onUserChanged } from '@/client/logging';
+import { UnlocksContextProvider } from '@/lib/loot/unlocks';
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
@@ -104,6 +105,7 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
     <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
     <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
     <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
+    <UnlocksContextProvider>
       <MessageContextProvider>
         <Components.HeadTags image={siteImageSetting.get()} />
         <Components.ScrollToTop />
@@ -111,6 +113,7 @@ const App = ({serverRequestStatus, history}: ExternalProps & {
           <location.RouteComponent />
         </Components.Layout>
       </MessageContextProvider>
+    </UnlocksContextProvider>
     </RefetchCurrentUserContext.Provider>
     </ServerRequestStatusContext.Provider>
     </SubscribeLocationContext.Provider>

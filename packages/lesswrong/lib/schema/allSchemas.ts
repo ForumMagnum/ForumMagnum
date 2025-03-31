@@ -85,6 +85,7 @@ import { default as TagRels } from '../collections/tagRels/newSchema';
 import { default as Tags } from '../collections/tags/newSchema';
 import { default as Tweets } from '../collections/tweets/newSchema';
 import { default as TypingIndicators } from '../collections/typingIndicators/newSchema';
+import { default as Unlockables } from '../collections/unlockables/newSchema';
 import { default as UserEAGDetails } from '../collections/userEAGDetails/newSchema';
 import { default as UserJobAds } from '../collections/userJobAds/newSchema';
 import { default as UserMostValuablePosts } from '../collections/userMostValuablePosts/newSchema';
@@ -121,7 +122,7 @@ export const allSchemas = {
   Sequences, Sessions, SideCommentCaches, SplashArtCoordinates,
   Spotlights, Subscriptions, SurveyQuestions, SurveyResponses,
   SurveySchedules, Surveys, TagFlags, TagRels, Tags,
-  Tweets, TypingIndicators, UserEAGDetails, UserJobAds,
+  Tweets, TypingIndicators, Unlockables, UserEAGDetails, UserJobAds,
   UserMostValuablePosts, UserRateLimits, UserTagRels, UserActivities,
   Users, Votes, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, NewCollectionFieldSpecification<CollectionNameString>>>;

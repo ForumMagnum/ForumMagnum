@@ -201,6 +201,7 @@ importComponent("TabPicker", () => require("../../components/common/TabPicker.ts
 importComponent("TemplateComponent", () => require("../../components/common/TemplateComponent.tsx"));
 importComponent("TimeTag", () => require("../../components/common/TimeTag.tsx"));
 importComponent("ToggleSwitch", () => require("../../components/common/ToggleSwitch.tsx"));
+importComponent("TreasureChestOpening", () => require("../../components/common/TreasureChestOpening.tsx"));
 importComponent("Typography", () => require("../../components/common/Typography.tsx"));
 importComponent("WarningBanner", () => require("../../components/common/WarningBanner.tsx"));
 importComponent("WrappedStrawPoll", () => require("../../components/common/WrappedStrawPoll.tsx"));
