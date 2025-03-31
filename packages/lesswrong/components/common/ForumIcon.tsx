@@ -168,6 +168,7 @@ import { DictionaryIcon } from "../icons/Dictionary";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useTheme } from "../themes/useTheme";
 import { GhibliIcon, hasGhibliIcon } from "../themes/ghibli/GhibliIcon";
+import { PixelyIcon, hasPixelyIcon } from "../themes/pixely/PixelyIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -645,6 +646,10 @@ const ForumIcon = ({
     return <GhibliIcon icon={icon} noDefaultStyles={noDefaultStyles} className={className} {...props} />
   }
 
+  if (theme.themeOptions.name === 'pixely' && hasPixelyIcon(icon)) {
+    return <PixelyIcon icon={icon} noDefaultStyles={noDefaultStyles} className={className}/>
+  }
+
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
@@ -662,7 +667,7 @@ const ForumIcon = ({
   );
 
   return <Icon className={fullClassName} {...props} />;
-}
+};
 
 const ForumIconComponent = registerComponent("ForumIcon", ForumIcon, {
   areEqual: "auto",

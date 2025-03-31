@@ -104,7 +104,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.header.text,
     boxShadow: theme.palette.boxShadow.appBar,
     backgroundColor: theme.palette.header.background,
-    ...(theme.themeOptions.name === "ghiblify" && {
+    ...((theme.themeOptions.name === "ghiblify" || theme.themeOptions.name === "pixely") && {
       backgroundColor: undefined,
       boxShadow: undefined,
     }),

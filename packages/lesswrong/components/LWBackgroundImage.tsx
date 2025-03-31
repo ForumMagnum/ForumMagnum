@@ -12,10 +12,18 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     position: 'absolute',
     right: 0,
   },
+  imageColumn: {
+    position: "relative",
+    height: 0,
+    width: 0,
+    overflow: "visible",
+    pointerEvents: "none",
+    zIndex: -1,
+  },
   backgroundImage: {
-    position: 'absolute',
-    width: '57vw',
-    maxWidth: '1000px',
+    position: "fixed",
+    width: 1000,
+    height: 1000,
     top: '-70px',
     right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
@@ -24,9 +32,18 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
       right: 0,
       '-webkit-mask-image': `radial-gradient(ellipse at right top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     }),
+
+    ...(theme.themeOptions.name === 'pixely' && {
+      right: 0,
+      imageRendering: 'pixelated',
+      '-webkit-mask-image': `radial-gradient(ellipse at right top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    }),
     
     [theme.breakpoints.up(2000)]: {
       right: '0px',
+    },
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
     }
   },
   reviewResultsImage: {
@@ -36,16 +53,6 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     top: '-70px',
     right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-  },
-  imageColumn: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: "100vh",
-    width: '57vw',
-    ['@media(max-width: 1000px)']: {
-      display: 'none'
-    },
   },
   reviewVotingCanvas: {
     position: 'absolute',
@@ -108,7 +115,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
 }));
 
 export const LWBackgroundImage = ({standaloneNavigation}: {
-  standaloneNavigation: boolean,
+  standaloneNavigation?: boolean
 }) => {
   const classes = useStyles(styles);
   const { ReviewVotingCanvas, CloudinaryImage2 } = Components
@@ -126,12 +133,18 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
           className={classes.backgroundImage}
           src="/landscape.jpg"
         />
-      : <CloudinaryImage2
-          loading="lazy"
-          className={classes.backgroundImage}
-          publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
-          darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
-        />
+      : theme.themeOptions.name === 'pixely'
+        ? <CloudinaryImage2
+            loading="lazy"
+            className={classes.backgroundImage}
+            publicId="ChatGPT_Image_Mar_29_2025_11_43_28_PM_vbbjwd.png"
+          />
+        : <CloudinaryImage2
+            loading="lazy"
+            className={classes.backgroundImage}
+            publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+            darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+          />
     }
   </div> : null
 
