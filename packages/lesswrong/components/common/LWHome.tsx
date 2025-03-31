@@ -11,6 +11,7 @@ import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import TreasureChestOpening from './TreasureChestOpening';
+import { BuyButton } from '../loot/BuyButton';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -59,6 +60,7 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           <TreasureChestOpening />
+          <BuyButton />
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
             <DismissibleSpotlightItem current/>

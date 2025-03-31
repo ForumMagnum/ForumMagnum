@@ -652,4 +652,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   arbital: {
     arbitalGreen: '#004d40',
   },
+  loot: {
+    buyButton: {
+      color: 'rgba(255,255,0,1)',
+      textShadowColor: 'rgba(230,153,0,1)',
+      backgroundImage: 'linear-gradient(to bottom, #00E64D 50%, #00B33C 50%)',
+      backgroundImageHover: 'linear-gradient(to bottom, #33FF77 50%, #00CC44 50%)',
+      backgroundImageActive: 'linear-gradient(to bottom, #00B33C 50%, #00802B 50%)',
+    },
+  },
 })

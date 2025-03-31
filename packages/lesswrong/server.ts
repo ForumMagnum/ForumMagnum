@@ -27,7 +27,7 @@ import './server/ckEditor/ckEditorWebhook';
 import './server/ckEditor/ckEditorCallbacks';
 
 import './server/loot/stripeWebhook';
-
+import './server/loot/checkoutSession';
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
 

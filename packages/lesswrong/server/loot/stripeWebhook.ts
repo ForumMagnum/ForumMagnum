@@ -1,20 +1,8 @@
 import { addStaticRoute } from "../vulcan-lib/staticRoutes";
 import Stripe from 'stripe';
 import { captureException } from '@sentry/core';
-import { stripeLootSecretKey, stripeLootWebhookSecret } from "../databaseSettings";
-
-const getStripe = (() => {
-  let stripe: Stripe | undefined;
-  return () => {
-    if (stripe) return stripe;
-    const secretKey = stripeLootSecretKey.get();
-    if (!secretKey) return;
-    stripe = new Stripe(secretKey, {
-      apiVersion: '2024-11-20.acacia',
-    });
-    return stripe;
-  };
-})();
+import { stripeLootWebhookSecret } from "../databaseSettings";
+import { getStripe } from "./stripe";
 
 addStaticRoute('/loot-webhook', async (props, req, res) => {
   if (req.method !== 'POST') {
@@ -26,7 +14,7 @@ addStaticRoute('/loot-webhook', async (props, req, res) => {
   }
 
   // TODO: add the actual secret to the DB when we create the webhook in Stripe
-  const webhookSecret = stripeLootWebhookSecret.get();
+  const webhookSecret = stripeLootWebhookSecret.get() || process.env.STRIPE_LOOT_WEBHOOK_SECRET;
   if (!webhookSecret) {
     // eslint-disable-next-line no-console
     console.log('No webhook secret');

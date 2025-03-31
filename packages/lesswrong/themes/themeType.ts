@@ -573,6 +573,15 @@ declare global {
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
+    loot: {
+      buyButton: {
+        color: ColorString,
+        textShadowColor: ColorString,
+        backgroundImage: string,
+        backgroundImageHover: string,
+        backgroundImageActive: string,
+      }
+    },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
