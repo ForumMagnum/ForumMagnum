@@ -17,6 +17,7 @@ import { formatError } from 'apollo-errors';
 import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
+import bodyParser from 'body-parser';
 import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
@@ -163,6 +164,8 @@ export function startWebserver() {
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
+  app.use('/loot-webhook', bodyParser.raw({ type: 'application/json' }));
+
   if (enableVite) {
     // When vite is running the backend is proxied which means we have to
     // enable CORS for API routes to work
@@ -254,7 +257,7 @@ export function startWebserver() {
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
   app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
-  apolloServer.applyMiddleware({ app })
+  apolloServer.applyMiddleware({ app, path: '/graphql', bodyParserConfig: false })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;

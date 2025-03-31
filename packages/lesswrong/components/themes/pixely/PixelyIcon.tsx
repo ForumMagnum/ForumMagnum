@@ -70,4 +70,5 @@ export const PixelyIconPath = ({path, noDefaultStyles, className, style, onClick
 
 export function hasPixelyIcon(icon: ForumIconName): boolean {
   return (icon in pixelyIcons);
-} 
+}
+

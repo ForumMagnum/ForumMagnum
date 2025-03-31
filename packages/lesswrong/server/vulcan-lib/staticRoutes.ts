@@ -22,16 +22,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import type { IncomingMessage, ServerResponse } from 'http';
 import pathToRegexp from 'path-to-regexp';
 import URL from 'url';
-import type { NextFunction, ParamsDictionary, Query, Response } from 'express-serve-static-core';
+import type { Request, NextFunction, ParamsDictionary, Query, Response } from 'express-serve-static-core';
 import type { RequestHandler } from 'express';
 const urlParse = URL.parse;
 
 type Req = Parameters<RequestHandler>[0];
 type Res = Response<any, Record<string, any>, number>;
-type RouteCallback = (props: any, req: IncomingMessage, res: ServerResponse, next: NextFunction) => void | Promise<void>;
+type RouteCallback = (props: any, req: Request, res: Response, next: NextFunction) => void | Promise<void>;
 
 let routes: (pathToRegexp.PathRegExp & { callback: any })[] = [];
 
