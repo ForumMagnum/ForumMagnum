@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbDigestPost>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateDigestPostDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -25,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbDigestPost | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPosts', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateDigestPostInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('DigestPosts', {
@@ -55,7 +55,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPo
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateDigestPostInput, context) => {
     const { currentUser, DigestPosts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -101,17 +101,21 @@ export { createFunction as createDigestPost, updateFunction as updateDigestPost 
 
 
 export const graphqlDigestPostTypeDefs = gql`
+  input CreateDigestPostDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateDigestPostInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateDigestPostDataInput!
   }
   
+  input UpdateDigestPostDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateDigestPostInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateDigestPostDataInput!
   }
   
   extend type Mutation {

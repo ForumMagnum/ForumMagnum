@@ -14,7 +14,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-function newCheck(user: DbUser | null, document: DbLocalgroup | null) {
+function newCheck(user: DbUser | null, document: CreateLocalgroupDataInput | null) {
   if (!user || !document) return false;
   return document.organizerIds.includes(user._id)
     ? userCanDo(user, 'localgroups.new.own')
@@ -29,7 +29,7 @@ function editCheck(user: DbUser | null, document: DbLocalgroup | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgroups', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateLocalgroupInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Localgroups', {
@@ -84,7 +84,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateLocalgroupInput, context) => {
     const { currentUser, Localgroups } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -149,17 +149,21 @@ export { createFunction as createLocalgroup, updateFunction as updateLocalgroup 
 
 
 export const graphqlLocalgroupTypeDefs = gql`
+  input CreateLocalgroupDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateLocalgroupInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateLocalgroupDataInput!
   }
   
+  input UpdateLocalgroupDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateLocalgroupInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateLocalgroupDataInput!
   }
   
   extend type Mutation {

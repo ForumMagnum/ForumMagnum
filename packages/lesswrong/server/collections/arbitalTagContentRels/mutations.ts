@@ -11,7 +11,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbArbitalTagContentRel>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateArbitalTagContentRelDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -23,7 +23,7 @@ function editCheck(user: DbUser | null, document: DbArbitalTagContentRel | null,
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ArbitalTagContentRels', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateArbitalTagContentRelInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ArbitalTagContentRels', {
@@ -53,7 +53,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ArbitalT
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateArbitalTagContentRelInput, context) => {
     const { currentUser, ArbitalTagContentRels } = context;
 
     const {
@@ -91,17 +91,21 @@ export { createFunction as createArbitalTagContentRel, updateFunction as updateA
 
 
 export const graphqlArbitalTagContentRelTypeDefs = gql`
+  input CreateArbitalTagContentRelDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateArbitalTagContentRelInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateArbitalTagContentRelDataInput!
   }
   
+  input UpdateArbitalTagContentRelDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateArbitalTagContentRelInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateArbitalTagContentRelDataInput!
   }
   
   extend type Mutation {

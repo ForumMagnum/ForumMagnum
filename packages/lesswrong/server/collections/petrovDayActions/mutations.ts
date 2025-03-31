@@ -7,7 +7,7 @@ import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/gra
 import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
-async function newCheck(user: DbUser | null, document: DbPetrovDayAction | null, context: ResolverContext) {
+async function newCheck(user: DbUser | null, document: CreatePetrovDayActionDataInput | null, context: ResolverContext) {
   const { PetrovDayActions } = context;
 
   if (!user || !document) return false
@@ -38,7 +38,7 @@ async function newCheck(user: DbUser | null, document: DbPetrovDayAction | null,
 }
 
 const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreatePetrovDayActionInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('PetrovDayActions', {
@@ -74,10 +74,12 @@ export { createFunction as createPetrovDayAction };
 
 
 export const graphqlPetrovDayActionTypeDefs = gql`
+  input CreatePetrovDayActionDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreatePetrovDayActionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreatePetrovDayActionDataInput!
   }
   
   extend type Mutation {

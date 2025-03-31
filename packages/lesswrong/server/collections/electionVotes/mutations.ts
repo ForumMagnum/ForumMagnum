@@ -43,7 +43,7 @@ function editCheck(user: DbUser | null, document: DbElectionVote | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElectionVotes', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateElectionVoteInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ElectionVotes', {
@@ -73,7 +73,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateElectionVoteInput, context) => {
     const { currentUser, ElectionVotes } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -119,17 +119,21 @@ export { createFunction as createElectionVote, updateFunction as updateElectionV
 
 
 export const graphqlElectionVoteTypeDefs = gql`
+  input CreateElectionVoteDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateElectionVoteInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateElectionVoteDataInput!
   }
   
+  input UpdateElectionVoteDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateElectionVoteInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateElectionVoteDataInput!
   }
   
   extend type Mutation {

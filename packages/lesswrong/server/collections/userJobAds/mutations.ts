@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbUserJobAd>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateUserJobAdDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
     'userjobad.create',
     'userjobads.new',
@@ -41,7 +41,7 @@ function editCheck(user: DbUser | null, document: DbUserJobAd | null, context: R
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobAds', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateUserJobAdInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserJobAds', {
@@ -71,7 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobA
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserJobAdInput, context) => {
     const { currentUser, UserJobAds } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -117,17 +117,21 @@ export { createFunction as createUserJobAd, updateFunction as updateUserJobAd };
 
 
 export const graphqlUserJobAdTypeDefs = gql`
+  input CreateUserJobAdDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateUserJobAdInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateUserJobAdDataInput!
   }
   
+  input UpdateUserJobAdDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateUserJobAdInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateUserJobAdDataInput!
   }
   
   extend type Mutation {

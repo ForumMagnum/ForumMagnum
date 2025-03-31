@@ -2,7 +2,7 @@ import type { AfterCreateCallbackProperties, UpdateCallbackProperties } from '..
 import difference from 'lodash/difference';
 import { createNotifications } from '../notificationCallbacksHelpers';
 
-export function validateGroupIsOnlineOrHasLocation(group: Partial<DbInsertion<DbLocalgroup>> | DbLocalgroup) {
+export function validateGroupIsOnlineOrHasLocation(group: CreateLocalgroupDataInput | DbLocalgroup) {
   if (!group.isOnline && !group.location)
     throw new Error("Location is required for local groups");
 }

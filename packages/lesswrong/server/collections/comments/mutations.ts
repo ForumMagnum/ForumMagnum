@@ -18,7 +18,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-async function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbComment>> | null, context: ResolverContext) {
+async function newCheck(user: DbUser | null, document: CreateCommentDataInput | null, context: ResolverContext) {
   if (!user) return false;
   if (!document || !document.postId) return userCanDo(user, 'comments.new')
   const post = await context.loaders.Posts.load(document.postId)
@@ -43,7 +43,7 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateCommentInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Comments', {
@@ -124,7 +124,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateCommentInput, context) => {
     const { currentUser, Comments } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -208,17 +208,21 @@ export { createFunction as createComment, updateFunction as updateComment };
 
 
 export const graphqlCommentTypeDefs = gql`
+  input CreateCommentDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateCommentInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateCommentDataInput!
   }
   
+  input UpdateCommentDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateCommentInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateCommentDataInput!
   }
   
   extend type Mutation {

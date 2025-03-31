@@ -93,7 +93,7 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
 const utils = {
   enforceCommentRateLimit: async ({user, comment, context}: {
     user: DbUser,
-    comment: Partial<DbInsertion<DbComment>>,
+    comment: CreateCommentDataInput,
     context: ResolverContext,
   }) => {
     const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
@@ -541,7 +541,7 @@ export async function newCommentsRateLimit({ newDocument: comment, currentUser, 
 }
 
 /* CREATE BEFORE */
-export async function assignPostVersion(comment: Partial<DbInsertion<DbComment>>): Promise<Partial<DbInsertion<DbComment>>> {
+export async function assignPostVersion(comment: CreateCommentDataInput) {
   if (!comment.postId) {
     return {
       ...comment,
@@ -565,7 +565,7 @@ export async function assignPostVersion(comment: Partial<DbInsertion<DbComment>>
   };
 }
 
-export async function createShortformPost(comment: Partial<DbInsertion<DbComment>>, { currentUser, context: { Users, Posts } }: CreateCallbackProperties<"Comments">) {
+export async function createShortformPost(comment: CreateCommentDataInput, { currentUser, context: { Users, Posts } }: CreateCallbackProperties<"Comments">) {
   if (!currentUser) {
     throw new Error("Must be logged in");
   }
@@ -607,7 +607,7 @@ export async function createShortformPost(comment: Partial<DbInsertion<DbComment
   return comment;
 }
 
-export function addReferrerToComment(comment: Partial<DbInsertion<DbComment>>, properties: CreateCallbackProperties<"Comments">) {
+export function addReferrerToComment(comment: CreateCommentDataInput, properties: CreateCallbackProperties<"Comments">) {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
     let userAgent = properties.context.headers["user-agent"];
@@ -620,7 +620,7 @@ export function addReferrerToComment(comment: Partial<DbInsertion<DbComment>>, p
   }
 }
 
-export async function handleReplyToAnswer(comment: Partial<DbInsertion<DbComment>>, properties: CreateCallbackProperties<"Comments">) {
+export async function handleReplyToAnswer(comment: CreateCommentDataInput, properties: CreateCallbackProperties<"Comments">) {
   const { context: { Comments } } = properties;
   
   if (comment.parentCommentId) {
@@ -648,7 +648,7 @@ export async function handleReplyToAnswer(comment: Partial<DbInsertion<DbComment
   return comment;
 }
 
-export async function setTopLevelCommentId(comment: Partial<DbInsertion<DbComment>>, properties: CreateCallbackProperties<"Comments">) {
+export async function setTopLevelCommentId(comment: CreateCommentDataInput, properties: CreateCallbackProperties<"Comments">) {
   const { context: { Comments } } = properties;
   
   let visited: Partial<Record<string,boolean>> = {};
@@ -677,7 +677,7 @@ export async function setTopLevelCommentId(comment: Partial<DbInsertion<DbCommen
 
 
 /* NEW SYNC */
-export async function commentsNewOperations(comment: Partial<DbInsertion<DbComment>>, _: DbUser | null, context: ResolverContext) {
+export async function commentsNewOperations(comment: CreateCommentDataInput, _: DbUser | null, context: ResolverContext) {
   const { Posts, Tags, ReadStatuses, loaders } = context;
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
@@ -726,7 +726,7 @@ export async function commentsNewOperations(comment: Partial<DbInsertion<DbComme
 }
 
 // Duplicate of PostsNewUserApprovedStatus
-export async function commentsNewUserApprovedStatus(comment: Partial<DbInsertion<DbComment>>, context: ResolverContext) {
+export async function commentsNewUserApprovedStatus(comment: CreateCommentDataInput, context: ResolverContext) {
   const { Users } = context;
 
   const commentAuthor = await Users.findOne(comment.userId);
@@ -736,7 +736,7 @@ export async function commentsNewUserApprovedStatus(comment: Partial<DbInsertion
   return comment;
 }
 
-export async function handleForumEventMetadataNew(comment: Partial<DbInsertion<DbComment>> & { _id?: string }, context: ResolverContext) {
+export async function handleForumEventMetadataNew(comment: CreateCommentDataInput & { _id?: string }, context: ResolverContext) {
   if (comment.forumEventMetadata) {
     // Side effects may need to reference the comment, so set the _id now
     comment._id = comment._id || randomId();
@@ -923,7 +923,7 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 
 
 /* UPDATE BEFORE */
-export function updatePostLastCommentPromotedAt(data: Partial<DbInsertion<DbComment>>, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
+export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
   if (data?.promoted && !oldDocument.promoted && newDocument.postId) {
     void updateMutator({
       collection: context.Posts,
@@ -942,7 +942,7 @@ export function updatePostLastCommentPromotedAt(data: Partial<DbInsertion<DbComm
   return data;
 }
 
-export async function validateDeleteOperations(data: Partial<DbInsertion<DbComment>>, properties: UpdateCallbackProperties<"Comments">) {
+export async function validateDeleteOperations(data: UpdateCommentDataInput, properties: UpdateCallbackProperties<"Comments">) {
   const { Comments } = properties.context;
   // Validate changes to comment deletion fields (deleted, deletedPublic,
   // deletedReason). This could be deleting a comment, undoing a delete, or
@@ -1003,7 +1003,7 @@ export async function validateDeleteOperations(data: Partial<DbInsertion<DbComme
 }
 
 /* EDIT SYNC */
-export async function moveToAnswers(modifier: MongoModifier<DbComment>, comment: DbComment, context: ResolverContext) {
+export async function moveToAnswers(modifier: MongoModifier, comment: DbComment, context: ResolverContext) {
   const { Comments } = context;
 
   if (modifier.$set) {
@@ -1016,7 +1016,7 @@ export async function moveToAnswers(modifier: MongoModifier<DbComment>, comment:
   return modifier
 }
 
-export async function handleForumEventMetadataEdit(modifier: MongoModifier<DbComment>, comment: DbComment, context: ResolverContext) {
+export async function handleForumEventMetadataEdit(modifier: MongoModifier, comment: DbComment, context: ResolverContext) {
   const newMetadata = modifier.$set?.forumEventMetadata;
   if (newMetadata && !isEqual(comment.forumEventMetadata, newMetadata)) {
     await utils.forumEventSideEffects({ comment, forumEventMetadata: newMetadata, context });

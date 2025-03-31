@@ -9,14 +9,14 @@ import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/gra
 import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
-function newCheck(user: DbUser | null, document: DbSubscription | null) {
+function newCheck(user: DbUser | null, document: CreateSubscriptionDataInput | null) {
   if (!user || !document) return false;
   return userCanDo(user, 'subscriptions.new');
 }
 
 
 const { createFunction } = getDefaultMutationFunctions('Subscriptions', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateSubscriptionInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Subscriptions', {
@@ -54,10 +54,12 @@ export { createFunction as createSubscription };
 
 
 export const graphqlSubscriptionTypeDefs = gql`
+  input CreateSubscriptionDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateSubscriptionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateSubscriptionDataInput!
   }
   
   extend type Mutation {

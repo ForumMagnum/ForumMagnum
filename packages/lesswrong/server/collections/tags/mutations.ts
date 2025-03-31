@@ -18,7 +18,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-function newCheck(user: DbUser | null, tag: Partial<DbInsertion<DbTag>> | null) {
+function newCheck(user: DbUser | null, tag: CreateTagDataInput | null) {
   if (!user) return false;
   if (user.deleted) return false;
 
@@ -42,7 +42,7 @@ function editCheck(user: DbUser | null, tag: DbTag | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateTagInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Tags', {
@@ -101,7 +101,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateTagInput, context) => {
     const { currentUser, Tags } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -174,17 +174,21 @@ export { createFunction as createTag, updateFunction as updateTag };
 
 
 export const graphqlTagTypeDefs = gql`
+  input CreateTagDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateTagInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateTagDataInput!
   }
   
+  input UpdateTagDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateTagInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateTagDataInput!
   }
   
   extend type Mutation {

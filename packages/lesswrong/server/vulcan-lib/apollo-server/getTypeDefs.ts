@@ -4,6 +4,7 @@ import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import gql from 'graphql-tag';
+import { print } from 'graphql';
 
 const mutationsToGraphQL = (mutations: {mutation: string, description?: string}[]): string =>
   mutations.length > 0
@@ -64,6 +65,14 @@ const getTypeDefs = () => {
 
   schemaContents.push(queriesToGraphQL(allQueries));
   schemaContents.push(mutationsToGraphQL(allMutations));
+//   if (!allMutations.length) {
+//     console.log('No mutations are defined');
+//     schemaContents.push(`
+// type Mutation {
+//   noop(input: Boolean): Boolean
+// }
+//     `);
+//   }
 
   return {
     schemaText: schemaContents.join("\n"),
@@ -84,6 +93,10 @@ export const getGraphQLSchema = () => {
   for (let addedResolverGroup of addedResolvers) {
     allResolvers = deepmerge(allResolvers, addedResolverGroup);
   }
+
+  require('fs').writeFileSync('./schema.txt', schemaText);
+
+  require('fs').writeFileSync('./inputTypes.txt', print(typeDefs));
 
   return {
     typeDefs: gql`

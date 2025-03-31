@@ -14,7 +14,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbModerationTemplate>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateModerationTemplateDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -26,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbModerationTemplate | null, c
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ModerationTemplates', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateModerationTemplateInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ModerationTemplates', {
@@ -77,7 +77,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateModerationTemplateInput, context) => {
     const { currentUser, ModerationTemplates } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -138,17 +138,21 @@ export { createFunction as createModerationTemplate, updateFunction as updateMod
 
 
 export const graphqlModerationTemplateTypeDefs = gql`
+  input CreateModerationTemplateDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateModerationTemplateInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateModerationTemplateDataInput!
   }
   
+  input UpdateModerationTemplateDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateModerationTemplateInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateModerationTemplateDataInput!
   }
   
   extend type Mutation {

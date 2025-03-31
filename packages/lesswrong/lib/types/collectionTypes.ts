@@ -69,12 +69,12 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
    */
   rawUpdateOne: (
     selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
-    modifier?: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier?: MongoModifier,
     options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) => Promise<number>;
   rawUpdateMany: (
     selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
-    modifier?: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier?: MongoModifier,
     options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) => Promise<number>;
 
@@ -190,7 +190,7 @@ type ApplyProjection<
 export type MongoSelector<T extends DbObject> = any; //TODO
 type MongoExpression<T extends DbObject> = `$${keyof T & string}` | { [k in `$${string}`]: any }
 type MongoProjection<T extends DbObject> = { [K in keyof T]?: 0 | 1 | boolean } | Record<string, MongoExpression<T>>;
-type MongoModifier<T extends DbObject|DbInsertion<DbObject>> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
+type MongoModifier = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
 type FindFn<T extends DbObject> = <Projection extends MongoProjection<T> | undefined = undefined>(
   selector?: string | MongoSelector<T>,
@@ -258,7 +258,7 @@ type MongoIndexSpecification<T> = {
 type MongoDropIndexOptions = {};
 
 type MongoBulkInsert<T extends DbObject> = {document: T};
-type MongoBulkUpdate<T extends DbObject> = {filter: MongoSelector<T>, update: MongoModifier<T>, upsert?: boolean};
+type MongoBulkUpdate<T extends DbObject> = {filter: MongoSelector<T>, update: MongoModifier, upsert?: boolean};
 type MongoBulkDelete<T extends DbObject> = {filter: MongoSelector<T>};
 type MongoBulkReplace<T extends DbObject> = {filter: MongoSelector<T>, replacement: T, upsert?: boolean};
 type MongoBulkWriteOperation<T extends DbObject> =

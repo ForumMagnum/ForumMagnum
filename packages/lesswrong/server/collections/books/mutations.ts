@@ -15,7 +15,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbBook>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateBookDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -26,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbBook | null, context: Resolv
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Books', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateBookInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Books', {
@@ -77,7 +77,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Books', 
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateBookInput, context) => {
     const { currentUser, Books } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -140,17 +140,21 @@ export { createFunction as createBook, updateFunction as updateBook };
 
 
 export const graphqlBookTypeDefs = gql`
+  input CreateBookDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateBookInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateBookDataInput!
   }
   
+  input UpdateBookDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateBookInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateBookDataInput!
   }
   
   extend type Mutation {

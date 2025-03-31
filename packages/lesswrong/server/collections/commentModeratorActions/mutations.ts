@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbCommentModeratorAction>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateCommentModeratorActionDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -25,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbCommentModeratorAction | nul
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('CommentModeratorActions', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateCommentModeratorActionInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('CommentModeratorActions', {
@@ -55,7 +55,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('CommentM
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateCommentModeratorActionInput, context) => {
     const { currentUser, CommentModeratorActions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -101,17 +101,21 @@ export { createFunction as createCommentModeratorAction, updateFunction as updat
 
 
 export const graphqlCommentModeratorActionTypeDefs = gql`
+  input CreateCommentModeratorActionDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateCommentModeratorActionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateCommentModeratorActionDataInput!
   }
   
+  input UpdateCommentModeratorActionDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateCommentModeratorActionInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateCommentModeratorActionDataInput!
   }
   
   extend type Mutation {

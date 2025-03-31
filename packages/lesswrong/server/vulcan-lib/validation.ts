@@ -8,12 +8,12 @@ interface SimpleSchemaValidationError {
   [key: string]: number | string;
 }
 
-export const dataToModifier = <T extends DbObject>(data: Partial<DbInsertion<T>>): MongoModifier<DbInsertion<T>> => ({ 
+export const dataToModifier = <T extends Record<any, any>>(data: T): MongoModifier => ({ 
   $set: pickBy(data, f => f !== null), 
   $unset: mapValues(pickBy(data, f => f === null), () => true),
 });
 
-export const modifierToData = <T extends DbObject>(modifier: MongoModifier<T>): any => ({
+export const modifierToData = (modifier: MongoModifier): any => ({
   ...modifier.$set,
   ...mapValues(modifier.$unset, () => null),
 });
@@ -26,8 +26,8 @@ export const modifierToData = <T extends DbObject>(modifier: MongoModifier<T>): 
   2. Run SimpleSchema validation step
 
 */
-export const validateDocument = <N extends CollectionNameString>(
-  document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+export const validateDocument = <N extends CollectionNameString, D extends {} = CreateInputsByCollectionName[N]['data']>(
+  document: D,
   collection: CollectionBase<N>,
   context: ResolverContext,
 ) => {
@@ -89,7 +89,7 @@ export const validateDocument = <N extends CollectionNameString>(
   
 */
 export const validateModifier = <N extends CollectionNameString>(
-  modifier: MongoModifier<DbInsertion<ObjectsByCollectionName[N]>>,
+  modifier: MongoModifier,
   document: any,
   collection: CollectionBase<N>,
   context: ResolverContext,
@@ -145,7 +145,7 @@ export const validateModifier = <N extends CollectionNameString>(
 };
 
 export const validateData = <N extends CollectionNameString>(
-  data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  data: CreateInputsByCollectionName[N]['data'],
   document: ObjectsByCollectionName[N] | DbInsertion<ObjectsByCollectionName[N]>,
   collection: CollectionBase<N>,
   context: ResolverContext,

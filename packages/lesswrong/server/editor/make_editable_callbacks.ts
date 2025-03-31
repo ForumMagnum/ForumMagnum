@@ -14,12 +14,12 @@ import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCal
 import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
-  doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+  doc: CreateInputsByCollectionName[N]['data'];
   props: CreateCallbackProperties<N>;
 }
 
 interface UpdateBeforeEditableCallbackProperties<N extends CollectionNameString> {
-  docData: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+  docData: UpdateInputsByCollectionName[N]['data'];
   props: UpdateCallbackProperties<N>;
 }
 
@@ -67,8 +67,8 @@ interface AfterCreateRevisionCallbackContext {
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
-export function getInitialVersion(document: Partial<DbInsertion<DbPost|DbObject>>) {
-  if ((document as DbPost).draft) {
+export function getInitialVersion(document: CreateInputsByCollectionName[CollectionNameString]['data'] | ObjectsByCollectionName[CollectionNameString]) {
+  if ((document as CreatePostDataInput).draft) {
     return '0.1.0'
   } else {
     return '1.0.0'
@@ -127,7 +127,7 @@ export type EditableCallbackProperties<N extends CollectionNameString> = Pick<Ma
 
 // createBefore
 async function createInitialRevision<N extends CollectionNameString>(
-  doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  doc: CreateInputsByCollectionName[N]['data'],
   {currentUser, context}: CreateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
 ) {
@@ -196,7 +196,7 @@ async function createInitialRevision<N extends CollectionNameString>(
 
 // updateBefore
 async function createUpdateRevision<N extends CollectionNameString>(
-  docData: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  docData: UpdateInputsByCollectionName[N]['data'],
   { oldDocument: document, newDocument, currentUser, context }: UpdateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
 ) {

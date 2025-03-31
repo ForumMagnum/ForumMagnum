@@ -90,6 +90,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
+      canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["GardenCodes"],
         getTitle: (gc) => gc.title!,

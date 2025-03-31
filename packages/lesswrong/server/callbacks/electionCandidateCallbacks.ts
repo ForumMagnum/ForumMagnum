@@ -1,4 +1,4 @@
-export function setDefaultVotingFields(candidate: Partial<DbInsertion<DbElectionCandidate>>) {
+export function setDefaultVotingFields(candidate: CreateElectionCandidateDataInput & NullablePartial<DbElectionCandidate>) {
   candidate.extendedScore ??= {};
   candidate.afBaseScore ??= 0;
   candidate.afExtendedScore ??= {};

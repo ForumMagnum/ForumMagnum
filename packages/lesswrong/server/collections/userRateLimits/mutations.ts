@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbUserRateLimit>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateUserRateLimitDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
     'userratelimit.create',
     'userratelimits.new',
@@ -41,7 +41,7 @@ function editCheck(user: DbUser | null, document: DbUserRateLimit | null, contex
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRateLimits', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateUserRateLimitInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserRateLimits', {
@@ -71,7 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRate
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserRateLimitInput, context) => {
     const { currentUser, UserRateLimits } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -117,17 +117,21 @@ export { createFunction as createUserRateLimit, updateFunction as updateUserRate
 
 
 export const graphqlUserRateLimitTypeDefs = gql`
+  input CreateUserRateLimitDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateUserRateLimitInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateUserRateLimitDataInput!
   }
   
+  input UpdateUserRateLimitDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateUserRateLimitInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateUserRateLimitDataInput!
   }
   
   extend type Mutation {

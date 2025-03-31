@@ -8,8 +8,10 @@ import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnPr
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import clone from "lodash/clone";
 
+type CreateReviewVoteDataInput = Partial<DbReviewVote>;
+type UpdateReviewVoteDataInput = Partial<DbReviewVote>;
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbReviewVote>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateReviewVoteDataInput | null, context: ResolverContext) {
   return !user?.deleted && !user?.voteBanned;
 }
 
@@ -20,7 +22,7 @@ function editCheck(user: DbUser | null, document: DbReviewVote | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVotes', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: { data: CreateReviewVoteDataInput }, context) => {
     const { currentUser, ReviewVotes } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ReviewVotes', {
@@ -54,7 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: UpdateReviewVoteDataInput }, context) => {
     const { currentUser, ReviewVotes } = context;
 
     const {

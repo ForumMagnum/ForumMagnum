@@ -12,7 +12,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbSpotlight>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateSpotlightDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -24,7 +24,7 @@ function editCheck(user: DbUser | null, document: DbSpotlight | null, context: R
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotlights', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateSpotlightInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Spotlights', {
@@ -75,7 +75,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateSpotlightInput, context) => {
     const { currentUser, Spotlights } = context;
 
     const {
@@ -128,17 +128,21 @@ export { createFunction as createSpotlight, updateFunction as updateSpotlight };
 
 
 export const graphqlSpotlightTypeDefs = gql`
+  input CreateSpotlightDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateSpotlightInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateSpotlightDataInput!
   }
   
+  input UpdateSpotlightDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateSpotlightInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateSpotlightDataInput!
   }
   
   extend type Mutation {

@@ -1,5 +1,5 @@
 
-import { canMutateParentDocument, InsertableMultiDocument } from "@/lib/collections/multiDocuments/helpers";
+import { canMutateParentDocument } from "@/lib/collections/multiDocuments/helpers";
 import schema from "@/lib/collections/multiDocuments/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
@@ -16,8 +16,8 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-function newCheck(user: DbUser | null, multiDocument: Partial<DbInsertion<DbMultiDocument>> | null, context: ResolverContext) {
-  return canMutateParentDocument(user, multiDocument as InsertableMultiDocument | null, 'create', context);
+function newCheck(user: DbUser | null, multiDocument: CreateMultiDocumentDataInput | null, context: ResolverContext) {
+  return canMutateParentDocument(user, multiDocument, 'create', context);
 }
 
 async function editCheck(user: DbUser | null, multiDocument: DbMultiDocument | null, context: ResolverContext) {
@@ -39,7 +39,7 @@ async function editCheck(user: DbUser | null, multiDocument: DbMultiDocument | n
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDocuments', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateMultiDocumentInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('MultiDocuments', {
@@ -94,7 +94,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateMultiDocumentInput, context) => {
     const { currentUser, MultiDocuments } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -159,17 +159,21 @@ export { createFunction as createMultiDocument, updateFunction as updateMultiDoc
 
 
 export const graphqlMultiDocumentTypeDefs = gql`
+  input CreateMultiDocumentDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateMultiDocumentInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateMultiDocumentDataInput!
   }
   
+  input UpdateMultiDocumentDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateMultiDocumentInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateMultiDocumentDataInput!
   }
   
   extend type Mutation {

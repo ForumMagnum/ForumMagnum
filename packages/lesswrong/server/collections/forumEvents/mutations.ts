@@ -14,7 +14,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbForumEvent>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateForumEventDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -26,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbForumEvent | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ForumEvents', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateForumEventInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ForumEvents', {
@@ -77,7 +77,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ForumEve
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateForumEventInput, context) => {
     const { currentUser, ForumEvents } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -138,17 +138,21 @@ export { createFunction as createForumEvent, updateFunction as updateForumEvent 
 
 
 export const graphqlForumEventTypeDefs = gql`
+  input CreateForumEventDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateForumEventInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateForumEventDataInput!
   }
   
+  input UpdateForumEventDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateForumEventInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateForumEventDataInput!
   }
   
   extend type Mutation {

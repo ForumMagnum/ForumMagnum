@@ -19,7 +19,7 @@ function editCheck(user: DbUser | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashArtCoordinates', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateSplashArtCoordinateInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('SplashArtCoordinates', {
@@ -49,7 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashAr
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateSplashArtCoordinateInput, context) => {
     const { currentUser, SplashArtCoordinates } = context;
 
     const {
@@ -87,17 +87,21 @@ export { createFunction as createSplashArtCoordinate, updateFunction as updateSp
 
 
 export const graphqlSplashArtCoordinateTypeDefs = gql`
+  input CreateSplashArtCoordinateDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateSplashArtCoordinateInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateSplashArtCoordinateDataInput!
   }
   
+  input UpdateSplashArtCoordinateDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateSplashArtCoordinateInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateSplashArtCoordinateDataInput!
   }
   
   extend type Mutation {

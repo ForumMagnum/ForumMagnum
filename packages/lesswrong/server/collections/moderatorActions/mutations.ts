@@ -14,7 +14,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbModeratorAction>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateModeratorActionDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -26,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbModeratorAction | null, cont
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ModeratorActions', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateModeratorActionInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ModeratorActions', {
@@ -64,7 +64,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateModeratorActionInput, context) => {
     const { currentUser, ModeratorActions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -110,17 +110,21 @@ export { createFunction as createModeratorAction, updateFunction as updateModera
 
 
 export const graphqlModeratorActionTypeDefs = gql`
+  input CreateModeratorActionDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateModeratorActionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateModeratorActionDataInput!
   }
   
+  input UpdateModeratorActionDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateModeratorActionInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateModeratorActionDataInput!
   }
   
   extend type Mutation {

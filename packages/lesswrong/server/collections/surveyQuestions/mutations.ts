@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbSurveyQuestion>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateSurveyQuestionDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -25,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbSurveyQuestion | null, conte
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyQuestions', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateSurveyQuestionInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('SurveyQuestions', {
@@ -55,7 +55,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyQu
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateSurveyQuestionInput, context) => {
     const { currentUser, SurveyQuestions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -101,17 +101,21 @@ export { createFunction as createSurveyQuestion, updateFunction as updateSurveyQ
 
 
 export const graphqlSurveyQuestionTypeDefs = gql`
+  input CreateSurveyQuestionDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateSurveyQuestionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateSurveyQuestionDataInput!
   }
   
+  input UpdateSurveyQuestionDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateSurveyQuestionInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateSurveyQuestionDataInput!
   }
   
   extend type Mutation {

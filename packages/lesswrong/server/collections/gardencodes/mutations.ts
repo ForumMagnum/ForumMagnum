@@ -15,7 +15,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbGardenCode>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateGardenCodeDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
     'gardencode.create',
     'gardencodes.new',
@@ -43,7 +43,7 @@ function editCheck(user: DbUser | null, document: DbGardenCode | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCodes', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateGardenCodeInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('GardenCodes', {
@@ -96,7 +96,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateGardenCodeInput, context) => {
     const { currentUser, GardenCodes } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -159,17 +159,21 @@ export { createFunction as createGardenCode, updateFunction as updateGardenCode 
 
 
 export const graphqlGardenCodeTypeDefs = gql`
+  input CreateGardenCodeDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateGardenCodeInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateGardenCodeDataInput!
   }
   
+  input UpdateGardenCodeDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateGardenCodeInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateGardenCodeDataInput!
   }
   
   extend type Mutation {

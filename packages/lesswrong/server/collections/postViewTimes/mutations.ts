@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbPostViewTime>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreatePostViewTimeDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -25,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbPostViewTime | null, context
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('PostViewTimes', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreatePostViewTimeInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('PostViewTimes', {
@@ -55,7 +55,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostView
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdatePostViewTimeInput, context) => {
     const { currentUser, PostViewTimes } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -101,17 +101,21 @@ export { createFunction as createPostViewTime, updateFunction as updatePostViewT
 
 
 export const graphqlPostViewTimeTypeDefs = gql`
+  input CreatePostViewTimeDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreatePostViewTimeInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreatePostViewTimeDataInput!
   }
   
+  input UpdatePostViewTimeDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdatePostViewTimeInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdatePostViewTimeDataInput!
   }
   
   extend type Mutation {

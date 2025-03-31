@@ -13,7 +13,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-function newCheck(user: DbUser | null, document: DbCurationNotice | null) {
+function newCheck(user: DbUser | null, document: CreateCurationNoticeDataInput | null) {
   return userIsAdminOrMod(user)
 }
 
@@ -22,7 +22,7 @@ function editCheck(user: DbUser | null, document: DbCurationNotice | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('CurationNotices', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateCurationNoticeInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('CurationNotices', {
@@ -73,7 +73,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateCurationNoticeInput, context) => {
     const { currentUser, CurationNotices } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -134,17 +134,21 @@ export { createFunction as createCurationNotice, updateFunction as updateCuratio
 
 
 export const graphqlCurationNoticeTypeDefs = gql`
+  input CreateCurationNoticeDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateCurationNoticeInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateCurationNoticeDataInput!
   }
   
+  input UpdateCurationNoticeDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateCurationNoticeInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateCurationNoticeDataInput!
   }
   
   extend type Mutation {

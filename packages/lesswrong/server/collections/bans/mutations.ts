@@ -12,19 +12,19 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-function newCheck(user: DbUser|null, document: DbBan|null) {
+function newCheck(user: DbUser | null, document: CreateBanDataInput | null) {
   if (!user || !document) return false;
   return userCanDo(user, 'bans.new');
 }
 
-function editCheck(user: DbUser|null, document: DbBan|null) {
+function editCheck(user: DbUser | null, document: DbBan | null) {
   if (!user || !document) return false;
   return userCanDo(user, `bans.edit.all`)
 }
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateBanInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Bans', {
@@ -54,7 +54,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateBanInput, context) => {
     const { currentUser, Bans } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -100,17 +100,21 @@ export { createFunction as createBan, updateFunction as updateBan };
 
 
 export const graphqlBanTypeDefs = gql`
+  input CreateBanDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateBanInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateBanDataInput!
   }
   
+  input UpdateBanDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateBanInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateBanDataInput!
   }
   
   extend type Mutation {

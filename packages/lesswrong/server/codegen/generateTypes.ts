@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateDefaultFragments } from './generateDefaultFragments';
+import { generateInputTypes } from './generateInputTypes';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -106,6 +107,7 @@ export function generateTypes(repoRoot?: string) {
   
   try {
     writeIfChanged(generateDefaultFragments(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
+    writeIfChanged(generateInputTypes(), "/packages/lesswrong/lib/generated/inputTypes.d.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");

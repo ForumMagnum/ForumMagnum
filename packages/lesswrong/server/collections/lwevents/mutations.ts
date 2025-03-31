@@ -1,7 +1,7 @@
 
 import schema from "@/lib/collections/lwevents/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
+import { OwnableDocument, userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -11,9 +11,9 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import { sendIntercomEvent, updatePartiallyReadSequences, updateReadStatus } from "./helpers";
 
-function newCheck(user: DbUser | null, document: DbLWEvent | null) {
+function newCheck(user: DbUser | null, document: CreateLWEventDataInput | null) {
   if (!user || !document) return false;
-  return userOwns(user, document) ? userCanDo(user, 'events.new.own') : userCanDo(user, `events.new.all`)
+  return userOwns(user, document as OwnableDocument) ? userCanDo(user, 'events.new.own') : userCanDo(user, `events.new.all`)
 }
 
 function editCheck(user: DbUser | null, document: DbLWEvent | null) {
@@ -22,7 +22,7 @@ function editCheck(user: DbUser | null, document: DbLWEvent | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateLWEventInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('LWEvents', {
@@ -64,7 +64,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateLWEventInput, context) => {
     const { currentUser, LWEvents } = context;
 
     const {
@@ -102,17 +102,21 @@ export { createFunction as createLWEvent, updateFunction as updateLWEvent };
 
 
 export const graphqlLWEventTypeDefs = gql`
+  input CreateLWEventDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateLWEventInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateLWEventDataInput!
   }
   
+  input UpdateLWEventDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateLWEventInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateLWEventDataInput!
   }
   
   extend type Mutation {

@@ -11,7 +11,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbPostEmbedding>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreatePostEmbeddingDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -23,7 +23,7 @@ function editCheck(user: DbUser | null, document: DbPostEmbedding | null, contex
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('PostEmbeddings', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreatePostEmbeddingInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('PostEmbeddings', {
@@ -53,7 +53,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostEmbe
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdatePostEmbeddingInput, context) => {
     const { currentUser, PostEmbeddings } = context;
 
     const {
@@ -91,17 +91,21 @@ export { createFunction as createPostEmbedding, updateFunction as updatePostEmbe
 
 
 export const graphqlPostEmbeddingTypeDefs = gql`
+  input CreatePostEmbeddingDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreatePostEmbeddingInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreatePostEmbeddingDataInput!
   }
   
+  input UpdatePostEmbeddingDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdatePostEmbeddingInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdatePostEmbeddingDataInput!
   }
   
   extend type Mutation {

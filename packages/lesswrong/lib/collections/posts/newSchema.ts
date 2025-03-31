@@ -262,7 +262,7 @@ function isNotEventForm(props: SmartFormProps<"Posts">) {
   return !props.eventForm;
 }
 
-function postHasStartTimeOrGoogleLocation(data: Partial<DbPost>) {
+function postHasStartTimeOrGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
   return "startTime" in data || "googleLocation" in data;
 }
 
@@ -273,7 +273,7 @@ async function getUpdatedLocalStartTime(post: DbPost, context: ResolverContext) 
   return await getLocalTime(post.startTime, googleLocation);
 }
 
-function postHasEndTimeOrGoogleLocation(data: Partial<DbPost>) {
+function postHasEndTimeOrGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
   return "endTime" in data || "googleLocation" in data;
 }
 
@@ -284,7 +284,7 @@ async function getUpdatedLocalEndTime(post: DbPost, context: ResolverContext) {
   return await getLocalTime(post.endTime, googleLocation);
 }
 
-function postHasGoogleLocation(data: Partial<DbPost>) {
+function postHasGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
   return "googleLocation" in data;
 }
 
@@ -462,6 +462,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
+      canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Posts"],
         // The cast is somewhat unfortunately but posts can't be missing titles
@@ -2126,7 +2128,7 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: ({ document }) => document.votingSystem ?? getDefaultVotingSystem(),
+      onCreate: ({ document }) => ('votingSystem' in document && document.votingSystem) ?? getDefaultVotingSystem(),
       validation: {
         optional: true,
       },
@@ -2476,9 +2478,9 @@ const schema = {
       canCreate: ["members"],
       ...(!requireReviewToFrontpagePostsSetting.get() && {
         onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) => eaFrontpageDateDefault(
-          isEvent,
-          submitToFrontpage,
-          draft,
+          isEvent ?? undefined,
+          submitToFrontpage ?? undefined,
+          draft ?? undefined,
         ),
         onUpdate: ({ data, oldDocument }) => {
           if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
@@ -3176,7 +3178,7 @@ const schema = {
     graphql: {
       outputType: "Float",
       canRead: ["guests"],
-      onCreate: ({ document }) => document.baseScore ?? 0,
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore) ?? 0,
       validation: {
         optional: true,
       },
@@ -3191,7 +3193,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 2 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 2 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3205,7 +3207,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 30 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 30 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3219,7 +3221,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 45 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 45 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3233,7 +3235,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 75 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 75 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3247,7 +3249,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 125 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 125 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3261,7 +3263,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore && document.baseScore >= 200 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 200 ? new Date() : null),
       validation: {
         optional: true,
       },

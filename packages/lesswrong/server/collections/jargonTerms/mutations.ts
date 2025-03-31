@@ -25,7 +25,7 @@ function postCanHaveJargonTerms(post: DbPost) {
   return !post.isEvent;
 }
 
-async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | Partial<DbInsertion<DbJargonTerm>> | null, context: ResolverContext) {
+async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | CreateJargonTermDataInput | null, context: ResolverContext) {
   const { Posts } = context;
 
   if (!jargonTerm || !userCanCreateAndEditJargonTerms(user)) {
@@ -40,7 +40,7 @@ async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: D
   return userHasJargonTermPostPermission(user, post);
 }
 
-function newCheck(user: DbUser | null, jargonTerm: Partial<DbInsertion<DbJargonTerm>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, jargonTerm: CreateJargonTermDataInput | null, context: ResolverContext) {
   return userCanCreateJargonTermForPost(user, jargonTerm, context);
 }
 
@@ -49,7 +49,7 @@ function editCheck(user: DbUser | null, jargonTerm: DbJargonTerm | null, context
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTerms', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateJargonTermInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('JargonTerms', {
@@ -102,7 +102,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateJargonTermInput, context) => {
     const { currentUser, JargonTerms } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -165,17 +165,21 @@ export { createFunction as createJargonTerm, updateFunction as updateJargonTerm 
 
 
 export const graphqlJargonTermTypeDefs = gql`
+  input CreateJargonTermDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateJargonTermInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateJargonTermDataInput!
   }
   
+  input UpdateJargonTermDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateJargonTermInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateJargonTermDataInput!
   }
   
   extend type Mutation {

@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbAdvisorRequest>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateAdvisorRequestDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
     'advisorrequest.create',
     'advisorrequests.new',
@@ -41,7 +41,7 @@ function editCheck(user: DbUser | null, document: DbAdvisorRequest | null, conte
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorRequests', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateAdvisorRequestInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('AdvisorRequests', {
@@ -71,7 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateAdvisorRequestInput, context) => {
     const { currentUser, AdvisorRequests } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -115,19 +115,22 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
 
 export { createFunction as createAdvisorRequest, updateFunction as updateAdvisorRequest };
 
-
 export const graphqlAdvisorRequestTypeDefs = gql`
+  input CreateAdvisorRequestDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateAdvisorRequestInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateAdvisorRequestDataInput!
   }
   
+  input UpdateAdvisorRequestDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateAdvisorRequestInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateAdvisorRequestDataInput!
   }
   
   extend type Mutation {

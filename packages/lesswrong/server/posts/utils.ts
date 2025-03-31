@@ -13,7 +13,7 @@ export const getPostHTML = async (
   return revision?.html ?? "";
 }
 
-export async function getDefaultPostLocationFields(post: Partial<DbInsertion<DbPost>>, context: ResolverContext) {
+export async function getDefaultPostLocationFields(post: Pick<CreatePostDataInput, "isEvent" | "groupId" | "location">, context: ResolverContext) {
   const { Localgroups } = context;
   if (post.isEvent && post.groupId && !post.location) {
     const localgroup = await Localgroups.findOne(post.groupId)

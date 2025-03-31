@@ -154,15 +154,14 @@ const utils = {
     }
   },
 
-  postHasUnconfirmedCoauthors: (post: Partial<DbInsertion<DbPost>>) => {
+  postHasUnconfirmedCoauthors: (post: CreatePostDataInput | UpdatePostDataInput | DbPost) => {
     return !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
   },
 
-  scheduleCoauthoredPost: <T extends Partial<DbInsertion<DbPost>> | Partial<DbPost>>(post: T): T => {
+  scheduleCoauthoredPost: <T extends CreatePostDataInput | UpdatePostDataInput>(post: T) => {
     const now = new Date();
     post.postedAt = new Date(now.setDate(now.getDate() + 1));
-    post.isFuture = true;
-    return post;
+    return { ...post, isFuture: true };
   },
 
   bulkApplyPostTags: async ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) => {
@@ -409,13 +408,13 @@ const utils = {
 
 
 /* CREATE VALIDATE */
-export function debateMustHaveCoauthor(validationErrors: CallbackValidationErrors, { document }: CreateCallbackProperties<'Posts'>): CallbackValidationErrors {
-  if (document.debate && !document.coauthorStatuses?.length) {
-    throw new Error('Dialogue must have at least one co-author!');
-  }
+// export function debateMustHaveCoauthor(validationErrors: CallbackValidationErrors, { document }: CreateCallbackProperties<'Posts'>): CallbackValidationErrors {
+//   if (document.debate && !document.coauthorStatuses?.length) {
+//     throw new Error('Dialogue must have at least one co-author!');
+//   }
 
-  return validationErrors;
-}
+//   return validationErrors;
+// }
 
 export async function postsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: post, currentUser, context }: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
   if (!post.draft && !post.isEvent) {
@@ -425,7 +424,7 @@ export async function postsNewRateLimit(validationErrors: CallbackValidationErro
 }
 
 /* CREATE BEFORE */
-export function addReferrerToPost(post: Partial<DbInsertion<DbPost>>, properties: CreateCallbackProperties<'Posts'>): Partial<DbInsertion<DbPost>> {
+export function addReferrerToPost(post: CreatePostDataInput, properties: CreateCallbackProperties<'Posts'>) {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
     let userAgent = properties.context.headers["user-agent"];
@@ -442,20 +441,20 @@ export function addReferrerToPost(post: Partial<DbInsertion<DbPost>>, properties
 
 
 /* NEW SYNC */
-export function checkTosAccepted<T extends Partial<DbInsertion<DbPost>>>(currentUser: DbUser | null, post: T): T {
+export function checkTosAccepted<T extends CreatePostDataInput | UpdatePostDataInput>(currentUser: DbUser | null, post: T): T {
   if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
     throw new Error(TOS_NOT_ACCEPTED_ERROR);
   }
   return post;
 }
 
-export function assertPostTitleHasNoEmojis(post: Partial<DbInsertion<DbPost>>) {
+export function assertPostTitleHasNoEmojis(post: CreatePostDataInput | UpdatePostDataInput) {
   if (/\p{Extended_Pictographic}/u.test(post.title ?? '')) {
     throw new Error("Post titles cannot contain emojis");
   }
 }
 
-export async function checkRecentRepost(post: Partial<DbInsertion<DbPost>> | Partial<DbPost>, user: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
+export async function checkRecentRepost<T extends CreatePostDataInput | Partial<DbPost>>(post: T, user: DbUser | null, context: ResolverContext) {
   const { Posts } = context;
 
   if (!post.draft) {
@@ -475,14 +474,14 @@ export async function checkRecentRepost(post: Partial<DbInsertion<DbPost>> | Par
   return post;
 }
 
-export async function postsNewDefaultLocation(post: Partial<DbInsertion<DbPost>>, user: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
+export async function postsNewDefaultLocation(post: CreatePostDataInput, user: DbUser | null, context: ResolverContext): Promise<CreatePostDataInput> {
   return {
     ...post,
     ...(await getDefaultPostLocationFields(post, context))
   };
 }
 
-export async function postsNewDefaultTypes(post: Partial<DbInsertion<DbPost>>, user: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
+export async function postsNewDefaultTypes(post: CreatePostDataInput, user: DbUser | null, context: ResolverContext): Promise<CreatePostDataInput> {
   const { Localgroups } = context;
 
   if (post.isEvent && post.groupId && !post.types) {
@@ -497,7 +496,7 @@ export async function postsNewDefaultTypes(post: Partial<DbInsertion<DbPost>>, u
 
 const MINIMUM_APPROVAL_KARMA = 5;
 
-export async function postsNewUserApprovedStatus(post: Partial<DbInsertion<DbPost>>, user: DbUser | null, context: ResolverContext): Promise<Partial<DbInsertion<DbPost>>> {
+export async function postsNewUserApprovedStatus(post: CreatePostDataInput, user: DbUser | null, context: ResolverContext): Promise<CreatePostDataInput> {
   const { Users } = context;
   const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
@@ -506,7 +505,7 @@ export async function postsNewUserApprovedStatus(post: Partial<DbInsertion<DbPos
   return post;
 }
 
-export async function fixEventStartAndEndTimes(post: Partial<DbInsertion<DbPost>>): Promise<Partial<DbInsertion<DbPost>>> {
+export async function fixEventStartAndEndTimes(post: CreatePostDataInput): Promise<CreatePostDataInput> {
   // make sure courses/programs have no end time
   // (we don't want them listed for the length of the course, just until the application deadline / start time)
   if (post.eventType === 'course') {
@@ -539,14 +538,14 @@ export async function fixEventStartAndEndTimes(post: Partial<DbInsertion<DbPost>
   return post;
 }
 
-export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: Partial<DbInsertion<DbPost>>): Promise<Partial<DbInsertion<DbPost>>> {
+export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: CreatePostDataInput): Promise<CreatePostDataInput> {
   if (utils.postHasUnconfirmedCoauthors(post) && !post.draft) {
-    post = utils.scheduleCoauthoredPost(post);
+    return utils.scheduleCoauthoredPost(post);
   }
   return post;
 }
 
-export function addLinkSharingKey(post: Partial<DbInsertion<DbPost>>): Partial<DbInsertion<DbPost>> {
+export function addLinkSharingKey(post: CreatePostDataInput) {
   return {
     ...post,
     linkSharingKey: generateLinkSharingKey()
@@ -762,7 +761,7 @@ export async function postsUndraftRateLimit(validationErrors: CallbackValidation
 /* UPDATE BEFORE */
 
 // TODO: check the order of this function in the updateBefore callbacks
-export function onEditAddLinkSharingKey(data: Partial<DbInsertion<DbPost>>, { oldDocument }: UpdateCallbackProperties<'Posts'>): Partial<DbInsertion<DbPost>> {
+export function onEditAddLinkSharingKey(data: UpdatePostDataInput, { oldDocument }: UpdateCallbackProperties<'Posts'>): UpdatePostDataInput {
   if (!oldDocument.linkSharingKey) {
     return {
       ...data,
@@ -773,7 +772,7 @@ export function onEditAddLinkSharingKey(data: Partial<DbInsertion<DbPost>>, { ol
   }
 }
 
-export function setPostUndraftedFields(data: Partial<DbInsertion<DbPost>>, { oldDocument: post }: UpdateCallbackProperties<'Posts'>) {
+export function setPostUndraftedFields(data: UpdatePostDataInput, { oldDocument: post }: UpdateCallbackProperties<'Posts'>) {
   // Set postedAt and wasEverUndrafted when a post is moved out of drafts.
   // If the post has previously been published then moved to drafts, and now
   // it's being republished then we shouldn't reset the `postedAt` date.
@@ -786,7 +785,7 @@ export function setPostUndraftedFields(data: Partial<DbInsertion<DbPost>>, { old
 }
 
 // TODO: this, plus the scheduleCoauthoredPost function, should probably be converted to one of the on-publish callbacks?
-export function scheduleCoauthoredPostWhenUndrafted(post: Partial<DbInsertion<DbPost>>, {oldDocument: oldPost, newDocument: newPost}: UpdateCallbackProperties<"Posts">) {
+export function scheduleCoauthoredPostWhenUndrafted(post: UpdatePostDataInput, {oldDocument: oldPost, newDocument: newPost}: UpdateCallbackProperties<"Posts">) {
   // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
   // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
   // NOTE: EA FORUM: this used to use `post` rather than `newPost`, but `post` is merely the diff, which isn't what you want to pass into those
@@ -797,7 +796,7 @@ export function scheduleCoauthoredPostWhenUndrafted(post: Partial<DbInsertion<Db
 }
 
 /* EDIT SYNC */
-export function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): MongoModifier<DbPost> {
+export function clearCourseEndTime(modifier: MongoModifier, post: DbPost): MongoModifier {
   // make sure courses/programs have no end time
   // (we don't want them listed for the length of the course, just until the application deadline / start time)
   if (post.eventType === 'course') {
@@ -807,7 +806,7 @@ export function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost
   return modifier
 }
 
-export function removeFrontpageDate(modifier: MongoModifier<DbPost>, _post: DbPost): MongoModifier<DbPost> {
+export function removeFrontpageDate(modifier: MongoModifier, _post: DbPost): MongoModifier {
   if (
     modifier.$set?.submitToFrontpage === false ||
     modifier.$set?.submitToFrontpage === null ||
@@ -819,7 +818,7 @@ export function removeFrontpageDate(modifier: MongoModifier<DbPost>, _post: DbPo
   return modifier;
 }
 
-export function resetPostApprovedDate(modifier: MongoModifier<DbPost>, post: DbPost): MongoModifier<DbPost> {
+export function resetPostApprovedDate(modifier: MongoModifier, post: DbPost): MongoModifier {
   if (modifier.$set && postIsApproved(modifier.$set) && !postIsApproved(post)) {
     modifier.$set.postedAt = new Date();
   }

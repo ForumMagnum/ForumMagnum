@@ -9,7 +9,7 @@ export const logFieldChanges = async <
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
   oldDocument: ObjectsByCollectionName[N],
-  data: Partial<ObjectsByCollectionName[N]> | Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  data: Partial<ObjectsByCollectionName[N]> | UpdateInputsByCollectionName[N]['data'],
 }) => {
   let loggedChangesBefore: any = {};
   let loggedChangesAfter: any = {};

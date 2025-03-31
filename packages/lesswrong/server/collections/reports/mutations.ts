@@ -14,7 +14,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbReport>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateReportDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
     'report.create',
     'reports.new',
@@ -42,7 +42,7 @@ function editCheck(user: DbUser | null, document: DbReport | null, context: Reso
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Reports', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateReportInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Reports', {
@@ -72,7 +72,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Reports'
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateReportInput, context) => {
     const { currentUser, Reports } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -120,17 +120,21 @@ export { createFunction as createReport, updateFunction as updateReport };
 
 
 export const graphqlReportTypeDefs = gql`
+  input CreateReportDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateReportInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateReportDataInput!
   }
   
+  input UpdateReportDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateReportInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateReportDataInput!
   }
   
   extend type Mutation {

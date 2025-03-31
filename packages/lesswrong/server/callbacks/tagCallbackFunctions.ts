@@ -177,9 +177,7 @@ export async function reexportProfileTagUsersToElastic(newDocument: DbTag, { old
 /* TAG REL CALLBACKS */
 
 /* CREATE BEFORE */
-export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTagRel>>, { currentUser, context }: CreateCallbackProperties<'TagRels'>): Promise<Partial<DbInsertion<DbTagRel>>> {
-  const { Posts } = context;
-
+export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTagRel>>, { currentUser, context }: CreateCallbackProperties<'TagRels'>) {
   const {tagId, postId} = newDocument;
 
   if (!userCanUseTags(currentUser) || !currentUser || !tagId || !postId || typeof newDocument.baseScore !== "number") {
@@ -190,8 +188,6 @@ export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTa
   if (canVoteOnTag.fail) {
     throw new Error(`You do not have permission to add this ${taggingNameSetting.get()}`);
   }
-
-  return newDocument;
 }
 
 /* CREATE AFTER */

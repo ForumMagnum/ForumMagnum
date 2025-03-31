@@ -31,7 +31,7 @@ async function editCheck(user: DbUser|null, document: DbChapter|null, context: R
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateChapterInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Chapters', {
@@ -84,7 +84,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateChapterInput, context) => {
     const { currentUser, Chapters } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -150,17 +150,21 @@ export { createFunction as createChapter, updateFunction as updateChapter };
 
 
 export const graphqlChapterTypeDefs = gql`
+  input CreateChapterDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateChapterInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateChapterDataInput!
   }
   
+  input UpdateChapterDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateChapterInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateChapterDataInput!
   }
   
   extend type Mutation {

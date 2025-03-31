@@ -25,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbTagFlag | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateTagFlagInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('TagFlags', {
@@ -78,7 +78,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateTagFlagInput, context) => {
     const { currentUser, TagFlags } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -141,17 +141,21 @@ export { createFunction as createTagFlag, updateFunction as updateTagFlag };
 
 
 export const graphqlTagFlagTypeDefs = gql`
+  input CreateTagFlagDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateTagFlagInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateTagFlagDataInput!
   }
   
+  input UpdateTagFlagDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateTagFlagInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateTagFlagDataInput!
   }
   
   extend type Mutation {

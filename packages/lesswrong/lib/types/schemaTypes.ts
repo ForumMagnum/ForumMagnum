@@ -131,7 +131,7 @@ interface SlugCallbackOptions<N extends CollectionNameString> {
    * Returns the title that will be used to generate slugs. (This does not have
    * to already be slugified.)
    */
-  getTitle: (obj: ObjectsByCollectionName[N] | Partial<DbInsertion<ObjectsByCollectionName[N]>>) => string,
+  getTitle: (obj: ObjectsByCollectionName[N] | CreateInputsByCollectionName[N]['data'] | UpdateInputsByCollectionName[N]['data']) => string,
   
   /**
    * How to handle it when a newly created document's slug, or the new slug in
@@ -179,20 +179,20 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
     context: ResolverContext,
-    document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-    newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    document: CreateInputsByCollectionName[N]['data'], // Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    newDocument: CreateInputsByCollectionName[N]['data'], // Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     fieldName: string
   }) => any,
   /** @deprecated Prefer to avoid using onCreate callbacks on fields for new collections. */
   onUpdate?: (args: {
-    data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    data: UpdateInputsByCollectionName[N]['data'], // Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     oldDocument: ObjectsByCollectionName[N],
-    newDocument: ObjectsByCollectionName[N] & Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    newDocument: ObjectsByCollectionName[N], // & UpdateInputsByCollectionName[N], // Partial<DbInsertion<ObjectsByCollectionName[N]>>,
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
     context: ResolverContext,
     fieldName: string
-    modifier: MongoModifier<ObjectsByCollectionName[N]>
+    modifier: MongoModifier
   }) => any,
   countOfReferences?: CountOfReferenceOptions;
   editableFieldOptions?: EditableFieldCallbackOptions,
@@ -370,7 +370,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     collection: CollectionBase<N>,
     context: ResolverContext,
     fieldName: string
-    modifier: MongoModifier<ObjectsByCollectionName[N]>
+    modifier: MongoModifier
   }) => any,
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
 

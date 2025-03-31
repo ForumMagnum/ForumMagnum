@@ -19,7 +19,7 @@ function editCheck(user: DbUser | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('PodcastEpisodes', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreatePodcastEpisodeInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('PodcastEpisodes', {
@@ -49,7 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PodcastE
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdatePodcastEpisodeInput, context) => {
     const { currentUser, PodcastEpisodes } = context;
 
     const {
@@ -87,17 +87,21 @@ export { createFunction as createPodcastEpisode, updateFunction as updatePodcast
 
 
 export const graphqlPodcastEpisodeTypeDefs = gql`
+  input CreatePodcastEpisodeDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreatePodcastEpisodeInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreatePodcastEpisodeDataInput!
   }
   
+  input UpdatePodcastEpisodeDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdatePodcastEpisodeInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdatePodcastEpisodeDataInput!
   }
   
   extend type Mutation {

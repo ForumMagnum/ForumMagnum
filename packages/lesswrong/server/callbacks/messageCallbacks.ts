@@ -5,7 +5,7 @@ import { CreateCallbackProperties } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { createNotifications } from '../notificationCallbacksHelpers';
 
-export function checkIfNewMessageIsEmpty(message: Partial<DbInsertion<DbMessage>>) {
+export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
   const { data } = (message.contents && message.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot send an empty message");

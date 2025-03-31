@@ -111,10 +111,10 @@ export const validateCreateMutation = async <N extends CollectionNameString>(
  * @deprecated Prefer to avoid using onCreate callbacks on fields for new collections.
  */
 export async function runFieldOnCreateCallbacks<
-  D extends Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
   S extends NewSchemaType<CollectionName>,
-  CollectionName extends CollectionNameString
->(schema: S, data: D, properties: CreateCallbackProperties<CollectionName>): Promise<D> {
+  CollectionName extends CollectionNameString,
+  D extends {} = CreateInputsByCollectionName[CollectionName]['data']
+>(schema: S, data: D, properties: CreateCallbackProperties<CollectionName, D>): Promise<D> {
   for (let fieldName in schema) {
     let autoValue;
     const { graphql } = schema[fieldName];
@@ -133,14 +133,14 @@ export async function runFieldOnCreateCallbacks<
  * @deprecated Prefer to avoid using onUpdate callbacks on fields for new collections.
  */
 export async function runFieldOnUpdateCallbacks<
-  D extends Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
   S extends NewSchemaType<CollectionName>,
-  CollectionName extends CollectionNameString
+  CollectionName extends CollectionNameString,
+  D extends {} = UpdateInputsByCollectionName[CollectionName]['data']
 >(
   schema: S,
   data: D,
-  dataAsModifier: MongoModifier<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
-  properties: UpdateCallbackProperties<CollectionName>
+  dataAsModifier: MongoModifier,
+  properties: UpdateCallbackProperties<CollectionName, D>
 ): Promise<D> {
   for (let fieldName in schema) {
     let autoValue;
@@ -156,18 +156,18 @@ export async function runFieldOnUpdateCallbacks<
   return data;
 }
 
-interface CheckCreatePermissionsAndReturnArgumentsProps<T extends CollectionNameString, S extends NewSchemaType<T>> {
+interface CheckCreatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends NewSchemaType<N>, D = CreateInputsByCollectionName[N]['data']> {
   context: ResolverContext;
-  data: Partial<DbInsertion<ObjectsByCollectionName[T]>>;
-  newCheck: (user: DbUser | null, document: Partial<DbInsertion<ObjectsByCollectionName[T]>> | null, context: ResolverContext) => Promise<boolean> | boolean,
+  data: D;
+  newCheck: (user: DbUser | null, document: D | null, context: ResolverContext) => Promise<boolean> | boolean,
   schema: S,
 }
 
-interface CheckUpdatePermissionsAndReturnArgumentsProps<T extends CollectionNameString, S extends NewSchemaType<T>> {
-  selector: UpdateSelector;
+interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends NewSchemaType<N>, D = UpdateInputsByCollectionName[N]['data']> {
+  selector: SelectorInput;
   context: ResolverContext;
-  data: Partial<DbInsertion<ObjectsByCollectionName[T]>>;
-  editCheck: (user: DbUser | null, document: ObjectsByCollectionName[T] | null, context: ResolverContext) => Promise<boolean> | boolean,
+  data: D;
+  editCheck: (user: DbUser | null, document: ObjectsByCollectionName[N] | null, context: ResolverContext) => Promise<boolean> | boolean,
   schema: S,
 }
 
@@ -177,9 +177,9 @@ interface CheckUpdatePermissionsAndReturnArgumentsProps<T extends CollectionName
  * a new collection with default mutations, just pass in whatever
  * arguments you need to functions you have before/after the db update.
  */
-export async function checkCreatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>>(
+export async function checkCreatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = CreateInputsByCollectionName[T]['data']>(
   collectionName: T,
-  { context, data, newCheck, schema }: CheckCreatePermissionsAndReturnArgumentsProps<T, S>
+  { context, data, newCheck, schema }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser } = context;
   const collection = context[collectionName] as CollectionBase<T>;
@@ -188,7 +188,7 @@ export async function checkCreatePermissionsAndReturnProps<const T extends Colle
     throwError({ id: 'app.operation_not_allowed' });
   }
 
-  const callbackProps: CreateCallbackProperties<T> = {
+  const callbackProps: CreateCallbackProperties<T, D> = {
     collection,
     document: data,
     newDocument: data,
@@ -215,9 +215,9 @@ export async function checkCreatePermissionsAndReturnProps<const T extends Colle
  * a new collection with default mutations, just pass in whatever
  * arguments you need to functions you have before/after the db update.
  */
-export async function checkUpdatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>>(
+export async function checkUpdatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = UpdateInputsByCollectionName[T]['data']>(
   collectionName: T,
-  { selector, context, data, editCheck, schema }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S>
+  { selector, context, data, editCheck, schema }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser } = context;
   const collection = context[collectionName] as CollectionBase<T>;
@@ -227,7 +227,7 @@ export async function checkUpdatePermissionsAndReturnProps<const T extends Colle
   }
 
   // get entire unmodified document from database
-  const documentSelector = convertDocumentIdToIdInSelector(selector);
+  const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
   const oldDocument = await collection.findOne(documentSelector);
 
   if (!oldDocument) {
@@ -238,7 +238,7 @@ export async function checkUpdatePermissionsAndReturnProps<const T extends Colle
     throwError({ id: 'app.operation_not_allowed', data: { documentId: documentSelector._id } });
   }
 
-  let previewDocument = { ...oldDocument, ...data };
+  let previewDocument: ObjectsByCollectionName[T] = { ...oldDocument, ...data };
   // FIXME: Filtering out null-valued fields here is a very sketchy, probably
   // wrong thing to do. This originates from Vulcan, and it's not clear why it's
   // doing it. Explicit cast to make it type-check anyways.
@@ -267,20 +267,20 @@ export async function checkUpdatePermissionsAndReturnProps<const T extends Colle
   };
 }
 
-export function assignUserIdToData(data: Partial<DbInsertion<ObjectsByCollectionName[CollectionNameString]>>, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString>) {
+function assignUserIdToData(data: unknown, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString>) {
   // You know, it occurs to me that this seems to allow users to insert arbitrary userIds
   // for documents they're creating if they have a userId field and canCreate: member.
   if (currentUser && schema.userId && !(data as HasUserIdType).userId) {
-    (data as HasUserIdType).userId = currentUser._id;
+    (data as unknown as HasUserIdType).userId = currentUser._id;
   }
 }
 
-export async function insertAndReturnCreateAfterProps<T extends ObjectsByCollectionName[CollectionNameString]>(data: Partial<DbInsertion<T>>, collectionName: CollectionNameOfObject<T>, createCallbackProperties: CreateCallbackProperties<CollectionNameOfObject<T>>) {
-  const collection = createCallbackProperties.context[collectionName] as CollectionBase<CollectionNameOfObject<T>>;
+export async function insertAndReturnCreateAfterProps<N extends CollectionNameString, T extends CreateInputsByCollectionName[N]['data'] | Partial<ObjectsByCollectionName[N]>>(data: T, collectionName: N, createCallbackProperties: CreateCallbackProperties<N, T>) {
+  const collection = createCallbackProperties.context[collectionName] as CollectionBase<N>;
   const insertedId = await collection.rawInsert(data);
   const insertedDocument = (await collection.findOne(insertedId))!;
 
-  const afterCreateProperties: AfterCreateCallbackProperties<CollectionNameOfObject<T>> = {
+  const afterCreateProperties: AfterCreateCallbackProperties<N> = {
     ...createCallbackProperties,
     document: insertedDocument,
     newDocument: insertedDocument
@@ -289,7 +289,7 @@ export async function insertAndReturnCreateAfterProps<T extends ObjectsByCollect
   return afterCreateProperties;
 }
 
-export async function updateAndReturnDocument<N extends CollectionNameString>(modifier: MongoModifier<DbInsertion<ObjectsByCollectionName[N]>>, collection: CollectionBase<N>, selector: UpdateSelector, context: ResolverContext) {
+export async function updateAndReturnDocument<N extends CollectionNameString>(modifier: MongoModifier, collection: CollectionBase<N>, selector: { _id: string }, context: ResolverContext) {
   // remove empty modifiers
   if (isEmpty(modifier.$set)) {
     delete modifier.$set;

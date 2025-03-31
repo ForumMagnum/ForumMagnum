@@ -31,7 +31,7 @@ async function editCheck(user: DbUser | null, document: DbDialogueMatchPreferenc
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('DialogueMatchPreferences', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateDialogueMatchPreferenceInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('DialogueMatchPreferences', {
@@ -61,7 +61,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Dialogue
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateDialogueMatchPreferenceInput, context) => {
     const { currentUser, DialogueMatchPreferences } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -107,17 +107,21 @@ export { createFunction as createDialogueMatchPreference, updateFunction as upda
 
 
 export const graphqlDialogueMatchPreferenceTypeDefs = gql`
+  input CreateDialogueMatchPreferenceDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateDialogueMatchPreferenceInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateDialogueMatchPreferenceDataInput!
   }
   
+  input UpdateDialogueMatchPreferenceDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateDialogueMatchPreferenceInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateDialogueMatchPreferenceDataInput!
   }
   
   extend type Mutation {

@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbUserMostValuablePost>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateUserMostValuablePostDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
     'usermostvaluablepost.create',
     'usermostvaluableposts.new',
@@ -41,7 +41,7 @@ function editCheck(user: DbUser | null, document: DbUserMostValuablePost | null,
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMostValuablePosts', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateUserMostValuablePostInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserMostValuablePosts', {
@@ -71,7 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserMostValuablePostInput, context) => {
     const { currentUser, UserMostValuablePosts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -117,17 +117,21 @@ export { createFunction as createUserMostValuablePost, updateFunction as updateU
 
 
 export const graphqlUserMostValuablePostTypeDefs = gql`
+  input CreateUserMostValuablePostDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateUserMostValuablePostInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateUserMostValuablePostDataInput!
   }
   
+  input UpdateUserMostValuablePostDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateUserMostValuablePostInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateUserMostValuablePostDataInput!
   }
   
   extend type Mutation {

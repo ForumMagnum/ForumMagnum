@@ -26,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbRSSFeed | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateRSSFeedInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('RSSFeeds', {
@@ -58,7 +58,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateRSSFeedInput, context) => {
     const { currentUser, RSSFeeds } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -104,17 +104,21 @@ export { createFunction as createRSSFeed, updateFunction as updateRSSFeed };
 
 
 export const graphqlRSSFeedTypeDefs = gql`
+  input CreateRSSFeedDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateRSSFeedInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateRSSFeedDataInput!
   }
   
+  input UpdateRSSFeedDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateRSSFeedInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateRSSFeedDataInput!
   }
   
   extend type Mutation {

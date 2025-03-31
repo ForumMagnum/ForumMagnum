@@ -34,7 +34,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true,
 };
 
-function isCommentOnPost(data: Partial<DbComment>) {
+function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
 }
 

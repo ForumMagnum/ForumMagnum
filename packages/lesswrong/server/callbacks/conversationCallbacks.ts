@@ -5,6 +5,7 @@ import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import difference from 'lodash/difference';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -21,7 +22,7 @@ export async function flagOrBlockUserOnManyDMs({
   currentUser,
   context,
 }: {
-  currentConversation: Partial<DbConversation>,
+  currentConversation: CreateConversationDataInput | UpdateConversationDataInput,
   oldConversation?: DbConversation,
   currentUser: DbUser|null,
   context: ResolverContext,
@@ -46,11 +47,11 @@ export async function flagOrBlockUserOnManyDMs({
   // currentUser.usersContactedBeforeReview, but we will try to be robust to
   // the case where it's not
   logger('previous usersContactedBeforeReview', currentUser.usersContactedBeforeReview)
-  const allUsersEverContacted = [...(new Set([
+  const allUsersEverContacted = filterNonnull([...(new Set([
     ...currentConversation.participantIds,
     ...(oldConversation?.participantIds ?? []),
     ...(currentUser.usersContactedBeforeReview ?? [])
-  ]))].filter(id => id !== currentUser._id)
+  ]))].filter(id => id !== currentUser._id))
   logger(
     'new allUsersEverContacted', allUsersEverContacted,
     '(length: ', allUsersEverContacted.length, ')'

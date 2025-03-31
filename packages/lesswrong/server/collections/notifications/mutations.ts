@@ -26,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbNotification | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifications', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateNotificationInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Notifications', {
@@ -56,7 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateNotificationInput, context) => {
     const { currentUser, Notifications } = context;
 
     const {
@@ -94,17 +94,21 @@ export { createFunction as createNotification, updateFunction as updateNotificat
 
 
 export const graphqlNotificationTypeDefs = gql`
+  input CreateNotificationDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateNotificationInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateNotificationDataInput!
   }
   
+  input UpdateNotificationDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateNotificationInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateNotificationDataInput!
   }
   
   extend type Mutation {

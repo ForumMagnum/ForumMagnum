@@ -11,4 +11,4 @@ async function commentDeleteAsync(props: DeleteCallbackProperties<'Comments'>) {
 }
 
 
-getCollectionHooks('Comments').deleteAsync.add(commentDeleteAsync);
+// getCollectionHooks('Comments').deleteAsync.add(commentDeleteAsync);

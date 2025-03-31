@@ -23,7 +23,7 @@ function editCheck(user: DbUser | null, document: DbLlmConversation | null, cont
 const { updateFunction } = getDefaultMutationFunctions('LlmConversations', {
   // LlmConversations don't have a "default" create function; they're created when necessary in the `/api/sendLlmChat` endpoint
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateLlmConversationInput, context) => {
     const { currentUser, LlmConversations } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -69,11 +69,13 @@ export { updateFunction as updateLlmConversation };
 
 
 export const graphqlLlmConversationTypeDefs = gql`
+  input UpdateLlmConversationDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateLlmConversationInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateLlmConversationDataInput!
   }
   
   extend type Mutation {

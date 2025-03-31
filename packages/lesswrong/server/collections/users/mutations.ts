@@ -35,7 +35,7 @@ function editCheck(user: DbUser | null, document: DbUser) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateUserInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Users', {
@@ -100,7 +100,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserInput, context) => {
     const { currentUser, Users } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -191,17 +191,21 @@ export { createFunction as createUser, updateFunction as updateUser };
 
 
 export const graphqlUserTypeDefs = gql`
+  input CreateUserDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateUserInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateUserDataInput!
   }
   
+  input UpdateUserDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateUserInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateUserDataInput!
   }
   
   extend type Mutation {

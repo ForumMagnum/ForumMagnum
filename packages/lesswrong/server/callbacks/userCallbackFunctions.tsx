@@ -215,7 +215,7 @@ const utils = {
 // 4x editorSerializationBeforeCreate
 
 /* NEW SYNC */
-export async function makeFirstUserAdminAndApproved(user: Partial<DbInsertion<DbUser>>, context: ResolverContext) {
+export async function makeFirstUserAdminAndApproved(user: CreateUserDataInput, context: ResolverContext) {
   const { Users } = context;
 
   if (isAnyTest) return user;
@@ -331,7 +331,7 @@ export async function changeDisplayNameRateLimit({ oldDocument, newDocument, cur
  * Handle subscribing/unsubscribing in mailchimp when `subscribedToDigest` is changed, including cases where this
  * happens implicitly due to changing another field
  */
-export async function updateDigestSubscription(data: Partial<DbInsertion<DbUser>>, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
+export async function updateDigestSubscription(data: UpdateUserDataInput, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
   // Handle cases which force you to unsubscribe from the digest:
   // - When a user explicitly unsubscribes from all emails. If they want they can then explicitly re-subscribe
   // to the digest while keeping "unsubscribeFromAll" checked
@@ -406,7 +406,7 @@ export async function updateDigestSubscription(data: Partial<DbInsertion<DbUser>
   return handleErrorCase(`Error updating digest subscription: ${json.detail || res?.statusText || 'Unknown error'}`)
 }
 
-export async function updateDisplayName(data: Partial<DbInsertion<DbUser>>, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
+export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
   const { Posts } = context;
 
   if (data.displayName !== undefined && data.displayName !== oldDocument.displayName) {
@@ -431,7 +431,7 @@ export async function updateDisplayName(data: Partial<DbInsertion<DbUser>>, { ol
 // 4x editorSerializationEdit
 
 /* EDIT SYNC */
-export function maybeSendVerificationEmail(modifier: MongoModifier<DbUser>, user: DbUser) {
+export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser) {
   const { $set: { whenConfirmationEmailSent } } = modifier;
   if (!whenConfirmationEmailSent) {
     return;
@@ -444,7 +444,7 @@ export function maybeSendVerificationEmail(modifier: MongoModifier<DbUser>, user
   }
 }
 
-export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier<DbUser>, user: DbUser) {
+export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier, user: DbUser) {
   const updatedKarmaChangeNotifierSettings = modifier.$set?.karmaChangeNotifierSettings;
   if (updatedKarmaChangeNotifierSettings) {
     const lastSettings = user.karmaChangeNotifierSettings;
@@ -456,7 +456,7 @@ export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier<Db
   return modifier;
 }
 
-export async function usersEditCheckEmail(modifier: MongoModifier<DbUser>, user: DbUser) {
+export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser) {
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
 
@@ -494,7 +494,7 @@ export async function usersEditCheckEmail(modifier: MongoModifier<DbUser>, user:
   return modifier;
 }
 
-export function syncProfileUpdatedAt(modifier: MongoModifier<DbUser>, user: DbUser) {
+export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
   for (const field of simpleUserProfileFields) {
     if (
       (field in modifier.$set && !isEqual(modifier.$set[field], user[field])) ||

@@ -182,11 +182,11 @@ export const foreignKeyField = <const CollectionName extends CollectionNameStrin
   }
 }
 
-export function arrayOfForeignKeysOnCreate<CollectionName extends CollectionNameString>({newDocument, fieldName}: {
-  newDocument: Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
+export function arrayOfForeignKeysOnCreate({newDocument, fieldName}: {
+  newDocument: Record<string, any>,
   fieldName: string,
 }) {
-  if (newDocument[fieldName as keyof Partial<DbInsertion<ObjectsByCollectionName[CollectionName]>>] === undefined) {
+  if (newDocument[fieldName] === undefined) {
     return [];
   }
 }
@@ -364,8 +364,8 @@ SimpleSchema.extendOptions([
 ]);
 
 export function getDenormalizedFieldOnCreate<N extends CollectionNameString>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]> | Partial<DbInsertion<ObjectsByCollectionName[N]>>) => boolean,
-  getValue: (doc: ObjectsByCollectionName[N] | Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => any,
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]> | CreateInputsByCollectionName[N]['data']) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N] | CreateInputsByCollectionName[N]['data'], context: ResolverContext) => any,
 }): Exclude<GraphQLWriteableFieldSpecification<N>['onCreate'], undefined> {
   return async function denormalizedFieldOnCreate({newDocument, context}) {
     if (!needsUpdate || needsUpdate(newDocument)) {
@@ -375,12 +375,12 @@ export function getDenormalizedFieldOnCreate<N extends CollectionNameString>({ n
 }
 
 export function getDenormalizedFieldOnUpdate<N extends CollectionNameString>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>) => boolean,
-  getValue: (doc: ObjectsByCollectionName[N] & Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => any,
+  needsUpdate?: (doc: UpdateInputsByCollectionName[N]['data']) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
 }): Exclude<GraphQLWriteableFieldSpecification<N>['onUpdate'], undefined> {
   return async function denormalizedFieldOnUpdate({data, newDocument, context}: {
-    data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-    newDocument: ObjectsByCollectionName[N] & Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    data: UpdateInputsByCollectionName[N]['data'],
+    newDocument: ObjectsByCollectionName[N] // & UpdateInputsByCollectionName[N]['data'],
     context: ResolverContext,
   }) {
     if (!needsUpdate || needsUpdate(data)) {
@@ -395,12 +395,12 @@ export function getDenormalizedFieldOnUpdate<N extends CollectionNameString>({ n
 // of other collections, because it doesn't set up callbacks for changes in
 // those collections)
 export function denormalizedField<N extends CollectionNameString>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]> | Partial<DbInsertion<ObjectsByCollectionName[N]>>) => boolean,
-  getValue: (doc: ObjectsByCollectionName[N] | Partial<DbInsertion<ObjectsByCollectionName[N]>>, context: ResolverContext) => any,
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]> | CreateInputsByCollectionName[N]['data'] | UpdateInputsByCollectionName[N]['data']) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N] | CreateInputsByCollectionName[N]['data'] | UpdateInputsByCollectionName[N]['data'], context: ResolverContext) => any,
 }): CollectionFieldSpecification<N> {
   return {
     onUpdate: getDenormalizedFieldOnUpdate({ needsUpdate, getValue }) as CollectionFieldSpecification<N>['onUpdate'],
-    onCreate: getDenormalizedFieldOnCreate({ needsUpdate, getValue }),
+    onCreate: getDenormalizedFieldOnCreate({ needsUpdate, getValue }) as CollectionFieldSpecification<N>['onCreate'],
     denormalized: true,
     canAutoDenormalize: true,
     optional: true,
@@ -507,10 +507,10 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
 
 export function getFillIfMissing(defaultValue: any) {
   return function fillIfMissing<N extends CollectionNameString>({ newDocument, fieldName }: {
-    newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+    newDocument: CreateInputsByCollectionName[N]['data']; // Partial<DbInsertion<ObjectsByCollectionName[N]>>;
     fieldName: string;
   }) {
-    if (newDocument[fieldName as keyof Partial<DbInsertion<ObjectsByCollectionName[N]>>] === undefined) {
+    if (newDocument[fieldName as keyof CreateInputsByCollectionName[N]['data']] === undefined) {
       const isForumSpecific = defaultValue instanceof DeferredForumSelect;
       return isForumSpecific ? defaultValue.get() : defaultValue;
     } else {
@@ -541,7 +541,7 @@ export function schemaDefaultValue<N extends CollectionNameString>(
 
   return {
     defaultValue: isForumSpecific ? defaultValue.getDefault() : defaultValue,
-    onCreate: fillIfMissing,
+    onCreate: fillIfMissing as CollectionFieldSpecification<N>['onCreate'],
     onUpdate: throwIfSetToNull,
     canAutofillDefault: true,
     nullable: false

@@ -222,11 +222,15 @@ export const removeProperty = (obj: any, propertyName: string): void => {
 
 export type UpdateSelector = {
   _id: string;
-  documentId?: never;
+  documentId: null;
 } | {
-  _id?: never;
+  _id: null;
   documentId: string;
 };
+
+function isDocumentIdSelector(selector: UpdateSelector): selector is { _id: null; documentId: string } {
+  return !selector._id;
+}
 
 /**
  * Given a mongodb-style selector, if it contains `documentId`, replace that
@@ -244,8 +248,8 @@ export type UpdateSelector = {
  * and the console-log warning from this function isn't appearing in logs, then
  * this function is a no-op and is safe to remove.
  */
-export const convertDocumentIdToIdInSelector = <T extends UpdateSelector>(selector: T) => {
-  if (selector.documentId) {
+export const convertDocumentIdToIdInSelector = (selector: UpdateSelector): { _id: string } => {
+  if (isDocumentIdSelector(selector)) {
     //eslint-disable-next-line no-console
     console.log("Warning: Performed documentId-to-_id replacement");
     const { documentId, ...rest } = selector;

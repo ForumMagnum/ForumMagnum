@@ -1,5 +1,5 @@
 import { getIntercomClient } from "@/server/intercomSetup";
-import { CreateCallbackProperties } from "@/server/mutationCallbacks";
+import { AfterCreateCallbackProperties } from "@/server/mutationCallbacks";
 import { updateSequenceReadStatusForPostRead } from "@/server/partiallyReadSequences";
 import { captureException } from "@sentry/core";
 
@@ -28,7 +28,7 @@ function userHasPartiallyReadSequence(user: DbUser, sequenceId: string): boolean
   return user.partiallyReadSequences.some(s => s.sequenceId === sequenceId);
 }
 
-export async function updatePartiallyReadSequences(props: CreateCallbackProperties<"LWEvents">) {
+export async function updatePartiallyReadSequences(props: AfterCreateCallbackProperties<"LWEvents">) {
   const { document: event, context } = props;
   const { Users } = context;
 

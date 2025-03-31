@@ -11,7 +11,7 @@ import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
 
-function newCheck(user: DbUser | null, tag: DbTagRel | null) {
+function newCheck(user: DbUser | null, tag: CreateTagRelDataInput | null) {
   return userCanUseTags(user);
 }
 
@@ -20,7 +20,7 @@ function editCheck(user: DbUser | null, tag: DbTagRel | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateTagRelInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('TagRels', {
@@ -34,7 +34,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await validateTagRelCreate(data, callbackProps);
+    await validateTagRelCreate(data, callbackProps);
 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'TagRels', callbackProps);
     let documentWithId = afterCreateProperties.document;
@@ -56,7 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateTagRelInput, context) => {
     const { currentUser, TagRels } = context;
 
     const {
@@ -94,17 +94,21 @@ export { createFunction as createTagRel, updateFunction as updateTagRel };
 
 
 export const graphqlTagRelTypeDefs = gql`
+  input CreateTagRelDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateTagRelInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateTagRelDataInput!
   }
   
+  input UpdateTagRelDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateTagRelInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateTagRelDataInput!
   }
   
   extend type Mutation {

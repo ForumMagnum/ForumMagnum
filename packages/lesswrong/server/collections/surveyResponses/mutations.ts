@@ -11,7 +11,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbSurveyResponse>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateSurveyResponseDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -23,7 +23,7 @@ function editCheck(user: DbUser | null, document: DbSurveyResponse | null, conte
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyResponses', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateSurveyResponseInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('SurveyResponses', {
@@ -53,7 +53,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyRe
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateSurveyResponseInput, context) => {
     const { currentUser, SurveyResponses } = context;
 
     const {
@@ -91,17 +91,21 @@ export { createFunction as createSurveyResponse, updateFunction as updateSurveyR
 
 
 export const graphqlSurveyResponseTypeDefs = gql`
+  input CreateSurveyResponseDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateSurveyResponseInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateSurveyResponseDataInput!
   }
   
+  input UpdateSurveyResponseDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateSurveyResponseInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateSurveyResponseDataInput!
   }
   
   extend type Mutation {

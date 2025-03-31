@@ -4,15 +4,15 @@ export function isMultiDocument(document: DbTag | DbMultiDocument): document is 
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;
 }
 
-export type InsertableMultiDocument = Partial<DbInsertion<DbMultiDocument>> & { collectionName: string, parentDocumentId: string };
+// export type InsertableMultiDocument = //Partial<DbInsertion<DbMultiDocument>> & { collectionName: string, parentDocumentId: string };
 
 export async function getRootDocument(
-  multiDocument: DbMultiDocument | InsertableMultiDocument,
+  multiDocument: DbMultiDocument | CreateMultiDocumentDataInput,
   context: ResolverContext
 ) {
   const multiDocumentId = '_id' in multiDocument ? [multiDocument._id] : [];
   const visitedDocumentIds = new Set<string>(multiDocumentId);
-  let parentCollectionName = multiDocument.collectionName;
+  let parentCollectionName = multiDocument.collectionName as 'Tags' | 'MultiDocuments';
   const parentDocumentOrNull = await context.loaders[parentCollectionName].load(multiDocument.parentDocumentId);
   if (!parentDocumentOrNull) {
     return null;
@@ -22,7 +22,7 @@ export async function getRootDocument(
   visitedDocumentIds.add(parentDocument._id);
 
   while (isMultiDocument(parentDocument)) {
-    parentCollectionName = parentDocument.collectionName;
+    parentCollectionName = parentDocument.collectionName as 'Tags' | 'MultiDocuments';
     const nextDocument = await context.loaders[parentCollectionName].load(parentDocument.parentDocumentId);
     if (!nextDocument) {
       return null;
@@ -45,7 +45,7 @@ export async function getRootDocument(
  * The logic for validating whether a user can either create or update a multi-document is basically the same.
  * In both cases, we defer to the `check` defined on the parent document's collection to see if the user would be allowed to mutate the parent document.
  */
-export async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | InsertableMultiDocument | null, mutation: 'create' | 'update', context: ResolverContext) {
+export async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | CreateMultiDocumentDataInput | null, mutation: 'create' | 'update', context: ResolverContext) {
   if (!multiDocument) {
     return false;
   }

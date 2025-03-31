@@ -97,6 +97,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
+      canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
         getTitle: (md) => md.title ?? md.tabTitle!,

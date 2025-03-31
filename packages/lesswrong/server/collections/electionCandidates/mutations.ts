@@ -14,7 +14,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbElectionCandidate>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateElectionCandidateDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -26,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbElectionCandidate | null, co
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElectionCandidates', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateElectionCandidateInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ElectionCandidates', {
@@ -58,7 +58,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateElectionCandidateInput, context) => {
     const { currentUser, ElectionCandidates } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -104,17 +104,21 @@ export { createFunction as createElectionCandidate, updateFunction as updateElec
 
 
 export const graphqlElectionCandidateTypeDefs = gql`
+  input CreateElectionCandidateDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateElectionCandidateInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateElectionCandidateDataInput!
   }
   
+  input UpdateElectionCandidateDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateElectionCandidateInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateElectionCandidateDataInput!
   }
   
   extend type Mutation {

@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbPostViews>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreatePostViewsDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -25,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbPostViews | null, context: R
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('PostViews', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreatePostViewsInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('PostViews', {
@@ -55,7 +55,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostView
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdatePostViewsInput, context) => {
     const { currentUser, PostViews } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -101,17 +101,21 @@ export { createFunction as createPostViews, updateFunction as updatePostViews };
 
 
 export const graphqlPostViewsTypeDefs = gql`
+  input CreatePostViewsDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreatePostViewsInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreatePostViewsDataInput!
   }
   
+  input UpdatePostViewsDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdatePostViewsInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdatePostViewsDataInput!
   }
   
   extend type Mutation {

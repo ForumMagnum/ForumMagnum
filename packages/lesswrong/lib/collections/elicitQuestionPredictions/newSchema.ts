@@ -64,7 +64,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: ({ document: prediction }) => prediction.createdAt ?? new Date(),
+      onCreate: () => new Date(),
     },
   },
   notes: {

@@ -20,7 +20,7 @@ import schema from "@/lib/collections/posts/newSchema";
 // import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 
 const assertPostIsCrosspostable = (
-  post: Partial<DbInsertion<DbPost>>,
+  post: CreatePostDataInput | UpdatePostDataInput | Partial<DbPost>,
   logger: ReturnType<typeof loggerConstructor>,
 ) => {
   if (post.isEvent) {
@@ -33,7 +33,7 @@ const assertPostIsCrosspostable = (
   }
 }
 
-export async function performCrosspost<T extends Partial<DbInsertion<DbPost>> | Partial<DbPost>>(post: T): Promise<T> {
+export async function performCrosspost<T extends CreatePostDataInput | UpdatePostDataInput>(post: T): Promise<T> {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
@@ -70,7 +70,7 @@ export async function performCrosspost<T extends Partial<DbInsertion<DbPost>> | 
   const postWithDefaultValues: T & DenormalizedCrosspostData = {
     ...post,
     draft: post.draft ?? schema.draft.database.defaultValue,
-    deletedDraft: post.deletedDraft ?? schema.deletedDraft.database.defaultValue,
+    deletedDraft: (post as UpdatePostDataInput).deletedDraft ?? schema.deletedDraft.database.defaultValue,
     title: post.title ?? '',
     isEvent: post.isEvent ?? schema.isEvent.database.defaultValue,
     question: post.question ?? schema.question.database.defaultValue,
@@ -79,7 +79,7 @@ export async function performCrosspost<T extends Partial<DbInsertion<DbPost>> | 
   const token = await createCrosspostToken.create({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
-    postId: (post as DbPost)._id,
+    postId: (post as unknown as DbPost)._id,
     ...extractDenormalizedData(postWithDefaultValues),
     // TODO: Enable to this when V2 is deployed to both sites
     // originalContents: revision?.originalContents,
@@ -148,9 +148,9 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
 }
 
 export async function handleCrosspostUpdate(
-  data: Partial<DbInsertion<DbPost>>,
+  data: UpdatePostDataInput,
   {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<"Posts">
-): Promise<Partial<UpdatePreviewDocument<DbPost> | DbPost>> {
+): Promise<UpdatePostDataInput> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
   const {userId, fmCrosspost} = newDocument;

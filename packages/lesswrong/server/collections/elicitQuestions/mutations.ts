@@ -23,7 +23,7 @@ function editCheck(user: DbUser | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQuestions', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateElicitQuestionInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ElicitQuestions', {
@@ -53,7 +53,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateElicitQuestionInput, context) => {
     const { currentUser, ElicitQuestions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -99,17 +99,21 @@ export { createFunction as createElicitQuestion, updateFunction as updateElicitQ
 
 
 export const graphqlElicitQuestionTypeDefs = gql`
+  input CreateElicitQuestionDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateElicitQuestionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateElicitQuestionDataInput!
   }
   
+  input UpdateElicitQuestionDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateElicitQuestionInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateElicitQuestionDataInput!
   }
   
   extend type Mutation {

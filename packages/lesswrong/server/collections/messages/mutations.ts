@@ -31,7 +31,7 @@ async function editCheck(user: DbUser | null, document: DbMessage | null, contex
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateMessageInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Messages', {
@@ -91,7 +91,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateMessageInput, context) => {
     const { currentUser, Messages } = context;
 
     const {
@@ -144,17 +144,21 @@ export { createFunction as createMessage, updateFunction as updateMessage };
 
 
 export const graphqlMessageTypeDefs = gql`
+  input CreateMessageDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateMessageInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateMessageDataInput!
   }
   
+  input UpdateMessageDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateMessageInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateMessageDataInput!
   }
   
   extend type Mutation {

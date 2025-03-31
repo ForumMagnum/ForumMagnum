@@ -21,7 +21,7 @@ function editCheck(user: DbUser | null) {
 // This has mutators because of a few mutable metadata fields (eg
 // skipAttributions), but most parts of revisions are create-only immutable.
 const { updateFunction } = getDefaultMutationFunctions('Revisions', {
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateRevisionInput, context) => {
     const { currentUser, Revisions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -69,11 +69,13 @@ export { updateFunction as updateRevision };
 
 
 export const graphqlRevisionTypeDefs = gql`
+  input UpdateRevisionDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateRevisionInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateRevisionDataInput!
   }
   
   extend type Mutation {

@@ -38,7 +38,7 @@ const getGraphQLType = <N extends CollectionNameString>(
 export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
   const fieldDescriptions = Object.entries(schema)
     .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
-    .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canRead?.length)
+    .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canCreate?.length)
     .map(([fieldName, fieldGraphql]) => {
       const inputFieldType = getGraphQLType(fieldGraphql, true);
       const createFieldType = inputFieldType === 'Revision'
@@ -51,6 +51,9 @@ export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameSt
       };
     });
 
+  if (fieldDescriptions.length === 0) {
+    throw new Error('No creatable fields found');
+  }
   return convertToGraphQL(fieldDescriptions, padding);
 }
 
@@ -75,6 +78,9 @@ export function getUpdatableGraphQLFields(schema: NewSchemaType<CollectionNameSt
       };
     });
 
+  if (fieldDescriptions.length === 0) {
+    throw new Error('No updatable fields found');
+  }
   return convertToGraphQL(fieldDescriptions, padding);
 }
 
@@ -219,8 +225,9 @@ type SingleMovieInput {
 
 */
 export const singleInputTemplate = ({ typeName }: {typeName: string}) => (
+  // selector: ${typeName}SelectorUniqueInput
 `input Single${typeName}Input {
-  selector: ${typeName}SelectorUniqueInput
+  selector: SelectorInput
   resolverArgs: JSON
   # Whether to enable caching for this query
   enableCache: Boolean
@@ -257,8 +264,8 @@ export const multiInputTemplate = ({ typeName }: {typeName: string}) => (
   # The document to create if none are found
   createIfMissing: JSON
   # OpenCRUD fields
-  where: ${typeName}SelectorInput
-  orderBy: ${typeName}OrderByInput
+  where: SelectorInput
+  # orderBy: ${typeName}OrderByInput
   skip: Int
   after: String
   before: String

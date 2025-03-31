@@ -14,7 +14,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbCollection>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateCollectionDataInput | null, context: ResolverContext) {
   return userIsAdmin(user);
 }
 
@@ -39,7 +39,7 @@ function editCheck(user: DbUser | null, document: DbCollection | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Collections', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateCollectionInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Collections', {
@@ -90,7 +90,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Collecti
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateCollectionInput, context) => {
     const { currentUser, Collections } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -151,17 +151,21 @@ export { createFunction as createCollection, updateFunction as updateCollection 
 
 
 export const graphqlCollectionTypeDefs = gql`
+  input CreateCollectionDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateCollectionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateCollectionDataInput!
   }
   
+  input UpdateCollectionDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateCollectionInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateCollectionDataInput!
   }
   
   extend type Mutation {

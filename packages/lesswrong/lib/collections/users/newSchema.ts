@@ -69,7 +69,7 @@ import gql from "graphql-tag";
 // Anything else..
 ///////////////////////////////////////
 
-export const createDisplayName = (user: Partial<DbInsertion<DbUser>>): string => {
+export const createDisplayName = (user: Partial<DbInsertion<DbUser>> | CreateUserDataInput | UpdateUserDataInput): string => {
   const profileName = getNestedProperty(user, "profile.name");
   const twitterName = getNestedProperty(user, "services.twitter.screenName");
   const linkedinFirstName = getNestedProperty(user, "services.linkedin.firstName");
@@ -536,7 +536,7 @@ const emailsSchema = new SimpleSchema({
   },
 });
 
-function userHasGoogleLocation(data: Partial<DbUser>) {
+function userHasGoogleLocation(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {
   return "googleLocation" in data;
 }
 
@@ -545,7 +545,7 @@ function convertGoogleToMongoLocation(user: DbUser) {
   return null;
 }
 
-function userHasMapLocation(data: Partial<DbUser>) {
+function userHasMapLocation(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {
   return "mapLocation" in data;
 }
 
@@ -553,7 +553,7 @@ function getMapLocationSet(user: DbUser) {
   return !!user.mapLocation;
 }
 
-function userHasMapMarkerText(data: Partial<DbUser>) {
+function userHasMapMarkerText(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {
   return "mapMarkerText" in data;
 }
 
@@ -562,7 +562,7 @@ async function convertMapMarkerTextToHtml(user: DbUser) {
   return await markdownToHtml(user.mapMarkerText);
 }
 
-function userHasNearbyEventsNotificationsLocation(data: Partial<DbUser>) {
+function userHasNearbyEventsNotificationsLocation(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {
   return "nearbyEventsNotificationsLocation" in data;
 }
 
@@ -703,6 +703,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
       canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Users"],
@@ -791,11 +792,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
-      onCreate: ({ document: user }) => {
-        if (!user.username && user.services?.twitter?.screenName) {
-          return user.services.twitter.screenName;
-        }
-      },
       validation: {
         optional: true,
       },
@@ -4474,11 +4470,9 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["admins"],
       onCreate: ({ document, context }) => {
-        if (!document.abTestKey) {
-          return getUserABTestKey({
-            clientId: context.clientId ?? randomId(),
-          });
-        }
+        return getUserABTestKey({
+          clientId: context.clientId ?? randomId(),
+        });
       },
       validation: {
         optional: true,

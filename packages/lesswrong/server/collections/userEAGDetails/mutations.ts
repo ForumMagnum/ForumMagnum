@@ -13,7 +13,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbUserEAGDetail>> | null, context: ResolverContext) {
+function newCheck(user: DbUser | null, document: CreateUserEAGDetailDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
     'usereagdetail.create',
     'usereagdetails.new',
@@ -41,7 +41,7 @@ function editCheck(user: DbUser | null, document: DbUserEAGDetail | null, contex
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGDetails', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateUserEAGDetailInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserEAGDetails', {
@@ -71,7 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGD
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserEAGDetailInput, context) => {
     const { currentUser, UserEAGDetails } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -117,17 +117,21 @@ export { createFunction as createUserEAGDetail, updateFunction as updateUserEAGD
 
 
 export const graphqlUserEAGDetailTypeDefs = gql`
+  input CreateUserEAGDetailDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateUserEAGDetailInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateUserEAGDetailDataInput!
   }
   
+  input UpdateUserEAGDetailDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateUserEAGDetailInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateUserEAGDetailDataInput!
   }
   
   extend type Mutation {

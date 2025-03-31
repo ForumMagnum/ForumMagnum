@@ -8,7 +8,7 @@ import { userCanDo, userIsMemberOf, userIsPodcaster } from "@/lib/vulcan-users/p
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
-import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, debateMustHaveCoauthor, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendAlignmentSubmissionApprovalNotifications, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updateFirstDebateCommentPostId, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from "@/server/callbacks/postCallbackFunctions";
+import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendAlignmentSubmissionApprovalNotifications, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updateFirstDebateCommentPostId, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from "@/server/callbacks/postCallbackFunctions";
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from "@/server/embeddings";
 import { logFieldChanges } from "@/server/fieldChanges";
@@ -25,7 +25,7 @@ import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
-async function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbPost>> | null, context: ResolverContext) {
+async function newCheck(user: DbUser | null, document: CreatePostDataInput | null, context: ResolverContext) {
   if (!user) return false;
   return userCanPost(user)
 };
@@ -43,7 +43,7 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreatePostInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Posts', {
@@ -56,7 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     data = callbackProps.document;
 
     // former createValidate callbacks
-    debateMustHaveCoauthor([], callbackProps);
+    // debateMustHaveCoauthor([], callbackProps);
     await postsNewRateLimit([], callbackProps);
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
@@ -150,7 +150,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdatePostInput, context) => {
     const { currentUser, Posts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -277,17 +277,21 @@ export { createFunction as createPost, updateFunction as updatePost };
 
 
 export const graphqlPostTypeDefs = gql`
+  input CreatePostDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreatePostInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreatePostDataInput!
   }
   
+  input UpdatePostDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdatePostInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdatePostDataInput!
   }
   
   extend type Mutation {

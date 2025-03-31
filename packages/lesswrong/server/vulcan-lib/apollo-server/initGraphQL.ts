@@ -103,69 +103,77 @@ import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGrap
 import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
-import { createAdvisorRequest, updateAdvisorRequest } from "@/server/collections/advisorRequests/mutations";
-import { createArbitalTagContentRel, updateArbitalTagContentRel } from "@/server/collections/arbitalTagContentRels/mutations";
-import { createBan, updateBan } from "@/server/collections/bans/mutations";
-import { createBook, updateBook } from "@/server/collections/books/mutations";
-import { createChapter, updateChapter } from "@/server/collections/chapters/mutations";
-import { createCollection, updateCollection } from "@/server/collections/collections/mutations";
-import { createCommentModeratorAction, updateCommentModeratorAction } from "@/server/collections/commentModeratorActions/mutations";
-import { createComment, updateComment } from "@/server/collections/comments/mutations";
-import { createConversation, updateConversation } from "@/server/collections/conversations/mutations";
-import { createCurationNotice, updateCurationNotice } from "@/server/collections/curationNotices/mutations";
-import { createDialogueMatchPreference, updateDialogueMatchPreference } from "@/server/collections/dialogueMatchPreferences/mutations";
-import { createDigestPost, updateDigestPost } from "@/server/collections/digestPosts/mutations";
-import { createDigest, updateDigest } from "@/server/collections/digests/mutations";
-import { createElectionCandidate, updateElectionCandidate } from "@/server/collections/electionCandidates/mutations";
-import { createElectionVote, updateElectionVote } from "@/server/collections/electionVotes/mutations";
-import { createElicitQuestion, updateElicitQuestion } from "@/server/collections/elicitQuestions/mutations";
-import { createForumEvent, updateForumEvent } from "@/server/collections/forumEvents/mutations";
-import { createGardenCode, updateGardenCode } from "@/server/collections/gardencodes/mutations";
-import { createGoogleServiceAccountSession, updateGoogleServiceAccountSession } from "@/server/collections/googleServiceAccountSessions/mutations";
-import { createJargonTerm, updateJargonTerm } from "@/server/collections/jargonTerms/mutations";
-import { createLWEvent, updateLWEvent } from "@/server/collections/lwevents/mutations";
-import { updateLlmConversation } from "@/server/collections/llmConversations/mutations";
-import { createLocalgroup, updateLocalgroup } from "@/server/collections/localgroups/mutations";
-import { createMessage, updateMessage } from "@/server/collections/messages/mutations";
-import { createModerationTemplate, updateModerationTemplate } from "@/server/collections/moderationTemplates/mutations";
-import { createModeratorAction, updateModeratorAction } from "@/server/collections/moderatorActions/mutations";
-import { createMultiDocument, updateMultiDocument } from "@/server/collections/multiDocuments/mutations";
-import { createNotification, updateNotification } from "@/server/collections/notifications/mutations";
-import { createPetrovDayAction } from "@/server/collections/petrovDayActions/mutations";
-import { createPodcastEpisode, updatePodcastEpisode } from "@/server/collections/podcastEpisodes/mutations";
-import { createPostEmbedding, updatePostEmbedding } from "@/server/collections/postEmbeddings/mutations";
-import { createPostViewTime, updatePostViewTime } from "@/server/collections/postViewTimes/mutations";
-import { createPostViews, updatePostViews } from "@/server/collections/postViews/mutations";
-import { createPost, updatePost } from "@/server/collections/posts/mutations";
-import { createRSSFeed, updateRSSFeed } from "@/server/collections/rssfeeds/mutations";
-import { createReport, updateReport } from "@/server/collections/reports/mutations";
-import { updateRevision } from "@/server/collections/revisions/mutations";
-import { createSequence, updateSequence } from "@/server/collections/sequences/mutations";
-import { createSplashArtCoordinate, updateSplashArtCoordinate } from "@/server/collections/splashArtCoordinates/mutations";
-import { createSpotlight, updateSpotlight } from "@/server/collections/spotlights/mutations";
-import { createSubscription } from "@/server/collections/subscriptions/mutations";
-import { createSurveyQuestion, updateSurveyQuestion } from "@/server/collections/surveyQuestions/mutations";
-import { createSurveyResponse, updateSurveyResponse } from "@/server/collections/surveyResponses/mutations";
-import { createSurveySchedule, updateSurveySchedule } from "@/server/collections/surveySchedules/mutations";
-import { createSurvey, updateSurvey } from "@/server/collections/surveys/mutations";
-import { createTagFlag, updateTagFlag } from "@/server/collections/tagFlags/mutations";
-import { createTagRel, updateTagRel } from "@/server/collections/tagRels/mutations";
-import { createTag, updateTag } from "@/server/collections/tags/mutations";
-import { createUserEAGDetail, updateUserEAGDetail } from "@/server/collections/userEAGDetails/mutations";
-import { createUserJobAd, updateUserJobAd } from "@/server/collections/userJobAds/mutations";
-import { createUserMostValuablePost, updateUserMostValuablePost } from "@/server/collections/userMostValuablePosts/mutations";
-import { createUserRateLimit, updateUserRateLimit } from "@/server/collections/userRateLimits/mutations";
-import { createUserTagRel, updateUserTagRel } from "@/server/collections/userTagRels/mutations";
-import { createUser, updateUser } from "@/server/collections/users/mutations";
+import { createAdvisorRequest, updateAdvisorRequest, graphqlAdvisorRequestTypeDefs } from "@/server/collections/advisorRequests/mutations";
+import { createArbitalTagContentRel, updateArbitalTagContentRel, graphqlArbitalTagContentRelTypeDefs } from "@/server/collections/arbitalTagContentRels/mutations";
+import { createBan, updateBan, graphqlBanTypeDefs } from "@/server/collections/bans/mutations";
+import { createBook, updateBook, graphqlBookTypeDefs } from "@/server/collections/books/mutations";
+import { createChapter, updateChapter, graphqlChapterTypeDefs } from "@/server/collections/chapters/mutations";
+import { createCollection, updateCollection, graphqlCollectionTypeDefs } from "@/server/collections/collections/mutations";
+import { createCommentModeratorAction, updateCommentModeratorAction, graphqlCommentModeratorActionTypeDefs } from "@/server/collections/commentModeratorActions/mutations";
+import { createComment, updateComment, graphqlCommentTypeDefs } from "@/server/collections/comments/mutations";
+import { createConversation, updateConversation, graphqlConversationTypeDefs } from "@/server/collections/conversations/mutations";
+import { createCurationNotice, updateCurationNotice, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
+import { createDialogueMatchPreference, updateDialogueMatchPreference, graphqlDialogueMatchPreferenceTypeDefs } from "@/server/collections/dialogueMatchPreferences/mutations";
+import { createDigestPost, updateDigestPost, graphqlDigestPostTypeDefs } from "@/server/collections/digestPosts/mutations";
+import { createDigest, updateDigest, graphqlDigestTypeDefs } from "@/server/collections/digests/mutations";
+import { createElectionCandidate, updateElectionCandidate, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
+import { createElectionVote, updateElectionVote, graphqlElectionVoteTypeDefs } from "@/server/collections/electionVotes/mutations";
+import { createElicitQuestion, updateElicitQuestion, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
+import { createForumEvent, updateForumEvent, graphqlForumEventTypeDefs } from "@/server/collections/forumEvents/mutations";
+import { createGardenCode, updateGardenCode, graphqlGardenCodeTypeDefs } from "@/server/collections/gardencodes/mutations";
+import { createGoogleServiceAccountSession, updateGoogleServiceAccountSession, graphqlGoogleServiceAccountSessionTypeDefs } from "@/server/collections/googleServiceAccountSessions/mutations";
+import { createJargonTerm, updateJargonTerm, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
+import { createLWEvent, updateLWEvent, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
+import { updateLlmConversation, graphqlLlmConversationTypeDefs } from "@/server/collections/llmConversations/mutations";
+import { createLocalgroup, updateLocalgroup, graphqlLocalgroupTypeDefs } from "@/server/collections/localgroups/mutations";
+import { createMessage, updateMessage, graphqlMessageTypeDefs } from "@/server/collections/messages/mutations";
+import { createModerationTemplate, updateModerationTemplate, graphqlModerationTemplateTypeDefs } from "@/server/collections/moderationTemplates/mutations";
+import { createModeratorAction, updateModeratorAction, graphqlModeratorActionTypeDefs } from "@/server/collections/moderatorActions/mutations";
+import { createMultiDocument, updateMultiDocument, graphqlMultiDocumentTypeDefs } from "@/server/collections/multiDocuments/mutations";
+import { createNotification, updateNotification, graphqlNotificationTypeDefs } from "@/server/collections/notifications/mutations";
+import { createPetrovDayAction, graphqlPetrovDayActionTypeDefs } from "@/server/collections/petrovDayActions/mutations";
+import { createPodcastEpisode, updatePodcastEpisode, graphqlPodcastEpisodeTypeDefs } from "@/server/collections/podcastEpisodes/mutations";
+import { createPostEmbedding, updatePostEmbedding, graphqlPostEmbeddingTypeDefs } from "@/server/collections/postEmbeddings/mutations";
+import { createPostViewTime, updatePostViewTime, graphqlPostViewTimeTypeDefs } from "@/server/collections/postViewTimes/mutations";
+import { createPostViews, updatePostViews, graphqlPostViewsTypeDefs } from "@/server/collections/postViews/mutations";
+import { createPost, updatePost, graphqlPostTypeDefs } from "@/server/collections/posts/mutations";
+import { createRSSFeed, updateRSSFeed, graphqlRSSFeedTypeDefs } from "@/server/collections/rssfeeds/mutations";
+import { createReport, updateReport, graphqlReportTypeDefs } from "@/server/collections/reports/mutations";
+import { updateRevision, graphqlRevisionTypeDefs } from "@/server/collections/revisions/mutations";
+import { createSequence, updateSequence, graphqlSequenceTypeDefs } from "@/server/collections/sequences/mutations";
+import { createSplashArtCoordinate, updateSplashArtCoordinate, graphqlSplashArtCoordinateTypeDefs } from "@/server/collections/splashArtCoordinates/mutations";
+import { createSpotlight, updateSpotlight, graphqlSpotlightTypeDefs } from "@/server/collections/spotlights/mutations";
+import { createSubscription, graphqlSubscriptionTypeDefs } from "@/server/collections/subscriptions/mutations";
+import { createSurveyQuestion, updateSurveyQuestion, graphqlSurveyQuestionTypeDefs } from "@/server/collections/surveyQuestions/mutations";
+import { createSurveyResponse, updateSurveyResponse, graphqlSurveyResponseTypeDefs } from "@/server/collections/surveyResponses/mutations";
+import { createSurveySchedule, updateSurveySchedule, graphqlSurveyScheduleTypeDefs } from "@/server/collections/surveySchedules/mutations";
+import { createSurvey, updateSurvey, graphqlSurveyTypeDefs } from "@/server/collections/surveys/mutations";
+import { createTagFlag, updateTagFlag, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
+import { createTagRel, updateTagRel, graphqlTagRelTypeDefs } from "@/server/collections/tagRels/mutations";
+import { createTag, updateTag, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
+import { createUserEAGDetail, updateUserEAGDetail, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
+import { createUserJobAd, updateUserJobAd, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
+import { createUserMostValuablePost, updateUserMostValuablePost, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
+import { createUserRateLimit, updateUserRateLimit, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
+import { createUserTagRel, updateUserTagRel, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
+import { createUser, updateUser, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
 import { getSchema } from '@/lib/schema/allSchemas';
 
 function addRootArg<T extends (args: any, context: ResolverContext) => any>(func: T) {
   return (root: void, args: Parameters<T>[0], context: ResolverContext) => func(args, context);
 }
 
+const selectorInput = gql`
+  input SelectorInput {
+    _id: String
+    documentId: String
+  }
+`;
+
 export const typeDefs = gql`
   # type Query
-  # type Mutation
+  type Mutation
+  ${selectorInput}
   ${notificationTypeDefs}
   ${arbitalLinkedPagesTypeDefs}
   ${additionalPostsTypeDefs}
@@ -239,7 +247,63 @@ export const typeDefs = gql`
   ${diffGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
+  ## Mutation and input typedefs
+  ${graphqlAdvisorRequestTypeDefs}
+  ${graphqlArbitalTagContentRelTypeDefs}
+  ${graphqlBanTypeDefs}
+  ${graphqlBookTypeDefs}
+  ${graphqlChapterTypeDefs}
+  ${graphqlCollectionTypeDefs}
+  ${graphqlCommentModeratorActionTypeDefs}
+  ${graphqlCommentTypeDefs}
+  ${graphqlConversationTypeDefs}
+  ${graphqlCurationNoticeTypeDefs}
+  ${graphqlDialogueMatchPreferenceTypeDefs}
+  ${graphqlDigestPostTypeDefs}
+  ${graphqlDigestTypeDefs}
+  ${graphqlElectionCandidateTypeDefs}
+  ${graphqlElectionVoteTypeDefs}
+  ${graphqlElicitQuestionTypeDefs}
+  ${graphqlForumEventTypeDefs}
+  ${graphqlGardenCodeTypeDefs}
+  ${graphqlGoogleServiceAccountSessionTypeDefs}
+  ${graphqlJargonTermTypeDefs}
+  ${graphqlLWEventTypeDefs}
+  ${graphqlLlmConversationTypeDefs}
+  ${graphqlLocalgroupTypeDefs}
+  ${graphqlMessageTypeDefs}
+  ${graphqlModerationTemplateTypeDefs}
+  ${graphqlModeratorActionTypeDefs}
+  ${graphqlMultiDocumentTypeDefs}
+  ${graphqlNotificationTypeDefs}
+  ${graphqlPetrovDayActionTypeDefs}
+  ${graphqlPodcastEpisodeTypeDefs}
+  ${graphqlPostEmbeddingTypeDefs}
+  ${graphqlPostViewTimeTypeDefs}
+  ${graphqlPostViewsTypeDefs}
+  ${graphqlPostTypeDefs}
+  ${graphqlRSSFeedTypeDefs}
+  ${graphqlReportTypeDefs}
+  ${graphqlRevisionTypeDefs}
+  ${graphqlSequenceTypeDefs}
+  ${graphqlSplashArtCoordinateTypeDefs}
+  ${graphqlSpotlightTypeDefs}
+  ${graphqlSubscriptionTypeDefs}
+  ${graphqlSurveyQuestionTypeDefs}
+  ${graphqlSurveyResponseTypeDefs}
+  ${graphqlSurveyScheduleTypeDefs}
+  ${graphqlSurveyTypeDefs}
+  ${graphqlTagFlagTypeDefs}
+  ${graphqlTagRelTypeDefs}
+  ${graphqlTagTypeDefs}
+  ${graphqlUserEAGDetailTypeDefs}
+  ${graphqlUserJobAdTypeDefs}
+  ${graphqlUserMostValuablePostTypeDefs}
+  ${graphqlUserRateLimitTypeDefs}
+  ${graphqlUserTagRelTypeDefs}
+  ${graphqlUserTypeDefs}
 `
+
 
 export const resolvers = {
   Query: {
@@ -665,27 +729,27 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
     schemaFragments.push(
       mainTypeTemplate({ typeName, description, interfaces, fields: mainType })
     );
-    schemaFragments.push(deleteInputTemplate({ typeName }));
+    // schemaFragments.push(deleteInputTemplate({ typeName }));
     schemaFragments.push(singleInputTemplate({ typeName }));
     schemaFragments.push(multiInputTemplate({ typeName }));
     schemaFragments.push(singleOutputTemplate({ typeName }));
     schemaFragments.push(multiOutputTemplate({ typeName }));
     schemaFragments.push(mutationOutputTemplate({ typeName }));
 
-    if (create.length) {
-      schemaFragments.push(createInputTemplate({ typeName }));
-      schemaFragments.push(createDataInputTemplate({ typeName, fields: create }));
-    }
+    // if (create.length) {
+    //   schemaFragments.push(createInputTemplate({ typeName }));
+    //   schemaFragments.push(createDataInputTemplate({ typeName, fields: create }));
+    // }
 
-    if (update.length) {
-      schemaFragments.push(updateInputTemplate({ typeName }));
-      schemaFragments.push(upsertInputTemplate({ typeName }));
-      schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
-    }
+    // if (update.length) {
+    //   schemaFragments.push(updateInputTemplate({ typeName }));
+    //   schemaFragments.push(upsertInputTemplate({ typeName }));
+    //   schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
+    // }
 
-    schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
+    // schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
 
-    schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
+    // schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
 
     schemaFragments.push(orderByInputTemplate({ typeName, fields: orderBy }));
 

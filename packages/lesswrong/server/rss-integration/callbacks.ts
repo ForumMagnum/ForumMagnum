@@ -1,4 +1,4 @@
-export async function populateRawFeed(feed: Partial<DbInsertion<DbRSSFeed>>) {
+export async function populateRawFeed(feed: CreateRSSFeedDataInput) {
   const feedparser = require('feedparser-promised');
   const url = feed.url;
   const currentPosts = await feedparser.parse(url);

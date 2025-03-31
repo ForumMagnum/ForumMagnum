@@ -21,7 +21,7 @@ function editCheck(user: DbUser | null, document: DbGoogleServiceAccountSession 
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleServiceAccountSessions', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: CreateGoogleServiceAccountSessionInput, context) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('GoogleServiceAccountSessions', {
@@ -51,7 +51,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleSe
     return filteredReturnValue;
   },
 
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }: UpdateGoogleServiceAccountSessionInput, context) => {
     const { currentUser, GoogleServiceAccountSessions } = context;
 
     const {
@@ -89,17 +89,21 @@ export { createFunction as createGoogleServiceAccountSession, updateFunction as 
 
 
 export const graphqlGoogleServiceAccountSessionTypeDefs = gql`
+  input CreateGoogleServiceAccountSessionDataInput {
+    ${getCreatableGraphQLFields(schema, '    ')}
+  }
+
   input CreateGoogleServiceAccountSessionInput {
-    data: {
-      ${getCreatableGraphQLFields(schema, '      ')}
-    }
+    data: CreateGoogleServiceAccountSessionDataInput!
   }
   
+  input UpdateGoogleServiceAccountSessionDataInput {
+    ${getUpdatableGraphQLFields(schema, '    ')}
+  }
+
   input UpdateGoogleServiceAccountSessionInput {
-    selector: SelectorInput
-    data: {
-      ${getUpdatableGraphQLFields(schema, '      ')}
-    }
+    selector: SelectorInput!
+    data: UpdateGoogleServiceAccountSessionDataInput!
   }
   
   extend type Mutation {

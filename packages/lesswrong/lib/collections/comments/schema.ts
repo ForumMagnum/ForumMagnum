@@ -429,7 +429,7 @@ const schema: SchemaType<"Comments"> = {
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async (comment, context) => {
-        if (!comment.postId) return false;
+        if (!('postId' in comment) || !comment.postId) return false;
         const post = await context.Posts.findOne({_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;
