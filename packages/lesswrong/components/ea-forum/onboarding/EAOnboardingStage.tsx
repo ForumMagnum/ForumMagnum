@@ -200,7 +200,6 @@ export const EAOnboardingStage = ({
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   
   const openLogoutConfirmation = useCallback(() => {
-    console.log('handleClose');
     setLogoutDialogOpen(true);
   }, []);
   
@@ -235,7 +234,7 @@ export const EAOnboardingStage = ({
         [classes.rootWide]: !thin,
       })}>
         <div className={classes.closeButtonOuter}>
-          <LWTooltip title="logout">
+          <LWTooltip title="Logout">
             <IconButton onClick={openLogoutConfirmation} className={classes.close}>
               <ForumIcon icon="Close" />
             </IconButton>
