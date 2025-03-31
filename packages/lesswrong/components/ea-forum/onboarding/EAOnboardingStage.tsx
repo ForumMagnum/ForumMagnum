@@ -134,6 +134,37 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const LogoutConfirmationDialog = (
+  {open, onClose, classes}:
+  {open: boolean, onClose: () => void, classes: ClassesType<typeof styles>},
+) => {
+  const currentUser = useCurrentUser();
+  
+  const {EAButton, LWDialog, Typography} = Components;
+  return <LWDialog open={open} onClose={onClose} className={classes.logoutDialog}>
+    <DialogTitle disableTypography>
+      <Typography variant="display1" className={classes.logoutDialogTitle}>
+        Confirm Logout
+      </Typography>
+    </DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        <p className={classes.logoutDialogText}>You are currently logged in with the email</p>
+        <p className={classes.logoutDialogText}>{currentUser?.email ?? "(no email found)"}</p>
+        <p className={classes.logoutDialogText}>But have not chosen a username.</p>
+      </DialogContentText>
+    </DialogContent>
+    <DialogActions className={classes.logoutDialogActions}>
+      <EAButton onClick={onClose} style="grey">
+        Cancel
+      </EAButton>
+      <EAButton href="/logout" autoFocus>
+        Logout
+      </EAButton>
+    </DialogActions>
+  </LWDialog>
+};
+
 export const EAOnboardingStage = ({
   stageName,
   title,
@@ -168,9 +199,7 @@ export const EAOnboardingStage = ({
   const {currentStage, goToNextStage, nextStageIsLoading, captureOnboardingEvent} = useEAOnboarding();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   
-  // Opens the logout confirmation dialog when the x button is clicked
-  // TODO; rename
-  const handleClose = useCallback(() => {
+  const openLogoutConfirmation = useCallback(() => {
     console.log('handleClose');
     setLogoutDialogOpen(true);
   }, []);
@@ -179,14 +208,6 @@ export const EAOnboardingStage = ({
   const handleDialogCancel = useCallback(() => {
     setLogoutDialogOpen(false);
   }, []);
-  
-  // Confirm logout – insert your logout logic here
-  const handleConfirmLogout = useCallback(() => {
-    // Implement your logout logic (e.g., call an API, clear auth tokens, redirect)
-    setLogoutDialogOpen(false);
-  }, []);
-  
-  const currentUser = useCurrentUser();
   
   const wrappedOnContinue = useCallback(async () => {
     await onContinue?.();
@@ -215,7 +236,7 @@ export const EAOnboardingStage = ({
       })}>
         <div className={classes.closeButtonOuter}>
           <LWTooltip title="logout">
-            <IconButton onClick={handleClose} className={classes.close}>
+            <IconButton onClick={openLogoutConfirmation} className={classes.close}>
               <ForumIcon icon="Close" />
             </IconButton>
           </LWTooltip>
@@ -260,28 +281,11 @@ export const EAOnboardingStage = ({
             }
           </div>
         }
-        <LWDialog open={logoutDialogOpen} onClose={handleDialogCancel} className={classes.logoutDialog}>
-          <DialogTitle disableTypography>
-            <Typography variant="display1" className={classes.logoutDialogTitle}>
-              Confirm Logout
-            </Typography>
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              <p className={classes.logoutDialogText}>You are currently logged in with the email</p>
-              <p className={classes.logoutDialogText}>{currentUser?.email ?? "(no email found)"}</p>
-              <p className={classes.logoutDialogText}>But have not chosen a username.</p>
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions className={classes.logoutDialogActions}>
-            <EAButton onClick={handleDialogCancel} style="grey">
-              Cancel
-            </EAButton>
-            <EAButton onClick={handleConfirmLogout} autoFocus>
-              Logout
-            </EAButton>
-          </DialogActions>
-        </LWDialog>
+        <LogoutConfirmationDialog
+          open={logoutDialogOpen}
+          onClose={handleDialogCancel}
+          classes={classes}
+        />
       </div>
     </AnalyticsContext>
   );
