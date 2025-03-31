@@ -120,7 +120,7 @@ export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Da
             <CloudinaryImage2
               loading="lazy"
               className={classes.image}
-              publicId="ChatGPT_Image_Mar_27_2025_07_12_57_PM_yngfv5.png"
+              publicId="ChatGPT_Image_Mar_30_2025_12_25_28_AM_gp57mj.png"
             />
             <div className={classes.gradientOverlay} />
         </div>

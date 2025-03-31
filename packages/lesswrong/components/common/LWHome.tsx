@@ -10,6 +10,8 @@ import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import TreasureChestPlayer from './TreasureChestPlayer';
+import TreasureChestOpening from './TreasureChestOpening';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -57,6 +59,7 @@ const LWHome = () => {
               <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
             </SingleColumnSection>}
           </>}
+          <TreasureChestOpening />
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
             <DismissibleSpotlightItem current/>

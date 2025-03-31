@@ -1,0 +1,608 @@
+diff --git a/packages/lesswrong/components/LWBackgroundImage.tsx b/packages/lesswrong/components/LWBackgroundImage.tsx
+index 0f90c7e653..347752a697 100644
+--- a/packages/lesswrong/components/LWBackgroundImage.tsx
++++ b/packages/lesswrong/components/LWBackgroundImage.tsx
+@@ -4,6 +4,7 @@ import { useLocation } from '../lib/routeUtil';
+ import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
+ import { defineStyles, useStyles } from './hooks/useStyles';
+ import { Link } from '../lib/reactRouterWrapper';
++import { useTheme } from './themes/useTheme';
+ import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
+ 
+ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
+@@ -18,6 +19,11 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
+     top: '-70px',
+     right: '-334px',
+     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
++
++    ...(theme.themeOptions.name === 'ghiblify' && {
++      right: 0,
++      '-webkit-mask-image': `radial-gradient(ellipse at right top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
++    }),
+     
+     [theme.breakpoints.up(2000)]: {
+       right: '0px',
+@@ -107,18 +113,26 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
+   const classes = useStyles(styles);
+   const { ReviewVotingCanvas, CloudinaryImage2 } = Components
+   const { currentRoute } = useLocation();
++  const theme = useTheme();
+ 
+   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
+     {/* Background image shown in the top-right corner of LW. The
+     * loading="lazy" prevents downloading the image if the
+     * screen-size is such that the image will be hidden by a
+     * breakpoint. */}
+-    <CloudinaryImage2
+-      loading="lazy"
+-      className={classes.backgroundImage}
+-      publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
+-      darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
+-    />
++    {theme.themeOptions.name === 'ghiblify'
++      ? <img
++          loading="lazy"
++          className={classes.backgroundImage}
++          src="/landscape.jpg"
++        />
++      : <CloudinaryImage2
++          loading="lazy"
++          className={classes.backgroundImage}
++          publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413"
++          darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}
++        />
++    }
+   </div> : null
+ 
+   const reviewCompleteImage = <div>
+diff --git a/packages/lesswrong/components/common/ForumIcon.tsx b/packages/lesswrong/components/common/ForumIcon.tsx
+index 6becab7294..32ba51f6a1 100644
+--- a/packages/lesswrong/components/common/ForumIcon.tsx
++++ b/packages/lesswrong/components/common/ForumIcon.tsx
+@@ -166,6 +166,8 @@ import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
+ import { GivingHandIcon } from "../icons/GivingHandIcon";
+ import { DictionaryIcon } from "../icons/Dictionary";
+ import { defineStyles, useStyles } from "../hooks/useStyles";
++import { useTheme } from "../themes/useTheme";
++import { GhibliIcon, hasGhibliIcon } from "../themes/ghibli/GhibliIcon";
+ 
+ /**
+  * This exists to allow us to easily use different icon sets on different
+@@ -569,10 +571,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
+   },
+ };
+ 
+-type IconProps = {
++export type IconProps = {
+   className?: string,
+-  onClick?: MouseEventHandler<SVGElement>,
+-  onMouseDown?: MouseEventHandler<SVGElement>,
++  onClick?: MouseEventHandler<SVGElement|HTMLImageElement>,
++  onMouseDown?: MouseEventHandler<SVGElement|HTMLImageElement>,
+ }
+ 
+ type IconComponent = ComponentType<Partial<IconProps>>;
+@@ -636,7 +638,13 @@ const ForumIcon = ({
+   className,
+   ...props
+ }: ForumIconProps) => {
++  const theme = useTheme();
+   const classes = useStyles(styles);
++
++  if (theme.themeOptions.name === 'ghiblify' && hasGhibliIcon(icon)) {
++    return <GhibliIcon icon={icon} noDefaultStyles={noDefaultStyles} className={className}/>
++  }
++
+   const icons = forumSelect(ICONS);
+   const Icon = icons[icon] ?? ICONS.default[icon];
+   if (!Icon) {
+diff --git a/packages/lesswrong/components/common/Header.tsx b/packages/lesswrong/components/common/Header.tsx
+index 79f10ba813..f4c6b4e954 100644
+--- a/packages/lesswrong/components/common/Header.tsx
++++ b/packages/lesswrong/components/common/Header.tsx
+@@ -101,9 +101,13 @@ const textColorOverrideStyles = ({
+ 
+ export const styles = (theme: ThemeType) => ({
+   appBar: {
+-    boxShadow: theme.palette.boxShadow.appBar,
+     color: theme.palette.header.text,
++    boxShadow: theme.palette.boxShadow.appBar,
+     backgroundColor: theme.palette.header.background,
++    ...(theme.themeOptions.name === "ghiblify" && {
++      backgroundColor: undefined,
++      boxShadow: undefined,
++    }),
+     position: "static",
+     width: "100%",
+     display: "flex",
+diff --git a/packages/lesswrong/components/common/TabNavigationMenu/TabNavigationItem.tsx b/packages/lesswrong/components/common/TabNavigationMenu/TabNavigationItem.tsx
+index d84f3731c2..d7dfb90515 100644
+--- a/packages/lesswrong/components/common/TabNavigationMenu/TabNavigationItem.tsx
++++ b/packages/lesswrong/components/common/TabNavigationMenu/TabNavigationItem.tsx
+@@ -69,6 +69,9 @@ const styles = (theme: ThemeType) => ({
+   },
+   icon: {
+     opacity: .3,
++    ...(theme.themeOptions.name === 'ghiblify' && {
++      opacity: 1,
++    }),
+     width: iconWidth,
+     height: 28,
+     marginRight: 16,
+diff --git a/packages/lesswrong/components/common/TabNavigationMenu/menuTabs.tsx b/packages/lesswrong/components/common/TabNavigationMenu/menuTabs.tsx
+index 342442e058..cd680a7391 100644
+--- a/packages/lesswrong/components/common/TabNavigationMenu/menuTabs.tsx
++++ b/packages/lesswrong/components/common/TabNavigationMenu/menuTabs.tsx
+@@ -7,7 +7,7 @@ import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../..
+ 
+ import { compassIcon } from '../../icons/compassIcon';
+ import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
+-import { conceptsIcon } from '../../icons/conceptsIcon';
++import { ConceptsIcon } from '../../icons/conceptsIcon';
+ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
+ import { BookIcon } from '../../icons/bookIcon'
+ import { allPostsIcon } from '../../icons/allPostsIcon';
+@@ -38,6 +38,8 @@ import {
+   PeopleDirectorySelectedIcon,
+ } from '../../icons/peopleDirectoryIcon';
+ import { podcastPost } from '@/lib/eaPodcasts';
++import { useTheme } from '@/components/themes/useTheme';
++import { GhibliIconPath } from '@/components/themes/ghibli/GhibliIcon';
+ 
+ // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
+ // tabs can appear in
+@@ -99,6 +101,15 @@ export type MenuTabRegular = {
+ 
+ type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
+ 
++const GlobeIcon = () => {
++  const theme = useTheme();
++  if (theme.themeOptions.name === 'ghiblify') {
++    return <GhibliIconPath path="/ghibli/globe.png"/>
++  } else {
++    return communityGlobeIcon;
++  }
++}
++
+ export const menuTabs: ForumOptions<Array<MenuTab>> = {
+   LessWrong: [
+     {
+@@ -122,7 +133,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
+       title: 'Concepts',
+       mobileTitle: 'Concepts',
+       link: getAllTagsPath(),
+-      icon: conceptsIcon,
++      icon: <ConceptsIcon/>,
+       tooltip: <div>
+         Get an overview over all the concepts used on LessWrong
+       </div>,
+@@ -179,7 +190,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
+       title: 'Community Events', // Events hide on mobile
+       mobileTitle: 'Community',
+       link: communityPath,
+-      icon: communityGlobeIcon,
++      icon: <GlobeIcon/>,
+       tooltip: 'Find a meetup near you.',
+       showOnMobileStandalone: true,
+       showOnCompressed: true,
+diff --git a/packages/lesswrong/components/icons/allPostsIcon.tsx b/packages/lesswrong/components/icons/allPostsIcon.tsx
+index 925cd236a0..6e30f2f4f1 100644
+--- a/packages/lesswrong/components/icons/allPostsIcon.tsx
++++ b/packages/lesswrong/components/icons/allPostsIcon.tsx
+@@ -1,3 +1,14 @@
+ import React from 'react';
++import { useTheme } from '../themes/useTheme';
++import { GhibliIconPath } from '../themes/ghibli/GhibliIcon';
+ 
+-export const allPostsIcon = <svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" viewBox="0 0 100 125"><g transform="translate(0,-952.36218)"><path style={{textIndent:0, textTransform:"none", direction:"ltr", baselineShift:"baseline" }} d="m 12.80945,964.36661 a 1.9989971,2.0020794 0 1 0 0.187201,3.99977 l 17.97124,0 a 1.9970041,2.0000833 0 1 0 0,-3.99977 l -17.97124,0 a 1.9970041,2.0000833 0 0 0 -0.187201,0 z m 25.958459,0 a 1.9989971,2.0020794 0 1 0 0.1872,3.99977 l 47.923308,0 a 1.9970041,2.0000833 0 1 0 0,-3.99977 l -47.923308,0 a 1.9970041,2.0000833 0 0 0 -0.1872,0 z m -25.958459,23.9986 a 1.9989971,2.0020794 0 1 0 0.187201,3.99977 l 57.90733,0 a 1.9970041,2.0000833 0 1 0 0,-3.99977 l -57.90733,0 a 1.9970041,2.0000833 0 0 0 -0.187201,0 z m 0,23.99859 a 1.9989971,2.0020794 0 1 0 0.187201,3.9998 l 57.90733,0 a 1.9970041,2.0000833 0 1 0 0,-3.9998 l -57.90733,0 a 1.9970041,2.0000833 0 0 0 -0.187201,0 z m 0,23.9986 a 1.9989971,2.0020794 0 1 0 0.187201,3.9998 l 57.90733,0 a 1.9970041,2.0000833 0 1 0 0,-3.9998 l -57.90733,0 a 1.9970041,2.0000833 0 0 0 -0.187201,0 z" stroke="none" visibility="visible" display="inline" overflow="visible"/></g></svg>
++export const AllPostsIcon = () => {
++  const theme = useTheme();
++  if (theme.themeOptions.name === 'ghiblify') {
++    return <GhibliIconPath path="/ghibli/allposts.png"/>;
++  }
++
++  return <svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" viewBox="0 0 100 125"><g transform="translate(0,-952.36218)"><path style={{textIndent:0, textTransform:"none", direction:"ltr", baselineShift:"baseline" }} d="m 12.80945,964.36661 a 1.9989971,2.0020794 0 1 0 0.187201,3.99977 l 17.97124,0 a 1.9970041,2.0000833 0 1 0 0,-3.99977 l -17.97124,0 a 1.9970041,2.0000833 0 0 0 -0.187201,0 z m 25.958459,0 a 1.9989971,2.0020794 0 1 0 0.1872,3.99977 l 47.923308,0 a 1.9970041,2.0000833 0 1 0 0,-3.99977 l -47.923308,0 a 1.9970041,2.0000833 0 0 0 -0.1872,0 z m -25.958459,23.9986 a 1.9989971,2.0020794 0 1 0 0.187201,3.99977 l 57.90733,0 a 1.9970041,2.0000833 0 1 0 0,-3.99977 l -57.90733,0 a 1.9970041,2.0000833 0 0 0 -0.187201,0 z m 0,23.99859 a 1.9989971,2.0020794 0 1 0 0.187201,3.9998 l 57.90733,0 a 1.9970041,2.0000833 0 1 0 0,-3.9998 l -57.90733,0 a 1.9970041,2.0000833 0 0 0 -0.187201,0 z m 0,23.9986 a 1.9989971,2.0020794 0 1 0 0.187201,3.9998 l 57.90733,0 a 1.9970041,2.0000833 0 1 0 0,-3.9998 l -57.90733,0 a 1.9970041,2.0000833 0 0 0 -0.187201,0 z" stroke="none" visibility="visible" display="inline" overflow="visible"/></g></svg>
++}
++
++export const allPostsIcon = <AllPostsIcon/>
+diff --git a/packages/lesswrong/components/icons/bookIcon.tsx b/packages/lesswrong/components/icons/bookIcon.tsx
+index c40c8c3482..31f7ff420d 100644
+--- a/packages/lesswrong/components/icons/bookIcon.tsx
++++ b/packages/lesswrong/components/icons/bookIcon.tsx
+@@ -1,8 +1,15 @@
+ import React from 'react';
++import { useTheme } from '../themes/useTheme';
++import { GhibliIconPath } from '../themes/ghibli/GhibliIcon';
+ 
+ export const BookIcon = ({ className }: {
+   className?: string,
+ }) => {
++  const theme = useTheme();
++  if (theme.themeOptions.name === 'ghiblify') {
++    return <GhibliIconPath path="/ghibli/book.png" className={className}/>
++  }
++
+   return <svg version="1.0" className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84.000000 84.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.0,84.0) scale(0.1,-0.1)" stroke="none">
+     <path d="M170 695 c0 -3 -14 -67 -31 -143 -17 -75 -35 -159 -40 -187 -5 -27 -12 -58 -15 -67 -5 -16 2 -18 53 -18 71 0 156 -21 223 -55 l50 -25 0 225 0 224 -27 15 c-51 25 -213 49 -213 31z"/>
+     <path d="M536 689 c-21 -5 -54 -16 -72 -25 l-34 -16 0 -224 c0 -123 2 -224 4 -224 2 0 23 11 47 24 59 33 150 56 222 56 56 0 59 1 54 23 -3 12 -22 99 -42 192 -20 94 -38 178 -41 188 -4 13 -16 17 -52 16 -26 -1 -64 -5 -86 -10z"/>
+diff --git a/packages/lesswrong/components/icons/compassIcon.tsx b/packages/lesswrong/components/icons/compassIcon.tsx
+index 0a5ad64741..7ec5b89f17 100644
+--- a/packages/lesswrong/components/icons/compassIcon.tsx
++++ b/packages/lesswrong/components/icons/compassIcon.tsx
+@@ -1,7 +1,18 @@
+ import React from 'react';
++import { useTheme } from '../themes/useTheme';
++import { GhibliIconPath } from '../themes/ghibli/GhibliIcon';
+ 
+-export const compassIcon = <svg version="1.1" x="0px" y="0px" viewBox="0 0 100 100">
+-  <g fill="currentColor">
+-    <path d="M29.1,29.2l6.4,11.6l4.3-0.8l0.8-4.3L29.1,29.2z M40.7,64.5l-0.8-4.3l-4.3-0.8L29.2,71L40.7,64.5z M70.9,70.9l-6.4-11.6l-4.3,0.8l-0.8,4.3L70.9,70.9z M64.4,40.8l6.4-11.6l-11.6,6.4l0.8,4.3L64.4,40.8z M67.4,58.8l10.8,19.4L58.8,67.4L50,98.8l-8.8-31.4L21.9,78.2l10.8-19.4L1.2,50.1l31.4-8.8L21.9,21.9l19.4,10.8L50,1.3l8.8,31.4l19.4-10.8L67.4,41.3L98.8,50L67.4,58.8zM57.7,57.8L83.5,50L50,50.1l7.7-7.7L50,16.6v33.5l-7.7-7.7l-25.8,7.7H50l-7.7,7.7L50,83.5V50.1L57.7,57.8z"/>
+-  </g>
+-</svg>
++export const CompassIcon = () => {
++  const theme = useTheme();
++  if (theme.themeOptions.name === 'ghiblify') {
++    return <GhibliIconPath path="/ghibli/compass.png"/>;
++  }
++
++  return <svg version="1.1" x="0px" y="0px" viewBox="0 0 100 100">
++    <g fill="currentColor">
++      <path d="M29.1,29.2l6.4,11.6l4.3-0.8l0.8-4.3L29.1,29.2z M40.7,64.5l-0.8-4.3l-4.3-0.8L29.2,71L40.7,64.5z M70.9,70.9l-6.4-11.6l-4.3,0.8l-0.8,4.3L70.9,70.9z M64.4,40.8l6.4-11.6l-11.6,6.4l0.8,4.3L64.4,40.8z M67.4,58.8l10.8,19.4L58.8,67.4L50,98.8l-8.8-31.4L21.9,78.2l10.8-19.4L1.2,50.1l31.4-8.8L21.9,21.9l19.4,10.8L50,1.3l8.8,31.4l19.4-10.8L67.4,41.3L98.8,50L67.4,58.8zM57.7,57.8L83.5,50L50,50.1l7.7-7.7L50,16.6v33.5l-7.7-7.7l-25.8,7.7H50l-7.7,7.7L50,83.5V50.1L57.7,57.8z"/>
++    </g>
++  </svg>
++}
++
++export const compassIcon = <CompassIcon/>
+diff --git a/packages/lesswrong/components/icons/conceptsIcon.tsx b/packages/lesswrong/components/icons/conceptsIcon.tsx
+index b89e841a95..6f15b109e9 100644
+--- a/packages/lesswrong/components/icons/conceptsIcon.tsx
++++ b/packages/lesswrong/components/icons/conceptsIcon.tsx
+@@ -1,3 +1,12 @@
+ import React from 'react';
++import { useTheme } from '../themes/useTheme';
++import { GhibliIconPath } from '../themes/ghibli/GhibliIcon';
+ 
+-export const conceptsIcon = <svg version="1.1" x="0px" y="0px" viewBox="10 10 90 90" ><path d="M62.648,14.41c-7.396-0.624-14.651,2.03-19.906,7.285c-3.807,3.807-6.268,8.75-7.065,14.054  c-5.283,0.785-10.225,3.236-14.085,7.096c-4.19,4.19-6.772,9.755-7.272,15.667c-0.563,6.697,1.512,13.212,5.848,18.346  c4.335,5.136,10.413,8.273,17.106,8.834c7.398,0.628,14.655-2.029,19.91-7.284c3.805-3.805,6.265-8.749,7.062-14.053  c5.283-0.784,10.227-3.235,14.086-7.096c4.189-4.189,6.773-9.754,7.273-15.67C86.77,27.771,76.473,15.578,62.648,14.41z   M55.561,76.783c-4.597,4.596-11.109,7.21-18.092,6.621c-12.582-1.06-21.918-12.119-20.858-24.7  c0.472-5.594,2.923-10.55,6.606-14.232c3.273-3.273,7.529-5.515,12.226-6.336c-0.347,6.424,1.708,12.638,5.875,17.574  c4.333,5.134,10.411,8.272,17.105,8.835c1.166,0.1,2.327,0.106,3.479,0.045C61.069,69.348,58.789,73.555,55.561,76.783z   M62.178,62.248c-1.171,0.082-2.354,0.109-3.561,0.008c-12.482-1.05-21.755-11.945-20.866-24.399  c1.169-0.083,2.353-0.11,3.558-0.008C53.788,38.903,63.064,49.792,62.178,62.248z M83.315,41.397  c-0.474,5.596-2.924,10.554-6.606,14.237c-3.275,3.274-7.531,5.515-12.228,6.336C65.207,48.47,55.063,36.705,41.5,35.559  c-1.164-0.098-2.324-0.106-3.475-0.044c0.832-4.758,3.113-8.964,6.341-12.193c4.596-4.596,11.109-7.211,18.09-6.621  C75.037,17.763,84.375,28.817,83.315,41.397z"/><path d="M49.384,64.735c-1.677-0.739-3.272-1.645-4.772-2.708c-0.927-0.657-1.816-1.369-2.662-2.144  c-0.861-0.788-1.692-1.613-2.459-2.517c-0.019-0.022-0.042-0.043-0.061-0.065c-0.542-0.641-1.042-1.309-1.52-1.99  c-0.549-0.786-1.045-1.602-1.508-2.434c-0.364-0.656-0.699-1.324-1.008-2.006c-0.354-0.782-0.671-1.578-0.95-2.39  c-0.223-0.648-0.419-1.305-0.593-1.97c-0.203-0.773-0.373-1.557-0.507-2.349c-0.11-0.644-0.194-1.292-0.257-1.946  c-0.031-0.311-0.077-0.62-0.097-0.933c-0.668,0.218-1.318,0.476-1.956,0.76c-1.053,0.47-2.062,1.028-3.019,1.67  c-0.922,0.618-1.794,1.315-2.611,2.085c-0.147,0.139-0.298,0.273-0.442,0.417c-0.436,0.436-0.848,0.891-1.24,1.361  c-0.574,0.689-1.085,1.423-1.562,2.178c-0.375,0.594-0.72,1.204-1.031,1.833c-0.359,0.724-0.683,1.464-0.953,2.227  c-0.218,0.613-0.401,1.24-0.56,1.875c-0.186,0.746-0.323,1.506-0.424,2.273c-0.041,0.315-0.095,0.628-0.122,0.946  c-0.027,0.321-0.022,0.641-0.034,0.961c-0.03,0.775-0.018,1.545,0.04,2.31c0.049,0.652,0.128,1.3,0.239,1.94  c0.138,0.796,0.312,1.581,0.544,2.353c0.201,0.672,0.433,1.335,0.704,1.984c0.345,0.827,0.752,1.628,1.207,2.408  c0.411,0.703,0.871,1.38,1.37,2.038c0.222,0.293,0.431,0.594,0.67,0.877c0.483,0.572,0.999,1.106,1.534,1.617  c0.834,0.796,1.73,1.51,2.675,2.146c1.964,1.324,4.146,2.282,6.464,2.853c1.042,0.257,2.103,0.454,3.192,0.546  c1.064,0.09,2.12,0.066,3.168-0.009c2.392-0.17,4.716-0.755,6.883-1.729c1.045-0.47,2.054-1.022,3.013-1.668  c0.919-0.616,1.788-1.315,2.608-2.085c0.151-0.144,0.316-0.269,0.464-0.416c0.435-0.435,0.826-0.899,1.216-1.366  c0.581-0.692,1.121-1.412,1.6-2.169c0.375-0.593,0.709-1.209,1.02-1.836c0.358-0.723,0.675-1.464,0.943-2.228  c0.048-0.134,0.111-0.26,0.156-0.394c-0.179-0.012-0.356-0.025-0.532-0.04C55.116,66.745,52.149,65.953,49.384,64.735z"/><path d="M43.815,51.052L54.95,47.54c-0.607-0.724-1.259-1.412-1.96-2.046l-10.529,3.321C42.864,49.591,43.318,50.336,43.815,51.052z  "/><path d="M47.913,42.134l-7.13,2.249c0.208,0.827,0.469,1.632,0.776,2.419l9.346-2.948C49.961,43.201,48.963,42.623,47.913,42.134z"/><path d="M41.102,40.309c-0.299-0.025-0.605-0.042-0.924-0.05c0.025,0.662,0.086,1.316,0.175,1.963l4.163-1.313  C43.412,40.619,42.274,40.409,41.102,40.309z"/><path d="M58.824,59.795c0.301,0.025,0.607,0.042,0.926,0.051c-0.02-0.525-0.073-1.043-0.133-1.559l-3.442,1.086  C57.04,59.562,57.919,59.719,58.824,59.795z"/><path d="M52.566,58.213l6.684-2.108c-0.191-0.831-0.45-1.637-0.742-2.43l-9.067,2.86C50.426,57.181,51.47,57.742,52.566,58.213z"/><path d="M47.283,54.918l10.356-3.267c-0.386-0.777-0.806-1.537-1.283-2.259l-11.098,3.501C45.888,53.612,46.56,54.294,47.283,54.918  z"/></svg>
++export const ConceptsIcon = () => {
++  const theme = useTheme();
++  if (theme.themeOptions.name === 'ghiblify') {
++    return <GhibliIconPath path="/ghibli/venndiagram.png"/>;
++  }
++
++  return <svg version="1.1" x="0px" y="0px" viewBox="10 10 90 90" ><path d="M62.648,14.41c-7.396-0.624-14.651,2.03-19.906,7.285c-3.807,3.807-6.268,8.75-7.065,14.054  c-5.283,0.785-10.225,3.236-14.085,7.096c-4.19,4.19-6.772,9.755-7.272,15.667c-0.563,6.697,1.512,13.212,5.848,18.346  c4.335,5.136,10.413,8.273,17.106,8.834c7.398,0.628,14.655-2.029,19.91-7.284c3.805-3.805,6.265-8.749,7.062-14.053  c5.283-0.784,10.227-3.235,14.086-7.096c4.189-4.189,6.773-9.754,7.273-15.67C86.77,27.771,76.473,15.578,62.648,14.41z   M55.561,76.783c-4.597,4.596-11.109,7.21-18.092,6.621c-12.582-1.06-21.918-12.119-20.858-24.7  c0.472-5.594,2.923-10.55,6.606-14.232c3.273-3.273,7.529-5.515,12.226-6.336c-0.347,6.424,1.708,12.638,5.875,17.574  c4.333,5.134,10.411,8.272,17.105,8.835c1.166,0.1,2.327,0.106,3.479,0.045C61.069,69.348,58.789,73.555,55.561,76.783z   M62.178,62.248c-1.171,0.082-2.354,0.109-3.561,0.008c-12.482-1.05-21.755-11.945-20.866-24.399  c1.169-0.083,2.353-0.11,3.558-0.008C53.788,38.903,63.064,49.792,62.178,62.248z M83.315,41.397  c-0.474,5.596-2.924,10.554-6.606,14.237c-3.275,3.274-7.531,5.515-12.228,6.336C65.207,48.47,55.063,36.705,41.5,35.559  c-1.164-0.098-2.324-0.106-3.475-0.044c0.832-4.758,3.113-8.964,6.341-12.193c4.596-4.596,11.109-7.211,18.09-6.621  C75.037,17.763,84.375,28.817,83.315,41.397z"/><path d="M49.384,64.735c-1.677-0.739-3.272-1.645-4.772-2.708c-0.927-0.657-1.816-1.369-2.662-2.144  c-0.861-0.788-1.692-1.613-2.459-2.517c-0.019-0.022-0.042-0.043-0.061-0.065c-0.542-0.641-1.042-1.309-1.52-1.99  c-0.549-0.786-1.045-1.602-1.508-2.434c-0.364-0.656-0.699-1.324-1.008-2.006c-0.354-0.782-0.671-1.578-0.95-2.39  c-0.223-0.648-0.419-1.305-0.593-1.97c-0.203-0.773-0.373-1.557-0.507-2.349c-0.11-0.644-0.194-1.292-0.257-1.946  c-0.031-0.311-0.077-0.62-0.097-0.933c-0.668,0.218-1.318,0.476-1.956,0.76c-1.053,0.47-2.062,1.028-3.019,1.67  c-0.922,0.618-1.794,1.315-2.611,2.085c-0.147,0.139-0.298,0.273-0.442,0.417c-0.436,0.436-0.848,0.891-1.24,1.361  c-0.574,0.689-1.085,1.423-1.562,2.178c-0.375,0.594-0.72,1.204-1.031,1.833c-0.359,0.724-0.683,1.464-0.953,2.227  c-0.218,0.613-0.401,1.24-0.56,1.875c-0.186,0.746-0.323,1.506-0.424,2.273c-0.041,0.315-0.095,0.628-0.122,0.946  c-0.027,0.321-0.022,0.641-0.034,0.961c-0.03,0.775-0.018,1.545,0.04,2.31c0.049,0.652,0.128,1.3,0.239,1.94  c0.138,0.796,0.312,1.581,0.544,2.353c0.201,0.672,0.433,1.335,0.704,1.984c0.345,0.827,0.752,1.628,1.207,2.408  c0.411,0.703,0.871,1.38,1.37,2.038c0.222,0.293,0.431,0.594,0.67,0.877c0.483,0.572,0.999,1.106,1.534,1.617  c0.834,0.796,1.73,1.51,2.675,2.146c1.964,1.324,4.146,2.282,6.464,2.853c1.042,0.257,2.103,0.454,3.192,0.546  c1.064,0.09,2.12,0.066,3.168-0.009c2.392-0.17,4.716-0.755,6.883-1.729c1.045-0.47,2.054-1.022,3.013-1.668  c0.919-0.616,1.788-1.315,2.608-2.085c0.151-0.144,0.316-0.269,0.464-0.416c0.435-0.435,0.826-0.899,1.216-1.366  c0.581-0.692,1.121-1.412,1.6-2.169c0.375-0.593,0.709-1.209,1.02-1.836c0.358-0.723,0.675-1.464,0.943-2.228  c0.048-0.134,0.111-0.26,0.156-0.394c-0.179-0.012-0.356-0.025-0.532-0.04C55.116,66.745,52.149,65.953,49.384,64.735z"/><path d="M43.815,51.052L54.95,47.54c-0.607-0.724-1.259-1.412-1.96-2.046l-10.529,3.321C42.864,49.591,43.318,50.336,43.815,51.052z  "/><path d="M47.913,42.134l-7.13,2.249c0.208,0.827,0.469,1.632,0.776,2.419l9.346-2.948C49.961,43.201,48.963,42.623,47.913,42.134z"/><path d="M41.102,40.309c-0.299-0.025-0.605-0.042-0.924-0.05c0.025,0.662,0.086,1.316,0.175,1.963l4.163-1.313  C43.412,40.619,42.274,40.409,41.102,40.309z"/><path d="M58.824,59.795c0.301,0.025,0.607,0.042,0.926,0.051c-0.02-0.525-0.073-1.043-0.133-1.559l-3.442,1.086  C57.04,59.562,57.919,59.719,58.824,59.795z"/><path d="M52.566,58.213l6.684-2.108c-0.191-0.831-0.45-1.637-0.742-2.43l-9.067,2.86C50.426,57.181,51.47,57.742,52.566,58.213z"/><path d="M47.283,54.918l10.356-3.267c-0.386-0.777-0.806-1.537-1.283-2.259l-11.098,3.501C45.888,53.612,46.56,54.294,47.283,54.918  z"/></svg>
++}
+diff --git a/packages/lesswrong/components/themes/ghibli/GhibliIcon.tsx b/packages/lesswrong/components/themes/ghibli/GhibliIcon.tsx
+new file mode 100644
+index 0000000000..bb573b04fb
+--- /dev/null
++++ b/packages/lesswrong/components/themes/ghibli/GhibliIcon.tsx
+@@ -0,0 +1,71 @@
++import React, { CSSProperties } from 'react';
++import { defineStyles, useStyles } from '@/components/hooks/useStyles';
++import type { ForumIconName, IconProps } from '@/components/common/ForumIcon';
++import classNames from 'classnames';
++
++const styles = defineStyles("GhibliIcon", (theme: ThemeType) => ({
++  root: {
++    userSelect: "none",
++    display: "inline-block",
++    flexShrink: 0,
++    width: "var(--icon-size, 1em)",
++    height: "var(--icon-size, 1em)",
++    fontSize: "var(--icon-size, 24px)",
++
++    //filter: "drop-shadow(0 0 5px rgba(255, 255, 0, 0.8)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.6))",
++  },
++}), {
++  stylePriority: -2,
++})
++
++const ghibliIcons: Partial<Record<ForumIconName,string>> = {
++  Bell: "/ghibli/bell.png",
++  BellAlert: "/ghibli/bell.png",
++  BellBorder: "/ghibli/bell.png",
++  BookOpen: "/ghibli/book.png",
++  Search: "/ghibli/magnifyingGlass.png",
++  Karma: "/ghibli/star.png",
++  KarmaOutline: "/ghibli/star.png",
++  Menu: "/ghibli/hamburger.png",
++};
++
++export const GhibliIcon = ({icon, noDefaultStyles, className, style, onClick, onMouseDown}: IconProps & {
++  icon: ForumIconName,
++  noDefaultStyles?: boolean,
++  style?: CSSProperties,
++}) => {
++  const classes = useStyles(styles);
++  const path = ghibliIcons[icon];
++  return <img
++    src={path}
++    style={style}
++    className={classNames(
++      className,
++      !noDefaultStyles && classes.root,
++    )}
++    onClick={onClick}
++    onMouseDown={onMouseDown}
++  />
++}
++
++export const GhibliIconPath = ({path, noDefaultStyles, className, style, onClick, onMouseDown}: IconProps & {
++  path: string,
++  noDefaultStyles?: boolean,
++  style?: CSSProperties,
++}) => {
++  const classes = useStyles(styles);
++  return <img
++    src={path}
++    style={style}
++    className={classNames(
++      className,
++      !noDefaultStyles && classes.root,
++    )}
++    onClick={onClick}
++    onMouseDown={onMouseDown}
++  />
++}
++
++export function hasGhibliIcon(icon: ForumIconName): boolean {
++  return (icon in ghibliIcons);
++}
+diff --git a/packages/lesswrong/components/users/UsersMenu.tsx b/packages/lesswrong/components/users/UsersMenu.tsx
+index 8ca8a32150..7e82b4088f 100644
+--- a/packages/lesswrong/components/users/UsersMenu.tsx
++++ b/packages/lesswrong/components/users/UsersMenu.tsx
+@@ -60,7 +60,10 @@ const styles = (theme: ThemeType) => ({
+     opacity: 0.9
+   },
+   icon: {
+-    color: isFriendlyUI ? undefined : theme.palette.grey[500]
++    color: isFriendlyUI ? undefined : theme.palette.grey[500],
++    ...(theme.themeOptions.name === 'ghiblify' && {
++      color: "#3187cb",
++    }),
+   },
+   deactivatedTooltip: {
+     maxWidth: 230
+diff --git a/packages/lesswrong/themes/defaultPalette.ts b/packages/lesswrong/themes/defaultPalette.ts
+index 49a255aa78..b471fab6da 100644
+--- a/packages/lesswrong/themes/defaultPalette.ts
++++ b/packages/lesswrong/themes/defaultPalette.ts
+@@ -347,10 +347,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
+   },
+   panelBackground: {
+     default: shades.grey[0],
+-    translucent: "rgba(255,255,255,.87)",
+-    translucent2: "rgba(255,255,255,.8)",
+-    translucent3: "rgba(255,255,255,.75)",
+-    translucent4: "rgba(255,255,255,.5)",
++    translucent: shades.inverseGreyAlpha(.87),
++    translucent2: shades.inverseGreyAlpha(.8),
++    translucent3: shades.inverseGreyAlpha(.75),
++    translucent4: shades.inverseGreyAlpha(.5),
+     hoverHighlightGrey: shades.greyAlpha(.1),
+     postsItemHover: shades.grey[50],
+     formErrors: shades.greyAlpha(0.25),
+diff --git a/packages/lesswrong/themes/siteThemes/lesswrongTheme.ts b/packages/lesswrong/themes/siteThemes/lesswrongTheme.ts
+index 7a64afde3a..ac7e0fdaaa 100644
+--- a/packages/lesswrong/themes/siteThemes/lesswrongTheme.ts
++++ b/packages/lesswrong/themes/siteThemes/lesswrongTheme.ts
+@@ -53,7 +53,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
+       background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
+     },
+     background: {
+-      default: '#f8f4ee'
++      default: '#f8f4ee',
+     },
+     link: {
+       color: "#327E09",
+@@ -69,9 +69,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
+       intercomButton: 1030,
+     },
+     typography: {
+-      fontFamily: sansSerifStack,
++      fontFamily: palette.fonts.sansSerifStack,
+       postStyle: {
+-        fontFamily: serifStack,
++        fontFamily: palette.fonts.serifStack,
+       },
+       headerStyle: {
+         fontFamily: headerStack,
+@@ -86,27 +86,27 @@ export const lessWrongTheme: SiteThemeSpecification = {
+         lineHeight: "19.8px"
+       },
+       commentStyle: {
+-        fontFamily: sansSerifStack,
++        fontFamily: palette.fonts.sansSerifStack,
+         '& b, & strong': {
+           fontWeight: 600
+         }
+       },
+       errorStyle: {
+         color: palette.error.main,
+-        fontFamily: sansSerifStack
++        fontFamily: palette.fonts.sansSerifStack
+       },
+       headline: {
+-        fontFamily: serifStack,
++        fontFamily: palette.fonts.serifStack,
+       },
+       subheading: {
+-        fontFamily: serifStack,
++        fontFamily: palette.fonts.serifStack,
+       },
+       title: {
+         fontFamily: headerStack,
+         fontWeight: 500,
+       },
+       uiSecondary: {
+-        fontFamily: serifStack,
++        fontFamily: palette.fonts.serifStack,
+       },
+     },
+     overrides: {
+@@ -124,14 +124,14 @@ export const lessWrongTheme: SiteThemeSpecification = {
+       },
+       MuiDialogContent: {
+         root: {
+-          fontFamily: sansSerifStack,
++          fontFamily: palette.fonts.sansSerifStack,
+           fontSize: 15.08,
+           lineHeight: "1.5em"
+         }
+       },
+       MuiMenuItem: {
+         root: {
+-          fontFamily: sansSerifStack,
++          fontFamily: palette.fonts.sansSerifStack,
+           color: palette.grey[800],
+           fontSize: 14.3,
+           lineHeight: "1.1em"
+diff --git a/packages/lesswrong/themes/themeNames.ts b/packages/lesswrong/themes/themeNames.ts
+index 77e1024340..c16390eecb 100644
+--- a/packages/lesswrong/themes/themeNames.ts
++++ b/packages/lesswrong/themes/themeNames.ts
+@@ -2,7 +2,7 @@ import { DeferredForumSelect } from '../lib/forumTypeUtils';
+ import { forumTypeSetting } from '../lib/instanceSettings';
+ import { TupleSet } from '../lib/utils/typeGuardUtils';
+ 
+-export const userThemeNames = new TupleSet(["default", "dark"] as const);
++export const userThemeNames = new TupleSet(["default", "dark", "ghiblify"] as const);
+ export const userThemeSettings = new TupleSet([...userThemeNames, "auto"] as const);
+ export const muiThemeNames = new TupleSet(["light", "dark"] as const);
+ 
+@@ -53,6 +53,10 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
+       name: "dark",
+       label: "Dark Mode",
+     },
++    {
++      name: "ghiblify",
++      label: "Ghibli Mode",
++    },
+     {
+       name: "auto",
+       label: "Auto",
+diff --git a/packages/lesswrong/themes/userThemes/ghiblify.ts b/packages/lesswrong/themes/userThemes/ghiblify.ts
+new file mode 100644
+index 0000000000..dbb01c958d
+--- /dev/null
++++ b/packages/lesswrong/themes/userThemes/ghiblify.ts
+@@ -0,0 +1,63 @@
++import type { PartialDeep } from 'type-fest'
++import { invertHexColor, invertColor, colorToString, zeroTo255 } from '../colorUtil';
++import { forumSelect } from '../../lib/forumTypeUtils';
++import deepmerge from 'deepmerge';
++
++const sansSerifStack = [
++  'Futura',
++  'GreekFallback', // Ensures that greek letters render consistently
++  'Calibri',
++  'gill-sans-nova',
++  '"Gill Sans"',
++  '"Gill Sans MT"',
++  "Myriad Pro",
++  'Myriad',
++  '"Liberation Sans"',
++  '"Nimbus Sans L"',
++  'Tahoma',
++  'Geneva',
++  '"Helvetica Neue"',
++  'Helvetica',
++  'Arial',
++  'sans-serif'
++].join(',')
++
++const serifStackBody = [
++  'Futura',
++  'warnock-pro',
++  'Palatino',
++  '"Palatino Linotype"',
++  '"Palatino LT STD"',
++  '"Book Antiqua"',
++  'Georgia',
++  'serif'
++]
++
++const serifStack = serifStackBody.join(',')
++const headerStack = ["Futura", "ETBookRoman", ...serifStackBody].join(',')
++
++export const ghiblifyTheme: UserThemeSpecification = {
++  shadePalette: {
++    fonts: { sansSerifStack, serifStack },
++    inverseGreyAlpha: (alpha) => `rgba(247,229,172,${alpha})`,
++  },
++  componentPalette: (shadePalette: ThemeShadePalette) => ({
++    background: {
++      default: 'rgb(247,229,172)',
++      paper: `rgb(247,229,172)`,
++    },
++    panelBackground: {
++      default: '#fff3cd',
++    },
++  }),
++  make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
++    typography: {
++      headerStyle: {
++        fontFamily: headerStack,
++      },
++      title: {
++        fontFamily: headerStack,
++      },
++    },
++  }),
++};
+diff --git a/packages/lesswrong/themes/userThemes/index.ts b/packages/lesswrong/themes/userThemes/index.ts
+index a9fad9e81b..3fdfb7199d 100644
+--- a/packages/lesswrong/themes/userThemes/index.ts
++++ b/packages/lesswrong/themes/userThemes/index.ts
+@@ -1,8 +1,10 @@
+ import { darkModeTheme } from './darkMode';
++import { ghiblifyTheme } from './ghiblify';
+ 
+ export const getUserTheme = (name: UserThemeName): UserThemeSpecification => {
+   switch (name) {
+     case "default": return {};
+     case "dark": return darkModeTheme;
++    case "ghiblify": return ghiblifyTheme;
+   }
+ }
+diff --git a/public/ghibli/allposts.png b/public/ghibli/allposts.png
+new file mode 100644
+index 0000000000..40ead65533
+Binary files /dev/null and b/public/ghibli/allposts.png differ
+diff --git a/public/ghibli/bell.png b/public/ghibli/bell.png
+new file mode 100644
+index 0000000000..3392c1186d
+Binary files /dev/null and b/public/ghibli/bell.png differ
+diff --git a/public/ghibli/book.png b/public/ghibli/book.png
+new file mode 100644
+index 0000000000..f89fd2040c
+Binary files /dev/null and b/public/ghibli/book.png differ
+diff --git a/public/ghibli/compass.png b/public/ghibli/compass.png
+new file mode 100644
+index 0000000000..8dd7df9767
+Binary files /dev/null and b/public/ghibli/compass.png differ
+diff --git a/public/ghibli/globe.png b/public/ghibli/globe.png
+new file mode 100644
+index 0000000000..d3c39fe14f
+Binary files /dev/null and b/public/ghibli/globe.png differ
+diff --git a/public/ghibli/hamburger.png b/public/ghibli/hamburger.png
+new file mode 100644
+index 0000000000..8c6269cc00
+Binary files /dev/null and b/public/ghibli/hamburger.png differ
+diff --git a/public/ghibli/magnifyingglass.png b/public/ghibli/magnifyingglass.png
+new file mode 100644
+index 0000000000..8c47037797
+Binary files /dev/null and b/public/ghibli/magnifyingglass.png differ
+diff --git a/public/ghibli/star.png b/public/ghibli/star.png
+new file mode 100644
+index 0000000000..f8aba70731
+Binary files /dev/null and b/public/ghibli/star.png differ
+diff --git a/public/ghibli/venndiagram.png b/public/ghibli/venndiagram.png
+new file mode 100644
+index 0000000000..169f3f0b1f
+Binary files /dev/null and b/public/ghibli/venndiagram.png differ
+diff --git a/public/landscape.jpg b/public/landscape.jpg
+new file mode 100644
+index 0000000000..fedfe7f48c
+Binary files /dev/null and b/public/landscape.jpg differ
