@@ -116,3 +116,6 @@ export const sinceDaysAgoSetting = new DatabaseServerSetting<number>('displayNam
 
 export const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
 export const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);
+
+export const stripeLootSecretKey = new DatabaseServerSetting<string|null>("stripe.lootSecretKey", null);
+export const stripeLootWebhookSecret = new DatabaseServerSetting<string|null>("stripe.lootWebhookSecret", null);
