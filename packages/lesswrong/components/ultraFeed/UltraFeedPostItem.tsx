@@ -33,7 +33,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   titleContainer: {
     flexGrow: 1,
     paddingRight: 8,
-    marginBottom: 0,
+    marginBottom: 4,
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -46,7 +46,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.9,
     },
-    // marginBottom: 4,
   },
   // Match the rightSection and menu classes from UltraFeedCommentsItemMeta
   rightSection: {
@@ -54,6 +53,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     flexGrow: 0,
   },
   tripleDotMenu: {
+    padding: 5,
     marginLeft: 4,
     marginRight: -10,
     // Override the PostActionsButton icon styling to match CommentsMenu

@@ -3,11 +3,17 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined';
+import { useVote } from "../votes/withVote";
+import { getVotingSystemByName } from "@/lib/voting/votingSystems";
+import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttachedReactions";
 
 const styles = defineStyles("UltraFeedCommentItemFooter", (theme: ThemeType) => ({
   root: {
     position: "relative",
-    padding: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
@@ -16,26 +22,21 @@ const styles = defineStyles("UltraFeedCommentItemFooter", (theme: ThemeType) => 
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: "1.3rem !important",
-    // "& > *": {
-    //   marginRight: 5,
-    // },
-    // "& a:hover, & a:active": {
-    //   textDecoration: "none",
-    //   color: `${theme.palette.linkHover.dim} !important`,
-    // },
-  },
-  leftSection: {
-    display: "flex",
-    alignItems: "center",
-    // gap: "12px"
-  },
-  rightSection: {
-    display: "flex",
-    alignItems: "center",
+    "& *": {
+      color: `${theme.palette.text.dim3} !important`,
+      // opacity: `1 !important`,
+    },
+    "& svg": {
+      color: `${theme.palette.text.dim3} !important`,
+      // opacity: `1 !important`,
+      // fill: `${theme.palette.text.dim3} !important`,
+    },
+    "& a:hover, & a:active": {
+      textDecoration: "none",
+      color: `${theme.palette.linkHover.dim} !important`,
+    },
   },
   commentCount: {
-    // marginRight: 20,
-    // color: theme.palette.grey[600],
     display: "flex",
     alignItems: "center",
     "& svg": {
@@ -55,6 +56,28 @@ const styles = defineStyles("UltraFeedCommentItemFooter", (theme: ThemeType) => 
     marginLeft: 2,
     paddingTop: 2
   },
+  addReactionButton: {
+    display: 'flex',
+    margin: '0 6px',
+    alignItems: 'center',
+    '& .react-hover-style': {
+      filter: 'opacity(1) !important',
+    },
+    '& svg': {
+      filter: 'opacity(1) !important',
+      height: 22,
+      width: 22,
+    }
+  },
+  reactionIcon: {
+    marginRight: 6,
+  },
+  reactionCount: {
+    marginTop: -2
+  },
+  bookmarkButton: {
+    marginBottom: -2,
+  }
 }));
 
 
@@ -67,7 +90,7 @@ const UltraFeedCommentItemFooter = ({
 }) => {
   const classes = useStyles(styles);
 
-  const { SmallSideVote, BookmarkButton, ForumIcon } = Components;
+  const { SmallSideVote, BookmarkButton, OverallVoteAxis, AgreementVoteAxis, ForumIcon, AddReactionButton } = Components;
 
 
   const commentCount = comment.descendentCount;
@@ -93,23 +116,50 @@ const UltraFeedCommentItemFooter = ({
     </div>
   );
 
-  return (
-    <div className={classes.root}>
-      {/* <span className={classes.leftSection}> */}
-        {commentCountIcon}
-        <div className={classes.voteButtons}>
-          <SmallSideVote
-            document={comment}
-            collectionName="Comments"
-            hideKarma={post?.hideCommentKarma}
-          />
-        </div>
-      {/* </span> */}
-      {/* <span className={classes.rightSection}> */}
-        <BookmarkButton post={post} />
-      {/* </span> */}
+
+  const votingSystem = getVotingSystemByName(post.votingSystem || "default");
+  const showVoteButtons = votingSystem.name === "namesAttachedReactions";
+  const voteProps = useVote(comment, "Comments", votingSystem);
+
+  const reacts = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
+  const reactionCount = reacts ? Object.keys(reacts).length : 0;
+
+
+
+
+
+
+  return <div className={classes.root}>
+    {commentCountIcon}
+    
+    {showVoteButtons && <><OverallVoteAxis
+      document={comment}
+      hideKarma={post?.hideCommentKarma}
+      voteProps={voteProps}
+      verticalArrows
+      largeArrows
+    />
+      <AgreementVoteAxis
+        document={comment}
+        hideKarma={post?.hideCommentKarma}
+        voteProps={voteProps}
+      />
+    </>}
+
+    <div className={classes.addReactionButton}>
+      <div className={classes.reactionIcon}>
+        <AddReactionButton voteProps={voteProps} document={comment} />
+      </div>
+      <div className={classes.reactionCount}>
+        {reactionCount > 0 && reactionCount}
+      </div>
     </div>
-  );
+
+    <div className={classes.bookmarkButton}>
+      <BookmarkButton post={post} />
+    </div>
+
+  </div>;
 };
 
 const UltraFeedCommentItemFooterComponent = registerComponent("UltraFeedCommentItemFooter", UltraFeedCommentItemFooter);
@@ -121,3 +171,4 @@ declare global {
     UltraFeedCommentItemFooter: typeof UltraFeedCommentItemFooterComponent
   }
 } 
+
