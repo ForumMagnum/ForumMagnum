@@ -10,7 +10,6 @@ import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import TreasureChestPlayer from './TreasureChestPlayer';
 import TreasureChestOpening from './TreasureChestOpening';
 
 const getStructuredData = () => ({

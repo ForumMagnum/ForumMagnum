@@ -25,7 +25,27 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
   },
+  buttonWrapper: {
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      marginLeft: 12,
+      transform: "scale(1.5)",
+    }),
+  },
   karmaNotifierButton: {
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      "&:hover, &:has($starIconFilled)": {
+        animation: "rotateKarma360 2s linear infinite",
+      },
+      padding: 0,
+    }),
+  },
+  "@keyframes rotateKarma360": {
+    from: {
+      transform: "rotate(0deg)",
+    },
+    to: {
+      transform: "rotate(360deg)",
+    }
   },
   karmaNotifierPaper: {
   },
@@ -35,6 +55,7 @@ const styles = (theme: ThemeType) => ({
   starIcon: {
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
   },
+  starIconFilled: {},
   title: {
     display: 'block',
     paddingTop: theme.spacing.unit * 2,
@@ -267,7 +288,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classNames(classes.root, className)}>
-        <div ref={anchorEl}>
+        <div ref={anchorEl} className={classes.buttonWrapper}>
           <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
             {starIsHollow
               ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
@@ -276,7 +297,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
                     {(totalChange !== 0) && <ColoredNumber n={totalChange} classes={classes}/>}
                   </span>}
                 >
-                  <ForumIcon icon="Karma" className={classes.starIcon}/>
+                  <ForumIcon icon="Karma" className={classNames(classes.starIcon, classes.starIconFilled)}/>
                 </Badge>
             }
           </IconButton>

@@ -147,6 +147,11 @@ const styles = (theme: ThemeType) => ({
   },
   moderationGuidelinesWrapper: {
     backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
+    
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      backgroundColor: "white",
+      borderTop: "1px solid rgba(0, 0, 0, .1)",
+    }),
   }
 });
 

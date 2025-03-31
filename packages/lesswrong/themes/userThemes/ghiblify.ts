@@ -45,9 +45,14 @@ export const ghiblifyTheme: UserThemeSpecification = {
     background: {
       default: 'rgb(247,229,172)',
       paper: `rgb(247,229,172)`,
+      pageActiveAreaBackground: 'rgb(247,229,172)',
     },
     panelBackground: {
       default: '#fff3cd',
+      commentNodeOdd: '#ecc2ef !important',
+      commentNodeEven: '#fff3cc',
+      singleLineComment: 'rgb(237,219,162)',
+      singleLineCommentHover: 'rgb(227,209,152)',
     },
   }),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
@@ -57,6 +62,12 @@ export const ghiblifyTheme: UserThemeSpecification = {
       },
       title: {
         fontFamily: headerStack,
+      },
+      blockquote: {
+        borderLeft: `solid 3px ${palette.greyAlpha(0.3)}`,
+      },
+      commentBlockquote: {
+        borderLeft: `solid 3px ${palette.greyAlpha(0.3)}`,
       },
     },
   }),
