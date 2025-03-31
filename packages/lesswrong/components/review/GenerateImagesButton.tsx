@@ -72,6 +72,8 @@ const GenerateImagesButton = ({
   const handleGenerate = async () => {
     try {
       setIsGenerating(true);
+      // If the user has entered a custom prompt, we want to append the default art prompt. 
+      // If not, we want the generateCoverImages function to generate it's own prompts (which requires passing in an empty prompt)
       const submittedPrompt = customPrompt.trim() ? customPrompt + artPrompt : "";
       const finalPrompt = allowCustomPrompt ? submittedPrompt : prompt;
       await generateCoverImages({ 
