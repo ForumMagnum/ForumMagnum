@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ThreeSlotMachine from './ThreeSlotMachine';
+import { useDialog } from './withDialog';
 
 const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   itemDescription: {
@@ -145,10 +146,10 @@ const TreasureChestOpening = () => {
     const clickX = event.clientX - rect.left;
 
     if (clickX >= rect.width * 0.75) {
-        console.log("Lever area clicked!");
-        handleTriggerSpin();
+      console.log("Lever area clicked!");
+      void handleTriggerSpin();
     } else {
-        console.log("Clicked outside lever area.");
+      console.log("Clicked outside lever area.");
     }
   };
 
@@ -244,9 +245,22 @@ const TreasureChestOpening = () => {
 };
 
 function FrontPageTreasureChest({onClickChest}: {
-  onClickChest: ()=>void,
+  onClickChest: () => void,
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const { openDialog } = useDialog();
+
+  async function handleBuyButtonClick() {
+    const response = await fetch('/loot-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    const { url } = await response.json();
+    window.location.href = url;
+  }
 
   return <Components.SingleColumnSection>
     <div style={{
@@ -264,7 +278,8 @@ function FrontPageTreasureChest({onClickChest}: {
           zIndex: 1200,
           margin: 'auto',
           marginTop: '0px',
-          marginRight: '-30px'
+          marginRight: '-30px',
+          pointerEvents: "none",
         }}
       />
       <img 
@@ -293,7 +308,8 @@ function FrontPageTreasureChest({onClickChest}: {
           margin: 'auto',
           marginTop: '0px',
           marginLeft: '-30px',
-          transform: 'scaleX(-1)'
+          transform: 'scaleX(-1)',
+          pointerEvents: "none",
         }}
       />
       <img 
@@ -306,7 +322,8 @@ function FrontPageTreasureChest({onClickChest}: {
           marginTop: '0px',
           marginLeft: '-30px',
           left: '23%',
-          top: '-60px'
+          top: '-60px',
+          pointerEvents: "none",
         }}
       />
       <img 
@@ -320,7 +337,8 @@ function FrontPageTreasureChest({onClickChest}: {
           marginLeft: '-30px',
           transform: 'scaleX(-1)',
           right: '18%',
-          top: '-90px'
+          top: '-90px',
+          pointerEvents: "none",
         }}
       />
       <img 
@@ -332,7 +350,8 @@ function FrontPageTreasureChest({onClickChest}: {
           margin: 'auto',
           marginTop: '-50px',
           opacity: isHovered ? 1 : 0,
-          transition: 'opacity 500ms ease-in-out'
+          transition: 'opacity 500ms ease-in-out',
+          pointerEvents: "none",
         }}
       />
       <img
@@ -350,8 +369,10 @@ function FrontPageTreasureChest({onClickChest}: {
       />
 
       <img
+        onClick={handleBuyButtonClick}
         src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475874/PicoLightcones_dbxcvm.png"
         style={{
+          cursor: "pointer",
           position: 'absolute',
           top: '69px',
           left: 'calc(50% - 180px)',
@@ -362,7 +383,12 @@ function FrontPageTreasureChest({onClickChest}: {
 
       <img 
         src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743483676/loot/CollectVirtues.png"
+        onClick={() => openDialog({
+          componentName: 'BuyBoxesModal',
+          componentProps: {},
+        })}
         style={{
+          cursor: "pointer",
           position: 'absolute',
           top: '72px',
           right: 'calc(50% - 180px)',
