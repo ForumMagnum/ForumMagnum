@@ -23,7 +23,7 @@ const ghibliIcons: Partial<Record<ForumIconName,string>> = {
   BellAlert: "/ghibli/bell.png",
   BellBorder: "/ghibli/bell.png",
   BookOpen: "/ghibli/book.png",
-  Search: "/ghibli/magnifyingGlass.png",
+  Search: "/ghibli/magnifyingglass.png",
   Karma: "/ghibli/star.png",
   KarmaOutline: "/ghibli/star.png",
   Menu: "/ghibli/hamburger.png",
