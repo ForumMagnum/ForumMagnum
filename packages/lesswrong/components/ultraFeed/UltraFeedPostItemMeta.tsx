@@ -101,7 +101,6 @@ const UltraFeedPostItemMeta = ({
     
     return (
       <span className={classes.username}>
-        By&nbsp;
         <UsersName user={mainAuthor} />
         {additionalAuthorsCount > 0 && (
           <span className={classes.coauthors}>+{additionalAuthorsCount}</span>

@@ -61,6 +61,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
   titleTextMobile: {
     display: 'none',
+    marginLeft: 12,
     [theme.breakpoints.down('sm')]: {
       display: 'inline',
     },

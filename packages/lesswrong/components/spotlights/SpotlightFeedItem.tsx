@@ -105,13 +105,18 @@ const useSpotlightFeedItemStyles = defineStyles(
       zIndex: 3,
     },
     title: {
-      ...theme.typography.postStyle,
-      // fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: "1.8rem",
-      fontVariant: "small-caps",
-      lineHeight: "1em",
+      // ...theme.typography.postStyle,
+
+      // TOOD: make reusable styles to share with UltraFeedPostItem
+      // fontVariant: "small-caps",
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: "1.6rem",
+      opacity: 0.8,
+      fontWeight: 600,
+      lineHeight: 1.1,
       display: "flex",
-      alignItems: "center"
+      alignItems: "center",
+      marginBottom: 8,
     },
     subtitle: {
       ...theme.typography.postStyle,
