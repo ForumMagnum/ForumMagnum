@@ -144,14 +144,12 @@ export const currencyRewards: CurrencyReward[] = [
     name: "lwBucksMedium",
     description: "A medium amount of LW Bucks",
     weight: 6,
-    // TODO: real url
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488858/loot/9f4ca373-de6d-49c5-a93e-59933a78dcdd.png",
   },
   {
     name: "lwBucksLarge",
     description: "A large amount of LW Bucks",
     weight: 3,
-    // TODO: real url
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488862/loot/4789d99c-fa90-40f8-b858-c5c329fdb60a.png",
   },
   {
@@ -164,21 +162,18 @@ export const currencyRewards: CurrencyReward[] = [
     name: "picoLightconesMedium",
     description: "A medium amount of Pico Lightcones",
     weight: 2,
-    // TODO: real url
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488832/loot/40e492c1-3167-42f5-9ae7-df667f997b77.png",
   },
   {
     name: "picoLightconesLarge",
     description: "A large amount of Pico Lightcones",
     weight: 1,
-    // TODO: real url
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488832/loot/40e492c1-3167-42f5-9ae7-df667f997b77.png",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488835/loot/74cafc17-83cb-4d4b-ae1f-883d3c03d2a1.png",
   },
   {
     name: "picoLightconesHuge",
     description: "Jackpot!",
     weight: 0.1,
-    // TODO: real url
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488844/loot/5fbcdbcf-1223-4274-ad0d-b4d87bf92c4a.png",
   },
 ];
@@ -211,7 +206,6 @@ export const voteRewards: VoteReward[] = [
     name: "smallUpvoteStrength",
     description: "Small Upvote Strength",
     weight: 1,
-    // TODO: real url
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486255/loot/SmallUpvote.png",
   },
   {
@@ -224,21 +218,19 @@ export const voteRewards: VoteReward[] = [
     name: "smallDownvoteStrength",
     description: "Small Downvote Strength",
     weight: 1,
-    // TODO: real url
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486225/loot/SmallDownVote.png",
   },
   {
     name: "largeDownvoteStrength",
     description: "Large Downvote Strength",
     weight: 6,
-    // TODO: real url
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486226/loot/Downvote.png",
   }
 ];
 
 export const cylinder0Rewards = voteRewards;
 // TODO: add other rewards
-export const cylinder1Rewards = [...twelveVirtues];
+export const cylinder1Rewards = [...twelveVirtues, ...themeRewards];
 export const cylinder2Rewards = currencyRewards;
 
 export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
@@ -296,7 +288,6 @@ declare global {
   type UserUnlockablesState = {
     unlocks: Record<string,number>
     spinsPerformed: number
-    // spinsRemaining: number
     premiumSpinsPerformed: number
     premiumSpinsRemaining: number
     cooldownEndsAt: number
@@ -309,7 +300,6 @@ declare global {
 export const defaultUserUnlockablesState: UserUnlockablesState = {
   unlocks: {},
   spinsPerformed: 0,
-  // spinsRemaining: 0,
   premiumSpinsPerformed: 0,
   premiumSpinsRemaining: 0,
   cooldownEndsAt: 0,

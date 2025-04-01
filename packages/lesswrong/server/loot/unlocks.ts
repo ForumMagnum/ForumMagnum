@@ -118,12 +118,14 @@ function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { 
   return { result: rewards[rewards.length - 1], index: rewards.length - 1 };
 }
 
-function getNewCurrencyAmounts(oldState: UserUnlockablesState, paymentMethod: "lwBucks" | "picoLightcones", boxType: "regular" | "premium", currencyRewardSpin: CurrencyReward) {
+function getNewCurrencyAmounts(oldState: UserUnlockablesState, paymentMethod: "lwBucks" | "picoLightcones" | "freeHomepageSpin", boxType: "regular" | "premium", currencyRewardSpin: CurrencyReward) {
   const newState = { ...oldState };
   if (paymentMethod === "lwBucks") {
     newState.lwBucks -= boxType === "regular" ? REGULAR_BOX_COST : PREMIUM_BOX_COST;
-  } else {
+  } else if (paymentMethod === "picoLightcones") {
     newState.picoLightcones -= boxType === "regular" ? REGULAR_BOX_PICO_COST : PREMIUM_BOX_PICO_COST;
+  } else if (paymentMethod === "freeHomepageSpin") {
+    // Do nothing
   }
 
   if (currencyRewardSpin.name === 'lwBucksSmall') {
@@ -155,12 +157,25 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, b
   const cylinder1SpinOutcome = getWeightedRandomReward(cylinder1Rewards);
   const cylinder2SpinOutcome = getWeightedRandomReward(cylinder2Rewards);
 
+  let usedFreeHomepageSpin = false;
+
   await modifyUnlocksState({
     userId, clientId, context,
     stateTransform: (oldState) => {
+      const updatedVoteStrengthName = cylinder0SpinOutcome.result.name;
+      const updatedVoteStrength = (oldState.unlocks[cylinder0SpinOutcome.result.name] ?? 0) + 1
+
       if (oldState.hasFreeHomepageSpin) {
+        usedFreeHomepageSpin = true;
+        const stateWithUpdatedCurrencyAmounts = getNewCurrencyAmounts(oldState, "freeHomepageSpin", boxType, cylinder2SpinOutcome.result);
+
         return {
-          ...oldState,
+          ...stateWithUpdatedCurrencyAmounts,
+          unlocks: {
+            ...oldState.unlocks,
+            ghiblify: (oldState.unlocks.ghiblify ?? 0) + 1,
+            [updatedVoteStrengthName]: updatedVoteStrength,
+          },
           hasFreeHomepageSpin: false,
         };
       };
@@ -177,7 +192,7 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, b
 
       const updatedUnlocks = {
         ...oldState.unlocks,
-        [cylinder0SpinOutcome.result.name]: (oldState.unlocks[cylinder0SpinOutcome.result.name] ?? 0) + 1,
+        [updatedVoteStrengthName]: updatedVoteStrength,
         [cylinder1SpinOutcome.result.name]: (oldState.unlocks[cylinder1SpinOutcome.result.name] ?? 0) + 1,
       };
 
@@ -189,6 +204,11 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, b
       };
     }
   });
+
+  // Return rigged results if the user is using their free homepage spin
+  if (usedFreeHomepageSpin) {
+    return [cylinder0SpinOutcome.index, cylinder1Rewards.findIndex(r => r.name === "ghiblify"), cylinder2SpinOutcome.index];
+  }
 
   return [cylinder0SpinOutcome.index, cylinder1SpinOutcome.index, cylinder2SpinOutcome.index];
 }

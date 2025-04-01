@@ -27,7 +27,7 @@ SOFTWARE.
 */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
-import { currencyRewards, twelveVirtues, voteRewards } from '@/lib/loot/unlocks';
+import { currencyRewards, cylinder0Rewards, cylinder1Rewards, cylinder2Rewards, twelveVirtues, voteRewards } from '@/lib/loot/unlocks';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 interface CylinderState {
@@ -163,7 +163,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
       const segmentAngle = (2 * Math.PI) / numSymbols;
       const reelOffset = ({
         0: 0.5,
-        1: -5.5,
+        1: -6,
         2: -6.5,
       }[reelNumber] || 0);
 
@@ -323,19 +323,19 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
 
   // Vote strength rewards
   const cylinder0ImageUrls = ([
-    ...filterNonnull(voteRewards.map(reward => reward.imagePath)),
+    ...filterNonnull(cylinder0Rewards.map(reward => reward.imagePath)),
     // Add other stuff
   ]);
 
   // Primary "unique" rewards
   const cylinder1ImageUrls = ([
-    ...filterNonnull(twelveVirtues.map(virtue => virtue.imagePath!.replace('c_scale,w_64,h_64', 'c_scale,w_64,h_64/a_180/a_hflip/'))),
+    ...filterNonnull(cylinder1Rewards.map(reward => reward.imagePath!.replace('c_scale,w_64,h_64', 'c_scale,w_64,h_64/a_180/a_hflip/'))),
     // Add other stuff
   ]);
 
   // Marginal currency rewards
   const cylinder2ImageUrls = ([
-    ...filterNonnull(currencyRewards.map(reward => reward.imagePath)),
+    ...filterNonnull(cylinder2Rewards.map(reward => reward.imagePath)),
     // Add other stuff
   ]);
 
