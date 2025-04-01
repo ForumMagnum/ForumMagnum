@@ -5720,7 +5720,7 @@ const schema = {
 
         return Object.fromEntries(
           Object.entries(unlocks).filter(([name, count]) => {
-            return getUnlockByName(name).publiclyDisplayed && count > 0;
+            return getUnlockByName(name)?.publiclyDisplayed && count > 0;
           }).map(([name, count]) => {
             return [name, true];
           })

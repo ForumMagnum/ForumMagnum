@@ -22,10 +22,6 @@ const styles = (theme: ThemeType) => ({
   nowrap: {
     whiteSpace: "nowrap"
   },
-  nameContainer: {
-    display: 'flex',
-    alignItems: 'center',
-  },
   curiosityIcon: {
     width: 32,
     height: 32,
@@ -134,7 +130,7 @@ const UsersNameDisplay = ({
           hideFollowButton={hideFollowButton}
           disabled={noTooltip}
         >
-          <div className={classes.nameContainer}>
+          <span>
             <Link
               to={profileUrl}
               className={classNames(
@@ -148,7 +144,7 @@ const UsersNameDisplay = ({
             </Link>
             {twelveVirtues.map(virtue => user.publicUnlockables?.[virtue.name]
               && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
-          </div>
+          </span>
         </UserTooltip>
       </AnalyticsContext>
     </span>
