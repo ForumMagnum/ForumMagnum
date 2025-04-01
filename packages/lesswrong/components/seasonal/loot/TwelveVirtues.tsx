@@ -8,6 +8,11 @@ import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
 import classNames from 'classnames';
 
 const styles = defineStyles("TwelveVirtues", (theme: ThemeType) => ({
+  title: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    paddingLeft: 24,
+    fontSize: 20,
+  },
   twelveVirtues: {
     overflowY: "auto",
   },
@@ -54,7 +59,7 @@ const TwelveVirtuesDialog = ({onClose}: {
   const numVirtuesUnlocked: number = twelveVirtues.filter(v => hasUnlock(unlocksState, v.name)).length;
 
   return <LWDialog open={true} onClose={onClose}>
-    <DialogTitle>Twelve Virtues of Rationality</DialogTitle>
+    <h2 className={classes.title}>Twelve Virtues of Rationality</h2>
     
     <DialogContent className={classes.twelveVirtues}>
       <p>You have unlocked {numVirtuesUnlocked} of the <Link to="/posts/7ZqGiPHTpiDMwqMN2/twelve-virtues-of-rationality">Twelve Virtues of Rationality</Link>. Collect all twelve Virtues to get a $1M prize plus an invitation the the Beisutsukai!</p>

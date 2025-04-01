@@ -431,7 +431,7 @@ const Header = ({
   )
 
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
-  const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
+  const usersMenuNode = <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
@@ -440,9 +440,8 @@ const Header = ({
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    {!isFriendlyUI && usersMenuNode}
     <Components.UnlockablesCurrencyDisplay/>
-    {!currentUser && <UsersAccountMenu />}
+    {!isFriendlyUI && usersMenuNode}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
       currentUser={currentUser}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
