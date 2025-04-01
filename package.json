@@ -288,6 +288,7 @@
     "react-instantsearch": "6.40.4",
     "react-instantsearch-core": "6.40.4",
     "react-instantsearch-dom": "6.40.4",
+    "react-jinke-music-player": "^4.24.2",
     "react-jss": "^8.1.0",
     "react-map-gl": "^5.2.9",
     "react-popper": "^2.3.0",

@@ -38,23 +38,25 @@ const IntercomWrapper = () => {
     console.log("Not showing Intercom because functional cookies are not allowed")
     return null;
   }
+
+  return null;
   
-  if (currentUser && !currentUser.hideIntercom) {
-    return <div id="intercom-outer-frame">
-      <Intercom
-        appID={intercomAppIdSetting.get()}
-        user_id={currentUser._id}
-        email={getUserEmail(currentUser)}
-        name={currentUser.displayName}
-      />
-    </div>
-  } else if (!currentUser) {
-    return <div id="intercom-outer-frame">
-      <Intercom appID={intercomAppIdSetting.get()} />
-    </div>
-  } else {
-    return null
-  }
+  // if (currentUser && !currentUser.hideIntercom) {
+  //   return <div id="intercom-outer-frame">
+  //     <Intercom
+  //       appID={intercomAppIdSetting.get()}
+  //       user_id={currentUser._id}
+  //       email={getUserEmail(currentUser)}
+  //       name={currentUser.displayName}
+  //     />
+  //   </div>
+  // } else if (!currentUser) {
+  //   return <div id="intercom-outer-frame">
+  //     <Intercom appID={intercomAppIdSetting.get()} />
+  //   </div>
+  // } else {
+  //   return null
+  // }
 }
 
 const IntercomWrapperComponent = registerComponent('IntercomWrapper', IntercomWrapper, {
