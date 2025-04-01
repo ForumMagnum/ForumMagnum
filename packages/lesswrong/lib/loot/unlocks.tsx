@@ -143,19 +143,19 @@ export const currencyRewards: CurrencyReward[] = [
   {
     name: "lwBucksMedium",
     description: "110 LW Bucks! That's a bit more than a free spin.",
-    weight: 6,
+    weight: 3,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488858/loot/9f4ca373-de6d-49c5-a93e-59933a78dcdd.png",
   },
   {
     name: "lwBucksLarge",
     description: "190 LW Bucks, so close to two free spins!",
-    weight: 3,
+    weight: 1,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488862/loot/4789d99c-fa90-40f8-b858-c5c329fdb60a.png",
   },
   {
     name: "picoLightconesSmall",
     description: "4 Picolightcones!",
-    weight: 3,
+    weight: 8,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488820/loot/bffd59ca-229a-490c-bd24-34c613059625.png",
   },
   {
@@ -167,13 +167,13 @@ export const currencyRewards: CurrencyReward[] = [
   {
     name: "picoLightconesLarge",
     description: "16 PicoLightcones!",
-    weight: 1,
+    weight: 0.5,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488835/loot/74cafc17-83cb-4d4b-ae1f-883d3c03d2a1.png",
   },
   {
     name: "picoLightconesHuge",
     description: "Jackpot! 100 whole Picolightcones!",
-    weight: 0.1,
+    weight: 0.02,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488844/loot/5fbcdbcf-1223-4274-ad0d-b4d87bf92c4a.png",
   },
 ];

@@ -406,15 +406,16 @@ function FrontPageTreasureChest({onClickChest}: {
   const { openDialog } = useDialog();
 
   async function handleBuyButtonClick() {
-    const response = await fetch('/loot-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
+    alert("Sorry, Picolightcone purchases are out of service for a bit!")
+    // const response = await fetch('/loot-checkout-session', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   }
+    // });
 
-    const { url } = await response.json();
-    window.location.href = url;
+    // const { url } = await response.json();
+    // window.location.href = url;
   }
 
   return <Components.SingleColumnSection>
