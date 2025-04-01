@@ -59,7 +59,31 @@ const styles = (theme: ThemeType) => ({
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
-    }
+    },
+    
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      background: "#ffffff",
+      borderRadius: 30,
+      borderBottomLeftRadius: 0,
+      border: 0,
+      paddingTop: 5,
+      paddingLeft: 5,
+      marginBottom: 40,
+      
+      "&:after": {
+        content: "''",
+        
+        width: 25,
+        height: 32,
+        position: "absolute",
+        bottom: -32,
+        left: 0,
+        borderBottom: 0,
+        borderTop: "32px solid white",
+        borderLeft: "0px solid transparent",
+        borderRight: "25px solid transparent",
+      },
+    }),
   },
   newQuickTake: {
     border: "none",

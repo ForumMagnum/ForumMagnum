@@ -10,6 +10,10 @@ import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import TreasureChestOpening from './TreasureChestOpening';
+import BuyButton from '../loot/BuyButton';
+import ConvertLWBucksButton from '../loot/ConvertLWBucksButton';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -39,6 +43,13 @@ const getStructuredData = () => ({
   }),
 })
 
+const styles = defineStyles('LWHome', (theme: ThemeType) => ({
+  ctaButtons: {
+    display: 'flex',
+    gap: '10px',
+  },
+}));
+
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
@@ -46,7 +57,8 @@ const LWHome = () => {
   } = Components;
 
   const currentUser = useCurrentUser();
-
+  const classes = useStyles(styles);
+  
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
@@ -57,9 +69,14 @@ const LWHome = () => {
               <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
             </SingleColumnSection>}
           </>}
+          <TreasureChestOpening />
+          {/* <div className={classes.ctaButtons}>
+            <BuyButton />
+            <ConvertLWBucksButton />
+          </div> */}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
-            <DismissibleSpotlightItem current/>
+            {/* <DismissibleSpotlightItem current/> */}
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}

@@ -23,6 +23,7 @@ export const UsersMinimumInfo = `
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+    publicUnlockables
   }
 `
 

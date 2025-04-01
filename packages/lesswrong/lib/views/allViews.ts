@@ -138,6 +138,7 @@ export const allViews = {
   TagRels: TagRelsViews,
   Tweets: new CollectionViewSet('Tweets', {}),
   TypingIndicators: new CollectionViewSet('TypingIndicators', {}),
+  Unlockables: new CollectionViewSet('Unlockables', {}),
   Users: UsersViews,
   UserEAGDetails: UserEAGDetailsViews,
   UserJobAds: UserJobAdsViews,

@@ -103,6 +103,7 @@ import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolver
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { getSchema } from '@/lib/schema/allSchemas';
+import { unlockablesGqlTypeDefs, unlockablesGraphQLMutations, unlockablesGraphQLQueries } from '@/server/loot/unlocks';
 
 export const typeDefs = gql`
   # type Query
@@ -180,6 +181,7 @@ export const typeDefs = gql`
   ${diffGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
+  ${unlockablesGqlTypeDefs}
 `
 
 export const resolvers = {
@@ -221,6 +223,7 @@ export const resolvers = {
     ...diffGqlQueries,
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
+    ...unlockablesGraphQLQueries,
   },
   Mutation: {
     ...userResolversMutations,
@@ -268,6 +271,7 @@ export const resolvers = {
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
+    ...unlockablesGraphQLMutations,
   },
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,

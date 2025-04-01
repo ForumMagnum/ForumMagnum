@@ -347,10 +347,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   panelBackground: {
     default: shades.grey[0],
-    translucent: "rgba(255,255,255,.87)",
-    translucent2: "rgba(255,255,255,.8)",
-    translucent3: "rgba(255,255,255,.75)",
-    translucent4: "rgba(255,255,255,.5)",
+    translucent: shades.inverseGreyAlpha(.87),
+    translucent2: shades.inverseGreyAlpha(.8),
+    translucent3: shades.inverseGreyAlpha(.75),
+    translucent4: shades.inverseGreyAlpha(.5),
     hoverHighlightGrey: shades.greyAlpha(.1),
     postsItemHover: shades.grey[50],
     formErrors: shades.greyAlpha(0.25),
@@ -651,5 +651,24 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   arbital: {
     arbitalGreen: '#004d40',
+  },
+  loot: {
+    buyButton: {
+      color: 'rgba(255,255,0,1)',
+      textShadowColor: 'rgba(230,153,0,1)',
+      backgroundImage: 'linear-gradient(to bottom, #00E64D 50%, #00B33C 50%)',
+      backgroundImageHover: 'linear-gradient(to bottom, #33FF77 50%, #00CC44 50%)',
+      backgroundImageActive: 'linear-gradient(to bottom, #00B33C 50%, #00802B 50%)',
+    },
+    buyModal: {
+      buyButtonBackground: 'linear-gradient(180deg, #f7d04f 0%, #e5a934 100%)',
+      buyButtonBackgroundHover: 'linear-gradient(180deg, #ffe070 0%, #f5b944 100%)',
+      buyButtonBackgroundActive: 'linear-gradient(180deg, #e5a934 0%, #d3982a 100%)',
+    },
+    treasureChest: {
+      primary: '#FFD700',
+      secondary: '#F0C419',
+      dismissButton: '#333333',
+    },
   },
 })

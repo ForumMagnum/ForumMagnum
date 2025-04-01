@@ -1557,6 +1557,16 @@ interface DbTypingIndicator extends DbObject {
   userId: string
 }
 
+type UnlockablesCollection = CollectionBase<"Unlockables">;
+
+interface DbUnlockable extends DbObject {
+  __collectionName?: "Unlockables"
+  clientId: string | null
+  createdAt: Date
+  unlockablesState: any
+  userId: string | null
+}
+
 type UserActivitiesCollection = CollectionBase<"UserActivities">;
 
 interface DbUserActivity extends DbObject {
@@ -2282,7 +2292,7 @@ interface DbUser extends DbObject {
   tagRevisionCount: number
   taggingDashboardCollapsed: boolean | null
   theme: {
-    name: "default" | "dark" | "auto" | null,
+    name: "default" | "dark" | "ghiblify" | "pixely" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   }
   twitterProfileURL: string | null
@@ -2403,6 +2413,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   Tweets: TweetsCollection
   TypingIndicators: TypingIndicatorsCollection
+  Unlockables: UnlockablesCollection
   UserActivities: UserActivitiesCollection
   UserEAGDetails: UserEAGDetailsCollection
   UserJobAds: UserJobAdsCollection
@@ -2493,6 +2504,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   Tweets: DbTweet
   TypingIndicators: DbTypingIndicator
+  Unlockables: DbUnlockable
   UserActivities: DbUserActivity
   UserEAGDetails: DbUserEAGDetail
   UserJobAds: DbUserJobAd
@@ -2583,6 +2595,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   Tweet: DbTweet
   TypingIndicator: DbTypingIndicator
+  Unlockable: DbUnlockable
   UserActivity: DbUserActivity
   UserEAGDetail: DbUserEAGDetail
   UserJobAd: DbUserJobAd

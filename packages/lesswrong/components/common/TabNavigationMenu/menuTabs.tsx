@@ -7,7 +7,7 @@ import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../..
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
-import { conceptsIcon } from '../../icons/conceptsIcon';
+import { ConceptsIcon } from '../../icons/conceptsIcon';
 import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
@@ -38,6 +38,8 @@ import {
   PeopleDirectorySelectedIcon,
 } from '../../icons/peopleDirectoryIcon';
 import { podcastPost } from '@/lib/eaPodcasts';
+import { useTheme } from '@/components/themes/useTheme';
+import { GhibliIconPath } from '@/components/themes/ghibli/GhibliIcon';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -99,6 +101,15 @@ export type MenuTabRegular = {
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
 
+const GlobeIcon = () => {
+  const theme = useTheme();
+  if (theme.themeOptions.name === 'ghiblify') {
+    return <GhibliIconPath path="/ghibli/globe.png"/>
+  } else {
+    return communityGlobeIcon;
+  }
+}
+
 export const menuTabs: ForumOptions<Array<MenuTab>> = {
   LessWrong: [
     {
@@ -122,7 +133,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Concepts',
       mobileTitle: 'Concepts',
       link: getAllTagsPath(),
-      icon: conceptsIcon,
+      icon: <ConceptsIcon/>,
       tooltip: <div>
         Get an overview over all the concepts used on LessWrong
       </div>,
@@ -179,7 +190,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Community Events', // Events hide on mobile
       mobileTitle: 'Community',
       link: communityPath,
-      icon: communityGlobeIcon,
+      icon: <GlobeIcon/>,
       tooltip: 'Find a meetup near you.',
       showOnMobileStandalone: true,
       showOnCompressed: true,

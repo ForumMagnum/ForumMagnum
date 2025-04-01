@@ -33,6 +33,9 @@ import { capitalize } from "../../lib/vulcan-lib/utils";
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    position: 'relative',
+  },
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -78,6 +81,12 @@ const styles = (theme: ThemeType) => ({
       borderRadius: 3,
       background: theme.palette.panelBackground.default,
       padding: "5.5px",
+      ...(theme.themeOptions.name === 'ghiblify' && {
+        background: "transparent",
+        border: undefined,
+        padding: 0,
+        transform: "scale(1.5)",
+      }),
     },
   },
   tagFilterSettingsButtonContainerMobile: {
@@ -99,6 +108,12 @@ const styles = (theme: ThemeType) => ({
       [theme.breakpoints.down('xs')]: {
         padding: "4.5px",
       },
+      ...(theme.themeOptions.name === 'ghiblify' && {
+        background: "transparent",
+        padding: 0,
+        border: "none",
+        transform: "scale(1.5)",
+      }),
     },
     [theme.breakpoints.up('md')]: {
       display: "none",
@@ -128,6 +143,34 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 10,
     marginTop: 10,
     marginLeft: 3,
+  },
+  ghibliCreature2Container: { 
+    display: 'none',
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      display: 'block', 
+    }),
+    width: '200px',
+    height: '300px',
+    position: 'absolute', 
+    top: '0px',
+    left: '-130px',
+    zIndex: 5,
+    pointerEvents: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  ghibliCreature2Image: { 
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    pointerEvents: 'auto',
+  },
+  ghibliCreatureTransform: {
+    transition: 'opacity 0.15s ease-in-out',
   },
 });
 
@@ -413,6 +456,7 @@ const LWHomePosts = ({ children, classes }: {
   const { query } = useLocation();
   const now = useCurrentTime();
   const { continueReading } = useContinueReading();
+  const [isCreature2Hovered, setIsCreature2Hovered] = useState(false);
 
   const [sendVertexViewHomePageEvent] = useMutation(gql`
     mutation sendVertexViewHomePageEventMutation {
@@ -610,9 +654,29 @@ const LWHomePosts = ({ children, classes }: {
   }, []);
 
   return (
-    // TODO: do we need capturePostItemOnMount here?
     <AnalyticsContext pageSectionContext="postsFeed">
-      <SingleColumnSection>
+      <SingleColumnSection className={classes.root}>
+        {/* Second Ghibli Creature Container */}
+        <div className={classes.ghibliCreature2Container}>
+          {/* Default state img - UPDATED URL */}
+          <img 
+            src="https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto,w_200/v1711932941/ghibli_creature_2_blue_ChatGPT_Image_Mar_31_2025_06_15_41_PM_gixxal.png"
+            alt="Ghibli creature 2" 
+            className={classes.ghibliCreature2Image}
+            onMouseEnter={() => setIsCreature2Hovered(true)}
+            onMouseLeave={() => setIsCreature2Hovered(false)}
+          />
+          {/* Hover state img (tongue out) - UPDATED URL */}
+          <img 
+            src="https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto,w_200/v1711932960/ghibli_creature_2_blue_tongue_ChatGPT_Image_Mar_31_2025_06_16_00_PM_skozr0.png"
+            alt="" 
+            className={classNames(classes.ghibliCreature2Image, classes.ghibliCreatureTransform)} 
+            style={{ opacity: isCreature2Hovered ? 1 : 0 }}
+            onMouseEnter={() => setIsCreature2Hovered(true)}
+            onMouseLeave={() => setIsCreature2Hovered(false)}
+           />
+        </div>
+
         <div className={classes.settingsVisibilityControls}>
           <div className={classes.tabPicker}>
             <TabPicker 
@@ -624,8 +688,9 @@ const LWHomePosts = ({ children, classes }: {
           </div>
           {showInlineTabSettingsButton && inlineTabSettingsButton}
         </div>
+        
         {settings}
-        {/* TODO: reenable, disabled for testing to see how often duplication happens */}
+        
         <HideRepeatedPostsProvider>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
@@ -706,8 +771,6 @@ const LWHomePosts = ({ children, classes }: {
       </SingleColumnSection>
     </AnalyticsContext>
   )
-
-
 }
 
 const LWHomePostsComponent = registerComponent('LWHomePosts', LWHomePosts, {styles});

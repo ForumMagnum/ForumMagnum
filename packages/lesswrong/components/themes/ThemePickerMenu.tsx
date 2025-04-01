@@ -9,6 +9,7 @@ import { isMobile } from '../../lib/utils/isMobile'
 import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { hasUnlock, useCurrentUserUnlocks } from '@/lib/loot/unlocks';
 
 const styles = (_theme: ThemeType) => ({
   check: {
@@ -36,6 +37,7 @@ const ThemePickerMenu = ({children, classes}: {
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const { unlocksState, refetch } = useCurrentUserUnlocks();
 
   const selectedForumTheme = getForumType(currentThemeOptions);
 
@@ -86,8 +88,11 @@ const ThemePickerMenu = ({children, classes}: {
       <DropdownMenu>
         {isLWorAF &&
           <>
-            {themeMetadata.map((themeMetadata: ThemeMetadata) =>
-              <DropdownItem
+            {themeMetadata.map((themeMetadata: ThemeMetadata) => {
+              if (themeMetadata.name === 'ghiblify' && !hasUnlock(unlocksState, "ghiblify")) {
+                return null;
+              }
+              return <DropdownItem
                 key={themeMetadata.name}
                 title={themeMetadata.label}
                 onClick={(event) => setThemeName(event, themeMetadata.name)}
@@ -96,7 +101,7 @@ const ThemePickerMenu = ({children, classes}: {
                   : <div className={classes.notChecked} />
                 }
               />
-            )}
+            })}
             <DropdownDivider />
           </>
         }

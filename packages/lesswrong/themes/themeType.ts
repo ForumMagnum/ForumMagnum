@@ -65,6 +65,7 @@ declare global {
     650: ColorString,
     680: ColorString,
     710: ColorString,
+    750: ColorString,
   }
   type ThemeShadePalette = {
     grey: ThemeGreyscale,
@@ -572,6 +573,25 @@ declare global {
     },
     namesAttachedReactions: {
       selectedAnti: ColorString,
+    },
+    loot: {
+      buyButton: {
+        color: ColorString,
+        textShadowColor: ColorString,
+        backgroundImage: string,
+        backgroundImageHover: string,
+        backgroundImageActive: string,
+      },
+      buyModal: {
+        buyButtonBackground: string,
+        buyButtonBackgroundHover: string,
+        buyButtonBackgroundActive: string,
+      },
+      treasureChest: {
+        primary: ColorString,
+        secondary: ColorString,
+        dismissButton: ColorString,
+      },
     },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>

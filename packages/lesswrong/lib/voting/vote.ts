@@ -4,6 +4,7 @@ import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
 import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 import { DatabasePublicSetting } from '../publicSettings';
+import { isLW } from '../instanceSettings';
 
 export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)
 export const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null)
@@ -24,7 +25,7 @@ const addVoteClient = ({ document, collectionName, voteType, extendedVote, user,
   user: UsersCurrent,
   votingSystem: VotingSystem,
 }) => {
-  const power = getVotePower({user, voteType: voteType ?? "neutral", document});
+  const power = isLW ? getClientUnlockedVotePower({user, voteType: voteType ?? "neutral", document}) : getVotePower({user, voteType: voteType ?? "neutral", document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
   const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType ?? "neutral") : 0;
 
@@ -73,7 +74,7 @@ const cancelVoteClient = ({document, collectionName, user, votingSystem}: {
   // points based on the user's new vote weight, which will then be corrected
   // when the server responds.
   const voteType = document.currentUserVote;
-  const power = getVotePower({user, voteType: voteType ?? "neutral", document});
+  const power = isLW ? getClientUnlockedVotePower({user, voteType: voteType ?? "neutral", document}) : getVotePower({user, voteType: voteType ?? "neutral", document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
   const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType ?? "neutral") : 0;
   
@@ -117,6 +118,32 @@ export const getVotePower = ({ user, voteType, document }: {
   if (user._id === karmaRewarderId1000.get()) return 1000;
   return calculateVotePower(userKarma, voteType);
 };
+
+const getClientUnlockedVotePower = ({ user, voteType, document }: {
+  user: UsersCurrent,
+  voteType: string,
+  document: VoteableTypeClient,
+}) => {
+  const unlocks = user.publicUnlockables;
+  if (!unlocks) return calculateVotePower(0, voteType);
+  const voteStrength = (unlocks as UserUnlockablesState['unlocks'])[voteType + 'Strength'];
+  if (!voteStrength) return calculateVotePower(0, voteType);
+  return voteType.includes('Down') ? -voteStrength : voteStrength;
+}
+
+export const getUnlockedVotePower = async ({ user, voteType, document, context }: {
+  user: DbUser|UsersCurrent,
+  voteType: string,
+  document: VoteableType,
+  context: ResolverContext,
+}) => {
+  const { Unlockables } = context;
+  const userUnlocks = await Unlockables.findOne({ userId: user._id });
+  if (!userUnlocks) return calculateVotePower(0, voteType);
+  const voteStrength = (userUnlocks.unlockablesState as UserUnlockablesState).unlocks[voteType + 'Strength'];
+  if (!voteStrength) return calculateVotePower(0, voteType);
+  return voteType.includes('Down') ? -voteStrength : voteStrength;
+}
 
 // Optimistic response for votes
 export const setVoteClient = async ({ document, collectionName, voteType = 'neutral', extendedVote=null, user, votingSystem }: {

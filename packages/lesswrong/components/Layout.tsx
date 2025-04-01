@@ -35,8 +35,9 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
-
 import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
+import { isServer } from '../lib/executionEnvironment';
+import MusicPlayerComponent from './common/MusicPlayer';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -62,7 +63,7 @@ const styles = (theme: ThemeType) => ({
       paddingTop: isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
-      paddingTop: isFriendlyUI ? 0 : 10,
+      paddingTop: 90,
       paddingLeft: 8,
       paddingRight: 8,
     },
@@ -162,6 +163,9 @@ const styles = (theme: ThemeType) => ({
   },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      background: undefined,
+    }),
   },
   '@global': {
     ...globalStyles(theme),
@@ -244,11 +248,28 @@ const Layout = ({currentUser, children, classes}: {
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const {headerVisible, headerAtTop} = useHeaderVisible();
 
+  // --- Start Music Player State & Effect ---
+  const [showMusicPlayer, setShowMusicPlayer] = useState(false);
+
+  useEffect(() => {
+    // Logic to show music player based on conditions (client-side only)
+    if (!isServer) {
+      if ((window?.innerWidth > 1280 && (currentRoute?.name === 'home')) || window?.location?.pathname.includes("YMo5PuXnZDwRjhHhE")) {
+        setShowMusicPlayer(true);
+      }
+    }
+    // Dependency array includes currentRoute to re-evaluate if the route changes
+    // Note: Be cautious with window.innerWidth here, it won't update on resize unless you add a listener
+  }, [currentRoute?.name, currentRoute?.path]); // Added currentRoute.path for pathname check dependency
+  // --- End Music Player State & Effect ---
+
+  // Re-add renderCommunityMap definition *before* use
+  const renderCommunityMap = false; 
+
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
-  const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
-  // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
-  
+  // const renderCommunityMap = (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
@@ -369,6 +390,10 @@ const Layout = ({currentUser, children, classes}: {
 
     const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
     
+    // --- Start Music Player Audio Data ---
+    
+    // --- End Music Player Audio Data ---
+
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -395,6 +420,8 @@ const Layout = ({currentUser, children, classes}: {
                     (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
                   )
                 }
+                {/* Added Helmet link for glitch CSS */}
+                <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1711774484/Glitch_xcwejo.css' rel='stylesheet' />
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
               </Helmet>
 
@@ -420,9 +447,9 @@ const Layout = ({currentUser, children, classes}: {
                 backgroundColor={headerBackgroundColor}
               />}
               <ForumEventBanner />
-              {/* enable during ACX Everywhere */}
+              {/* enable during ACX Everywhere - Now references the defined variable */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
-
+              {/* <button onClick={() => setShowMusicPlayer(!showMusicPlayer)}>{showMusicPlayer ? "Stop Listening" : "Listen Now"}</button> */}
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
@@ -465,6 +492,8 @@ const Layout = ({currentUser, children, classes}: {
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
                 {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
+                {/* --- Start Homepage Banner Modification --- */}
+                {/* --- End Homepage Banner Modification --- */}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper
@@ -483,14 +512,17 @@ const Layout = ({currentUser, children, classes}: {
                     <SunshineSidebar/>
                   </DeferRender>
                 </div>}
-                {renderLanguageModelChatLauncher && <div>
+                {/* {renderLanguageModelChatLauncher && <div>
                   <DeferRender ssr={false}>
                     <LanguageModelLauncherButton/>
                   </DeferRender>
-                </div>}
+                </div>} */}
               </div>
             </CommentBoxManager>
           </DialogManager>
+          {/* --- Start Music Player Rendering --- */}
+          {/* {showMusicPlayer && <MusicPlayerComponent />} */}
+          {/* --- End Music Player Rendering --- */}
         </div>
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>

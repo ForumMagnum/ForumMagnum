@@ -3,7 +3,7 @@ import Votes from '../server/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
 import { isValidVoteType } from '../lib/voting/voteTypes';
-import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
+import { VoteDocTuple, getUnlockedVotePower, getVotePower } from '../lib/voting/vote';
 import { type VotingSystem } from '../lib/voting/votingSystems';
 import { getVotingSystemForDocument } from '@/lib/voting/getVotingSystem';
 import { createAdminContext, createAnonymousContext } from './vulcan-lib/createContexts';
@@ -25,7 +25,7 @@ import VotesRepo from './repos/VotesRepo';
 import { swrInvalidatePostRoute } from './cache/swr';
 import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
-import { isElasticEnabled } from "../lib/instanceSettings";
+import { isElasticEnabled, isLW } from "../lib/instanceSettings";
 import { capitalize } from '@/lib/vulcan-lib/utils';
 
 // Test if a user has voted on the server
@@ -52,7 +52,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 }): Promise<VoteDocTuple> => {
   const { Posts } = context
   // create vote and insert it
-  const partialVote = createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId });
+  const partialVote = await createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId, context });
   const {data: vote} = await createMutator({
     collection: Votes,
     document: partialVote,
@@ -87,17 +87,20 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
 }
 
 // Create new vote object
-export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
+export const createVote = async ({ document, collectionName, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
   collectionName: CollectionNameString,
   voteType: DbVote['voteType'],
   extendedVote: any,
   user: DbUser|UsersCurrent,
   voteId?: string,
-}): Partial<DbVote> => {
+  context: ResolverContext,
+}): Promise<Partial<DbVote>> => {
   let authorIds = document.userId ? [document.userId] : []
   if (collectionName === "Posts")
     authorIds = authorIds.concat(getConfirmedCoauthorIds(document as DbPost))
+
+  const legacyDataField = isLW ? { legacyData: { originalVotePower: getVotePower({user, voteType, document}) } } : {};
 
   return {
     // when creating a vote from the server, voteId can sometimes be undefined
@@ -108,12 +111,13 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
     userId: user._id,
     voteType: voteType,
     extendedVoteType: extendedVote,
-    power: getVotePower({user, voteType, document}),
+    power: isLW ? await getUnlockedVotePower({user, voteType, document, context}) : getVotePower({user, voteType, document}),
     afPower: getVoteAFPower({user, voteType, document}),
     votedAt: new Date(),
     authorIds,
     cancelled: false,
     documentIsAf: !!(document.af),
+    ...legacyDataField,
   }
 };
 

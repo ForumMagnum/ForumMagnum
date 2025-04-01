@@ -1,8 +1,15 @@
 import React from 'react';
+import { useTheme } from '../themes/useTheme';
+import { GhibliIconPath } from '../themes/ghibli/GhibliIcon';
 
 export const BookIcon = ({ className }: {
   className?: string,
 }) => {
+  const theme = useTheme();
+  if (theme.themeOptions.name === 'ghiblify') {
+    return <GhibliIconPath path="/ghibli/book.png" className={className}/>
+  }
+
   return <svg version="1.0" className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84.000000 84.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.0,84.0) scale(0.1,-0.1)" stroke="none">
     <path d="M170 695 c0 -3 -14 -67 -31 -143 -17 -75 -35 -159 -40 -187 -5 -27 -12 -58 -15 -67 -5 -16 2 -18 53 -18 71 0 156 -21 223 -55 l50 -25 0 225 0 224 -27 15 c-51 25 -213 49 -213 31z"/>
     <path d="M536 689 c-21 -5 -54 -16 -72 -25 l-34 -16 0 -224 c0 -123 2 -224 4 -224 2 0 23 11 47 24 59 33 150 56 222 56 56 0 59 1 54 23 -3 12 -22 99 -42 192 -20 94 -38 178 -41 188 -4 13 -16 17 -52 16 -26 -1 -64 -5 -86 -10z"/>

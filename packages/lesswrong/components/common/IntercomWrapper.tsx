@@ -38,6 +38,8 @@ const IntercomWrapper = () => {
     console.log("Not showing Intercom because functional cookies are not allowed")
     return null;
   }
+
+  // return null;
   
   if (currentUser && !currentUser.hideIntercom) {
     return <div id="intercom-outer-frame">

@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useTheme } from '../themes/useTheme';
 
 const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
   root: {
@@ -105,6 +106,7 @@ const styles = defineStyles("LessOnline2025Banner", (theme: ThemeType) => ({
 export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Date}) => {
   const classes = useStyles(styles);
   const { CloudinaryImage2 } = Components
+  const theme = useTheme();
 
   const timeRemaining = priceIncreaseDate.getTime() - new Date().getTime();
   const daysRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
@@ -113,6 +115,10 @@ export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Da
     ? `in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}` 
     : 'tomorrow';
 
+  const bannerPublicId = theme.themeOptions.name === 'ghiblify'
+    ? "light_gibli_main_dude_ChatGPT_Image_Mar_31_2025_04_40_00_PM_h5ngzv.png"
+    : "ChatGPT_Image_Mar_30_2025_12_25_28_AM_gp57mj.png";
+
   return (
     <AnalyticsContext pageSectionContext="lessOnline2025Banner">
       <div className={classes.root}>
@@ -120,7 +126,7 @@ export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Da
             <CloudinaryImage2
               loading="lazy"
               className={classes.image}
-              publicId="ChatGPT_Image_Mar_27_2025_07_12_57_PM_yngfv5.png"
+              publicId={bannerPublicId}
             />
             <div className={classes.gradientOverlay} />
         </div>

@@ -74,8 +74,31 @@ export const styles = (theme: ThemeType) => ({
       ? theme.palette.grey[600]
       : theme.palette.header.text,
   },
+  button: {
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      transform: "scale(1.5)",
+      marginLeft: 12,
+      padding: 0,
+      "&:hover": {
+        animation: "rotateNotif360 2s linear infinite",
+      },
+    }),
+  },
+  buttonSpin: {
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      animation: "rotateNotif360 2s linear infinite",
+    }),
+  },
   buttonActive: {
     backgroundColor: theme.palette.greyAlpha(0.1),
+  },
+  "@keyframes rotateNotif360": {
+    from: {
+      transform: "scale(1.5) rotate(0deg)",
+    },
+    to: {
+      transform: "scale(1.5) rotate(360deg)",
+    }
   },
   karmaStar: {
     color: theme.palette.icon.headerKarma,
@@ -114,7 +137,6 @@ const BookNotificationsMenuButton = ({
 }: NotificationsMenuButtonProps) => {
   const {unreadNotifications} = useUnreadNotifications();
   const {ForumIcon} = Components;
-  const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
       classes={{
@@ -124,7 +146,14 @@ const BookNotificationsMenuButton = ({
       badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton
-        classes={{ root: buttonClass }}
+        classes={{
+          root: classNames(
+            classes.button,
+            open && classes.buttonOpen,
+            !open && classes.buttonClosed,
+            unreadNotifications > 0 && classes.buttonSpin,
+          )
+        }}
         onClick={toggle}
       >
         {(unreadNotifications>0) ? <ForumIcon icon="Bell" /> : <ForumIcon icon="BellBorder" />}

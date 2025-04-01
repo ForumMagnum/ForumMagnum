@@ -3097,6 +3097,15 @@ CREATE INDEX IF NOT EXISTS "idx_TypingIndicators_schemaVersion" ON "TypingIndica
 -- Index "idx_TypingIndicators_documentId_userId"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "TypingIndicators" USING btree ("documentId", "userId");
 
+-- Table "Unlockables"
+CREATE TABLE "Unlockables" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" TEXT,
+  "clientId" TEXT,
+  "unlockablesState" JSONB NOT NULL
+);
+
 -- Table "UserActivities"
 CREATE TABLE "UserActivities" (
   _id VARCHAR(27) PRIMARY KEY,

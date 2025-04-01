@@ -2,9 +2,14 @@ import { DeferredForumSelect } from '../lib/forumTypeUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
-export const userThemeNames = new TupleSet(["default", "dark"] as const);
-export const userThemeSettings = new TupleSet([...userThemeNames, "auto"] as const);
+const themeNames = ["default", "dark", "ghiblify", "pixely"] as const;
+export const userThemeNames = new TupleSet(themeNames);
+export const userThemeSettings = new TupleSet([...themeNames, "auto"] as const);
 export const muiThemeNames = new TupleSet(["light", "dark"] as const);
+
+export type UserThemeName = typeof themeNames[number];
+export type UserThemeSetting = UserThemeName | "auto";
+export type MuiThemeName = "light" | "dark";
 
 export type ThemeOptions = {
   name: UserThemeName,
@@ -22,7 +27,7 @@ export const themeOptionsAreConcrete = (themeOptions: AbstractThemeOptions): the
 export type ThemeMetadata = {
   // Name to use for this theme internally, in config settings and stylesheet
   // names and whatnot. URL-safe characters only.
-  name: UserThemeSetting
+  name: UserThemeName|"auto",
 
   // Name to use for this theme when displaying it in menus. Title cased, with
   // spaces.
@@ -47,12 +52,20 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
   : [
     {
       name: "default",
-      label: "Default",
+      label: "Pixely Light Mode",
     },
     {
       name: "dark",
       label: "Dark Mode",
     },
+    {
+      name: "ghiblify",
+      label: "Ghibli Mode",
+    },
+    // {
+    //   name: "pixely",
+    //   label: "Pixel Art Mode",
+    // },
     {
       name: "auto",
       label: "Auto",

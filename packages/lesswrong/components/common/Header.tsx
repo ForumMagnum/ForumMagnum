@@ -101,9 +101,14 @@ const textColorOverrideStyles = ({
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
-    boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.header.text,
-    backgroundColor: theme.palette.header.background,
+    // boxShadow: theme.palette.boxShadow.appBar,
+    // backgroundColor: theme.palette.header.background,
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    [theme.breakpoints.down('sm')]: {
+      backdropFilter: 'blur(10px)',
+    },
     position: "static",
     width: "100%",
     display: "flex",
@@ -427,7 +432,7 @@ const Header = ({
   )
 
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
-  const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
+  const usersMenuNode = <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
@@ -436,6 +441,7 @@ const Header = ({
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
+    <Components.UnlockablesCurrencyDisplay/>
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier

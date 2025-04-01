@@ -1472,6 +1472,13 @@ export const TypingIndicatorsDefaultFragment = `
   }
 `;
 
+export const UnlockablesDefaultFragment = `
+  fragment UnlockablesDefaultFragment on Unlockable {
+    _id
+    createdAt
+  }
+`;
+
 export const UserEAGDetailsDefaultFragment = `
   fragment UserEAGDetailsDefaultFragment on UserEAGDetail {
     _id

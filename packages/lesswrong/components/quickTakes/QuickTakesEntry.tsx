@@ -77,6 +77,33 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontStyle: 'italic',
   },
+  ghibliCreatureContainer: {
+    display: 'none',
+    ...(theme.themeOptions.name === 'ghiblify' && {
+      display: 'block',
+    }),
+    position: 'absolute',
+    top: '-205px',
+    right: '250px',
+    width: '200px',
+    height: '264px',
+    zIndex: 10,
+    pointerEvents: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  ghibliCreature: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    pointerEvents: 'auto',
+    transform: 'rotate(1deg)',
+    transition: 'transform 0.3s ease-in-out',
+    '&:hover': {
+      transform: 'rotate(-1deg)',
+    },
+  },
 });
 
 // TODO: decide on copy for LW
@@ -157,7 +184,13 @@ const QuickTakesEntry = ({
 
   const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
-    {/* TODO: Write a better message for new users */}
+    {/* <div className={classes.ghibliCreatureContainer}>
+      <img 
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto,w_150/ghibli_creature_1a_pink_ov86x5.png"
+        alt="Ghibli creature" 
+        className={classes.ghibliCreature} 
+      />
+    </div> */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}

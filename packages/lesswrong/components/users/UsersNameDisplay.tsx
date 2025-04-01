@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import { twelveVirtues, twelveVirtuesUnlocks } from '@/lib/loot/unlocks';
 
 const styles = (theme: ThemeType) => ({
   color: {
@@ -20,6 +21,26 @@ const styles = (theme: ThemeType) => ({
   },
   nowrap: {
     whiteSpace: "nowrap"
+  },
+  nameContainer: {
+    display: 'inline-flex',
+    alignItems: 'center',
+  },
+  virtueIcons: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    marginBottom: -6,
+  },
+  curiosityIcon: {
+    width: 16,
+    height: 16,
+    marginTop: -8,
+  },
+  relinquishmentIcon: {},
+  lightnessIcon: {
+    width: 16,
+    height: 16,
+    marginTop: -8,
   },
 });
 
@@ -109,7 +130,7 @@ const UsersNameDisplay = ({
   }
 
   return <span className={className}>
-    <span {...eventHandlers}>
+    <span {...eventHandlers} className={classes.nameContainer}>
       <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
         <UserTooltip
           user={user}
@@ -118,18 +139,23 @@ const UsersNameDisplay = ({
           hideFollowButton={hideFollowButton}
           disabled={noTooltip}
         >
-          <Link
-            to={profileUrl}
-            className={classNames(
-              colorClass,
-              noKibitz && classes.noKibitz,
-              nowrap && classes.nowrap,
-            )}
-            {...(nofollow ? {rel:"nofollow"} : {})}
-          >
-            {displayName}
-          </Link>
+          <span>
+            <Link
+              to={profileUrl}
+              className={classNames(
+                colorClass,
+                noKibitz && classes.noKibitz,
+                nowrap && classes.nowrap,
+              )}
+              {...(nofollow ? {rel:"nofollow"} : {})}
+            >
+              {displayName}
+            </Link>
+          </span>
         </UserTooltip>
+        <div className={classes.virtueIcons}>
+          {twelveVirtues.map(virtue => user.publicUnlockables?.[virtue.name] && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
+        </div>
       </AnalyticsContext>
     </span>
   </span>
