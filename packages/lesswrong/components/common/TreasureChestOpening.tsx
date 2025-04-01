@@ -274,7 +274,7 @@ function FrontPageTreasureChest({onClickChest}: {
           width: '40%',
           zIndex: 1200,
           margin: 'auto',
-          marginTop: '-110px',
+          marginTop: '-15%',
           opacity: isHovered ? 0 : 1,
           transition: 'opacity 500ms ease-in-out',
           cursor: 'pointer'
@@ -305,7 +305,7 @@ function FrontPageTreasureChest({onClickChest}: {
           margin: 'auto',
           marginTop: '0px',
           marginLeft: '-30px',
-          left: '180px',
+          left: '23%',
           top: '-60px'
         }}
       />
@@ -319,7 +319,7 @@ function FrontPageTreasureChest({onClickChest}: {
           marginTop: '0px',
           marginLeft: '-30px',
           transform: 'scaleX(-1)',
-          right: '140px',
+          right: '18%',
           top: '-90px'
         }}
       />
@@ -354,7 +354,7 @@ function FrontPageTreasureChest({onClickChest}: {
         style={{
           position: 'absolute',
           top: '69px',
-          left: '203px',
+          left: 'calc(50% - 180px)',
           width: '110px',
           zIndex: 1200,
         }}
@@ -365,7 +365,7 @@ function FrontPageTreasureChest({onClickChest}: {
         style={{
           position: 'absolute',
           top: '72px',
-          right: '203px',
+          right: 'calc(50% - 180px)',
           width: '110px',
           zIndex: 1200,
         }}
