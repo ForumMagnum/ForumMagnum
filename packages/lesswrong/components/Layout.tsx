@@ -521,7 +521,7 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
           {/* --- Start Music Player Rendering --- */}
-          {/* {showMusicPlayer && <MusicPlayerComponent />} */}
+          {showMusicPlayer && <MusicPlayerComponent />}
           {/* --- End Music Player Rendering --- */}
         </div>
       </CurrentForumEventProvider>
