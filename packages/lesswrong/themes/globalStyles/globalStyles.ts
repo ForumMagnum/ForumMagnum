@@ -58,6 +58,10 @@ const clearStyle = (theme: ThemeType) => ({
       'serif'
     ].join(','),
   },
+
+  '.intercom-lightweight-app-launcher.intercom-launcher': {
+    bottom: '80px !important'
+  }
 });
 
 const globalStyle = (theme: ThemeType) => ({
