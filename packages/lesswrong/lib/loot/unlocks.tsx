@@ -5,6 +5,9 @@ import { Components } from "../vulcan-lib/components"
 export const REGULAR_BOX_COST = 100;
 export const PREMIUM_BOX_COST = 500;
 
+export const REGULAR_BOX_PICO_COST = 1;
+export const PREMIUM_BOX_PICO_COST = 3;
+
 export class Unlockable {
   name: string
   description: string
