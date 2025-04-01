@@ -254,7 +254,7 @@ const Layout = ({currentUser, children, classes}: {
   useEffect(() => {
     // Logic to show music player based on conditions (client-side only)
     if (!isServer) {
-      if ((window?.innerWidth > 1280 && (currentRoute?.name === 'home')) || window?.location?.pathname.includes("YMo5PuXnZDwRjhHhE")) {
+      if ((currentRoute?.name === 'home') || window?.location?.pathname.includes("YMo5PuXnZDwRjhHhE")) {
         setShowMusicPlayer(true);
       }
     }
