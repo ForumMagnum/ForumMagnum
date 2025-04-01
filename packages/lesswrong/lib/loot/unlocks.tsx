@@ -136,43 +136,43 @@ export interface CurrencyReward {
 export const currencyRewards: CurrencyReward[] = [
   {
     name: "lwBucksSmall",
-    description: "A small amount of LW Bucks",
+    description: "50 LW Bucks! Two of these allow you to spin again!",
     weight: 12,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488853/loot/cfa5a1ff-2633-4a30-96ba-472dc1702ad0.png",
   },
   {
     name: "lwBucksMedium",
-    description: "A medium amount of LW Bucks",
+    description: "110 LW Bucks! That's a bit more than a free spin.",
     weight: 6,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488858/loot/9f4ca373-de6d-49c5-a93e-59933a78dcdd.png",
   },
   {
     name: "lwBucksLarge",
-    description: "A large amount of LW Bucks",
+    description: "190 LW Bucks, so close to two free spins!",
     weight: 3,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488862/loot/4789d99c-fa90-40f8-b858-c5c329fdb60a.png",
   },
   {
     name: "picoLightconesSmall",
-    description: "A small amount of Pico Lightcones",
+    description: "4 Picolightcones!",
     weight: 3,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488820/loot/bffd59ca-229a-490c-bd24-34c613059625.png",
   },
   {
     name: "picoLightconesMedium",
-    description: "A medium amount of Pico Lightcones",
+    description: "8 Picolightcones!",
     weight: 2,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488832/loot/40e492c1-3167-42f5-9ae7-df667f997b77.png",
   },
   {
     name: "picoLightconesLarge",
-    description: "A large amount of Pico Lightcones",
+    description: "16 PicoLightcones!",
     weight: 1,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488835/loot/74cafc17-83cb-4d4b-ae1f-883d3c03d2a1.png",
   },
   {
     name: "picoLightconesHuge",
-    description: "Jackpot!",
+    description: "Jackpot! 100 whole Picolightcones!",
     weight: 0.1,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488844/loot/5fbcdbcf-1223-4274-ad0d-b4d87bf92c4a.png",
   },
@@ -204,25 +204,25 @@ export interface VoteReward {
 export const voteRewards: VoteReward[] = [
   {
     name: "smallUpvoteStrength",
-    description: "Small Upvote Strength",
+    description: "Your small upvotes are now 1 point stronger!",
     weight: 1,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486255/loot/SmallUpvote.png",
   },
   {
     name: "bigUpvoteStrength",
-    description: "Large Upvote Strength",
+    description: "Your strong upvotes are now 1 point stronger!",
     weight: 6,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
   },
   {
     name: "smallDownvoteStrength",
-    description: "Small Downvote Strength",
+    description: "Your small downvotes are now 1 point stronger!",
     weight: 1,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486225/loot/SmallDownVote.png",
   },
   {
     name: "bigDownvoteStrength",
-    description: "Large Downvote Strength",
+    description: "Your strong downvotes are now 1 point stronger!",
     weight: 6,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486226/loot/Downvote.png",
   }
