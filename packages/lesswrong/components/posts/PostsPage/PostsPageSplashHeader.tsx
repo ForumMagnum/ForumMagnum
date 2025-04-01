@@ -8,7 +8,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useImageContext } from './ImageContext';
 import { useHover } from '../../common/withHover';
 import { hideScrollBars } from '../../../themes/styleUtils';
