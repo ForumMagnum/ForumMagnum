@@ -140,7 +140,7 @@ export const getUnlockedVotePower = async ({ user, voteType, document, context }
   const { Unlockables } = context;
   const userUnlocks = await Unlockables.findOne({ userId: user._id });
   if (!userUnlocks) return calculateVotePower(0, voteType);
-  const voteStrength = (userUnlocks.unlockablesState as UserUnlockablesState).unlocks[voteType + 'Strength'];
+  const voteStrength = (userUnlocks.unlockablesState as UserUnlockablesState).unlocks[voteType + 'Strength'] + calculateVotePower(user.karma, voteType);
   if (!voteStrength) return calculateVotePower(0, voteType);
   return voteType.includes('Down') ? -voteStrength : voteStrength;
 }
