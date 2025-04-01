@@ -22,6 +22,15 @@ const styles = (theme: ThemeType) => ({
   nowrap: {
     whiteSpace: "nowrap"
   },
+  nameContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  virtueIcons: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: -6,
+  },
   curiosityIcon: {
     width: 32,
     height: 32,
@@ -121,7 +130,7 @@ const UsersNameDisplay = ({
   }
 
   return <span className={className}>
-    <span {...eventHandlers}>
+    <span {...eventHandlers} className={classes.nameContainer}>
       <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
         <UserTooltip
           user={user}
@@ -142,10 +151,11 @@ const UsersNameDisplay = ({
             >
               {displayName}
             </Link>
-            {twelveVirtues.map(virtue => user.publicUnlockables?.[virtue.name]
-              && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
           </span>
         </UserTooltip>
+        <div className={classes.virtueIcons}>
+          {twelveVirtues.map(virtue => user.publicUnlockables?.[virtue.name] && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
+        </div>
       </AnalyticsContext>
     </span>
   </span>

@@ -148,7 +148,12 @@ export const lessWrongTheme: SiteThemeSpecification = {
           borderRadius: 1,
           boxShadow: palette.boxShadow.lwCard,
         }
-      }
+      },
+      MuiSnackbarContent: {
+        root: {
+          backgroundColor: palette.background.default,
+        }
+      },
     }
   }),
 };

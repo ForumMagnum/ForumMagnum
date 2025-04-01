@@ -5,6 +5,7 @@ import ThreeSlotMachine from './ThreeSlotMachine';
 import { useDialog } from './withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUserUnlocks } from '@/lib/loot/unlocks';
+import { useMessages } from './withMessages';
 
 const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   itemDescription: {
@@ -89,11 +90,17 @@ const TreasureChestOpening = () => {
   const [triggerSpin, setTriggerSpin] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
 
+  const { flash } = useMessages();
+
   const [spinTreasureChest] = useMutation(gql`
     mutation SpinTreasureChest($paymentMethod: String!) {
       SpinTreasureChest(paymentMethod: $paymentMethod)
     }
-  `);
+  `, { 
+    onError(error) {
+      flash(error.message);
+    }
+  });
 
   const { refetch } = useCurrentUserUnlocks();
 
@@ -120,7 +127,7 @@ const TreasureChestOpening = () => {
   };
 
   const fetchWinningIndices = async (): Promise<number[]> => {
-    const { data: { SpinTreasureChest: indices } } = await spinTreasureChest({ variables: { paymentMethod: "lwBucks" } });
+    const { data: { SpinTreasureChest: indices }, errors } = await spinTreasureChest({ variables: { paymentMethod: "lwBucks" } });
     console.log("Received winning indices from server:", indices);
     return indices;
   };

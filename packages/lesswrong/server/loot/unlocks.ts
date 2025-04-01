@@ -188,7 +188,7 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, b
         : oldState.picoLightcones >= REGULAR_BOX_PICO_COST;
 
       if (!hasEnoughOfPaymentMethod) {
-        throw new Error(`Not enough ${paymentMethod} to spin the treasure chest`);
+        throw new Error(`Not enough ${paymentMethod} to spin the treasure chest!`);
       }
 
       const stateWithUpdatedCurrencyAmounts = getNewCurrencyAmounts(oldState, paymentMethod, boxType, cylinder2SpinOutcome.result);
