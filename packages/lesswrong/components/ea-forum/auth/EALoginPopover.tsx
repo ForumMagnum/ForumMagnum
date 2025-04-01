@@ -407,7 +407,11 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     <BlurredBackgroundModal open={open} onClose={onClose} className={classes.root}>
       <AnalyticsContext pageElementContext="loginPopover">
         {showFacebookWarning && <ForumIcon icon="ArrowLeft" onClick={() => setShowFacebookWarning(false)} className={classes.backArrow} />}
-        <ForumIcon icon="Close" onClick={onClose} className={classes.close} />
+        <ForumIcon
+          icon="Close"
+          onClick={onClose}
+          className={classes.close}
+        />
         <div className={classes.lightbulb}>{lightbulbIcon}</div>
         <div className={classes.title}>{title}</div>
         <div className={classes.formContainer}>
@@ -464,7 +468,11 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
                 <a onClick={onForgotPassword}>Forgot password?</a>
               </div>
             )}
-            {message && <div className={classes.message}>{message}</div>}
+            {message &&
+              <div className={classes.message}>
+                {message}
+              </div>
+            }
             {error && (
               <div className={classes.error}>
                 {error}
@@ -478,15 +486,14 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
               data-testid="login-submit"
               className={classes.button}
             >
-              {loading ? (
-                <Loading />
-              ) : isResettingPassword || showFacebookWarning ? (
-                "Request password reset"
-              ) : isSignup ? (
-                "Sign up"
-              ) : (
-                "Login"
-              )}
+              {loading
+                ? <Loading />
+                : isResettingPassword || showFacebookWarning
+                  ? "Request password reset"
+                  : isSignup
+                    ? "Sign up"
+                    : "Login"
+              }
             </EAButton>
           </form>
 
