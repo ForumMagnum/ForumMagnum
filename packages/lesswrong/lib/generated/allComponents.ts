@@ -847,6 +847,7 @@ importComponent("PetrovDayButton", () => require("../../components/seasonal/Petr
 importComponent("PetrovDayLossScreen", () => require("../../components/seasonal/PetrovDayLossScreen.tsx"));
 importComponent("PetrovDayWrapper", () => require("../../components/seasonal/PetrovDayWrapper.tsx"));
 importComponent("TwelveVirtuesDialog", () => require("../../components/seasonal/loot/TwelveVirtues.tsx"));
+importComponent("UnlockablesCurrencyDisplay", () => require("../../components/seasonal/loot/UnlockablesCurrencyDisplay.tsx"));
 importComponent("OptIntoPetrovButton", () => require("../../components/seasonal/petrovDay/OptIntoPetrovButton.tsx"));
 importComponent("PastWarnings", () => require("../../components/seasonal/petrovDay/PastWarnings.tsx"));
 importComponent("PetrovAdminConsole", () => require("../../components/seasonal/petrovDay/PetrovAdminConsole.tsx"));

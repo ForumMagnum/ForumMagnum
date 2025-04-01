@@ -441,6 +441,7 @@ const Header = ({
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
+    <Components.UnlockablesCurrencyDisplay/>
     {!currentUser && <UsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
       currentUser={currentUser}
