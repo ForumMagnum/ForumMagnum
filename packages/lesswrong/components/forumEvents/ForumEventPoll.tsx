@@ -7,7 +7,7 @@ import { gql, useMutation } from "@apollo/client";
 import { useMulti } from "@/lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
@@ -491,7 +491,7 @@ export const ForumEventPoll = ({
   hideViewResults?: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { currentForumEvent: event, refetch } = useCurrentForumEvent();
+  const { currentForumEvent: event, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
 

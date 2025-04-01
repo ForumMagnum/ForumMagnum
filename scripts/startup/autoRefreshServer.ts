@@ -113,7 +113,13 @@ export function startAutoRefreshServer({serverPort, websocketPort}: {
     });
     
     await waitForServerReady(serverPort);
-    ws.send(`{"latestBuildTimestamp": "${getEitherBundleTimestamp()}"}`);
+    try {
+      ws.send(`{"latestBuildTimestamp": "${getEitherBundleTimestamp()}"}`);
+    } catch(e) {
+      // Sending can fail if a connection disconnected during the window while
+      // we're waiting for server startup
+      ws.close();
+    }
   });
 }
 
