@@ -23,24 +23,24 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap"
   },
   nameContainer: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
   },
   virtueIcons: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
     marginBottom: -6,
   },
   curiosityIcon: {
-    width: 32,
-    height: 32,
-    marginTop: -10,
+    width: 16,
+    height: 16,
+    marginTop: -8,
   },
   relinquishmentIcon: {},
   lightnessIcon: {
-    width: 28,
-    height: 28,
-    marginTop: -6,
+    width: 16,
+    height: 16,
+    marginTop: -8,
   },
 });
 
