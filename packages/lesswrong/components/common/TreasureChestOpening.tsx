@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ThreeSlotMachine from './ThreeSlotMachine';
 import { useDialog } from './withDialog';
+import { useMutation, gql } from '@apollo/client';
 
 const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   itemDescription: {
@@ -87,6 +88,12 @@ const TreasureChestOpening = () => {
   const [triggerSpin, setTriggerSpin] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
 
+  const [spinTreasureChest] = useMutation(gql`
+    mutation SpinTreasureChest($paymentMethod: String!) {
+      SpinTreasureChest(paymentMethod: $paymentMethod)
+    }
+  `);
+
   const treasureDescriptions = [
     "Latest Fooming Shoggoths album and audio player",
     "Increase your strong-upvote strength by one",
@@ -110,13 +117,7 @@ const TreasureChestOpening = () => {
   };
 
   const fetchWinningIndices = async (): Promise<number[]> => {
-    console.log("Simulating GraphQL mutation...");
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const indices = [ 
-      Math.floor(Math.random() * prizeTextureUrls.length),
-      Math.floor(Math.random() * prizeTextureUrls.length),
-      Math.floor(Math.random() * prizeTextureUrls.length)
-    ];
+    const { data: { SpinTreasureChest: indices } } = await spinTreasureChest({ variables: { paymentMethod: "lwBucks" } });
     console.log("Received winning indices from server:", indices);
     return indices;
   };
@@ -131,6 +132,7 @@ const TreasureChestOpening = () => {
 
     try {
       const indices = await fetchWinningIndices();
+      console.log("Setting winningItemIndices to", indices);
       setWinningItemIndices(indices);
       console.log("Setting triggerSpin to true to start animation");
       setTriggerSpin(true);

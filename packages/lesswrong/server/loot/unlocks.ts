@@ -1,4 +1,4 @@
-import { PREMIUM_BOX_COST, REGULAR_BOX_COST, Unlockable, allUnlockables, defaultUserUnlockablesState } from "@/lib/loot/unlocks";
+import { PREMIUM_BOX_COST, REGULAR_BOX_COST, REGULAR_BOX_PICO_COST, Unlockable, allUnlockables, defaultUserUnlockablesState, cylinder0Rewards, cylinder1Rewards, cylinder2Rewards } from "@/lib/loot/unlocks";
 import { getSqlClientOrThrow, runSqlQuery } from "../sql/sqlClient";
 import Unlockables from "../collections/unlockables/collection";
 import { executeWithLock } from "../resolvers/jargonResolvers/jargonTermMutations";
@@ -104,6 +104,65 @@ async function purchaseLootBoxTransaction({ userId, clientId, boxType, context }
   });
 }
 
+function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { result: T, index: number } {
+  const totalWeight = rewards.reduce((acc, reward) => acc + reward.weight, 0);
+  const randomValue = Math.random() * totalWeight;
+  let cumulativeWeight = 0;
+  for (const [index, reward] of rewards.entries()) {
+    cumulativeWeight += reward.weight;
+    if (randomValue <= cumulativeWeight) {
+      return { result: reward, index };
+    }
+  }
+
+  return { result: rewards[rewards.length - 1], index: rewards.length - 1 };
+}
+
+async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, context }: {
+  userId?: string,
+  clientId: string,
+  paymentMethod: "lwBucks" | "picoLightcones",
+  context: ResolverContext,
+}) {
+  const cylinder0SpinOutcome = getWeightedRandomReward(cylinder0Rewards);
+  const cylinder1SpinOutcome = getWeightedRandomReward(cylinder1Rewards);
+  const cylinder2SpinOutcome = getWeightedRandomReward(cylinder2Rewards);
+
+  await modifyUnlocksState({
+    userId, clientId, context,
+    stateTransform: (oldState) => {
+      const hasEnoughOfPaymentMethod = paymentMethod === "lwBucks"
+        ? oldState.lwBucks >= REGULAR_BOX_COST
+        : oldState.picoLightcones >= REGULAR_BOX_PICO_COST;
+
+      if (!hasEnoughOfPaymentMethod) {
+        throw new Error(`Not enough ${paymentMethod} to spin the treasure chest`);
+      }
+
+      const updatedCurrencyAmount = paymentMethod === "lwBucks"
+        ? { lwBucks: oldState.lwBucks - REGULAR_BOX_COST }
+        : { picoLightcones: oldState.picoLightcones - REGULAR_BOX_PICO_COST };
+
+      const updatedUnlocks = {
+        ...oldState.unlocks,
+        [cylinder0SpinOutcome.result.name]: (oldState.unlocks[cylinder0SpinOutcome.result.name] ?? 0) + 1,
+        [cylinder1SpinOutcome.result.name]: (oldState.unlocks[cylinder1SpinOutcome.result.name] ?? 0) + 1,
+        [cylinder2SpinOutcome.result.name]: (oldState.unlocks[cylinder2SpinOutcome.result.name] ?? 0) + 1,
+      };
+
+      return {
+        ...oldState,
+        ...updatedCurrencyAmount,
+        spinsRemaining: oldState.spinsRemaining - 1,
+        spinsPerformed: oldState.spinsPerformed + 1,
+        unlocks: updatedUnlocks,
+      };
+    }
+  });
+
+  return [cylinder0SpinOutcome.index, cylinder1SpinOutcome.index, cylinder2SpinOutcome.index];
+}
+
 async function fetchUnlockableState(userId: string|null, clientId: string|null, context: ResolverContext): Promise<DbUnlockable> {
   if (!userId && !clientId) {
     throw new Error("fetchUnlockableState requires a userId or a clientId");
@@ -145,6 +204,7 @@ async function fetchUnlockableState(userId: string|null, clientId: string|null, 
 }
 
 const validBoxTypes = new TupleSet(["regular", "premium"] as const);
+const validPaymentMethods = new TupleSet(["lwBucks", "picoLightcones"] as const);
 
 export const unlockablesGraphQLQueries = {
   async CurrentUserUnlockableState(root: void, args: {}, context: ResolverContext) {
@@ -166,7 +226,19 @@ export const unlockablesGraphQLMutations = {
 
     await purchaseLootBoxTransaction({ userId, clientId, boxType, context });
     return true;
-  }
+  },
+
+  async SpinTreasureChest(root: void, args: { paymentMethod: string }, context: ResolverContext) {
+    const userId = context.currentUser?._id;
+    const clientId = context.clientId!;
+
+    const paymentMethod = args.paymentMethod;
+    if (!validPaymentMethods.has(paymentMethod) || (!userId && paymentMethod === "picoLightcones")) {
+      throw new Error(`Invalid payment method: ${paymentMethod}`);
+    }
+
+    return await spinTreasureChestTransaction({ userId, clientId, paymentMethod, context });
+  },
 };
 
 export const unlockablesGqlTypeDefs = gql`
@@ -176,5 +248,6 @@ export const unlockablesGqlTypeDefs = gql`
 
   extend type Mutation {
     BuyLootBox(boxType: String!): Boolean!
+    SpinTreasureChest(paymentMethod: String!): [Int!]!
   }
 `;

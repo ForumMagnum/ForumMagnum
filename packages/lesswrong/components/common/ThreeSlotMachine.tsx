@@ -124,7 +124,6 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
   startSpin,
   onSpinComplete,
   cylinderCount = 3,
-  symbolsPerReel = textureUrls.length, // Default to using all textures
   baseSpinSpeed = 1,
   spinAccelFactor = 30,
   cylinderStopDelayMs = 250,
@@ -159,11 +158,19 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
   // --- Helper Functions ---
 
   const getSegmentAngle = useCallback(
-    (segment: number, symbolsInReel?: number): number => {
-      const numSymbols = symbolsInReel ?? symbolsPerReel;
+    (segment: number, symbolsInReel: number, reelNumber: number, initial: boolean): number => {
+      const numSymbols = symbolsInReel;
       if (numSymbols <= 0) return 0; // Avoid division by zero
       const segmentAngle = (2 * Math.PI) / numSymbols;
-      const offset = segmentAngle / 2; // Angle to the center of the segment from its start
+      const reelOffset = ({
+        0: 0.5,
+        1: -5.5,
+        2: -5.5,
+      }[reelNumber] || 0);
+
+      const offsetMultiplier = reelOffset;
+
+      const offset = segmentAngle * offsetMultiplier;
 
       // Calculate the rotation needed to bring the *center* of the desired segment
       // to the front-facing position (which we'll define as angle 0 after initial mesh/texture rotations).
@@ -171,7 +178,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
       // We need to rotate by the negative of this angle to bring it to 0.
       return -(segment * segmentAngle + offset);
     },
-    [symbolsPerReel]
+    []
   );
 
   const storeRestAngles = useCallback(() => {
@@ -316,19 +323,19 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
   }, [cameraDistance, positionCylinders]);
 
   // Vote strength rewards
-  const cylinder0ImageUrls = shuffle([
+  const cylinder0ImageUrls = ([
     ...filterNonnull(voteRewards.map(reward => reward.imagePath)),
     // Add other stuff
   ]);
 
   // Primary "unique" rewards
-  const cylinder1ImageUrls = shuffle([
+  const cylinder1ImageUrls = ([
     ...filterNonnull(twelveVirtues.map(virtue => virtue.imagePath)),
     // Add other stuff
   ]);
 
   // Marginal currency rewards
-  const cylinder2ImageUrls = shuffle([
+  const cylinder2ImageUrls = ([
     ...filterNonnull(currencyRewards.map(reward => reward.imagePath)),
     // Add other stuff
   ]);
@@ -466,8 +473,8 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
 
           // --- EDIT: Set initial rotation so the 0th item faces the front ---
           // Use the actual number of symbols for this specific cylinder if available
-          const symbolsInThisReel = allCylinderImageUrls[i]?.length ?? symbolsPerReel;
-          cylinder.rotation.x = getSegmentAngle(0, symbolsInThisReel);
+          const symbolsInThisReel = allCylinderImageUrls[i].length;
+          cylinder.rotation.x = getSegmentAngle(0, symbolsInThisReel, i, true);
           // --- END EDIT ---
 
           sceneRef.current?.add(cylinder);
@@ -631,11 +638,13 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
 
             // --- Calculate target angle for this specific cylinder ---
             let winningIndex = winningItemIndices[i];
-            if (winningIndex === undefined || winningIndex < 0 || winningIndex >= symbolsPerReel) {
+            if (winningIndex === undefined || winningIndex < 0) {
               console.error(`Invalid winning index ${winningIndex} for cylinder ${i}. Defaulting to 0.`);
               winningIndex = 0;
             }
-            const baseTargetAngle = getSegmentAngle(winningIndex, allCylinderImageUrls[i].length);
+
+            const baseTargetAngle = getSegmentAngle(winningIndex, allCylinderImageUrls[i].length, i, false);
+            console.log("ThreeSlotMachine: Winning index for cylinder", i, "is", winningIndex, "with symbolInReel", allCylinderImageUrls[i][winningIndex], "with baseTargetAngle", baseTargetAngle);
 
             // Calculate the final angle ensuring it's ahead of the current rotation
             const currentRotation = cylinder.rotation.x;
@@ -698,7 +707,6 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
     baseSpinSpeed,
     spinAccelFactor,
     cylinderStopDelayMs,
-    symbolsPerReel,
     getSegmentAngle,
   ]); // Ensure all dependencies used are listed
 

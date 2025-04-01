@@ -13,20 +13,20 @@ export class Unlockable {
   name: string
   description: string
   repeatable: boolean
-  rarity: "common"|"uncommon"|"rare"
+  weight: number
   publiclyDisplayed: boolean
 
-  constructor({name, description, repeatable, rarity, publiclyDisplayed}: {
+  constructor({name, description, repeatable, weight, publiclyDisplayed}: {
     name: string
     description: string
     repeatable?: boolean
-    rarity: "common"|"uncommon"|"rare"
+    weight: number
     publiclyDisplayed?: boolean
   }) {
     this.name = name;
     this.description = description;
     this.repeatable = !!repeatable;
-    this.rarity = rarity;
+    this.weight = weight;
     this.publiclyDisplayed = !!publiclyDisplayed
   }
 }
@@ -35,6 +35,7 @@ export type VirtueOfRationality = {
   name: string
   shortDescription: string
   longDescription: React.ReactNode
+  weight: number
   imagePath?: string
 };
 
@@ -44,79 +45,91 @@ export const twelveVirtues: VirtueOfRationality[] = [
     shortDescription: "The Virtue of Curiosity",
     longDescription: <p>The first virtue is curiosity. Wouldn't you like to know what exciting rewards are inside of our lootboxes?</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478219/loot/Curiosity.png",
+    weight: 0.8,
   },
   {
     name: "relinquishment",
     shortDescription: "The Virtue of Relinquishment",
     longDescription: <p>The second virtue is relinquishment. Traditionally this refers to relinquishing ignorance - relinquish the emotion which rests upon mistaken belief, etc etc. But <Link to="/donate">relinquishing your money</Link> is even better!</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478227/loot/Relinquishment.png",
+    weight: 0.5,
   },
   {
     name: "lightness",
     shortDescription: "The Virtue of Lightness",
     longDescription: <p>The third virtue is Lightness. Let the winds of evidence blow you about as though you are a leaf, with no direction of your own. Beware lest you fight a rearguard retreat against the evidence, grudgingly conceding each foot of ground only when forced, feeling cheated.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478224/loot/Lightness.png",
+    weight: 0.5,
   },
   {
     name: "evenness",
     shortDescription: "The Virtue of Evenness",
     longDescription: <p>One who wishes to believe says, “Does the evidence permit me to believe?” One who wishes to disbelieve asks, “Does the evidence force me to believe?” Beware lest you place huge burdens of proof only on propositions you dislike, and then defend yourself by saying: “But it is good to be skeptical.”</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478223/loot/Evenness.png",
+    weight: 0.2,
   },
   {
     name: "argument",
     shortDescription: "The Virtue of Argument",
     longDescription: <p>Those who wish to fail must first prevent their friends from helping them. Those who smile wisely and say “I will not argue” remove themselves from help and withdraw from the communal effort. In argument strive for exact honesty, for the sake of others and also yourself: the part of yourself that distorts what you say to others also distorts your own thoughts.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478224/loot/Argument.png",
+    weight: 1,
   },
   {
     name: "empiricism",
     shortDescription: "The Virtue of Empiricism",
     longDescription: <p>Figuring out the optimal strategy for getting LessWrong Lootboxes requires experimentation. Lots of experimentation. You need a big sample size. An <i>expensive</i> sample size.</p>,
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478226/loot/Empiricism.png"
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478226/loot/Empiricism.png",
+    weight: 0.1,
   },
   {
     name: "simplicity",
     shortDescription: "The Virtue of Simplicity",
     longDescription: <p>Antoine de Saint-Exupéry said: “Perfection is achieved not when there is nothing left to add, but when there is nothing left to take away.” Simplicity is virtuous in belief, design, planning, and justification. When you profess a huge belief with many details, each additional detail is another chance for the belief to be wrong.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478225/loot/Simplicity.png",
+    weight: 0.2,
   },
   {
     name: "humility",
     shortDescription: "The Virtue of Humility",
     longDescription: <p> To be humble is to take specific actions in anticipation of your own errors. To confess your fallibility and then do nothing about it is not humble; it is boasting of your modesty. Who are most humble? Those who most skillfully prepare for the deepest and most catastrophic errors in their own beliefs and plans.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478220/loot/Humility.png",
+    weight: 0.1,
   },
   {
     name: "perfectionism",
     shortDescription: "The Virtue of Perfectionism",
     longDescription: <p>The ninth virtue is perfectionism. So long as there is a loot-box reward still locked, your collection is not perfect.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478221/loot/Perfectionism.png",
+    weight: 0.5,
   },
   {
     name: "precision",
     shortDescription: "The Virtue of Precision",
     longDescription: <p>One comes and says: The quantity is between 1 and 100. Another says: The quantity is between 40 and 50. If the quantity is 42 they are both correct, but the second prediction was more useful and exposed itself to a stricter test. What is true of one apple may not be true of another apple; thus more can be said about a single apple than about all the apples in the world.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478218/loot/Precision.png",
+    weight: 0.8,
   },
   {
     name: "scholarship",
     shortDescription: "The Virtue of Scholarship",
     longDescription: <p>Study many sciences and absorb their power as your own. Each field that you consume makes you larger. If you swallow enough sciences the gaps between them will diminish and your knowledge will become a unified whole. And you can get stickers for each of them, to display on your profile!</p>,
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478222/loot/Scholarship.png"
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478222/loot/Scholarship.png",
+    weight: 0.8,
   },
   {
     name: "void",
     shortDescription: "The Void",
     longDescription: <p>Every step of your reasoning must cut through to the correct answer in the same movement. More than anything, you must think of carrying your map through to reflecting the territory. If you fail to achieve a correct answer, it is futile to protest that you acted with propriety.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/a_180/a_hflip/v1743478219/loot/Void.png",
+    weight: 0,
   },
 ];
 
 interface CurrencyReward {
   name: string
   description: string
-  rarity: "common"|"uncommon"|"rare"
+  weight: number
   imagePath?: string
 }
 
@@ -124,49 +137,56 @@ export const currencyRewards: CurrencyReward[] = [
   {
     name: "lwBucksSmall",
     description: "A small amount of LW Bucks",
-    rarity: "common",
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478588/loot/LWBuxIcon.png",
+    weight: 12,
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488853/loot/cfa5a1ff-2633-4a30-96ba-472dc1702ad0.png",
   },
   {
     name: "lwBucksMedium",
     description: "A medium amount of LW Bucks",
-    rarity: "uncommon",
+    weight: 6,
     // TODO: real url
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478588/loot/LWBuxIcon.png",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488858/loot/9f4ca373-de6d-49c5-a93e-59933a78dcdd.png",
   },
   {
     name: "lwBucksLarge",
     description: "A large amount of LW Bucks",
-    rarity: "rare",
+    weight: 3,
     // TODO: real url
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478588/loot/LWBuxIcon.png",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488862/loot/4789d99c-fa90-40f8-b858-c5c329fdb60a.png",
   },
   {
     name: "picoLightconesSmall",
     description: "A small amount of Pico Lightcones",
-    rarity: "common",
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743477104/loot/PicoLightcone.png",
+    weight: 3,
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488820/loot/bffd59ca-229a-490c-bd24-34c613059625.png",
   },
   {
     name: "picoLightconesMedium",
     description: "A medium amount of Pico Lightcones",
-    rarity: "uncommon",
+    weight: 2,
     // TODO: real url
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743477104/loot/PicoLightcone.png",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488832/loot/40e492c1-3167-42f5-9ae7-df667f997b77.png",
   },
   {
     name: "picoLightconesLarge",
     description: "A large amount of Pico Lightcones",
-    rarity: "rare",
+    weight: 1,
     // TODO: real url
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743477104/loot/PicoLightcone.png",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488832/loot/40e492c1-3167-42f5-9ae7-df667f997b77.png",
+  },
+  {
+    name: "picoLightconesHuge",
+    description: "Jackpot!",
+    weight: 0.1,
+    // TODO: real url
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488844/loot/5fbcdbcf-1223-4274-ad0d-b4d87bf92c4a.png",
   },
 ];
 
 interface ThemeReward {
   name: string
   description: string
-  rarity: "common"|"uncommon"|"rare"
+  weight: number
   imagePath?: string
 }
 
@@ -174,7 +194,7 @@ export const themeRewards: ThemeReward[] = [
   {
     name: "ghiblify",
     description: "Ghibli Theme",
-    rarity: "common",
+    weight: 1,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374575/loot/ghibli_theme.png"
   },
 ];
@@ -182,7 +202,7 @@ export const themeRewards: ThemeReward[] = [
 interface VoteReward {
   name: string
   description: string
-  rarity: "common"|"uncommon",
+  weight: number
   imagePath?: string
 }
 
@@ -190,37 +210,42 @@ export const voteRewards: VoteReward[] = [
   {
     name: "smallUpvoteStrength",
     description: "Small Upvote Strength",
-    rarity: "common",
+    weight: 1,
     // TODO: real url
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486255/loot/SmallUpvote.png",
   },
   {
     name: "largeUpvoteStrength",
     description: "Large Upvote Strength",
-    rarity: "uncommon",
+    weight: 6,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
   },
   {
     name: "smallDownvoteStrength",
     description: "Small Downvote Strength",
-    rarity: "common",
+    weight: 1,
     // TODO: real url
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486225/loot/SmallDownVote.png",
   },
   {
     name: "largeDownvoteStrength",
     description: "Large Downvote Strength",
-    rarity: "uncommon",
+    weight: 6,
     // TODO: real url
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486226/loot/Downvote.png",
   }
 ];
+
+export const cylinder0Rewards = voteRewards;
+// TODO: add other rewards
+export const cylinder1Rewards = [...twelveVirtues];
+export const cylinder2Rewards = currencyRewards;
 
 export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
   name: v.name,
   description: v.shortDescription,
   repeatable: true,
-  rarity: "common",
+  weight: v.weight,
   publiclyDisplayed: true,
 }));
 
@@ -228,7 +253,7 @@ export const currencyRewardsUnlocks = currencyRewards.map(c => new Unlockable({
   name: c.name,
   description: c.description,
   repeatable: true,
-  rarity: c.rarity,
+  weight: c.weight,
   publiclyDisplayed: false,
 }));
 
@@ -236,7 +261,7 @@ export const themeRewardsUnlocks = themeRewards.map(t => new Unlockable({
   name: t.name,
   description: t.description,
   repeatable: false,
-  rarity: t.rarity,
+  weight: t.weight,
   publiclyDisplayed: false,
 }));
 
@@ -244,7 +269,7 @@ export const voteRewardsUnlocks = voteRewards.map(v => new Unlockable({
   name: v.name,
   description: v.description,
   repeatable: true,
-  rarity: v.rarity,
+  weight: v.weight,
   publiclyDisplayed: false,
 }));
 
@@ -253,19 +278,13 @@ export const allUnlockables = [
     name: "notBeenAGoodUserAlbum",
     description: "Fooming Shoggoths Album",
     repeatable: false,
-    rarity: "common",
+    weight: 1,
   }),
   new Unlockable({
     name: "ghiblify",
     description: "Ghibli Theme",
     repeatable: false,
-    rarity: "common",
-  }),
-  new Unlockable({
-    name: "strongUpvoteStrength",
-    description: "Strong Upvote Strength",
-    repeatable: true,
-    rarity: "common",
+    weight: 1,
   }),
   ...twelveVirtuesUnlocks,
   ...currencyRewardsUnlocks,
