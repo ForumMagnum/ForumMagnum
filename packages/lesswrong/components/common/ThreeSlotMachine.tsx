@@ -163,7 +163,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
       const segmentAngle = (2 * Math.PI) / numSymbols;
       const reelOffset = ({
         0: 0.5,
-        1: -6,
+        1: -7.5,
         2: -6.5,
       }[reelNumber] || 0);
 

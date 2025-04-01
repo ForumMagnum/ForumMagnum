@@ -105,7 +105,7 @@ function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { 
     }
   }
 
-  return { result: rewards[rewards.length - 1], index: rewards.length - 1 };
+  return { result: possibleRewards[possibleRewards.length - 1], index: possibleRewards.length - 1 };
 }
 
 function getNewCurrencyAmounts(oldState: UserUnlockablesState, paymentMethod: "lwBucks" | "picoLightcones" | "freeHomepageSpin", boxType: "regular" | "premium", currencyRewardSpin: CurrencyReward) {

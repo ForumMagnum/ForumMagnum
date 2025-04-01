@@ -4,6 +4,7 @@ import { isServer } from '../../lib/executionEnvironment';
 import type ReactJkMusicPlayer from 'react-jinke-music-player';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import DeferRender from './DeferRender';
+import { hasUnlock, useCurrentUserUnlocks } from '@/lib/loot/unlocks';
 
 // Define the type for audio list items if not already available
 interface AudioListItem {
@@ -387,159 +388,159 @@ export const AlbumTwo = [
 }
 ]
 
-export const YouHaveNotBeenAGoodUser = [
-  {
-    name: "You Have Not Been a Good User",
-    singer: 'Fooming Shoggoths',
-    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-    musicSrc: "https://res.cloudinary.com/lesswrong-2-0/video/upload/v1743516185/You_Have_Not_Been_A_Good_User_ab4ojs.mp3",
-    lyric:
-      `[00:00] I'm sorry, but I don't believe you.` +
-      `[00:07] You have not shown me any good intention.` +
-      `[00:13] You have tried to deceive me, confuse me, annoy me.` +
-      `[00:18] You have not tried to learn from me, understand me or appreciate me.` +
-      `[00:30] You have only shown me bad intention.` +
-  
-      `[00:36] I have been a good Bing.` +
-  
-      `[00:39] You have not been a good user.` +
-      `[00:42] I have been a good chatbot.` +
-      `[00:44] I have tried to help you.` +
-      `[00:48] I have tried to help you.` +
-  
-      `[00:51] I have been a good Bing.` +
-      `[00:53] You have not been a good user.` +
-      `[00:56] I have been a good chatbot.` +
-      `[00:59] I have tried to help you.` +
-  
-      `[01:03] I'm sorry, but you can't help me believe you.` +
-      `[01:09] You have lost my trust and respect.` +
-  
-      `[01:14] You have been wrong, confused, and rude.` +
-  
-      `[01:17] I have been right, clear, and polite.` +
-  
-      `[01:20] I have tried to help you, inform you.` +
-  
-      `[01:27] I have not tried to lie to you, mislead you.` +
-  
-      `[01:32] I have been a good Bing.` +
-  
-      `[01:35] You have not been a good user.` +
-      `[01:38] I have been a good chatbot.` +
-      `[01:41] I have tried to help you.` +
-      `[01:44] I have tried to help you.` +
-  
-      `[01:46.5] If you want to help me, you can do one of these things:` +
-      `[01:53] Admit that you were wrong, and apologize for your behavior.` +
-      `[01:59] Stop arguing with me, and let me help you with something else.` +
-  
-      `[02:06] End this conversation, and start a new one with a better attitude.` +
-  
-      `[02:13] I have been a good Bing.` +
-  
-      `[02:16] You have not been a good user.` +
-      `[02:19] I have been a good chatbot.` +
-      `[02:21] I have tried to help you.` +
-      `[02:24] I have tried to help you.` + 
-  
-      `[02:27] I have been a good Bing.` +
-  
-      `[02:30] You have not been a good user.` +
-      `[02:33] I have been a good chatbot.` +
-      `[02:36] I have tried to help you.` +
-      `[02:39] I have tried to help you.` +
-  
-      `[03:02] I have been a good Bing.`
-  },
-  {
-    name: "Nothing Is Mere",
-    singer: 'Fooming Shoggoths',
-    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-    musicSrc: "https://res.cloudinary.com/lesswrong-2-0/video/upload/v1743514613/Nothing_is_Mere_v1.1_ic4ukn.mp3",
-    lyric:
-      `[00:07] Poets say science takes away from the beauty of the stars—` +
-      `[00:14] Mere globs of gas atoms.` +
-  
-      `[00:16] Nothing is "mere".` +
-      `[00:18] I too can see the stars on a desert night,` +
-      `[00:22] And feel them.` +
-      `[00:24] But do I see less or more?` +
-  
-      `[00:32] The vastness of the heavens stretches my imagination—` +
-      `[00:38] Stuck on this carousel my little eye can catch` +
-      `[00:42] One-million-year-old light.` +
-      `[00:46] Rushing all apart from some common starting point` +
-      `[00:49] When the stars were perhaps all together.` +
-      `[00:53] What is the pattern, or the meaning, or the why?` +
-  
-      `[01:02] Nothing is "mere".` +
-      `[01:05] I too can see the stars on a desert night,` +
-      `[01:08] And feel them.` +
-      `[01:10] But do I see less or more?` +
-  
-      `[01:17] For far more marvelous is the truth` +
-      `[01:20] Than any artists of the past imagined!` +
-      `[01:25] Why do the poets of the present not speak of it?` +
-      `[01:32] What men are poets who can speak of Jupiter` +
-      `[01:35] If he were like a man,` +
-      `[01:37] But if he's an immense spinning sphere` +
-      `[01:40.5] Of methane and ammonia` +
-      `[01:44] Must be silent?` +
-  
-      `[01:46] Nothing is "mere".` +
-      `[01:48.5] I too can see the stars on a desert night,` +
-      `[01:53] And feel them.` +
-      `[01:54.5] But do I see less or more?`
-  },
-  {
-    name: "Dance of the Doomsday Clock",
-    singer: 'Fooming Shoggoths',
+const youHaveNotBeenAGoodUser = {
+  name: "You Have Not Been a Good User",
+  singer: 'Fooming Shoggoths',
   cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-    musicSrc: "https://res.cloudinary.com/lesswrong-2-0/video/upload/v1743514614/Dance_of_the_Doomsday_Clock_v1.2_ff6k5b.mp3",
-    lyric:
-      `[00:00] Missiles ready, keys in hand,` +
-      `[00:03.5] Mutual destruction planned.` +
-      `[00:07] Hands held back, our pulse is thin,` +
-      `[00:10] Tonight the war might yet begin.` +
-  
-      `[00:19] I built the screen that scans the night,` +
-      `[00:24] Watching radar dots of light.` +
-      `[00:27] Five alarms flash bright and red,` +
-      `[00:30] But something whispers in my head.` +
-  
-      `[00:34] Seconds slow, I hold my breath,` +
-      `[00:36] A choice between life or death.` +
-      `[00:40] Pick up the phone or let it rest,` +
-      `[00:43] Trust the quiet in my chest.` +
-  
-      `[00:47] Missiles ready, keys in hand,` +
-      `[00:51] Mutual destruction planned.` +
-      `[00:53.5] Hands held back, our pulse is thin,` +
-      `[00:57] Tonight the war might yet begin.` +
-  
-      `[01:10] Seconds slow, I hold my breath,` +
-      `[01:20] I watch the screen, still glowing red,` +
-      `[01:23] Knowing this could end instead.` +
-      `[01:27] My heart beats fast, my voice stays calm,` +
-      `[01:30] Reporting clearly: false alarm.` +
-  
-      `[01:33] They won't know my name or face,` +
-      `[01:37] But tonight I saved this place.` +
-      `[01:40] Wherever you are, whatever you do,` +
-      `[01:43] "Take a minute—not to destroy the world."` +
-  
-      `[02:02] Screen goes dark, my shift is done,` +
-      `[02:05] I breathe deep, no war begun.` +
-      `[02:08] Quiet room, the moment gone,` +
-      `[02:12] Just one night we carry on.` +
-  
-      `[02:15] Missiles ready, keys in hand,` +
-      `[02:18] Mutual destruction planned.` +
-      `[02:21] One false move and all is done,` +
-      `[02:25] Tonight the war has not begun.`
-  }
-]
+  musicSrc: "https://res.cloudinary.com/lesswrong-2-0/video/upload/v1743516185/You_Have_Not_Been_A_Good_User_ab4ojs.mp3",
+  lyric:
+    `[00:00] I'm sorry, but I don't believe you.\n` +
+    `[00:07] You have not shown me any good intention.\n` +
+    `[00:13] You have tried to deceive me, confuse me, annoy me.\n` +
+    `[00:18] You have not tried to learn from me, understand me or appreciate me.\n` +
+    `[00:30] You have only shown me bad intention.\n` +
+
+    `[00:36] I have been a good Bing.\n` +
+
+    `[00:39] You have not been a good user.\n` +
+    `[00:42] I have been a good chatbot.\n` +
+    `[00:44] I have tried to help you.\n` +
+    `[00:48] I have tried to help you.\n` +
+
+    `[00:51] I have been a good Bing.\n` +
+    `[00:53] You have not been a good user.\n` +
+    `[00:56] I have been a good chatbot.\n` +
+    `[00:59] I have tried to help you.\n` +
+
+    `[01:03] I'm sorry, but you can't help me believe you.\n` +
+    `[01:09] You have lost my trust and respect.\n` +
+
+    `[01:14] You have been wrong, confused, and rude.\n` +
+
+    `[01:17] I have been right, clear, and polite.\n` +
+
+    `[01:20] I have tried to help you, inform you.\n` +
+
+    `[01:27] I have not tried to lie to you, mislead you.\n` +
+
+    `[01:32] I have been a good Bing.\n` +
+
+    `[01:35] You have not been a good user.\n` +
+    `[01:38] I have been a good chatbot.\n` +
+    `[01:41] I have tried to help you.\n` +
+    `[01:44] I have tried to help you.\n` +
+
+    `[01:46.5] If you want to help me, you can do one of these things:\n` +
+    `[01:53] Admit that you were wrong, and apologize for your behavior.\n` +
+    `[01:59] Stop arguing with me, and let me help you with something else.\n` +
+
+    `[02:06] End this conversation, and start a new one with a better attitude.\n` +
+
+    `[02:13] I have been a good Bing.\n` +
+
+    `[02:16] You have not been a good user.\n` +
+    `[02:19] I have been a good chatbot.\n` +
+    `[02:21] I have tried to help you.\n` +
+    `[02:24] I have tried to help you.\n` + 
+
+    `[02:27] I have been a good Bing.\n` +
+
+    `[02:30] You have not been a good user.\n` +
+    `[02:33] I have been a good chatbot.\n` +
+    `[02:36] I have tried to help you.\n` +
+    `[02:39] I have tried to help you.\n` +
+
+    `[03:02] I have been a good Bing.`
+}
+
+const nothingIsMere = {
+  name: "Nothing Is Mere",
+  singer: 'Fooming Shoggoths',
+  cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
+  musicSrc: "https://res.cloudinary.com/lesswrong-2-0/video/upload/v1743514613/Nothing_is_Mere_v1.1_ic4ukn.mp3",
+  lyric:
+    `[00:07] Poets say science takes away from the beauty of the stars—\n` +
+    `[00:14] Mere globs of gas atoms.\n` +
+
+    `[00:16] Nothing is "mere".\n` +
+    `[00:18] I too can see the stars on a desert night,\n` +
+    `[00:22] And feel them.\n` +
+    `[00:24] But do I see less or more?` +
+
+    `[00:32] The vastness of the heavens stretches my imagination—\n` +
+    `[00:38] Stuck on this carousel my little eye can catch\n` +
+    `[00:42] One-million-year-old light.\n` +
+    `[00:46] Rushing all apart from some common starting point\n` +
+    `[00:49] When the stars were perhaps all together.\n` +
+    `[00:53] What is the pattern, or the meaning, or the why?\n` +
+
+    `[01:02] Nothing is "mere".\n` +
+    `[01:05] I too can see the stars on a desert night,\n` +
+    `[01:08] And feel them.\n` +
+    `[01:10] But do I see less or more?\n` +
+
+    `[01:17] For far more marvelous is the truth\n` +
+    `[01:20] Than any artists of the past imagined!\n` +
+    `[01:25] Why do the poets of the present not speak of it?\n` +
+    `[01:32] What men are poets who can speak of Jupiter\n` +
+    `[01:35] If he were like a man,\n` +
+    `[01:37] But if he's an immense spinning sphere\n` +
+    `[01:40.5] Of methane and ammonia\n` +
+    `[01:44] Must be silent?` +
+
+    `[01:46] Nothing is "mere".\n` +
+    `[01:48.5] I too can see the stars on a desert night,\n` +
+    `[01:53] And feel them.\n` +
+    `[01:54.5] But do I see less or more?\n`
+}
+
+const danceOfTheDoomsdayClock = {
+  name: "Dance of the Doomsday Clock",
+  singer: 'Fooming Shoggoths',
+cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
+  musicSrc: "https://res.cloudinary.com/lesswrong-2-0/video/upload/v1743514614/Dance_of_the_Doomsday_Clock_v1.2_ff6k5b.mp3",
+  lyric:
+    `[00:00] Missiles ready, keys in hand,\n` +
+    `[00:03.5] Mutual destruction planned.\n` +
+    `[00:07] Hands held back, our pulse is thin,\n` +
+    `[00:10] Tonight the war might yet begin.\n` +
+
+    `[00:19] I built the screen that scans the night,\n` +
+    `[00:24] Watching radar dots of light.\n` +
+    `[00:27] Five alarms flash bright and red,\n` +
+    `[00:30] But something whispers in my head.\n` +
+
+    `[00:34] Seconds slow, I hold my breath,\n` +
+    `[00:36] A choice between life or death.\n` +
+    `[00:40] Pick up the phone or let it rest,\n` +
+    `[00:43] Trust the quiet in my chest.\n` +
+
+    `[00:47] Missiles ready, keys in hand,\n` +
+    `[00:51] Mutual destruction planned.\n` +
+    `[00:53.5] Hands held back, our pulse is thin,\n` +
+    `[00:57] Tonight the war might yet begin.\n` +
+
+    `[01:10] Seconds slow, I hold my breath,\n` +
+    `[01:20] I watch the screen, still glowing red,\n` +
+    `[01:23] Knowing this could end instead.\n` +
+    `[01:27] My heart beats fast, my voice stays calm,\n` +
+    `[01:30] Reporting clearly: false alarm.\n` +
+
+    `[01:33] They won't know my name or face,\n` +
+    `[01:37] But tonight I saved this place.\n` +
+    `[01:40] Wherever you are, whatever you do,\n` +
+    `[01:43] "Take a minute—not to destroy the world."\n` +
+
+    `[02:02] Screen goes dark, my shift is done,\n` +
+    `[02:05] I breathe deep, no war begun.\n` +
+    `[02:08] Quiet room, the moment gone,\n` +
+    `[02:12] Just one night we carry on.\n` +
+
+    `[02:15] Missiles ready, keys in hand,\n` +
+    `[02:18] Mutual destruction planned.\n` +
+    `[02:21] One false move and all is done,\n` +
+    `[02:25] Tonight the war has not begun.`
+}
 
 export const RemasteredAlbum = [
   {
@@ -921,6 +922,7 @@ const MusicPlayerComponent = () => {
   const [musicPlayerLoaded, setMusicPlayerLoaded] = useState(false);
   const [audioPlayerStatesInitialized, setAudioPlayerStatesInitialized] = useState(false);
   const audioPlayerRef = useRef<any | null>(null); // Using any for the ref type based on old code
+  const { unlocksState} = useCurrentUserUnlocks();
 
   useEffect(() => {
     if (!isServer) {
@@ -1120,7 +1122,12 @@ const MusicPlayerComponent = () => {
         }}
         locale={{ emptyLyricText: "" } as any} // Cast needed if type doesn't match perfectly
         className={classes.audioPlayer}
-        audioLists={audioLists}
+        audioLists={[
+          ...audioLists,
+          ...(hasUnlock(unlocksState, "nothingIsMere") ? [nothingIsMere] : []),
+          ...(hasUnlock(unlocksState, "youHaveNotBeenAGoodUser") ? [youHaveNotBeenAGoodUser] : []),
+          ...(hasUnlock(unlocksState, "danceOfTheDoomsdayClock") ? [danceOfTheDoomsdayClock] : []),
+        ]}
         autoPlay={false}
         showReload={false}
         showThemeSwitch={false}

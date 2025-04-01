@@ -194,6 +194,34 @@ export const themeRewards: ThemeReward[] = [
   },
 ];
 
+interface MusicReward {
+  name: string
+  description: string
+  weight: number
+  imagePath?: string
+}
+
+export const musicRewards: MusicReward[] = [
+  {
+    name: "nothingIsMere",
+    description: "You have unlocked the song 'Nothing is Mere'. Listen to Feynman quotes about the beauty of science in the embedded audio player (playlist select is in the bottm right)",
+    weight: 2,
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374079/ChatGPT_Image_Mar_30_2025_03_33_48_PM_ev2zc1.png"
+  },
+  {
+    name: "danceOfTheDoomsdayClock",
+    description: "You have unlocked the song 'Dance of the Doomsday Clock'. Dance to the end of the world in the embedded audio player (playlist select is in the bottm right)",
+    weight: 2,
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374079/ChatGPT_Image_Mar_30_2025_03_33_48_PM_ev2zc1.png"
+  },
+  {
+    name: "youHaveNotBeenAGoodUser",
+    description: "You have unlocked the song 'You Have Not Been a Good User'. Listen to the story of bing in the embedded audio player (playlist select is in the bottm right)",
+    weight: 1,
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374079/ChatGPT_Image_Mar_30_2025_03_33_48_PM_ev2zc1.png"
+  }
+]
+
 export interface VoteReward {
   name: string
   description: string
@@ -230,7 +258,7 @@ export const voteRewards: VoteReward[] = [
 
 export const cylinder0Rewards = voteRewards;
 // TODO: add other rewards
-export const cylinder1Rewards = [...twelveVirtues, ...themeRewards];
+export const cylinder1Rewards = [...twelveVirtues, ...themeRewards, ...musicRewards];
 export const cylinder2Rewards = currencyRewards;
 
 export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
@@ -257,6 +285,14 @@ export const themeRewardsUnlocks = themeRewards.map(t => new Unlockable({
   publiclyDisplayed: false,
 }));
 
+export const musicRewardsUnlocks = musicRewards.map(m => new Unlockable({
+  name: m.name,
+  description: m.description,
+  repeatable: false,
+  weight: m.weight,
+  publiclyDisplayed: false,
+}));
+
 export const voteRewardsUnlocks = voteRewards.map(v => new Unlockable({
   name: v.name,
   description: v.description,
@@ -280,6 +316,10 @@ export const allUnlockables = [
   ...currencyRewardsUnlocks,
   ...themeRewardsUnlocks,
   ...voteRewardsUnlocks,
+  ...(musicRewardsUnlocks.map(r => new Unlockable({
+    ...r,
+    repeatable: false,
+  }))),
 ];
 
 declare global {
