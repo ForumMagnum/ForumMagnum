@@ -329,7 +329,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
 
   // Primary "unique" rewards
   const cylinder1ImageUrls = ([
-    ...filterNonnull(twelveVirtues.map(virtue => virtue.imagePath)),
+    ...filterNonnull(twelveVirtues.map(virtue => virtue.imagePath!.replace('c_scale,w_64,h_64', 'c_scale,w_64,h_64/a_180/a_hflip/'))),
     // Add other stuff
   ]);
 
