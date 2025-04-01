@@ -160,6 +160,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
     LessWrong: {
       header: {
         background: 'rgba(50,50,50,.75)',
+        text: '#999',
       },
       background: {
         translucentBackgroundHeavy: "rgba(0,0,0,.75)",
