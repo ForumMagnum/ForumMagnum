@@ -64,7 +64,7 @@ addStaticRoute('/loot-webhook', async (props, req, res) => {
       if (checkoutSessions.data.length === 0 || charges.data.length === 0) {
         // No checkouts or charges found; shouldn't happen in practice?
         // eslint-disable-next-line no-console
-        console.log('No checkouts or charges found; shouldn\'t happen in practice?');
+        console.log(`No checkouts or charges found; shouldn't happen in practice? Payment intent ID: ${paymentIntentId}`);
         res.statusCode = 200;
         res.end('Okay');
         return;
@@ -77,7 +77,7 @@ addStaticRoute('/loot-webhook', async (props, req, res) => {
         // TODO: do we need to refund here or something?
         // No metadata found; again, shouldn't happen in practice?
         // eslint-disable-next-line no-console
-        console.log('No metadata found; again, shouldn\'t happen in practice?');
+        console.log(`No metadata found; again, shouldn't happen in practice?  Session ID: ${checkoutSession.id}, payment intent ID: ${paymentIntentId}`);
         res.statusCode = 200;
         res.end('Okay');
         return;
@@ -88,7 +88,7 @@ addStaticRoute('/loot-webhook', async (props, req, res) => {
         // TODO: do we need to refund here or something?
         // No user ID found; again, shouldn't happen in practice?
         // eslint-disable-next-line no-console
-        console.log('No user ID found; again, shouldn\'t happen in practice?'); 
+        console.log(`No user ID found; again, shouldn't happen in practice?  Session ID: ${checkoutSession.id}, payment intent ID: ${paymentIntentId}`); 
         res.statusCode = 200;
         res.end('Okay');
         return;

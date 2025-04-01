@@ -11,9 +11,9 @@ import { getSqlClientOrThrow } from "../sql/sqlClient";
  * Translates a mongo find query to SQL for debugging purposes.  Requires a server running because the query builder uses collections, etc.
  * Exported to allow running manually with "yarn repl"
  */
-export const findToSQL = ({ tableName, selector, options }: { tableName: CollectionNameString, selector: AnyBecauseTodo, options?: MongoFindOptions<DbObject> }) => {
+export const findToSQL = <N extends CollectionNameString>({ tableName, selector, options }: { tableName: N, selector: AnyBecauseTodo, options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
   const table = Table.fromCollection(getCollection(tableName));
-  const select = new SelectQuery<DbObject>(table, selector, options);
+  const select = new SelectQuery<ObjectsByCollectionName[N]>(table, selector, options);
   const { sql, args } = select.compile();
   // eslint-disable-next-line no-console
   console.log({ sql, args });

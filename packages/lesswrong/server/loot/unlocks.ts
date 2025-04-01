@@ -82,12 +82,16 @@ export async function purchasePicoLightcones(userId: string, amount: number, con
   await modifyUnlocksState({
     userId, context,
     stateTransform: (oldState) => {
+      // eslint-disable-next-line no-console
+      console.log(`User ${userId} purchased ${amount} pico-lightcones, bringing their total to ${oldState.picoLightcones + amount}`);
       return {
         ...oldState,
         picoLightcones: oldState.picoLightcones + amount,
       };
     }
   });
+  // eslint-disable-next-line no-console
+  console.log(`User ${userId} pico-lightcones purchase complete`);
 }
 
 function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { result: T, index: number } {
