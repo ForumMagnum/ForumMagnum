@@ -205,27 +205,28 @@ export const updateSpotlightUrlsAndPostCustomHighlights = async () => {
 
   const currentUser = createAdminContext().currentUser
 
-  for (const [i, spotlight] of spotlights.entries()) {
+  await Promise.all(spotlights.map(async (spotlight, i) => {
     // eslint-disable-next-line no-console
     console.log(spotlight._id, i)
     const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === spotlight.documentId);
     const category = reviewWinner?.reviewWinner.category
     const year = reviewWinner?.reviewWinner.reviewYear
 
-    await updateMutator({
-      collection: Spotlights,
-      documentId: spotlight._id,
-      set: {subtitleUrl: `/bestoflesswrong?year=${year}&category=${category}`},
-      validate: false,
-      currentUser
-    })
-
-    await updateMutator({
-      collection: Posts,
-      documentId: spotlight.documentId,
-      set: {customHighlight: spotlight.description},
-      validate: false,
-      currentUser
-    })
-  }
+    await Promise.all([
+      updateMutator({
+        collection: Spotlights,
+        documentId: spotlight._id,
+        set: {subtitleUrl: `/bestoflesswrong?year=${year}&category=${category}`},
+        validate: false,
+        currentUser
+      }),
+      updateMutator({
+        collection: Posts,
+        documentId: spotlight.documentId,
+        set: {customHighlight: spotlight.description},
+        validate: false,
+        currentUser
+      })
+    ]);
+  }));
 }

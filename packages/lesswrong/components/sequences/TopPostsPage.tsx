@@ -1011,10 +1011,6 @@ const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates
   } = splashCoordinates;
   const newXPct = Math.min(1, Math.max(0, xPct - (widthPct * leftBookOffset)));
   const newWidthPct = Math.min(1, Math.max(0, widthPct * 3)); // this will break the url if it goes above 1, but it shouldn't
-  if (url === 'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto,a_hflip/v1/mirroredImages/Basics%20of%20Rationalist%20Discourse_a_balanced_stone_stack_with_one__0.147079568404606/dnevqbpcjglh3bfzywcj') {
-    console.log('newWidthPct', newWidthPct);
-    console.log('widthPct', widthPct);
-  }
 
   // According to https://cloudinary.com/documentation/responsive_server_side_client_hints#automatic_pixel_density_detection,
   // "Setting a value of dpr_1.0 is treated the same way as dpr_auto and will also be replaced with the device's DPR.
