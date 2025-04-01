@@ -12,11 +12,11 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
   },
   backgroundImageWrapper: {
     position: 'fixed',
-    width: 'calc(100vw + 200px)',
+    width: 'calc(100vw + 400px)',
     top: -100,
     right: -200,
-    [theme.breakpoints.down('xs')]: {
-      top: -260,
+    [theme.breakpoints.down('sm')]: {
+      top: -220,
       right: 0,
     },
   },
@@ -28,7 +28,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     right: 0,
     height: "100vh",
     width: "100vw",
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       objectPosition: 'center',
       width: '200vw',
     },
@@ -46,6 +46,10 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     [theme.breakpoints.up('lg')]: {
       width: '100vw',
     },
+    [theme.breakpoints.down('sm')]: {
+      width: 'calc(100vw + 200px)',
+      background: `linear-gradient(180deg, ${theme.palette.panelBackground.default} 0px, ${theme.palette.panelBackground.translucent} 300px,  transparent 45%, ${theme.palette.panelBackground.default} 87%)`,
+    },
   },
   overlayX: {
     position: 'absolute',
@@ -55,7 +59,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     height: '100vh',
     background: `linear-gradient(-90deg, transparent 48%, ${theme.palette.panelBackground.default} 95%)`,
     pointerEvents: 'none',
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none',
     }
   },
@@ -67,7 +71,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     height: '100vh',
     background: `linear-gradient(225deg, transparent 48%, ${theme.palette.panelBackground.default} 95%)`,
     pointerEvents: 'none', 
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none',
     }
   }

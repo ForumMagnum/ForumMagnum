@@ -62,6 +62,10 @@ const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
     '& h2': {
       marginTop: 10,
       marginBottom: 0,
+      position: 'sticky',
+      top: 0,
+      zIndex: theme.zIndexes.bestOfLessWrongAdminHeader,
+      backgroundColor: theme.palette.background.default,
     }
   },
   post: {
