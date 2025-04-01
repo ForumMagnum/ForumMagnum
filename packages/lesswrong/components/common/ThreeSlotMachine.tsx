@@ -1,3 +1,5 @@
+/* eslint-disable no-mixed-operators */
+/* eslint-disable no-console */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 

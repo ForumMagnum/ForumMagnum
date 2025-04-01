@@ -163,6 +163,7 @@
     "@types/sanitize-html": "^2.11.0",
     "@types/simpl-schema": "^1.10.4",
     "@types/speakingurl": "^13.0.2",
+    "@types/three": "^0.175.0",
     "@types/turndown": "^5.0.0",
     "@types/underscore": "1.9.4",
     "@types/uuid": "^7.0.2",
