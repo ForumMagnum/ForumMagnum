@@ -271,10 +271,10 @@ export const resolvers = {
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
+    ...unlockablesGraphQLMutations,
   },
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
-  ...unlockablesGraphQLMutations,
 }
 
 

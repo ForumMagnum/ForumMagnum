@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useDialog } from '../common/withDialog';
 
@@ -62,12 +61,4 @@ const ConvertLWBucksButton = () => {
   </button>
 }
 
-const ConvertLWBucksButtonComponent = registerComponent('ConvertLWBucksButton', ConvertLWBucksButton);
-
-export default ConvertLWBucksButtonComponent;
-
-declare global {
-  interface ComponentTypes {
-    ConvertLWBucksButton: typeof ConvertLWBucksButtonComponent
-  }
-}
+export default ConvertLWBucksButton;

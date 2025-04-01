@@ -57,12 +57,4 @@ const BuyButton = () => {
   return <button className={classes.root} onClick={handleClick}>Buy PicoLightcones!</button>
 }
 
-const BuyButtonComponent = registerComponent('BuyButton', BuyButton);
-
-export default BuyButtonComponent;
-
-declare global {
-  interface ComponentTypes {
-    BuyButton: typeof BuyButtonComponent
-  }
-}
+export default BuyButton;

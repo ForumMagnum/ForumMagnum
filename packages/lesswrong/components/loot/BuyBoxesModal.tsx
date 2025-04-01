@@ -1,12 +1,10 @@
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import React from "react";
+import React, { useState } from "react";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useCurrentUserUnlocks } from "@/lib/loot/unlocks";
+import { PREMIUM_BOX_COST, REGULAR_BOX_COST, useCurrentUserUnlocks } from "@/lib/loot/unlocks";
 import classNames from 'classnames';
+import { gql, useMutation } from "@apollo/client";
 
-// Define placeholder costs - replace with actual values
-const REGULAR_BOX_COST = 100;
-const PREMIUM_BOX_COST = 500;
 
 const styles = defineStyles('BuyBoxesModal', (theme: ThemeType) => ({
   modal: {
@@ -120,30 +118,43 @@ const styles = defineStyles('BuyBoxesModal', (theme: ThemeType) => ({
   }
 }));
 
-const BuyBoxesModal = ({
-  onClose,
-}: {
-  onClose?: () => void;
-}) => {
-  const { LWDialog } = Components;
+const BuyBoxesModal = ({ onClose }: { onClose?: () => void; }) => {
+  const { LWDialog, Loading } = Components;
   const classes = useStyles(styles);
-  const currentUserUnlocks = useCurrentUserUnlocks();
+  const { unlocksState, refetch } = useCurrentUserUnlocks();
+  const [currentPurchasingTransaction, setCurrentPurchasingTransaction] = useState<'regular' | 'premium' | null>(null);
 
-  const userLwBucks = currentUserUnlocks.unlocksState.lwBucks;
+  const userLwBucks = unlocksState.lwBucks;
+
+  const [buyLootBox, {loading, error}] = useMutation(gql`
+    mutation BuyLootBox($boxType: String!) {
+      BuyLootBox(boxType: $boxType)
+    }
+  `);
+
+  async function handleBuyBox(boxType: 'regular' | 'premium') {
+    setCurrentPurchasingTransaction(boxType);
+    await buyLootBox({
+      variables: {
+        boxType,
+      },
+    });
+    await refetch();
+    setCurrentPurchasingTransaction(null);
+  }
 
   // Placeholder functions for purchase logic
-  const handleBuyRegular = () => {
+  const handleBuyRegular = async () => {
     console.log(`Attempting to buy Regular Box for ${REGULAR_BOX_COST} LW Bucks`);
-    // TODO: Implement actual purchase logic (e.g., call a mutation)
-    // Consider disabling button if userLwBucks < REGULAR_BOX_COST
+    await handleBuyBox('regular');
+
     // Close modal on success? Or show confirmation?
     // onClose?.();
   };
 
-  const handleBuyPremium = () => {
+  const handleBuyPremium = async () => {
     console.log(`Attempting to buy Premium Box for ${PREMIUM_BOX_COST} LW Bucks`);
-    // TODO: Implement actual purchase logic
-    // Consider disabling button if userLwBucks < PREMIUM_BOX_COST
+    await handleBuyBox('premium');
     // onClose?.();
   };
 
@@ -165,25 +176,27 @@ const BuyBoxesModal = ({
         <div className={classes.boxOption}>
           <div className={classes.boxName}>Regular Box</div>
           <div className={classes.boxCost}>Cost: {REGULAR_BOX_COST} LW Bucks</div>
-          <button
+          {currentPurchasingTransaction === 'regular' && <Loading/>}
+          {currentPurchasingTransaction !== 'regular' && <button
             className={classNames(classes.pixelButton, classes.buyButton)}
             onClick={handleBuyRegular}
-            disabled={userLwBucks < REGULAR_BOX_COST}
+            disabled={userLwBucks < REGULAR_BOX_COST || !!currentPurchasingTransaction}
           >
             Buy Regular
-          </button>
+          </button>}
         </div>
 
         <div className={classes.boxOption}>
           <div className={classes.boxName}>Premium Box</div>
           <div className={classes.boxCost}>Cost: {PREMIUM_BOX_COST} LW Bucks</div>
-          <button
+          {currentPurchasingTransaction === 'premium' && <Loading/>}
+          {currentPurchasingTransaction !== 'premium' && <button
             className={classNames(classes.pixelButton, classes.buyButton)}
             onClick={handleBuyPremium}
-            disabled={userLwBucks < PREMIUM_BOX_COST}
+            disabled={userLwBucks < PREMIUM_BOX_COST || !!currentPurchasingTransaction}
           >
             Buy Premium
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -199,7 +212,8 @@ const BuyBoxesModal = ({
   );
 };
 
-const BuyBoxesModalComponent = registerComponent("BuyBoxesModal", BuyBoxesModal);
+// This is needed because `useDialog` pulls things out of the components map.
+const BuyBoxesModalComponent = registerComponent('BuyBoxesModal', BuyBoxesModal);
 
 declare global {
   interface ComponentTypes {
@@ -207,4 +221,3 @@ declare global {
   }
 }
 
-export default BuyBoxesModalComponent;

@@ -2,6 +2,9 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { gql, useQuery } from "@apollo/client"
 import { Components } from "../vulcan-lib/components"
 
+export const REGULAR_BOX_COST = 100;
+export const PREMIUM_BOX_COST = 500;
+
 export class Unlockable {
   name: string
   description: string
@@ -47,6 +50,8 @@ declare global {
     unlocks: Record<string,number>
     spinsPerformed: number
     spinsRemaining: number
+    premiumSpinsPerformed: number
+    premiumSpinsRemaining: number
     cooldownEndsAt: number
     lwBucks: number
     picoLightcones: number
@@ -57,6 +62,8 @@ export const defaultUserUnlockablesState: UserUnlockablesState = {
   unlocks: {},
   spinsPerformed: 0,
   spinsRemaining: 1,
+  premiumSpinsPerformed: 0,
+  premiumSpinsRemaining: 0,
   cooldownEndsAt: 0,
   lwBucks: 0,
   picoLightcones: 0,
