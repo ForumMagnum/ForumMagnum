@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
     textOverflow: "ellipsis",
   },
   menuHover: {
-    zIndex: 1000
+    zIndex: 1300
   }
 })
 
