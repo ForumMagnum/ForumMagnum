@@ -209,21 +209,13 @@ async function fetchUnlockableState(userId: string|null, clientId: string|null, 
   }
   
   // Find unlockable inventories associated with this userId *or* client ID
-  const relevantUnlockableStates = await Unlockables.find({
-    $or: [
-      ...(userId ? [{ userId, }] : []),
-      ...(clientId ? [{ clientId, }] : []),
-    ]
-  }, {}).fetch();
+  const relevantUnlockableStates = userId
+    ? await Unlockables.find({userId}, {sort: {createdAt: -1}}).fetch()
+    : await Unlockables.find({clientId}, {sort: {createdAt: -1}}).fetch();
   
   // TODO: Better handling for the case where we find more than one result (eg, a user does some spins logged out on one device, and some spins logged in on another device, then logs in).
   if (relevantUnlockableStates.length > 0) {
-    const inventoriesWithUserId = relevantUnlockableStates.filter(u => !!u.userId)
-    if (inventoriesWithUserId.length > 0) {
-      return inventoriesWithUserId[0];
-    } else {
-      return relevantUnlockableStates[0];
-    }
+    return relevantUnlockableStates[0];
   }
 
   const convertedLwBucks = context.currentUser
