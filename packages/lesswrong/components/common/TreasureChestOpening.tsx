@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import ThreeSlotMachine from './ThreeSlotMachine';
 import { useDialog } from './withDialog';
 import { useMutation, gql } from '@apollo/client';
-import { useCurrentUserUnlocks } from '@/lib/loot/unlocks';
+import { cylinder0Rewards, cylinder1Rewards, cylinder2Rewards, useCurrentUserUnlocks } from '@/lib/loot/unlocks';
 import { useMessages } from './withMessages';
 
 const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
@@ -64,6 +64,93 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
         cursor: 'not-allowed'
     }
   },
+  prizeDisplay: {
+    position: 'absolute',
+    bottom: '5%',
+    left: '0',
+    right: '0',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '15px',
+    animation: '$slideIn 0.5s ease-out',
+    maxWidth: '80%',
+    margin: '0 auto'
+  },
+  prizeTitle: {
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#FFD700',
+    textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+    marginBottom: '10px'
+  },
+  prizeItem: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: '10px',
+    padding: '15px 20px',
+    marginBottom: '8px',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: '500px',
+    border: '2px solid #FFD700',
+    transition: 'transform 0.2s ease',
+    '&:hover': {
+      transform: 'scale(1.02)',
+      boxShadow: '0 6px 12px rgba(0,0,0,0.3)',
+    }
+  },
+  dismissButton: {
+    marginTop: '15px',
+    padding: '8px 20px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    backgroundColor: '#FFD700',
+    color: '#333',
+    border: 'none',
+    borderRadius: '20px',
+    cursor: 'pointer',
+    boxShadow: '0 3px 6px rgba(0,0,0,0.2)',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      backgroundColor: '#F0C419',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 5px 8px rgba(0,0,0,0.3)',
+    }
+  },
+  prizeIcon: {
+    width: '32px',
+    height: '32px',
+    marginRight: '15px',
+    objectFit: 'contain'
+  },
+  prizeText: {
+    flex: 1,
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'left'
+  },
+  buttonsContainer: {
+    position: 'absolute',
+    right: '-20px',
+    bottom: '0px',
+    display: 'flex',
+    flexDirection: 'column',
+    zIndex: 10
+  },
+  lwBuxButton: {
+    width: '170px',
+    cursor: 'pointer',
+    marginBottom: '-72px'
+  },
+  lightconesButton: {
+    width: '170px',
+    cursor: 'pointer',
+  },
   "@keyframes slideIn": {
     from: {
       opacity: 0,
@@ -75,6 +162,14 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
     }
   }
 }))
+
+// Prize category icons mapping
+const prizeIcons = {
+  audio: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/audio-icon.png",
+  voting: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/voting-icon.png",
+  theme: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/theme-icon.png",
+  default: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/prize-icon.png"
+};
 
 const prizeTextureUrls = [
   "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.png",
@@ -89,6 +184,7 @@ const TreasureChestOpening = () => {
   const [winningItemIndices, setWinningItemIndices] = useState<number[]>([0, 0, 0]);
   const [triggerSpin, setTriggerSpin] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [showRewards, setShowRewards] = useState(true);
 
   const { flash } = useMessages();
 
@@ -116,6 +212,11 @@ const TreasureChestOpening = () => {
     setTriggerSpin(false);
     setIsSpinning(false);
     setWinningItemIndices([0, 0, 0]);
+    setShowRewards(true);
+  };
+
+  const dismissRewards = () => {
+    setShowRewards(false);
   };
 
   const handleChestClick = () => {
@@ -124,6 +225,7 @@ const TreasureChestOpening = () => {
     setTriggerSpin(false);
     setIsSpinning(false);
     setIsOpened(true);
+    setShowRewards(true);
   };
 
   const fetchWinningIndices = async (): Promise<number[]> => {
@@ -132,45 +234,34 @@ const TreasureChestOpening = () => {
     return indices;
   };
 
-  const handleTriggerSpin = async () => {
+  const handleSpin = async (paymentMethod: string) => {
     if (isSpinning) return;
 
-    console.log("Handle Trigger Spin called");
+    console.log(`Spinning with ${paymentMethod}`);
     setIsSpinning(true);
     setTriggerSpin(false);
     setSpinComplete(false);
+    setShowRewards(true);
 
     try {
-      const indices = await fetchWinningIndices();
+      const indices = await fetchWinningIndices(paymentMethod);
       console.log("Setting winningItemIndices to", indices);
       setWinningItemIndices(indices);
       console.log("Setting triggerSpin to true to start animation");
       setTriggerSpin(true);
     } catch (error) {
-      console.error("Failed to fetch winning indices:", error);
+      console.error(`Failed to fetch winning indices using ${paymentMethod}:`, error);
       setIsSpinning(false);
     }
   };
 
-  const handleBackgroundClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const container = event.currentTarget;
-    const rect = container.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-
-    if (clickX >= rect.width * 0.75) {
-      console.log("Lever area clicked!");
-      void handleTriggerSpin();
-    } else {
-      console.log("Clicked outside lever area.");
-    }
-  };
-
   const handleSpinComplete = useCallback(() => {
-    console.log("Parent received spin complete");
+    console.log("Parent received spin complete", winningItemIndices);
     setSpinComplete(true);
     setIsSpinning(false);
+    
     void refetch();
-  }, [refetch]);
+  }, [refetch, winningItemIndices]);
 
   return <>
     <FrontPageTreasureChest onClickChest={handleChestClick} />
@@ -207,7 +298,7 @@ const TreasureChestOpening = () => {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className={classes.modalContentContainer} onClick={handleBackgroundClick}>
+          <div className={classes.modalContentContainer}>
              <div className={classes.slotMachineContainer}>
                  <ThreeSlotMachine
                    textureUrls={prizeTextureUrls}
@@ -215,6 +306,46 @@ const TreasureChestOpening = () => {
                    startSpin={triggerSpin}
                    onSpinComplete={handleSpinComplete}
                  />
+             </div>
+             
+             {spinComplete && winningItemIndices.length > 0 && showRewards && (
+               <div className={classes.prizeDisplay}>
+                 <div className={classes.prizeTitle}>Your Rewards!</div>
+                 {winningItemIndices.map((index, i) => {
+                   const prize = i === 0 ? cylinder0Rewards[index] : i === 1 ? cylinder1Rewards[index] : cylinder2Rewards[index];
+                   return (
+                     <div key={i} className={classes.prizeItem}>
+                       <img 
+                         src={prize.imagePath} 
+                         alt="Prize icon" 
+                         className={classes.prizeIcon} 
+                       />
+                       <div className={classes.prizeText}>
+                         {(prize as any).longDescription || (prize as any).description}
+                       </div>
+                     </div>
+                   );
+                 })}
+                 <button 
+                   className={classes.dismissButton}
+                   onClick={dismissRewards}
+                 >
+                   Dismiss Rewards
+                 </button>
+               </div>
+             )}
+             
+             <div className={classes.buttonsContainer}>
+               <img 
+                 className={classes.lwBuxButton} 
+                 src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497863/loot/ChatGPT_Image_Apr_1_2025_01_57_32_AM.png"
+                 onClick={() => handleSpin("lwBucks")}
+               />
+               <img 
+                 className={classes.lightconesButton} 
+                 src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497984/loot/ChatGPT_Image_Apr_1_2025_01_59_33_AM.png"
+                 onClick={() => handleSpin("picoLightcones")}
+               />
              </div>
           </div>
 

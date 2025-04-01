@@ -287,7 +287,7 @@ export const unlockablesGraphQLMutations = {
     const clientId = context.clientId!;
 
     const paymentMethod = args.paymentMethod;
-    if (!validPaymentMethods.has(paymentMethod) || (!userId && paymentMethod === "picoLightcones")) {
+    if (!validPaymentMethods.has(paymentMethod)) {
       throw new Error(`Invalid payment method: ${paymentMethod}`);
     }
 
