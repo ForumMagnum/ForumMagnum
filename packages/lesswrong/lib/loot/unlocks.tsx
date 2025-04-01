@@ -69,7 +69,7 @@ export const twelveVirtues: VirtueOfRationality[] = [
   {
     name: "empiricism",
     shortDescription: "The Virtue of Empiricism",
-    longDescription: <p>Figuring out the optimal strategy for getting LessWrong Lootboxes requires experimentation. Lots of experimentation. You need a big sample size. An <i>exensive</i> sample size.</p>
+    longDescription: <p>Figuring out the optimal strategy for getting LessWrong Lootboxes requires experimentation. Lots of experimentation. You need a big sample size. An <i>expensive</i> sample size.</p>
   },
   {
     name: "simplicity",
