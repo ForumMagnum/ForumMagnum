@@ -238,6 +238,41 @@ const TreasureChestOpening = () => {
             transition: 'opacity 500ms ease-in-out'
           }}
         />
+        <img
+          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475039/ChatGPT_Image_Mar_31_2025_07_37_03_PM_hoxzyq.png"
+          style={{
+            position: 'absolute',
+            top: '50px',
+            width: '140px',
+            zIndex: 1200,
+            cursor: 'pointer'
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onClick={handleChestClick}
+        />
+
+        <img
+          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475874/PicoLightcones_dbxcvm.png"
+          style={{
+            position: 'absolute',
+            top: '69px',
+            left: '203px',
+            width: '110px',
+            zIndex: 1200,
+          }}
+        />
+
+        <img 
+          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743478410/loot/LW-Bux.png"
+          style={{
+            position: 'absolute',
+            top: '72px',
+            right: '203px',
+            width: '110px',
+            zIndex: 1200,
+          }}
+        />
       </div>
 
       {isOpened && (
