@@ -90,22 +90,26 @@ export async function purchasePicoLightcones(userId: string, amount: number, con
   });
 }
 
-function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { result: T, index: number } {
+function getWeightedRandomReward<T extends { name: string, weight: number }>(rewards: T[]): { result: T, index: number } {
   const possibleRewards = rewards.filter(r => r.weight > 0);
   const totalWeight = possibleRewards.reduce((acc, reward) => acc + reward.weight, 0);
   const randomValue = Math.random() * totalWeight;
   let cumulativeWeight = 0;
-  for (const [index, reward] of possibleRewards.entries()) {
+  for (const reward of possibleRewards) {
     if (reward.weight === 0) {
       continue;
     }
+
+    const originalIndex = rewards.findIndex(r => r.name === reward.name);
     cumulativeWeight += reward.weight;
     if (randomValue <= cumulativeWeight) {
-      return { result: reward, index };
+      return { result: reward, index: originalIndex };
     }
   }
 
-  return { result: possibleRewards[possibleRewards.length - 1], index: possibleRewards.length - 1 };
+  const fallbackReward = possibleRewards[possibleRewards.length - 1];
+  const originalIndex = rewards.findIndex(r => r.name === fallbackReward.name);
+  return { result: fallbackReward, index: originalIndex };
 }
 
 function getNewCurrencyAmounts(oldState: UserUnlockablesState, paymentMethod: "lwBucks" | "picoLightcones" | "freeHomepageSpin", boxType: "regular" | "premium", currencyRewardSpin: CurrencyReward) {
