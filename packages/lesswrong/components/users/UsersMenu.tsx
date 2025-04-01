@@ -95,6 +95,9 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
   },
+  menuHover: {
+    zIndex: 1000
+  }
 })
 
 const UsersMenu = ({classes}: {
@@ -311,6 +314,7 @@ const UsersMenu = ({classes}: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
+        className={classes.menuHover}
       >
         <Paper>
           <DropdownMenu>
