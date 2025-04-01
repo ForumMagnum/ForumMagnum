@@ -1,4 +1,4 @@
-import { PREMIUM_BOX_COST, REGULAR_BOX_COST, REGULAR_BOX_PICO_COST, Unlockable, allUnlockables, defaultUserUnlockablesState, cylinder0Rewards, cylinder1Rewards, cylinder2Rewards } from "@/lib/loot/unlocks";
+import { PREMIUM_BOX_COST, REGULAR_BOX_COST, REGULAR_BOX_PICO_COST, Unlockable, allUnlockables, defaultUserUnlockablesState, cylinder0Rewards, cylinder1Rewards, cylinder2Rewards, CurrencyReward, PREMIUM_BOX_PICO_COST } from "@/lib/loot/unlocks";
 import { getSqlClientOrThrow, runSqlQuery } from "../sql/sqlClient";
 import Unlockables from "../collections/unlockables/collection";
 import { executeWithLock } from "../resolvers/jargonResolvers/jargonTermMutations";
@@ -118,10 +118,46 @@ function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { 
   return { result: rewards[rewards.length - 1], index: rewards.length - 1 };
 }
 
-async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, context }: {
+function getNewCurrencyAmounts(oldState: UserUnlockablesState, paymentMethod: "lwBucks" | "picoLightcones", boxType: "regular" | "premium", currencyRewardSpin: CurrencyReward) {
+  const newState = { ...oldState };
+  if (paymentMethod === "lwBucks") {
+    newState.lwBucks -= boxType === "regular" ? REGULAR_BOX_COST : PREMIUM_BOX_COST;
+  } else {
+    newState.picoLightcones -= boxType === "regular" ? REGULAR_BOX_PICO_COST : PREMIUM_BOX_PICO_COST;
+  }
+
+  console.log("Currency reward spin:", currencyRewardSpin);
+
+  if (currencyRewardSpin.name === 'lwBucksSmall') {
+    console.log("Adding 50 lwBucks");
+    newState.lwBucks += 50;
+  } else if (currencyRewardSpin.name === 'lwBucksMedium') {
+    console.log("Adding 110 lwBucks");
+    newState.lwBucks += 110;
+  } else if (currencyRewardSpin.name === 'lwBucksLarge') {
+    console.log("Adding 190 lwBucks");
+    newState.lwBucks += 190;
+  } else if (currencyRewardSpin.name === 'picoLightconesSmall') {
+    console.log("Adding 4 picoLightcones");
+    newState.picoLightcones += 4;
+  } else if (currencyRewardSpin.name === 'picoLightconesMedium') {
+    console.log("Adding 8 picoLightcones");
+    newState.picoLightcones += 8;
+  } else if (currencyRewardSpin.name === 'picoLightconesLarge') {
+    console.log("Adding 16 picoLightcones");
+    newState.picoLightcones += 16;
+  } else if (currencyRewardSpin.name === 'picoLightconesHuge') {
+    console.log("Adding 100 picoLightcones");
+    newState.picoLightcones += 100;
+  }
+  return newState;
+}
+
+async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, boxType, context }: {
   userId?: string,
   clientId: string,
   paymentMethod: "lwBucks" | "picoLightcones",
+  boxType: "regular" | "premium",
   context: ResolverContext,
 }) {
   const cylinder0SpinOutcome = getWeightedRandomReward(cylinder0Rewards);
@@ -139,20 +175,18 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, c
         throw new Error(`Not enough ${paymentMethod} to spin the treasure chest`);
       }
 
-      const updatedCurrencyAmount = paymentMethod === "lwBucks"
-        ? { lwBucks: oldState.lwBucks - REGULAR_BOX_COST }
-        : { picoLightcones: oldState.picoLightcones - REGULAR_BOX_PICO_COST };
+      const stateWithUpdatedCurrencyAmounts = getNewCurrencyAmounts(oldState, paymentMethod, boxType, cylinder2SpinOutcome.result);
 
       const updatedUnlocks = {
         ...oldState.unlocks,
         [cylinder0SpinOutcome.result.name]: (oldState.unlocks[cylinder0SpinOutcome.result.name] ?? 0) + 1,
         [cylinder1SpinOutcome.result.name]: (oldState.unlocks[cylinder1SpinOutcome.result.name] ?? 0) + 1,
-        [cylinder2SpinOutcome.result.name]: (oldState.unlocks[cylinder2SpinOutcome.result.name] ?? 0) + 1,
+        // [cylinder2SpinOutcome.result.name]: (oldState.unlocks[cylinder2SpinOutcome.result.name] ?? 0) + 1,
       };
 
       return {
         ...oldState,
-        ...updatedCurrencyAmount,
+        ...stateWithUpdatedCurrencyAmounts,
         spinsRemaining: oldState.spinsRemaining - 1,
         spinsPerformed: oldState.spinsPerformed + 1,
         unlocks: updatedUnlocks,
@@ -237,7 +271,7 @@ export const unlockablesGraphQLMutations = {
       throw new Error(`Invalid payment method: ${paymentMethod}`);
     }
 
-    return await spinTreasureChestTransaction({ userId, clientId, paymentMethod, context });
+    return await spinTreasureChestTransaction({ userId, clientId, paymentMethod, boxType: "regular", context });
   },
 };
 

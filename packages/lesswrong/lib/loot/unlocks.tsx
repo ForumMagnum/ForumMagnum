@@ -126,7 +126,7 @@ export const twelveVirtues: VirtueOfRationality[] = [
   },
 ];
 
-interface CurrencyReward {
+export interface CurrencyReward {
   name: string
   description: string
   weight: number
@@ -199,7 +199,7 @@ export const themeRewards: ThemeReward[] = [
   },
 ];
 
-interface VoteReward {
+export interface VoteReward {
   name: string
   description: string
   weight: number

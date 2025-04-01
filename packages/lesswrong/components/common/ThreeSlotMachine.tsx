@@ -29,7 +29,6 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { currencyRewards, twelveVirtues, voteRewards } from '@/lib/loot/unlocks';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import shuffle from 'lodash/shuffle';
 
 interface CylinderState {
   currentSpeed: number;
@@ -165,7 +164,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
       const reelOffset = ({
         0: 0.5,
         1: -5.5,
-        2: -5.5,
+        2: -6.5,
       }[reelNumber] || 0);
 
       const offsetMultiplier = reelOffset;

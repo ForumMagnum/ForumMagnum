@@ -4,6 +4,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import ThreeSlotMachine from './ThreeSlotMachine';
 import { useDialog } from './withDialog';
 import { useMutation, gql } from '@apollo/client';
+import { useCurrentUserUnlocks } from '@/lib/loot/unlocks';
 
 const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   itemDescription: {
@@ -94,6 +95,8 @@ const TreasureChestOpening = () => {
     }
   `);
 
+  const { refetch } = useCurrentUserUnlocks();
+
   const treasureDescriptions = [
     "Latest Fooming Shoggoths album and audio player",
     "Increase your strong-upvote strength by one",
@@ -159,7 +162,8 @@ const TreasureChestOpening = () => {
     console.log("Parent received spin complete");
     setSpinComplete(true);
     setIsSpinning(false);
-  }, []);
+    void refetch();
+  }, [refetch]);
 
   return <>
     <FrontPageTreasureChest onClickChest={handleChestClick} />
