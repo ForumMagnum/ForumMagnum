@@ -10,6 +10,7 @@ import Comments from '../../server/collections/comments/collection';
 import AbstractRepo from '../../server/repos/AbstractRepo';
 import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
 import { fragmentTextForQuery } from '../vulcan-lib/fragments';
+import { filterNonnull } from '../utils/typeGuardUtils';
 
 /**
  * Statistics to help prioritize which threads to display
@@ -28,7 +29,13 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     super(Comments);
   }
 
-  public async getUltraFeedPostThreads(context: ResolverContext, limit = 20): Promise<FeedPostWithComments[]> {
+  public async getUltraFeedPostThreads(
+    context: ResolverContext, 
+    limit = 20, 
+    servedPostIds: Set<string> = new Set()
+  ): Promise<FeedPostWithComments[]> {
+    console.log(`UltraFeedRepo: getUltraFeedPostThreads called. Limit: ${limit}. Already served post IDs:`, Array.from(servedPostIds)); // Log served IDs
+
     // Move the dependency outside the module scope to avoid circular dependencies
     // This is a pattern used elsewhere in the codebase
     const { runQuery } = await import('@/server/vulcan-lib/query');
@@ -50,44 +57,79 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       }
     `;
     
+    // Pass servedPostIds directly into the query settings
     const variables = {
       limit,
       settings: {
-        hybridScenarios: { fixed: 'forum-classic', configurable: 'recombee-lesswrong-custom' }
+        hybridScenarios: { fixed: 'forum-classic', configurable: 'recombee-lesswrong-custom' },
+        excludedPostIds: Array.from(servedPostIds) // Pass exclusions here
       }
     };
     
+    let displayPosts: FeedPostWithComments[] = []; // Initialize displayPosts array
+
     try {
       // Dynamic import of runQuery avoids the circular dependency
       const result = await runQuery(GET_RECOMBEE_HYBRID_POSTS, variables, context);
-      const recommendedData = result.data?.RecombeeHybridPosts?.results || [];
+      let recommendedData = result.data?.RecombeeHybridPosts?.results || [];
 
-      const displayPosts: FeedPostWithComments[] = recommendedData.map((item: any) => ({
-        postId: item.post._id,
-        comments: [],
-        postMetaInfo: {
-          sources: [item.scenario as FeedItemSourceType],
-          displayStatus: 'expanded' as FeedItemDisplayStatus,
-          recommInfo: {
-            recommId: item.recommId,
-            scenario: item.scenario,
-            generatedAt: item.generatedAt ? new Date(item.generatedAt) : null,
+      console.log(`UltraFeedRepo: Received ${recommendedData.length} posts from Recombee. IDs:`, recommendedData.map((item: any) => item.post?._id)); // Log initial Recombee results
+
+      // --- Filter Recombee results based on servedPostIds ---
+      // Re-add post-query filtering as a safety measure, in case the resolver doesn't handle settings.excludedPostIds
+      const initialRecombeeCount = recommendedData.length;
+      recommendedData = recommendedData.filter((item: any) => {
+         const postId = item.post?._id;
+         if (!postId) return false; // Filter out items without post ID
+         if (servedPostIds.has(postId)) {
+             console.log(`UltraFeedRepo: Filtering served post ${postId} from Recombee results.`);
+             return false;
+         }
+         return true;
+      });
+      if (initialRecombeeCount !== recommendedData.length) {
+          console.log(`UltraFeedRepo: Filtered ${initialRecombeeCount - recommendedData.length} served posts (post-query). ${recommendedData.length} remain.`);
+      }
+      console.log(`UltraFeedRepo: Posts remaining after filtering served IDs from Recombee:`, recommendedData.map((item: any) => item.post?._id)); // Log filtered Recombee results
+      // --- End Filter ---
+
+      displayPosts = recommendedData.map((item: any) => {
+        console.log(`UltraFeedRepo: Mapping Recombee post ${item.post?._id} with scenario: ${item.scenario}`); // Log scenario mapping
+        return {
+          postId: item.post._id,
+          comments: [],
+          postMetaInfo: {
+            sources: [item.scenario as FeedItemSourceType],
+            displayStatus: 'expanded' as FeedItemDisplayStatus,
+            recommInfo: {
+              recommId: item.recommId,
+              scenario: item.scenario,
+              generatedAt: item.generatedAt ? new Date(item.generatedAt) : null,
+            },
           },
-        },
-      }));
+        };
+      });
 
       // If we don't have enough recommended posts, supplement with recent posts
       if (displayPosts.length < limit) {
+        console.log(`UltraFeedRepo: Not enough posts from Recombee (${displayPosts.length}/${limit}), fetching fallback posts.`);
         const remainingLimit = limit - displayPosts.length;
         const db = this.getRawDb();
         
-        // Filter out undefined postIds before sending to SQL
         const existingPostIds = displayPosts
           .map(post => post.postId)
           .filter((id): id is string => id !== undefined);
         
+        // --- Combine IDs to exclude ---
+        const allExcludedPostIds = [
+            ...existingPostIds, 
+            ...Array.from(servedPostIds) 
+        ];
+        console.log(`UltraFeedRepo: Fallback SQL excluding IDs:`, allExcludedPostIds); // Log IDs excluded in fallback
+        // --- ---
+        
         const recentPosts = await db.manyOrNone(`
-          -- UltraFeedRepo.getRecentPosts
+          -- UltraFeedRepo.getRecentPosts (Fallback Supplement)
           SELECT _id as "postId"
           FROM "Posts"
           WHERE "postedAt" > NOW() - INTERVAL '30 days'
@@ -95,33 +137,57 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           AND "isFuture" IS NOT TRUE
           AND "rejected" IS NOT TRUE
           AND "baseScore" > 10
-          ${existingPostIds.length ? 'AND _id NOT IN ($(existingPostIds:csv))' : ''}
+          ${allExcludedPostIds.length ? 'AND _id NOT IN ($(allExcludedPostIds:csv))' : '-- No posts to exclude'}
           ORDER BY "postedAt" DESC
           LIMIT $(limit)
         `, {
-          existingPostIds,
-          limit: remainingLimit
+          allExcludedPostIds, 
+          limit: remainingLimit,
         });
+
+        console.log(`UltraFeedRepo: Fetched ${recentPosts.length} posts from fallback SQL. IDs:`, recentPosts.map((item: any) => item.postId)); // Log fallback results
         
         // Add recent posts to the result
-        displayPosts.push(...recentPosts.map((item: any) => ({
-          postId: item.postId,
-          comments: [],
-          postMetaInfo: {
-            sources: ['postThreads' as FeedItemSourceType],
-            displayStatus: 'expanded' as FeedItemDisplayStatus
-          },
-        })));
+        displayPosts.push(...recentPosts.map((item: any) => {
+          console.log(`UltraFeedRepo: Mapping fallback post ${item.postId}`); // Log mapping fallback
+          return {
+            postId: item.postId,
+            comments: [],
+            postMetaInfo: {
+              sources: ['postThreads' as FeedItemSourceType], // Mark as coming from fallback
+              displayStatus: 'expanded' as FeedItemDisplayStatus
+            },
+          };
+        }));
       }
 
-      return displayPosts;
+      console.log(`UltraFeedRepo: Combined posts before deduplication (${displayPosts.length} total). IDs:`, displayPosts.map(p => p.postId)); // Log combined list before dedupe
+
+      // --- Add Deduplication Step ---
+      // Ensure uniqueness *after* merging Recombee and fallback results
+      const uniquePostIds = new Set<string>();
+      const finalDisplayPosts: FeedPostWithComments[] = [];
+      for (const post of displayPosts) {
+          if (post.postId && !uniquePostIds.has(post.postId)) {
+              uniquePostIds.add(post.postId);
+              finalDisplayPosts.push(post);
+          } else if (post.postId && uniquePostIds.has(post.postId)) {
+              console.log(`UltraFeedRepo: Deduplicating post ${post.postId}.`); // Log deduplication action
+          }
+      }
+      console.log(`UltraFeedRepo: Returning ${finalDisplayPosts.length} unique posts after deduplication. Final IDs:`, finalDisplayPosts.map(p => p.postId)); // Log final list
+      return finalDisplayPosts;
+      // --- End Deduplication ---
+
     } catch (error) {
       console.error("Error in getUltraFeedPostThreads:", error);
       
       // Fallback to direct DB query if Recombee query fails
       const db = this.getRawDb();
+      const servedPostIdsArray = Array.from(servedPostIds); // Convert set to array once
+      console.log(`UltraFeedRepo: Recombee failed, running full fallback query excluding served IDs:`, servedPostIdsArray); // Log fallback served IDs
       const recentPosts = await db.manyOrNone(`
-        -- UltraFeedRepo.getRecentPosts (fallback)
+        -- UltraFeedRepo.getRecentPosts (Full Fallback)
         SELECT _id as "postId"
         FROM "Posts"
         WHERE "postedAt" > NOW() - INTERVAL '30 days'
@@ -129,15 +195,19 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         AND "isFuture" IS NOT TRUE
         AND "rejected" IS NOT TRUE
         AND "baseScore" > 10
+        ${servedPostIdsArray.length ? 'AND _id NOT IN ($(servedPostIdsArray:csv))' : '-- No served posts to exclude'}
         ORDER BY "postedAt" DESC
         LIMIT $(limit)
-      `, { limit });
+      `, { limit, servedPostIdsArray });
       
+      console.log(`UltraFeedRepo: Full fallback query returned ${recentPosts.length} posts. IDs:`, recentPosts.map((item: any) => item.postId)); // Log full fallback results
+
+      // No deduplication needed here as it's a single source
       return recentPosts.map((item: any) => ({
         postId: item.postId,
         comments: [],
         postMetaInfo: {
-          sources: ['postThreads' as FeedItemSourceType],
+          sources: ['postThreads' as FeedItemSourceType], // Mark as coming from fallback
           displayStatus: 'expanded' as FeedItemDisplayStatus
         },
       }));
@@ -541,22 +611,28 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   /**
    * Fetches random spotlight items for UltraFeed
    */
-  public async getUltraFeedSpotlights(context: ResolverContext, limit = 5): Promise<FeedSpotlight[]> {
+  public async getUltraFeedSpotlights(
+    context: ResolverContext, 
+    limit = 5, 
+    servedSpotlightIds: Set<string> = new Set()
+  ): Promise<FeedSpotlight[]> {
     console.log(`UltraFeedRepo.getUltraFeedSpotlights called with limit=${limit}`);
 
-    // Get database connection
     const db = this.getRawDb();
+    const servedSpotlightIdsArray = Array.from(servedSpotlightIds); // Convert set to array once
     
-    // Query for random spotlight IDs
+    // Query for random spotlight IDs, excluding those already served
     const spotlightRows = await db.manyOrNone(`
       -- UltraFeedRepo.getUltraFeedSpotlights
       SELECT _id 
       FROM "Spotlights"
       WHERE "draft" IS NOT TRUE
       AND "deletedDraft" IS NOT TRUE
+      -- Conditionally exclude served spotlights
+      ${servedSpotlightIdsArray.length ? 'AND _id NOT IN ($(servedSpotlightIdsArray:csv))' : '-- No served spotlights to exclude'}
       ORDER BY RANDOM()
       LIMIT $(limit)
-    `, { limit });
+    `, { limit, servedSpotlightIdsArray });
     
     console.log(`UltraFeedRepo: SQL query returned ${spotlightRows?.length || 0} random spotlight IDs`);
     
