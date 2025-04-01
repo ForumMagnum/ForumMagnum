@@ -973,6 +973,7 @@ const MusicPlayerComponent = () => {
               backdrop-filter: blur(2px) !important;
               -webkit-backdrop-filter: blur(2px) !important;
               font-family: "Press Start 2P" !important;
+              z-index: 1100 !important;
             }
             .react-jinke-music-player-main .glass-bg {
               -webkit-backdrop-filter: blur(10px) !important;
