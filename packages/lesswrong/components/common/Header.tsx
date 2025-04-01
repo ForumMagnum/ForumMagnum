@@ -102,13 +102,15 @@ const textColorOverrideStyles = ({
 export const styles = (theme: ThemeType) => ({
   appBar: {
     color: theme.palette.header.text,
-    // boxShadow: theme.palette.boxShadow.appBar,
-    // backgroundColor: theme.palette.header.background,
-    backgroundColor: 'transparent',
-    boxShadow: 'none',
-    [theme.breakpoints.down('sm')]: {
-      backdropFilter: 'blur(10px)',
-    },
+    boxShadow: theme.palette.boxShadow.appBar,
+    backgroundColor: theme.palette.header.background,
+    ...(isLW ? {
+      backgroundColor: 'transparent',
+      boxShadow: 'none',
+      [theme.breakpoints.down('sm')]: {
+        backdropFilter: 'blur(10px)',
+      },
+    } : {}),
     position: "static",
     width: "100%",
     display: "flex",

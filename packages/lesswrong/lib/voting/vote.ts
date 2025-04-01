@@ -126,7 +126,7 @@ const getClientUnlockedVotePower = ({ user, voteType, document }: {
 }) => {
   const unlocks = user.publicUnlockables;
   if (!unlocks) return calculateVotePower(0, voteType);
-  const voteStrength = (unlocks as UserUnlockablesState['unlocks'])[voteType + 'Strength'];
+  const voteStrength = (unlocks as UserUnlockablesState['unlocks'])[voteType + 'Strength'] + calculateVotePower(user.karma, voteType);
   if (!voteStrength) return calculateVotePower(0, voteType);
   return voteType.includes('Down') ? -voteStrength : voteStrength;
 }
