@@ -103,6 +103,63 @@ export const twelveVirtues: VirtueOfRationality[] = [
   },
 ];
 
+interface CurrencyReward {
+  name: string
+  description: string
+  rarity: "common"|"uncommon"|"rare"
+  imagePath?: string
+}
+
+export const currencyRewards: CurrencyReward[] = [
+  {
+    name: "lwBucksSmall",
+    description: "A small amount of LW Bucks",
+    rarity: "common",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478588/loot/LWBuxIcon.png",
+  },
+  {
+    name: "lwBucksMedium",
+    description: "A medium amount of LW Bucks",
+    rarity: "uncommon",
+  },
+  {
+    name: "lwBucksLarge",
+    description: "A large amount of LW Bucks",
+    rarity: "rare",
+  },
+  {
+    name: "picoLightconesSmall",
+    description: "A small amount of Pico Lightcones",
+    rarity: "common",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743477104/loot/PicoLightcone.png"
+  },
+  {
+    name: "picoLightconesMedium",
+    description: "A medium amount of Pico Lightcones",
+    rarity: "uncommon",
+  },
+  {
+    name: "picoLightconesLarge",
+    description: "A large amount of Pico Lightcones",
+    rarity: "rare",
+  },
+];
+
+interface ThemeReward {
+  name: string
+  description: string
+  rarity: "common"|"uncommon"|"rare"
+  imagePath?: string
+}
+
+const themeRewards: ThemeReward[] = [
+  {
+    name: "ghiblify",
+    description: "Ghibli Theme",
+    rarity: "common",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374575/loot/ghibli_theme.png"
+  },
+];
 
 export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
   name: v.name,
@@ -110,6 +167,22 @@ export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
   repeatable: false,
   rarity: "common",
   publiclyDisplayed: true,
+}));
+
+export const currencyRewardsUnlocks = currencyRewards.map(c => new Unlockable({
+  name: c.name,
+  description: c.description,
+  repeatable: false,
+  rarity: c.rarity,
+  publiclyDisplayed: false,
+}));
+
+export const themeRewardsUnlocks = themeRewards.map(t => new Unlockable({
+  name: t.name,
+  description: t.description,
+  repeatable: false,
+  rarity: t.rarity,
+  publiclyDisplayed: false,
 }));
 
 export const allUnlockables = [
@@ -131,7 +204,9 @@ export const allUnlockables = [
     repeatable: true,
     rarity: "common",
   }),
-  ...twelveVirtuesUnlocks
+  ...twelveVirtuesUnlocks,
+  ...currencyRewardsUnlocks,
+  ...themeRewardsUnlocks,
 ];
 
 declare global {
