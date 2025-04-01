@@ -261,7 +261,7 @@ const TreasureChestOpening = () => {
     setIsSpinning(false);
     
     void refetch();
-  }, [refetch, winningItemIndices]);
+  }, [refetch]);
 
   return <>
     <FrontPageTreasureChest onClickChest={handleChestClick} />
