@@ -445,6 +445,7 @@ const Header = ({
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     <Components.UnlockablesCurrencyDisplay/>
     {!isFriendlyUI && usersMenuNode}
+    {!currentUser && <UsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
       currentUser={currentUser}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}

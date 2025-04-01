@@ -60,10 +60,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.9
   },
   icon: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[500],
-    ...(theme.themeOptions.name === 'ghiblify' && {
-      color: "#3187cb",
-    }),
+    color: isFriendlyUI ? undefined : theme.palette.grey[500]
   },
   deactivatedTooltip: {
     maxWidth: 230
@@ -95,9 +92,6 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
   },
-  menuHover: {
-    zIndex: 1300
-  }
 })
 
 const UsersMenu = ({classes}: {
@@ -109,8 +103,19 @@ const UsersMenu = ({classes}: {
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
 
-  const showNewButtons = currentUser && (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
-  const isAfMember = currentUser?.groups?.includes('alignmentForum')
+  if (!currentUser) return null;
+  if (currentUser.usernameUnset) {
+    return <div className={classes.root}>
+      <Button href='/logout' classes={{root: classes.userButtonRoot}}>
+        <span className={classes.userButtonContents}>
+          {isFriendlyUI ? "Log out" : "LOG OUT"}
+        </span>
+      </Button>
+    </div>
+  }
+  
+  const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+  const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
   const {
     LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon,
@@ -120,7 +125,7 @@ const UsersMenu = ({classes}: {
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
     {userGetDisplayName(currentUser)}
-    {currentUser?.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
+    {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
       <div>Your account has been deactivated:</div>
       <ul>
         <li>Your username appears as '[Anonymous]' on comments/posts</li>
@@ -132,7 +137,7 @@ const UsersMenu = ({classes}: {
     {isAF && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   // On the EA Forum, if the user isn't deactivated, we instead show their profile image and a little arrow.
-  if (isFriendlyUI && !currentUser?.deleted) {
+  if (isFriendlyUI && !currentUser.deleted) {
     userButtonNode = <div className={classes.userImageButton}>
       <UsersProfileImage user={currentUser} size={32} />
       <ForumIcon icon="ThickChevronDown" className={classes.arrowIcon} />
@@ -149,7 +154,7 @@ const UsersMenu = ({classes}: {
   }
   
   const profileNode =
-    !currentUser?.deleted &&
+    !currentUser.deleted &&
     (isFriendlyUI ? (
       <>
         <DropdownItem
@@ -184,13 +189,13 @@ const UsersMenu = ({classes}: {
     iconClassName={classes.icon}
   />
   
-  const canCreateDialogue = currentUser && userCanPost(currentUser)
+  const canCreateDialogue = userCanPost(currentUser)
     && dialoguesEnabled
     && userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(currentUser)
 
   const items = {
     divider: DropdownDivider,
-    newPost: () => currentUser && userCanPost(currentUser)
+    newPost: () => userCanPost(currentUser)
       ? (
         <DropdownItem
           title={styleSelect({friendly: "Post", default: preferredHeadingCase("New Post")})}
@@ -198,7 +203,7 @@ const UsersMenu = ({classes}: {
         />
       )
       : null,
-    newQuestion: () => currentUser && userCanPost(currentUser)
+    newQuestion: () => userCanPost(currentUser)
       ? (
         <DropdownItem
           title={preferredHeadingCase("New Question")}
@@ -235,7 +240,7 @@ const UsersMenu = ({classes}: {
         />
       </NewWikiTagMenu>
     ) : null,
-    newEvent: () => currentUser && userCanPost(currentUser)
+    newEvent: () => userCanPost(currentUser)
       ? (
         <DropdownItem
           title={styleSelect({friendly: "Event", default: preferredHeadingCase("New Event")})}
@@ -301,33 +306,26 @@ const UsersMenu = ({classes}: {
   return (
     <div className={classes.root} {...eventHandlers}>
       <Link to={userGetProfileUrl(currentUser)}>
-        {currentUser && <Button
+        <Button
           classes={{root: classes.userButtonRoot}}
           onClick={menuButtonOnClick}
           data-testid="users-menu"
         >
           {userButtonNode}
-        </Button>}
-        {!currentUser && <Components.UsersAccountMenu/>}
+        </Button>
       </Link>
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        className={classes.menuHover}
       >
         <Paper>
           <DropdownMenu>
-            <div onClick={() => {
+            <div
+              onClick={() => {
                 forceUnHover();
               }}
             >
-              <DropdownItem
-                title={"Twelve Virtues of Rationality"}
-                onClick={() => openDialog({componentName: "TwelveVirtuesDialog"})}
-              />
-              <DropdownDivider />
-
               {isFriendlyUI && profileNode}
               {writeNewNode}
 
@@ -339,7 +337,7 @@ const UsersMenu = ({classes}: {
                   onClick={() => openDialog({componentName: "AFApplicationForm"})}
                 />
               }
-              {currentUser?.noKibitz &&
+              {currentUser.noKibitz &&
                 <DropdownItem
                   title={preferredHeadingCase(
                     disableNoKibitz
@@ -353,8 +351,8 @@ const UsersMenu = ({classes}: {
                   }
                 />
               }
-              {!isFriendlyUI && currentUser && profileNode}
-              {!isEAForum && currentUser &&
+              {!isFriendlyUI && profileNode}
+              {!isEAForum &&
                 <DropdownItem
                   title={preferredHeadingCase("My Drafts")}
                   to="/drafts"
@@ -362,7 +360,7 @@ const UsersMenu = ({classes}: {
                   iconClassName={classes.icon}
                 />
               }
-              {!isFriendlyUI && currentUser && messagesNode}
+              {!isFriendlyUI && messagesNode}
               {userHasThemePicker(currentUser) &&
                 <ThemePickerMenu>
                   <DropdownItem
@@ -383,38 +381,38 @@ const UsersMenu = ({classes}: {
                 icon={styleSelect({friendly: "BookmarkBorder", default: "Bookmarks"})}
                 iconClassName={classes.icon}
               />}
-              {isEAForum && currentUser && <DropdownItem
+              {isEAForum && <DropdownItem
                 title={"Post stats"}
                 to={userGetAnalyticsUrl(currentUser)}
                 icon="BarChart"
                 iconClassName={classes.icon}
               />}
-              {currentUser && accountSettingsNode}
+              {accountSettingsNode}
 
               {/*
                 If you're an admin, you can disable your admin + moderator
                 powers and take them back.
               */}
-              {currentUser?.isAdmin && <div className={classes.adminToggleItem}>
+              {currentUser.isAdmin && <div className={classes.adminToggleItem}>
                 <DropdownItem
                   title={preferredHeadingCase("Disable Admin Powers")}
                   onClick={toggleOff}
                 />
               </div>}
-              {!currentUser?.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
+              {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
                 <DropdownItem
                   title={preferredHeadingCase("Re-enable Admin Powers")}
                   onClick={toggleOn}
                 />
               </div>}
 
-              {currentUser && <DropdownDivider />}
+              <DropdownDivider />
 
-              {currentUser && <DropdownItem
+              <DropdownItem
                 title={preferredHeadingCase("Log Out")}
                 to="/logout"
                 rawLink
-              />}
+              />
             </div>
           </DropdownMenu>
         </Paper>
