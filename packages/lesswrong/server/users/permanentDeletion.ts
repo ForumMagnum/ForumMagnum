@@ -155,6 +155,7 @@ const cutoffOffsetMs = ACCOUNT_DELETION_COOLING_OFF_DAYS * 24 * 60 * 60 * 1000;
 export const permanentlyDeleteUsersCron = addCronJob({
   name: "permanentlyDeleteUsers",
   interval: "every 1 hour",
+  disabled: !isEAForum,
   job: async () => {
     const deletionRequestCutoff = new Date(Date.now() - cutoffOffsetMs)
 

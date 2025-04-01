@@ -52,6 +52,7 @@ import { isFriendlyUI } from "@/themes/forumTheme";
 import GraphQLJSON from "graphql-type-json";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
+import { getWithCustomLoader } from "@/lib/loaders";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -5686,6 +5687,45 @@ const schema = {
     form: {
       hidden: true,
     },
+  },
+
+  publicUnlockables: {
+    graphql: {
+      outputType: "JSON",
+      canRead: ["guests"],
+      resolver: async (user, args, context) => {
+        if (!isLW) {
+          return null;
+        }
+
+        const { Unlockables } = context;
+        const publicUnlockables = await getWithCustomLoader(
+          context,
+          'public_unlockables',
+          user._id,
+          async (userIds) => {
+            const unlockables = await Unlockables.find({
+              userId: { $in: userIds },
+            }).fetch();
+
+            return userIds.map((userId) => unlockables.find((unlockable) => unlockable.userId === userId));
+          }
+        );
+
+        if (!publicUnlockables) return null;
+
+        const unlockablesState: UserUnlockablesState = publicUnlockables.unlockablesState;
+        const { unlocks } = unlockablesState;
+
+        return Object.fromEntries(
+          Object.entries(unlocks).filter(([name, count]) => {
+            return name.includes('virtue') && count > 0;
+          }).map(([name, count]) => {
+            return [name, true];
+          })
+        );
+      },
+    }
   },
 } satisfies Record<string, NewCollectionFieldSpecification<"Users">>;
 
