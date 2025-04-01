@@ -264,7 +264,7 @@ const TreasureChestOpening = () => {
         />
 
         <img 
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743478410/loot/LW-Bux.png"
+          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743483676/loot/CollectVirtues.png"
           style={{
             position: 'absolute',
             top: '72px',
