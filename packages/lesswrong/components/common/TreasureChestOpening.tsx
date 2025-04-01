@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ThreeSlotMachine from './ThreeSlotMachine';
 
@@ -59,6 +59,16 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
         backgroundColor: '#ccc',
         cursor: 'not-allowed'
     }
+  },
+  "@keyframes slideIn": {
+    from: {
+      opacity: 0,
+      transform: "scale(0.9) translateY(-20px)",
+    },
+    to: {
+      opacity: 1,
+      transform: "scale(1) translateY(0)",
+    }
   }
 }))
 
@@ -70,7 +80,6 @@ const prizeTextureUrls = [
 
 const TreasureChestOpening = () => {
   const classes = useStyles(styles);
-  const [isHovered, setIsHovered] = useState(false);
   const [isOpened, setIsOpened] = useState(false);
   const [spinComplete, setSpinComplete] = useState(false);
   const [winningItemIndices, setWinningItemIndices] = useState<number[]>([0, 0, 0]);
@@ -96,7 +105,6 @@ const TreasureChestOpening = () => {
     setSpinComplete(false);
     setTriggerSpin(false);
     setIsSpinning(false);
-    setIsHovered(false);
     setIsOpened(true);
   };
 
@@ -150,227 +158,224 @@ const TreasureChestOpening = () => {
     setIsSpinning(false);
   }, []);
 
-  return (
-    <>
-      <div className="flex flex-col items-center p-6 bg-gray-800 rounded-lg" style={{
-        alignItems: 'center',
-        height: '139px',
-        display: 'flex',
-        justifyContent: 'center',
-        position: 'relative'
-      }}>
-        <img 
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.png"
+  return <>
+    <FrontPageTreasureChest onClickChest={handleChestClick} />
+    {isOpened && (
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1200,
+          backdropFilter: 'blur(5px)'
+        }}
+        onClick={handleClose}
+      >
+        <div
           style={{
             position: 'relative',
-            width: '20%',
-            zIndex: 1200,
-            margin: 'auto',
-            marginTop: '0px',
-            marginRight: '-30px'
-          }}
-        />
-        <img 
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743369660/ChatGPT_Image_Mar_30_2025_02_20_47_PM_vifqzq.png"
-          style={{
-            position: 'relative',
-            width: '40%',
-            zIndex: 1200,
-            margin: 'auto',
-            marginTop: '-110px',
-            opacity: isHovered ? 0 : 1,
-            transition: 'opacity 500ms ease-in-out',
-            cursor: 'pointer'
-          }}
-          className="hover-image"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          onClick={handleChestClick}
-        />
-        <img 
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.png"
-          style={{
-            position: 'relative',
-            width: '20%',
-            zIndex: 1200,
-            margin: 'auto',
-            marginTop: '0px',
-            marginLeft: '-30px',
-            transform: 'scaleX(-1)'
-          }}
-        />
-        <img 
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743371486/ChatGPT_Image_Mar_30_2025_02_50_57_PM_gmapr2.png"
-          style={{
-            position: 'absolute',
-            width: '15%',
-            zIndex: 1200,
-            margin: 'auto',
-            marginTop: '0px',
-            marginLeft: '-30px',
-            left: '180px',
-            top: '-60px'
-          }}
-        />
-        <img 
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743371486/ChatGPT_Image_Mar_30_2025_02_50_57_PM_gmapr2.png"
-          style={{
-            position: 'absolute',
-            width: '15%',
-            zIndex: 1200,
-            margin: 'auto',
-            marginTop: '0px',
-            marginLeft: '-30px',
-            transform: 'scaleX(-1)',
-            right: '140px',
-            top: '-90px'
-          }}
-        />
-        <img 
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743372662/ChatGPT_Image_Mar_30_2025_03_10_38_PM_tbq6fd.png"
-          style={{
-            position: 'absolute',
-            width: '40%',
-            zIndex: 1190,
-            margin: 'auto',
-            marginTop: '-50px',
-            opacity: isHovered ? 1 : 0,
-            transition: 'opacity 500ms ease-in-out'
-          }}
-        />
-        <img
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475039/ChatGPT_Image_Mar_31_2025_07_37_03_PM_hoxzyq.png"
-          style={{
-            position: 'absolute',
-            top: '50px',
-            width: '140px',
-            zIndex: 1200,
-            cursor: 'pointer'
-          }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          onClick={handleChestClick}
-        />
-
-        <img
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475874/PicoLightcones_dbxcvm.png"
-          style={{
-            position: 'absolute',
-            top: '69px',
-            left: '203px',
-            width: '110px',
-            zIndex: 1200,
-          }}
-        />
-
-        <img 
-          src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743478410/loot/LW-Bux.png"
-          style={{
-            position: 'absolute',
-            top: '72px',
-            right: '203px',
-            width: '110px',
-            zIndex: 1200,
-          }}
-        />
-      </div>
-
-      {isOpened && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            width: 'fit-content',
+            height: 'fit-content',
+            minHeight: 'auto',
+            borderRadius: '20px',
+            animation: 'slideIn 0.5s ease-out',
+            zIndex: 1201,
+            padding: '20px',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1200,
-            backdropFilter: 'blur(5px)'
+            flexDirection: 'column',
+            alignItems: 'center'
           }}
-          onClick={handleClose}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div
-            style={{
-              position: 'relative',
-              width: 'fit-content',
-              height: 'fit-content',
-              minHeight: 'auto',
-              borderRadius: '20px',
-              animation: 'slideIn 0.5s ease-out',
-              zIndex: 1201,
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={classes.modalContentContainer} onClick={handleBackgroundClick}>
-               <div className={classes.slotMachineContainer}>
-                   <ThreeSlotMachine
-                     textureUrls={prizeTextureUrls}
-                     winningItemIndices={winningItemIndices}
-                     startSpin={triggerSpin}
-                     onSpinComplete={handleSpinComplete}
-                   />
-               </div>
-            </div>
-
-            <button
-              onClick={handleClose}
-              style={{
-                position: 'absolute',
-                top: '15px',
-                right: '15px',
-                border: 'none',
-                color: '#666',
-                fontSize: '28px',
-                cursor: 'pointer',
-                padding: '5px',
-                borderRadius: '50%',
-                width: '35px',
-                height: '35px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#f0f0f0',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                zIndex: 1202
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#e0e0e0';
-                e.currentTarget.style.transform = 'scale(1.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f0f0f0';
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
-            >
-              ×
-            </button>
+          <div className={classes.modalContentContainer} onClick={handleBackgroundClick}>
+             <div className={classes.slotMachineContainer}>
+                 <ThreeSlotMachine
+                   textureUrls={prizeTextureUrls}
+                   winningItemIndices={winningItemIndices}
+                   startSpin={triggerSpin}
+                   onSpinComplete={handleSpinComplete}
+                 />
+             </div>
           </div>
-        </div>
-      )}
 
-      <style>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: scale(0.9) translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-      `}</style>
-    </>
-  );
+          <button
+            onClick={handleClose}
+            style={{
+              position: 'absolute',
+              top: '15px',
+              right: '15px',
+              border: 'none',
+              color: '#666',
+              fontSize: '28px',
+              cursor: 'pointer',
+              padding: '5px',
+              borderRadius: '50%',
+              width: '35px',
+              height: '35px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#f0f0f0',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              zIndex: 1202
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#e0e0e0';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#f0f0f0';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    )}
+  </>
 };
+
+function FrontPageTreasureChest({onClickChest}: {
+  onClickChest: ()=>void,
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return <Components.SingleColumnSection>
+    <div style={{
+      alignItems: 'center',
+      height: '139px',
+      display: 'flex',
+      justifyContent: 'center',
+      position: 'relative'
+    }}>
+      <img 
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.png"
+        style={{
+          position: 'relative',
+          width: '20%',
+          zIndex: 1200,
+          margin: 'auto',
+          marginTop: '0px',
+          marginRight: '-30px'
+        }}
+      />
+      <img 
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743369660/ChatGPT_Image_Mar_30_2025_02_20_47_PM_vifqzq.png"
+        style={{
+          position: 'relative',
+          width: '40%',
+          zIndex: 1200,
+          margin: 'auto',
+          marginTop: '-110px',
+          opacity: isHovered ? 0 : 1,
+          transition: 'opacity 500ms ease-in-out',
+          cursor: 'pointer'
+        }}
+        className="hover-image"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={onClickChest}
+      />
+      <img 
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.png"
+        style={{
+          position: 'relative',
+          width: '20%',
+          zIndex: 1200,
+          margin: 'auto',
+          marginTop: '0px',
+          marginLeft: '-30px',
+          transform: 'scaleX(-1)'
+        }}
+      />
+      <img 
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743371486/ChatGPT_Image_Mar_30_2025_02_50_57_PM_gmapr2.png"
+        style={{
+          position: 'absolute',
+          width: '15%',
+          zIndex: 1200,
+          margin: 'auto',
+          marginTop: '0px',
+          marginLeft: '-30px',
+          left: '180px',
+          top: '-60px'
+        }}
+      />
+      <img 
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743371486/ChatGPT_Image_Mar_30_2025_02_50_57_PM_gmapr2.png"
+        style={{
+          position: 'absolute',
+          width: '15%',
+          zIndex: 1200,
+          margin: 'auto',
+          marginTop: '0px',
+          marginLeft: '-30px',
+          transform: 'scaleX(-1)',
+          right: '140px',
+          top: '-90px'
+        }}
+      />
+      <img 
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743372662/ChatGPT_Image_Mar_30_2025_03_10_38_PM_tbq6fd.png"
+        style={{
+          position: 'absolute',
+          width: '40%',
+          zIndex: 1190,
+          margin: 'auto',
+          marginTop: '-50px',
+          opacity: isHovered ? 1 : 0,
+          transition: 'opacity 500ms ease-in-out'
+        }}
+      />
+      <img
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475039/ChatGPT_Image_Mar_31_2025_07_37_03_PM_hoxzyq.png"
+        style={{
+          position: 'absolute',
+          top: '50px',
+          width: '140px',
+          zIndex: 1200,
+          cursor: 'pointer'
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={onClickChest}
+      />
+
+      <img
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475874/PicoLightcones_dbxcvm.png"
+        style={{
+          position: 'absolute',
+          top: '69px',
+          left: '203px',
+          width: '110px',
+          zIndex: 1200,
+        }}
+      />
+
+      <img 
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743478410/loot/LW-Bux.png"
+        style={{
+          position: 'absolute',
+          top: '72px',
+          right: '203px',
+          width: '110px',
+          zIndex: 1200,
+        }}
+      />
+    </div>
+  </Components.SingleColumnSection>
+}
+
+function TreasureChestDialog() {
+}
 
 const TreasureChestOpeningComponent = registerComponent('TreasureChestOpening', TreasureChestOpening);
 
