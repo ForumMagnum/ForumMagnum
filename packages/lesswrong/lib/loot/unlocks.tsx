@@ -167,13 +167,13 @@ export const currencyRewards: CurrencyReward[] = [
   {
     name: "picoLightconesLarge",
     description: "16 PicoLightcones!",
-    weight: 1,
+    weight: 0.5,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488835/loot/74cafc17-83cb-4d4b-ae1f-883d3c03d2a1.png",
   },
   {
     name: "picoLightconesHuge",
     description: "Jackpot! 100 whole Picolightcones!",
-    weight: 0.1,
+    weight: 0.02,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743488844/loot/5fbcdbcf-1223-4274-ad0d-b4d87bf92c4a.png",
   },
 ];
