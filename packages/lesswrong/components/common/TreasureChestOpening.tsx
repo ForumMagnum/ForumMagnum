@@ -13,7 +13,7 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
     ...theme.typography.body1,
     marginTop: '10px',
     textAlign: 'center',
-    color: 'black',
+    color: theme.palette.text.alwaysBlack,
     fontSize: '21px'
   },
   itemContainer: {
