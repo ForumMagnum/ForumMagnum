@@ -188,7 +188,7 @@ interface ThemeReward {
 export const themeRewards: ThemeReward[] = [
   {
     name: "ghiblify",
-    description: "Ghibli Theme",
+    description: "You have unlocked the Ghibli Theme! Activate it by logging in, hovering over your user and selecting it from the Theme dropdown.",
     weight: 0,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374575/loot/ghibli_theme.png"
   },

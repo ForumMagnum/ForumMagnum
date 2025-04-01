@@ -24,7 +24,7 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   },
   modalContentContainer: {
     position: 'relative',
-    backgroundImage: 'url(https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472234/ChatGPT_Image_Mar_31_2025_06_48_11_PM_rpebq6.png)',
+    backgroundImage: 'url(https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472234/ChatGPT_Image_Mar_31_2025_06_48_11_PM_rpebq6.webp)',
     backgroundSize: 'contain',
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center center',
@@ -167,16 +167,16 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
 
 // Prize category icons mapping
 const prizeIcons = {
-  audio: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/audio-icon.png",
-  voting: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/voting-icon.png",
-  theme: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/theme-icon.png",
-  default: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/prize-icon.png"
+  audio: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/audio-icon.webp",
+  voting: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/voting-icon.webp",
+  theme: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/theme-icon.webp",
+  default: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743500000/loot/prize-icon.webp"
 };
 
 const prizeTextureUrls = [
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.png"
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.webp",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.webp",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.webp"
 ];
 
 const TreasureChestOpening = () => {
@@ -344,17 +344,17 @@ const TreasureChestOpening = () => {
              <div className={classes.buttonsContainer}>
                 {hasFreeHomepageSpin && <img 
                   className={classes.lwBuxButton} 
-                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743509064/loot/ChatGPT_Image_Apr_1_2025_05_04_07_AM.png"
+                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743509064/loot/ChatGPT_Image_Apr_1_2025_05_04_07_AM.webp"
                   onClick={() => handleSpin("lwBucks")}
                 />}
                 <img 
                   className={classes.lwBuxButton} 
-                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497863/loot/ChatGPT_Image_Apr_1_2025_01_57_32_AM.png"
+                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497863/loot/ChatGPT_Image_Apr_1_2025_01_57_32_AM.webp"
                   onClick={() => handleSpin("lwBucks")}
                 />
                 <img 
                   className={classes.lightconesButton} 
-                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497984/loot/ChatGPT_Image_Apr_1_2025_01_59_33_AM.png"
+                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497984/loot/ChatGPT_Image_Apr_1_2025_01_59_33_AM.webp"
                   onClick={() => handleSpin("picoLightcones")}
                 />
              </div>
@@ -426,7 +426,7 @@ function FrontPageTreasureChest({onClickChest}: {
       position: 'relative'
     }}>
       <img 
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.webp"
         style={{
           position: 'relative',
           width: '20%',
@@ -438,7 +438,7 @@ function FrontPageTreasureChest({onClickChest}: {
         }}
       />
       <img 
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743369660/ChatGPT_Image_Mar_30_2025_02_20_47_PM_vifqzq.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743369660/ChatGPT_Image_Mar_30_2025_02_20_47_PM_vifqzq.webp"
         style={{
           position: 'relative',
           width: '40%',
@@ -455,7 +455,7 @@ function FrontPageTreasureChest({onClickChest}: {
         onClick={onClickChest}
       />
       <img 
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.webp"
         style={{
           position: 'relative',
           width: '20%',
@@ -468,7 +468,7 @@ function FrontPageTreasureChest({onClickChest}: {
         }}
       />
       <img 
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743371486/ChatGPT_Image_Mar_30_2025_02_50_57_PM_gmapr2.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743371486/ChatGPT_Image_Mar_30_2025_02_50_57_PM_gmapr2.webp"
         style={{
           position: 'absolute',
           width: '15%',
@@ -482,7 +482,7 @@ function FrontPageTreasureChest({onClickChest}: {
         }}
       />
       <img 
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743371486/ChatGPT_Image_Mar_30_2025_02_50_57_PM_gmapr2.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743371486/ChatGPT_Image_Mar_30_2025_02_50_57_PM_gmapr2.webp"
         style={{
           position: 'absolute',
           width: '15%',
@@ -497,7 +497,7 @@ function FrontPageTreasureChest({onClickChest}: {
         }}
       />
       <img 
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743372662/ChatGPT_Image_Mar_30_2025_03_10_38_PM_tbq6fd.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743372662/ChatGPT_Image_Mar_30_2025_03_10_38_PM_tbq6fd.webp"
         style={{
           position: 'absolute',
           width: '40%',
@@ -510,7 +510,7 @@ function FrontPageTreasureChest({onClickChest}: {
         }}
       />
       <img
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475039/ChatGPT_Image_Mar_31_2025_07_37_03_PM_hoxzyq.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475039/ChatGPT_Image_Mar_31_2025_07_37_03_PM_hoxzyq.webp"
         style={{
           position: 'absolute',
           top: '50px',
@@ -525,7 +525,7 @@ function FrontPageTreasureChest({onClickChest}: {
 
       <img
         onClick={handleBuyButtonClick}
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475874/PicoLightcones_dbxcvm.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743475874/PicoLightcones_dbxcvm.webp"
         style={{
           cursor: "pointer",
           position: 'absolute',
@@ -537,7 +537,7 @@ function FrontPageTreasureChest({onClickChest}: {
       />
 
       <img 
-        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743483676/loot/CollectVirtues.png"
+        src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743483676/loot/CollectVirtues.webp"
         onClick={() => openDialog({
           componentName: 'TwelveVirtuesDialog',
           componentProps: {},
