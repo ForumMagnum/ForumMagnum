@@ -3,6 +3,8 @@ import Stripe from 'stripe';
 import { captureException } from '@sentry/core';
 import { stripeLootWebhookSecret } from "../databaseSettings";
 import { getStripe } from "./stripe";
+import { purchasePicoLightcones } from "./unlocks";
+import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 
 addStaticRoute('/loot-webhook', async (props, req, res) => {
   if (req.method !== 'POST') {
@@ -95,12 +97,14 @@ addStaticRoute('/loot-webhook', async (props, req, res) => {
       const charge = charges.data[0];
       const chargeAmount = charge.amount;
   
-      const picoLightconesPurchased = Math.floor(chargeAmount / 100);
+      const picoLightconesPurchased = Math.floor(chargeAmount / 10);
       
       // eslint-disable-next-line no-console
       console.log(`User ${userId} purchased ${picoLightconesPurchased} pico-lightcones`);
-  
-      // TODO: wire this up to the inventory system to deposit the lightcones based on userId
+
+      const context = await getContextFromReqAndRes({ req, res, isSSR: false });
+
+      await purchasePicoLightcones(userId, picoLightconesPurchased, context);
     }
   } catch (error) {
     // eslint-disable-next-line no-console

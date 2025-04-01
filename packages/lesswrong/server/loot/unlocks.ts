@@ -78,31 +78,17 @@ export async function grantUnlockToClientId(clientId: string, unlockableName: st
   });
 }
 
-
-// type PurchaseLootBoxArgs = {
-//   boxType: 'regular' | 'premium';
-//   context: ResolverContext;
-// } & ({ userId: string; clientId: string } | { userId?: undefined; clientId: string; });
-
-// async function purchaseLootBoxTransaction({ userId, clientId, boxType, context }: PurchaseLootBoxArgs) {
-//   return await modifyUnlocksState({
-//     userId, clientId, context,
-//     stateTransform: (oldState) => {
-//       const selectedBoxCost = boxType === 'regular' ? REGULAR_BOX_COST : PREMIUM_BOX_COST;
-//       const updatedLwBucks = oldState.lwBucks - selectedBoxCost;
-
-//       const updatedSpinState = boxType === 'regular'
-//         ? { spinsRemaining: oldState.spinsRemaining + 1 }
-//         : { premiumSpinsRemaining: oldState.premiumSpinsRemaining + 1 };
-
-//       return {
-//         ...oldState,
-//         lwBucks: updatedLwBucks,
-//         ...updatedSpinState,
-//       };
-//     }
-//   });
-// }
+export async function purchasePicoLightcones(userId: string, amount: number, context: ResolverContext) {
+  await modifyUnlocksState({
+    userId, context,
+    stateTransform: (oldState) => {
+      return {
+        ...oldState,
+        picoLightcones: oldState.picoLightcones + amount,
+      };
+    }
+  });
+}
 
 function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { result: T, index: number } {
   const possibleRewards = rewards.filter(r => r.weight > 0);
