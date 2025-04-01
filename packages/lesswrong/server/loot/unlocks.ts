@@ -105,10 +105,11 @@ export async function grantUnlockToClientId(clientId: string, unlockableName: st
 // }
 
 function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { result: T, index: number } {
-  const totalWeight = rewards.reduce((acc, reward) => acc + reward.weight, 0);
+  const possibleRewards = rewards.filter(r => r.weight > 0);
+  const totalWeight = possibleRewards.reduce((acc, reward) => acc + reward.weight, 0);
   const randomValue = Math.random() * totalWeight;
   let cumulativeWeight = 0;
-  for (const [index, reward] of rewards.entries()) {
+  for (const [index, reward] of possibleRewards.entries()) {
     if (reward.weight === 0) {
       continue;
     }

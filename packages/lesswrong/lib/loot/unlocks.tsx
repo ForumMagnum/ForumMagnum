@@ -189,7 +189,7 @@ export const themeRewards: ThemeReward[] = [
   {
     name: "ghiblify",
     description: "Ghibli Theme",
-    weight: 1,
+    weight: 0,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374575/loot/ghibli_theme.png"
   },
 ];
@@ -273,10 +273,8 @@ export const allUnlockables = [
     weight: 1,
   }),
   new Unlockable({
-    name: "ghiblify",
-    description: "Ghibli Theme",
+    ...themeRewards[0],
     repeatable: false,
-    weight: 1,
   }),
   ...twelveVirtuesUnlocks,
   ...currencyRewardsUnlocks,
