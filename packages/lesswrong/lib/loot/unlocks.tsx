@@ -209,7 +209,7 @@ export const voteRewards: VoteReward[] = [
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486255/loot/SmallUpvote.png",
   },
   {
-    name: "largeUpvoteStrength",
+    name: "bigUpvoteStrength",
     description: "Large Upvote Strength",
     weight: 6,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
@@ -221,7 +221,7 @@ export const voteRewards: VoteReward[] = [
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486225/loot/SmallDownVote.png",
   },
   {
-    name: "largeDownvoteStrength",
+    name: "bigDownvoteStrength",
     description: "Large Downvote Strength",
     weight: 6,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743486226/loot/Downvote.png",

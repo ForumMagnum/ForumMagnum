@@ -5718,13 +5718,15 @@ const schema = {
         const unlockablesState: UserUnlockablesState = publicUnlockables.unlockablesState;
         const { unlocks } = unlockablesState;
 
-        return Object.fromEntries(
-          Object.entries(unlocks).filter(([name, count]) => {
-            return getUnlockByName(name)?.publiclyDisplayed && count > 0;
-          }).map(([name, count]) => {
-            return [name, true];
-          })
-        );
+        return unlocks;
+
+        // return Object.fromEntries(
+        //   Object.entries(unlocks).filter(([name, count]) => {
+        //     return getUnlockByName(name)?.publiclyDisplayed && count > 0;
+        //   }).map(([name, count]) => {
+        //     return [name, true];
+        //   })
+        // );
       },
     }
   },
