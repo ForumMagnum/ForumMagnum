@@ -46,6 +46,18 @@ const clearStyle = (theme: ThemeType) => ({
   figure: {
     margin: "1em 0",
   },
+
+  '.PostsPage-postContent.ContentStyles-postBody': {
+    fontFamily: [
+      'warnock-pro',
+      'Palatino',
+      '"Palatino Linotype"',
+      '"Palatino LT STD"',
+      '"Book Antiqua"',
+      'Georgia',
+      'serif'
+    ].join(','),
+  },
 });
 
 const globalStyle = (theme: ThemeType) => ({
