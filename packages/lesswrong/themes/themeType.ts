@@ -587,6 +587,11 @@ declare global {
         buyButtonBackgroundHover: string,
         buyButtonBackgroundActive: string,
       },
+      treasureChest: {
+        primary: ColorString,
+        secondary: ColorString,
+        dismissButton: ColorString,
+      },
     },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>

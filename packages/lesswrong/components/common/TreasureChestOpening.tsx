@@ -83,25 +83,25 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   prizeTitle: {
     fontSize: '28px',
     fontWeight: 'bold',
-    color: '#FFD700',
-    textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+    color: theme.palette.loot.treasureChest.primary,
+    textShadow: `2px 2px 4px ${theme.palette.greyAlpha(0.5)}`,
     marginBottom: '10px'
   },
   prizeItem: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: `${theme.palette.inverseGreyAlpha(0.95)}`,
     borderRadius: '10px',
     padding: '15px 20px',
     marginBottom: '8px',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+    boxShadow: `0 4px 8px ${theme.palette.greyAlpha(0.2)}`,
     display: 'flex',
     alignItems: 'center',
     width: '100%',
     maxWidth: '500px',
-    border: '2px solid #FFD700',
+    border: `2px solid ${theme.palette.loot.treasureChest.primary}`,
     transition: 'transform 0.2s ease',
     '&:hover': {
       transform: 'scale(1.02)',
-      boxShadow: '0 6px 12px rgba(0,0,0,0.3)',
+      boxShadow: `0 6px 12px ${theme.palette.greyAlpha(0.3)}`,
     }
   },
   dismissButton: {
@@ -109,17 +109,17 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
     padding: '8px 20px',
     fontSize: '16px',
     fontWeight: 'bold',
-    backgroundColor: '#FFD700',
-    color: '#333',
+    backgroundColor: theme.palette.loot.treasureChest.primary,
+    color: theme.palette.loot.treasureChest.dismissButton,
     border: 'none',
     borderRadius: '20px',
     cursor: 'pointer',
-    boxShadow: '0 3px 6px rgba(0,0,0,0.2)',
+    boxShadow: `0 3px 6px ${theme.palette.greyAlpha(0.2)}`,
     transition: 'all 0.2s ease',
     '&:hover': {
-      backgroundColor: '#F0C419',
+      backgroundColor: theme.palette.loot.treasureChest.secondary,
       transform: 'translateY(-2px)',
-      boxShadow: '0 5px 8px rgba(0,0,0,0.3)',
+      boxShadow: `0 5px 8px ${theme.palette.greyAlpha(0.3)}`,
     }
   },
   prizeIcon: {
@@ -132,7 +132,7 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
     flex: 1,
     fontSize: '18px',
     fontWeight: 'bold',
-    color: '#333',
+    color: theme.palette.loot.treasureChest.dismissButton,
     textAlign: 'left'
   },
   buttonsContainer: {

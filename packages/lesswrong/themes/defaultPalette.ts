@@ -665,5 +665,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       buyButtonBackgroundHover: 'linear-gradient(180deg, #ffe070 0%, #f5b944 100%)',
       buyButtonBackgroundActive: 'linear-gradient(180deg, #e5a934 0%, #d3982a 100%)',
     },
+    treasureChest: {
+      primary: '#FFD700',
+      secondary: '#F0C419',
+      dismissButton: '#333333',
+    },
   },
 })
