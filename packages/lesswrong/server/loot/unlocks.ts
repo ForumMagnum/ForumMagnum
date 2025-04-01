@@ -109,6 +109,9 @@ function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { 
   const randomValue = Math.random() * totalWeight;
   let cumulativeWeight = 0;
   for (const [index, reward] of rewards.entries()) {
+    if (reward.weight === 0) {
+      continue;
+    }
     cumulativeWeight += reward.weight;
     if (randomValue <= cumulativeWeight) {
       return { result: reward, index };
