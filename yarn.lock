@@ -5911,8 +5911,6 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.0.tgz"
   integrity sha512-RJJrrySY7A8havqpGObOB4W92QXKJo63/jFLLgpvOtsGUqbQZ9Sbgl35KMm1DjC6j7AvmmU2bIno+3IyEaemaw==
 
-<<<<<<< HEAD
-=======
 "@types/stats.js@*":
   version "0.17.3"
   resolved "https://registry.yarnpkg.com/@types/stats.js/-/stats.js-0.17.3.tgz#705446e12ce0fad618557dd88236f51148b7a935"
@@ -5930,7 +5928,6 @@
     fflate "~0.8.2"
     meshoptimizer "~0.18.1"
 
->>>>>>> origin/ghiblify
 "@types/tough-cookie@*":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-4.0.0.tgz"
