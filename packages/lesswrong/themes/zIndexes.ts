@@ -34,6 +34,7 @@ export const defaultZIndexes = {
   reactionsFooter: 1001,
   intercomButton: 1400,
   blurredBackgroundModal: 1350, // lower than intercom
+  confirmLogoutModal: 1351,
   languageModelChatButton: 1030,
   sideCommentBox: 1040,
   languageModelChat: 1041,
