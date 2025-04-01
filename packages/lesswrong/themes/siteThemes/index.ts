@@ -8,7 +8,7 @@ export const getSiteTheme = (forumType: ForumTypeString): SiteThemeSpecification
   const forumThemes: Record<ForumTypeString, SiteThemeSpecification> = {
     AlignmentForum: alignmentForumTheme,
     EAForum: eaForumTheme,
-    LessWrong: pixelyTheme,
+    LessWrong: lessWrongTheme,
   }
   if (!forumThemes[forumType]) throw Error(`No theme for forum type ${forumType}`);
 
