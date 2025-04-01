@@ -15,6 +15,10 @@ import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
 import { useMulti } from "@/lib/crud/withMulti";
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    position: 'relative',
+    zIndex: 100,
+  },
   communityToggle: {
     userSelect: "none",
     cursor: "pointer",
@@ -127,27 +131,29 @@ const QuickTakesSection = ({classes}: {
   : undefined;
 
   return (
-    <ExpandableSection
-      pageSectionContext="quickTakesSection"
-      expanded={expanded}
-      toggleExpanded={toggleExpanded}
-      title={title}
-      afterTitleTo={afterTitleTo}
-      AfterTitleComponent={AfterTitleComponent}
-    >
-      {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
-      <div className={classes.list}>
-        {results?.map((result) => (
-          <QuickTakesListItem key={result._id} quickTake={result} />
-        ))}
-        {loading && <Loading />}
-        {showLoadMore && (
-          <SectionFooter>
-            <LoadMore {...loadMoreProps} sectionFooterStyles />
-          </SectionFooter>
-        )}
-      </div>
-    </ExpandableSection>
+    <div className={classes.root}>
+      <ExpandableSection
+        pageSectionContext="quickTakesSection"
+        expanded={expanded}
+        toggleExpanded={toggleExpanded}
+        title={title}
+        afterTitleTo={afterTitleTo}
+        AfterTitleComponent={AfterTitleComponent}
+      >
+        {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
+        <div className={classes.list}>
+          {results?.map((result) => (
+            <QuickTakesListItem key={result._id} quickTake={result} />
+          ))}
+          {loading && <Loading />}
+          {showLoadMore && (
+            <SectionFooter>
+              <LoadMore {...loadMoreProps} sectionFooterStyles />
+            </SectionFooter>
+          )}
+        </div>
+      </ExpandableSection>
+    </div>
   );
 }
 
