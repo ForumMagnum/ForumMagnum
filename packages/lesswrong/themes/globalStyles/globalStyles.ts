@@ -47,7 +47,7 @@ const clearStyle = (theme: ThemeType) => ({
     margin: "1em 0",
   },
 
-  '.PostsPage-postContent.ContentStyles-postBody': {
+  '.PostsPage-postContent.ContentStyles-postBody, .CommentBody-root.ContentStyles-commentBody, .CommentBody-root.ContentStyles-commentBody blockquote, .CommentBody-root.ContentStyles-commentBody li, .LWPopularComment-body': {
     fontFamily: [
       'warnock-pro',
       'Palatino',
