@@ -27,7 +27,7 @@ SOFTWARE.
 */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
-import { twelveVirtues } from '@/lib/loot/unlocks';
+import { currencyRewards, twelveVirtues } from '@/lib/loot/unlocks';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import shuffle from 'lodash/shuffle';
 
@@ -53,6 +53,65 @@ interface ThreeSlotMachineProps {
   radialSegments?: number;
   wobbleAmplitude?: number;
   wobbleFrequency?: number;
+}
+
+function createCanvasTexture(textures: THREE.Texture[]) {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    console.error("Failed to get 2D context for combining textures");
+    // Handle error appropriately, maybe return or throw
+    return;
+  }
+
+  let totalHeight = 0;
+  let maxWidth = 0;
+  const imageElements = textures.map((tex) => tex.image); // Get HTMLImageElements
+
+  imageElements.forEach((img) => {
+    if (img) {
+      // Ensure images are loaded (though loadAsync should handle this)
+      if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+          console.warn("Image for cylinder 0 strip has zero dimensions:", img.src);
+      }
+      totalHeight += img.height;
+      maxWidth = Math.max(maxWidth, img.width);
+    } else {
+        console.warn("Missing image element for a cylinder 0 texture");
+    }
+  });
+
+  if (maxWidth === 0 || totalHeight === 0) {
+    console.error("Could not determine dimensions for combined cylinder texture.");
+    // Dispose loaded textures before returning
+    textures.forEach(tex => tex.dispose());
+    return;
+  }
+
+  canvas.width = maxWidth;
+  canvas.height = totalHeight;
+
+  let currentY = 0;
+  imageElements.forEach((img) => {
+    if (img) {
+      ctx.drawImage(img, 0, currentY, img.width, img.height);
+      currentY += img.height;
+    }
+  });
+
+  // Create the canvas texture
+  const generatedCanvasTexture = new THREE.CanvasTexture(canvas);
+  // Configure the texture similarly to how others were configured
+  generatedCanvasTexture.wrapS = THREE.RepeatWrapping;
+  generatedCanvasTexture.wrapT = THREE.RepeatWrapping;
+  generatedCanvasTexture.repeat.set(1, 1);
+  generatedCanvasTexture.center.set(0.5, 0.5);
+  generatedCanvasTexture.rotation = Math.PI / 2; // Rotate to wrap correctly
+
+  // Dispose the individual image textures now that they're on the canvas
+  textures.forEach((tex) => tex.dispose());
+
+  return generatedCanvasTexture;
 }
 
 const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
@@ -97,11 +156,16 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
 
   const getSegmentAngle = useCallback(
     (segment: number, symbolsInReel?: number): number => {
-      // segment is 0-indexed (from winningItemIndex)
-      const segmentAngle = (2 * Math.PI) / (symbolsInReel ?? symbolsPerReel);
-      const offset = segmentAngle / 2; // Center the segment visually
-      // Adjust calculation for 0-based index and desired front-facing orientation
-      return Math.PI / 2 - (segment * segmentAngle + offset);
+      const numSymbols = symbolsInReel ?? symbolsPerReel;
+      if (numSymbols <= 0) return 0; // Avoid division by zero
+      const segmentAngle = (2 * Math.PI) / numSymbols;
+      const offset = segmentAngle / 2; // Angle to the center of the segment from its start
+
+      // Calculate the rotation needed to bring the *center* of the desired segment
+      // to the front-facing position (which we'll define as angle 0 after initial mesh/texture rotations).
+      // The angle of the center of the k-th segment is (k * segmentAngle + offset).
+      // We need to rotate by the negative of this angle to bring it to 0.
+      return -(segment * segmentAngle + offset);
     },
     [symbolsPerReel]
   );
@@ -247,11 +311,29 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
     positionCylinders(cameraRef.current); // Reposition cylinders after resize
   }, [cameraDistance, positionCylinders]);
 
-  // URLs for the images to be combined for the first cylinder's texture strip
+  // Vote strength rewards
   const cylinder0ImageUrls = shuffle([
     ...filterNonnull(twelveVirtues.map(virtue => virtue.imagePath)),
     // Add other stuff
   ]);
+
+  // Primary "unique" rewards
+  const cylinder1ImageUrls = shuffle([
+    ...filterNonnull(twelveVirtues.map(virtue => virtue.imagePath)),
+    // Add other stuff
+  ]);
+
+  // Marginal currency rewards
+  const cylinder2ImageUrls = shuffle([
+    ...filterNonnull(currencyRewards.map(reward => reward.imagePath)),
+    // Add other stuff
+  ]);
+
+  const allCylinderImageUrls = [
+    cylinder0ImageUrls,
+    cylinder1ImageUrls,
+    cylinder2ImageUrls,
+  ];
 
   // --- Initialization Effect ---
 
@@ -277,6 +359,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
     const container = mountRef.current;
     let currentRenderer: THREE.WebGLRenderer | null = null; // To use in cleanup
     let generatedCanvasTexture: THREE.CanvasTexture | null = null; // To dispose later
+    const generatedCanvasTextures: Array<THREE.CanvasTexture | undefined> = [];
 
     // 1. Setup Scene, Camera, Renderer
     sceneRef.current = new THREE.Scene();
@@ -311,78 +394,28 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
     // 2. Define Texture URLs and Load Assets
     const loader = new THREE.TextureLoader();
 
-    // URLs for the texture strips of the remaining cylinders (assuming textureUrls[1+] are complete strips)
-    const otherCylinderStripUrls = textureUrls.slice(1, cylinderCount);
-
     // Create promises to load all assets
     const cylinder0ImagePromises = cylinder0ImageUrls.map((url) => loader.loadAsync(url));
-    const otherCylinderStripPromises = otherCylinderStripUrls.map((url) => loader.loadAsync(url));
+    const cylinder1ImagePromises = cylinder1ImageUrls.map((url) => loader.loadAsync(url));
+    const cylinder2ImagePromises = cylinder2ImageUrls.map((url) => loader.loadAsync(url));
 
-    Promise.all([...cylinder0ImagePromises, ...otherCylinderStripPromises])
+    Promise.all([...cylinder0ImagePromises, ...cylinder1ImagePromises, ...cylinder2ImagePromises])
       .then((loadedAssets) => {
         console.log("ThreeSlotMachine: All textures loaded");
 
         const cylinder0ImageTextures = loadedAssets.slice(0, cylinder0ImageUrls.length); // THREE.Textures for cylinder 0 images
-        const otherCylinderStrips = loadedAssets.slice(cylinder0ImageUrls.length); // THREE.Textures (strips) for cylinders 1+
+        const cylinder1ImageTextures = loadedAssets.slice(cylinder0ImageUrls.length, cylinder0ImageUrls.length + cylinder1ImageUrls.length); // THREE.Textures for cylinder 1 images
+        const cylinder2ImageTextures = loadedAssets.slice(cylinder0ImageUrls.length + cylinder1ImageUrls.length); // THREE.Textures for cylinder 2 images
 
-        // 3. Create Combined Texture Strip for Cylinder 0
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          console.error("Failed to get 2D context for combining textures");
-          // Handle error appropriately, maybe return or throw
-          return;
-        }
-
-        let totalHeight = 0;
-        let maxWidth = 0;
-        const imageElements = cylinder0ImageTextures.map((tex) => tex.image); // Get HTMLImageElements
-
-        imageElements.forEach((img) => {
-          if (img) {
-            // Ensure images are loaded (though loadAsync should handle this)
-            if (img.naturalWidth === 0 || img.naturalHeight === 0) {
-                console.warn("Image for cylinder 0 strip has zero dimensions:", img.src);
-            }
-            totalHeight += img.height;
-            maxWidth = Math.max(maxWidth, img.width);
-          } else {
-             console.warn("Missing image element for a cylinder 0 texture");
-          }
-        });
-
-        if (maxWidth === 0 || totalHeight === 0) {
-          console.error("Could not determine dimensions for combined cylinder 0 texture.");
-          // Dispose loaded textures before returning
-          loadedAssets.forEach(tex => tex.dispose());
-          return;
-        }
-
-        canvas.width = maxWidth;
-        canvas.height = totalHeight;
-
-        let currentY = 0;
-        imageElements.forEach((img) => {
-          if (img) {
-            ctx.drawImage(img, 0, currentY, img.width, img.height);
-            currentY += img.height;
-          }
-        });
-
-        // Create the canvas texture
-        generatedCanvasTexture = new THREE.CanvasTexture(canvas);
-        // Configure the texture similarly to how others were configured
-        generatedCanvasTexture.wrapS = THREE.RepeatWrapping;
-        generatedCanvasTexture.wrapT = THREE.RepeatWrapping;
-        generatedCanvasTexture.repeat.set(1, 1);
-        generatedCanvasTexture.center.set(0.5, 0.5);
-        generatedCanvasTexture.rotation = Math.PI / 2; // Rotate to wrap correctly
-
-        // Dispose the individual image textures now that they're on the canvas
-        cylinder0ImageTextures.forEach((tex) => tex.dispose());
+        // 3. Create Combined Texture Strips for Cylinders
+        generatedCanvasTextures.push(
+          createCanvasTexture(cylinder0ImageTextures),
+          createCanvasTexture(cylinder1ImageTextures),
+          createCanvasTexture(cylinder2ImageTextures),
+        );
 
         // Store the final textures to be used for each cylinder
-        const finalCylinderTextures = [generatedCanvasTexture, ...otherCylinderStrips];
+        const finalCylinderTextures = [...generatedCanvasTextures];
 
         // 4. Create Cylinders
         const geometry = new THREE.CylinderGeometry(
@@ -403,15 +436,13 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
              continue; // Skip this cylinder
           }
 
-          // Apply standard configuration to textures loaded for cylinders 1+
-          // (Canvas texture for cylinder 0 already has settings applied)
-          if (i > 0) {
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(1, 1);
-            texture.center.set(0.5, 0.5);
-            texture.rotation = Math.PI / 2;
-          }
+          // Apply standard configuration consistently to ALL textures
+          // Ensures canvas textures and loaded textures behave the same way.
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(1, 1);
+          texture.center.set(0.5, 0.5);
+          texture.rotation = Math.PI / 2; // Rotate texture to wrap correctly around cylinder axis
 
           const material = new THREE.MeshStandardMaterial({
             map: texture,
@@ -422,7 +453,13 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
           });
 
           const cylinder = new THREE.Mesh(geometry.clone(), material);
-          cylinder.rotation.z = Math.PI / 2; // Orient cylinder mesh
+          cylinder.rotation.z = Math.PI / 2; // Orient cylinder mesh axis to be horizontal (along X)
+
+          // --- EDIT: Set initial rotation so the 0th item faces the front ---
+          // Use the actual number of symbols for this specific cylinder if available
+          const symbolsInThisReel = allCylinderImageUrls[i]?.length ?? symbolsPerReel;
+          cylinder.rotation.x = getSegmentAngle(0, symbolsInThisReel);
+          // --- END EDIT ---
 
           sceneRef.current?.add(cylinder);
           cylindersRef.current.push(cylinder);
@@ -430,7 +467,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
           // Initialize state for this cylinder
           cylinderStatesRef.current.push({
             currentSpeed: baseSpinSpeed,
-            targetAngle: null,
+            targetAngle: null, // Initial target is null
             status: "rest",
           });
           // Initialize wobble phase offset
@@ -443,8 +480,8 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
         // 5. Position Cylinders
         positionCylinders(cameraRef.current!);
 
-        // 6. Set Initial State
-        storeRestAngles();
+        // 6. Set Initial State (Store the calculated initial rotations)
+        storeRestAngles(); // This will now store the correct front-facing angles
         wobbleStartTimeRef.current = clockRef.current.getElapsedTime();
         currentGlobalStateRef.current = "rest";
 
@@ -483,6 +520,10 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
       }
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
+      }
+
+      if (generatedCanvasTextures.length > 0) {
+        generatedCanvasTextures.forEach((tex) => tex?.dispose());
       }
 
       // Dispose of Three.js objects
@@ -585,7 +626,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
               console.error(`Invalid winning index ${winningIndex} for cylinder ${i}. Defaulting to 0.`);
               winningIndex = 0;
             }
-            const baseTargetAngle = getSegmentAngle(winningIndex, i === 0 ? cylinder0ImageUrls.length : undefined);
+            const baseTargetAngle = getSegmentAngle(winningIndex, allCylinderImageUrls[i].length);
 
             // Calculate the final angle ensuring it's ahead of the current rotation
             const currentRotation = cylinder.rotation.x;
