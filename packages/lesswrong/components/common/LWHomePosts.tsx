@@ -165,7 +165,6 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     objectFit: 'contain',
     pointerEvents: 'auto',
-    cursor: 'pointer',
   },
   ghibliCreatureTransform: {
     transition: 'opacity 0.15s ease-in-out',

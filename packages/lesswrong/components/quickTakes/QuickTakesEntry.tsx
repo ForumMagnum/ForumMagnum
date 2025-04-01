@@ -97,7 +97,6 @@ const styles = (theme: ThemeType) => ({
     pointerEvents: 'auto',
     transform: 'rotate(1deg)',
     transition: 'transform 0.3s ease-in-out',
-    cursor: 'pointer',
     '&:hover': {
       transform: 'rotate(-1deg)',
     },
