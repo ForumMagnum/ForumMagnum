@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ThreeSlotMachine from './ThreeSlotMachine';
 
 const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   itemDescription: {
@@ -16,21 +17,87 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
     alignItems: 'center',
     gapX: 20
   },
-  container: {
-    padding: 20
+  modalContentContainer: {
+    padding: 20,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%'
+  },
+  slotMachineContainer: {
+    width: '90%',
+    height: '250px',
+    marginBottom: '20px',
+    borderRadius: '10px',
+    position: 'relative',
+  },
+  resultContainer: {
+    marginTop: '20px',
+    textAlign: 'center',
+  },
+  spinButton: {
+    padding: '10px 20px',
+    fontSize: '18px',
+    cursor: 'pointer',
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    marginTop: '15px',
+    transition: 'background-color 0.3s ease',
+    '&:disabled': {
+        backgroundColor: '#ccc',
+        cursor: 'not-allowed'
+    }
   }
 }))
+
+const prizeTextureUrls = [
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743450362/reel-strip_ox23zc.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743450362/reel-strip_ox23zc.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743450362/reel-strip_ox23zc.png"
+];
 
 const TreasureChestOpening = () => {
   const classes = useStyles(styles);
   const [isHovered, setIsHovered] = useState(false);
   const [isOpened, setIsOpened] = useState(false);
+  const [spinComplete, setSpinComplete] = useState(false);
+  const [winningItemIndex, setWinningItemIndex] = useState(0);
+  const [triggerSpin, setTriggerSpin] = useState(false);
 
   const treasureDescriptions = [
     "Latest Fooming Shoggoths album and audio player",
     "Increase your strong-upvote strength by one",
     "Studio Ghibli site theme"
   ];
+
+  const handleClose = () => {
+    setIsOpened(false);
+    setSpinComplete(false);
+    setTriggerSpin(false);
+  };
+
+  const handleChestClick = () => {
+    const randomIndex = Math.floor(Math.random() * prizeTextureUrls.length);
+    setWinningItemIndex(randomIndex);
+    setSpinComplete(false);
+    setTriggerSpin(false);
+    setIsHovered(false);
+    setIsOpened(true);
+  };
+
+  const handleTriggerSpin = () => {
+    console.log("Triggering spin via state");
+    setTriggerSpin(true);
+  };
+
+  const handleSpinComplete = useCallback(() => {
+    console.log("Parent received spin complete");
+    setSpinComplete(true);
+  }, []);
 
   return (
     <>
@@ -67,7 +134,7 @@ const TreasureChestOpening = () => {
           className="hover-image"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          onClick={() => setIsOpened(true)}
+          onClick={handleChestClick}
         />
         <img 
           src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743370814/ChatGPT_Image_Mar_30_2025_02_39_36_PM_vhrh9w.png"
@@ -124,111 +191,107 @@ const TreasureChestOpening = () => {
 
       {isOpened && (
         <div 
-          className={classes.container}
           style={{
-            alignItems: 'center',
-            height: '50vh',
-            display: 'flex',
-            justifyContent: 'center',
             position: 'fixed',
-            width: '50vw',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             zIndex: 100000,
-            borderRadius: '20px',
-            animation: 'slideIn 0.5s ease-out',
-            background: 'white',
-            backdropFilter: 'blur(10px)'
+            backdropFilter: 'blur(5px)'
           }}
+          onClick={handleClose}
         >
-          <div className={classes.itemContainer}>
-            <img 
-              src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743374079/ChatGPT_Image_Mar_30_2025_03_33_48_PM_ev2zc1.png"
-              style={{
-                position: 'relative',
-                width: '100%',
-                zIndex: 10000,
-                transition: 'all 0.5s ease-out',
-                animation: 'popIn 0.5s ease-out 0.2s forwards',
-                opacity: 0,
-                transform: 'translateY(20px)'
-              }}
-            />
-            <div className={classes.itemDescription}>
-              {treasureDescriptions[0]}
-            </div>
-          </div>
-
-          <div className={classes.itemContainer}>
-            <img 
-              src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743374403/ChatGPT_Image_Mar_30_2025_03_39_41_PM_p4ud53.png"
-              style={{
-                position: 'relative',
-                width: '100%',
-                zIndex: 10000,
-                transition: 'all 0.5s ease-out',
-                animation: 'popIn 0.5s ease-out 0.4s forwards',
-                opacity: 0,
-                transform: 'translateY(20px)'
-              }}
-            />
-            <div className={classes.itemDescription}>
-              {treasureDescriptions[1]}
-            </div>
-          </div>
-
-          <div className={classes.itemContainer}>
-            <img 
-              src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743374575/ChatGPT_Image_Mar_30_2025_03_42_38_PM_bpwwap.png"
-              style={{
-                position: 'relative',
-                width: '100%',
-                zIndex: 10000,
-                transition: 'all 0.5s ease-out',
-                animation: 'popIn 0.5s ease-out 0.6s forwards',
-                opacity: 0,
-                transform: 'translateY(20px)'
-              }}
-            />
-            <div className={classes.itemDescription}>
-              {treasureDescriptions[2]}
-            </div>
-          </div>
-
-          <button 
-            onClick={() => setIsOpened(false)}
+          <div
             style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              border: 'none',
-              color: '#666',
-              fontSize: '28px',
-              cursor: 'pointer',
-              padding: '10px',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
+              position: 'relative',
+              width: '50vw',
+              height: 'auto',
+              minHeight: '50vh',
+              background: 'white',
+              borderRadius: '20px',
+              boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+              animation: 'slideIn 0.5s ease-out',
+              zIndex: 100001,
+              padding: '20px',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: '#f0f0f0',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              zIndex: 100000
+              flexDirection: 'column',
+              alignItems: 'center'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e0e0e0';
-              e.currentTarget.style.transform = 'scale(1.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f0f0f0';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
+            onClick={(e) => e.stopPropagation()}
           >
-            ×
-          </button>
+            <div className={classes.modalContentContainer}>
+               <div className={classes.slotMachineContainer}>
+                   <ThreeSlotMachine
+                     textureUrls={prizeTextureUrls}
+                     winningItemIndex={winningItemIndex}
+                     startSpin={triggerSpin}
+                     onSpinComplete={handleSpinComplete}
+                   />
+               </div>
+
+               
+                 <button
+                   className={classes.spinButton}
+                   onClick={handleTriggerSpin}
+                   disabled={triggerSpin}
+                 >
+                   {triggerSpin ? 'Spinning...' : 'Spin!'}
+                 </button>
+               
+
+               {/* {spinComplete && (
+                  <div className={classes.resultContainer}>
+                     <img
+                       src={prizeTextureUrls[winningItemIndex]}
+                       alt={treasureDescriptions[winningItemIndex]}
+                       style={{ width: '150px', height: 'auto', marginBottom: '10px' }}
+                     />
+                     <div className={classes.itemDescription}>
+                       You won: {treasureDescriptions[winningItemIndex]}
+                     </div>
+                  </div>
+               )} */}
+            </div>
+
+            <button
+              onClick={handleClose}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                border: 'none',
+                color: '#666',
+                fontSize: '28px',
+                cursor: 'pointer',
+                padding: '5px',
+                borderRadius: '50%',
+                width: '35px',
+                height: '35px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#f0f0f0',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                zIndex: 100002
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e0e0e0';
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f0f0f0';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
 
@@ -236,22 +299,11 @@ const TreasureChestOpening = () => {
         @keyframes slideIn {
           from {
             opacity: 0;
-            transform: translateY(-20px);
+            transform: scale(0.9) translateY(-20px);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes popIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+            transform: scale(1) translateY(0);
           }
         }
       `}</style>

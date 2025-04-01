@@ -305,6 +305,7 @@
     "simpl-schema": "^1.5.0",
     "speakingurl": "^9.0.0",
     "stripe": "^17.4.0",
+    "three": "^0.175.0",
     "tlds": "^1.203.1",
     "turndown": "^4.0.2",
     "turndown-plugin-gfm": "^1.0.2",
