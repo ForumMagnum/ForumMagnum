@@ -230,14 +230,14 @@ const TreasureChestOpening = () => {
 
   const fetchWinningIndices = async (paymentMethod: string): Promise<number[]> => {
     const { data: { SpinTreasureChest: indices }, errors } = await spinTreasureChest({ variables: { paymentMethod } });
-    console.log("Received winning indices from server:", indices);
+    // console.log("Received winning indices from server:", indices);
     return indices;
   };
 
   const handleSpin = async (paymentMethod: string) => {
     if (isSpinning) return;
 
-    console.log(`Spinning with ${paymentMethod}`);
+    // console.log(`Spinning with ${paymentMethod}`);
     setIsSpinning(true);
     setTriggerSpin(false);
     setSpinComplete(false);
@@ -245,18 +245,18 @@ const TreasureChestOpening = () => {
 
     try {
       const indices = await fetchWinningIndices(paymentMethod);
-      console.log("Setting winningItemIndices to", indices);
+      // console.log("Setting winningItemIndices to", indices);
       setWinningItemIndices(indices);
-      console.log("Setting triggerSpin to true to start animation");
+      // console.log("Setting triggerSpin to true to start animation");
       setTriggerSpin(true);
     } catch (error) {
-      console.error(`Failed to fetch winning indices using ${paymentMethod}:`, error);
+      // console.error(`Failed to fetch winning indices using ${paymentMethod}:`, error);
       setIsSpinning(false);
     }
   };
 
   const handleSpinComplete = useCallback(() => {
-    console.log("Parent received spin complete", winningItemIndices);
+    // console.log("Parent received spin complete", winningItemIndices);
     setSpinComplete(true);
     setIsSpinning(false);
     

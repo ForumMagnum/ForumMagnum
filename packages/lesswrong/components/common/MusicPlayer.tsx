@@ -536,6 +536,7 @@ const MusicPlayerComponent = () => {
           setMusicPlayerLoaded(true);
         })
         .catch(error => {
+          // eslint-disable-next-line no-console
           console.error("Failed to load react-jinke-music-player:", error);
           // Handle loading error if necessary
         });
@@ -717,6 +718,7 @@ const MusicPlayerComponent = () => {
             // Example conditional logic:
             // if (window.innerWidth > 940) (el as any).openAudioListsPanel?.();
           } catch (e) {
+            // eslint-disable-next-line no-console
             console.error("Error interacting with music player instance:", e);
           }
           setAudioPlayerStatesInitialized(true);
