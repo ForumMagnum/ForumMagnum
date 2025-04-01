@@ -5,16 +5,23 @@ import { useCurrentUserUnlocks } from '@/lib/loot/unlocks';
 
 const styles = defineStyles("UnlockablesCurrencyDisplay", (theme: ThemeType) => ({
   root: {
-    marginTop: 10,
+    marginTop: 3,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   currencyAmount: {
     verticalAlign: "middle",
     fontSize: 16,
   },
-  currencyIcon: {
+  lwBuxIcon: {
+    verticalAlign: "middle",
+    width: 40,
+    height: 40,
+    marginLeft: 12,
+  },
+  picoLightconesIcon: {
+    verticalAlign: "middle",
     width: 25,
     marginLeft: 12,
-    verticalAlign: "middle",
   },
 }))
 
@@ -25,12 +32,12 @@ const UnlockablesCurrencyDisplay = () => {
 
   return <div className={classes.root}>
     <LWTooltip title="LW-Bux">
-      <img className={classes.currencyIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743477104/loot/PicoLightcone.png"/>
+      <img className={classes.lwBuxIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743478588/loot/LWBuxIcon.png"/>
       <span className={classes.currencyAmount}>{unlocksState.lwBucks ?? 0}</span>
     </LWTooltip>
 
     <LWTooltip title="Picolightcones">
-      <img className={classes.currencyIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743477104/loot/PicoLightcone.png"/>
+      <img className={classes.picoLightconesIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743477104/loot/PicoLightcone.png"/>
       <span className={classes.currencyAmount}>{unlocksState.picoLightcones ?? 0}</span>
     </LWTooltip>
   </div>

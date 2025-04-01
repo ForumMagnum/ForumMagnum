@@ -4,7 +4,7 @@ import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
-import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
+import { getVotingSystemNameForDocument } from '../../voting/getVotingSystem';
 import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import {quickTakesTagsEnabledSetting} from '../../publicSettings'
