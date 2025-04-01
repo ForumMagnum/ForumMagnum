@@ -18,20 +18,28 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
     gapX: 20
   },
   modalContentContainer: {
-    padding: 20,
+    position: 'relative',
+    backgroundImage: 'url(https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472234/ChatGPT_Image_Mar_31_2025_06_48_11_PM_rpebq6.png)',
+    backgroundSize: 'contain',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center center',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
-    height: '100%'
+    width: '800px',
+    height: '500px',
+    padding: '0',
   },
   slotMachineContainer: {
-    width: '90%',
-    height: '250px',
-    marginBottom: '20px',
     borderRadius: '10px',
-    position: 'relative',
+    position: 'absolute',
+    overflow: 'hidden',
+    zIndex: -1,
+    top: "23%",
+    left: "4%",
+    width: "81%",
+    height: "61%"
   },
   resultContainer: {
     marginTop: '20px',
@@ -55,9 +63,9 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
 }))
 
 const prizeTextureUrls = [
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743450362/reel-strip_ox23zc.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743450362/reel-strip_ox23zc.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743450362/reel-strip_ox23zc.png"
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743472447/reel-strip_croqb4.png"
 ];
 
 const TreasureChestOpening = () => {
@@ -65,8 +73,9 @@ const TreasureChestOpening = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isOpened, setIsOpened] = useState(false);
   const [spinComplete, setSpinComplete] = useState(false);
-  const [winningItemIndex, setWinningItemIndex] = useState(0);
+  const [winningItemIndices, setWinningItemIndices] = useState<number[]>([0, 0, 0]);
   const [triggerSpin, setTriggerSpin] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
 
   const treasureDescriptions = [
     "Latest Fooming Shoggoths album and audio player",
@@ -78,25 +87,67 @@ const TreasureChestOpening = () => {
     setIsOpened(false);
     setSpinComplete(false);
     setTriggerSpin(false);
+    setIsSpinning(false);
+    setWinningItemIndices([0, 0, 0]);
   };
 
   const handleChestClick = () => {
-    const randomIndex = Math.floor(Math.random() * prizeTextureUrls.length);
-    setWinningItemIndex(randomIndex);
+    setWinningItemIndices([0, 0, 0]);
     setSpinComplete(false);
     setTriggerSpin(false);
+    setIsSpinning(false);
     setIsHovered(false);
     setIsOpened(true);
   };
 
-  const handleTriggerSpin = () => {
-    console.log("Triggering spin via state");
-    setTriggerSpin(true);
+  const fetchWinningIndices = async (): Promise<number[]> => {
+    console.log("Simulating GraphQL mutation...");
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const indices = [ 
+      Math.floor(Math.random() * prizeTextureUrls.length),
+      Math.floor(Math.random() * prizeTextureUrls.length),
+      Math.floor(Math.random() * prizeTextureUrls.length)
+    ];
+    console.log("Received winning indices from server:", indices);
+    return indices;
+  };
+
+  const handleTriggerSpin = async () => {
+    if (isSpinning) return;
+
+    console.log("Handle Trigger Spin called");
+    setIsSpinning(true);
+    setTriggerSpin(false);
+    setSpinComplete(false);
+
+    try {
+      const indices = await fetchWinningIndices();
+      setWinningItemIndices(indices);
+      console.log("Setting triggerSpin to true to start animation");
+      setTriggerSpin(true);
+    } catch (error) {
+      console.error("Failed to fetch winning indices:", error);
+      setIsSpinning(false);
+    }
+  };
+
+  const handleBackgroundClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const container = event.currentTarget;
+    const rect = container.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+
+    if (clickX >= rect.width * 0.75) {
+        console.log("Lever area clicked!");
+        handleTriggerSpin();
+    } else {
+        console.log("Clicked outside lever area.");
+    }
   };
 
   const handleSpinComplete = useCallback(() => {
     console.log("Parent received spin complete");
     setSpinComplete(true);
+    setIsSpinning(false);
   }, []);
 
   return (
@@ -209,53 +260,27 @@ const TreasureChestOpening = () => {
           <div
             style={{
               position: 'relative',
-              width: '50vw',
-              height: 'auto',
-              minHeight: '50vh',
-              background: 'white',
+              width: 'fit-content',
+              height: 'fit-content',
+              minHeight: 'auto',
               borderRadius: '20px',
-              boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
               animation: 'slideIn 0.5s ease-out',
               zIndex: 100001,
-              padding: '20px',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={classes.modalContentContainer}>
+            <div className={classes.modalContentContainer} onClick={handleBackgroundClick}>
                <div className={classes.slotMachineContainer}>
                    <ThreeSlotMachine
                      textureUrls={prizeTextureUrls}
-                     winningItemIndex={winningItemIndex}
+                     winningItemIndices={winningItemIndices}
                      startSpin={triggerSpin}
                      onSpinComplete={handleSpinComplete}
                    />
                </div>
-
-               
-                 <button
-                   className={classes.spinButton}
-                   onClick={handleTriggerSpin}
-                   disabled={triggerSpin}
-                 >
-                   {triggerSpin ? 'Spinning...' : 'Spin!'}
-                 </button>
-               
-
-               {/* {spinComplete && (
-                  <div className={classes.resultContainer}>
-                     <img
-                       src={prizeTextureUrls[winningItemIndex]}
-                       alt={treasureDescriptions[winningItemIndex]}
-                       style={{ width: '150px', height: 'auto', marginBottom: '10px' }}
-                     />
-                     <div className={classes.itemDescription}>
-                       You won: {treasureDescriptions[winningItemIndex]}
-                     </div>
-                  </div>
-               )} */}
             </div>
 
             <button
