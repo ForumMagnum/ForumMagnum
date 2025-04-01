@@ -390,7 +390,7 @@ function FrontPageTreasureChest({onClickChest}: {
       <img 
         src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743483676/loot/CollectVirtues.png"
         onClick={() => openDialog({
-          componentName: 'BuyBoxesModal',
+          componentName: 'TwelveVirtuesDialog',
           componentProps: {},
         })}
         style={{
