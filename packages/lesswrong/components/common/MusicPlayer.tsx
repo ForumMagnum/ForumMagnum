@@ -14,7 +14,7 @@ interface AudioListItem {
   lyric: string;
 }
 
-const audioLists : AudioListItem[] = [
+const audioLists: AudioListItem[] = [
   {
     name: `Truth Won't Treat You Kind`,
     singer: 'User',
@@ -554,7 +554,7 @@ const MusicPlayerComponent = () => {
     <DeferRender ssr={false}>
       <Helmet>
         {/* Link to external CSS */}
-        <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1711761428/index_wqsiku_gfpa3t.css' rel='stylesheet' />
+        <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1743508281/loot/musicplayer.css' rel='stylesheet' />
         {/* Inline styles - Consider moving these to JSS or a separate CSS file */}
         <style>
           {`

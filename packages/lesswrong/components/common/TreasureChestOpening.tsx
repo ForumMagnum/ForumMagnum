@@ -200,13 +200,7 @@ const TreasureChestOpening = () => {
     }
   });
 
-  const { refetch } = useCurrentUserUnlocks();
-
-  const treasureDescriptions = [
-    "Latest Fooming Shoggoths album and audio player",
-    "Increase your strong-upvote strength by one",
-    "Studio Ghibli site theme"
-  ];
+  const { refetch, unlocksState: { hasFreeHomepageSpin } } = useCurrentUserUnlocks();
 
   const handleClose = () => {
     setIsOpened(false);
@@ -327,6 +321,7 @@ const TreasureChestOpening = () => {
                          className={classes.prizeIcon} 
                        />
                        <div className={classes.prizeText}>
+                         {(prize as any).longDescription && <b>You have unlocked {(prize as any).shortDescription}</b>}
                          {(prize as any).longDescription || (prize as any).description}
                        </div>
                      </div>
@@ -336,7 +331,7 @@ const TreasureChestOpening = () => {
                    className={classes.dismissButton}
                    onClick={dismissRewards}
                  >
-                   Dismiss Rewards
+                   Grow Stronger
                  </button>
                  <ReactConfetti
                     style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}
@@ -347,16 +342,21 @@ const TreasureChestOpening = () => {
              )}
              
              <div className={classes.buttonsContainer}>
-               <img 
-                 className={classes.lwBuxButton} 
-                 src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497863/loot/ChatGPT_Image_Apr_1_2025_01_57_32_AM.png"
-                 onClick={() => handleSpin("lwBucks")}
-               />
-               <img 
-                 className={classes.lightconesButton} 
-                 src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497984/loot/ChatGPT_Image_Apr_1_2025_01_59_33_AM.png"
-                 onClick={() => handleSpin("picoLightcones")}
-               />
+                {hasFreeHomepageSpin && <img 
+                  className={classes.lwBuxButton} 
+                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743509064/loot/ChatGPT_Image_Apr_1_2025_05_04_07_AM.png"
+                  onClick={() => handleSpin("lwBucks")}
+                />}
+                <img 
+                  className={classes.lwBuxButton} 
+                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497863/loot/ChatGPT_Image_Apr_1_2025_01_57_32_AM.png"
+                  onClick={() => handleSpin("lwBucks")}
+                />
+                <img 
+                  className={classes.lightconesButton} 
+                  src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743497984/loot/ChatGPT_Image_Apr_1_2025_01_59_33_AM.png"
+                  onClick={() => handleSpin("picoLightcones")}
+                />
              </div>
           </div>
 
