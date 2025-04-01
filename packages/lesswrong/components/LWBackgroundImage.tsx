@@ -25,15 +25,15 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     width: 1000,
     height: 1000,
     top: '-70px',
-    right: '-334px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    // right: '-334px',
+    // '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
 
     ...(theme.themeOptions.name === 'ghiblify' && {
       right: 0,
       '-webkit-mask-image': `radial-gradient(ellipse at right top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     }),
 
-    ...(theme.themeOptions.name === 'pixely' && {
+    ...({
       right: 0,
       imageRendering: 'pixelated',
       '-webkit-mask-image': `radial-gradient(ellipse at right top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,

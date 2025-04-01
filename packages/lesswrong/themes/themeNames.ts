@@ -52,7 +52,7 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
   : [
     {
       name: "default",
-      label: "Light Mode",
+      label: "Pixely Light Mode",
     },
     {
       name: "dark",
@@ -62,10 +62,10 @@ export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "E
       name: "ghiblify",
       label: "Ghibli Mode",
     },
-    {
-      name: "pixely",
-      label: "Pixel Art Mode",
-    },
+    // {
+    //   name: "pixely",
+    //   label: "Pixel Art Mode",
+    // },
     {
       name: "auto",
       label: "Auto",

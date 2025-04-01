@@ -16,6 +16,88 @@ interface AudioListItem {
 
 const audioLists : AudioListItem[] = [
   {
+    name: `Truth Won't Treat You Kind`,
+    singer: 'User',
+    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
+    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1743504049/loot/Truth_Won_t_Treat_You_Kind_v1.0.mp3',
+    lyric:
+      '[00:16] You—\n' +
+      '[00:17] Let your maps get misaligned\n' +
+      '[00:20] Who—\n' +
+      '[00:22] Told you truth would treat you kind?\n' +
+      '[00:25] Ooh—\n' +
+      '[00:26] Let the doubts seep in your mind\n' +
+      '[00:28] Without them—\n' +
+      '[00:29] You won\'t survive.\n' +
+  
+      '[00:32] Midnight scribbles in the margins, sipping doubts to chase belief\n' +
+      '[00:35] Trading comfort for confusion, painting courage on my grief\n' +
+      '[00:37] Burned bridges just to see if smoke could lead me toward relief\n' +
+      "[00:39] But clarity's a quiet thief, taking stories leaf by leaf\n" +
+  
+      '[00:41] I\'ve been sketching shaky maps, watching priors wash away\n' +
+      '[00:44] Tried erasing my mistakes, but the ink insisted stay\n' +
+      '[00:46] Held a match to old assumptions, laughing softly as they sway\n' +
+      "[00:48] Now my certainty's uncertain—but I kinda like the gray\n" +
+  
+      '[00:50] Lost a little sleep, saw monsters curled beneath the bed\n' +
+      '[00:52] Every truth I kept inside became a ghost within my head\n' +
+      '[00:54] Now the flames feel kinda warm—I feed them everything unsaid\n' +
+      '[00:56] Maps from ashes, careful steps—learning trust instead of dread\n' +
+  
+      '[00:59] You—\n' +
+      '[01:00] Let your maps get misaligned\n' +
+      '[01:03] Who—\n' +
+      '[01:04] Told you truth would treat you kind?\n' +
+      '[01:07] Ooh—\n' +
+      '[01:08] Let the doubts seep in your mind\n' +
+      '[01:10] Without them—\n' +
+      '[01:12] You won\'t survive.\n' +
+  
+      '[01:15] Found some freedom in revisions, making peace with changing plans\n' +
+      '[01:18] Wrote reminders of my biases in ink upon my hands\n' +
+      '[01:20] Never perfect, never prophet—just somebody who understands\n' +
+      "[01:22] Confusion's not a flaw, just a feature where I stand\n" +
+  
+      '[01:24] Stopped fighting with the mirror, let illusions drift away\n' +
+      '[01:26] Swapped prophecy for honesty—my losses rearranged\n' +
+      "[01:28] And I miss the easy answers, but I'd rather feel estranged\n" +
+      '[01:30] If reality\'s uncertain, guess I\'ll learn to love the change\n' +
+  
+      '[01:32] Updating in the streetlight, nervous laughter as I go\n' +
+      '[01:35] Choosing truth not out of virtue—just because I want to know\n' +
+      '[01:37] No sermons in my pocket, only questions soft and slow\n' +
+      '[01:39] If honesty destroys me, guess it\'s best to let it go\n' +
+  
+      '[01:41] You—\n' +
+      '[01:42] Let your maps get misaligned\n' +
+      '[01:45] Who—\n' +
+      '[01:47] Told you truth would treat you kind?\n' +
+      '[01:49] Ooh—\n' +
+      '[01:51] Let the doubts seep in your mind\n' +
+      '[01:53] Without them—\n' +
+      '[01:54] You won\'t survive.\n' +
+  
+      '[01:59] Maybe all I know for sure is\n' +
+      '[02:01] Every answer fades away\n' +
+      "[02:03] If I'm lost, at least I'm honest\n" +
+      '[02:05] Letting daylight lead astray\n' +
+  
+      "[02:07] Every burn's another lesson\n" +
+      "[02:09] Every scar's another friend\n" +
+      "[02:11] Finding beauty in the guessing\n" +
+      "[02:13] Drawing maps until the end\n" +
+  
+      '[02:15] You—\n' +
+      '[02:17] Let your maps get misaligned\n' +
+      '[02:19] Who—\n' +
+      '[02:21] Told you truth would treat you kind?\n' +
+      '[02:23] Ooh—\n' +
+      '[02:25] Let the doubts seep in your mind\n' +
+      '[02:27] Without them—\n' +
+      '[02:28] You won\'t survive.'
+  },
+  {
     name: 'The Road to Wisdom',
     singer: 'The Fooming Shoggoths (ft Piet Hein)',
     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',

@@ -157,7 +157,7 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, b
 
       if (oldState.hasFreeHomepageSpin) {
         usedFreeHomepageSpin = true;
-        const stateWithUpdatedCurrencyAmounts = getNewCurrencyAmounts(oldState, "freeHomepageSpin", boxType, cylinder2SpinOutcome.result);
+        const stateWithUpdatedCurrencyAmounts = getNewCurrencyAmounts(oldState, "freeHomepageSpin", boxType, cylinder2Rewards.find(r => r.name === "lwBucksLarge")!);
 
         return {
           ...stateWithUpdatedCurrencyAmounts,
@@ -197,7 +197,7 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, b
 
   // Return rigged results if the user is using their free homepage spin
   if (usedFreeHomepageSpin) {
-    return [cylinder0SpinOutcome.index, cylinder1Rewards.findIndex(r => r.name === "ghiblify"), cylinder2SpinOutcome.index];
+    return [cylinder0SpinOutcome.index, cylinder1Rewards.findIndex(r => r.name === "ghiblify"), cylinder2Rewards.findIndex(r => r.name === "lwBucksLarge")];
   }
 
   return [cylinder0SpinOutcome.index, cylinder1SpinOutcome.index, cylinder2SpinOutcome.index];

@@ -76,7 +76,7 @@ const LWHome = () => {
           </div> */}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
-            <DismissibleSpotlightItem current/>
+            {/* <DismissibleSpotlightItem current/> */}
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}

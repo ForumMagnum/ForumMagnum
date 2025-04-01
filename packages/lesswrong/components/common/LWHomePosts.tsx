@@ -156,6 +156,9 @@ const styles = (theme: ThemeType) => ({
     left: '-130px',
     zIndex: 5,
     pointerEvents: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   ghibliCreature2Image: { 
     position: 'absolute',

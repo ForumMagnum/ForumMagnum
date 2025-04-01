@@ -89,6 +89,9 @@ const styles = (theme: ThemeType) => ({
     height: '264px',
     zIndex: 10,
     pointerEvents: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   ghibliCreature: {
     width: '100%',
@@ -181,13 +184,13 @@ const QuickTakesEntry = ({
 
   const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
-    <div className={classes.ghibliCreatureContainer}>
+    {/* <div className={classes.ghibliCreatureContainer}>
       <img 
         src="https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto,w_150/ghibli_creature_1a_pink_ov86x5.png"
         alt="Ghibli creature" 
         className={classes.ghibliCreature} 
       />
-    </div>
+    </div> */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
