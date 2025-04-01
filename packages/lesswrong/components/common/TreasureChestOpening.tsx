@@ -6,6 +6,7 @@ import { useDialog } from './withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { cylinder0Rewards, cylinder1Rewards, cylinder2Rewards, useCurrentUserUnlocks } from '@/lib/loot/unlocks';
 import { useMessages } from './withMessages';
+import ReactConfetti from 'react-confetti';
 
 const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   itemDescription: {
@@ -228,8 +229,8 @@ const TreasureChestOpening = () => {
     setShowRewards(true);
   };
 
-  const fetchWinningIndices = async (): Promise<number[]> => {
-    const { data: { SpinTreasureChest: indices }, errors } = await spinTreasureChest({ variables: { paymentMethod: "lwBucks" } });
+  const fetchWinningIndices = async (paymentMethod: string): Promise<number[]> => {
+    const { data: { SpinTreasureChest: indices }, errors } = await spinTreasureChest({ variables: { paymentMethod } });
     console.log("Received winning indices from server:", indices);
     return indices;
   };
@@ -332,6 +333,11 @@ const TreasureChestOpening = () => {
                  >
                    Dismiss Rewards
                  </button>
+                 <ReactConfetti
+                    style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}
+                    numberOfPieces={250}
+                    gravity={0.25}
+                  />
                </div>
              )}
              
