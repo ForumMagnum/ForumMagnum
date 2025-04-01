@@ -9,7 +9,7 @@ import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema';
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/newSchema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
-import { getVotingSystems } from '../../voting/votingSystems';
+import { getVotingSystems } from '../../voting/getVotingSystem';
 import {
   eaFrontpageDateDefault,
   fmCrosspostBaseUrlSetting,

@@ -34,7 +34,7 @@ import isEmpty from "lodash/isEmpty";
 import { TagPageContext } from "./TagPageContext";
 import type { ContentItemBody } from "../common/ContentItemBody";
 import { useVote } from "../votes/withVote";
-import { getVotingSystemByName } from "@/lib/voting/votingSystems";
+import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { useDisplayedContributors } from "./ContributorsList";
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
