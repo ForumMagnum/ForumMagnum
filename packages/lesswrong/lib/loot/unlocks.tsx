@@ -14,17 +14,20 @@ export class Unlockable {
   description: string
   repeatable: boolean
   rarity: "common"|"uncommon"|"rare"
+  publiclyDisplayed: boolean
 
-  constructor({name, description, repeatable, rarity}: {
+  constructor({name, description, repeatable, rarity, publiclyDisplayed}: {
     name: string
     description: string
     repeatable?: boolean
     rarity: "common"|"uncommon"|"rare"
+    publiclyDisplayed?: boolean
   }) {
     this.name = name;
     this.description = description;
     this.repeatable = !!repeatable;
     this.rarity = rarity;
+    this.publiclyDisplayed = !!publiclyDisplayed
   }
 }
 
@@ -40,7 +43,7 @@ export const twelveVirtues: VirtueOfRationality[] = [
     name: "curiosity",
     shortDescription: "The Virtue of Curiosity",
     longDescription: <p>The first virtue is curiosity. Wouldn't you like to know what exciting rewards are inside of our lootboxes?</p>,
-    imagePath: "/ghibli/VirtueOfCuriosity.png"
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743471717/loot/virtue_curiosity.png",
   },
   {
     name: "relinquishment",
@@ -50,7 +53,8 @@ export const twelveVirtues: VirtueOfRationality[] = [
   {
     name: "lightness",
     shortDescription: "The Virtue of Lightness",
-    longDescription: <p>The third virtue is Lightness. Let the winds of evidence blow you about as though you are a leaf, with no direction of your own. Beware lest you fight a rearguard retreat against the evidence, grudgingly conceding each foot of ground only when forced, feeling cheated.</p>
+    longDescription: <p>The third virtue is Lightness. Let the winds of evidence blow you about as though you are a leaf, with no direction of your own. Beware lest you fight a rearguard retreat against the evidence, grudgingly conceding each foot of ground only when forced, feeling cheated.</p>,
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743472621/loot/virtue_lightness.png",
   },
   {
     name: "evenness",
@@ -105,6 +109,7 @@ export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
   description: v.shortDescription,
   repeatable: false,
   rarity: "common",
+  publiclyDisplayed: true,
 }));
 
 export const allUnlockables = [

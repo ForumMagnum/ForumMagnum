@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import { twelveVirtues, twelveVirtuesUnlocks } from '@/lib/loot/unlocks';
 
 const styles = (theme: ThemeType) => ({
   color: {
@@ -145,20 +146,8 @@ const UsersNameDisplay = ({
             >
               {displayName}
             </Link>
-            {/* curiosity icon */}
-            {user.publicUnlockables?.virtueCuriosity
-              ? <img className={classes.curiosityIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743471717/loot/virtue_curiosity.png" />
-              : null}
-
-            {/* TODO: pick and upload relinquishment icon */}
-            {user.publicUnlockables?.virtueRelinquishment
-              ? <img className={classes.relinquishmentIcon} src="" />
-              : null}
-            
-            {/* lightness icon */}
-            {user.publicUnlockables?.virtueLightness
-              ? <img className={classes.lightnessIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743472621/loot/virtue_lightness.png" />
-              : null}
+            {twelveVirtues.map(virtue => user.publicUnlockables?.[virtue.name]
+              && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
           </div>
         </UserTooltip>
       </AnalyticsContext>

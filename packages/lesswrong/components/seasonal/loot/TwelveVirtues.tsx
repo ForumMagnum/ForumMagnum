@@ -44,13 +44,13 @@ const styles = defineStyles("TwelveVirtues", (theme: ThemeType) => ({
 }))
 
 const TwelveVirtuesDialog = ({onClose}: {
-  onClose: ()=>void
+  onClose: () => void
 }) => {
   const classes = useStyles(styles);
   const { unlocksState } = useCurrentUserUnlocks();
   const {LWDialog} = Components;
 
-  const numVirtuesUnlocked: number = twelveVirtues.filter(v=>hasUnlock(unlocksState, v.name)).length;
+  const numVirtuesUnlocked: number = twelveVirtues.filter(v => hasUnlock(unlocksState, v.name)).length;
 
   return <LWDialog open={true} onClose={onClose}>
     <DialogTitle>Twelve Virtues of Rationality</DialogTitle>

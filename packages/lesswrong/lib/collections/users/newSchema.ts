@@ -53,6 +53,7 @@ import GraphQLJSON from "graphql-type-json";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { getWithCustomLoader } from "@/lib/loaders";
+import { getUnlockByName } from "@/lib/loot/unlocks";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -5719,7 +5720,7 @@ const schema = {
 
         return Object.fromEntries(
           Object.entries(unlocks).filter(([name, count]) => {
-            return name.includes('virtue') && count > 0;
+            return getUnlockByName(name).publiclyDisplayed && count > 0;
           }).map(([name, count]) => {
             return [name, true];
           })
