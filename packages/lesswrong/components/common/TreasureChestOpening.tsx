@@ -113,7 +113,7 @@ const TreasureChestOpening = () => {
           style={{
             position: 'relative',
             width: '20%',
-            zIndex: 10000,
+            zIndex: 1200,
             margin: 'auto',
             marginTop: '0px',
             marginRight: '-30px'
@@ -124,7 +124,7 @@ const TreasureChestOpening = () => {
           style={{
             position: 'relative',
             width: '40%',
-            zIndex: 10000,
+            zIndex: 1200,
             margin: 'auto',
             marginTop: '-110px',
             opacity: isHovered ? 0 : 1,
@@ -141,7 +141,7 @@ const TreasureChestOpening = () => {
           style={{
             position: 'relative',
             width: '20%',
-            zIndex: 10000,
+            zIndex: 1200,
             margin: 'auto',
             marginTop: '0px',
             marginLeft: '-30px',
@@ -153,7 +153,7 @@ const TreasureChestOpening = () => {
           style={{
             position: 'absolute',
             width: '15%',
-            zIndex: 10000,
+            zIndex: 1200,
             margin: 'auto',
             marginTop: '0px',
             marginLeft: '-30px',
@@ -166,7 +166,7 @@ const TreasureChestOpening = () => {
           style={{
             position: 'absolute',
             width: '15%',
-            zIndex: 10000,
+            zIndex: 1200,
             margin: 'auto',
             marginTop: '0px',
             marginLeft: '-30px',
@@ -180,7 +180,7 @@ const TreasureChestOpening = () => {
           style={{
             position: 'absolute',
             width: '40%',
-            zIndex: 9993,
+            zIndex: 1190,
             margin: 'auto',
             marginTop: '-50px',
             opacity: isHovered ? 1 : 0,
@@ -201,7 +201,7 @@ const TreasureChestOpening = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 100000,
+            zIndex: 1200,
             backdropFilter: 'blur(5px)'
           }}
           onClick={handleClose}
@@ -216,7 +216,7 @@ const TreasureChestOpening = () => {
               borderRadius: '20px',
               boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
               animation: 'slideIn 0.5s ease-out',
-              zIndex: 100001,
+              zIndex: 1201,
               padding: '20px',
               display: 'flex',
               flexDirection: 'column',
@@ -278,7 +278,7 @@ const TreasureChestOpening = () => {
                 background: '#f0f0f0',
                 transition: 'all 0.2s ease',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                zIndex: 100002
+                zIndex: 1202
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#e0e0e0';

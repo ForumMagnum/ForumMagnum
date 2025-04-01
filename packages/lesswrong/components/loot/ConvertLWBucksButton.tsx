@@ -8,7 +8,7 @@ const styles = defineStyles('ConvertLWBucksButton', (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    zIndex: 10001,
+    zIndex: 1001,
     padding: '6px 12px',
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: '16px',
