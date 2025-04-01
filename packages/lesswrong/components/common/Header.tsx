@@ -105,8 +105,11 @@ export const styles = (theme: ThemeType) => ({
     boxShadow: theme.palette.boxShadow.appBar,
     backgroundColor: theme.palette.header.background,
     ...((theme.themeOptions.name === "ghiblify" || theme.themeOptions.name === "pixely") && {
-      backgroundColor: undefined,
-      boxShadow: undefined,
+      backgroundColor: 'transparent',
+      boxShadow: 'none',
+      [theme.breakpoints.down('sm')]: {
+        backdropFilter: 'blur(10px)',
+      },
     }),
     position: "static",
     width: "100%",

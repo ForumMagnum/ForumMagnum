@@ -66,6 +66,9 @@ const styles = (theme: ThemeType) => ({
       paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
       paddingRight: 8,
+      ...((theme.themeOptions.name === 'ghiblify' || theme.themeOptions.name === 'pixely') && {
+        paddingTop: 90,
+      }),
     },
   },
   wrapper: {
