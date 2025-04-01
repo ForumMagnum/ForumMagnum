@@ -70,10 +70,10 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           <TreasureChestOpening />
-          <div className={classes.ctaButtons}>
+          {/* <div className={classes.ctaButtons}>
             <BuyButton />
             <ConvertLWBucksButton />
-          </div>
+          </div> */}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
 
             <DismissibleSpotlightItem current/>
