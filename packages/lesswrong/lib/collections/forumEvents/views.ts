@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
@@ -40,8 +41,22 @@ function currentForumEvent(_terms: ForumEventsViewTerms) {
   };
 }
 
+function currentAndRecentForumEvents(terms: ForumEventsViewTerms) {
+  return {
+    selector: {
+      startDate: {$lt: new Date()},
+      endDate: {$gt: moment().subtract(2, 'weeks').toDate()},
+    },
+    options: {
+      sort: {endDate: 1},
+      limit: terms.limit ?? 20,
+    },
+  };
+}
+
 export const ForumEventsViews = new CollectionViewSet('ForumEvents', {
   upcomingForumEvents,
   pastForumEvents,
-  currentForumEvent
+  currentForumEvent,
+  currentAndRecentForumEvents,
 });
