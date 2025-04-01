@@ -3,7 +3,8 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { VirtueOfRationality, hasUnlock, twelveVirtues, twelveVirtuesUnlocks, useCurrentUserUnlocks } from '@/lib/loot/unlocks';
 import { Link } from '@/lib/reactRouterWrapper';
-import { DialogContent, DialogTitle } from '@/lib/vendor/@material-ui/core/src';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
 import classNames from 'classnames';
 
 const styles = defineStyles("TwelveVirtues", (theme: ThemeType) => ({
