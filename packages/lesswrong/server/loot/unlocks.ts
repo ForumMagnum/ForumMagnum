@@ -1,4 +1,4 @@
-import { PREMIUM_BOX_COST, REGULAR_BOX_COST, REGULAR_BOX_PICO_COST, Unlockable, allUnlockables, defaultUserUnlockablesState, cylinder0Rewards, cylinder1Rewards, cylinder2Rewards, CurrencyReward, PREMIUM_BOX_PICO_COST } from "@/lib/loot/unlocks";
+import { PREMIUM_BOX_COST, REGULAR_BOX_COST, REGULAR_BOX_PICO_COST, Unlockable, defaultUserUnlockablesState, cylinder0Rewards, cylinder1Rewards, cylinder2Rewards, CurrencyReward, PREMIUM_BOX_PICO_COST } from "@/lib/loot/unlocks";
 import { getSqlClientOrThrow, runSqlQuery } from "../sql/sqlClient";
 import Unlockables from "../collections/unlockables/collection";
 import { executeWithLock } from "../resolvers/jargonResolvers/jargonTermMutations";
@@ -79,30 +79,30 @@ export async function grantUnlockToClientId(clientId: string, unlockableName: st
 }
 
 
-type PurchaseLootBoxArgs = {
-  boxType: 'regular' | 'premium';
-  context: ResolverContext;
-} & ({ userId: string; clientId: string } | { userId?: undefined; clientId: string; });
+// type PurchaseLootBoxArgs = {
+//   boxType: 'regular' | 'premium';
+//   context: ResolverContext;
+// } & ({ userId: string; clientId: string } | { userId?: undefined; clientId: string; });
 
-async function purchaseLootBoxTransaction({ userId, clientId, boxType, context }: PurchaseLootBoxArgs) {
-  return await modifyUnlocksState({
-    userId, clientId, context,
-    stateTransform: (oldState) => {
-      const selectedBoxCost = boxType === 'regular' ? REGULAR_BOX_COST : PREMIUM_BOX_COST;
-      const updatedLwBucks = oldState.lwBucks - selectedBoxCost;
+// async function purchaseLootBoxTransaction({ userId, clientId, boxType, context }: PurchaseLootBoxArgs) {
+//   return await modifyUnlocksState({
+//     userId, clientId, context,
+//     stateTransform: (oldState) => {
+//       const selectedBoxCost = boxType === 'regular' ? REGULAR_BOX_COST : PREMIUM_BOX_COST;
+//       const updatedLwBucks = oldState.lwBucks - selectedBoxCost;
 
-      const updatedSpinState = boxType === 'regular'
-        ? { spinsRemaining: oldState.spinsRemaining + 1 }
-        : { premiumSpinsRemaining: oldState.premiumSpinsRemaining + 1 };
+//       const updatedSpinState = boxType === 'regular'
+//         ? { spinsRemaining: oldState.spinsRemaining + 1 }
+//         : { premiumSpinsRemaining: oldState.premiumSpinsRemaining + 1 };
 
-      return {
-        ...oldState,
-        lwBucks: updatedLwBucks,
-        ...updatedSpinState,
-      };
-    }
-  });
-}
+//       return {
+//         ...oldState,
+//         lwBucks: updatedLwBucks,
+//         ...updatedSpinState,
+//       };
+//     }
+//   });
+// }
 
 function getWeightedRandomReward<T extends { weight: number }>(rewards: T[]): { result: T, index: number } {
   const totalWeight = rewards.reduce((acc, reward) => acc + reward.weight, 0);
@@ -126,28 +126,19 @@ function getNewCurrencyAmounts(oldState: UserUnlockablesState, paymentMethod: "l
     newState.picoLightcones -= boxType === "regular" ? REGULAR_BOX_PICO_COST : PREMIUM_BOX_PICO_COST;
   }
 
-  console.log("Currency reward spin:", currencyRewardSpin);
-
   if (currencyRewardSpin.name === 'lwBucksSmall') {
-    console.log("Adding 50 lwBucks");
     newState.lwBucks += 50;
   } else if (currencyRewardSpin.name === 'lwBucksMedium') {
-    console.log("Adding 110 lwBucks");
     newState.lwBucks += 110;
   } else if (currencyRewardSpin.name === 'lwBucksLarge') {
-    console.log("Adding 190 lwBucks");
     newState.lwBucks += 190;
   } else if (currencyRewardSpin.name === 'picoLightconesSmall') {
-    console.log("Adding 4 picoLightcones");
     newState.picoLightcones += 4;
   } else if (currencyRewardSpin.name === 'picoLightconesMedium') {
-    console.log("Adding 8 picoLightcones");
     newState.picoLightcones += 8;
   } else if (currencyRewardSpin.name === 'picoLightconesLarge') {
-    console.log("Adding 16 picoLightcones");
     newState.picoLightcones += 16;
   } else if (currencyRewardSpin.name === 'picoLightconesHuge') {
-    console.log("Adding 100 picoLightcones");
     newState.picoLightcones += 100;
   }
   return newState;
@@ -167,6 +158,13 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, b
   await modifyUnlocksState({
     userId, clientId, context,
     stateTransform: (oldState) => {
+      if (oldState.hasFreeHomepageSpin) {
+        return {
+          ...oldState,
+          hasFreeHomepageSpin: false,
+        };
+      };
+
       const hasEnoughOfPaymentMethod = paymentMethod === "lwBucks"
         ? oldState.lwBucks >= REGULAR_BOX_COST
         : oldState.picoLightcones >= REGULAR_BOX_PICO_COST;
@@ -181,13 +179,11 @@ async function spinTreasureChestTransaction({ userId, clientId, paymentMethod, b
         ...oldState.unlocks,
         [cylinder0SpinOutcome.result.name]: (oldState.unlocks[cylinder0SpinOutcome.result.name] ?? 0) + 1,
         [cylinder1SpinOutcome.result.name]: (oldState.unlocks[cylinder1SpinOutcome.result.name] ?? 0) + 1,
-        // [cylinder2SpinOutcome.result.name]: (oldState.unlocks[cylinder2SpinOutcome.result.name] ?? 0) + 1,
       };
 
       return {
         ...oldState,
         ...stateWithUpdatedCurrencyAmounts,
-        spinsRemaining: oldState.spinsRemaining - 1,
         spinsPerformed: oldState.spinsPerformed + 1,
         unlocks: updatedUnlocks,
       };
@@ -249,18 +245,18 @@ export const unlockablesGraphQLQueries = {
 };
 
 export const unlockablesGraphQLMutations = {
-  async BuyLootBox(root: void, args: { boxType: string }, context: ResolverContext) {
-    const userId = context.currentUser?._id;
-    const clientId = context.clientId!;
+  // async BuyLootBox(root: void, args: { boxType: string }, context: ResolverContext) {
+  //   const userId = context.currentUser?._id;
+  //   const clientId = context.clientId!;
 
-    const boxType = args.boxType;
-    if (!validBoxTypes.has(boxType)) {
-      throw new Error(`Invalid box type: ${boxType}`);
-    }
+  //   const boxType = args.boxType;
+  //   if (!validBoxTypes.has(boxType)) {
+  //     throw new Error(`Invalid box type: ${boxType}`);
+  //   }
 
-    await purchaseLootBoxTransaction({ userId, clientId, boxType, context });
-    return true;
-  },
+  //   await purchaseLootBoxTransaction({ userId, clientId, boxType, context });
+  //   return true;
+  // },
 
   async SpinTreasureChest(root: void, args: { paymentMethod: string }, context: ResolverContext) {
     const userId = context.currentUser?._id;
@@ -281,7 +277,7 @@ export const unlockablesGqlTypeDefs = gql`
   }
 
   extend type Mutation {
-    BuyLootBox(boxType: String!): Boolean!
+    # BuyLootBox(boxType: String!): Boolean!
     SpinTreasureChest(paymentMethod: String!): [Int!]!
   }
 `;

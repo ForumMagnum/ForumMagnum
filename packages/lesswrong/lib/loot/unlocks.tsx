@@ -296,24 +296,26 @@ declare global {
   type UserUnlockablesState = {
     unlocks: Record<string,number>
     spinsPerformed: number
-    spinsRemaining: number
+    // spinsRemaining: number
     premiumSpinsPerformed: number
     premiumSpinsRemaining: number
     cooldownEndsAt: number
     lwBucks: number
     picoLightcones: number
+    hasFreeHomepageSpin: boolean
   };
 }
 
 export const defaultUserUnlockablesState: UserUnlockablesState = {
   unlocks: {},
   spinsPerformed: 0,
-  spinsRemaining: 1,
+  // spinsRemaining: 0,
   premiumSpinsPerformed: 0,
   premiumSpinsRemaining: 0,
   cooldownEndsAt: 0,
   lwBucks: 0,
   picoLightcones: 0,
+  hasFreeHomepageSpin: true,
 };
 
 type UnlocksContextType = {

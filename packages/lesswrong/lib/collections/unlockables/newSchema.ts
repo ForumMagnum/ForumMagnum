@@ -3,7 +3,6 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "../helpers/sharedFie
 const schema = {
   _id: DEFAULT_ID_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
-
   userId: {
     database: {
       type: "TEXT",
