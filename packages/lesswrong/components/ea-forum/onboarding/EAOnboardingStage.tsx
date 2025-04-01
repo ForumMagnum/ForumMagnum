@@ -144,15 +144,13 @@ const LogoutConfirmationDialog = (
   return <LWDialog open={open} onClose={onClose} className={classes.logoutDialog}>
     <DialogTitle disableTypography>
       <Typography variant="display1" className={classes.logoutDialogTitle}>
-        Confirm Logout
+        Confirm logout
       </Typography>
     </DialogTitle>
     <DialogContent>
-      <DialogContentText>
-        <p className={classes.logoutDialogText}>You are currently logged in with the email</p>
-        <p className={classes.logoutDialogText}>{currentUser?.email ?? "(no email found)"}</p>
-        <p className={classes.logoutDialogText}>But have not chosen a username.</p>
-      </DialogContentText>
+      <DialogContentText className={classes.logoutDialogText}>You are currently logged in with the email</DialogContentText>
+      <DialogContentText className={classes.logoutDialogText}>{currentUser?.email ?? "(no email found)"},</DialogContentText>
+      <DialogContentText className={classes.logoutDialogText}>but have not chosen a username.</DialogContentText>
     </DialogContent>
     <DialogActions className={classes.logoutDialogActions}>
       <EAButton onClick={onClose} style="grey">
