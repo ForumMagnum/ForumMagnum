@@ -14,9 +14,10 @@ import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 
+// FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
 const mdi = markdownIt({ linkify: true });
 // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-mdi.use(markdownItContainer, "spoiler");
+mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
 mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);
