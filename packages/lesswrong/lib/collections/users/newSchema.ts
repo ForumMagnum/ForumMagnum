@@ -5716,17 +5716,9 @@ const schema = {
         if (!publicUnlockables) return null;
 
         const unlockablesState: UserUnlockablesState = publicUnlockables.unlockablesState;
-        const { unlocks } = unlockablesState;
+        const { unlocks, hasFreeHomepageSpin } = unlockablesState;
 
-        return unlocks;
-
-        // return Object.fromEntries(
-        //   Object.entries(unlocks).filter(([name, count]) => {
-        //     return getUnlockByName(name)?.publiclyDisplayed && count > 0;
-        //   }).map(([name, count]) => {
-        //     return [name, true];
-        //   })
-        // );
+        return { ...unlocks, hasFreeHomepageSpin };
       },
     }
   },
