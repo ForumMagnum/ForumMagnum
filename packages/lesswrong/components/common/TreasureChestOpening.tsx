@@ -54,15 +54,15 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
     padding: '10px 20px',
     fontSize: '18px',
     cursor: 'pointer',
-    backgroundColor: '#4CAF50',
-    color: 'white',
+    backgroundColor: theme.palette.icon.greenCheckmark,
+    color: theme.palette.grey[0],
     border: 'none',
     borderRadius: '5px',
     marginTop: '15px',
     transition: 'background-color 0.3s ease',
     '&:disabled': {
-        backgroundColor: '#ccc',
-        cursor: 'not-allowed'
+      backgroundColor: theme.palette.grey[405],
+      cursor: 'not-allowed'
     }
   },
   prizeDisplay: {
