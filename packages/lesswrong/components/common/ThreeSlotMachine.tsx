@@ -422,13 +422,6 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
         const finalCylinderTextures = [...generatedCanvasTextures];
 
         // 4. Create Cylinders
-        // const geometry = new THREE.CylinderGeometry(
-        //   ...geometryDimensions,
-        //   radialSegments,
-        //   1, // Height segments = 1
-        //   true // Open-ended
-        // );
-
         cylindersRef.current = []; // Clear previous cylinders if any
         cylinderStatesRef.current = [];
         phaseOffsetsRef.current = [];
@@ -446,11 +439,9 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
           texture.wrapT = THREE.RepeatWrapping;
           texture.repeat.set(1, 1);
           texture.center.set(0.5, 0.5);
-          texture.rotation = Math.PI * 3/2; // Change from Math.PI/2 to Math.PI*3/2 to flip orientation
 
           const material = new THREE.MeshStandardMaterial({
             map: texture,
-            // transparent: true,
             color: new THREE.Color(0xffffff),
             side: THREE.DoubleSide,
             metalness: 0.1,
