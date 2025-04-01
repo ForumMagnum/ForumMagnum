@@ -62,7 +62,7 @@ const TwelveVirtuesDialog = ({onClose}: {
     <h2 className={classes.title}>Twelve Virtues of Rationality</h2>
     
     <DialogContent className={classes.twelveVirtues}>
-      <p>You have unlocked {numVirtuesUnlocked} of the <Link to="/posts/7ZqGiPHTpiDMwqMN2/twelve-virtues-of-rationality">Twelve Virtues of Rationality</Link>. Collect all twelve Virtues to get a $1M prize plus an invitation the the Beisutsukai!</p>
+      <p>You have unlocked {numVirtuesUnlocked} of the <Link to="/posts/7ZqGiPHTpiDMwqMN2/twelve-virtues-of-rationality">Twelve Virtues of Rationality</Link>. Collect all twelve Virtues to get a $1M prize plus an invitation to the Beisutsukai!</p>
       
       {twelveVirtues.map(v => <VirtueParagraph
         key={v.name}
