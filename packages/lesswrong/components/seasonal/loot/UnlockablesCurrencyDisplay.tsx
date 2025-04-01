@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUserUnlocks } from '@/lib/loot/unlocks';
+import { isLW } from '@/lib/instanceSettings';
 
 const styles = defineStyles("UnlockablesCurrencyDisplay", (theme: ThemeType) => ({
   root: {
@@ -48,6 +49,8 @@ const UnlockablesCurrencyDisplay = () => {
   const classes = useStyles(styles);
   const { unlocksState } = useCurrentUserUnlocks();
   const { LWTooltip } = Components;
+
+  if (!isLW) return null
 
   return <div className={classes.root}>
     <LWTooltip title="LW-Bux">
