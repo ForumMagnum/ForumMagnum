@@ -292,9 +292,12 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
     const startX = camera.left + (totalWidth - totalOccupiedWidth) / 2 + scale / 2;
 
     cylindersRef.current.forEach((cylinder, index) => {
-      cylinder.scale.set(scale, scale, scale);
+      // Manual adjustment bc I can't figure out how to get the last cylinder to scale correctly
+      const adjustedScale = scale * (index === 2 ? .85 : 1);
+      cylinder.scale.set(adjustedScale, adjustedScale, adjustedScale);
       // Adjust position based on scale and spacing
-      cylinder.position.x = startX + index * (scale + spacing);
+      const adjustedSpacingScale = (index === 2 ? .97 : 1);
+      cylinder.position.x = startX + index * (scale + spacing) * adjustedSpacingScale;
       // Center vertically (assuming camera looks along Z)
       cylinder.position.y = 0;
     });
@@ -455,7 +458,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
           });
 
           // Scale the circumference based on the number of symbols in the cylinder
-          const radius = (0.75 / 4) * allCylinderImageUrls[i].length
+          const radius = (0.75 / 4) * allCylinderImageUrls[i].length * (i === 0 ? 1.08 : 1);
           const height = 1;
 
           const dimensions = [radius, radius, height] as const;
