@@ -106,7 +106,7 @@ function createCanvasTexture(textures: THREE.Texture[]) {
   generatedCanvasTexture.wrapT = THREE.RepeatWrapping;
   generatedCanvasTexture.repeat.set(1, 1);
   generatedCanvasTexture.center.set(0.5, 0.5);
-  generatedCanvasTexture.rotation = Math.PI / 2; // Rotate to wrap correctly
+  generatedCanvasTexture.rotation = Math.PI * 3/2; // Change from Math.PI/2 to Math.PI*3/2
 
   // Dispose the individual image textures now that they're on the canvas
   textures.forEach((tex) => tex.dispose());
@@ -442,7 +442,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
           texture.wrapT = THREE.RepeatWrapping;
           texture.repeat.set(1, 1);
           texture.center.set(0.5, 0.5);
-          texture.rotation = Math.PI / 2; // Rotate texture to wrap correctly around cylinder axis
+          texture.rotation = Math.PI * 3/2; // Change from Math.PI/2 to Math.PI*3/2 to flip orientation
 
           const material = new THREE.MeshStandardMaterial({
             map: texture,
