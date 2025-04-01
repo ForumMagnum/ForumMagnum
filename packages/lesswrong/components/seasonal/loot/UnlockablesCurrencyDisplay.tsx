@@ -12,20 +12,36 @@ const styles = defineStyles("UnlockablesCurrencyDisplay", (theme: ThemeType) => 
     verticalAlign: "middle",
     fontSize: 16,
     fontWeight: 700,
-    marginLeft: 4,
     opacity: 0.8,
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: 4,
+    },
   },
   lwBuxIcon: {
     verticalAlign: "middle",
     width: 40,
     height: 40,
-    marginLeft: 12,
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: 12,
+    },
   },
   picoLightconesIcon: {
     verticalAlign: "middle",
     width: 25,
-    marginLeft: 12,
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: 12,
+    },
   },
+  lwBuxIconContainer: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    },
+  },
+  picoLightconesIconContainer: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    },
+  }
 }))
 
 const UnlockablesCurrencyDisplay = () => {
@@ -35,13 +51,17 @@ const UnlockablesCurrencyDisplay = () => {
 
   return <div className={classes.root}>
     <LWTooltip title="LW-Bux">
-      <img className={classes.lwBuxIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743478588/loot/LWBuxIcon.png"/>
-      <span className={classes.currencyAmount}>{unlocksState.lwBucks ?? 0}</span>
+      <div className={classes.lwBuxIconContainer}>
+        <img className={classes.lwBuxIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743478588/loot/LWBuxIcon.png"/>
+        <span className={classes.currencyAmount}>{unlocksState.lwBucks ?? 0}</span>
+      </div>
     </LWTooltip>
 
     <LWTooltip title="Picolightcones">
-      <img className={classes.picoLightconesIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743477104/loot/PicoLightcone.png"/>
-      <span className={classes.currencyAmount}>{unlocksState.picoLightcones ?? 0}</span>
+      <div className={classes.picoLightconesIconContainer}>
+        <img className={classes.picoLightconesIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1743477104/loot/PicoLightcone.png"/>
+        <span className={classes.currencyAmount}>{unlocksState.picoLightcones ?? 0}</span>
+      </div>
     </LWTooltip>
   </div>
 }
