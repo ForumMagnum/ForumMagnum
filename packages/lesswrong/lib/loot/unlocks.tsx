@@ -121,27 +121,35 @@ export const currencyRewards: CurrencyReward[] = [
     name: "lwBucksMedium",
     description: "A medium amount of LW Bucks",
     rarity: "uncommon",
+    // TODO: real url
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478588/loot/LWBuxIcon.png",
   },
   {
     name: "lwBucksLarge",
     description: "A large amount of LW Bucks",
     rarity: "rare",
+    // TODO: real url
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478588/loot/LWBuxIcon.png",
   },
   {
     name: "picoLightconesSmall",
     description: "A small amount of Pico Lightcones",
     rarity: "common",
-    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743477104/loot/PicoLightcone.png"
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743477104/loot/PicoLightcone.png",
   },
   {
     name: "picoLightconesMedium",
     description: "A medium amount of Pico Lightcones",
     rarity: "uncommon",
+    // TODO: real url
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743477104/loot/PicoLightcone.png",
   },
   {
     name: "picoLightconesLarge",
     description: "A large amount of Pico Lightcones",
     rarity: "rare",
+    // TODO: real url
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743477104/loot/PicoLightcone.png",
   },
 ];
 
@@ -152,7 +160,7 @@ interface ThemeReward {
   imagePath?: string
 }
 
-const themeRewards: ThemeReward[] = [
+export const themeRewards: ThemeReward[] = [
   {
     name: "ghiblify",
     description: "Ghibli Theme",
@@ -161,10 +169,47 @@ const themeRewards: ThemeReward[] = [
   },
 ];
 
+interface VoteReward {
+  name: string
+  description: string
+  rarity: "common"|"uncommon",
+  imagePath?: string
+}
+
+export const voteRewards: VoteReward[] = [
+  {
+    name: "smallUpvoteStrength",
+    description: "Small Upvote Strength",
+    rarity: "common",
+    // TODO: real url
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
+  },
+  {
+    name: "largeUpvoteStrength",
+    description: "Large Upvote Strength",
+    rarity: "uncommon",
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
+  },
+  {
+    name: "smallDownvoteStrength",
+    description: "Small Downvote Strength",
+    rarity: "common",
+    // TODO: real url
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
+  },
+  {
+    name: "largeDownvoteStrength",
+    description: "Large Downvote Strength",
+    rarity: "uncommon",
+    // TODO: real url
+    imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743374403/loot/strong_upvote.png",
+  }
+];
+
 export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
   name: v.name,
   description: v.shortDescription,
-  repeatable: false,
+  repeatable: true,
   rarity: "common",
   publiclyDisplayed: true,
 }));
@@ -172,7 +217,7 @@ export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
 export const currencyRewardsUnlocks = currencyRewards.map(c => new Unlockable({
   name: c.name,
   description: c.description,
-  repeatable: false,
+  repeatable: true,
   rarity: c.rarity,
   publiclyDisplayed: false,
 }));
@@ -182,6 +227,14 @@ export const themeRewardsUnlocks = themeRewards.map(t => new Unlockable({
   description: t.description,
   repeatable: false,
   rarity: t.rarity,
+  publiclyDisplayed: false,
+}));
+
+export const voteRewardsUnlocks = voteRewards.map(v => new Unlockable({
+  name: v.name,
+  description: v.description,
+  repeatable: true,
+  rarity: v.rarity,
   publiclyDisplayed: false,
 }));
 
@@ -207,6 +260,7 @@ export const allUnlockables = [
   ...twelveVirtuesUnlocks,
   ...currencyRewardsUnlocks,
   ...themeRewardsUnlocks,
+  ...voteRewardsUnlocks,
 ];
 
 declare global {

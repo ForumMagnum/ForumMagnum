@@ -27,7 +27,7 @@ SOFTWARE.
 */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
-import { currencyRewards, twelveVirtues } from '@/lib/loot/unlocks';
+import { currencyRewards, twelveVirtues, voteRewards } from '@/lib/loot/unlocks';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import shuffle from 'lodash/shuffle';
 
@@ -90,6 +90,10 @@ function createCanvasTexture(textures: THREE.Texture[]) {
 
   canvas.width = maxWidth;
   canvas.height = totalHeight;
+
+  // Fill the canvas background with white before drawing images
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   let currentY = 0;
   imageElements.forEach((img) => {
@@ -313,7 +317,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
 
   // Vote strength rewards
   const cylinder0ImageUrls = shuffle([
-    ...filterNonnull(twelveVirtues.map(virtue => virtue.imagePath)),
+    ...filterNonnull(voteRewards.map(reward => reward.imagePath)),
     // Add other stuff
   ]);
 
@@ -418,12 +422,12 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
         const finalCylinderTextures = [...generatedCanvasTextures];
 
         // 4. Create Cylinders
-        const geometry = new THREE.CylinderGeometry(
-          ...geometryDimensions,
-          radialSegments,
-          1, // Height segments = 1
-          true // Open-ended
-        );
+        // const geometry = new THREE.CylinderGeometry(
+        //   ...geometryDimensions,
+        //   radialSegments,
+        //   1, // Height segments = 1
+        //   true // Open-ended
+        // );
 
         cylindersRef.current = []; // Clear previous cylinders if any
         cylinderStatesRef.current = [];
@@ -446,13 +450,27 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
 
           const material = new THREE.MeshStandardMaterial({
             map: texture,
-            transparent: true,
+            // transparent: true,
+            color: new THREE.Color(0xffffff),
             side: THREE.DoubleSide,
             metalness: 0.1,
             roughness: 0.7,
           });
 
-          const cylinder = new THREE.Mesh(geometry.clone(), material);
+          // Scale the circumference based on the number of symbols in the cylinder
+          const radius = (0.75 / 4) * allCylinderImageUrls[i].length
+          const height = 1;
+
+          const dimensions = [radius, radius, height] as const;
+
+          const geometry = new THREE.CylinderGeometry(
+            ...dimensions,
+            radialSegments,
+            1, // Height segments = 1
+            true // Open-ended
+          );
+
+          const cylinder = new THREE.Mesh(geometry, material);
           cylinder.rotation.z = Math.PI / 2; // Orient cylinder mesh axis to be horizontal (along X)
 
           // --- EDIT: Set initial rotation so the 0th item faces the front ---
@@ -475,7 +493,7 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
         }
 
         // Dispose of the geometry template now that it's cloned
-        geometry.dispose();
+        // geometry.dispose();
 
         // 5. Position Cylinders
         positionCylinders(cameraRef.current!);
