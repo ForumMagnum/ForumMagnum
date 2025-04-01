@@ -324,11 +324,16 @@ const UsersMenu = ({classes}: {
       >
         <Paper>
           <DropdownMenu>
-            <div
-              onClick={() => {
+            <div onClick={() => {
                 forceUnHover();
               }}
             >
+              <DropdownItem
+                title={"Twelve Virtues of Rationality"}
+                onClick={() => openDialog({componentName: "TwelveVirtuesDialog"})}
+              />
+              <DropdownDivider />
+
               {isFriendlyUI && profileNode}
               {writeNewNode}
 

@@ -1,0 +1,81 @@
+import React from 'react';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { VirtueOfRationality, hasUnlock, twelveVirtues, twelveVirtuesUnlocks, useCurrentUserUnlocks } from '@/lib/loot/unlocks';
+import { Link } from '@/lib/reactRouterWrapper';
+import { DialogContent, DialogTitle } from '@/lib/vendor/@material-ui/core/src';
+
+const styles = defineStyles("TwelveVirtues", (theme: ThemeType) => ({
+  twelveVirtues: {
+    overflowY: "auto",
+  },
+  virtueImage: {
+    position: "absolute",
+    left: 0,
+    "& img": {
+      width: 50,
+      height: 50,
+    },
+  },
+  virtueDescription: {
+    marginLeft: 55,
+  },
+  virtueListItem: {
+    marginBottom: 16,
+    position: "relative",
+  },
+  virtueTitle: {
+    fontWeight: "bold",
+  },
+  virtueLongDescription: {
+  },
+}))
+
+const TwelveVirtuesDialog = ({onClose}: {
+  onClose: ()=>void
+}) => {
+  const classes = useStyles(styles);
+  const { unlocksState } = useCurrentUserUnlocks();
+  const {LWDialog} = Components;
+
+  const numVirtuesUnlocked: number = twelveVirtues.filter(v=>hasUnlock(unlocksState, v.name)).length;
+
+  return <LWDialog open={true} onClose={onClose}>
+    <DialogTitle>Twelve Virtues of Rationality</DialogTitle>
+    
+    <DialogContent className={classes.twelveVirtues}>
+      <p>You have unlocked {numVirtuesUnlocked} of the <Link to="/posts/7ZqGiPHTpiDMwqMN2/twelve-virtues-of-rationality">Twelve Virtues of Rationality</Link>. Collect all twelve Virtues to get a $1M prize plus an invitation the the Beisutsukai!</p>
+      
+      {twelveVirtues.map(v => <VirtueParagraph
+        key={v.name}
+        virtue={v}
+        unlocked={hasUnlock(unlocksState, v.name)}
+      />)}
+    </DialogContent>
+  </LWDialog>
+}
+
+const VirtueParagraph = ({virtue, unlocked}: {
+  virtue: VirtueOfRationality
+  unlocked: boolean
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.virtueListItem}>
+    <div className={classes.virtueImage}>
+      {virtue.imagePath && <img src={virtue.imagePath}/>}
+    </div>
+    <div className={classes.virtueDescription}>
+      <div className={classes.virtueTitle}>{virtue.shortDescription}</div>
+      <div className={classes.virtueLongDescription}>{virtue.longDescription}</div>
+    </div>
+  </div>
+}
+
+const TwelveVirtuesDialogComponent = registerComponent('TwelveVirtuesDialog', TwelveVirtuesDialog);
+
+declare global {
+  interface ComponentTypes {
+    TwelveVirtuesDialog: typeof TwelveVirtuesDialogComponent
+  }
+}
+

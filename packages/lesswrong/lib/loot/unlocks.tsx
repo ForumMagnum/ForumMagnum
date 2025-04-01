@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { gql, useQuery } from "@apollo/client"
 import { Components } from "../vulcan-lib/components"
+import { Link } from '@/lib/reactRouterWrapper';
 
 export const REGULAR_BOX_COST = 100;
 export const PREMIUM_BOX_COST = 500;
@@ -27,6 +28,85 @@ export class Unlockable {
   }
 }
 
+export type VirtueOfRationality = {
+  name: string
+  shortDescription: string
+  longDescription: React.ReactNode
+  imagePath?: string
+};
+
+export const twelveVirtues: VirtueOfRationality[] = [
+  {
+    name: "curiosity",
+    shortDescription: "The Virtue of Curiosity",
+    longDescription: <p>The first virtue is curiosity. Wouldn't you like to know what exciting rewards are inside of our lootboxes?</p>,
+    imagePath: "/ghibli/VirtueOfCuriosity.png"
+  },
+  {
+    name: "relinquishment",
+    shortDescription: "The Virtue of Relinquishment",
+    longDescription: <p>The second virtue is relinquishment. Traditionally this refers to relinquishing ignorance - relinquish the emotion which rests upon mistaken belief, etc etc. But <Link to="/donate">relinquishing your money</Link> is even better!</p>
+  },
+  {
+    name: "lightness",
+    shortDescription: "The Virtue of Lightness",
+    longDescription: <p>The third virtue is Lightness. Let the winds of evidence blow you about as though you are a leaf, with no direction of your own. Beware lest you fight a rearguard retreat against the evidence, grudgingly conceding each foot of ground only when forced, feeling cheated.</p>
+  },
+  {
+    name: "evenness",
+    shortDescription: "The Virtue of Evenness",
+    longDescription: <p>One who wishes to believe says, “Does the evidence permit me to believe?” One who wishes to disbelieve asks, “Does the evidence force me to believe?” Beware lest you place huge burdens of proof only on propositions you dislike, and then defend yourself by saying: “But it is good to be skeptical.”</p>
+  },
+  {
+    name: "argument",
+    shortDescription: "The Virtue of Argument",
+    longDescription: <p>Those who wish to fail must first prevent their friends from helping them. Those who smile wisely and say “I will not argue” remove themselves from help and withdraw from the communal effort. In argument strive for exact honesty, for the sake of others and also yourself: the part of yourself that distorts what you say to others also distorts your own thoughts.</p>
+  },
+  {
+    name: "empiricism",
+    shortDescription: "The Virtue of Empiricism",
+    longDescription: <p>Figuring out the optimal strategy for getting LessWrong Lootboxes requires experimentation. Lots of experimentation. You need a big sample size. An <i>exensive</i> sample size.</p>
+  },
+  {
+    name: "simplicity",
+    shortDescription: "The Virtue of Simplicity",
+    longDescription: <p>Antoine de Saint-Exupéry said: “Perfection is achieved not when there is nothing left to add, but when there is nothing left to take away.” Simplicity is virtuous in belief, design, planning, and justification. When you profess a huge belief with many details, each additional detail is another chance for the belief to be wrong.</p>
+  },
+  {
+    name: "humility",
+    shortDescription: "The Virtue of Humility",
+    longDescription: <p> To be humble is to take specific actions in anticipation of your own errors. To confess your fallibility and then do nothing about it is not humble; it is boasting of your modesty. Who are most humble? Those who most skillfully prepare for the deepest and most catastrophic errors in their own beliefs and plans.</p>
+  },
+  {
+    name: "perfectionism",
+    shortDescription: "The Virtue of Perfectionism",
+    longDescription: <p>The ninth virtue is perfectionism. So long as there is a loot-box reward still locked, your collection is not perfect.</p>
+  },
+  {
+    name: "precision",
+    shortDescription: "The Virtue of Precision",
+    longDescription: <p>One comes and says: The quantity is between 1 and 100. Another says: The quantity is between 40 and 50. If the quantity is 42 they are both correct, but the second prediction was more useful and exposed itself to a stricter test. What is true of one apple may not be true of another apple; thus more can be said about a single apple than about all the apples in the world.</p>
+  },
+  {
+    name: "scholarship",
+    shortDescription: "The Virtue of Scholarship",
+    longDescription: <p>Study many sciences and absorb their power as your own. Each field that you consume makes you larger. If you swallow enough sciences the gaps between them will diminish and your knowledge will become a unified whole. And you can get stickers for each of them, to display on your profile!</p>
+  },
+  {
+    name: "void",
+    shortDescription: "The Void",
+    longDescription: <p>Every step of your reasoning must cut through to the correct answer in the same movement. More than anything, you must think of carrying your map through to reflecting the territory. If you fail to achieve a correct answer, it is futile to protest that you acted with propriety.</p>
+  },
+];
+
+
+export const twelveVirtuesUnlocks = twelveVirtues.map(v => new Unlockable({
+  name: v.name,
+  description: v.shortDescription,
+  repeatable: false,
+  rarity: "common",
+}));
+
 export const allUnlockables = [
   new Unlockable({
     name: "notBeenAGoodUserAlbum",
@@ -46,6 +126,7 @@ export const allUnlockables = [
     repeatable: true,
     rarity: "common",
   }),
+  ...twelveVirtuesUnlocks
 ];
 
 declare global {
