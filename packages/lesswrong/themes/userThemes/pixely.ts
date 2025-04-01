@@ -3,8 +3,6 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 
 const pixelFont = [
   '"lores-21-serif"',
-  '"Press Start 2P"',
-  '"VT323"',
   'monospace'
 ].join(',')
 
