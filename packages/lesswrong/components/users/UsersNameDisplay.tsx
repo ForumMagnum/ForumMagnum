@@ -21,6 +21,21 @@ const styles = (theme: ThemeType) => ({
   nowrap: {
     whiteSpace: "nowrap"
   },
+  nameContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  curiosityIcon: {
+    width: 32,
+    height: 32,
+    marginTop: -10,
+  },
+  relinquishmentIcon: {},
+  lightnessIcon: {
+    width: 28,
+    height: 28,
+    marginTop: -6,
+  },
 });
 
 type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean) => void};
@@ -118,17 +133,33 @@ const UsersNameDisplay = ({
           hideFollowButton={hideFollowButton}
           disabled={noTooltip}
         >
-          <Link
-            to={profileUrl}
-            className={classNames(
-              colorClass,
-              noKibitz && classes.noKibitz,
-              nowrap && classes.nowrap,
-            )}
-            {...(nofollow ? {rel:"nofollow"} : {})}
-          >
-            {displayName}
-          </Link>
+          <div className={classes.nameContainer}>
+            <Link
+              to={profileUrl}
+              className={classNames(
+                colorClass,
+                noKibitz && classes.noKibitz,
+                nowrap && classes.nowrap,
+              )}
+              {...(nofollow ? {rel:"nofollow"} : {})}
+            >
+              {displayName}
+            </Link>
+            {/* curiosity icon */}
+            {user.publicUnlockables?.virtueCuriosity
+              ? <img className={classes.curiosityIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743471717/loot/virtue_curiosity.png" />
+              : null}
+
+            {/* TODO: pick and upload relinquishment icon */}
+            {user.publicUnlockables?.virtueRelinquishment
+              ? <img className={classes.relinquishmentIcon} src="" />
+              : null}
+            
+            {/* lightness icon */}
+            {user.publicUnlockables?.virtueLightness
+              ? <img className={classes.lightnessIcon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743472621/loot/virtue_lightness.png" />
+              : null}
+          </div>
         </UserTooltip>
       </AnalyticsContext>
     </span>

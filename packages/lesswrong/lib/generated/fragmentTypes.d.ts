@@ -5175,6 +5175,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string,
+  readonly publicUnlockables: any,
 }
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users

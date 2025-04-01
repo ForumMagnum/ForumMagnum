@@ -36,7 +36,7 @@ interface CylinderState {
 
 interface ThreeSlotMachineProps {
   textureUrls: string[];
-  winningItemIndex: number; // Index in textureUrls to land on
+  winningItemIndices: number[]; // Index in textureUrls for each cylinder to land on
   startSpin: boolean; // Signal to start the spin
   onSpinComplete: () => void; // Callback when animation finishes
   cylinderCount?: number;
@@ -54,7 +54,7 @@ interface ThreeSlotMachineProps {
 
 const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
   textureUrls,
-  winningItemIndex,
+  winningItemIndices,
   startSpin,
   onSpinComplete,
   cylinderCount = 3,
@@ -85,6 +85,8 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
   const restAnglesRef = useRef<number[]>([]);
   const phaseOffsetsRef = useRef<number[]>([]);
   const wobbleStartTimeRef = useRef<number>(0);
+  const spinTimeoutRef = useRef<number | null>(null);
+  const stopTimeoutsRef = useRef<Array<number | null>>([]);
 
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -244,6 +246,11 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
         console.log("ThreeSlotMachine: Mount ref not ready or no texture URLs");
         return;
     }
+    if (winningItemIndices.length !== cylinderCount) {
+        console.error(`ThreeSlotMachine: winningItemIndices length (${winningItemIndices.length}) does not match cylinderCount (${cylinderCount}).`);
+        // Optionally, throw an error or return early
+        return; 
+    }
     const container = mountRef.current;
     let currentRenderer: THREE.WebGLRenderer | null = null; // To use in cleanup
 
@@ -259,6 +266,13 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
     );
     cameraRef.current.position.z = cameraDistance;
     sceneRef.current.add(cameraRef.current);
+
+    // Add Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.6); // Soft white light
+    sceneRef.current.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    directionalLight.position.set(0, 1, 1); // Position the light
+    sceneRef.current.add(directionalLight);
 
     rendererRef.current = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // Use alpha for transparency
     rendererRef.current.setPixelRatio(window.devicePixelRatio);
@@ -296,10 +310,12 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
         texture.rotation = Math.PI / 2 ; // Adjust if texture appears sideways
 
 
-        const material = new THREE.MeshBasicMaterial({
+        const material = new THREE.MeshStandardMaterial({ // Use StandardMaterial for lighting
              map: texture,
+             transparent: true,
              side: THREE.DoubleSide, // Render inside and outside
-             transparent: true // Needed if texture has alpha
+             metalness: 0.1, // Adjust appearance slightly
+             roughness: 0.7, // Adjust appearance slightly
         });
 
         const cylinder = new THREE.Mesh(geometry.clone(), material); // Clone geometry
@@ -366,12 +382,19 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
           // If material is an array
           if (Array.isArray(cylinder.material)) {
             cylinder.material.forEach(mat => {
-              if (mat.map) mat.map.dispose();
+              // Check if material has a map property before disposing
+              if ('map' in mat && mat.map instanceof THREE.Texture) {
+                mat.map.dispose();
+              }
               mat.dispose();
             });
           } else { // Single material
-            if (cylinder.material.map) cylinder.material.map.dispose();
-            cylinder.material.dispose();
+            // Check if material has a map property before disposing
+            const mat = cylinder.material as THREE.Material & { map?: THREE.Texture };
+            if (mat.map) {
+              mat.map.dispose();
+            }
+            mat.dispose();
           }
         }
         sceneRef.current?.remove(cylinder);
@@ -391,27 +414,29 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
       console.log("ThreeSlotMachine: Cleanup complete");
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [textureUrls]); // Rerun effect if textureUrls change (IMPORTANT: Ensure this array is stable or memoized in parent)
+  }, [textureUrls, cylinderCount]); // Only re-run if textureUrls or cylinderCount change
 
   // --- Spin Trigger Effect ---
 
   useEffect(() => {
-    // Add dependencies to the dependency array of this useEffect hook
-    const deps = [startSpin, isInitialized, winningItemIndex, cylinderCount, baseSpinSpeed, spinAccelFactor, cylinderStopDelayMs, getSegmentAngle, decelerationEase];
+    // Dependencies are listed at the end
+    // const spinTimeoutRef = useRef<number | null>(null); // Moved outside
+    // const stopTimeoutsRef = useRef<Array<number | null>>([]); // Moved outside
 
     if (startSpin && isInitialized && currentGlobalStateRef.current === 'rest') {
       console.log("ThreeSlotMachine: Spin triggered!");
       currentGlobalStateRef.current = 'spinning';
+      wobbleStartTimeRef.current = Infinity; // Stop wobble immediately
 
-      // Reset target angles and set status to spinning
+      // Reset target angles and set status to spinning for all cylinders
       cylinderStatesRef.current.forEach((state) => {
         state.currentSpeed = baseSpinSpeed * spinAccelFactor;
         state.targetAngle = null; // Clear previous target
         state.status = 'spinning';
       });
 
-      // Set timeout to begin the stopping sequence
-      const stoppingTimeout = setTimeout(() => {
+      // --- Set timeout to begin the stopping sequence after a delay ---
+      spinTimeoutRef.current = window.setTimeout(() => {
         if (currentGlobalStateRef.current !== 'spinning') return; // Abort if state changed
 
         console.log("ThreeSlotMachine: Initiating stopping sequence...");
@@ -420,49 +445,71 @@ const ThreeSlotMachine: React.FC<ThreeSlotMachineProps> = ({
         cylindersRef.current.forEach((cylinder, i) => {
           // Delay the stopping of each subsequent cylinder
           const stopDelay = i * cylinderStopDelayMs;
-          const stopTimeout = setTimeout(() => {
+          stopTimeoutsRef.current[i] = window.setTimeout(() => {
              // Ensure we are still in the stopping phase before setting target
              if (currentGlobalStateRef.current !== 'stopping') return;
 
             const state = cylinderStatesRef.current[i];
             if (!state || state.status !== 'spinning') return; // Only stop spinning cylinders
 
-            const targetSegmentIndex = winningItemIndex; // All stop at the same winning index
-            const targetAngleRaw = getSegmentAngle(targetSegmentIndex);
+            // --- Calculate target angle for this specific cylinder ---
+            let winningIndex = winningItemIndices[i];
+            if (winningIndex === undefined || winningIndex < 0 || winningIndex >= symbolsPerReel) {
+                console.error(`Invalid winning index ${winningIndex} for cylinder ${i}. Defaulting to 0.`);
+                winningIndex = 0;
+            }
+            const baseTargetAngle = getSegmentAngle(winningIndex);
 
             // Calculate the final angle ensuring it's ahead of the current rotation
-            const currentRotations = Math.floor(cylinder.rotation.x / (2 * Math.PI));
-            // Ensure at least 1-2 full spins past the current position before stopping
-            const requiredRotations = currentRotations + 2;
-            let finalTargetAngle = targetAngleRaw + requiredRotations * 2 * Math.PI;
+            const currentRotation = cylinder.rotation.x;
+            // Ensure at least 2-3 full spins happen *during* stopping phase
+            const requiredRevolutions = Math.ceil(currentRotation / (2 * Math.PI)) + 2; 
+            const finalTargetAngle = requiredRevolutions * 2 * Math.PI + baseTargetAngle;
 
-             // Ensure target angle is always 'ahead\' of current rotation in the positive direction
-             while (finalTargetAngle < cylinder.rotation.x + Math.PI) { // Add PI buffer to ensure forward momentum needed
-                 finalTargetAngle += 2 * Math.PI;
-             }
+            // Ensure target angle is always 'ahead' of current rotation in the positive direction
+            // (The above calculation should handle this, but a check could be added if needed)
+            // while (finalTargetAngle < currentRotation + Math.PI) { ... }
 
-
-            console.log(`Cylinder ${i}: Setting target angle ${finalTargetAngle} (Segment: ${targetSegmentIndex})`);
+            console.log(`Cylinder ${i}: TargetIdx=${winningIndex}, BaseAngle=${baseTargetAngle.toFixed(2)}, CurrentRot=${currentRotation.toFixed(2)}, RequiredRevs=${requiredRevolutions}, Setting target angle ${finalTargetAngle.toFixed(2)}`);
             state.targetAngle = finalTargetAngle;
             state.status = 'stopping';
-             // The speed for deceleration is handled within the animate loop based on distance to target
-          }, stopDelay);
+            // The speed for deceleration is handled within the animate loop
 
-           // Store timeout ID for potential cleanup if component unmounts during stopping sequence
-           // (Requires more complex state/ref management - omitted for brevity but consider if needed)
+          }, stopDelay);
         });
       }, 1500); // Delay before starting the stopping sequence (e.g., 1.5 seconds of free spin)
 
-       // Cleanup timeout if component unmounts or spin is somehow reset
-       return () => clearTimeout(stoppingTimeout);
+      // Cleanup timeouts if effect re-runs or component unmounts
+      return () => {
+         console.log("ThreeSlotMachine: Spin trigger effect cleanup");
+         if (spinTimeoutRef.current) {
+             clearTimeout(spinTimeoutRef.current);
+             spinTimeoutRef.current = null;
+         }
+         stopTimeoutsRef.current.forEach(timeoutId => {
+             if (timeoutId) clearTimeout(timeoutId);
+         });
+         stopTimeoutsRef.current = [];
+         // // Optional: Decide if cancelling a spin should reset state immediately
+         // if (currentGlobalStateRef.current !== 'rest') {
+         //     console.log("Resetting state due to spin cancellation/re-trigger");
+         //     currentGlobalStateRef.current = 'rest';
+         //     cylinderStatesRef.current.forEach(state => state.status = 'rest');
+         //     storeRestAngles(); // Store current rotation as new rest angle
+         // }
+      };
 
     } else if (startSpin && !isInitialized) {
         console.warn("ThreeSlotMachine: Spin triggered but not initialized yet.");
     } else if (startSpin && currentGlobalStateRef.current !== 'rest') {
         console.warn("ThreeSlotMachine: Spin triggered but not in rest state.");
     }
+
+    // Explicitly return undefined if the main condition isn't met to avoid implicit return of cleanup
+    return undefined;
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startSpin, isInitialized, winningItemIndex, cylinderCount, baseSpinSpeed, spinAccelFactor, cylinderStopDelayMs, getSegmentAngle, decelerationEase]);
+  }, [startSpin, isInitialized, winningItemIndices, cylinderCount, baseSpinSpeed, spinAccelFactor, cylinderStopDelayMs, symbolsPerReel, getSegmentAngle]); // Ensure all dependencies used are listed
 
 
   return <div ref={mountRef} style={{ width: '100%', height: '100%', overflow: 'hidden' }} />;
