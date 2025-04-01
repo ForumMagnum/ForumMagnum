@@ -77,6 +77,7 @@ type TagRelsViewName = "postsWithTag"|"tagsOnPost";
 type TagsViewName = "allArbitalTags"|"allLWWikiTags"|"allPagesByNewest"|"allPublicTags"|"allTagsAlphabetical"|"allTagsHierarchical"|"coreAndSubforumTags"|"coreTags"|"currentUserSubforums"|"newTags"|"pingbackWikiPages"|"postTypeTags"|"suggestedFilterTags"|"tagBySlug"|"tagsBySlugs"|"tagsByTagFlag"|"tagsByTagIds"|"unprocessedLWWikiTags"|"unreviewedTags"|"userTags";
 type TweetsViewName = never
 type TypingIndicatorsViewName = never
+type UltraFeedEventsViewName = never
 type UserActivitiesViewName = never
 type UserEAGDetailsViewName = "dataByUser";
 type UserJobAdsViewName = "adsByUser";
@@ -166,6 +167,7 @@ interface ViewTermsByCollectionName {
   Tags: TagsViewTerms
   Tweets: ViewTermsBase
   TypingIndicators: ViewTermsBase
+  UltraFeedEvents: ViewTermsBase
   UserActivities: ViewTermsBase
   UserEAGDetails: UserEAGDetailsViewTerms
   UserJobAds: UserJobAdsViewTerms

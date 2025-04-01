@@ -73,6 +73,7 @@ import * as tagFlagsFragments from '../collections/tagFlags/fragments';
 import * as tagRelsFragments from '../collections/tagRels/fragments';
 import * as tagsFragments from '../collections/tags/fragments';
 import * as typingIndicatorsFragments from '../collections/typingIndicators/fragments';
+import * as ultraFeedEventsFragments from '../collections/ultraFeedEvents/fragments';
 import * as userEAGDetailsFragments from '../collections/userEAGDetails/fragments';
 import * as userJobAdsFragments from '../collections/userJobAds/fragments';
 import * as userMostValuablePostsFragments from '../collections/userMostValuablePosts/fragments';
@@ -159,6 +160,7 @@ const staticFragments = {
   ...tagRelsFragments,
   ...tagsFragments,
   ...typingIndicatorsFragments,
+  // ...ultraFeedEventsFragments,
   ...userEAGDetailsFragments,
   ...userJobAdsFragments,
   ...userMostValuablePostsFragments,

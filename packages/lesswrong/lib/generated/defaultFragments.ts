@@ -1472,6 +1472,19 @@ export const TypingIndicatorsDefaultFragment = `
   }
 `;
 
+export const UltraFeedEventsDefaultFragment = `
+  fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
+    _id
+    createdAt
+    documentId
+    collectionName
+    eventType
+    userId
+    event
+    feedItemId
+  }
+`;
+
 export const UserActivitiesDefaultFragment = `
   fragment UserActivitiesDefaultFragment on UserActivity {
     _id

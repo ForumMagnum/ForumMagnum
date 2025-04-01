@@ -85,6 +85,7 @@ import { TagRels } from './tagRels/collection';
 import { Tags } from './tags/collection';
 import { Tweets } from './tweets/collection';
 import { TypingIndicators } from './typingIndicators/collection';
+import { UltraFeedEvents } from './ultraFeedEvents/collection';
 import { UserEAGDetails } from './userEAGDetails/collection';
 import { UserJobAds } from './userJobAds/collection';
 import { UserMostValuablePosts } from './userMostValuablePosts/collection';
@@ -105,12 +106,12 @@ if (isAnyTest && !isIntegrationTest && !isMigrations) {
 const allCollections = {
   AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books, Chapters, CkEditorUserSessions, ClientIds, Collections, CommentModeratorActions,
   Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences, DigestPosts,
-  Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents,
-  GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups, ManifoldProbabilitiesCaches,
-  Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes,
-  Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches,
-  Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights,
-  Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators,
+  Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents, GardenCodes,
+  GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups, ManifoldProbabilitiesCaches, Messages,
+  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts,
+  PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports,
+  ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
+  SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents,
   UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
   UserActivities, Users, Votes, ...testCollections
 } satisfies CollectionsByName;
