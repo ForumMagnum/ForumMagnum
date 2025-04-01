@@ -146,7 +146,8 @@ const styles = defineStyles("TreasureChestOpening", (theme: ThemeType) => ({
   lwBuxButton: {
     width: '170px',
     cursor: 'pointer',
-    marginBottom: '-72px'
+    marginBottom: '-72px',
+    zIndex: 1
   },
   lightconesButton: {
     width: '170px',
@@ -221,6 +222,10 @@ const TreasureChestOpening = () => {
   };
 
   const handleChestClick = () => {
+    if (window.innerWidth < 900) {
+      alert("You can't become stronger on a phone yet!");
+      return;
+    }
     setWinningItemIndices([0, 0, 0]);
     setSpinComplete(false);
     setTriggerSpin(false);
