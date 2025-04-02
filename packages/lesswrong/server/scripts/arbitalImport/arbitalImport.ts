@@ -15,7 +15,7 @@ import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils'
 import path from 'path';
 import { arbitalMarkdownToCkEditorMarkup } from './markdownService';
 import Revisions from '@/server/collections/revisions/collection';
-import { afterCreateRevisionCallback, buildRevision } from '@/server/editor/make_editable_callbacks';
+import { buildRevision } from '@/server/editor/conversionUtils';
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
@@ -1334,11 +1334,6 @@ async function importRevisions<N extends CollectionNameString>({
       validate: false,
     })).data;
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
-    await afterCreateRevisionCallback.runCallbacksAsync([{
-      revisionID: lwRevision._id,
-      skipDenormalizedAttributions: true,
-      context: resolverContext,
-    }]);
   }
   
   // Handle the last revision separately, as an edit-operation rather than a

@@ -10,7 +10,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -46,7 +46,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
     const callbackProps = await checkCreatePermissionsAndReturnProps('MultiDocuments', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -104,7 +103,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       documentSelector: multidocumentSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('MultiDocuments', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('MultiDocuments', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -150,8 +149,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('MultiDocuments', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context)
+});
+
 
 export { createFunction as createMultiDocument, updateFunction as updateMultiDocument };
 export { wrappedCreateFunction as createMultiDocumentMutation, wrappedUpdateFunction as updateMultiDocumentMutation };

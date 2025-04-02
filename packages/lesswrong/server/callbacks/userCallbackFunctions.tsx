@@ -1,7 +1,5 @@
 import React from "react";
 import { hasDigests } from "@/lib/betas";
-import Conversations from "@/server/collections/conversations/collection";
-import Messages from "@/server/collections/messages/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
@@ -18,7 +16,7 @@ import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEma
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { CallbackValidationErrors, UpdateCallbackProperties } from "../mutationCallbacks";
+import { UpdateCallbackProperties } from "../mutationCallbacks";
 import { bellNotifyEmailVerificationRequired } from "../notificationCallbacks";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { recombeeApi } from "../recombee/client";
@@ -31,13 +29,16 @@ import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/modera
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { updateMutator } from "../vulcan-lib/mutators";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
+import { createConversation } from "../collections/conversations/mutations";
+import { createMessage } from "../collections/messages/mutations";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -81,12 +82,9 @@ async function sendWelcomeMessageTo(userId: string) {
     participantIds: [user._id, adminsAccount._id],
     title: subjectLine,
   }
-  const conversation = await createMutator({
-    collection: Conversations,
-    document: conversationData,
-    currentUser: adminsAccount,
-    validate: false
-  });
+
+  const adminAccountContext = await computeContextFromUser({ user: adminsAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+  const conversation = await createConversation({ data: conversationData }, adminAccountContext, true);
   
   const messageDocument = {
     userId: adminsAccount._id,
@@ -96,15 +94,11 @@ async function sendWelcomeMessageTo(userId: string) {
         data: welcomeMessageBody,
       }
     },
-    conversationId: conversation.data._id,
+    conversationId: conversation._id,
     noEmail: true,
-  }
-  await createMutator({
-    collection: Messages,
-    document: messageDocument,
-    currentUser: adminsAccount,
-    validate: false
-  })
+  };
+
+  await createMessage({ data: messageDocument }, adminAccountContext, true);
   
   // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
   // so we're not sending the email notification for this welcome PM
@@ -184,12 +178,11 @@ const utils = {
         displayName: "AI Alignment Forum",
         email: "aialignmentforum@lesswrong.com",
       }
-      const response = await createMutator({
-        collection: Users,
-        document: userData,
-        validate: false,
-      })
-      account = response.data
+      const afAccountContext = await computeContextFromUser({ user: account, req: context.req, res: context.res, isSSR: context.isSSR });
+      // Pretty tricky to get around this dependency cycle without moving the create-if-not-exists logic somewhere out of band
+      const { createUser }: typeof import('../collections/users/mutations') = require('../collections/users/mutations');
+      const response = await createUser({ data: userData }, afAccountContext, true);
+      account = response
     }
     return account;
   },
@@ -676,12 +669,9 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       participantIds: [newUser._id, lwAccount._id],
       title: `Welcome to the AI Alignment Forum!`
     }
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false,
-    });
+
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const conversation = await createConversation({ data: conversationData }, lwAccountContext, true);
 
     let firstMessageContent =
         `<div>
@@ -702,14 +692,10 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
           data: firstMessageContent
         }
       },
-      conversationId: conversation.data._id
-    }
-    void createMutator({
-      collection: Messages,
-      document: firstMessageData,
-      currentUser: lwAccount,
-      validate: false,
-    })
+      conversationId: conversation._id
+    };
+
+    void createMessage({ data: firstMessageData }, lwAccountContext, true);
   }
 }
 

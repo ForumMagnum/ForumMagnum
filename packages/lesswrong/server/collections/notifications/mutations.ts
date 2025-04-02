@@ -5,7 +5,7 @@ import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -33,7 +33,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
     const callbackProps = await checkCreatePermissionsAndReturnProps('Notifications', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -62,7 +61,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
       documentSelector: notificationSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Notifications', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('Notifications', { selector, context, data, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -85,8 +84,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('Notifications', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context)
+});
+
 
 export { createFunction as createNotification, updateFunction as updateNotification };
 export { wrappedCreateFunction as createNotificationMutation, wrappedUpdateFunction as updateNotificationMutation };

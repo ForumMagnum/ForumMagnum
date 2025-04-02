@@ -8,7 +8,7 @@ import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runE
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -33,7 +33,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Books', 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Books', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -87,7 +86,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Books', 
       documentSelector: bookSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Books', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('Books', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -131,8 +130,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Books', 
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Books', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Books', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Books', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('Books', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Books', rawResult, context)
+});
+
 
 export { createFunction as createBook, updateFunction as updateBook };
 export { wrappedCreateFunction as createBookMutation, wrappedUpdateFunction as updateBookMutation };

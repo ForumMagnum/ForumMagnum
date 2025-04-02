@@ -12,7 +12,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -50,7 +50,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     const callbackProps = await checkCreatePermissionsAndReturnProps('Comments', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -134,7 +133,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
       documentSelector: commentSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Comments', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('Comments', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -199,8 +198,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('Comments', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context)
+});
+
 
 export { createFunction as createComment, updateFunction as updateComment };
 export { wrappedCreateFunction as createCommentMutation, wrappedUpdateFunction as updateCommentMutation };

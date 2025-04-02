@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -30,7 +30,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
     const callbackProps = await checkCreatePermissionsAndReturnProps('ElicitQuestions', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -63,7 +62,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
       documentSelector: elicitquestionSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ElicitQuestions', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('ElicitQuestions', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -90,8 +89,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('ElicitQuestions', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context)
+});
+
 
 export { createFunction as createElicitQuestion, updateFunction as updateElicitQuestion };
 export { wrappedCreateFunction as createElicitQuestionMutation, wrappedUpdateFunction as updateElicitQuestionMutation };

@@ -10,7 +10,7 @@ import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runE
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -56,7 +56,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
     const callbackProps = await checkCreatePermissionsAndReturnProps('JargonTerms', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -112,7 +111,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
       documentSelector: jargontermSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('JargonTerms', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('JargonTerms', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -156,8 +155,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('JargonTerms', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context)
+});
+
 
 export { createFunction as createJargonTerm, updateFunction as updateJargonTerm };
 export { wrappedCreateFunction as createJargonTermMutation, wrappedUpdateFunction as updateJargonTermMutation };

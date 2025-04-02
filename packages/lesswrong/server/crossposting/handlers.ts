@@ -1,6 +1,5 @@
 import { Application, Request, Response, json } from "express";
 import { ZodType, z } from "zod";
-import { createMutator } from "../vulcan-lib/mutators";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { validateCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
 import {
@@ -21,6 +20,7 @@ import {
   createCrosspostRoute,
   updateCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
+import { createPost } from "../collections/posts/mutations";
 
 const onRequestError = (
   req: Request,
@@ -148,8 +148,8 @@ export const addV2CrosspostHandlers = (app: Application) => {
         throw new InvalidUserError();
       }
 
-      const {data: post} = await createMutator({
-        document: {
+      const post = await createPost({
+        data: {
           userId: user._id,
           fmCrosspost: {
             isCrosspost: true,
@@ -158,14 +158,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
           },
           ...postData,
         },
-        collection: context.Posts,
-        validate: false,
-        currentUser: user,
-        context: {
-          ...context,
-          isFMCrosspostRequest: true,
-        },
-      });
+      }, { ...context, isFMCrosspostRequest: true }, true);
 
       return {
         status: "posted" as const,

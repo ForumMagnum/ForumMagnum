@@ -7,7 +7,7 @@ import { setDefaultVotingFields } from "@/server/callbacks/electionCandidateCall
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -33,7 +33,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
     const callbackProps = await checkCreatePermissionsAndReturnProps('ElectionCandidates', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -68,7 +67,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
       documentSelector: electioncandidateSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ElectionCandidates', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('ElectionCandidates', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -95,8 +94,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('ElectionCandidates', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context)
+});
+
 
 export { createFunction as createElectionCandidate, updateFunction as updateElectionCandidate };
 export { wrappedCreateFunction as createElectionCandidateMutation, wrappedUpdateFunction as updateElectionCandidateMutation };

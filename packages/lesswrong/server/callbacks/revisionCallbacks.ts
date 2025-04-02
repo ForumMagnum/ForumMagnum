@@ -1,21 +1,15 @@
-import { Revisions } from '../../server/collections/revisions/collection';
-import { Tags } from '../../server/collections/tags/collection';
-import { Users } from '../../server/collections/users/collection';
-import { afterCreateRevisionCallback } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
-import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
-import { recomputeContributorScoresFor } from './votingCallbacks';
+import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
 // callbacks
 
 // Users upvote their own tag-revisions
-afterCreateRevisionCallback.add(async ({revisionID}) => {
-  const revision = await Revisions.findOne({_id: revisionID});
-  if (!revision) return;
+export async function upvoteOwnTagRevision({revision, context}: {revision: DbRevision, context: ResolverContext}) {
+  const { Revisions, Users } = context;
   if (revision.collectionName !== 'Tags') return;
   if (!revision.documentId) throw new Error("Revision is missing documentID");
   
@@ -30,21 +24,18 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
     skipRateLimits: true,
     selfVote: true
   })
-});
+}
 
 // Update the denormalized htmlWithContributorAnnotations when a tag revision
 // is created or edited
-// Users upvote their own tag-revisions
-afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions, context}) => {
-  const revision = await Revisions.findOne({_id: revisionID});
-  if (!revision) return;
+export async function updateDenormalizedHtmlAttributionsDueToRev({revision, skipDenormalizedAttributions, context}: {revision: DbRevision, skipDenormalizedAttributions: boolean, context: ResolverContext}) {
   if (!skipDenormalizedAttributions) {
     await maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision, context);
   }
-});
+}
 
 async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevision, context: ResolverContext) {
-
+  const { Tags, MultiDocuments } = context;
   if (revision.collectionName === 'Tags') {
     const tag = await Tags.findOne({_id: revision.documentId});
     if (!tag) return;

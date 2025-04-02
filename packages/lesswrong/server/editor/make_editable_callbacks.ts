@@ -3,8 +3,6 @@ import {htmlToPingbacks} from '../pingbacks'
 import { isEditableField } from '../../lib/editor/make_editable'
 import { collectionNameToTypeName } from '../../lib/generated/collectionTypeNames'
 import { CallbackHook } from '../utils/callbackHooks'
-import {createMutator} from '../vulcan-lib/mutators'
-import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import isEqual from 'lodash/isEqual'
@@ -12,6 +10,9 @@ import { fetchFragmentSingle } from '../fetchFragment'
 import { convertImagesInObject } from '../scripts/convertImagesToCloudinary'
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks'
 import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
+import { createRevision } from '../collections/revisions/mutations'
+import { buildRevision } from './conversionUtils'
+import { updateDenormalizedHtmlAttributionsDueToRev } from '../callbacks/revisionCallbacks'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
   doc: CreateInputsByCollectionName[N]['data'];
@@ -57,16 +58,6 @@ function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema
   });
 }
 
-// TODO: Now that the make_editable callbacks use createMutator to create
-// revisions, we can now add these to the regular ${collection}.create.after
-// callbacks
-interface AfterCreateRevisionCallbackContext {
-  revisionID: string
-  skipDenormalizedAttributions?: boolean
-  context: ResolverContext
-}
-export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
-
 export function getInitialVersion(document: CreateInputsByCollectionName[CollectionNameString]['data'] | ObjectsByCollectionName[CollectionNameString]) {
   if ((document as CreatePostDataInput).draft) {
     return '0.1.0'
@@ -80,27 +71,6 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
     return false;
   const {major} = extractVersionsFromSemver(semver)
   return major===0;
-}
-
-export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions, context }: {
-  originalContents: DbRevision["originalContents"],
-  currentUser: DbUser,
-  dataWithDiscardedSuggestions?: string,
-  context: ResolverContext,
-}) {
-
-  if (!originalContents) throw new Error ("Can't build revision without originalContents")
-
-  const { data, type } = originalContents;
-  const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !currentUser.isAdmin })
-  const wordCount = await dataToWordCount(readerVisibleData, type, context)
-
-  return {
-    html, wordCount, originalContents,
-    editedAt: new Date(),
-    userId: currentUser._id,
-  };
 }
 
 // Given a revised document, check whether fieldName (a content-editor field) is
@@ -170,11 +140,8 @@ async function createInitialRevision<N extends CollectionNameString>(
       changeMetrics,
       createdAt: editedAt,
     };
-    const firstRevision = await createMutator({
-      collection: Revisions,
-      document: newRevision,
-      validate: false
-    });
+
+    const firstRevision = await createRevision({ data: newRevision }, context, true);
 
     return {
       ...doc,
@@ -185,7 +152,7 @@ async function createInitialRevision<N extends CollectionNameString>(
           updateType: 'initial'
         },
       }),
-      [`${fieldName}_latest`]: firstRevision.data._id,
+      [`${fieldName}_latest`]: firstRevision._id,
       ...(pingbacks ? {
         pingbacks: await htmlToPingbacks(html, null),
       } : null),
@@ -262,18 +229,9 @@ async function createUpdateRevision<N extends CollectionNameString>(
       createdAt: editedAt,
       skipAttributions: false,
     };
-    
-    const newRevisionDoc = await createMutator({
-      collection: Revisions,
-      document: newRevision,
-      validate: false
-    });
 
-    const newRevisionId = newRevisionDoc.data._id;
-
-    if (newRevisionId) {
-      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId, context }]);
-    }
+    const newRevisionDoc = await createRevision({ data: newRevision }, context, true);
+    const newRevisionId = newRevisionDoc._id;
 
     return {
       ...docData,
@@ -310,7 +268,14 @@ async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: 
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
     );
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID, context }]);
+    const updatedRevision = await Revisions.findOne({_id: revisionID});
+    if (updatedRevision) {
+      await updateDenormalizedHtmlAttributionsDueToRev({
+        revision: updatedRevision,
+        skipDenormalizedAttributions: updatedRevision.skipAttributions,
+        context
+      });
+    }
   }
   return newDoc;
 }

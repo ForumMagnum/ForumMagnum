@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -32,7 +32,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
     const callbackProps = await checkCreatePermissionsAndReturnProps('SurveySchedules', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -65,7 +64,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
       documentSelector: surveyscheduleSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('SurveySchedules', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('SurveySchedules', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -92,8 +91,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveySchedules', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveySchedules', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveySchedules', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('SurveySchedules', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveySchedules', rawResult, context)
+});
+
 
 export { createFunction as createSurveySchedule, updateFunction as updateSurveySchedule };
 export { wrappedCreateFunction as createSurveyScheduleMutation, wrappedUpdateFunction as updateSurveyScheduleMutation };

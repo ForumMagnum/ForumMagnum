@@ -16,7 +16,7 @@ import { JsonType, Type } from "@/server/sql/Type";
 import LogTableQuery from "@/server/sql/LogTableQuery";
 import type { PostgresView } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
-import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
+import { getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import Revisions from "@/server/collections/revisions/collection";
@@ -27,6 +27,7 @@ import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 import { getCollection } from "@/server/collections/allCollections";
 import { createMutator } from "@/server/vulcan-lib/mutators";
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
+import { buildRevision } from "@/server/editor/conversionUtils";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -317,15 +318,10 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
             validate: false,
           });
     
-          await Promise.all([
-            afterCreateRevisionCallback.runCallbacksAsync([{
-              revisionID: revision.data._id,
-              context,
-            }]),
-            collection.rawUpdateOne({_id: document._id}, {
-              $set: {[latestFieldName]: revision.data._id},
-            }),
-          ]);
+          await collection.rawUpdateOne(
+            {_id: document._id},
+            { $set: {[latestFieldName]: revision.data._id}, }
+          );
         }
       } catch(e) {
         // eslint-disable-next-line no-console

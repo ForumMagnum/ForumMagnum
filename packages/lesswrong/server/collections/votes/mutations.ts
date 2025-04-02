@@ -25,7 +25,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Votes', 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Votes', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -54,7 +53,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Votes', 
       documentSelector: voteSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Votes', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('Votes', { selector, context, data, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);

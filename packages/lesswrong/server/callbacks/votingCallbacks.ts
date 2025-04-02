@@ -9,7 +9,6 @@ import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
-import { createMutator } from '../vulcan-lib/mutators';
 import { createAdminContext } from '../vulcan-lib/createContexts';
 import Tags from '../../server/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
@@ -21,8 +20,9 @@ import { updateModerateOwnPersonal, updateTrustedStatus } from '../users/moderat
 import { captureException } from '@sentry/core';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
-import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
+import { recomputeContributorScoresFor, updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
+import { createModeratorAction } from '../collections/moderatorActions/mutations';
 
 async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
@@ -65,20 +65,6 @@ function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableTyp
   void updatePostDenormalizedTags(postId);
 }
 
-export async function recomputeContributorScoresFor(votedRevision: DbRevision, context: ResolverContext) {
-  if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
-
-  if (votedRevision.collectionName === "Tags") {
-    const tag = await Tags.findOne({_id: votedRevision.documentId});
-    if (!tag) return;
-    await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description', context });
-  } else if (votedRevision.collectionName === "MultiDocuments") {
-    const multiDocument = await MultiDocuments.findOne({_id: votedRevision.documentId});
-    if (!multiDocument) return;
-    await updateDenormalizedContributorsList({ document: multiDocument, collectionName: 'MultiDocuments', fieldName: 'contents', context });
-  }
-}
-
 export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});
   cancelVoteKarma({newDocument, vote}, collection, user);
@@ -93,6 +79,7 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
     }
   }
 }
+
 export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
   void grantUserAFKarmaForVote(voteDocTuple);
   void updateTrustedStatus(voteDocTuple, context);
@@ -244,34 +231,34 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 // When a vote is cast, if its new karma is above review_market_threshold, create a Manifold
 // on it making top 50 in the review, and create a comment linking to the market.
 
-async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
-  const tag = await Tags.findOne({slug: tagSlug})
-  const { addOrUpvoteTag } = require('../tagging/tagsGraphQL');
-  if (!tag) {
-    const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-    const tagData = {
-      name: name,
-      slug: tagSlug,
-      userId: botUser._id
-    };   
+// async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
+//   const tag = await Tags.findOne({slug: tagSlug})
+//   const { addOrUpvoteTag } = require('../tagging/tagsGraphQL');
+//   if (!tag) {
+//     const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+//     const tagData = {
+//       name: name,
+//       slug: tagSlug,
+//       userId: botUser._id
+//     };   
 
-    const {data: newTag} = await createMutator({
-      collection: Tags,
-      document: tagData,
-      validate: false,
-      currentUser: botUser,
-    });
-    if (!newTag) {
-      //eslint-disable-next-line no-console
-      console.log(`Failed to create tag with slug "${tagSlug}"`); 
-      return;
-    }
-    await addOrUpvoteTag({tagId: newTag._id, postId: postId, currentUser: botUser, context});    
-  }
-  else {
-    await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
-  }
-}
+//     const {data: newTag} = await createMutator({
+//       collection: Tags,
+//       document: tagData,
+//       validate: false,
+//       currentUser: botUser,
+//     });
+//     if (!newTag) {
+//       //eslint-disable-next-line no-console
+//       console.log(`Failed to create tag with slug "${tagSlug}"`); 
+//       return;
+//     }
+//     await addOrUpvoteTag({tagId: newTag._id, postId: postId, currentUser: botUser, context});    
+//   }
+//   else {
+//     await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+//   }
+// }
 
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
 // This is probably fine, but it's worth noting. We can deal with it if it comes up.
@@ -337,16 +324,13 @@ async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDo
     } = longtermDownvoteScore;
   
     if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
-      void createMutator({
-        collection: context.ModeratorActions,
-        document: {
+      void createModeratorAction({
+        data: {
           type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
           userId: userId,
           endedAt: new Date()
         },
-        context: adminContext,
-        currentUser: adminContext.currentUser,
-      });
+      }, adminContext);
     }
   } catch (err) {
     captureException(err);

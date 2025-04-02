@@ -1,6 +1,5 @@
 
 import schema from "@/lib/collections/reviewVotes/newSchema";
-import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { ensureUniqueVotes, positiveReviewVoteNotifications } from "@/server/callbacks/reviewVoteCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -11,16 +10,6 @@ import clone from "lodash/clone";
 type CreateReviewVoteDataInput = Partial<DbReviewVote>;
 type UpdateReviewVoteDataInput = Partial<DbReviewVote>;
 
-function newCheck(user: DbUser | null, document: CreateReviewVoteDataInput | null, context: ResolverContext) {
-  return !user?.deleted && !user?.voteBanned;
-}
-
-function editCheck(user: DbUser | null, document: DbReviewVote | null, context: ResolverContext) {
-  if (!user || !document) return false;
-  return !user.deleted && !user.voteBanned;
-}
-
-
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVotes', {
   createFunction: async ({ data }: { data: CreateReviewVoteDataInput }, context, skipValidation?: boolean) => {
     const { currentUser, ReviewVotes } = context;
@@ -28,7 +17,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
     const callbackProps = await checkCreatePermissionsAndReturnProps('ReviewVotes', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -61,7 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
       documentSelector: reviewvoteSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ReviewVotes', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('ReviewVotes', { selector, context, data, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -84,10 +72,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ReviewVotes', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ReviewVotes', rawResult, context));
 
 export { createFunction as createReviewVote, updateFunction as updateReviewVote };
-export { wrappedCreateFunction as createReviewVoteMutation, wrappedUpdateFunction as updateReviewVoteMutation };
 
 // This doesn't have CRUD mutations, the functions are used purely by `submitReviewVote`.

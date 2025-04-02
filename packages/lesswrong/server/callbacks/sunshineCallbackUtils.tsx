@@ -4,7 +4,10 @@ import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collecti
 import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/schema";
 import { getWithLoader } from "../../lib/loaders";
 import { forumSelect } from "../../lib/forumTypeUtils";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { updateMutator } from "../vulcan-lib/mutators";
+import { createModeratorAction } from "../collections/moderatorActions/mutations";
+import { triggerReview } from "./helpers";
+import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
@@ -20,12 +23,6 @@ export async function triggerReviewIfNeeded(userId: string, context: ResolverCon
   if (needsReview) {
     await triggerReview(user._id, context, reason);
   }
-}
-
-export async function triggerReview(userId: string, context: ResolverContext, reason?: string) {
-  const { Users } = context;
-  // TODO: save the reason
-  await  Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
 }
 
 interface VoteableAutomodRuleProps<T extends DbVoteableType>{
@@ -85,15 +82,12 @@ async function triggerModerationAction(userId: string, warningType: DbModeratorA
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   // No previous commentQualityWarning on record for this user
   if (!lastModeratorAction) {
-    void createMutator({
-      collection: ModeratorActions,
-      document: {
+    void createModeratorAction({
+      data: {
+        userId,
         type: warningType,
-        userId
       },
-      currentUser: context.currentUser,
-      context
-    });
+    }, context);
 
     // User already has an active commentQualityWarning, escalate?
   } else if (isActionActive(lastModeratorAction)) {
@@ -101,15 +95,12 @@ async function triggerModerationAction(userId: string, warningType: DbModeratorA
 
     // User has an inactive commentQualityWarning, re-apply?
   } else {
-    void createMutator({
-      collection: ModeratorActions,
-      document: {
+    void createModeratorAction({
+      data: {
         type: warningType,
         userId  
       },
-      currentUser: context.currentUser,
-      context
-    });
+    }, context);
   }
 }
 
@@ -245,14 +236,11 @@ export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vot
   const needsModeration = automodRule({ voteableItem: comment, votes: allVotes });
 
   if (!existingDownvotedCommentAction && needsModeration) {
-    void createMutator({
-      collection: CommentModeratorActions,
-      document: {
+    void createCommentModeratorAction({
+      data: {
         type: DOWNVOTED_COMMENT_ALERT,
         commentId
       },
-      currentUser: context.currentUser,
-      context
-    });
+    }, context);
   }
 }

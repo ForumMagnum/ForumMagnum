@@ -1,7 +1,7 @@
 import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
-import { buildRevision } from '../editor/make_editable_callbacks';
+import { buildRevision } from '../editor/conversionUtils';
 import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { drive } from "@googleapis/drive";
 import Revisions from '../../server/collections/revisions/collection';

@@ -1,8 +1,7 @@
-import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
+import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { afterCreateRevisionCallback, buildRevision } from '../editor/make_editable_callbacks';
 import isEqual from 'lodash/isEqual';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { EditorContents } from '../../components/editor/Editor';
@@ -110,9 +109,6 @@ export const revisionResolversGraphQLMutations = {
       currentUser,
       validate: false
     });
-
-    // TODO: not sure if we need these?  The aren't called by `saveDocumentRevision` in `ckEditorWebhook.ts` after creating a new revision from ckeditor's cloud autosave
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: createdRevision._id, context }]);
 
     return createdRevision;
   }

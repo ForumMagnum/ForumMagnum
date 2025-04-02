@@ -7,7 +7,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { populateRawFeed } from "@/server/rss-integration/callbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -33,7 +33,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
     const callbackProps = await checkCreatePermissionsAndReturnProps('RSSFeeds', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -68,7 +67,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
       documentSelector: rssfeedSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('RSSFeeds', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('RSSFeeds', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -95,8 +94,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('RSSFeeds', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context)
+});
+
 
 export { createFunction as createRSSFeed, updateFunction as updateRSSFeed };
 export { wrappedCreateFunction as createRSSFeedMutation, wrappedUpdateFunction as updateRSSFeedMutation };

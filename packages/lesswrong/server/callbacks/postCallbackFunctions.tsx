@@ -46,7 +46,7 @@ import { getRejectionMessage } from "./helpers";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createConversation } from "../collections/conversations/mutations";
 import { createMessage } from "../collections/messages/mutations";
-import { createComment } from "../collections/comments/mutations";
+import { createModeratorAction } from "../collections/moderatorActions/mutations";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost | UpdatePreviewDocument<DbPost>) {
@@ -599,32 +599,6 @@ export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' 
   return post;
 }
 
-export async function updateFirstDebateCommentPostId(newDoc: DbPost, { context, currentUser }: AfterCreateCallbackProperties<'Posts'>) {
-  const { Comments } = context;
-
-  const isFirstDebatePostComment = 'debate' in newDoc
-      ? !!newDoc.debate
-      : false;
-
-  if (currentUser && isFirstDebatePostComment) {
-    // With the editable callback refactoring, this might now be missing a documentId,
-    // but we should really just get rid of this code anyways since debates are deprecated.
-    const revision = await getLatestContentsRevision(newDoc, context);
-    if (!revision?.html) {
-      return newDoc;
-    }
-
-    await createComment({
-      data: {
-        userId: currentUser._id,
-        postId: newDoc._id,
-        contents: revision,
-        debateResponse: true,
-      }
-    }, context);
-  }
-  return newDoc;
-}
 
 /* NEW AFTER */
 export async function sendCoauthorRequestNotifications<T extends Pick<DbPost, '_id' | 'coauthorStatuses' | 'hasCoauthorPermission'>>(post: T, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
@@ -990,31 +964,25 @@ export async function sendRejectionPM({ newDocument: post, oldDocument: oldPost,
  */
 export async function updateUserNotesOnPostDraft({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
   if (!oldDocument.draft && newDocument.draft && userIsAdmin(currentUser)) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
+    void createModeratorAction({
+      data: {
         userId: newDocument.userId,
         type: MOVED_POST_TO_DRAFT,
         endedAt: new Date()
-      }
-    });
+      },
+    }, context);
   }
 }
 
 export async function updateUserNotesOnPostRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
   if (!oldDocument.rejected && newDocument.rejected) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
+    void createModeratorAction({
+      data: {
         userId: newDocument.userId,
         type: REJECTED_POST,
         endedAt: new Date()
-      }
-    });
+      },
+    }, context);
   }
 }
 

@@ -8,3 +8,9 @@ export function getRejectionMessage(rejectedContentLink: string, rejectedReason:
   }
   return messageContents;
 }
+
+export async function triggerReview(userId: string, context: ResolverContext, reason?: string) {
+  const { Users } = context;
+  // TODO: save the reason
+  await  Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
+}

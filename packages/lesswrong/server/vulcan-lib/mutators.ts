@@ -159,8 +159,8 @@ export async function runFieldOnUpdateCallbacks<
 interface CheckCreatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends NewSchemaType<N>, D = CreateInputsByCollectionName[N]['data']> {
   context: ResolverContext;
   data: D;
-  newCheck: (user: DbUser | null, document: D | null, context: ResolverContext) => Promise<boolean> | boolean,
   schema: S,
+  /** You probably shouldn't default to using this just because. */
   skipValidation?: boolean,
 }
 
@@ -168,7 +168,6 @@ interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionName
   selector: SelectorInput;
   context: ResolverContext;
   data: D;
-  editCheck: (user: DbUser | null, document: ObjectsByCollectionName[N] | null, context: ResolverContext) => Promise<boolean> | boolean,
   schema: S,
   /** You probably shouldn't default to using this just because. */
   skipValidation?: boolean,
@@ -182,14 +181,10 @@ interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionName
  */
 export async function checkCreatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = CreateInputsByCollectionName[T]['data']>(
   collectionName: T,
-  { context, data, newCheck, schema, skipValidation }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
+  { context, data, schema, skipValidation }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser } = context;
   const collection = context[collectionName] as CollectionBase<T>;
-
-  if (!(await newCheck(currentUser, data, context))) {
-    throwError({ id: 'app.operation_not_allowed' });
-  }
 
   const callbackProps: CreateCallbackProperties<T, D> = {
     collection,
@@ -221,9 +216,9 @@ export async function checkCreatePermissionsAndReturnProps<const T extends Colle
  */
 export async function checkUpdatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = UpdateInputsByCollectionName[T]['data']>(
   collectionName: T,
-  { selector, context, data, editCheck, schema, skipValidation }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
+  { selector, context, data, schema, skipValidation }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
-  const { currentUser } = context;
+  const { currentUser, loaders } = context;
   const collection = context[collectionName] as CollectionBase<T>;
 
   if (isEmpty(selector)) {
@@ -232,14 +227,10 @@ export async function checkUpdatePermissionsAndReturnProps<const T extends Colle
 
   // get entire unmodified document from database
   const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
-  const oldDocument = await collection.findOne(documentSelector);
+  const oldDocument = await loaders[collectionName].load(documentSelector._id);
 
   if (!oldDocument) {
     throwError({ id: 'app.document_not_found', data: { documentId: documentSelector._id } });
-  }
-
-  if (!(await editCheck(currentUser, oldDocument, context))) {
-    throwError({ id: 'app.operation_not_allowed', data: { documentId: documentSelector._id } });
   }
 
   let previewDocument: ObjectsByCollectionName[T] = { ...oldDocument, ...data };

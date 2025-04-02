@@ -30,7 +30,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
     const callbackProps = await checkCreatePermissionsAndReturnProps('ReviewWinners', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -63,7 +62,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
       documentSelector: reviewwinnerSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ReviewWinners', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('ReviewWinners', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 

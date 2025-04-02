@@ -7,7 +7,7 @@ import { conversationEditNotification, flagOrBlockUserOnManyDMs, sendUserLeaving
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -34,7 +34,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
     const callbackProps = await checkCreatePermissionsAndReturnProps('Conversations', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -65,7 +64,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
       documentSelector: conversationSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Conversations', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('Conversations', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -96,8 +95,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('Conversations', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context)
+});
+
 
 export { createFunction as createConversation, updateFunction as updateConversation };
 export { wrappedCreateFunction as createConversationMutation, wrappedUpdateFunction as updateConversationMutation };

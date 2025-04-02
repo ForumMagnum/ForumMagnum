@@ -8,7 +8,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -50,7 +50,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
     const callbackProps = await checkCreatePermissionsAndReturnProps('GardenCodes', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -106,7 +105,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
       documentSelector: gardencodeSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('GardenCodes', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('GardenCodes', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -150,8 +149,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('GardenCodes', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context)
+});
+
 
 export { createFunction as createGardenCode, updateFunction as updateGardenCode };
 export { wrappedCreateFunction as createGardenCodeMutation, wrappedUpdateFunction as updateGardenCodeMutation };

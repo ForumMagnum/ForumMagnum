@@ -12,7 +12,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -49,7 +49,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
     const callbackProps = await checkCreatePermissionsAndReturnProps('Tags', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -111,7 +110,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
       documentSelector: tagSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Tags', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('Tags', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -165,8 +164,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('Tags', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
+});
+
 
 export { createFunction as createTag, updateFunction as updateTag };
 export { wrappedCreateFunction as createTagMutation, wrappedUpdateFunction as updateTagMutation };

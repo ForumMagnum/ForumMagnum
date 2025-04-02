@@ -9,7 +9,7 @@ import Users from '../../server/collections/users/collection';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { buildRevision } from '../editor/make_editable_callbacks';
+import { buildRevision } from '../editor/conversionUtils';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
@@ -17,6 +17,7 @@ import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { createRevision } from '../collections/revisions/mutations';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -159,11 +160,8 @@ const documentHelpers = {
         commitMessage: cloudEditorAutosaveCommitMessage,
         changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
       };
-      await createMutator({
-        collection: Revisions,
-        document: newRevision,
-        validate: false,
-      });
+      
+      await createRevision({ data: newRevision }, context, true);
     }
   },
 

@@ -7,7 +7,7 @@ import { backdatePreviousDigest, createNextDigestOnPublish } from "@/server/call
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -33,7 +33,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
     const callbackProps = await checkCreatePermissionsAndReturnProps('Digests', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -66,7 +65,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
       documentSelector: digestSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Digests', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('Digests', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -96,8 +95,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('Digests', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context)
+});
+
 
 export { createFunction as createDigest, updateFunction as updateDigest };
 export { wrappedCreateFunction as createDigestMutation, wrappedUpdateFunction as updateDigestMutation };

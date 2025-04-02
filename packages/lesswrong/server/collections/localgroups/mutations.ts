@@ -8,7 +8,7 @@ import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runE
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -36,7 +36,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
     const callbackProps = await checkCreatePermissionsAndReturnProps('Localgroups', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -94,7 +93,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
       documentSelector: localgroupSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Localgroups', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('Localgroups', { selector, context, data, schema, skipValidation });
 
     const { oldDocument, newDocument } = updateCallbackProperties;
 
@@ -140,8 +139,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('Localgroups', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context)
+});
+
 
 export { createFunction as createLocalgroup, updateFunction as updateLocalgroup };
 export { wrappedCreateFunction as createLocalgroupMutation, wrappedUpdateFunction as updateLocalgroupMutation };

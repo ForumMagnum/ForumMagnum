@@ -7,7 +7,7 @@ import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runE
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -29,7 +29,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
     const callbackProps = await checkCreatePermissionsAndReturnProps('CurationNotices', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -83,7 +82,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
       documentSelector: curationnoticeSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('CurationNotices', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('CurationNotices', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -125,8 +124,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('CurationNotices', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context)
+});
+
 
 export { createFunction as createCurationNotice, updateFunction as updateCurationNotice };
 export { wrappedCreateFunction as createCurationNoticeMutation, wrappedUpdateFunction as updateCurationNoticeMutation };

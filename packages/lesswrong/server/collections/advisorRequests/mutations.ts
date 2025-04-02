@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -48,7 +48,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
     const callbackProps = await checkCreatePermissionsAndReturnProps('AdvisorRequests', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -81,7 +80,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
       documentSelector: advisorrequestSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('AdvisorRequests', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('AdvisorRequests', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -108,8 +107,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('AdvisorRequests', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context)
+});
+
 
 export { createFunction as createAdvisorRequest, updateFunction as updateAdvisorRequest };
 export { wrappedCreateFunction as createAdvisorRequestMutation, wrappedUpdateFunction as updateAdvisorRequestMutation };

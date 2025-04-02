@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -48,7 +48,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRate
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserRateLimits', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -81,7 +80,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRate
       documentSelector: userratelimitSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('UserRateLimits', { selector, context, data, editCheck, schema, skipValidation });
+    } = await checkUpdatePermissionsAndReturnProps('UserRateLimits', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -108,8 +107,16 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRate
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context));
-const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context)
+});
+
+const wrappedUpdateFunction = wrapUpdateMutatorFunction('UserRateLimits', updateFunction, {
+  editCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context)
+});
+
 
 export { createFunction as createUserRateLimit, updateFunction as updateUserRateLimit };
 export { wrappedCreateFunction as createUserRateLimitMutation, wrappedUpdateFunction as updateUserRateLimitMutation };

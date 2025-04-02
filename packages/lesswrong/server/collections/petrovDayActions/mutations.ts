@@ -4,7 +4,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
@@ -45,7 +45,6 @@ const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
     const callbackProps = await checkCreatePermissionsAndReturnProps('PetrovDayActions', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -68,7 +67,11 @@ const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'PetrovDayActions', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PetrovDayActions', rawResult, context)
+});
+
 
 export { createFunction as createPetrovDayAction };
 export { wrappedCreateFunction as createPetrovDayActionMutation };

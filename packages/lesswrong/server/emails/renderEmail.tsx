@@ -23,6 +23,8 @@ import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { createLWEvent } from '../collections/lwevents/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -302,10 +304,8 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
     user: user?._id,
   };
   // Log in LWEvents table
-  await createMutator({
-    collection: LWEvents,
-    currentUser: user,
-    document: {
+  await createLWEvent({
+    data: {
       userId: user?._id,
       name: "emailSent",
       properties: {
@@ -313,9 +313,8 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
         ...additionalFields,
       },
       intercom: false,
-    },
-    validate: false,
-  })
+    }
+  }, createAnonymousContext(), true)
 }
 
 // Returns a string explanation of why we can't send emails to a given user, or

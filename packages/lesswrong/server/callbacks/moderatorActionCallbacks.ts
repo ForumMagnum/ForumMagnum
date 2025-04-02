@@ -2,7 +2,7 @@ import { isActionActive, MODERATOR_ACTION_TYPES, RECEIVED_SENIOR_DOWNVOTES_ALERT
 import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { AfterCreateCallbackProperties } from '../mutationCallbacks';
-import { triggerReview } from './sunshineCallbackUtils';
+import { triggerReview } from './helpers';
 
 export async function triggerReviewAfterModeration({ newDocument, currentUser, context }: AfterCreateCallbackProperties<'ModeratorActions'>) {
   const moderatorAction = newDocument;

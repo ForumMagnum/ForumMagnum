@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { deleteOldSubscriptions } from "@/server/callbacks/subscriptionCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
@@ -23,7 +23,6 @@ const { createFunction } = getDefaultMutationFunctions('Subscriptions', {
     const callbackProps = await checkCreatePermissionsAndReturnProps('Subscriptions', {
       context,
       data,
-      newCheck,
       schema,
       skipValidation,
     });
@@ -48,7 +47,11 @@ const { createFunction } = getDefaultMutationFunctions('Subscriptions', {
   },
 });
 
-const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Subscriptions', rawResult, context));
+const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
+  newCheck,
+  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Subscriptions', rawResult, context)
+});
+
 
 export { createFunction as createSubscription };
 export { wrappedCreateFunction as createSubscriptionMutation };
