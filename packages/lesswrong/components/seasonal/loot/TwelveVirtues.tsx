@@ -90,8 +90,8 @@ const TwelveVirtuesDialog = ({onClose}: {
   const [pinVirtue, { loading: pinLoading }] = useMutation(PIN_RATIONALITY_VIRTUE_MUTATION, {
     onCompleted: (data) => {
       flash({ messageString: "Pinned virtues updated!", type: "success" });
-      refetch();
       setTogglingVirtue(null);
+      void refetch();
     },
     onError: (error) => {
       flash({ messageString: error.message, type: "error" });
@@ -101,7 +101,7 @@ const TwelveVirtuesDialog = ({onClose}: {
 
   const handlePinToggle = (virtueName: string) => {
     setTogglingVirtue(virtueName);
-    pinVirtue({ variables: { virtueName } });
+    void pinVirtue({ variables: { virtueName } });
   };
 
   const pinnedVirtues = unlocksState.pinnedVirtues || [];
