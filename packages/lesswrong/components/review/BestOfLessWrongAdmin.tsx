@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments'; 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { useMulti } from '@/lib/crud/withMulti';
@@ -52,7 +52,6 @@ const BestOfLessWrongAdminRow = ({post, images, refetchImages}: {post: {_id: str
     </div>  
   </div>
 }
-
 
 const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   root: {
@@ -105,6 +104,14 @@ const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   }
 }));
 
+/* 
+Display the art for all ReviewWinners created in a given year,
+making it easier to quickly make a call for each post.
+
+(Note, because it was a bit annoying to do the fetch otherwise, this is using *createdAt*
+date rather than ReviewYear, i.e. 2 years after a ReviewYear)
+
+*/
 export const BestOfLessWrongAdmin = () => { 
   const classes = useStyles(styles);
   const { Loading } = Components;
