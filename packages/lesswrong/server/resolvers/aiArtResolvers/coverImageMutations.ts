@@ -64,3 +64,16 @@ export const flipSplashArtImageGraphQLMutations = {
     return true;
   },
 }
+
+export const updateSplashArtCoordinatesGraphQLTypeDefs = gql`
+  extend type Mutation {
+    updateSplashArtCoordinates(reviewWinnerArtId: String!, coordinates: SplashArtCoordinatesInput!): Boolean
+  }
+`
+
+export const updateSplashArtCoordinatesGraphQLMutations = {
+  updateSplashArtCoordinates: async (root: void, { reviewWinnerArtId, coordinates }: { reviewWinnerArtId: string, coordinates: DbSplashArtCoordinate }, context: ResolverContext) => {
+    const currentSplashCoordinates = await SplashArtCoordinates.findOne({ reviewWinnerArtId }, { sort: { createdAt: -1 } });
+    const reviewWinnerArt = await ReviewWinnerArts.findOne({ _id: reviewWinnerArtId });
+  },
+}

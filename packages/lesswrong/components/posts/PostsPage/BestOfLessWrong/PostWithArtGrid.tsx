@@ -6,7 +6,7 @@ import { useImageContext } from "../ImageContext";
 import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateImagesButton";
 import { useCreate } from "@/lib/crud/withCreate";
 import classNames from "classnames";
-
+import { gql, useMutation } from "@apollo/client";
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Check if it's a Cloudinary URL
   if (!url.includes('cloudinary.com')) return url;
@@ -85,11 +85,19 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   const { create: createSplashArtCoordinateMutation } = useCreate({
     collectionName: 'SplashArtCoordinates',
     fragmentName: 'SplashArtCoordinatesEdit'
-  });   
+  });
+
+  const [updateSplashArtCoordinates] = useMutation(gql`
+    mutation UpdateSplashArtCoordinates($reviewWinnerArtId: String!, $coordinates: SplashArtCoordinatesInput!) {
+      updateSplashArtCoordinates(reviewWinnerArtId: $reviewWinnerArtId, coordinates: $coordinates) { 
+        _id
+      }
+    }
+  `);
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
     // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
-    const { errors } = await createSplashArtCoordinateMutation({ data: {
+    const { errors } = await updateSplashArtCoordinates({ data: {
       reviewWinnerArtId: image._id,
       leftXPct: .33, // note: XPcts are right-aligned, not left-aligned like you might expect
       leftYPct: .15,
