@@ -1,4 +1,3 @@
-import { foreignKeyField } from "@/lib/utils/schemaUtils";
 import { universalFields } from "../../collectionUtils";
 
 export const schema: SchemaType<"ReviewWinnerArts"> = {
@@ -8,13 +7,6 @@ export const schema: SchemaType<"ReviewWinnerArts"> = {
     canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
-    ...foreignKeyField({
-      idFieldName: "postId",
-      resolverName: "post",
-      collectionName: "Posts",
-      type: "Post",
-      // nullable: true,
-    }), 
   },
   splashArtImagePrompt: {
     type: String,
