@@ -18,9 +18,6 @@ const TemplateComponent = () => {
     // // choose one of: pageContext|pageSectionContext|pageSubSectionContext|pageElementContext|pageElementSubContext=""
     // >
       <div className={classes.root}>
-        <div>
-          <h1>Template Component</h1>
-        </div>
       </div>
     // </AnalyticsContext>
   )

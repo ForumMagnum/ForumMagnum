@@ -66,7 +66,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   },
   content: {
     marginLeft: 10,
-  }
+  },
 }));
 
 type Post = {_id: string, slug: string, title: string}

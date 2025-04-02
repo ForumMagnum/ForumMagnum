@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, RefObject, useRef } from 'react';
+import React, { useState, useCallback, RefObject } from 'react';
 import { registerComponent } from '../../../../lib/vulcan-lib/components';
 import { useImageContext, ReviewWinnerImageInfo } from '../ImageContext';
 import { useEventListener } from '../../../hooks/useEventListener';
@@ -17,6 +17,16 @@ export type Coordinates = {
   width: number,
   height: number,
 }
+
+
+/*
+TODO: I'm not sure that this component exactly works (I think the exact positioning of the 
+cropped image is a bit off, probably because of the image being shifted around relative to last year's design). 
+
+But, going forward I am expecting to mostly use handleSaveCoordinates from PostsWithArtGrid 
+to set most image crops, and I'm done using this component for this year and the effort/reward
+ratio for fixing does not seem worth it right now. --Ray, April 2025
+*/
 
 export type BoxCoordinates = Coordinates & { flipped: boolean }
 
@@ -382,6 +392,7 @@ const ImageCropPreview = ({ imgRef, classes, flipped }: {
     }
   }, [selectedImageInfo, createSplashArtCoordinateMutation, cachedBoxCoordinates, imgRef]);
 
+  // if we don't yet have a selectedImageInfo, don't render the rest of the component which relies on it. (As of April 2025 it is set in PostsPage)
   if (!selectedImageInfo) {
     return <button className={classes.button} onClick={toggleBoxVisibility}>Show Box</button>;
   }

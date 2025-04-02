@@ -1,8 +1,7 @@
-import React, { useState, useRef, RefObject } from 'react';
+import React, { RefObject } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useHover } from '@/components/common/withHover';
-import { Coordinates } from './ImageCropPreview';
 import { gql, useMutation } from '@apollo/client';
 
 const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({ 

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '@/components/common/withUser';
-import { ImageProvider, useImageContext } from '../ImageContext';
+import { useImageContext } from '../ImageContext';
 import SplashImageEditing from './SplashImageEditing';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -74,7 +74,7 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     }
-  }
+  },
 }));
 
 export const BestOfLWPostsPageSplashImage = ({post}: {
