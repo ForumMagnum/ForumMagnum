@@ -5,7 +5,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { PostWithArtGrid } from './PostWithArtGrid';
 import GenerateImagesButton from '@/components/review/GenerateImagesButton';
 
-const styles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
+const styles = defineStyles("SplashImageEditingOptions", (theme: ThemeType) => ({
   root: { 
     zIndex: theme.zIndexes.splashHeaderImageOptions,
     marginBottom: '40px', 
@@ -32,7 +32,7 @@ const styles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
   },
 }));
 
-export const SplashHeaderImageOptions = ({ post }: {
+export const SplashImageEditingOptions = ({ post }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
 }) => {
   const { Loading } = Components;
@@ -57,10 +57,10 @@ export const SplashHeaderImageOptions = ({ post }: {
   );
 };
 
-const SplashHeaderImageOptionsComponent = registerComponent('SplashHeaderImageOptions', SplashHeaderImageOptions);
+const SplashImageEditingOptionsComponent = registerComponent('SplashImageEditingOptions', SplashImageEditingOptions);
 
 declare global {
   interface ComponentTypes {
-    SplashHeaderImageOptions: typeof SplashHeaderImageOptionsComponent
+    SplashImageEditingOptions: typeof SplashImageEditingOptionsComponent
   }
 }

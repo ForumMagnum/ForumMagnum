@@ -45,7 +45,7 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
 
 const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
   const classes = useStyles(styles);
-  const { SplashHeaderImageOptions, ImageCropPreview, LWPopper } = Components;
+  const { SplashImageEditingOptions, ImageCropPreview, LWPopper } = Components;
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -67,7 +67,7 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
       <div className={classes.changeImageBox}>Change image</div>
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-end" clickable={true} flip={true}>
         <div className={classes.splashContent}>
-          <SplashHeaderImageOptions post={post}/>
+          <SplashImageEditingOptions post={post}/>
         </div>
       </LWPopper>
     </div>
