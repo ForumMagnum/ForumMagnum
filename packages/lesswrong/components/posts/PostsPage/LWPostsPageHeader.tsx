@@ -319,3 +319,4 @@ declare global {
   }
 }
 
+export default LWPostsPageHeaderComponent;

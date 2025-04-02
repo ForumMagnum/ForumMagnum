@@ -29,12 +29,15 @@ function postArt(terms: PostReviewWinnerArtsViewTerms) {
   };
 }
 
+// Note, this is grabbing reviewWinnerArts based on their createdAt,
+// not by their reviewYear (because they don't automatically have access
+// to reviewYear)
 function allForYear({year}: AllForYearViewTerms) {
   return {
     selector: {
       createdAt: {
         $gte: new Date(year, 0, 1), // January 1st of current year
-        $lte: new Date(year + 1, 0, 1) // January 1st of next yea
+        $lte: new Date(year + 1, 0, 1) // January 1st of next year
       }
     }
   };

@@ -5,6 +5,7 @@ import groupBy from "lodash/groupBy";
 import { useImageContext } from "../ImageContext";
 import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateImagesButton";
 import { useCreate } from "@/lib/crud/withCreate";
+import classNames from "classnames";
 
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Check if it's a Cloudinary URL
@@ -67,6 +68,9 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   content: {
     marginLeft: 10,
   },
+  selectedImage: {
+    border: '2px solid #000',
+  }
 }));
 
 type Post = {_id: string, slug: string, title: string}
@@ -155,7 +159,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
 
               return <LWTooltip key={image._id} title={tooltip} tooltip={false}>
                 <div key={image._id} className={classes.imageWrapper}>
-                  <img className={classes.image} src={smallUrl} style={{border: selectedImageInfo?._id === image._id ? '2px solid #000' : 'none'}} onClick={() => handleSaveCoordinates(image)} />
+                  <img className={classNames(classes.image, selectedImageInfo?._id === image._id && classes.selectedImage)} src={smallUrl} onClick={() => handleSaveCoordinates(image)} />
                   <div className={classes.imageId}>
                     {image._id}
                   </div>

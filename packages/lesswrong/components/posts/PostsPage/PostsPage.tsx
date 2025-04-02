@@ -377,13 +377,6 @@ export const styles = (theme: ThemeType) => ({
     height: '100vh',
     width: '100vw',
   },
-  secondSplashPageHeader: {
-    ...theme.typography.postStyle,
-    fontSize: '46px',
-    lineHeight: 1,
-    textWrap: 'balance',
-    fontWeight: '600'
-  },
   reserveSpaceForSidenotes: {
     width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
     [sidenotesHiddenBreakpoint(theme)]: {
@@ -415,12 +408,6 @@ export const styles = (theme: ThemeType) => ({
     marginTop: 60,
     marginBottom: -20 // to account or voting UI padding
   },
-  bestOfLessWrong: {
-    ...theme.typography.body2,
-    color: theme.palette.grey[700],
-    marginLeft: 14,
-    marginBottom: 10,
-  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({

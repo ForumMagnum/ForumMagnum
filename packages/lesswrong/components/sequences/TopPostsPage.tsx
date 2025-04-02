@@ -1009,6 +1009,7 @@ const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates
     // We're explicitly not bothering with heightPct right now, since we just want to get "to the bottom" of the image
     [`${coordinatePosition}Flipped` as const]: flipped,
   } = splashCoordinates;
+  
   const newXPct = Math.min(1, Math.max(0, xPct - (widthPct * leftBookOffset)));
   const newWidthPct = Math.min(1, Math.max(0, widthPct * 3)); // this will break the url if it goes above 1, but it shouldn't
 
