@@ -1565,7 +1565,7 @@ interface DbUltraFeedEvent extends DbObject {
   createdAt: Date
   documentId: string
   event: any /*{"definitions":[{"blackbox":true}]}*/
-  eventType: "served" | "viewed" | "interacted"
+  eventType: "served" | "viewed" | "expanded"
   feedItemId: string | null
   userId: string
 }
