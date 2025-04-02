@@ -7,6 +7,7 @@ import { recomputeWhenSkipAttributionChanged } from "@/server/callbacks/revision
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkUpdatePermissionsAndReturnProps, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -21,7 +22,7 @@ function editCheck(user: DbUser | null) {
 // This has mutators because of a few mutable metadata fields (eg
 // skipAttributions), but most parts of revisions are create-only immutable.
 const { updateFunction } = getDefaultMutationFunctions('Revisions', {
-  updateFunction: async ({ selector, data }: UpdateRevisionInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateRevisionInput, context, skipValidation?: boolean) => {
     const { currentUser, Revisions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -32,7 +33,7 @@ const { updateFunction } = getDefaultMutationFunctions('Revisions', {
       documentSelector: revisionSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Revisions', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('Revisions', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -57,15 +58,14 @@ const { updateFunction } = getDefaultMutationFunctions('Revisions', {
 
     void logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Revisions', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Revisions', rawResult, context));
 
 export { updateFunction as updateRevision };
+export { wrappedUpdateFunction as updateRevisionMutation };
 
 
 export const graphqlRevisionTypeDefs = gql`

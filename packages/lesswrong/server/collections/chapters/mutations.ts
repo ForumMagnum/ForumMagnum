@@ -8,6 +8,7 @@ import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runE
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -31,7 +32,7 @@ async function editCheck(user: DbUser|null, document: DbChapter|null, context: R
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters', {
-  createFunction: async ({ data }: CreateChapterInput, context) => {
+  createFunction: async ({ data }: CreateChapterInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Chapters', {
@@ -39,6 +40,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -78,13 +80,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Chapters', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateChapterInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateChapterInput, context, skipValidation?: boolean) => {
     const { currentUser, Chapters } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -95,7 +94,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
       documentSelector: chapterSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Chapters', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('Chapters', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -138,15 +137,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
 
     void logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Chapters', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Chapters', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Chapters', rawResult, context));
 
 export { createFunction as createChapter, updateFunction as updateChapter };
+export { wrappedCreateFunction as createChapterMutation, wrappedUpdateFunction as updateChapterMutation };
 
 
 export const graphqlChapterTypeDefs = gql`

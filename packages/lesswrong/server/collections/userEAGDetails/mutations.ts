@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -41,7 +42,7 @@ function editCheck(user: DbUser | null, document: DbUserEAGDetail | null, contex
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGDetails', {
-  createFunction: async ({ data }: CreateUserEAGDetailInput, context) => {
+  createFunction: async ({ data }: CreateUserEAGDetailInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserEAGDetails', {
@@ -49,6 +50,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGD
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -65,13 +67,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGD
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'UserEAGDetails', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateUserEAGDetailInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserEAGDetailInput, context, skipValidation?: boolean) => {
     const { currentUser, UserEAGDetails } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -82,7 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGD
       documentSelector: usereagdetailSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('UserEAGDetails', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('UserEAGDetails', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -105,15 +104,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGD
 
     void logFieldChanges({ currentUser, collection: UserEAGDetails, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'UserEAGDetails', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserEAGDetails', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserEAGDetails', rawResult, context));
 
 export { createFunction as createUserEAGDetail, updateFunction as updateUserEAGDetail };
+export { wrappedCreateFunction as createUserEAGDetailMutation, wrappedUpdateFunction as updateUserEAGDetailMutation };
 
 
 export const graphqlUserEAGDetailTypeDefs = gql`

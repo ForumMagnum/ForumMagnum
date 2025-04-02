@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -41,7 +42,7 @@ function editCheck(user: DbUser | null, document: DbUserMostValuablePost | null,
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMostValuablePosts', {
-  createFunction: async ({ data }: CreateUserMostValuablePostInput, context) => {
+  createFunction: async ({ data }: CreateUserMostValuablePostInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserMostValuablePosts', {
@@ -49,6 +50,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -65,13 +67,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'UserMostValuablePosts', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateUserMostValuablePostInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserMostValuablePostInput, context, skipValidation?: boolean) => {
     const { currentUser, UserMostValuablePosts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -82,7 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
       documentSelector: usermostvaluablepostSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('UserMostValuablePosts', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('UserMostValuablePosts', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -105,15 +104,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
 
     void logFieldChanges({ currentUser, collection: UserMostValuablePosts, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'UserMostValuablePosts', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserMostValuablePosts', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserMostValuablePosts', rawResult, context));
 
 export { createFunction as createUserMostValuablePost, updateFunction as updateUserMostValuablePost };
+export { wrappedCreateFunction as createUserMostValuablePostMutation, wrappedUpdateFunction as updateUserMostValuablePostMutation };
 
 
 export const graphqlUserMostValuablePostTypeDefs = gql`

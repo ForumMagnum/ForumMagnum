@@ -7,6 +7,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { populateRawFeed } from "@/server/rss-integration/callbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -26,7 +27,7 @@ function editCheck(user: DbUser | null, document: DbRSSFeed | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds', {
-  createFunction: async ({ data }: CreateRSSFeedInput, context) => {
+  createFunction: async ({ data }: CreateRSSFeedInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('RSSFeeds', {
@@ -34,6 +35,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -52,13 +54,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'RSSFeeds', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateRSSFeedInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateRSSFeedInput, context, skipValidation?: boolean) => {
     const { currentUser, RSSFeeds } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -69,7 +68,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
       documentSelector: rssfeedSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('RSSFeeds', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('RSSFeeds', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -92,15 +91,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
 
     void logFieldChanges({ currentUser, collection: RSSFeeds, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'RSSFeeds', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context));
 
 export { createFunction as createRSSFeed, updateFunction as updateRSSFeed };
+export { wrappedCreateFunction as createRSSFeedMutation, wrappedUpdateFunction as updateRSSFeedMutation };
 
 
 export const graphqlRSSFeedTypeDefs = gql`

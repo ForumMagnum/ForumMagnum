@@ -42,7 +42,11 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
-import { getRejectionMessage } from "./commentCallbackFunctions";
+import { getRejectionMessage } from "./helpers";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createConversation } from "../collections/conversations/mutations";
+import { createMessage } from "../collections/messages/mutations";
+import { createComment } from "../collections/comments/mutations";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost | UpdatePreviewDocument<DbPost>) {
@@ -364,20 +368,17 @@ const utils = {
     noEmail: boolean,
     context: ResolverContext,
   }) => {
-    const { Conversations, Messages } = context;
-  
     const conversationData: CreateMutatorParams<"Conversations">['document'] = {
       participantIds: [post.userId, lwAccount._id],
       title: `Your post ${post.title} was rejected`,
       moderator: true
     };
-  
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false
-    });
+
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+
+    const conversation = await createConversation({
+      data: conversationData,
+    }, lwAccountContext, true);
   
     const messageData = {
       userId: lwAccount._id,
@@ -387,16 +388,13 @@ const utils = {
           data: messageContents
         }
       },
-      conversationId: conversation.data._id,
+      conversationId: conversation._id,
       noEmail: noEmail
     };
   
-    await createMutator({
-      collection: Messages,
-      document: messageData,
-      currentUser: lwAccount,
-      validate: false
-    });
+    await createMessage({
+      data: messageData,
+    }, lwAccountContext, true);
   
     if (!isAnyTest) {
       // eslint-disable-next-line no-console
@@ -616,17 +614,14 @@ export async function updateFirstDebateCommentPostId(newDoc: DbPost, { context, 
       return newDoc;
     }
 
-    await createMutator({
-      collection: Comments,
-      document: {
+    await createComment({
+      data: {
         userId: currentUser._id,
         postId: newDoc._id,
-        contents: revision as EditableFieldInsertion,
+        contents: revision,
         debateResponse: true,
-      },
-      context,
-      currentUser,
-    });
+      }
+    }, context);
   }
   return newDoc;
 }

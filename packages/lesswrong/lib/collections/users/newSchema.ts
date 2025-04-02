@@ -2969,7 +2969,6 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -2989,7 +2988,6 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -3009,7 +3007,6 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -3029,7 +3026,6 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -4650,7 +4646,6 @@ const schema = {
     },
     graphql: {
       outputType: "Date",
-      inputType: "Date!",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],

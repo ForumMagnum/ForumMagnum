@@ -6,6 +6,9 @@ import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import difference from 'lodash/difference';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { createModeratorAction } from '../collections/moderatorActions/mutations';
+import { createMessage } from '../collections/messages/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -59,16 +62,12 @@ export async function flagOrBlockUserOnManyDMs({
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG && !currentUser.reviewedAt) {
     // Flag users that have sent N+ DMs if they've never been reviewed
     logger('Flagging user')
-    void createMutator({
-      collection: ModeratorActions,
-      context,
-      currentUser: null,
-      validate: false,
-      document: {
+    void createModeratorAction({
+      data: {
         userId: currentUser._id,
         type: FLAGGED_FOR_N_DMS,
       },
-    });
+    }, context, true);
   }
   // Always update the numUsersContacted field, for denormalization
   void updateMutator({
@@ -101,9 +100,10 @@ export async function sendUserLeavingConversationNotication({newDocument, oldDoc
   }
   for (const userId of usersWhoLeft) {
     const leavingUser = (await Users.findOne(userId));
-    await createMutator({
-      collection: Messages,
-      document: {
+    const adminAccountContext = await computeContextFromUser({ user: adminAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+
+    await createMessage({
+      data: {
         userId: adminAccount._id,
         contents: {
           originalContents: {
@@ -115,10 +115,8 @@ export async function sendUserLeavingConversationNotication({newDocument, oldDoc
         },
         conversationId: newDocument._id,
         noEmail: true,
-      },
-      currentUser: adminAccount,
-      validate: false,
-    })
+      }
+    }, adminAccountContext, true);
   }
 }
 

@@ -5,6 +5,7 @@ import { OwnableDocument, userCanDo, userOwns } from "@/lib/vulcan-users/permiss
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -22,7 +23,7 @@ function editCheck(user: DbUser | null, document: DbLWEvent | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents', {
-  createFunction: async ({ data }: CreateLWEventInput, context) => {
+  createFunction: async ({ data }: CreateLWEventInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('LWEvents', {
@@ -30,6 +31,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -58,20 +60,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
     
     await sendIntercomEvent(documentWithId, currentUser);
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'LWEvents', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateLWEventInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateLWEventInput, context, skipValidation?: boolean) => {
     const { currentUser, LWEvents } = context;
 
     const {
       documentSelector: lweventSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('LWEvents', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('LWEvents', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -90,15 +89,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'LWEvents', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context));
 
 export { createFunction as createLWEvent, updateFunction as updateLWEvent };
+export { wrappedCreateFunction as createLWEventMutation, wrappedUpdateFunction as updateLWEventMutation };
 
 
 export const graphqlLWEventTypeDefs = gql`

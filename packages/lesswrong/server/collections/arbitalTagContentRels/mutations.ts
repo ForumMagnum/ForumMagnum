@@ -5,6 +5,7 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -23,7 +24,7 @@ function editCheck(user: DbUser | null, document: DbArbitalTagContentRel | null,
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ArbitalTagContentRels', {
-  createFunction: async ({ data }: CreateArbitalTagContentRelInput, context) => {
+  createFunction: async ({ data }: CreateArbitalTagContentRelInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ArbitalTagContentRels', {
@@ -31,6 +32,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ArbitalT
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -47,20 +49,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ArbitalT
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ArbitalTagContentRels', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateArbitalTagContentRelInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateArbitalTagContentRelInput, context, skipValidation?: boolean) => {
     const { currentUser, ArbitalTagContentRels } = context;
 
     const {
       documentSelector: arbitaltagcontentrelSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ArbitalTagContentRels', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('ArbitalTagContentRels', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -79,15 +78,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ArbitalT
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ArbitalTagContentRels', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ArbitalTagContentRels', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ArbitalTagContentRels', rawResult, context));
 
 export { createFunction as createArbitalTagContentRel, updateFunction as updateArbitalTagContentRel };
+export { wrappedCreateFunction as createArbitalTagContentRelMutation, wrappedUpdateFunction as updateArbitalTagContentRelMutation };
 
 
 export const graphqlArbitalTagContentRelTypeDefs = gql`

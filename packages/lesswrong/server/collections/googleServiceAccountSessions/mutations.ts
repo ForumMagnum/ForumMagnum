@@ -5,6 +5,7 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -21,7 +22,7 @@ function editCheck(user: DbUser | null, document: DbGoogleServiceAccountSession 
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleServiceAccountSessions', {
-  createFunction: async ({ data }: CreateGoogleServiceAccountSessionInput, context) => {
+  createFunction: async ({ data }: CreateGoogleServiceAccountSessionInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('GoogleServiceAccountSessions', {
@@ -29,6 +30,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleSe
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -45,20 +47,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleSe
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'GoogleServiceAccountSessions', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateGoogleServiceAccountSessionInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateGoogleServiceAccountSessionInput, context, skipValidation?: boolean) => {
     const { currentUser, GoogleServiceAccountSessions } = context;
 
     const {
       documentSelector: googleserviceaccountsessionSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('GoogleServiceAccountSessions', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('GoogleServiceAccountSessions', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -77,15 +76,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleSe
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'GoogleServiceAccountSessions', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'GoogleServiceAccountSessions', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'GoogleServiceAccountSessions', rawResult, context));
 
 export { createFunction as createGoogleServiceAccountSession, updateFunction as updateGoogleServiceAccountSession };
+export { wrappedCreateFunction as createGoogleServiceAccountSessionMutation, wrappedUpdateFunction as updateGoogleServiceAccountSessionMutation };
 
 
 export const graphqlGoogleServiceAccountSessionTypeDefs = gql`

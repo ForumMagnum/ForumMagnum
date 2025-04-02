@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -41,7 +42,7 @@ function editCheck(user: DbUser | null, document: DbUserJobAd | null, context: R
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobAds', {
-  createFunction: async ({ data }: CreateUserJobAdInput, context) => {
+  createFunction: async ({ data }: CreateUserJobAdInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserJobAds', {
@@ -49,6 +50,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobA
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -65,13 +67,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobA
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'UserJobAds', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateUserJobAdInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserJobAdInput, context, skipValidation?: boolean) => {
     const { currentUser, UserJobAds } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -82,7 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobA
       documentSelector: userjobadSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('UserJobAds', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('UserJobAds', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -105,15 +104,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobA
 
     void logFieldChanges({ currentUser, collection: UserJobAds, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'UserJobAds', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserJobAds', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserJobAds', rawResult, context));
 
 export { createFunction as createUserJobAd, updateFunction as updateUserJobAd };
+export { wrappedCreateFunction as createUserJobAdMutation, wrappedUpdateFunction as updateUserJobAdMutation };
 
 
 export const graphqlUserJobAdTypeDefs = gql`

@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -24,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbSpotlight | null, context: R
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotlights', {
-  createFunction: async ({ data }: CreateSpotlightInput, context) => {
+  createFunction: async ({ data }: CreateSpotlightInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Spotlights', {
@@ -32,6 +33,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -69,20 +71,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Spotlights', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateSpotlightInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateSpotlightInput, context, skipValidation?: boolean) => {
     const { currentUser, Spotlights } = context;
 
     const {
       documentSelector: spotlightSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Spotlights', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('Spotlights', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -116,15 +115,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
       props: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Spotlights', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Spotlights', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Spotlights', rawResult, context));
 
 export { createFunction as createSpotlight, updateFunction as updateSpotlight };
+export { wrappedCreateFunction as createSpotlightMutation, wrappedUpdateFunction as updateSpotlightMutation };
 
 
 export const graphqlSpotlightTypeDefs = gql`

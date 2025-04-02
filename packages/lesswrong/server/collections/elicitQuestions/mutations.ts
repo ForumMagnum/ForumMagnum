@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -23,7 +24,7 @@ function editCheck(user: DbUser | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQuestions', {
-  createFunction: async ({ data }: CreateElicitQuestionInput, context) => {
+  createFunction: async ({ data }: CreateElicitQuestionInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ElicitQuestions', {
@@ -31,6 +32,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -47,13 +49,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ElicitQuestions', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateElicitQuestionInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateElicitQuestionInput, context, skipValidation?: boolean) => {
     const { currentUser, ElicitQuestions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -64,7 +63,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
       documentSelector: elicitquestionSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ElicitQuestions', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('ElicitQuestions', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -87,15 +86,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
 
     void logFieldChanges({ currentUser, collection: ElicitQuestions, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ElicitQuestions', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context));
 
 export { createFunction as createElicitQuestion, updateFunction as updateElicitQuestion };
+export { wrappedCreateFunction as createElicitQuestionMutation, wrappedUpdateFunction as updateElicitQuestionMutation };
 
 
 export const graphqlElicitQuestionTypeDefs = gql`

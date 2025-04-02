@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -25,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbSurveySchedule | null, conte
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySchedules', {
-  createFunction: async ({ data }: CreateSurveyScheduleInput, context) => {
+  createFunction: async ({ data }: CreateSurveyScheduleInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('SurveySchedules', {
@@ -33,6 +34,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -49,13 +51,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'SurveySchedules', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateSurveyScheduleInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateSurveyScheduleInput, context, skipValidation?: boolean) => {
     const { currentUser, SurveySchedules } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -66,7 +65,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
       documentSelector: surveyscheduleSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('SurveySchedules', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('SurveySchedules', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -89,15 +88,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
 
     void logFieldChanges({ currentUser, collection: SurveySchedules, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'SurveySchedules', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveySchedules', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveySchedules', rawResult, context));
 
 export { createFunction as createSurveySchedule, updateFunction as updateSurveySchedule };
+export { wrappedCreateFunction as createSurveyScheduleMutation, wrappedUpdateFunction as updateSurveyScheduleMutation };
 
 
 export const graphqlSurveyScheduleTypeDefs = gql`

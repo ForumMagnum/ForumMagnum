@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkUpdatePermissionsAndReturnProps, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -23,7 +24,7 @@ function editCheck(user: DbUser | null, document: DbLlmConversation | null, cont
 const { updateFunction } = getDefaultMutationFunctions('LlmConversations', {
   // LlmConversations don't have a "default" create function; they're created when necessary in the `/api/sendLlmChat` endpoint
 
-  updateFunction: async ({ selector, data }: UpdateLlmConversationInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateLlmConversationInput, context, skipValidation?: boolean) => {
     const { currentUser, LlmConversations } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -34,7 +35,7 @@ const { updateFunction } = getDefaultMutationFunctions('LlmConversations', {
       documentSelector: llmconversationSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('LlmConversations', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('LlmConversations', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -57,15 +58,14 @@ const { updateFunction } = getDefaultMutationFunctions('LlmConversations', {
 
     void logFieldChanges({ currentUser, collection: LlmConversations, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'LlmConversations', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'LlmConversations', rawResult, context));
 
 export { updateFunction as updateLlmConversation };
+export { wrappedUpdateFunction as updateLlmConversationMutation };
 
 
 export const graphqlLlmConversationTypeDefs = gql`

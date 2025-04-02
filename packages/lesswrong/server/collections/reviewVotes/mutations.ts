@@ -22,7 +22,7 @@ function editCheck(user: DbUser | null, document: DbReviewVote | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVotes', {
-  createFunction: async ({ data }: { data: CreateReviewVoteDataInput }, context) => {
+  createFunction: async ({ data }: { data: CreateReviewVoteDataInput }, context, skipValidation?: boolean) => {
     const { currentUser, ReviewVotes } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ReviewVotes', {
@@ -30,6 +30,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -50,20 +51,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
 
     await positiveReviewVoteNotifications(documentWithId, currentUser, ReviewVotes, afterCreateProperties);
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ReviewVotes', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: UpdateReviewVoteDataInput }, context) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: UpdateReviewVoteDataInput }, context, skipValidation?: boolean) => {
     const { currentUser, ReviewVotes } = context;
 
     const {
       documentSelector: reviewvoteSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ReviewVotes', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('ReviewVotes', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -82,14 +80,14 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ReviewVotes', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ReviewVotes', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ReviewVotes', rawResult, context));
 
 export { createFunction as createReviewVote, updateFunction as updateReviewVote };
+export { wrappedCreateFunction as createReviewVoteMutation, wrappedUpdateFunction as updateReviewVoteMutation };
 
 // This doesn't have CRUD mutations, the functions are used purely by `submitReviewVote`.

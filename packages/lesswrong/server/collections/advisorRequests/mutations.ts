@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -41,7 +42,7 @@ function editCheck(user: DbUser | null, document: DbAdvisorRequest | null, conte
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorRequests', {
-  createFunction: async ({ data }: CreateAdvisorRequestInput, context) => {
+  createFunction: async ({ data }: CreateAdvisorRequestInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('AdvisorRequests', {
@@ -49,6 +50,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -65,13 +67,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'AdvisorRequests', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateAdvisorRequestInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateAdvisorRequestInput, context, skipValidation?: boolean) => {
     const { currentUser, AdvisorRequests } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -82,7 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
       documentSelector: advisorrequestSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('AdvisorRequests', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('AdvisorRequests', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -105,15 +104,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
 
     void logFieldChanges({ currentUser, collection: AdvisorRequests, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'AdvisorRequests', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context));
 
 export { createFunction as createAdvisorRequest, updateFunction as updateAdvisorRequest };
+export { wrappedCreateFunction as createAdvisorRequestMutation, wrappedUpdateFunction as updateAdvisorRequestMutation };
 
 export const graphqlAdvisorRequestTypeDefs = gql`
   input CreateAdvisorRequestDataInput {

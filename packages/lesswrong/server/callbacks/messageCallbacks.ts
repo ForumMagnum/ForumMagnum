@@ -4,6 +4,7 @@ import { loadByIds } from '../../lib/loaders';
 import { CreateCallbackProperties } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { createNotifications } from '../notificationCallbacksHelpers';
+import { createModeratorAction } from '../collections/moderatorActions/mutations';
 
 export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
   const { data } = (message.contents && message.contents.originalContents) || {}
@@ -22,7 +23,7 @@ export function unArchiveConversations({ document, context }: CreateCallbackProp
  * Creates a moderator action when the first message in a mod conversation is sent to the user
  * This also adds a note to a user's sunshineNotes
  */
-export async function updateUserNotesOnModMessage({ document, currentUser, context }: CreateCallbackProperties<'Messages'>) {
+export async function updateUserNotesOnModMessage({ document, context }: CreateCallbackProperties<'Messages'>) {
   const { conversationId } = document;
   // In practice this should never happen, we just don't have types set up for handling required fields
   if (!conversationId) {
@@ -40,16 +41,13 @@ export async function updateUserNotesOnModMessage({ document, currentUser, conte
     const nonAdminParticipant = conversationParticipants.find(user => !userIsAdmin(user));
 
     if (nonAdminParticipant && conversationMessageCount === 1) {
-      void createMutator({
-        collection: context.ModeratorActions,
-        context,
-        currentUser,
-        document: {
+      void createModeratorAction({
+        data: {
           userId: nonAdminParticipant._id,
           type: SENT_MODERATOR_MESSAGE,
-          endedAt: new Date()
-        }
-      });
+          endedAt: new Date(),
+        },
+      }, context);
     }
   }
 }

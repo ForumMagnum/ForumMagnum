@@ -28,8 +28,13 @@ interface UpdateFunctionArgs<N extends CollectionNameString> {
   data: Partial<Record<keyof ObjectsByCollectionName[N], unknown>> // Partial<DbInsertion<ObjectsByCollectionName[N]>>;
 }
 
-type CreateFunction<N extends CollectionNameString> = ({ data }: { data: Partial<Record<keyof ObjectsByCollectionName[N], unknown>> /* Partial<DbInsertion<ObjectsByCollectionName[N]>> */ }, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
-type UpdateFunction<N extends CollectionNameString> = ({ selector, data }: UpdateFunctionArgs<N>, context: ResolverContext) => Promise<Partial<ObjectsByCollectionName[N]> & { [ACCESS_FILTERED]: true } | null>;
+export interface CreateFunctionOptions {
+  skipValidation?: boolean;
+  skipAccessFilter?: boolean;
+}
+
+export type CreateFunction<N extends CollectionNameString> = ({ data }: { data: Partial<Record<keyof ObjectsByCollectionName[N], unknown>> }, context: ResolverContext, skipValidation?: boolean) => Promise<ObjectsByCollectionName[N]>;
+export type UpdateFunction<N extends CollectionNameString> = ({ selector, data }: UpdateFunctionArgs<N>, context: ResolverContext, skipValidation?: boolean) => Promise<ObjectsByCollectionName[N]>;
 
 interface DefaultMutationFunctionProps<N extends CollectionNameString> {
   createFunction?: CreateFunction<N>;
@@ -40,9 +45,9 @@ type DefaultMutationFunctionReturn<N extends CollectionNameString, I extends Def
   [k in keyof I]: I[k] extends (...args: AnyBecauseHard[]) => Promise<null>
     ? never
     : I[k] extends CreateFunction<N>
-      ? CreateFunction<N>
+      ? I[k]
       : I[k] extends UpdateFunction<N>
-        ? UpdateFunction<N>
+        ? I[k]
         : never;
 }
 

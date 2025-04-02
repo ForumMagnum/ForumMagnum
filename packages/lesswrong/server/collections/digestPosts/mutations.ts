@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -25,7 +26,7 @@ function editCheck(user: DbUser | null, document: DbDigestPost | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPosts', {
-  createFunction: async ({ data }: CreateDigestPostInput, context) => {
+  createFunction: async ({ data }: CreateDigestPostInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('DigestPosts', {
@@ -33,6 +34,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPo
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -49,13 +51,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPo
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'DigestPosts', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateDigestPostInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateDigestPostInput, context, skipValidation?: boolean) => {
     const { currentUser, DigestPosts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -66,7 +65,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPo
       documentSelector: digestpostSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('DigestPosts', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('DigestPosts', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -89,15 +88,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPo
 
     void logFieldChanges({ currentUser, collection: DigestPosts, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'DigestPosts', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'DigestPosts', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'DigestPosts', rawResult, context));
 
 export { createFunction as createDigestPost, updateFunction as updateDigestPost };
+export { wrappedCreateFunction as createDigestPostMutation, wrappedUpdateFunction as updateDigestPostMutation };
 
 
 export const graphqlDigestPostTypeDefs = gql`

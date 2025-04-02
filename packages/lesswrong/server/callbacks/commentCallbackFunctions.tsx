@@ -33,6 +33,12 @@ import _ from "underscore";
 import moment from "moment";
 import isEqual from "lodash/isEqual";
 import uniq from "lodash/uniq";
+import { createConversation } from "../collections/conversations/mutations";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createMessage } from "../collections/messages/mutations";
+import { createPost } from "../collections/posts/mutations";
+import { getRejectionMessage } from "./helpers";
+import { createModeratorAction } from "../collections/moderatorActions/mutations";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -46,17 +52,6 @@ interface SendModerationPMParams {
 
 const MINIMUM_APPROVAL_KARMA = 5;
 const SPAM_KARMA_THRESHOLD = 10; //Threshold after which you are no longer affected by spam detection
-
-export function getRejectionMessage(rejectedContentLink: string, rejectedReason: string|null) {
-  let messageContents = `
-  <p>Unfortunately, I rejected your ${rejectedContentLink}.</p>
-  <p>LessWrong aims for particularly high quality (and somewhat oddly-specific) discussion quality. We get a lot of content from new users and sadly can't give detailed feedback on every piece we reject, but I generally recommend checking out our <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">New User's Guide</a>, in particular the section on <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong#How_to_ensure_your_first_post_or_comment_is_well_received">how to ensure your content is approved</a>.</p>`
-  if (rejectedReason) {
-    messageContents += `<p>Your content didn't meet the bar for at least the following reason(s):</p>
-    <p>${rejectedReason}</p>`;
-  }
-  return messageContents;
-}
 
 export async function recalculateAFCommentMetadata(postId: string|null, context: ResolverContext) {
   const { Comments, Posts, loaders } = context;
@@ -369,12 +364,11 @@ const utils = {
       ...(action === 'rejected' ? { moderator: true } : {})
     };
 
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false
-    });
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+
+    const conversation = await createConversation({
+      data: conversationData,
+    }, lwAccountContext, true);
 
     const messageData = {
       userId: lwAccount._id,
@@ -384,16 +378,13 @@ const utils = {
           data: messageContents
         }
       },
-      conversationId: conversation.data._id,
+      conversationId: conversation._id,
       noEmail: noEmail
     };
 
-    await createMutator({
-      collection: Messages,
-      document: messageData,
-      currentUser: lwAccount,
-      validate: false
-    });
+    await createMessage({
+      data: messageData,
+    }, lwAccountContext, true);
 
     if (!isAnyTest) {
       // eslint-disable-next-line no-console
@@ -565,7 +556,8 @@ export async function assignPostVersion(comment: CreateCommentDataInput) {
   };
 }
 
-export async function createShortformPost(comment: CreateCommentDataInput, { currentUser, context: { Users, Posts } }: CreateCallbackProperties<"Comments">) {
+export async function createShortformPost(comment: CreateCommentDataInput, { currentUser, context }: CreateCallbackProperties<"Comments">) {
+  const { Posts, Users } = context;
   if (!currentUser) {
     throw new Error("Must be logged in");
   }
@@ -577,22 +569,20 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
       });
     }
 
-    const post = await createMutator({
-      collection: Posts,
-      document: {
+    const post = await createPost({
+      data: {
         userId: currentUser._id,
         shortform: true,
         title: userShortformPostTitle(currentUser),
         af: currentUser.groups?.includes('alignmentForum'),
       },
-      currentUser,
-      validate: false,
-    })
+    }, context, true);
+
     await updateMutator({
       collection: Users,
       documentId: currentUser._id,
       set: {
-        shortformFeedId: post.data._id
+        shortformFeedId: post._id
       },
       unset: {},
       validate: false,
@@ -600,7 +590,7 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
 
     return ({
       ...comment,
-      postId: post.data._id
+      postId: post._id
     })
   }
   
@@ -1065,16 +1055,13 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context }:
 
 export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
   if (!oldDocument.rejected && newDocument.rejected) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
+    void createModeratorAction({
+      data: {
         userId: newDocument.userId,
         type: REJECTED_COMMENT,
-        endedAt: new Date()
+        endedAt: new Date(),
       }
-    })
+    }, context);
   }
 }
 

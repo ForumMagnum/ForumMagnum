@@ -161,6 +161,7 @@ interface CheckCreatePermissionsAndReturnArgumentsProps<N extends CollectionName
   data: D;
   newCheck: (user: DbUser | null, document: D | null, context: ResolverContext) => Promise<boolean> | boolean,
   schema: S,
+  skipValidation?: boolean,
 }
 
 interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends NewSchemaType<N>, D = UpdateInputsByCollectionName[N]['data']> {
@@ -169,6 +170,8 @@ interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionName
   data: D;
   editCheck: (user: DbUser | null, document: ObjectsByCollectionName[N] | null, context: ResolverContext) => Promise<boolean> | boolean,
   schema: S,
+  /** You probably shouldn't default to using this just because. */
+  skipValidation?: boolean,
 }
 
 /**
@@ -179,7 +182,7 @@ interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionName
  */
 export async function checkCreatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = CreateInputsByCollectionName[T]['data']>(
   collectionName: T,
-  { context, data, newCheck, schema }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
+  { context, data, newCheck, schema, skipValidation }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser } = context;
   const collection = context[collectionName] as CollectionBase<T>;
@@ -197,10 +200,11 @@ export async function checkCreatePermissionsAndReturnProps<const T extends Colle
     schema,
   };
 
-  // TODO: should validation be optional, the way it is with createMutator?
-  const validationErrors = validateDocument(data, collection, context);
-  if (validationErrors.length) {
-    throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+  if (!skipValidation) {
+    const validationErrors = validateDocument(data, collection, context);
+    if (validationErrors.length) {
+      throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+    }
   }
 
   // assign userId
@@ -217,7 +221,7 @@ export async function checkCreatePermissionsAndReturnProps<const T extends Colle
  */
 export async function checkUpdatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = UpdateInputsByCollectionName[T]['data']>(
   collectionName: T,
-  { selector, context, data, editCheck, schema }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
+  { selector, context, data, editCheck, schema, skipValidation }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser } = context;
   const collection = context[collectionName] as CollectionBase<T>;
@@ -244,10 +248,11 @@ export async function checkUpdatePermissionsAndReturnProps<const T extends Colle
   // doing it. Explicit cast to make it type-check anyways.
   previewDocument = pickBy(previewDocument, f => f !== null) as any;
 
-  // validation
-  const validationErrors = validateData(data, previewDocument, collection, context);
-  if (validationErrors.length) {
-    throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+  if (!skipValidation) {
+    const validationErrors = validateData(data, previewDocument, collection, context);
+    if (validationErrors.length) {
+      throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+    }
   }
 
   const updateCallbackProperties: UpdateCallbackProperties<T> = {

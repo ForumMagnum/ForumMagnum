@@ -7,6 +7,7 @@ import { conversationEditNotification, flagOrBlockUserOnManyDMs, sendUserLeaving
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -27,7 +28,7 @@ function editCheck(user: DbUser | null, document: DbConversation | null) {
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversations', {
-  createFunction: async ({ data }: CreateConversationInput, context) => {
+  createFunction: async ({ data }: CreateConversationInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Conversations', {
@@ -35,6 +36,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -53,20 +55,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Conversations', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateConversationInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateConversationInput, context, skipValidation?: boolean) => {
     const { currentUser, Conversations } = context;
 
     const {
       documentSelector: conversationSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Conversations', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('Conversations', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -93,15 +92,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
 
     await conversationEditNotification(updatedDocument, oldDocument, currentUser, context);
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Conversations', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context));
 
 export { createFunction as createConversation, updateFunction as updateConversation };
+export { wrappedCreateFunction as createConversationMutation, wrappedUpdateFunction as updateConversationMutation };
 
 
 export const graphqlConversationTypeDefs = gql`

@@ -26,7 +26,7 @@ import {
   convertToGraphQL,
 } from './graphqlTemplates';
 import type { GraphQLScalarType } from 'graphql';
-import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
+import { ACCESS_FILTERED, accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import gql from 'graphql-tag'; 
 import * as _ from 'underscore';
@@ -103,60 +103,60 @@ import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGrap
 import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
-import { createAdvisorRequest, updateAdvisorRequest, graphqlAdvisorRequestTypeDefs } from "@/server/collections/advisorRequests/mutations";
-import { createArbitalTagContentRel, updateArbitalTagContentRel, graphqlArbitalTagContentRelTypeDefs } from "@/server/collections/arbitalTagContentRels/mutations";
-import { createBan, updateBan, graphqlBanTypeDefs } from "@/server/collections/bans/mutations";
-import { createBook, updateBook, graphqlBookTypeDefs } from "@/server/collections/books/mutations";
-import { createChapter, updateChapter, graphqlChapterTypeDefs } from "@/server/collections/chapters/mutations";
-import { createCollection, updateCollection, graphqlCollectionTypeDefs } from "@/server/collections/collections/mutations";
-import { createCommentModeratorAction, updateCommentModeratorAction, graphqlCommentModeratorActionTypeDefs } from "@/server/collections/commentModeratorActions/mutations";
-import { createComment, updateComment, graphqlCommentTypeDefs } from "@/server/collections/comments/mutations";
-import { createConversation, updateConversation, graphqlConversationTypeDefs } from "@/server/collections/conversations/mutations";
-import { createCurationNotice, updateCurationNotice, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
-import { createDialogueMatchPreference, updateDialogueMatchPreference, graphqlDialogueMatchPreferenceTypeDefs } from "@/server/collections/dialogueMatchPreferences/mutations";
-import { createDigestPost, updateDigestPost, graphqlDigestPostTypeDefs } from "@/server/collections/digestPosts/mutations";
-import { createDigest, updateDigest, graphqlDigestTypeDefs } from "@/server/collections/digests/mutations";
-import { createElectionCandidate, updateElectionCandidate, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
-import { createElectionVote, updateElectionVote, graphqlElectionVoteTypeDefs } from "@/server/collections/electionVotes/mutations";
-import { createElicitQuestion, updateElicitQuestion, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
-import { createForumEvent, updateForumEvent, graphqlForumEventTypeDefs } from "@/server/collections/forumEvents/mutations";
-import { createGardenCode, updateGardenCode, graphqlGardenCodeTypeDefs } from "@/server/collections/gardencodes/mutations";
-import { createGoogleServiceAccountSession, updateGoogleServiceAccountSession, graphqlGoogleServiceAccountSessionTypeDefs } from "@/server/collections/googleServiceAccountSessions/mutations";
-import { createJargonTerm, updateJargonTerm, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
-import { createLWEvent, updateLWEvent, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
-import { updateLlmConversation, graphqlLlmConversationTypeDefs } from "@/server/collections/llmConversations/mutations";
-import { createLocalgroup, updateLocalgroup, graphqlLocalgroupTypeDefs } from "@/server/collections/localgroups/mutations";
-import { createMessage, updateMessage, graphqlMessageTypeDefs } from "@/server/collections/messages/mutations";
-import { createModerationTemplate, updateModerationTemplate, graphqlModerationTemplateTypeDefs } from "@/server/collections/moderationTemplates/mutations";
-import { createModeratorAction, updateModeratorAction, graphqlModeratorActionTypeDefs } from "@/server/collections/moderatorActions/mutations";
-import { createMultiDocument, updateMultiDocument, graphqlMultiDocumentTypeDefs } from "@/server/collections/multiDocuments/mutations";
-import { createNotification, updateNotification, graphqlNotificationTypeDefs } from "@/server/collections/notifications/mutations";
-import { createPetrovDayAction, graphqlPetrovDayActionTypeDefs } from "@/server/collections/petrovDayActions/mutations";
-import { createPodcastEpisode, updatePodcastEpisode, graphqlPodcastEpisodeTypeDefs } from "@/server/collections/podcastEpisodes/mutations";
-import { createPostEmbedding, updatePostEmbedding, graphqlPostEmbeddingTypeDefs } from "@/server/collections/postEmbeddings/mutations";
-import { createPostViewTime, updatePostViewTime, graphqlPostViewTimeTypeDefs } from "@/server/collections/postViewTimes/mutations";
-import { createPostViews, updatePostViews, graphqlPostViewsTypeDefs } from "@/server/collections/postViews/mutations";
-import { createPost, updatePost, graphqlPostTypeDefs } from "@/server/collections/posts/mutations";
-import { createRSSFeed, updateRSSFeed, graphqlRSSFeedTypeDefs } from "@/server/collections/rssfeeds/mutations";
-import { createReport, updateReport, graphqlReportTypeDefs } from "@/server/collections/reports/mutations";
-import { updateRevision, graphqlRevisionTypeDefs } from "@/server/collections/revisions/mutations";
-import { createSequence, updateSequence, graphqlSequenceTypeDefs } from "@/server/collections/sequences/mutations";
-import { createSplashArtCoordinate, updateSplashArtCoordinate, graphqlSplashArtCoordinateTypeDefs } from "@/server/collections/splashArtCoordinates/mutations";
-import { createSpotlight, updateSpotlight, graphqlSpotlightTypeDefs } from "@/server/collections/spotlights/mutations";
-import { createSubscription, graphqlSubscriptionTypeDefs } from "@/server/collections/subscriptions/mutations";
-import { createSurveyQuestion, updateSurveyQuestion, graphqlSurveyQuestionTypeDefs } from "@/server/collections/surveyQuestions/mutations";
-import { createSurveyResponse, updateSurveyResponse, graphqlSurveyResponseTypeDefs } from "@/server/collections/surveyResponses/mutations";
-import { createSurveySchedule, updateSurveySchedule, graphqlSurveyScheduleTypeDefs } from "@/server/collections/surveySchedules/mutations";
-import { createSurvey, updateSurvey, graphqlSurveyTypeDefs } from "@/server/collections/surveys/mutations";
-import { createTagFlag, updateTagFlag, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
-import { createTagRel, updateTagRel, graphqlTagRelTypeDefs } from "@/server/collections/tagRels/mutations";
-import { createTag, updateTag, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
-import { createUserEAGDetail, updateUserEAGDetail, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
-import { createUserJobAd, updateUserJobAd, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
-import { createUserMostValuablePost, updateUserMostValuablePost, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
-import { createUserRateLimit, updateUserRateLimit, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
-import { createUserTagRel, updateUserTagRel, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
-import { createUser, updateUser, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
+import { createAdvisorRequestMutation, updateAdvisorRequestMutation, graphqlAdvisorRequestTypeDefs } from "@/server/collections/advisorRequests/mutations";
+import { createArbitalTagContentRelMutation, updateArbitalTagContentRelMutation, graphqlArbitalTagContentRelTypeDefs } from "@/server/collections/arbitalTagContentRels/mutations";
+import { createBanMutation, updateBanMutation, graphqlBanTypeDefs } from "@/server/collections/bans/mutations";
+import { createBookMutation, updateBookMutation, graphqlBookTypeDefs } from "@/server/collections/books/mutations";
+import { createChapterMutation, updateChapterMutation, graphqlChapterTypeDefs } from "@/server/collections/chapters/mutations";
+import { createCollectionMutation, updateCollectionMutation, graphqlCollectionTypeDefs } from "@/server/collections/collections/mutations";
+import { createCommentModeratorActionMutation, updateCommentModeratorActionMutation, graphqlCommentModeratorActionTypeDefs } from "@/server/collections/commentModeratorActions/mutations";
+import { createCommentMutation, updateCommentMutation, graphqlCommentTypeDefs } from "@/server/collections/comments/mutations";
+import { createConversationMutation, updateConversationMutation, graphqlConversationTypeDefs } from "@/server/collections/conversations/mutations";
+import { createCurationNoticeMutation, updateCurationNoticeMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
+import { createDialogueMatchPreferenceMutation, updateDialogueMatchPreferenceMutation, graphqlDialogueMatchPreferenceTypeDefs } from "@/server/collections/dialogueMatchPreferences/mutations";
+import { createDigestPostMutation, updateDigestPostMutation, graphqlDigestPostTypeDefs } from "@/server/collections/digestPosts/mutations";
+import { createDigestMutation, updateDigestMutation, graphqlDigestTypeDefs } from "@/server/collections/digests/mutations";
+import { createElectionCandidateMutation, updateElectionCandidateMutation, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
+import { createElectionVoteMutation, updateElectionVoteMutation, graphqlElectionVoteTypeDefs } from "@/server/collections/electionVotes/mutations";
+import { createElicitQuestionMutation, updateElicitQuestionMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
+import { createForumEventMutation, updateForumEventMutation, graphqlForumEventTypeDefs } from "@/server/collections/forumEvents/mutations";
+import { createGardenCodeMutation, updateGardenCodeMutation, graphqlGardenCodeTypeDefs } from "@/server/collections/gardencodes/mutations";
+import { createGoogleServiceAccountSessionMutation, updateGoogleServiceAccountSessionMutation, graphqlGoogleServiceAccountSessionTypeDefs } from "@/server/collections/googleServiceAccountSessions/mutations";
+import { createJargonTermMutation, updateJargonTermMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
+import { createLWEventMutation, updateLWEventMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
+import { updateLlmConversationMutation, graphqlLlmConversationTypeDefs } from "@/server/collections/llmConversations/mutations";
+import { createLocalgroupMutation, updateLocalgroupMutation, graphqlLocalgroupTypeDefs } from "@/server/collections/localgroups/mutations";
+import { createMessageMutation, updateMessageMutation, graphqlMessageTypeDefs } from "@/server/collections/messages/mutations";
+import { createModerationTemplateMutation, updateModerationTemplateMutation, graphqlModerationTemplateTypeDefs } from "@/server/collections/moderationTemplates/mutations";
+import { createModeratorActionMutation, updateModeratorActionMutation, graphqlModeratorActionTypeDefs } from "@/server/collections/moderatorActions/mutations";
+import { createMultiDocumentMutation, updateMultiDocumentMutation, graphqlMultiDocumentTypeDefs } from "@/server/collections/multiDocuments/mutations";
+import { createNotificationMutation, updateNotificationMutation, graphqlNotificationTypeDefs } from "@/server/collections/notifications/mutations";
+import { createPetrovDayActionMutation, graphqlPetrovDayActionTypeDefs } from "@/server/collections/petrovDayActions/mutations";
+import { createPodcastEpisodeMutation, updatePodcastEpisodeMutation, graphqlPodcastEpisodeTypeDefs } from "@/server/collections/podcastEpisodes/mutations";
+import { createPostEmbeddingMutation, updatePostEmbeddingMutation, graphqlPostEmbeddingTypeDefs } from "@/server/collections/postEmbeddings/mutations";
+import { createPostViewTimeMutation, updatePostViewTimeMutation, graphqlPostViewTimeTypeDefs } from "@/server/collections/postViewTimes/mutations";
+import { createPostViewsMutation, updatePostViewsMutation, graphqlPostViewsTypeDefs } from "@/server/collections/postViews/mutations";
+import { createPostMutation, updatePostMutation, graphqlPostTypeDefs } from "@/server/collections/posts/mutations";
+import { createRSSFeedMutation, updateRSSFeedMutation, graphqlRSSFeedTypeDefs } from "@/server/collections/rssfeeds/mutations";
+import { createReportMutation, updateReportMutation, graphqlReportTypeDefs } from "@/server/collections/reports/mutations";
+import { updateRevisionMutation, graphqlRevisionTypeDefs } from "@/server/collections/revisions/mutations";
+import { createSequenceMutation, updateSequenceMutation, graphqlSequenceTypeDefs } from "@/server/collections/sequences/mutations";
+import { createSplashArtCoordinateMutation, updateSplashArtCoordinateMutation, graphqlSplashArtCoordinateTypeDefs } from "@/server/collections/splashArtCoordinates/mutations";
+import { createSpotlightMutation, updateSpotlightMutation, graphqlSpotlightTypeDefs } from "@/server/collections/spotlights/mutations";
+import { createSubscriptionMutation, graphqlSubscriptionTypeDefs } from "@/server/collections/subscriptions/mutations";
+import { createSurveyQuestionMutation, updateSurveyQuestionMutation, graphqlSurveyQuestionTypeDefs } from "@/server/collections/surveyQuestions/mutations";
+import { createSurveyResponseMutation, updateSurveyResponseMutation, graphqlSurveyResponseTypeDefs } from "@/server/collections/surveyResponses/mutations";
+import { createSurveyScheduleMutation, updateSurveyScheduleMutation, graphqlSurveyScheduleTypeDefs } from "@/server/collections/surveySchedules/mutations";
+import { createSurveyMutation, updateSurveyMutation, graphqlSurveyTypeDefs } from "@/server/collections/surveys/mutations";
+import { createTagFlagMutation, updateTagFlagMutation, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
+import { createTagRelMutation, updateTagRelMutation, graphqlTagRelTypeDefs } from "@/server/collections/tagRels/mutations";
+import { createTagMutation, updateTagMutation, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
+import { createUserEAGDetailMutation, updateUserEAGDetailMutation, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
+import { createUserJobAdMutation, updateUserJobAdMutation, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
+import { createUserMostValuablePostMutation, updateUserMostValuablePostMutation, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
+import { createUserRateLimitMutation, updateUserRateLimitMutation, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
+import { createUserTagRelMutation, updateUserTagRelMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
+import { createUserMutation, updateUserMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
 import { getSchema } from '@/lib/schema/allSchemas';
 
 function addRootArg<T extends (args: any, context: ResolverContext) => any>(func: T) {
@@ -390,110 +390,110 @@ export const resolvers = {
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
-    createAdvisorRequest: addRootArg(createAdvisorRequest),
-    updateAdvisorRequest: addRootArg(updateAdvisorRequest),
-    createArbitalTagContentRel: addRootArg(createArbitalTagContentRel),
-    updateArbitalTagContentRel: addRootArg(updateArbitalTagContentRel),
-    createBan: addRootArg(createBan),
-    updateBan: addRootArg(updateBan),
-    createBook: addRootArg(createBook),
-    updateBook: addRootArg(updateBook),
-    createChapter: addRootArg(createChapter),
-    updateChapter: addRootArg(updateChapter),
-    createCollection: addRootArg(createCollection),
-    updateCollection: addRootArg(updateCollection),
-    createCommentModeratorAction: addRootArg(createCommentModeratorAction),
-    updateCommentModeratorAction: addRootArg(updateCommentModeratorAction),
-    createComment: addRootArg(createComment),
-    updateComment: addRootArg(updateComment),
-    createConversation: addRootArg(createConversation),
-    updateConversation: addRootArg(updateConversation),
-    createCurationNotice: addRootArg(createCurationNotice),
-    updateCurationNotice: addRootArg(updateCurationNotice),
-    createDialogueMatchPreference: addRootArg(createDialogueMatchPreference),
-    updateDialogueMatchPreference: addRootArg(updateDialogueMatchPreference),
-    createDigestPost: addRootArg(createDigestPost),
-    updateDigestPost: addRootArg(updateDigestPost),
-    createDigest: addRootArg(createDigest),
-    updateDigest: addRootArg(updateDigest),
-    createElectionCandidate: addRootArg(createElectionCandidate),
-    updateElectionCandidate: addRootArg(updateElectionCandidate),
-    createElectionVote: addRootArg(createElectionVote),
-    updateElectionVote: addRootArg(updateElectionVote),
-    createElicitQuestion: addRootArg(createElicitQuestion),
-    updateElicitQuestion: addRootArg(updateElicitQuestion),
-    createForumEvent: addRootArg(createForumEvent),
-    updateForumEvent: addRootArg(updateForumEvent),
-    createGardenCode: addRootArg(createGardenCode),
-    updateGardenCode: addRootArg(updateGardenCode),
-    createGoogleServiceAccountSession: addRootArg(createGoogleServiceAccountSession),
-    updateGoogleServiceAccountSession: addRootArg(updateGoogleServiceAccountSession),
-    createJargonTerm: addRootArg(createJargonTerm),
-    updateJargonTerm: addRootArg(updateJargonTerm),
-    createLWEvent: addRootArg(createLWEvent),
-    updateLWEvent: addRootArg(updateLWEvent),
-    updateLlmConversation: addRootArg(updateLlmConversation),
-    createLocalgroup: addRootArg(createLocalgroup),
-    updateLocalgroup: addRootArg(updateLocalgroup),
-    createMessage: addRootArg(createMessage),
-    updateMessage: addRootArg(updateMessage),
-    createModerationTemplate: addRootArg(createModerationTemplate),
-    updateModerationTemplate: addRootArg(updateModerationTemplate),
-    createModeratorAction: addRootArg(createModeratorAction),
-    updateModeratorAction: addRootArg(updateModeratorAction),
-    createMultiDocument: addRootArg(createMultiDocument),
-    updateMultiDocument: addRootArg(updateMultiDocument),
-    createNotification: addRootArg(createNotification),
-    updateNotification: addRootArg(updateNotification),
-    createPetrovDayAction: addRootArg(createPetrovDayAction),
-    createPodcastEpisode: addRootArg(createPodcastEpisode),
-    updatePodcastEpisode: addRootArg(updatePodcastEpisode),
-    createPostEmbedding: addRootArg(createPostEmbedding),
-    updatePostEmbedding: addRootArg(updatePostEmbedding),
-    createPostViewTime: addRootArg(createPostViewTime),
-    updatePostViewTime: addRootArg(updatePostViewTime),
-    createPostViews: addRootArg(createPostViews),
-    updatePostViews: addRootArg(updatePostViews),
-    createPost: addRootArg(createPost),
-    updatePost: addRootArg(updatePost),
-    createRSSFeed: addRootArg(createRSSFeed),
-    updateRSSFeed: addRootArg(updateRSSFeed),
-    createReport: addRootArg(createReport),
-    updateReport: addRootArg(updateReport),
-    updateRevision: addRootArg(updateRevision),
-    createSequence: addRootArg(createSequence),
-    updateSequence: addRootArg(updateSequence),
-    createSplashArtCoordinate: addRootArg(createSplashArtCoordinate),
-    updateSplashArtCoordinate: addRootArg(updateSplashArtCoordinate),
-    createSpotlight: addRootArg(createSpotlight),
-    updateSpotlight: addRootArg(updateSpotlight),
-    createSubscription: addRootArg(createSubscription),
-    createSurveyQuestion: addRootArg(createSurveyQuestion),
-    updateSurveyQuestion: addRootArg(updateSurveyQuestion),
-    createSurveyResponse: addRootArg(createSurveyResponse),
-    updateSurveyResponse: addRootArg(updateSurveyResponse),
-    createSurveySchedule: addRootArg(createSurveySchedule),
-    updateSurveySchedule: addRootArg(updateSurveySchedule),
-    createSurvey: addRootArg(createSurvey),
-    updateSurvey: addRootArg(updateSurvey),
-    createTagFlag: addRootArg(createTagFlag),
-    updateTagFlag: addRootArg(updateTagFlag),
-    createTagRel: addRootArg(createTagRel),
-    updateTagRel: addRootArg(updateTagRel),
-    createTag: addRootArg(createTag),
-    updateTag: addRootArg(updateTag),
-    createUserEAGDetail: addRootArg(createUserEAGDetail),
-    updateUserEAGDetail: addRootArg(updateUserEAGDetail),
-    createUserJobAd: addRootArg(createUserJobAd),
-    updateUserJobAd: addRootArg(updateUserJobAd),
-    createUserMostValuablePost: addRootArg(createUserMostValuablePost),
-    updateUserMostValuablePost: addRootArg(updateUserMostValuablePost),
-    createUserRateLimit: addRootArg(createUserRateLimit),
-    updateUserRateLimit: addRootArg(updateUserRateLimit),
-    createUserTagRel: addRootArg(createUserTagRel),
-    updateUserTagRel: addRootArg(updateUserTagRel),
-    createUser: addRootArg(createUser),
-    updateUser: addRootArg(updateUser),
+    createAdvisorRequest: createAdvisorRequestMutation,
+    updateAdvisorRequest: updateAdvisorRequestMutation,
+    createArbitalTagContentRel: createArbitalTagContentRelMutation,
+    updateArbitalTagContentRel: updateArbitalTagContentRelMutation,
+    createBan: createBanMutation,
+    updateBan: updateBanMutation,
+    createBook: createBookMutation,
+    updateBook: updateBookMutation,
+    createChapter: createChapterMutation,
+    updateChapter: updateChapterMutation,
+    createCollection: createCollectionMutation,
+    updateCollection: updateCollectionMutation,
+    createCommentModeratorAction: createCommentModeratorActionMutation,
+    updateCommentModeratorAction: updateCommentModeratorActionMutation,
+    createComment: createCommentMutation,
+    updateComment: updateCommentMutation,
+    createConversation: createConversationMutation,
+    updateConversation: updateConversationMutation,
+    createCurationNotice: createCurationNoticeMutation,
+    updateCurationNotice: updateCurationNoticeMutation,
+    createDialogueMatchPreference: createDialogueMatchPreferenceMutation,
+    updateDialogueMatchPreference: updateDialogueMatchPreferenceMutation,
+    createDigestPost: createDigestPostMutation,
+    updateDigestPost: updateDigestPostMutation,
+    createDigest: createDigestMutation,
+    updateDigest: updateDigestMutation,
+    createElectionCandidate: createElectionCandidateMutation,
+    updateElectionCandidate: updateElectionCandidateMutation,
+    createElectionVote: createElectionVoteMutation,
+    updateElectionVote: updateElectionVoteMutation,
+    createElicitQuestion: createElicitQuestionMutation,
+    updateElicitQuestion: updateElicitQuestionMutation,
+    createForumEvent: createForumEventMutation,
+    updateForumEvent: updateForumEventMutation,
+    createGardenCode: createGardenCodeMutation,
+    updateGardenCode: updateGardenCodeMutation,
+    createGoogleServiceAccountSession: createGoogleServiceAccountSessionMutation,
+    updateGoogleServiceAccountSession: updateGoogleServiceAccountSessionMutation,
+    createJargonTerm: createJargonTermMutation,
+    updateJargonTerm: updateJargonTermMutation,
+    createLWEvent: createLWEventMutation,
+    updateLWEvent: updateLWEventMutation,
+    updateLlmConversation: updateLlmConversationMutation,
+    createLocalgroup: createLocalgroupMutation,
+    updateLocalgroup: updateLocalgroupMutation,
+    createMessage: createMessageMutation,
+    updateMessage: updateMessageMutation,
+    createModerationTemplate: createModerationTemplateMutation,
+    updateModerationTemplate: updateModerationTemplateMutation,
+    createModeratorAction: createModeratorActionMutation,
+    updateModeratorAction: updateModeratorActionMutation,
+    createMultiDocument: createMultiDocumentMutation,
+    updateMultiDocument: updateMultiDocumentMutation,
+    createNotification: createNotificationMutation,
+    updateNotification: updateNotificationMutation,
+    createPetrovDayAction: createPetrovDayActionMutation,
+    createPodcastEpisode: createPodcastEpisodeMutation,
+    updatePodcastEpisode: updatePodcastEpisodeMutation,
+    createPostEmbedding: createPostEmbeddingMutation,
+    updatePostEmbedding: updatePostEmbeddingMutation,
+    createPostViewTime: createPostViewTimeMutation,
+    updatePostViewTime: updatePostViewTimeMutation,
+    createPostViews: createPostViewsMutation,
+    updatePostViews: updatePostViewsMutation,
+    createPost: createPostMutation,
+    updatePost: updatePostMutation,
+    createRSSFeed: createRSSFeedMutation,
+    updateRSSFeed: updateRSSFeedMutation,
+    createReport: createReportMutation,
+    updateReport: updateReportMutation,
+    updateRevision: updateRevisionMutation,
+    createSequence: createSequenceMutation,
+    updateSequence: updateSequenceMutation,
+    createSplashArtCoordinate: createSplashArtCoordinateMutation,
+    updateSplashArtCoordinate: updateSplashArtCoordinateMutation,
+    createSpotlight: createSpotlightMutation,
+    updateSpotlight: updateSpotlightMutation,
+    createSubscription: createSubscriptionMutation,
+    createSurveyQuestion: createSurveyQuestionMutation,
+    updateSurveyQuestion: updateSurveyQuestionMutation,
+    createSurveyResponse: createSurveyResponseMutation,
+    updateSurveyResponse: updateSurveyResponseMutation,
+    createSurveySchedule: createSurveyScheduleMutation,
+    updateSurveySchedule: updateSurveyScheduleMutation,
+    createSurvey: createSurveyMutation,
+    updateSurvey: updateSurveyMutation,
+    createTagFlag: createTagFlagMutation,
+    updateTagFlag: updateTagFlagMutation,
+    createTagRel: createTagRelMutation,
+    updateTagRel: updateTagRelMutation,
+    createTag: createTagMutation,
+    updateTag: updateTagMutation,
+    createUserEAGDetail: createUserEAGDetailMutation,
+    updateUserEAGDetail: updateUserEAGDetailMutation,
+    createUserJobAd: createUserJobAdMutation,
+    updateUserJobAd: updateUserJobAdMutation,
+    createUserMostValuablePost: createUserMostValuablePostMutation,
+    updateUserMostValuablePost: updateUserMostValuablePostMutation,
+    createUserRateLimit: createUserRateLimitMutation,
+    updateUserRateLimit: updateUserRateLimitMutation,
+    createUserTagRel: createUserTagRelMutation,
+    updateUserTagRel: updateUserTagRelMutation,
+    createUser: createUserMutation,
+    updateUser: updateUserMutation,
   },
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,

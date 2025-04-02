@@ -5,6 +5,7 @@ import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -19,7 +20,7 @@ function editCheck(user: DbUser | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashArtCoordinates', {
-  createFunction: async ({ data }: CreateSplashArtCoordinateInput, context) => {
+  createFunction: async ({ data }: CreateSplashArtCoordinateInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('SplashArtCoordinates', {
@@ -27,6 +28,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashAr
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -43,20 +45,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashAr
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'SplashArtCoordinates', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateSplashArtCoordinateInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateSplashArtCoordinateInput, context, skipValidation?: boolean) => {
     const { currentUser, SplashArtCoordinates } = context;
 
     const {
       documentSelector: splashartcoordinateSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('SplashArtCoordinates', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('SplashArtCoordinates', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -75,15 +74,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashAr
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'SplashArtCoordinates', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'SplashArtCoordinates', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'SplashArtCoordinates', rawResult, context));
 
 export { createFunction as createSplashArtCoordinate, updateFunction as updateSplashArtCoordinate };
+export { wrappedCreateFunction as createSplashArtCoordinateMutation, wrappedUpdateFunction as updateSplashArtCoordinateMutation };
 
 
 export const graphqlSplashArtCoordinateTypeDefs = gql`

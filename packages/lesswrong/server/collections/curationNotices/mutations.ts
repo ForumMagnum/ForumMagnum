@@ -7,6 +7,7 @@ import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runE
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -22,7 +23,7 @@ function editCheck(user: DbUser | null, document: DbCurationNotice | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('CurationNotices', {
-  createFunction: async ({ data }: CreateCurationNoticeInput, context) => {
+  createFunction: async ({ data }: CreateCurationNoticeInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('CurationNotices', {
@@ -30,6 +31,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -67,13 +69,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'CurationNotices', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateCurationNoticeInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateCurationNoticeInput, context, skipValidation?: boolean) => {
     const { currentUser, CurationNotices } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -84,7 +83,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
       documentSelector: curationnoticeSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('CurationNotices', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('CurationNotices', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -122,15 +121,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
 
     void logFieldChanges({ currentUser, collection: CurationNotices, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'CurationNotices', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context));
 
 export { createFunction as createCurationNotice, updateFunction as updateCurationNotice };
+export { wrappedCreateFunction as createCurationNoticeMutation, wrappedUpdateFunction as updateCurationNoticeMutation };
 
 
 export const graphqlCurationNoticeTypeDefs = gql`

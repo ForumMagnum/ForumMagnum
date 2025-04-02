@@ -49,7 +49,7 @@ const getGraphqlFieldsImportLine = (creatableFields: string, updatableFields: st
     importArray.push('getUpdatableGraphQLFields');
   }
 
-  return `\nimport { ${importArray.join(', ')} } from "@/server/vulcan-lib/apollo-server/initGraphQL";`;
+  return `\nimport { ${importArray.join(', ')} } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";`;
 }
 
 const sharedImportsSection = (
@@ -566,10 +566,10 @@ export async function generateMutationImports() {
   await writeFile('./packages/lesswrong/server/initGraphQLImports.ts', importBlock + '\n\n' + mutationBlock);
 }
 
-export async function moveReviewVoteMutations() {
-  const mutationFilePath = join(__dirname, `../collections/reviewVotes/mutations.ts`);
+export async function moveVotesMutations() {
+  const mutationFilePath = join(__dirname, `../collections/votes/mutations.ts`);
 
-  const reviewVoteMutations = generateMutationFunctions('ReviewVotes');
+  const reviewVoteMutations = generateMutationFunctions('Votes');
 
   await writeFile(mutationFilePath, reviewVoteMutations);
 }

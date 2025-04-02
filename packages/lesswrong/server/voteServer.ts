@@ -26,6 +26,8 @@ import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 import { isElasticEnabled } from "../lib/instanceSettings";
 import { capitalize } from '@/lib/vulcan-lib/utils';
+import { createVote as createVoteMutator } from '@/server/collections/votes/mutations';
+import { createModeratorAction } from './collections/moderatorActions/mutations';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -52,11 +54,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   const { Posts } = context
   // create vote and insert it
   const partialVote = createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId });
-  const {data: vote} = await createMutator({
-    collection: Votes,
-    document: partialVote,
-    validate: false,
-  });
+  const vote = await createVoteMutator({ data: partialVote }, context, true);
 
   let newDocument = {
     ...document,
@@ -182,11 +180,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       votedAt: new Date(),
       silenceNotification,
     };
-    await createMutator({
-      collection: Votes,
-      document: unvote,
-      validate: false,
-    });
+    await createVoteMutator({ data: unvote }, context, true);
 
     await onVoteCancel(newDocument, vote, collection, user, context);
   }
@@ -295,16 +289,12 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user, context });
       if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user, moderatorActionType))) {
         if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
-        void createMutator({
-          collection: ModeratorActions,
-          context,
-          currentUser: null,
-          validate: false,
-          document: {
+        void createModeratorAction({
+          data: {
             userId: user._id,
             type: moderatorActionType,
           }
-        });
+        }, context, true);
       }
     }
     

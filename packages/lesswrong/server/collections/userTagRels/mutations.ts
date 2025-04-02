@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -21,7 +22,7 @@ function editCheck(user: DbUser | null, userTagRel: DbUserTagRel | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagRels', {
-  createFunction: async ({ data }: CreateUserTagRelInput, context) => {
+  createFunction: async ({ data }: CreateUserTagRelInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('UserTagRels', {
@@ -29,6 +30,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagR
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -45,13 +47,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagR
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'UserTagRels', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateUserTagRelInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateUserTagRelInput, context, skipValidation?: boolean) => {
     const { currentUser, UserTagRels } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -62,7 +61,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagR
       documentSelector: usertagrelSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('UserTagRels', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('UserTagRels', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -85,15 +84,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagR
 
     void logFieldChanges({ currentUser, collection: UserTagRels, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'UserTagRels', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserTagRels', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'UserTagRels', rawResult, context));
 
 export { createFunction as createUserTagRel, updateFunction as updateUserTagRel };
+export { wrappedCreateFunction as createUserTagRelMutation, wrappedUpdateFunction as updateUserTagRelMutation };
 
 
 export const graphqlUserTagRelTypeDefs = gql`

@@ -5,6 +5,7 @@ import { userIsAdmin, userIsPodcaster } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -19,7 +20,7 @@ function editCheck(user: DbUser | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('PodcastEpisodes', {
-  createFunction: async ({ data }: CreatePodcastEpisodeInput, context) => {
+  createFunction: async ({ data }: CreatePodcastEpisodeInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('PodcastEpisodes', {
@@ -27,6 +28,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PodcastE
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -43,20 +45,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PodcastE
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'PodcastEpisodes', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdatePodcastEpisodeInput, context) => {
+  updateFunction: async ({ selector, data }: UpdatePodcastEpisodeInput, context, skipValidation?: boolean) => {
     const { currentUser, PodcastEpisodes } = context;
 
     const {
       documentSelector: podcastepisodeSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('PodcastEpisodes', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('PodcastEpisodes', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -75,15 +74,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PodcastE
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'PodcastEpisodes', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context));
 
 export { createFunction as createPodcastEpisode, updateFunction as updatePodcastEpisode };
+export { wrappedCreateFunction as createPodcastEpisodeMutation, wrappedUpdateFunction as updatePodcastEpisodeMutation };
 
 
 export const graphqlPodcastEpisodeTypeDefs = gql`

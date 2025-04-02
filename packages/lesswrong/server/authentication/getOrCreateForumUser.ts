@@ -2,9 +2,10 @@ import type { Profile } from "passport";
 import type { VerifyCallback } from "passport-oauth2";
 import { captureException } from "@sentry/core";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { updateMutator } from "../vulcan-lib/mutators";
 import Users from "../../server/collections/users/collection";
 import { promisify } from "util";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 export type IdFromProfile<P extends Profile> = (profile: P) => string | number;
 
@@ -97,12 +98,10 @@ export const getOrCreateForumUser = async <P extends Profile>(
           return callback(null, userUpdated);
         }
       }
-      const {data: userCreated} = await createMutator({
-        collection: Users,
-        document: await getUserDataFromProfile(profile),
-        validate: false,
-        currentUser: null,
-      });
+
+      const { createUser }: typeof import("../collections/users/mutations") = require("../collections/users/mutations");
+
+      const userCreated = await createUser({ data: await getUserDataFromProfile(profile) }, createAnonymousContext(), true);
       return callback(null, userCreated);
     }
     user = await syncOAuthUser(user, profile)

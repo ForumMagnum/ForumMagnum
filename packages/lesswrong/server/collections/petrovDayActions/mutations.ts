@@ -4,6 +4,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
@@ -38,7 +39,7 @@ async function newCheck(user: DbUser | null, document: CreatePetrovDayActionData
 }
 
 const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
-  createFunction: async ({ data }: CreatePetrovDayActionInput, context) => {
+  createFunction: async ({ data }: CreatePetrovDayActionInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('PetrovDayActions', {
@@ -46,6 +47,7 @@ const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -62,16 +64,14 @@ const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'PetrovDayActions', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'PetrovDayActions', rawResult, context));
 
 export { createFunction as createPetrovDayAction };
-
+export { wrappedCreateFunction as createPetrovDayActionMutation };
 
 export const graphqlPetrovDayActionTypeDefs = gql`
   input CreatePetrovDayActionDataInput {

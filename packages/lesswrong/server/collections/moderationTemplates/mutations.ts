@@ -7,6 +7,7 @@ import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runE
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -26,7 +27,7 @@ function editCheck(user: DbUser | null, document: DbModerationTemplate | null, c
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ModerationTemplates', {
-  createFunction: async ({ data }: CreateModerationTemplateInput, context) => {
+  createFunction: async ({ data }: CreateModerationTemplateInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ModerationTemplates', {
@@ -34,6 +35,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -71,13 +73,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ModerationTemplates', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateModerationTemplateInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateModerationTemplateInput, context, skipValidation?: boolean) => {
     const { currentUser, ModerationTemplates } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -88,7 +87,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
       documentSelector: moderationtemplateSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ModerationTemplates', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('ModerationTemplates', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -126,15 +125,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
 
     void logFieldChanges({ currentUser, collection: ModerationTemplates, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ModerationTemplates', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ModerationTemplates', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ModerationTemplates', rawResult, context));
 
 export { createFunction as createModerationTemplate, updateFunction as updateModerationTemplate };
+export { wrappedCreateFunction as createModerationTemplateMutation, wrappedUpdateFunction as updateModerationTemplateMutation };
 
 
 export const graphqlModerationTemplateTypeDefs = gql`

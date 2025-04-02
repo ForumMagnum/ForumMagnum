@@ -5,6 +5,7 @@ import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -26,7 +27,7 @@ function editCheck(user: DbUser | null, document: DbNotification | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifications', {
-  createFunction: async ({ data }: CreateNotificationInput, context) => {
+  createFunction: async ({ data }: CreateNotificationInput & { data: { emailed?: boolean | null; waitingForBatch?: boolean | null } }, context: ResolverContext, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Notifications', {
@@ -34,6 +35,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -50,20 +52,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Notifications', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateNotificationInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateNotificationInput, context, skipValidation?: boolean) => {
     const { currentUser, Notifications } = context;
 
     const {
       documentSelector: notificationSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Notifications', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('Notifications', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -82,16 +81,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Notifications', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context));
 
 export { createFunction as createNotification, updateFunction as updateNotification };
-
+export { wrappedCreateFunction as createNotificationMutation, wrappedUpdateFunction as updateNotificationMutation };
 
 export const graphqlNotificationTypeDefs = gql`
   input CreateNotificationDataInput {

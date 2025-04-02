@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { deleteOldSubscriptions } from "@/server/callbacks/subscriptionCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
@@ -16,7 +17,7 @@ function newCheck(user: DbUser | null, document: CreateSubscriptionDataInput | n
 
 
 const { createFunction } = getDefaultMutationFunctions('Subscriptions', {
-  createFunction: async ({ data }: CreateSubscriptionInput, context) => {
+  createFunction: async ({ data }: CreateSubscriptionInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Subscriptions', {
@@ -24,6 +25,7 @@ const { createFunction } = getDefaultMutationFunctions('Subscriptions', {
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -42,15 +44,14 @@ const { createFunction } = getDefaultMutationFunctions('Subscriptions', {
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Subscriptions', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Subscriptions', rawResult, context));
 
 export { createFunction as createSubscription };
+export { wrappedCreateFunction as createSubscriptionMutation };
 
 
 export const graphqlSubscriptionTypeDefs = gql`

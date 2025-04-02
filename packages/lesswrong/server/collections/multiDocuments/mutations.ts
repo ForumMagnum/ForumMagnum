@@ -10,6 +10,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -39,7 +40,7 @@ async function editCheck(user: DbUser | null, multiDocument: DbMultiDocument | n
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDocuments', {
-  createFunction: async ({ data }: CreateMultiDocumentInput, context) => {
+  createFunction: async ({ data }: CreateMultiDocumentInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('MultiDocuments', {
@@ -47,6 +48,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -88,13 +90,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'MultiDocuments', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateMultiDocumentInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateMultiDocumentInput, context, skipValidation?: boolean) => {
     const { currentUser, MultiDocuments } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -105,7 +104,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       documentSelector: multidocumentSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('MultiDocuments', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('MultiDocuments', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -147,15 +146,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
 
     void logFieldChanges({ currentUser, collection: MultiDocuments, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'MultiDocuments', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context));
 
 export { createFunction as createMultiDocument, updateFunction as updateMultiDocument };
+export { wrappedCreateFunction as createMultiDocumentMutation, wrappedUpdateFunction as updateMultiDocumentMutation };
 
 
 export const graphqlMultiDocumentTypeDefs = gql`

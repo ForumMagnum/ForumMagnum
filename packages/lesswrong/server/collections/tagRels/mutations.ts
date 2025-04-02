@@ -6,6 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { taggedPostNewNotifications, validateTagRelCreate, voteForTagWhenCreated } from "@/server/callbacks/tagCallbackFunctions";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -20,7 +21,7 @@ function editCheck(user: DbUser | null, tag: DbTagRel | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels', {
-  createFunction: async ({ data }: CreateTagRelInput, context) => {
+  createFunction: async ({ data }: CreateTagRelInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('TagRels', {
@@ -28,6 +29,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -50,20 +52,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
 
     await taggedPostNewNotifications(documentWithId, afterCreateProperties);
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'TagRels', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateTagRelInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateTagRelInput, context, skipValidation?: boolean) => {
     const { currentUser, TagRels } = context;
 
     const {
       documentSelector: tagrelSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('TagRels', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('TagRels', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -82,15 +81,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
       updateAfterProperties: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'TagRels', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'TagRels', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'TagRels', rawResult, context));
 
 export { createFunction as createTagRel, updateFunction as updateTagRel };
+export { wrappedCreateFunction as createTagRelMutation, wrappedUpdateFunction as updateTagRelMutation };
 
 
 export const graphqlTagRelTypeDefs = gql`

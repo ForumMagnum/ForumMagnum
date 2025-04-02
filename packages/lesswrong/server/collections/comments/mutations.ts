@@ -12,6 +12,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -43,7 +44,7 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments', {
-  createFunction: async ({ data }: CreateCommentInput, context) => {
+  createFunction: async ({ data }: CreateCommentInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Comments', {
@@ -51,6 +52,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -118,13 +120,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Comments', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateCommentInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateCommentInput, context, skipValidation?: boolean) => {
     const { currentUser, Comments } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -135,7 +134,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
       documentSelector: commentSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Comments', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('Comments', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -196,15 +195,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
 
     void logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Comments', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context));
 
 export { createFunction as createComment, updateFunction as updateComment };
+export { wrappedCreateFunction as createCommentMutation, wrappedUpdateFunction as updateCommentMutation };
 
 
 export const graphqlCommentTypeDefs = gql`

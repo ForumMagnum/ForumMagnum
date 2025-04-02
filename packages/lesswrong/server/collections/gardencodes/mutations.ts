@@ -8,6 +8,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -43,7 +44,7 @@ function editCheck(user: DbUser | null, document: DbGardenCode | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCodes', {
-  createFunction: async ({ data }: CreateGardenCodeInput, context) => {
+  createFunction: async ({ data }: CreateGardenCodeInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('GardenCodes', {
@@ -51,6 +52,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -90,13 +92,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'GardenCodes', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateGardenCodeInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateGardenCodeInput, context, skipValidation?: boolean) => {
     const { currentUser, GardenCodes } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -107,7 +106,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
       documentSelector: gardencodeSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('GardenCodes', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('GardenCodes', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -147,15 +146,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
 
     void logFieldChanges({ currentUser, collection: GardenCodes, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'GardenCodes', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context));
 
 export { createFunction as createGardenCode, updateFunction as updateGardenCode };
+export { wrappedCreateFunction as createGardenCodeMutation, wrappedUpdateFunction as updateGardenCodeMutation };
 
 
 export const graphqlGardenCodeTypeDefs = gql`

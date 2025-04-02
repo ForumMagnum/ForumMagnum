@@ -7,6 +7,7 @@ import { addParticipantIfNew, checkIfNewMessageIsEmpty, sendMessageNotifications
 import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -31,7 +32,7 @@ async function editCheck(user: DbUser | null, document: DbMessage | null, contex
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages', {
-  createFunction: async ({ data }: CreateMessageInput, context) => {
+  createFunction: async ({ data }: CreateMessageInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Messages', {
@@ -39,6 +40,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -85,20 +87,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Messages', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateMessageInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateMessageInput, context, skipValidation?: boolean) => {
     const { currentUser, Messages } = context;
 
     const {
       documentSelector: messageSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Messages', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('Messages', { selector, context, data, editCheck, schema, skipValidation });
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
@@ -132,15 +131,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
       props: updateCallbackProperties,
     });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Messages', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Messages', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Messages', rawResult, context));
 
 export { createFunction as createMessage, updateFunction as updateMessage };
+export { wrappedCreateFunction as createMessageMutation, wrappedUpdateFunction as updateMessageMutation };
 
 
 export const graphqlMessageTypeDefs = gql`

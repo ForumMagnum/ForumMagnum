@@ -6020,10 +6020,10 @@ interface CreateUserDataInput {
   hideDialogueFacilitation?: boolean | null;
   revealChecksToAdmins?: boolean | null;
   optedInToDialogueFacilitation?: boolean | null;
-  showDialoguesList: boolean;
-  showMyDialogues: boolean;
-  showMatches: boolean;
-  showRecommendedPartners: boolean;
+  showDialoguesList?: boolean | null;
+  showMyDialogues?: boolean | null;
+  showMatches?: boolean | null;
+  showRecommendedPartners?: boolean | null;
   hideActiveDialogueUsers?: boolean | null;
   karmaChangeNotifierSettings?: any;
   karmaChangeLastOpened?: Date | null;
@@ -6051,7 +6051,7 @@ interface CreateUserDataInput {
   shortformFeedId?: string | null;
   viewUnreviewedComments?: boolean | null;
   noExpandUnreadCommentsReview?: boolean | null;
-  profileUpdatedAt: Date;
+  profileUpdatedAt?: Date | null;
   jobTitle?: string | null;
   organization?: string | null;
   careerStage?: Array<string | null> | null;

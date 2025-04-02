@@ -8,6 +8,7 @@ import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runE
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -29,7 +30,7 @@ function editCheck(user: DbUser | null, document: DbLocalgroup | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgroups', {
-  createFunction: async ({ data }: CreateLocalgroupInput, context) => {
+  createFunction: async ({ data }: CreateLocalgroupInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('Localgroups', {
@@ -37,6 +38,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -78,13 +80,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
       props: asyncProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Localgroups', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateLocalgroupInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateLocalgroupInput, context, skipValidation?: boolean) => {
     const { currentUser, Localgroups } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -95,7 +94,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
       documentSelector: localgroupSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Localgroups', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('Localgroups', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument, newDocument } = updateCallbackProperties;
 
@@ -137,15 +136,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
 
     void logFieldChanges({ currentUser, collection: Localgroups, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'Localgroups', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context));
 
 export { createFunction as createLocalgroup, updateFunction as updateLocalgroup };
+export { wrappedCreateFunction as createLocalgroupMutation, wrappedUpdateFunction as updateLocalgroupMutation };
 
 
 export const graphqlLocalgroupTypeDefs = gql`

@@ -7,6 +7,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { wrapMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -43,7 +44,7 @@ function editCheck(user: DbUser | null, document: DbElectionVote | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElectionVotes', {
-  createFunction: async ({ data }: CreateElectionVoteInput, context) => {
+  createFunction: async ({ data }: CreateElectionVoteInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('ElectionVotes', {
@@ -51,6 +52,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
       data,
       newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -67,13 +69,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
       afterCreateProperties,
     });
 
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ElectionVotes', documentWithId, context);
-
-    return filteredReturnValue;
+    return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateElectionVoteInput, context) => {
+  updateFunction: async ({ selector, data }: UpdateElectionVoteInput, context, skipValidation?: boolean) => {
     const { currentUser, ElectionVotes } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -84,7 +83,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
       documentSelector: electionvoteSelector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ElectionVotes', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('ElectionVotes', { selector, context, data, editCheck, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -107,15 +106,15 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
 
     void logFieldChanges({ currentUser, collection: ElectionVotes, oldDocument, data: origData });
 
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, 'ElectionVotes', updatedDocument, context);
-
-    return filteredReturnValue;
+    return updatedDocument;
   },
 });
 
+const wrappedCreateFunction = wrapMutatorFunction(createFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionVotes', rawResult, context));
+const wrappedUpdateFunction = wrapMutatorFunction(updateFunction, (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionVotes', rawResult, context));
 
 export { createFunction as createElectionVote, updateFunction as updateElectionVote };
+export { wrappedCreateFunction as createElectionVoteMutation, wrappedUpdateFunction as updateElectionVoteMutation };
 
 
 export const graphqlElectionVoteTypeDefs = gql`
