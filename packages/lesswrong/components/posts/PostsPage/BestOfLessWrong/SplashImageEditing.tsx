@@ -40,7 +40,7 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
     minHeight: '50vh',
     minWidth: '100vw',
     backgroundColor: theme.palette.background.paper,
-  }
+  },
 }));
 
 const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
-import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useStyles, defineStyles } from '@/components/hooks/useStyles';
 import { useMulti } from '@/lib/crud/withMulti';
 import { HashLink } from '@/components/common/HashLink';

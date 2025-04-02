@@ -29,7 +29,7 @@ const styles = defineStyles("SplashHeaderImageOptions", (theme: ThemeType) => ({
   image: { 
     maxWidth: '100%',
     height: 'auto'
-  }
+  },
 }));
 
 export const SplashHeaderImageOptions = ({ post }: {

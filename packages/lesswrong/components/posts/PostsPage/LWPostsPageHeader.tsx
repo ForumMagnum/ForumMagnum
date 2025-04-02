@@ -10,6 +10,7 @@ import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualRevie
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
 import { titleStyles } from './PostsTopSequencesNav';
 import { Link } from '@/lib/reactRouterWrapper';
+
 export const LW_POST_PAGE_PADDING = 110;
 
 const styles = (theme: ThemeType) => ({
@@ -196,16 +197,14 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       marginTop: '44vh',
       paddingTop: 0,
-      // backdropFilter: 'blur(1px)',
     },
   }
 }); 
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, fullPost, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
-  fullPost?: PostsWithNavigation|PostsWithNavigationAndRevision,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
