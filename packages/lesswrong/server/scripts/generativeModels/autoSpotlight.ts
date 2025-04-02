@@ -32,6 +32,7 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
       draft: true,
       showAuthor: true,
       spotlightSplashImageUrl: cloudinaryImageUrl,
+      subtitleUrl: `/bestoflesswrong?year=${postYear}&category=${reviewWinner?.reviewWinner.category}`,
       description: { originalContents: { type: 'ckEditorMarkup', data: summary } },
       lastPromotedAt: new Date(0),
     },
@@ -120,6 +121,9 @@ const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigat
 }
 
 // Exported to allow running manually with "yarn repl"
+/*
+ This will create ~8 spotlights per post. You can check look over them
+*/
 export async function createSpotlights() {
   const context = createAdminContext();
   // eslint-disable-next-line no-console
@@ -173,60 +177,3 @@ export async function createSpotlights() {
   console.log("Done creating spotlights for review winners");
 }
 
-
-// Exported to allow running manually with "yarn repl"
-const updateOldSpotlightsWithSubtitle = async () => {
-  const context = createAdminContext();
-  const { reviewWinners } = await reviewWinnerCache.get(context)
-  const postIds = reviewWinners.map(winner => winner._id);
-  const spotlights = await Spotlights.find({ documentId: { $in: postIds }, customSubtitle: null, draft: false, deletedDraft: false }).fetch();
-
-  const results = await Promise.all(spotlights.map(async (spotlight) => {
-    const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === spotlight.documentId);
-    return Spotlights.rawUpdateOne({_id: spotlight._id}, {$set: {customSubtitle: `Best of LessWrong ${reviewWinner?.reviewWinner.reviewYear}`}})
-  }));
-}
-
-// This updates the spotlights so that subtitleUrl leads to the best of LW page for that year and category
-// and changes the corresponding Post customHighlight to the spotlight description
-// Exported to allow running manually with "yarn repl"
-export const updateSpotlightUrlsAndPostCustomHighlights = async () => {
-  const context = createAdminContext();
-  const { reviewWinners } = await reviewWinnerCache.get(context)
-  const postIds = reviewWinners.map(winner => winner._id);
-
-  const spotlights = await fetchFragment({
-    collectionName: "Spotlights",
-    fragmentName: "SpotlightEditQueryFragment",
-    currentUser: null,
-    selector: { documentId: { $in: postIds }, draft: false, deletedDraft: false },
-    skipFiltering: true,
-  });
-
-  const currentUser = createAdminContext().currentUser
-
-  await Promise.all(spotlights.map(async (spotlight, i) => {
-    // eslint-disable-next-line no-console
-    console.log(spotlight._id, i)
-    const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === spotlight.documentId);
-    const category = reviewWinner?.reviewWinner.category
-    const year = reviewWinner?.reviewWinner.reviewYear
-
-    await Promise.all([
-      updateMutator({
-        collection: Spotlights,
-        documentId: spotlight._id,
-        set: {subtitleUrl: `/bestoflesswrong?year=${year}&category=${category}`},
-        validate: false,
-        currentUser
-      }),
-      updateMutator({
-        collection: Posts,
-        documentId: spotlight.documentId,
-        set: {customHighlight: spotlight.description},
-        validate: false,
-        currentUser
-      })
-    ]);
-  }));
-}

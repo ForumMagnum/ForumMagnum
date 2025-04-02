@@ -5,7 +5,30 @@ import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 import { isDevelopment } from './executionEnvironment'; 
-import { DatabasePublicSetting, ReviewYearGroupInfo, ReviewSectionInfo } from './publicSettings';
+
+/* 
+NOTES FOR REVIEW ENDING
+
+1. Create ReviewWinners and Voting Results post html:
+- yarn repl prod packages/lesswrong/server/reviewVoteUpdate.ts 'updateReviewVoteTotals('finalVote')'
+- yarn repl prod packages/lesswrong/server/reviewVoteUpdate.ts 'createVotingPostHtml()' 
+
+2. Create ReviewWinnerArts
+- Make sure you have a fal.ai account with money in it, and an apiKey in the credentials repo (Ray's will work, but requires Ray SSO)
+
+run this command a few times, it'll take a few minutes per time. Currently this function 
+- yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImages-2023Review.ts 'getReviewWinnerArts()' 
+
+go to /bestoflesswrongadmin to review images and choose the best one.
+
+3. Choose Top 12 ReviewWinners
+choose which new ReviewWinners should be in the top 12 for each category (probably expect to add 1). Has to be done manually in the DB.
+
+3. Create Spotlights
+- yarn repl prod packages/lesswrong/server/scripts/generativeModels/autoSpotlight.ts 'createSpotlights()' 
+- go to lesswrong.com/spotlights?drafts=true to review spotlights, pick the best one. When you submit one it'll archive the other ones and undraft it
+
+*/
 
 export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const);
 export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
