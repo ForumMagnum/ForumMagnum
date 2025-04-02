@@ -368,7 +368,7 @@ export const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "center",
   },
-  splashPageHeader: {
+  splashHeaderImage: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -766,9 +766,11 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     }
   }, [fullPost, hashCommentId, isDebateResponseLink, linkedCommentId, showHashCommentFallback])
 
-  const splashPageHeader = fullPost && showSplashPageHeader && <ImageProvider>
-    <BestOfLWPostsPageSplashImage post={fullPost} />
-  </ImageProvider>
+  const splashHeaderImage = fullPost && showSplashPageHeader && <div className={classes.splashHeaderImage}>
+    <ImageProvider>
+      <BestOfLWPostsPageSplashImage post={fullPost} />
+    </ImageProvider>
+  </div>
 
   const header = <>
     {fullPost && !linkedCommentId && <>
@@ -1002,9 +1004,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    <div className={classes.splashPageHeader}>
-      {splashPageHeader}
-    </div>
+    {splashHeaderImage}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
