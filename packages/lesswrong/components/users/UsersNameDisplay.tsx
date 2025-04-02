@@ -32,9 +32,9 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -6,
   },
   curiosityIcon: {
-    width: 16,
-    height: 16,
-    marginTop: -8,
+    width: 12,
+    height: 12,
+    marginTop: -6,
   },
   relinquishmentIcon: {},
   lightnessIcon: {
@@ -154,7 +154,7 @@ const UsersNameDisplay = ({
           </span>
         </UserTooltip>
         <div className={classes.virtueIcons}>
-          {twelveVirtues.map(virtue => user.publicUnlockables?.[virtue.name] && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
+          {twelveVirtues.slice(0, 3).map(virtue => user.publicUnlockables?.[virtue.name] && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
         </div>
       </AnalyticsContext>
     </span>
