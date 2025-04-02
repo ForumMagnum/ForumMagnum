@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { getConfirmedCoauthorIds, isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, lightconeFundraiserActive, lightconeFundraiserThermometerGoalAmount, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
@@ -816,7 +816,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           <PostCoauthorRequest post={post} currentUser={currentUser} />
           {isBookUI && <LWPostsPageHeader
             post={post}
-            fullPost={fullPost}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
