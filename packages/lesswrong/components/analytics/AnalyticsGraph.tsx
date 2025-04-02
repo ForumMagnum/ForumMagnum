@@ -292,12 +292,13 @@ export const AnalyticsGraph = ({
       updateDisplayDates(startDate, endDate);
     } else {
       openDialog({
-        componentName: 'DateRangeModal',
-        componentProps: {
-          startDate: displayStartDate,
-          endDate: displayEndDate,
-          updateDisplayDates
-        },
+        name: 'DateRangeModal',
+        contents: ({onClose}) => <Components.DateRangeModal
+          onClose={onClose}
+          startDate={displayStartDate}
+          endDate={displayEndDate}
+          updateDisplayDates={updateDisplayDates}
+        />,
       });
     }
   }, [displayEndDate, displayStartDate, openDialog, updateDisplayDates]);

@@ -30,8 +30,8 @@ const LoginPopupButton = ({classes, children, title, className}: {
       <a className={className ? className : classes.root} onClick={(ev) => {
           if (!currentUser) {
             openDialog({
-              componentName: "LoginPopup",
-              componentProps: {}
+              name: "LoginPopup",
+              contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
             });
             ev.preventDefault();
           }

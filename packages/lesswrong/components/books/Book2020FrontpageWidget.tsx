@@ -123,8 +123,8 @@ const Book2020FrontpageWidget = ({ classes }: {
       })
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
       });
     }
   }

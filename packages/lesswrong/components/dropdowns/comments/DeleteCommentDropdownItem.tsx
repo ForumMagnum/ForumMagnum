@@ -23,10 +23,11 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
 
   const showDeleteDialog = () => {
     openDialog({
-      componentName: "DeleteCommentDialog",
-      componentProps: {
-        comment: comment,
-      },
+      name: "DeleteCommentDialog",
+      contents: ({onClose}) => <Components.DeleteCommentDialog
+        onClose={onClose}
+        comment={comment}
+      />
     });
   }
 

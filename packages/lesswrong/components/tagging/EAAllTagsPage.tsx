@@ -81,8 +81,8 @@ const EAAllTagsPage = ({classes}: {
               </Link>}
               {!currentUser && <a onClick={(ev) => {
                 openDialog({
-                  componentName: "LoginPopup",
-                  componentProps: {}
+                  name: "LoginPopup",
+                  contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
                 });
                 ev.preventDefault();
               }}>
