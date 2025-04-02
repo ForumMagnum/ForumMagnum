@@ -32,7 +32,7 @@ const sslSetting = new DatabaseServerSetting<SSLSettings | null>(
 /** Path of the certificate file *relative* to the instance settings file (so we don't have to store the full cert in instance settings) */
 const sslCAFileSetting = new PublicInstanceSetting<string | null>(
   "analytics.caFilePath",
-  forumSelect({ EAForum: "./certs/us-east-1-bundle.cer", default: null }),
+  forumSelect({ EAForum: "../ForumCredentials/certs/us-east-1-bundle.cer", default: null }),
   "optional"
 );
 
