@@ -53,8 +53,8 @@ export const ultraFeedGraphQLTypeDefs = gql`
 // Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
   postThreads: 20,
-  commentThreads: 0,
-  spotlights: 5,
+  commentThreads: 40,
+  spotlights: 3,
   // popularComments: 5,
   // quickTakes: 5,
   // subscribed: 0
@@ -311,18 +311,8 @@ export const ultraFeedGraphQLQueries = {
       let commentThreadsItems = await ultraFeedRepo.getUltraFeedCommentThreads(context, limit);
       profiling.sources.commentThreads.time = Date.now() - startCommentThreads;
       
-      // --- Filter Comment Threads based on servedPostIds ---
-      const initialCommentThreadCount = commentThreadsItems.length;
-      commentThreadsItems = commentThreadsItems.filter(thread => {
-          if (thread.postId && servedPostIds.has(thread.postId)) {
-              console.log(`UltraFeedResolver: Filtering comment thread for already served post ${thread.postId}`);
-              return false;
-          }
-          return true;
-      });
-      profiling.sources.commentThreads.count = commentThreadsItems.length; // Update count after filtering
-      console.log(`UltraFeedResolver: Filtered ${initialCommentThreadCount - commentThreadsItems.length} comment threads for already served posts. ${commentThreadsItems.length} remain.`);
-      // --- End Filter ---
+      // Now use the original count for profiling
+      profiling.sources.commentThreads.count = commentThreadsItems.length;
 
       // Calculate total comments across remaining threads
       commentThreadsItems.forEach(thread => {
@@ -336,17 +326,16 @@ export const ultraFeedGraphQLQueries = {
       profiling.sources.spotlights.time = Date.now() - startSpotlights;
       profiling.sources.spotlights.count = spotlightItems.length;
       
-      // Create sources object for weighted sampling (using filtered commentThreadsItems)
+      // Create sources object for weighted sampling (using UNFILTERED commentThreadsItems)
       const sources: Record<UsedFeedItemSourceType, { weight: number, items: FeedItem[], renderAsType: FeedItemRenderType }> = {
         postThreads: {
           weight: SOURCE_WEIGHTS.postThreads,
-          items: postThreadsItems, // Already filtered
+          items: postThreadsItems, // Already filtered in repo
           renderAsType: "feedPost"
         },
         commentThreads: {
-          // Adjust weight dynamically if no items left? Or keep static? Keep static for now.
           weight: SOURCE_WEIGHTS.commentThreads, 
-          items: commentThreadsItems, // Use filtered list
+          items: commentThreadsItems, // Use unfiltered list
           renderAsType: "feedCommentThread"
         },
         spotlights: {
@@ -358,7 +347,7 @@ export const ultraFeedGraphQLQueries = {
 
       console.log("Performing weighted sampling with:", {
         postThreadsCount: sources.postThreads.items.length,
-        commentThreadsCount: sources.commentThreads.items.length, // Log filtered count
+        commentThreadsCount: sources.commentThreads.items.length, // Log unfiltered count
         spotlightsCount: sources.spotlights.items.length,
         // sources: sources, // Maybe omit logging full sources object for brevity
         requestedLimit: limit

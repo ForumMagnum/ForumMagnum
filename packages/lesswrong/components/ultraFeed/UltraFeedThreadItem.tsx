@@ -279,7 +279,7 @@ const UltraFeedThreadItem = ({thread}: {
     <div className={classes.root}>
       {postExpanded 
         ? <div className={classes.expandedPost}>
-          <UltraFeedPostItem post={thread.post} postMetaInfo={thread.postMetaInfo} initiallyExpanded={false} />
+          <UltraFeedPostItem post={thread.post} postMetaInfo={thread.postMetaInfo} />
         </div>
         : titleElement}
       {comments.length > 0 && <div className={classes.commentsContainer}>

@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
-import classNames from "classnames";
 import { postGetLink } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
+import { useUltraFeedObserver } from "./UltraFeedObserver";
 
 // Styles for the UltraFeedPostItem component
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
@@ -87,58 +87,67 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
 const UltraFeedPostItem = ({
   post,
   postMetaInfo,
-  initiallyExpanded = false,
 }: {
   post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
-  initiallyExpanded?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const {captureEvent} = useTracking();
-  const { FeedPostsHighlight, UltraFeedPostItemMeta, PostActionsButton } = Components;
+  const { FeedPostsHighlight, UltraFeedPostItemMeta, PostActionsButton, FeedContentBody } = Components;
   const { settings } = useUltraFeedSettings();
 
-  const [expanded, setExpanded] = useState(initiallyExpanded);
-  
-  const metaInfoProps = expanded ? {} : { hideVoteButtons: true, hideActionsMenu: true };
+  // Get functions from the context
+  const { observe, trackExpansion } = useUltraFeedObserver();
+  const elementRef = useRef<HTMLDivElement | null>(null);
 
-  const handleExpand = (ev: React.MouseEvent<HTMLDivElement>) => {
-    if (expanded) return;
-    ev.preventDefault();
-    ev.stopPropagation();
-    setExpanded(true);
-  };
-  
+  // Use effect to observe
+  useEffect(() => {
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observe(currentElement, { documentId: post._id, documentType: 'post' });
+    }
+  }, [observe, post._id]);
+
+  // Handle content expansion events from FeedContentBody
+  const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
+    trackExpansion({
+      documentId: post._id,
+      documentType: 'post',
+      level,
+      maxLevelReached: maxReached,
+      wordCount,
+    });
+  }, [trackExpansion, post._id]);
+
   return (
-    <div className={classes.root} onClick={handleExpand}>
+    <div ref={elementRef} className={classes.root}>
       <div className={classes.header}>
         <div className={classes.titleRow}>
           <div className={classes.titleContainer}>
             <Link to={postGetLink(post)} className={classes.title}>{post.title}</Link>
           </div>
           <span className={classes.rightSection}>
-            {expanded && <AnalyticsContext pageElementContext="tripleDotMenu">
+            <AnalyticsContext pageElementContext="tripleDotMenu">
               <PostActionsButton 
                 post={post} 
                 vertical={true}
                 className={classes.tripleDotMenu}
               />
-            </AnalyticsContext>}
+            </AnalyticsContext>
           </span>
         </div>
-        <UltraFeedPostItemMeta post={post} {...metaInfoProps} />
+        <UltraFeedPostItemMeta post={post} />
       </div>
-      
-      
+
       {post.contents && (
-        <Components.FeedContentBody 
+        <FeedContentBody
           post={post}
           html={post.contents.htmlHighlight || ""}
-          breakpoints={settings.postTruncationBreakpoints} 
+          breakpoints={settings.postTruncationBreakpoints}
           initialExpansionLevel={0}
           wordCount={post.contents.wordCount || 0}
           linkToDocumentOnFinalExpand={true}
           nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
+          onExpand={handleContentExpand}
         />
       )}
       <div className={classes.footer} />

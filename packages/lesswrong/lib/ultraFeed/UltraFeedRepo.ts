@@ -634,8 +634,6 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       LIMIT $(limit)
     `, { limit, servedSpotlightIdsArray });
     
-    console.log(`UltraFeedRepo: SQL query returned ${spotlightRows?.length || 0} random spotlight IDs`);
-    
     // If no results, return empty array
     if (!spotlightRows || !spotlightRows.length) {
       return [];

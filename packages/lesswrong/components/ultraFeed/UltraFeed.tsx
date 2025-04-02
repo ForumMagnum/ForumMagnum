@@ -12,6 +12,7 @@ import DeferRender from '../common/DeferRender';
 import { Link } from '@/lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { DisplayFeedPostWithComments } from './ultraFeedTypes';
+import { UltraFeedObserverProvider } from './UltraFeedObserver';
 
 // Add this at the top level of your file
 
@@ -259,101 +260,103 @@ const UltraFeedContent = () => {
       </div>
       
       {ultraFeedEnabled && <>
-        <SingleColumnSection>
-          {/* place this higher than top feed so it properly scrolls into view */}
-          <div ref={topSectionRef} />
-          <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
-          
-          {/* Settings Drawer */}
-          {settingsVisible && (
-            <div className={classes.settingsContainer}>
-              <UltraFeedSettings onClose={() => setSettingsVisible(false)} />
-            </div>
-          )}
-          
-          {/* New Content Section */}
-          <div className={classes.ultraFeedNewContentContainer}>
-            <MixedTypeFeed
-              resolverName="UltraFeed"
-              sortKeyType="Date"
-              firstPageSize={30}
-              pageSize={15}
-              refetchRef={refetchSubscriptionContentRef}
-              loadMoreRef={loadMoreAtTopRef}
-              prependedLoadMore={false}
-              resolverArgsValues={{ sessionId }}
-              renderers={{
-                  feedCommentThread: {
-                    fragmentName: 'FeedPostWithCommentsFragment',
-                    render: (item: DisplayFeedPostWithComments) => {
-                      if (!item) {
-                        console.log("Missing feed item data:", item);
-                        return null;
+        <UltraFeedObserverProvider>
+          <SingleColumnSection>
+            {/* place this higher than top feed so it properly scrolls into view */}
+            <div ref={topSectionRef} />
+            <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
+            
+            {/* Settings Drawer */}
+            {settingsVisible && (
+              <div className={classes.settingsContainer}>
+                <UltraFeedSettings onClose={() => setSettingsVisible(false)} />
+              </div>
+            )}
+            
+            {/* New Content Section */}
+            <div className={classes.ultraFeedNewContentContainer}>
+              <MixedTypeFeed
+                resolverName="UltraFeed"
+                sortKeyType="Date"
+                firstPageSize={30}
+                pageSize={15}
+                refetchRef={refetchSubscriptionContentRef}
+                loadMoreRef={loadMoreAtTopRef}
+                prependedLoadMore={false}
+                resolverArgsValues={{ sessionId }}
+                renderers={{
+                    feedCommentThread: {
+                      fragmentName: 'FeedPostWithCommentsFragment',
+                      render: (item: DisplayFeedPostWithComments) => {
+                        if (!item) {
+                          console.log("Missing feed item data:", item);
+                          return null;
+                        }
+                        
+                        return (
+                          <FeedItemWrapper sources={['commentThreads']}>
+                            <UltraFeedThreadItem thread={item} />
+                          </FeedItemWrapper>
+                        );
                       }
-                      
-                      return (
-                        <FeedItemWrapper sources={['commentThreads']}>
-                          <UltraFeedThreadItem thread={item} />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  },
-                  feedPost: {
-                    fragmentName: 'FeedPostWithCommentsFragment',
-                    render: (item: DisplayFeedPostWithComments) => {
-                      if (!item) {
-                        console.log("Missing feed item data:", item);
-                        return null;
+                    },
+                    feedPost: {
+                      fragmentName: 'FeedPostWithCommentsFragment',
+                      render: (item: DisplayFeedPostWithComments) => {
+                        if (!item) {
+                          console.log("Missing feed item data:", item);
+                          return null;
+                        }
+                        
+                        return (
+                          <FeedItemWrapper sources={['postThreads']}>
+                            <UltraFeedThreadItem thread={item} />
+                          </FeedItemWrapper>
+                        );
                       }
-                      
-                      return (
-                        <FeedItemWrapper sources={['postThreads']}>
-                          <UltraFeedThreadItem thread={item} />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  },
-                  feedSpotlight: {
-                    fragmentName: 'FeedSpotlightFragment',
-                    render: (item: {_id: string, spotlight: SpotlightDisplay}) => {
-                      if (!item || !item.spotlight) {
-                        console.log("Missing spotlight data:", item);
-                        return null;
+                    },
+                    feedSpotlight: {
+                      fragmentName: 'FeedSpotlightFragment',
+                      render: (item: {_id: string, spotlight: SpotlightDisplay}) => {
+                        if (!item || !item.spotlight) {
+                          console.log("Missing spotlight data:", item);
+                          return null;
+                        }
+                        
+                        return (
+                          <FeedItemWrapper sources={['spotlights']}>
+                            <SpotlightFeedItem 
+                              spotlight={item.spotlight}
+                              showSubtitle={true}
+                            />
+                          </FeedItemWrapper>
+                        );
                       }
-                      
-                      return (
-                        <FeedItemWrapper sources={['spotlights']}>
-                          <SpotlightFeedItem 
-                            spotlight={item.spotlight}
-                            showSubtitle={true}
-                          />
-                        </FeedItemWrapper>
-                      );
                     }
                   }
                 }
-              }
-            />
-          </div>
-          {/* {newContentButton} */}
-          {/* History Feed Section
-          <div className={classes.historyContainer}>
-            <MixedTypeFeed
-              resolverName="UltraFeedHistory"
-              sortKeyType="Date"
-              firstPageSize={20}
-              pageSize={10}
-              renderers={ultraFeedRenderer}
-              resolverArgsValues={{ sessionId }}
-              onReachedEnd={onReachedEnd}
-            />
-          </div>
-          {reachedEndOfHistory && <div className={classes.endOfFeedContainer}>
-            {newContentButton}
-            <Divider />
-            <Link className={classes.endOfFeedButtonPostScriptText} to={'/posts/7ZqGiPHTpiDMwqMN2'}>{postScriptText}</Link>
-          </div>} */}
-        </SingleColumnSection>
+              />
+            </div>
+            {/* {newContentButton} */}
+            {/* History Feed Section
+            <div className={classes.historyContainer}>
+              <MixedTypeFeed
+                resolverName="UltraFeedHistory"
+                sortKeyType="Date"
+                firstPageSize={20}
+                pageSize={10}
+                renderers={ultraFeedRenderer}
+                resolverArgsValues={{ sessionId }}
+                onReachedEnd={onReachedEnd}
+              />
+            </div>
+            {reachedEndOfHistory && <div className={classes.endOfFeedContainer}>
+              {newContentButton}
+              <Divider />
+              <Link className={classes.endOfFeedButtonPostScriptText} to={'/posts/7ZqGiPHTpiDMwqMN2'}>{postScriptText}</Link>
+            </div>} */}
+          </SingleColumnSection>
+        </UltraFeedObserverProvider>
       </>}
     </div>
   );

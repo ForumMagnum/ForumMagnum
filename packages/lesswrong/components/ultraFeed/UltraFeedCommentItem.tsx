@@ -1,6 +1,6 @@
-import React, { useCallback, useState, useMemo, useEffect } from "react";
+import React, { useCallback, useState, useMemo, useEffect, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import { DisplayFeedComment } from "./ultraFeedTypes";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -9,6 +9,7 @@ import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 import { Link } from "@/lib/reactRouterWrapper";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
+import { useUltraFeedObserver } from "./UltraFeedObserver";
 
 
 // Styles for the UltraFeedCommentItem component
@@ -206,41 +207,69 @@ const UltraFeedCommentItem = ({
   onPostTitleClick,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { captureEvent } = useTracking();
-
-  const { UltraFeedCommentsItemMeta, CommentBottom, FeedContentBody, UltraFeedCommentItemFooter } = Components;
+  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedCommentItemFooter } = Components;
   const { settings } = useUltraFeedSettings();
-  const { commentTruncationBreakpoints, collapsedCommentTruncation, lineClampNumberOfLines, commentTitleStyle } = settings;
 
-  // const votingSystemName = comment.votingSystem || "default";
-  // const votingSystem = getVotingSystemByName(votingSystemName);
-  // const voteProps = useVote(comment, "Comments", votingSystem);
+  // Get functions from the context
+  const { observe, trackExpansion } = useUltraFeedObserver();
+  const elementRef = useRef<HTMLDivElement | null>(null);
 
-  // Decide if we should truncate the content if collapsed
-  const shouldTruncate = useMemo(() => {
-    const wordCount = comment.contents?.wordCount ?? 0;
-    return wordCount > 500 && displayStatus !== "expanded";
-  }, [displayStatus, comment.contents?.wordCount]);
+  useEffect(() => {
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observe(currentElement, {
+        documentId: comment._id,
+        documentType: 'comment',
+        postId: comment.postId
+      });
+    }
+  }, [observe, comment._id, comment.postId]);
 
-  const handleExpand = useCallback(() => {
-    onChangeDisplayStatus("expanded");
-    captureEvent("ultraFeedCommentExpanded");
-  }, [onChangeDisplayStatus, captureEvent]);
+  const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
+    // Log the expansion event
+    trackExpansion({
+      documentId: comment._id,
+      documentType: 'comment',
+      postId: comment.postId,
+      level,
+      maxLevelReached: maxReached,
+      wordCount,
+    });
+
+    // If the comment was previously collapsed and is now expanding (level > 0),
+    // update its display status in the parent component.
+    if (displayStatus === "collapsed" && level > 0) {
+      onChangeDisplayStatus("expanded");
+    }
+
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus]);
 
   const expanded = displayStatus === "expanded";
-  const metaDataProps = { hideVoteButtons: true, hideActionsMenu: false, setShowEdit: () => {} }
-  
-  // Use the truncation breakpoints from settings
-  const truncationBreakpoints = displayStatus === "expanded" ? commentTruncationBreakpoints : [collapsedCommentTruncation];
-  const shouldUseLineClamp = !expanded && lineClampNumberOfLines > 0;
 
-  // Determine if and how we should show the title
-  const shouldShowInlineTitle = showInLineCommentThreadTitle && (commentTitleStyle === "commentReplyStyleBeneathMetaInfo" || commentTitleStyle === "commentReplyStyleAboveMetaInfo");
-  const titleAboveMetaInfo = shouldShowInlineTitle && (commentTitleStyle === "commentReplyStyleAboveMetaInfo");
+  // Determine breakpoints based on expansion status
+  const truncationBreakpoints = useMemo(() => {
+    const fullBreakpoints = settings.commentTruncationBreakpoints || []; // Default to empty array if undefined
+    const collapsedLimit = settings.collapsedCommentTruncation;
+
+    if (expanded) {
+      // If the item is already expanded, use the standard breakpoints
+      return fullBreakpoints;
+    } else {
+      // If collapsed, use the collapsed limit as the first breakpoint,
+      // followed by the rest of the standard breakpoints (skipping the first standard one).
+      // Ensure fullBreakpoints has elements before slicing.
+      const subsequentBreakpoints = fullBreakpoints.length > 1 ? fullBreakpoints.slice(1) : [];
+      return [collapsedLimit, ...subsequentBreakpoints];
+    }
+  }, [expanded, settings.commentTruncationBreakpoints, settings.collapsedCommentTruncation]);
+
+  const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
+
+  const shouldShowInlineTitle = showInLineCommentThreadTitle && (settings.commentTitleStyle === "commentReplyStyleBeneathMetaInfo" || settings.commentTitleStyle === "commentReplyStyleAboveMetaInfo");
+  const titleAboveMetaInfo = shouldShowInlineTitle && (settings.commentTitleStyle === "commentReplyStyleAboveMetaInfo");
 
   return (
-    <div className={classNames(classes.root)} >
-      {/* Vertical line container */}
+    <div ref={elementRef} className={classNames(classes.root)} >
       <div className={classes.verticalLineContainer}>
         <div className={classNames(
           classes.verticalLine,
@@ -252,7 +281,6 @@ const UltraFeedCommentItem = ({
         )} />
       </div>
       
-      {/* Comment content */}
       <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
         {titleAboveMetaInfo && (
           <div className={classes.inlineCommentThreadTitleAbove}>
@@ -265,7 +293,7 @@ const UltraFeedCommentItem = ({
           </div>
         )}
         <div className={classes.commentHeader}>
-          <UltraFeedCommentsItemMeta comment={comment} post={post} {...metaDataProps} />
+          <UltraFeedCommentsItemMeta comment={comment} post={post} />
           {shouldShowInlineTitle && !titleAboveMetaInfo && !comment.shortform && (
             <div className={classes.inlineCommentThreadTitle}>
               <button 
@@ -283,10 +311,11 @@ const UltraFeedCommentItem = ({
             html={comment.contents?.html || ""}
             breakpoints={truncationBreakpoints}
             wordCount={comment.contents?.wordCount || 0}
-            linkToDocumentOnFinalExpand={displayStatus === "expanded"}
+            linkToDocumentOnFinalExpand={expanded}
             initialExpansionLevel={0}
             nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
             clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
+            onExpand={handleContentExpand}
           />
         </div>
         <UltraFeedCommentItemFooter comment={comment} post={post} />
