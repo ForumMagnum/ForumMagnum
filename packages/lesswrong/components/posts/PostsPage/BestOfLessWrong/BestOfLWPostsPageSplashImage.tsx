@@ -118,8 +118,7 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return <ImageProvider>
-    <div className={classes.root}>
+  return <div className={classes.root}>
       <div className={classes.backgroundImageWrapper} style={{opacity}}>
         <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" /> 
         <div className={classes.overlayY} />
@@ -128,7 +127,6 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
     </div>
       {userIsAdminOrMod(currentUser) && <SplashImageEditing imgRef={imgRef} imageFlipped={imageFlipped} setImageFlipped={setImageFlipped} post={post} />}
     </div>
-  </ImageProvider>
 }
 
 const BestOfLWPostsPageSplashImageComponent = registerComponent('BestOfLWPostsPageSplashImage', BestOfLWPostsPageSplashImage);

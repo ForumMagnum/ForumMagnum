@@ -16,7 +16,7 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
     paddingRight: 8,
     paddingBottom: 8,
     zIndex: 2,
-    opacity: 1,
+    opacity: 0,
     gap: '8px',
     '&:hover': {
       opacity: 1

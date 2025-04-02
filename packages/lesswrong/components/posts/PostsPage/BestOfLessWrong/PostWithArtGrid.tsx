@@ -106,6 +106,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
       rightHeightPct: .65, 
       rightFlipped: false,
     } });
+
     if (errors) {
       // eslint-disable-next-line no-console
       console.error('Error saving coordinates', errors);
