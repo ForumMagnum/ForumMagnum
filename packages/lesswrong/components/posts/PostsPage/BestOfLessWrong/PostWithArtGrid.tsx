@@ -3,7 +3,7 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { Components } from "@/lib/vulcan-lib/components";
 import groupBy from "lodash/groupBy";
 import { useImageContext } from "../ImageContext";
-import GenerateImagesButton from "@/components/review/GenerateImagesButton";
+import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateImagesButton";
 import { useCreate } from "@/lib/crud/withCreate";
 
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
@@ -136,7 +136,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
     {!defaultExpanded && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</div>}
 
     {expanded && Object.entries(imagesByPrompt).map(([prompt, promptImages]) => {
-      const corePrompt = prompt.split(", aquarelle artwork fading")[0]
+      const corePrompt = prompt.split(artPrompt)[0]
       return <div key={prompt} className={classes.row}>
         <h3>{corePrompt}</h3>
         <div className={classes.content}>

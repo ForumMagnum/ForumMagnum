@@ -254,7 +254,7 @@ const generateHighResImage = async (essay: Essay, prompt: string, imageUrl: stri
     
     const result = await fal.subscribe("fal-ai/esrgan", upscaleOptions);
     // eslint-disable-next-line no-console
-    console.log("result", essay.title, prompt.split(", aquarelle artwork fading")[0])
+    console.log("result", essay.title, prompt.split(artPrompt)[0])
     // eslint-disable-next-line no-console
     console.log("upscaled", result.data.image.url)
     return result.data.image.url;

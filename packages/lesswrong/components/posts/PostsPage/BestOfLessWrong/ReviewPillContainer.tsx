@@ -62,7 +62,7 @@ const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({
   },
   reviewerName: {
     marginLeft: -3
-  }
+  },
 }));
 
 const ReviewPillContainer = ({postId}: {postId: string}) => {
