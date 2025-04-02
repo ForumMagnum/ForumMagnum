@@ -64,14 +64,14 @@ export const twelveVirtues: VirtueOfRationality[] = [
   {
     name: "evenness",
     shortDescription: "The Virtue of Evenness",
-    longDescription: <p>One who wishes to believe says, “Does the evidence permit me to believe?” One who wishes to disbelieve asks, “Does the evidence force me to believe?” Beware lest you place huge burdens of proof only on propositions you dislike, and then defend yourself by saying: “But it is good to be skeptical.”</p>,
+    longDescription: <p>One who wishes to believe says, "Does the evidence permit me to believe?" One who wishes to disbelieve asks, "Does the evidence force me to believe?" Beware lest you place huge burdens of proof only on propositions you dislike, and then defend yourself by saying: "But it is good to be skeptical."</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478223/loot/Evenness.png",
     weight: 0.2,
   },
   {
     name: "argument",
     shortDescription: "The Virtue of Argument",
-    longDescription: <p>Those who wish to fail must first prevent their friends from helping them. Those who smile wisely and say “I will not argue” remove themselves from help and withdraw from the communal effort. In argument strive for exact honesty, for the sake of others and also yourself: the part of yourself that distorts what you say to others also distorts your own thoughts.</p>,
+    longDescription: <p>Those who wish to fail must first prevent their friends from helping them. Those who smile wisely and say "I will not argue" remove themselves from help and withdraw from the communal effort. In argument strive for exact honesty, for the sake of others and also yourself: the part of yourself that distorts what you say to others also distorts your own thoughts.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478224/loot/Argument.png",
     weight: 1,
   },
@@ -85,7 +85,7 @@ export const twelveVirtues: VirtueOfRationality[] = [
   {
     name: "simplicity",
     shortDescription: "The Virtue of Simplicity",
-    longDescription: <p>Antoine de Saint-Exupéry said: “Perfection is achieved not when there is nothing left to add, but when there is nothing left to take away.” Simplicity is virtuous in belief, design, planning, and justification. When you profess a huge belief with many details, each additional detail is another chance for the belief to be wrong.</p>,
+    longDescription: <p>Antoine de Saint-Exupéry said: "Perfection is achieved not when there is nothing left to add, but when there is nothing left to take away." Simplicity is virtuous in belief, design, planning, and justification. When you profess a huge belief with many details, each additional detail is another chance for the belief to be wrong.</p>,
     imagePath: "https://res.cloudinary.com/lesswrong-2-0/image/upload/c_scale,w_64,h_64/v1743478225/loot/Simplicity.png",
     weight: 0.2,
   },
@@ -332,6 +332,7 @@ declare global {
     lwBucks: number
     picoLightcones: number
     hasFreeHomepageSpin: boolean
+    pinnedVirtues: string[]
   };
 }
 
@@ -344,6 +345,7 @@ export const defaultUserUnlockablesState: UserUnlockablesState = {
   lwBucks: 0,
   picoLightcones: 0,
   hasFreeHomepageSpin: true,
+  pinnedVirtues: [],
 };
 
 type UnlocksContextType = {

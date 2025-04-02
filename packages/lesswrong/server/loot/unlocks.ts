@@ -1,4 +1,4 @@
-import { PREMIUM_BOX_COST, REGULAR_BOX_COST, REGULAR_BOX_PICO_COST, Unlockable, defaultUserUnlockablesState, cylinder0Rewards, cylinder1Rewards, cylinder2Rewards, CurrencyReward, PREMIUM_BOX_PICO_COST } from "@/lib/loot/unlocks";
+import { PREMIUM_BOX_COST, REGULAR_BOX_COST, REGULAR_BOX_PICO_COST, Unlockable, defaultUserUnlockablesState, cylinder0Rewards, cylinder1Rewards, cylinder2Rewards, CurrencyReward, PREMIUM_BOX_PICO_COST, twelveVirtues } from "@/lib/loot/unlocks";
 import { getSqlClientOrThrow, runSqlQuery } from "../sql/sqlClient";
 import Unlockables from "../collections/unlockables/collection";
 import { executeWithLock } from "../resolvers/jargonResolvers/jargonTermMutations";
@@ -283,6 +283,52 @@ export const unlockablesGraphQLMutations = {
 
     return await spinTreasureChestTransaction({ userId, clientId, paymentMethod, boxType: "regular", context });
   },
+
+  async PinRationalityVirtue(root: void, args: { virtueName: string }, context: ResolverContext): Promise<string[]> {
+    const userId = context.currentUser?._id;
+    const clientId = context.clientId!;
+
+    if (!userId) {
+      throw new Error("User must be logged in to pin virtues.");
+    }
+
+    const virtueName = args.virtueName;
+    const validVirtueNames = new Set(twelveVirtues.map(v => v.name));
+
+    if (!validVirtueNames.has(virtueName)) {
+      throw new Error(`Invalid virtue name: ${virtueName}`);
+    }
+
+    let updatedPinnedVirtues: string[] = [];
+
+    await modifyUnlocksState({
+      userId, clientId, context,
+      stateTransform: (oldState) => {
+        if (!oldState.unlocks || (oldState.unlocks[virtueName] ?? 0) <= 0) {
+          throw new Error(`User has not unlocked the virtue: ${virtueName}`);
+        }
+
+        const currentPinned = oldState.pinnedVirtues || [];
+        const isAlreadyPinned = currentPinned.includes(virtueName);
+
+        if (isAlreadyPinned) {
+          updatedPinnedVirtues = currentPinned.filter(v => v !== virtueName);
+        } else {
+          if (currentPinned.length >= 3) {
+            throw new Error("Cannot pin more than 3 virtues.");
+          }
+          updatedPinnedVirtues = [...currentPinned, virtueName];
+        }
+
+        return {
+          ...oldState,
+          pinnedVirtues: updatedPinnedVirtues,
+        };
+      }
+    });
+
+    return updatedPinnedVirtues;
+  },
 };
 
 export const unlockablesGqlTypeDefs = gql`
@@ -293,5 +339,6 @@ export const unlockablesGqlTypeDefs = gql`
   extend type Mutation {
     # BuyLootBox(boxType: String!): Boolean!
     SpinTreasureChest(paymentMethod: String!): [Int!]!
+    PinRationalityVirtue(virtueName: String!): [String!]!
   }
 `;

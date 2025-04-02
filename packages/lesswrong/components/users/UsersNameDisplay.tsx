@@ -154,7 +154,7 @@ const UsersNameDisplay = ({
           </span>
         </UserTooltip>
         <div className={classes.virtueIcons}>
-          {twelveVirtues.slice(0, 3).map(virtue => user.publicUnlockables?.[virtue.name] && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
+          {twelveVirtues.map(virtue => user.publicUnlockables?.pinnedVirtues?.includes(virtue.name) && <img key={virtue.name} className={classes.curiosityIcon} src={virtue.imagePath}/>)}
         </div>
       </AnalyticsContext>
     </span>

@@ -5716,9 +5716,9 @@ const schema = {
         if (!publicUnlockables) return null;
 
         const unlockablesState: UserUnlockablesState = publicUnlockables.unlockablesState;
-        const { unlocks, hasFreeHomepageSpin } = unlockablesState;
+        const { unlocks, hasFreeHomepageSpin, pinnedVirtues } = unlockablesState;
 
-        return { ...unlocks, hasFreeHomepageSpin };
+        return { ...unlocks, hasFreeHomepageSpin, pinnedVirtues };
       },
     }
   },
