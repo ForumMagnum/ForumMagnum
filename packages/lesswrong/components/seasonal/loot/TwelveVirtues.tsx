@@ -8,12 +8,6 @@ import classNames from 'classnames';
 import { gql, useMutation } from '@apollo/client';
 import { useMessages } from '@/components/common/withMessages';
 
-const PIN_RATIONALITY_VIRTUE_MUTATION = gql`
-  mutation PinRationalityVirtue($virtueName: String!) {
-    PinRationalityVirtue(virtueName: $virtueName)
-  }
-`;
-
 const styles = defineStyles("TwelveVirtues", (theme: ThemeType) => ({
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -87,7 +81,11 @@ const TwelveVirtuesDialog = ({onClose}: {
   const {LWDialog} = Components;
   const [togglingVirtue, setTogglingVirtue] = useState<string | null>(null);
 
-  const [pinVirtue, { loading: pinLoading }] = useMutation(PIN_RATIONALITY_VIRTUE_MUTATION, {
+  const [pinVirtue, { loading: pinLoading }] = useMutation(gql`
+    mutation PinRationalityVirtue($virtueName: String!) {
+      PinRationalityVirtue(virtueName: $virtueName)
+    }
+  `, {
     onCompleted: (data) => {
       flash({ messageString: "Pinned virtues updated!", type: "success" });
       setTogglingVirtue(null);

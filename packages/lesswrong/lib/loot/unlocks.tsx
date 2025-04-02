@@ -332,7 +332,7 @@ declare global {
     lwBucks: number
     picoLightcones: number
     hasFreeHomepageSpin: boolean
-    pinnedVirtues: string[]
+    pinnedVirtues?: string[]
   };
 }
 
