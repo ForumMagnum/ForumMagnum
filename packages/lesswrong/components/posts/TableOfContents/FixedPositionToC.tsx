@@ -230,11 +230,6 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 4,
     },
   },
-  bestOfLessWrong: {
-    ...theme.typography.body2,
-    color: theme.palette.grey[700],
-    marginBottom: 10,
-  }
 });
 
 const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
