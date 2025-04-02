@@ -4,7 +4,7 @@ import PublishIcon from '@/lib/vendor/@material-ui/icons/src/Publish';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import classNames from 'classnames';
-import React, { CSSProperties, useCallback, useState } from 'react';
+import React, { CSSProperties, useCallback, useState, useRef, useEffect } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -18,6 +18,7 @@ import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSp
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles } from './SpotlightItem';
+import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
 
 const TEXT_WIDTH = 350;
 
@@ -297,9 +298,20 @@ const SpotlightFeedItem = ({
   className?: string,
 }) => {
   const classes = useStyles(useSpotlightFeedItemStyles);
+  const { observe } = useUltraFeedObserver();
+  const elementRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observe(currentElement, {
+        documentId: spotlight._id,
+        documentType: 'spotlight'
+      });
+    }
+  }, [observe, spotlight._id]);
 
   const url = getSpotlightUrl(spotlight);
-
 
   // Define fade color with a CSS variable to be accessed in the styles
   const style = {
@@ -316,9 +328,9 @@ const SpotlightFeedItem = ({
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
   const spotlightReviews = [];//getSpotlightDisplayReviews(spotlight);
 
-
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div
+      ref={elementRef}
       id={spotlight._id}
       style={style}
       className={classNames(classes.root, className)}

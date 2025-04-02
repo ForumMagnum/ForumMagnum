@@ -1,39 +1,38 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
 
 /**
- * If this collection wants to allow users to create/update records, uncomment the following lines
- * and implement the check functions for newCheck, editCheck, and removeCheck.  (removeCheck should by default return false.)
- * Otherwise, delete this block.
+ * Define mutation options with appropriate permission checks
  */
-// const mutationOptions = {
-//   newCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
-//     return false;
-//   },
-//   editCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
-//     return false;
-//   },
-//   removeCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
-//     return false;
-//   },
-// };
+const mutationOptions = {
+  newCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
+    // Allow logged-in users to create events
+    return !!user;
+  },
+  editCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
+    // Generally, events shouldn't be edited
+    return false;
+  },
+  removeCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
+    // Generally, events shouldn't be removed
+    return false;
+  },
+};
 
 export const UltraFeedEvents: UltraFeedEventsCollection = createCollection({
   collectionName: 'UltraFeedEvents',
   typeName: 'UltraFeedEvent',
 
-  // This is where you can add indexes for the collection.
+  // Add indexes for efficient queries
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
+    indexSet.addIndex('UltraFeedEvents', {documentId: 1, userId: 1, eventType: 1, createdAt: 1}, {name: "ultraFeedEvents_document_user_event_createdAt"});
     return indexSet;
   },
 
-  /** 
-   * If this collection wants to be used for basic CRUD operations, uncomment the following lines and import the necessary functions.
-   * Otherwise, remove them.
-   */
-  // resolvers: getDefaultResolvers('ultraFeedEvents'),
-  // mutations: getDefaultMutations('ultraFeedEvents', mutationOptions),
+  // Enable default CRUD operations
+  mutations: getDefaultMutations('UltraFeedEvents', mutationOptions),
 
   /**
    * If you want to log field changes by default for all fields in this collection, uncomment the following line.
@@ -41,6 +40,5 @@ export const UltraFeedEvents: UltraFeedEventsCollection = createCollection({
    */
   // logChanges: true,
 });
-
 
 export default UltraFeedEvents;

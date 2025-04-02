@@ -3,7 +3,7 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/he
 
 // --- Define Allowed Values ---
 const ALLOWED_COLLECTION_NAMES = ["Posts", "Comments", "Spotlights"];
-const ALLOWED_EVENT_TYPES = ["served", "viewed", "interacted"];
+const ALLOWED_EVENT_TYPES = ["served", "viewed", "expanded"];
 // --- ---
 
 const schema = {
@@ -103,23 +103,22 @@ const schema = {
 
   event: {
     database: {
-      type: "JSONB", // Use JSONB for efficient storage of arbitrary JSON in Postgres
-      nullable: true, // Make it true if event data is not always required
+      type: "JSONB",
+      nullable: true,
     },
     graphql: {
-      outputType: "JSON", // Use the GraphQL JSON scalar type
+      outputType: "JSON",
       inputType: "JSON",
-      canRead: ["admins"], // Changed from guests
-      canCreate: ["members"], // Adjust as needed
+      canRead: ["admins"],
+      canCreate: ["members"],
       validation: {
-        optional: true, // Make it true if event data is not always required
-        blackbox: true, // Allows any valid JSON structure
+        optional: true,
+        blackbox: true,
       },
     },
     form: {
         label: "Event Data",
-        // control: "textarea" // Maybe a textarea for raw JSON input if needed in forms?
-        // hidden: true // Probably not directly edited in forms
+        // hidden: true
     }
   } satisfies NewCollectionFieldSpecification<"UltraFeedEvents">,
 
@@ -167,3 +166,41 @@ export interface UltrafeedEvent {
   feedItemId?: string;
   event?: Record<string, any>; // Or a more specific type if the structure is known
 }
+
+// Interface for the data specific to 'expanded' events
+interface ExpandedEventData {
+  expansionLevel: number;
+  maxExpansionReached: boolean;
+  wordCount: number;
+}
+
+// Base interface (common fields)
+interface UltraFeedEventBase {
+  _id?: string;
+  createdAt?: Date;
+  userId: string;
+  // user?: UserType; // Future addition
+  documentId: string;
+  collectionName: typeof ALLOWED_COLLECTION_NAMES[number];
+  feedItemId?: string; // Optional as defined in schema
+}
+
+// Specific event types using discriminated unions based on eventType
+export type UltraFeedEvent =
+  | (UltraFeedEventBase & {
+      eventType: "served";
+      event?: null | Record<string, never>; // 'served' has no specific data expected
+    })
+  | (UltraFeedEventBase & {
+      eventType: "viewed";
+      event?: null | Record<string, never>; // 'viewed' has no specific data expected
+    })
+  | (UltraFeedEventBase & {
+      eventType: "expanded";
+      event: ExpandedEventData; // 'expanded' requires specific data
+    });
+
+// Example usage (demonstrates type checking):
+// const viewedEvent: UltraFeedEvent = { userId: '123', documentId: 'abc', collectionName: 'Posts', eventType: 'viewed' };
+// const expandedEvent: UltraFeedEvent = { userId: '123', documentId: 'def', collectionName: 'Comments', eventType: 'expanded', event: { expansionLevel: 1, maxExpansionReached: false, wordCount: 500 } };
+// const invalidExpandedEvent: UltraFeedEvent = { userId: '123', documentId: 'ghi', collectionName: 'Posts', eventType: 'expanded', event: {} }; // <-- TypeScript Error: 'event' is missing properties
