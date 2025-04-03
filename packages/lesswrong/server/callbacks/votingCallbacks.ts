@@ -10,7 +10,6 @@ import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { createAdminContext } from '../vulcan-lib/createContexts';
-import Tags from '../../server/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
@@ -20,10 +19,8 @@ import { updateModerateOwnPersonal, updateTrustedStatus } from '../users/moderat
 import { captureException } from '@sentry/core';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
-import { recomputeContributorScoresFor, updateDenormalizedContributorsList } from '../utils/contributorsUtil';
-import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
+import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
-import { createTag } from '../collections/tags/mutations';
 
 async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {

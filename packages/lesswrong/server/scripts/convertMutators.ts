@@ -9,6 +9,10 @@ import {
   Identifier,
   BooleanLiteral,
   SourceFile,
+  PropertyAccessExpression,
+  Expression,
+  AsExpression,
+  AwaitExpression,
 } from "ts-morph";
 import path from "path";
 import { pascalCase } from "pascal-case"; // Or use another library for case conversion
@@ -59,6 +63,18 @@ function addOrUpdateImport(sourceFile: SourceFile, namedImports: string[], modul
   }
 }
 
+// Helper to get the base name from Identifier or PropertyAccessExpression
+function getBaseName(expression: Expression | undefined): string | null {
+  if (!expression) return null;
+  if (Node.isIdentifier(expression)) {
+    return expression.getText();
+  }
+  if (Node.isPropertyAccessExpression(expression)) {
+    return expression.getName(); // Get the last part (e.g., 'LlmMessages' from 'context.LlmMessages')
+  }
+  return null;
+}
+
 async function runConversion() {
   const project = new Project({
     tsConfigFilePath: path.resolve(__dirname, "../../../../tsconfig.json"), // Adjust path to your root tsconfig
@@ -76,35 +92,45 @@ async function runConversion() {
   let changesMade = false;
   let filesChangedCount = 0;
 
-  const importsToAdd = {
-    computeContextFromUser: false,
-    createAnonymousContext: false,
-    newCreateFunctions: new Set<string>(),
-  };
-
   for (const sourceFile of allSourceFiles) {
     let fileChanged = false;
     const filePath = sourceFile.getFilePath();
     console.log(`Processing file: ${filePath}`);
 
+    // Track imports needed specifically for *this* file
+    const fileImportsToAdd = {
+      computeContextFromUser: false,
+      createAnonymousContext: false,
+      newCreateFunctions: new Set<string>(),
+    };
+
+    // Use a loop that allows modification while iterating (e.g., process in reverse or re-query)
+    // Getting all calls upfront and iterating is safer if replacements change node structure significantly
     const createMutatorCalls = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression).filter((callExpr) => {
       const expression = callExpr.getExpression();
       return Node.isIdentifier(expression) && expression.getText() === "createMutator";
     });
 
     if (createMutatorCalls.length === 0) {
+      console.log(`  No createMutator calls found in ${filePath}.`);
       continue; // Skip files with no createMutator calls
     }
 
     console.log(`  Found ${createMutatorCalls.length} createMutator calls.`);
 
-    for (const callExpression of createMutatorCalls) {
+    // Iterate backwards to handle nested calls or multiple calls within a statement safely
+    for (let i = createMutatorCalls.length - 1; i >= 0; i--) {
+      const callExpression = createMutatorCalls[i];
       try {
-        const parentStatement =
-          callExpression.getParentIfKind(SyntaxKind.ExpressionStatement) ??
-          callExpression.getAncestors().find(Node.isStatement);
+        // Check if the node is still valid (might have been replaced by a previous iteration)
+        if (callExpression.wasForgotten()) {
+            console.log("  -> Skipping forgotten node.");
+            continue;
+        }
+
+        const parentStatement = callExpression.getAncestors().find(Node.isStatement);
         if (!parentStatement || !Node.isStatement(parentStatement)) {
-          console.warn(`  -> Skipping call inside complex expression: ${callExpression.getText().substring(0, 50)}...`);
+          console.warn(`  -> Skipping call not directly within a statement: ${callExpression.getText().substring(0, 50)}...`);
           continue;
         }
 
@@ -117,41 +143,59 @@ async function runConversion() {
         const optionsObject = args[0] as ObjectLiteralExpression;
 
         // Extract properties
-        const collectionProp = optionsObject.getProperty("collection") as PropertyAssignment;
-        const documentProp = optionsObject.getProperty("document") as PropertyAssignment;
+        const collectionProp = optionsObject.getProperty("collection") as PropertyAssignment | undefined; // Make optional
+        const documentProp = optionsObject.getProperty("document") as PropertyAssignment | undefined; // Make optional
         const contextProp = optionsObject.getProperty("context") as PropertyAssignment | undefined;
         const currentUserProp = optionsObject.getProperty("currentUser") as PropertyAssignment | undefined;
         const validateProp = optionsObject.getProperty("validate") as PropertyAssignment | undefined;
 
-        if (!collectionProp || !documentProp || !Node.isIdentifier(collectionProp.getInitializer())) {
+        // --- Updated Collection Handling ---
+        const collectionInitializer = collectionProp?.getInitializer();
+        const collectionName = getBaseName(collectionInitializer); // Use helper
+
+        if (!collectionInitializer || !collectionName) {
           console.warn(
-            `  -> Skipping call missing 'collection' or 'document', or collection is not an Identifier: ${callExpression
+            `  -> Skipping call missing 'collection', or collection is not an Identifier or PropertyAccess: ${callExpression
               .getText()
               .substring(0, 50)}...`
           );
           continue;
         }
+        // --- End Updated Collection Handling ---
 
-        const collectionIdentifier = collectionProp.getInitializer() as Identifier;
-        const collectionName = collectionIdentifier.getText();
+        // --- Updated Document Handling ---
+        let documentInitializer = documentProp?.getInitializer();
+        if (!documentInitializer) {
+           console.warn(
+            `  -> Skipping call missing 'document': ${callExpression
+              .getText()
+              .substring(0, 50)}...`
+          );
+          continue;
+        }
+        // Handle 'as' expressions
+        if (Node.isAsExpression(documentInitializer)) {
+            documentInitializer = documentInitializer.getExpression();
+        }
+        // No longer checking if it's an ObjectLiteralExpression
+        const documentText = documentInitializer.getText();
+        // --- End Updated Document Handling ---
+
+
         // Attempt to singularize and format: MultiDocuments -> createMultiDocument
-        const singularName = collectionName.slice(0, -1);
-        const newFunctionName = `create${pascalCase(singularName)}`;
-        importsToAdd.newCreateFunctions.add(newFunctionName); // Track needed imports
-
-        const documentObject = documentProp.getInitializer();
-        if (!documentObject || !Node.isObjectLiteralExpression(documentObject)) {
-          console.warn(
-            `  -> Skipping call where 'document' is not an Object Literal: ${callExpression
-              .getText()
-              .substring(0, 50)}...`
-          );
-          continue;
+        // Handle potential pluralization inconsistencies (e.g., 'Messages' -> 'Message')
+        let singularName = collectionName;
+        if (collectionName.endsWith('s')) {
+            singularName = collectionName.slice(0, -1);
+        } else {
+            console.warn(`  -> Collection name "${collectionName}" doesn't end with 's', using as is for function name.`);
+            // Or implement more robust singularization if needed
         }
-        const documentText = documentObject.getText();
+        const newFunctionName = `create${pascalCase(singularName)}`;
+        fileImportsToAdd.newCreateFunctions.add(newFunctionName); // Track needed imports for this file
 
-        const contextValue = contextProp?.getInitializer()?.getText();
-        const currentUserValue = currentUserProp?.getInitializer()?.getText();
+        const contextValue = contextProp?.getInitializer()?.getText(); // Handles shorthand
+        const currentUserValue = currentUserProp?.getInitializer()?.getText(); // Handles shorthand
         const validateValue = validateProp?.getInitializer();
 
         const newArgs: string[] = [];
@@ -167,14 +211,14 @@ async function runConversion() {
           contextArg = contextValue;
         } else if (currentUserValue) {
           // Generate unique variable name for context
-          const contextVarName = "userContext_" + Math.random().toString(36).substring(2, 7); // Simple unique name
+          const contextVarName = "userContext"; // Simple unique name
           contextComputationStatement = `const ${contextVarName} = await computeContextFromUser({ user: ${currentUserValue}, isSSR: false });`;
           contextArg = contextVarName;
-          importsToAdd.computeContextFromUser = true;
+          fileImportsToAdd.computeContextFromUser = true;
           await ensureFunctionIsAsync(callExpression); // Ensure parent function is async
         } else {
           contextArg = `createAnonymousContext()`;
-          importsToAdd.createAnonymousContext = true;
+          fileImportsToAdd.createAnonymousContext = true;
         }
         newArgs.push(contextArg);
 
@@ -193,14 +237,21 @@ async function runConversion() {
         if (contextComputationStatement) {
           // Insert context computation statement before the statement containing the call
           const insertionIndex = parentStatement.getChildIndex();
-          const parentList = parentStatement.getParentSyntaxList();
-          if (parentList) {
-            parentList.insertChildText(insertionIndex, contextComputationStatement + "\n");
+          const parentContainer = parentStatement.getParent(); // e.g., Block, SourceFile, etc.
+
+          // Check if parentContainer has `insertStatements` method (like Block, SourceFile)
+          if (parentContainer && typeof (parentContainer as any).insertStatements === 'function') {
+             (parentContainer as any).insertStatements(insertionIndex, contextComputationStatement);
+             console.log(`  -> Added context computation: ${contextComputationStatement}`);
+          } else {
+             console.warn(`  -> Could not insert context computation statement for: ${callExpression.getText().substring(0,50)}... Parent container type: ${parentContainer?.getKindName()}`);
+             // Fallback or error handling needed? Maybe insert as text if desperate?
+             // For now, we'll proceed without inserting the statement if the container is unexpected.
           }
-          console.log(`  -> Added context computation: ${contextComputationStatement}`);
         }
 
-        // Replace the original call (or await expression) with the new call text
+        // Replace the original node with the new call text
+        // Important: Use replaceWithText on the *correct* node (await or call)
         replacementNode?.replaceWithText(newCallText);
         console.log(`  -> Replaced with: ${newCallText.substring(0, 100)}...`);
 
@@ -209,35 +260,41 @@ async function runConversion() {
       } catch (error: any) {
         console.error(`  -> Error processing call in ${filePath}: ${error.message}`);
         console.error(`     Call text: ${callExpression.getText().substring(0, 100)}...`);
+        if (error.stack) {
+            console.error(error.stack);
+        }
       }
     }
 
     if (fileChanged) {
       filesChangedCount++;
       // Add necessary imports to this file
-      if (importsToAdd.computeContextFromUser) {
+      if (fileImportsToAdd.computeContextFromUser) {
         // Assuming computeContextFromUser is in a specific file, adjust path as needed
-        addOrUpdateImport(sourceFile, ["computeContextFromUser"], "~/modules/apollo/context"); // Adjust path
+        addOrUpdateImport(sourceFile, ["computeContextFromUser"], "@/server/vulcan-lib/apollo-server/context"); // Adjust path
       }
-      if (importsToAdd.createAnonymousContext) {
+      if (fileImportsToAdd.createAnonymousContext) {
         // Assuming createAnonymousContext is in a specific file, adjust path as needed
-        addOrUpdateImport(sourceFile, ["createAnonymousContext"], "~/modules/apollo/context"); // Adjust path
+        addOrUpdateImport(sourceFile, ["createAnonymousContext"], "@/server/vulcan-lib/createContexts"); // Adjust path
       }
       // Add imports for the new create functions (assuming they are exported from a central place)
       // You might need more sophisticated logic if they come from different files
-      if (importsToAdd.newCreateFunctions.size > 0) {
-        addOrUpdateImport(sourceFile, Array.from(importsToAdd.newCreateFunctions), "~/modules/vulcan/mutations2"); // Adjust path
-      }
+      // if (importsToAdd.newCreateFunctions.size > 0) {
+        // addOrUpdateImport(sourceFile, Array.from(importsToAdd.newCreateFunctions), "~/modules/vulcan/mutations2"); // Adjust path
+      // }
 
       // Reset file-specific import flags
-      importsToAdd.computeContextFromUser = false;
-      importsToAdd.createAnonymousContext = false;
-      importsToAdd.newCreateFunctions.clear();
+      fileImportsToAdd.computeContextFromUser = false;
+      fileImportsToAdd.createAnonymousContext = false;
+      fileImportsToAdd.newCreateFunctions.clear();
 
       await sourceFile.save();
       console.log(`  Saved changes to ${filePath}`);
     } else {
-      console.log(`  No changes needed for ${filePath}`);
+      // Only log if we didn't find any calls initially
+      if (createMutatorCalls.length > 0) {
+          console.log(`  No applicable changes needed for ${filePath} despite finding calls.`);
+      }
     }
   }
 

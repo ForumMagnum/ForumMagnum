@@ -20,6 +20,7 @@ import { createMutator } from "../vulcan-lib/mutators";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -603,12 +604,7 @@ export function addLlmChatEndpoint(app: Express) {
       newMessageRecords,
       (message) => {
         // TODO: Replace with createLlmMessage once it's implemented
-        return createMutator({
-          collection: context.LlmMessages,
-          document: message,
-          context,
-          currentUser,
-        }).then(({ data }) => data);
+        return createLlmMessage({ data: message }, createAnonymousContext()).then(({ data }) => data);
       }
     );
 
@@ -662,12 +658,7 @@ export function addLlmChatEndpoint(app: Express) {
       });
 
       // TODO: Replace with createLlmMessage once it's implemented
-      await createMutator({
-        collection: context.LlmMessages,
-        document: claudeResponse,
-        context,
-        currentUser,
-      });
+      await createLlmMessage({ data: claudeResponse }, createAnonymousContext());
       
       await sendStreamEndEvent(conversationId, sendEventToClient);
     } catch (err) {

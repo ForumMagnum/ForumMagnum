@@ -2,7 +2,7 @@ import React from "react";
 import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/newSchema";
 import { Posts } from "@/server/collections/posts/collection";
-import { postStatuses } from "@/lib/collections/posts/constants";
+import { TOS_NOT_ACCEPTED_ERROR, postStatuses } from "@/lib/collections/posts/constants";
 import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
@@ -20,7 +20,6 @@ import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/resolvers";
 import { googleVertexApi } from "../google-vertex/client";
 import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
@@ -35,7 +34,7 @@ import { moveImageToCloudinary } from "../scripts/convertImagesToCloudinary";
 import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import { cheerioParse } from "../utils/htmlUtil";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { updateMutator } from "../vulcan-lib/mutators";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -47,6 +46,7 @@ import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createConversation } from "../collections/conversations/mutations";
 import { createMessage } from "../collections/messages/mutations";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
+import { createPostRelation } from "../collections/postRelations/mutations";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost | UpdatePreviewDocument<DbPost>) {
@@ -637,20 +637,15 @@ export async function lwPostsNewUpvoteOwnPost(post: DbPost, callbackProperties: 
   return {...post, ...votedPost} as DbPost;
 }
 
-export function postsNewPostRelation(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
-  const { context: { PostRelations } } = callbackProperties;
-  
+export function postsNewPostRelation(post: DbPost, { context }: AfterCreateCallbackProperties<'Posts'>) {
   if (post.originalPostRelationSourceId) {
-    // TODO: Replace with createPostRelation once it's implemented
-    void createMutator({
-      collection: PostRelations,
-      document: {
+    void createPostRelation({
+      data: {
         type: "subQuestion",
         sourcePostId: post.originalPostRelationSourceId,
         targetPostId: post._id,
-      },
-      validate: false,
-    })
+      }
+    }, context, true);
   }
   return post
 }
