@@ -1,12 +1,5 @@
 import UltraFeedRepo from "../../lib/ultraFeed/UltraFeedRepo";
-import { 
-  FeedItemSourceType,
-  UltraFeedResolverType, 
-  FeedItemRenderType,
-  FeedItem,
-  FeedPostWithComments,
-  FeedSpotlight,
-} from "@/components/ultraFeed/ultraFeedTypes";
+import { FeedItemSourceType, UltraFeedResolverType, FeedItemRenderType, FeedItem, FeedPostWithComments, FeedSpotlight, } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
 import { createMutator } from '../vulcan-lib/mutators';
@@ -53,7 +46,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
 // Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
   postThreads: 20,
-  commentThreads: 40,
+  commentThreads: 20,
   spotlights: 3,
   // popularComments: 5,
   // quickTakes: 5,

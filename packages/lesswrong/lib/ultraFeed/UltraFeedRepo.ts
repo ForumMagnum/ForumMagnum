@@ -9,8 +9,8 @@ import { FeedCommentFromDb, FeedCommentMetaInfo, FeedItemSourceType, FeedPostWit
 import Comments from '../../server/collections/comments/collection';
 import AbstractRepo from '../../server/repos/AbstractRepo';
 import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
-import { fragmentTextForQuery } from '../vulcan-lib/fragments';
-import { filterNonnull } from '../utils/typeGuardUtils';
+
+import { prioritizeThreads, prepareCommentThreadForResolver  } from './ultraFeedThreadHelpers';
 
 /**
  * Statistics to help prioritize which threads to display
@@ -221,28 +221,45 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
   async getCommentsForFeed(context: ResolverContext, limit = 200): Promise<FeedCommentFromDb[]> {
     const db = this.getRawDb();
+    // Get current user ID for filtering events
+    const userId = context.userId;
 
-    console.log(`UltraFeedRepo.getCommentsForFeed called with limit=${limit}`);
+    console.log(`UltraFeedRepo.getCommentsForFeed called with limit=${limit}, userId=${userId}`);
 
     // Factor out the filter clause for more clarity
     const FEED_COMMENT_FILTER_CLAUSE = `
-    c."postedAt" > NOW() - INTERVAL '180 days'
-    AND c.deleted IS NOT TRUE
-    AND c.retracted IS NOT TRUE
-    AND c."authorIsUnreviewed" IS NOT TRUE
-    AND "postId" IS NOT NULL
+      c."postedAt" > NOW() - INTERVAL '180 days'
+      AND c.deleted IS NOT TRUE
+      AND c.retracted IS NOT TRUE
+      AND c."authorIsUnreviewed" IS NOT TRUE
+      AND "postId" IS NOT NULL
     `;
 
+    // Query needs to join with UltraFeedEvents and aggregate timestamps
     const suggestedComments: FeedCommentFromDb[] = await db.manyOrNone(`
       -- UltraFeedRepo.getCommentsForFeed
       WITH
-      "popularComments" AS (
+      "CommentEvents" AS (
+        SELECT
+          "documentId",
+          MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) AS "lastServed",
+          MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" END) AS "lastViewed",
+          MAX(CASE WHEN "eventType" = 'expanded' THEN "createdAt" END) AS "lastInteracted" -- Treat 'expanded' as interacted for now
+        FROM "UltraFeedEvents"
+        -- Filter for relevant events for the current user and comments
+        WHERE "userId" = $(userId)
+          AND "collectionName" = 'Comments' -- Only consider events for comments
+          AND "eventType" IN ('served', 'viewed', 'expanded')
+        GROUP BY "documentId"
+      ),
+      "PopularCommentsBase" AS (
         SELECT
           c._id AS "commentId",
           c."topLevelCommentId",
           c."postId",
           c."parentCommentId",
           c."baseScore",
+          c."postedAt",
           'topComments' AS source
         FROM "Comments" c
         WHERE ${FEED_COMMENT_FILTER_CLAUSE}
@@ -250,13 +267,14 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         ORDER BY c."baseScore" DESC
         LIMIT $(limit)
       ),
-      "quickTakes" AS (
+      "QuickTakesBase" AS (
         SELECT
           c._id AS "commentId",
           c."topLevelCommentId",
           c."postId",
           c."parentCommentId",
           c."baseScore",
+          c."postedAt",
           'quickTake' AS source
         FROM "Comments" c
         WHERE ${FEED_COMMENT_FILTER_CLAUSE}
@@ -264,55 +282,64 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         ORDER BY c."postedAt" DESC
         LIMIT $(limit)
       ),
-      "allSuggestedComments" AS (
+      "AllSuggestedCommentsBase" AS (
         SELECT
-          sub."commentId" AS _id,
+          sub."commentId",
           sub."topLevelCommentId",
           sub."parentCommentId",
           sub."baseScore",
           sub."postId",
+          sub."postedAt",
           ARRAY_AGG(sub.source) AS sources
         FROM (
-          SELECT * FROM "popularComments"
+          SELECT * FROM "PopularCommentsBase"
           UNION
-          SELECT * FROM "quickTakes"
+          SELECT * FROM "QuickTakesBase"
         ) sub
-        GROUP BY sub."commentId", sub."topLevelCommentId", sub."postId", sub."parentCommentId", sub."baseScore"
+        GROUP BY sub."commentId", sub."topLevelCommentId", sub."postId", sub."parentCommentId", sub."baseScore", sub."postedAt"
       ),
-      "otherComments"  AS (
+      "OtherCommentsBase" AS (
         SELECT
-          c._id,
+          c._id AS "commentId",
           c."topLevelCommentId",
           c."parentCommentId",
           c."baseScore",
           c."postId",
+          c."postedAt",
           ARRAY[]::TEXT[] AS sources
         FROM "Comments" c
         WHERE (
-          c."topLevelCommentId" IN (SELECT "topLevelCommentId" FROM "allSuggestedComments")
-          OR c._id IN (SELECT "topLevelCommentId" FROM "allSuggestedComments")
+          c."topLevelCommentId" IN (SELECT "topLevelCommentId" FROM "AllSuggestedCommentsBase")
+          OR c._id IN (SELECT "topLevelCommentId" FROM "AllSuggestedCommentsBase")
         )
           AND ${FEED_COMMENT_FILTER_CLAUSE}
-          AND c._id NOT IN (SELECT _id FROM "allSuggestedComments")
+          AND c."_id" NOT IN (SELECT "commentId" FROM "AllSuggestedCommentsBase")
+      ),
+      -- Combine all potential comments
+      "CombinedComments" AS (
+        SELECT "commentId", "topLevelCommentId", "parentCommentId", "postId", "baseScore", "postedAt", "sources" FROM "AllSuggestedCommentsBase"
+        UNION
+        SELECT "commentId", "topLevelCommentId", "parentCommentId", "postId", "baseScore", "postedAt", "sources" FROM "OtherCommentsBase"
       )
-      SELECT _id AS "commentId", "topLevelCommentId", "parentCommentId", "postId", "baseScore", "sources" FROM "allSuggestedComments"
-      UNION
-      SELECT _id AS "commentId", "topLevelCommentId", "parentCommentId", "postId", "baseScore", "sources" FROM "otherComments"
-    `, { limit });
+      -- Final SELECT: Join comments with their event timestamps
+      SELECT
+        cc."commentId",
+        cc."topLevelCommentId",
+        cc."parentCommentId",
+        cc."postId",
+        cc."baseScore",
+        cc."postedAt",
+        cc."sources",
+        ce."lastServed",
+        ce."lastViewed",
+        ce."lastInteracted"
+      FROM "CombinedComments" cc
+      LEFT JOIN "CommentEvents" ce ON cc."commentId" = ce."documentId"
+    `, { limit, userId }); // Pass userId to the query
 
     const firstFewIds = suggestedComments.slice(0, 5).map(c => c.commentId);
     console.log(`UltraFeedRepo: SQL query returned ${suggestedComments?.length || 0} suggested comments`);
-    console.log(`UltraFeedRepo: First few comment IDs:`, firstFewIds);
-    console.log(`UltraFeedRepo: After merging with sources, have ${suggestedComments.length} comments`);
-
-    
-    // // Merge comment data with source information
-    // const commentsWithSources = suggestedComments.map((c: FeedCommentFromDb) => ({
-    //   // TODO: figure out ideal fix for __typename stuff, is causing issues in useNotifyMe within Actions Menu on ufCommentItems
-    //   commentId: c._id,
-    //   postId: c.postId,
-    //   metaInfo: { sources: c.sources as FeedItemSourceType[] }
-    // }));
+    console.log(`UltraFeedRepo: First few comment IDs and timestamps:`, suggestedComments.slice(0, 5).map(c => ({ id: c.commentId, viewed: c.lastViewed, interacted: c.lastInteracted })));
 
     return suggestedComments;
   }
@@ -387,7 +414,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   ): PreDisplayFeedComment[][] {
     if (!candidates.length) return [];
 
-    // Build a parent->child map to track siblings
+    // Build a parent->child map
     const children: Record<string, string[]> = {};
     for (const c of candidates) {
       const parent = c.parentCommentId ?? "root";
@@ -398,29 +425,34 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     }
 
     const enhancedCandidates: PreDisplayFeedComment[] = candidates.map(candidate => {
-      
-      const parentId = candidate.parentCommentId;
+      const parentId = candidate.parentCommentId ?? 'root';
       const siblingCount = children[parentId] ? children[parentId].length - 1 : 0;
-      
-      // Create new object instead of mutating the original
+
       return {
         commentId: candidate.commentId,
         postId: candidate.postId,
         baseScore: candidate.baseScore,
+        topLevelCommentId: candidate.topLevelCommentId,
         metaInfo: {
           sources: candidate.sources as FeedItemSourceType[],
           siblingCount,
-          alreadySeen: null,
+          lastServed: candidate.lastServed,
+          lastViewed: candidate.lastViewed,
+          lastInteracted: candidate.lastInteracted,
+          postedAt: candidate.postedAt,
         }
       };
     });
-    
+
     // Index enhanced candidates by their commentId for quick lookups
     const commentsById = new Map<string, PreDisplayFeedComment>(
       enhancedCandidates.map((c) => [c.commentId, c])
     );
 
     // Identify the "top-level" comment ID from the group
+    // Ensure we handle cases where the group might only contain non-top-level comments (find the highest ancestor)
+    // For simplicity now, assume the first candidate is representative or is the top-level one.
+    // A more robust approach might involve walking up the parent chain if parentCommentId exists.
     const topLevelId = candidates[0].topLevelCommentId ?? candidates[0].commentId;
 
     // Recursively build all linear threads starting at topLevelId
@@ -429,183 +461,71 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       if (!currentCandidate) return [];
 
       const childIds = children[currentId] || [];
-      // If no children, this is a leaf
       if (!childIds.length) {
-        return [[currentCandidate]];
+        return [[currentCandidate]]; // Leaf node
       }
 
-      // For each child, collect all subpaths
       const results: PreDisplayFeedCommentThread[] = [];
       for (const cid of childIds) {
         const subPaths = buildCommentThreads(cid);
         for (const subPath of subPaths) {
-          results.push([currentCandidate, ...subPath]);
+          // Check if currentCandidate is already defined before spreading
+           if (currentCandidate) {
+               results.push([currentCandidate, ...subPath]);
+           } else {
+               console.warn(`buildCommentThreads: currentCandidate undefined for id ${currentId}. Skipping thread.`);
+           }
         }
       }
+      // If a node has children, but none lead to valid paths (e.g., missing commentsById), return empty
+      // Or, potentially return [[currentCandidate]] if we want to include nodes even if children are missing?
+      // Let's return results, which might be empty if subPaths were empty.
       return results;
     };
+
+    // Check if the identified topLevelId actually exists in our map
+     if (!commentsById.has(topLevelId)) {
+         console.warn(`buildDistinctLinearThreads: Top level comment ${topLevelId} not found in candidates map. Thread group might be incomplete or invalid.`);
+         return []; // Cannot build threads if the starting point is missing
+     }
 
     return buildCommentThreads(topLevelId);
   }
 
-  public getThreadStatistics(thread: PreDisplayFeedCommentThread): ThreadStatistics {
-    // Handle edge case of empty threads
-    if (!thread.length || thread.length === 0) {
-      return {
-        commentCount: 0,
-        maxKarma: 0,
-        sumKarma: 0,
-        sumKarmaSquared: 0,
-        averageKarma: 0,
-        averageTop3Comments: 0
-      };
-    }
-
-    const commentCount = thread.length;
-    const karmaValues = thread.map(comment => comment.baseScore || 0);
-    const maxKarma = Math.max(...karmaValues);
-    const sumKarma = karmaValues.reduce((sum, score) => sum + score, 0);
-    const sumKarmaSquared = karmaValues.reduce((sum, score) => sum + (score * score), 0);
-    const averageTop3Comments = karmaValues.slice(0, 3).reduce((sum, score) => sum + score, 0) / 3;
-    
-    const averageKarma = sumKarma / commentCount;
-
-    return {
-      commentCount,
-      maxKarma,
-      sumKarma,
-      sumKarmaSquared,
-      averageKarma,
-      averageTop3Comments
-    };
-  }
-
-  public prioritizeThreads(threads: PreDisplayFeedCommentThread[]): Array<{
-    thread: PreDisplayFeedCommentThread;
-    stats: ThreadStatistics;
-    priorityScore: number;
-  }> {
-    // Calculate statistics for each thread
-    const threadsWithStats = threads.map(thread => {
-      const stats = this.getThreadStatistics(thread);
-      
-      // Calculate a combined priority score - adjust this formula as needed
-      // Current formula emphasizes high karma and adequate comment count
-
-      // TODO: temporarily add some noise, we'll remove later, noise should be about 10% of the score
-
-      const priorityScore = stats.sumKarmaSquared + (Math.random() * stats.sumKarmaSquared * 0.2);
-      
-      return {
-        thread,
-        stats,
-        priorityScore
-      };
-    });
-    
-    // Group threads by topLevelCommentId (first comment's ID in the thread)
-    const threadsByTopLevelId = new Map<string, typeof threadsWithStats[0][]>();
-    
-    for (const threadWithStats of threadsWithStats) {
-      const topLevelCommentId = threadWithStats.thread[0]?.commentId;
-      if (topLevelCommentId) {
-        if (!threadsByTopLevelId.has(topLevelCommentId)) {
-          threadsByTopLevelId.set(topLevelCommentId, []);
-        }
-        threadsByTopLevelId.get(topLevelCommentId)!.push(threadWithStats);
-      }
-    }
-    
-    // For each group, keep only the thread with the highest priority score
-    const filteredThreads: typeof threadsWithStats = [];
-    
-    for (const [_, threads] of threadsByTopLevelId) {
-      // Find the thread with the highest priority score in this group
-      const highestPriorityThread = threads.reduce((highest, current) => 
-        current.priorityScore > highest.priorityScore ? current : highest, 
-        threads[0]
-      );
-      
-      filteredThreads.push(highestPriorityThread);
-    }
-    
-    // Sort by priority score in descending order
-    return filteredThreads.sort((a, b) => b.priorityScore - a.priorityScore);
-  }
-
-  // TOOD: Implement actually good logic for choosing which to display
-  public prepareCommentThreadForResolver(thread: PreDisplayFeedCommentThread): FeedPostWithComments {
-    const numComments = thread.length;
-    // Make sure we don't try to expand more comments than exist
-    const numExpanded = Math.min(numComments, numComments <= 7 ? 2 : 3);
-    // randomly choose numExpanded indices from numComments
-    const expandedIndices = new Set<number>();
-    
-    // If numExpanded is 0, skip the loop entirely
-    if (numExpanded > 0) {
-      // Use an attempt counter to prevent infinite loops
-      let attempts = 0;
-      const maxAttempts = 100;
-      
-      while (expandedIndices.size < numExpanded && attempts < maxAttempts) {
-        attempts++;
-        const index = Math.floor(Math.random() * numComments);
-        expandedIndices.add(index);
-      }
-    }
-
-    const commentIds = thread.map((item: PreDisplayFeedComment) => item.commentId);
-    const commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo} = thread.reduce((acc: {[commentId: string]: FeedCommentMetaInfo}, comment, index) => {
-      // Determine display status for this comment
-      const displayStatus = expandedIndices.has(index) ? 'expanded' : 'collapsed';
-      
-      // Randomly decide if expanded comments should be highlighted (50% chance)
-      // NOTE: Only expanded comments can be highlighted
-      const highlight = displayStatus === 'expanded' ? Math.random() >= 0.5 : false;
-      
-      acc[comment.commentId] = {
-        sources: comment.metaInfo?.sources || [],
-        displayStatus: displayStatus,
-        alreadySeen: null,
-        siblingCount: comment.metaInfo?.siblingCount ?? null,
-        highlight: highlight,
-      };
-      return acc;
-    }, {});
-    
-    return {
-      postId: thread[0].postId,
-      postMetaInfo: { sources: ['commentThreads'], displayStatus: 'hidden' },
-      commentIds,
-      commentMetaInfos,
-    };
-  }
-
-  // TODO: somewhere choose threads better
-  // end-to-end function for generating threads for displaying in the UltraFeed
+  // Updated method using the new helpers
   public async getUltraFeedCommentThreads(context: ResolverContext, limit = 20): Promise<FeedPostWithComments[]> {
     console.log(`UltraFeedRepo.getUltraFeedCommentThreads started with limit=${limit}`);
-    
-    const candidates = await this.getCommentsForFeed(context, 200); // limit of how many comments to consider
+
+    // Fetch candidates with timestamps
+    const candidates = await this.getCommentsForFeed(context, 500);
     console.log(`UltraFeedRepo: Got ${candidates.length} candidates from getCommentsForFeed`);
-    
+
+    // Build distinct linear threads
     const threads = await this.getAllCommentThreads(candidates);
     console.log(`UltraFeedRepo: Got ${threads.length} threads from getAllCommentThreads`);
+
+    // Prioritize threads - now using the helper function
+    const prioritizedThreadInfos = prioritizeThreads(threads);
+    console.log(`UltraFeedRepo: After prioritization, have ${prioritizedThreadInfos.length} threads with reasons`);
     
-    const prioritizedThreads = this.prioritizeThreads(threads);
-    console.log(`UltraFeedRepo: After prioritization, have ${prioritizedThreads.length} threads`);
-    
-    const displayThreads = prioritizedThreads.map(thread => this.prepareCommentThreadForResolver(thread.thread));
+    // Log the top 5 reasons for debugging
+    if (prioritizedThreadInfos.length > 0) {
+      console.log(`UltraFeedRepo: Top 5 reasons:`, prioritizedThreadInfos.slice(0, 5).map(t => t.reason));
+    }
+
+    // Prepare the prioritized threads for display
+    const displayThreads = prioritizedThreadInfos
+      .slice(0, limit * 2) // Prepare extras in case some fail
+      .map(info => prepareCommentThreadForResolver(info))
+      .filter(thread => thread.commentIds && thread.commentIds.length > 0);
+
     console.log(`UltraFeedRepo: Generated ${displayThreads.length} display threads`);
 
-    // TODO: IMPORTANT - remove before production
-    // filter to only include threads with < 5 comments
-    const filteredDisplayThreads = displayThreads.filter(thread => thread.commentIds?.length && thread.commentIds.length < 10);
+    // Apply final limit
+    const finalResult = displayThreads.slice(0, limit);
+    console.log(`UltraFeedRepo: Returning ${finalResult.length} threads`);
     
-    const result = filteredDisplayThreads.slice(0, limit);
-    console.log(`UltraFeedRepo: Returning ${result.length} threads after applying limit`);
-    
-    return result;
+    return finalResult;
   }
 
   /**

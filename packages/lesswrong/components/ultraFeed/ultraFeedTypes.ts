@@ -20,9 +20,15 @@ export interface FeedCommentMetaInfo {
   sources: FeedItemSourceType[] | null;
   /** Number of siblings (comments with the same parent) */
   siblingCount: number | null;
-  /** Whether the user has seen this comment before */
-  alreadySeen: boolean | null;
-  /** Display status (expanded/collapsed/hidden) */
+  /** When this comment was last included in a feed serving */
+  lastServed: Date | null;
+  /** When this comment was last marked as 'viewed' */
+  lastViewed: Date | null;
+  /** When this comment was last interacted with (currently 'expanded') */
+  lastInteracted: Date | null;
+  /** When the comment was originally posted */
+  postedAt: Date | null;
+  /** Display status (expanded/collapsed/hidden) - may be determined by timestamps later */
   displayStatus?: FeedItemDisplayStatus;
   /** Whether this comment should be highlighted with a green vertical line */
   highlight?: boolean;
@@ -35,6 +41,10 @@ export interface FeedCommentFromDb {
   postId: string;
   baseScore: number;
   sources: string[];
+  lastServed: Date | null;
+  lastViewed: Date | null;
+  lastInteracted: Date | null;
+  postedAt: Date | null;
 }
 
 /**
@@ -45,8 +55,8 @@ export interface PreDisplayFeedComment {
   commentId: string;
   postId: string;
   baseScore: number;
-  /** Metadata about the comment's context in the feed */
-  metaInfo: Partial<FeedCommentMetaInfo>
+  topLevelCommentId?: string | null;
+  metaInfo: FeedCommentMetaInfo | null;
 }
 
 /**
