@@ -28,11 +28,11 @@ export function frag(strings: TemplateStringsArray, ...values: (string|FragmentI
     if (i < values.length) {
       const val = values[i];
       if (typeof val === 'string') {
-        sb.push(val);
+        sb.push('...'+val);
       } else if (typeof val === 'function') {
-        sb.push(val().fragmentName);
+        sb.push('...'+val().fragmentName);
       } else {
-        sb.push(val.fragmentName);
+        sb.push('...'+val.fragmentName);
       }
     }
   }
