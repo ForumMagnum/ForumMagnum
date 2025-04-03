@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateDefaultFragmentsFile } from './generateDefaultFragments';
+import { getGraphQLTypeDefs } from '../vulcan-lib/apollo-server/getTypeDefs';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -113,6 +114,7 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateCollectionTypeNames(), "/packages/lesswrong/lib/generated/collectionTypeNames.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
+    writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error(e);
@@ -125,3 +127,11 @@ export const generateTypesAndSQLSchema = (rootDir?: string) => {
   generateSQLSchema(rootDir);
   generateTypes(rootDir);
 }
+
+function generateGraphQLSchemaFile(): string {
+  const sb: string[] = [];
+  sb.push("# Generated file - run 'yarn generate' to update.\n\n");
+  sb.push(getGraphQLTypeDefs().schemaText);
+  return sb.join("");
+}
+

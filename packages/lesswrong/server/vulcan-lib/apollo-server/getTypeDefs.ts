@@ -42,7 +42,7 @@ ${queries.map(q =>
 `
 
 // generate GraphQL schemas for all registered collections
-const getTypeDefs = () => {
+export const getGraphQLTypeDefs = () => {
   const schemaContents: Array<string> = [
     "scalar JSON",
     "scalar Date",
@@ -73,7 +73,7 @@ const getTypeDefs = () => {
 
 
 export const getGraphQLSchema = () => {
-  const { schemaText, addedResolvers } = getTypeDefs();
+  const { schemaText, addedResolvers } = getGraphQLTypeDefs();
   
   let allResolvers = {
     JSON: GraphQLJSON,
