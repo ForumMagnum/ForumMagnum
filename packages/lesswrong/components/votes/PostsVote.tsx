@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { getVotingSystemByName } from '../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 
 const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   post: PostsWithVotes,

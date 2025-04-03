@@ -5,7 +5,7 @@ export const ReviewWinnerArtImages = `
     splashArtImagePrompt
     splashArtImageUrl
     activeSplashArtCoordinates {
-      ...SplashArtCoordinates
+      ...SplashArtCoordinatesEdit
     }
   }
 `

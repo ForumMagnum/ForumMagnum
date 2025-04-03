@@ -81,6 +81,7 @@ export default class CollapsibleSections extends Plugin {
   afterInit() {
     if (this.editor.commands.get('insertCollapsibleSection')) {
       blockAutoformatEditing(this.editor, this as AnyBecauseTodo, /^<details>$/, 'insertCollapsibleSection');
+      blockAutoformatEditing(this.editor, this as AnyBecauseTodo, /^\+\+\+$/, 'insertCollapsibleSection');
     }
   }
   

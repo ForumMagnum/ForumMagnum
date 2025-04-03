@@ -38,7 +38,7 @@ import { graphqlTypeDefs as additionalPostsTypeDefs } from '@/lib/collections/po
 import { graphqlTypeDefs as additionalRevisionsTypeDefs } from '@/lib/collections/revisions/newSchema';
 import { graphqlTypeDefs as additionalTagsTypeDefs } from '@/lib/collections/tags/newSchema';
 import { graphqlTypeDefs as additionalUsersTypeDefs } from '@/lib/collections/users/newSchema';
-import { graphqlTypeDefs as additionalRecommendationsTypeDefs } from '@/server/recommendations';
+import { graphqlTypeDefs as recommendationsTypeDefs, graphqlQueries as recommendationsQueries } from '@/server/recommendations';
 import { graphqlTypeDefs as userResolversTypeDefs, graphqlMutations as userResolversMutations, graphqlQueries as userResolversQueries } from '@/server/resolvers/userResolvers';
 import { graphqlVoteTypeDefs as postVoteTypeDefs, graphqlVoteMutations as postVoteMutations } from '@/server/collections/posts/collection';
 import { graphqlVoteTypeDefs as commentVoteTypeDefs, graphqlVoteMutations as commentVoteMutations } from '@/server/collections/comments/collection';
@@ -103,6 +103,7 @@ import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolver
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { getSchema } from '@/lib/schema/allSchemas';
+import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 
 export const typeDefs = gql`
   # type Query
@@ -113,7 +114,7 @@ export const typeDefs = gql`
   ${additionalRevisionsTypeDefs}
   ${additionalTagsTypeDefs}
   ${additionalUsersTypeDefs}
-  ${additionalRecommendationsTypeDefs}
+  ${recommendationsTypeDefs}
   ${userResolversTypeDefs}
   # # Vote typedefs
   ${postVoteTypeDefs}
@@ -180,11 +181,14 @@ export const typeDefs = gql`
   ${diffGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
+  ${generateCoverImagesForPostGraphQLTypeDefs}
+  ${flipSplashArtImageGraphQLTypeDefs}
 `
 
 export const resolvers = {
   Query: {
     ...userResolversQueries,
+    ...recommendationsQueries,
     ...notificationQueries,
     ...commentQueries,
     ...analyticsGraphQLQueries,
@@ -257,6 +261,8 @@ export const resolvers = {
     ...cronGraphQLMutations,
     ...partiallyReadSequencesMutations,
     ...jargonTermsGraphQLMutations,
+    ...generateCoverImagesForPostGraphQLMutations,
+    ...flipSplashArtImageGraphQLMutations,
     ...rsvpToEventsMutations,
     ...tagsGqlMutations,
     ...analyticsEventGraphQLMutations,

@@ -3,6 +3,8 @@ import usersSchema, { LegacyNotificationTypeSettings, legacyToNewNotificationTyp
 import { updateDefaultValue } from "./meta/utils";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 import Users from "../collections/users/collection";
+import chunk from "lodash/chunk";
+import { isLW } from "@/lib/instanceSettings";
 
 const notificationTypes = [
   "notificationCommentsOnSubscribedPost",
@@ -42,7 +44,8 @@ const fetchEverChangedSettingUsers = async ({
   db: SqlClient;
   fieldName: (typeof notificationTypes)[number];
 }) => {
-  const lwEventsUsers = await db.any<{ userId: string }>(
+
+  const lwEventsUsers = !isLW ? await db.any<{ userId: string }>(
     `
     SELECT DISTINCT "documentId" AS "userId"
     FROM "LWEvents"
@@ -52,7 +55,7 @@ const fetchEverChangedSettingUsers = async ({
       AND properties -> 'before' ->> $1 <> properties -> 'after' ->> $1;
   `,
     [fieldName]
-  );
+  ) : [];
 
   const fieldChangesUsers = await db.any<{ userId: string }>(
     `
@@ -72,7 +75,48 @@ const fetchEverChangedSettingUsers = async ({
   return Array.from(combinedUserIds);
 };
 
-const migrateFormat = async ({
+function mergeUserNotificationDiffs(userIdsByFieldName: string[][]) {
+  const mergedUserFieldChanges: Record<string, Partial<Record<typeof notificationTypes[number], true>>> = {};
+
+  for (let i = 0; i < userIdsByFieldName.length; i++) {
+    const userIds = userIdsByFieldName[i];
+    const fieldName = notificationTypes[i];
+
+    for (const userId of userIds) {
+      if (!mergedUserFieldChanges[userId]) {
+        mergedUserFieldChanges[userId] = {};
+      }
+      mergedUserFieldChanges[userId][fieldName] = true;
+    }
+  }
+
+  return mergedUserFieldChanges;
+}
+
+function getAllDefaultNotificationValues(toNew: boolean) {
+  const convertFormat = toNew ? legacyToNewNotificationTypeSettings : newToLegacyNotificationTypeSettings;
+  return Object.fromEntries(notificationTypes.map((fieldName) => {
+    // @ts-ignore we know none of the `onCreate`s require the additional fields
+    const defaultValue = usersSchema[fieldName].onCreate?.({ newDocument: {} as DbUser, fieldName });
+    return [fieldName, convertFormat(defaultValue)];
+  }));
+}
+
+function getUpdatedNotificationValuesForUser(user: Pick<DbUser, typeof notificationTypes[number]>, toNew: boolean) {
+  const convertFormat = toNew ? legacyToNewNotificationTypeSettings : newToLegacyNotificationTypeSettings;
+
+  const newNotificationValues = Object.fromEntries(notificationTypes.map((fieldName) => {
+    const oldValue = user[fieldName] as NotificationTypeSettings | LegacyNotificationTypeSettings;
+    const newValue = convertFormat(oldValue);
+    return [fieldName, newValue];
+  }));
+
+  return newNotificationValues;
+}
+
+const allNotificationFieldsSelector = Object.fromEntries(notificationTypes.map((fieldName) => [fieldName, 1])) as Record<typeof notificationTypes[number], 1>;
+
+export const migrateFormat = async ({
   db,
   toNew,
   dryRun
@@ -81,8 +125,6 @@ const migrateFormat = async ({
   toNew: boolean;
   dryRun?: boolean; // for debugging
 }) => {
-  const convertFormat = toNew ? legacyToNewNotificationTypeSettings : newToLegacyNotificationTypeSettings;
-
   console.time("fetchEverChangedSettingUsers");
 
   const userChangesPromises = notificationTypes.map((fieldName) =>
@@ -93,49 +135,51 @@ const migrateFormat = async ({
 
   console.timeEnd("fetchEverChangedSettingUsers");
 
-  for (let i = 0; i < usersWithChangesByNotificationSetting.length; i++) {
-    const fieldName = notificationTypes[i];
-    const usersEverChangedSetting = usersWithChangesByNotificationSetting[i];
-    console.log(`Field: ${fieldName}, Number of users who have ever changed setting: ${usersEverChangedSetting.length}`);
+  const mergedUserFieldChanges = mergeUserNotificationDiffs(usersWithChangesByNotificationSetting);
+  const userIdsWithChanges = Object.keys(mergedUserFieldChanges);
 
-    // @ts-ignore we know none of the `onCreate`s require the additional fields
-    const newDefault = convertFormat(usersSchema[fieldName].onCreate?.({ newDocument: {} as DbUser, fieldName }));
+  const userIdsWithoutChanges = (await Users.find({ _id: { $nin: userIdsWithChanges } }, {}, { _id: 1 }).fetch()).map((user) => user._id);
 
-    console.log("Updating setting for users who have never changed from the default...");
+  const allDefaultNotificationValues = getAllDefaultNotificationValues(toNew);
+
+  console.log(`Updating setting for ${userIdsWithoutChanges.length} users who have never changed from the default...`);
+
+  let batchNumber = 0;
+  for (const batch of chunk(userIdsWithoutChanges, 1000)) {
+    batchNumber++;
     if (!dryRun) {
+      console.log(`Updating batch ${batchNumber} of ${Math.ceil(userIdsWithoutChanges.length / 1000)}...`);
       await Users.rawUpdateMany(
-        { _id: { $nin: usersEverChangedSetting } },
-        { $set: { [fieldName]: newDefault } }
+        { _id: { $in: batch } },
+        { $set: allDefaultNotificationValues }
       );
     } else {
-      console.log("Would have run rawUpdateMany with args:", { _id: { $nin: usersEverChangedSetting } }, { $set: { [fieldName]: newDefault } });
+      console.log("Would have run rawUpdateMany with args:", { _id: { $in: batch } }, { $set: allDefaultNotificationValues });
     }
-
-    console.log("Migrating setting for users who *have* changed from the default...");
-
-    const usersToUpdate = await Users.find(
-      { _id: { $in: usersEverChangedSetting } },
-      {},
-      { _id: 1, [fieldName]: 1 }
-    ).fetch();
-
-    // On EAF there is on the order of ~100 users for the most popular settings
-    const userUpdateFuncs = usersToUpdate.map((user) => {
-      return async () => {
-        const oldValue = user[fieldName] as NotificationTypeSettings | LegacyNotificationTypeSettings;
-        const newValue = convertFormat(oldValue);
-
-        if (!dryRun) {
-          await Users.rawUpdateOne({ _id: user._id }, { $set: { [fieldName]: newValue } })
-        } else {
-          console.log("Would have run rawUpdateOne with args:", { _id: user._id }, { $set: { [fieldName]: newValue } });
-        }
-      }
-    })
-    await executePromiseQueue(userUpdateFuncs, 10);
-
-    console.log(`${!dryRun ? usersToUpdate.length : 0} users migrated`);
   }
+
+  console.log("Migrating setting for users who *have* changed from the default...");
+
+  const usersToUpdate = await Users.find({ _id: { $in: userIdsWithChanges } }, {}, { _id: 1, ...allNotificationFieldsSelector }).fetch();
+
+  console.log(`${usersToUpdate.length} users to update`);
+
+  // On EAF there is on the order of ~100 users for the most popular settings
+  const userUpdateFuncs = usersToUpdate.map((user) => {
+    return async () => {
+      const updatedNotificationValues = getUpdatedNotificationValuesForUser(user, toNew);
+
+      if (!dryRun) {
+        await Users.rawUpdateOne({ _id: user._id }, { $set: updatedNotificationValues })
+      } else {
+        console.log("Would have run rawUpdateOne with args:", { _id: user._id }, { $set: updatedNotificationValues });
+      }
+    }
+  });
+
+  await executePromiseQueue(userUpdateFuncs, 10);
+
+  console.log(`${!dryRun ? usersToUpdate.length : 0} users migrated`);
 };
 
 export const up = async ({ db }: MigrationContext) => {

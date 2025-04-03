@@ -4,7 +4,7 @@ import {AnalyticsContext, useTracking} from '../../lib/analyticsEvents.tsx'
 import classNames from 'classnames'
 import {useMulti} from '../../lib/crud/withMulti.ts'
 import debounce from 'lodash/debounce'
-import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent.tsx'
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
 import range from 'lodash/range'
 import { useLocation, useNavigate } from "../../lib/routeUtil";
@@ -201,7 +201,7 @@ const HomeTagBar = (
     showDescriptionOnHover?: boolean,
   },
 ) => {
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
   // we use the widths of the tabs window and the underlying topics bar
   // when calculating how far to scroll left and right
