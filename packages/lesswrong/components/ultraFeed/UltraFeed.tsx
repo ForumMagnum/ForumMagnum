@@ -18,6 +18,13 @@ import { UltraFeedObserverProvider } from './UltraFeedObserver';
 
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
+  root: {
+    // Remove padding inserted by Layout.tsx to be flush with sides of screen
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -8,
+      marginRight: -8,
+    },
+  },
   toggleContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -249,7 +256,7 @@ const UltraFeedContent = () => {
 
   // Component to render when we reach the end of the feed
   return (
-    <div>
+    <div className={classes.root}>
       <div className={classes.toggleContainer}>
         <SectionFooterCheckbox 
           value={ultraFeedEnabled} 
