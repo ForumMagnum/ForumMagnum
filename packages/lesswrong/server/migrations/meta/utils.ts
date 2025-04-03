@@ -19,15 +19,14 @@ import { sleep } from "../../../lib/utils/asyncUtils";
 import { getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
-import Revisions from "@/server/collections/revisions/collection";
 import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 import { getCollection } from "@/server/collections/allCollections";
-import { createMutator } from "@/server/vulcan-lib/mutators";
-import { createAdminContext } from "@/server/vulcan-lib/createContexts";
+import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { buildRevision } from "@/server/editor/conversionUtils";
+import { createRevision } from "@/server/collections/revisions/mutations";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -306,21 +305,19 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
             };
     
           revCreated++;
-          const revision = await createMutator({
-            collection: Revisions,
-            document: {
+          const revision = await createRevision({
+            data: {
               version: editableField.version || getInitialVersion(document),
               changeMetrics: {added: 0, removed: 0},
               collectionName,
               ...revisionData,
               userId,
-            },
-            validate: false,
-          });
+            }
+          }, createAnonymousContext(), true);
     
           await collection.rawUpdateOne(
             {_id: document._id},
-            { $set: {[latestFieldName]: revision.data._id}, }
+            { $set: {[latestFieldName]: revision._id}, }
           );
         }
       } catch(e) {

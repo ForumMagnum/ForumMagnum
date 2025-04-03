@@ -641,6 +641,7 @@ export function postsNewPostRelation(post: DbPost, callbackProperties: AfterCrea
   const { context: { PostRelations } } = callbackProperties;
   
   if (post.originalPostRelationSourceId) {
+    // TODO: Replace with createPostRelation once it's implemented
     void createMutator({
       collection: PostRelations,
       document: {

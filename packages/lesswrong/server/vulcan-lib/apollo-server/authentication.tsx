@@ -263,6 +263,8 @@ export const loginDataGraphQLMutations = {
     }
 
     const { req, res } = context
+    
+    // TODO: Replace with createUser once imports are properly structured to avoid circular dependencies
     const { data: user } = await createMutator({
       collection: Users,
       document: {

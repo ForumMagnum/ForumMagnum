@@ -19,6 +19,7 @@ import { clientIdMiddleware } from "../clientIdMiddleware";
 import { createMutator } from "../vulcan-lib/mutators";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib/query";
+import { createLlmConversation } from "../collections/llmConversations/mutations";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -205,6 +206,8 @@ async function getConversationTitle(args: BasePromptArgs) {
 
 async function createNewConversation({ query, systemPrompt, model, currentUser, context, postContext, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
   const title = await getConversationTitle({ query, currentPost });
+
+  // BEFORE
   const newConversation = await createMutator({
     collection: context.LlmConversations,
     document: {
@@ -216,6 +219,16 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
     context,
     currentUser,
   });
+
+  // AFTER
+  const newConversation = await createLlmConversation({
+    data: {
+      title,
+      systemPrompt,
+      model,
+      userId: currentUser._id,
+    }
+  }, context);
 
   return newConversation.data;
 };
@@ -602,12 +615,15 @@ export function addLlmChatEndpoint(app: Express) {
 
     const createNewMessagesSequentiallyPromise = asyncMapSequential(
       newMessageRecords,
-      (message) => createMutator({
-        collection: context.LlmMessages,
-        document: message,
-        context,
-        currentUser,
-      }).then(({ data }) => data)
+      (message) => {
+        // TODO: Replace with createLlmMessage once it's implemented
+        return createMutator({
+          collection: context.LlmMessages,
+          document: message,
+          context,
+          currentUser,
+        }).then(({ data }) => data);
+      }
     );
 
     const [previousMessages, newMessages] = await Promise.all([
@@ -659,6 +675,7 @@ export function addLlmChatEndpoint(app: Express) {
         sendEventToClient
       });
 
+      // TODO: Replace with createLlmMessage once it's implemented
       await createMutator({
         collection: context.LlmMessages,
         document: claudeResponse,

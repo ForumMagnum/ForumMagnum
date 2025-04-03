@@ -4,7 +4,6 @@ import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collectio
 import { buildRevision } from '../editor/conversionUtils';
 import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { drive } from "@googleapis/drive";
-import Revisions from '../../server/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
@@ -14,11 +13,12 @@ import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../l
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
-import { createMutator } from "../vulcan-lib/mutators";
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
 import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
+import { createPost } from '../collections/posts/mutations';
+import { createRevision } from '../collections/revisions/mutations';
 
 interface VertexRecommendedPost {
   post: Partial<DbPost>;
@@ -408,11 +408,7 @@ export const postGqlMutations = {
         googleDocMetadata: docMetadata
       };
 
-      await createMutator({
-        collection: Revisions,
-        document: newRevision,
-        validate: false,
-      });
+      await createRevision({ data: newRevision }, context, true);
 
       return await Posts.findOne({_id: postId})
     } else {
@@ -424,9 +420,8 @@ export const postGqlMutations = {
       }
 
       // Create a draft post if one doesn't exist. This runs `buildRevision` itself via a callback
-      const { data: post } = await createMutator({
-        collection: Posts,
-        document: {
+      const post = await createPost({
+        data: {
           _id: finalPostId,
           userId: currentUser._id,
           title: docMetadata.name,
@@ -441,10 +436,8 @@ export const postGqlMutations = {
           }),
           draft: true,
           ...afField,
-        },
-        currentUser,
-        validate: false,
-      })
+        }
+      }, context, true);
 
       return post;
     }

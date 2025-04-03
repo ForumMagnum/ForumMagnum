@@ -3,11 +3,12 @@ import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { updateMutator } from '../vulcan-lib/mutators';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import gql from 'graphql-tag';
+import { createRevision } from '../collections/revisions/mutations';
 
 export const revisionResolversGraphQLTypeDefs = gql`
   input AutosaveContentType {
@@ -102,13 +103,9 @@ export const revisionResolversGraphQLMutations = {
       commitMessage: 'Native editor autosave',
     };
 
-    const { data: createdRevision } = await createMutator({
-      collection: Revisions,
-      document: newRevision,
-      context,
-      currentUser,
-      validate: false
-    });
+    const createdRevision = await createRevision({
+      data: newRevision
+    }, context, true);
 
     return createdRevision;
   }

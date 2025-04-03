@@ -7,7 +7,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkUpdatePermissionsAndReturnProps, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import clone from "lodash/clone";
@@ -21,8 +21,31 @@ function editCheck(user: DbUser | null, document: DbLlmConversation | null, cont
 }
 
 
-const { updateFunction } = getDefaultMutationFunctions('LlmConversations', {
-  // LlmConversations don't have a "default" create function; they're created when necessary in the `/api/sendLlmChat` endpoint
+const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConversations', {
+  createFunction: async ({ data }: { data: Partial<DbLlmConversation> }, context, skipValidation?: boolean) => {
+    const callbackProps = await checkCreatePermissionsAndReturnProps('LlmConversations', {
+      context,
+      data,
+      schema,
+      skipValidation,
+    });
+
+    data = callbackProps.document;
+
+    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+
+    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'LlmConversations', callbackProps);
+    let documentWithId = afterCreateProperties.document;
+
+    await runCountOfReferenceCallbacks({
+      collectionName: 'LlmConversations',
+      newDocument: documentWithId,
+      callbackStage: 'createAfter',
+      afterCreateProperties,
+    });
+
+    return documentWithId;
+  },
 
   updateFunction: async ({ selector, data }: UpdateLlmConversationInput, context, skipValidation?: boolean) => {
     const { currentUser, LlmConversations } = context;
@@ -68,7 +91,7 @@ const wrappedUpdateFunction = wrapUpdateMutatorFunction('LlmConversations', upda
 });
 
 
-export { updateFunction as updateLlmConversation };
+export { createFunction as createLlmConversation, updateFunction as updateLlmConversation };
 export { wrappedUpdateFunction as updateLlmConversationMutation };
 
 

@@ -5,7 +5,7 @@ import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 import { registerMigration } from "./migrationUtils"
 import zip from 'lodash/zip'
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { createMutator } from "../vulcan-lib/mutators";
+import { createReviewWinner } from "../collections/reviewWinners/mutations";
 
 const AI_TAG_ID = 'sYm3HiWcfZvrGu3ui';
 
@@ -298,19 +298,15 @@ export default registerMigration({
         const naiveIsAI = naiveAiPostIdSet.has(reviewWinnerPostId);
         if (existingWinners.some(({ postId }) => postId === reviewWinnerPostId)) return Promise.resolve();
 
-        return createMutator({
-          collection: ReviewWinners,
-          document: {
+        return createReviewWinner({
+          data: {
             postId: reviewWinnerPostId,
             reviewYear,
             reviewRanking: idx,
             curatedOrder: naiveCuratedOrder,
-            isAI: naiveIsAI
-          },
-          context: adminContext,
-          currentUser: adminContext.currentUser,
-          validate: false
-        }).catch(e => {
+            isAI: naiveIsAI,
+          }
+        }, adminContext, true).catch(e => {
           // eslint-disable-next-line no-console
           console.dir(e);
           throw new Error(`Failed to create ReviewWinner for postId ${reviewWinnerPostId}`)

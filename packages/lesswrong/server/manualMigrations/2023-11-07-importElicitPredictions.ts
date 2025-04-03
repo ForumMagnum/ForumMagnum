@@ -1,5 +1,4 @@
 import ElicitQuestionPredictions from '../../server/collections/elicitQuestionPredictions/collection';
-import ElicitQuestions from '../../server/collections/elicitQuestions/collection';
 import { executePromiseQueue } from '../../lib/utils/asyncUtils';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import CommentsRepo from '../repos/CommentsRepo';
@@ -11,6 +10,7 @@ import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createMutator } from "../vulcan-lib/mutators";
 import { DatabaseServerSetting } from '../databaseSettings';
 import { encode } from 'querystring';
+import { createElicitQuestion } from '../collections/elicitQuestions/mutations';
 
 const elicitAPIUrl = "https://forecast.elicit.org/api/v1"
 const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
@@ -105,12 +105,7 @@ export default registerMigration({
     await Promise.all(elicitQuestionsWithPredictions.flatMap(([questionData, predictionData]) => {
       if (!questionData) return;
       return [
-        createMutator({
-          collection: ElicitQuestions,
-          document: questionData,
-          validate: true,
-          context: adminContext
-        }),
+        createElicitQuestion({ data: questionData }, adminContext),
         ...predictionData.map(p => createMutator({
           collection: ElicitQuestionPredictions,
           document: p,
