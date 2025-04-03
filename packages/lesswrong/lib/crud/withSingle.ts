@@ -1,10 +1,9 @@
 import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
-import * as _ from 'underscore';
 import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../generated/collectionTypeNames';
-import { camelCaseify } from '../vulcan-lib/utils';
 import { apolloSSRFlag } from '../helpers';
 import type { PrimitiveGraphQLType } from './types';
+import { getSingleResolverName } from './utils';
 
 
 /**
@@ -41,18 +40,6 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
   `;
   
   return query
-}
-
-/**
- * Get the name of the GraphQL resolver to use for useSingle on a collection
- * (which is the type name, camel-caseified). Note that this functino might not
- * be getting used everywhere that uses the resolver name, and the resolver name
- * is part of the API given to external sites like GreaterWrong, so this should
- * not be changed.
- */
-export function getResolverNameFromOptions(collectionName: CollectionNameString): string {
-  const typeName = collectionNameToTypeName[collectionName];
-  return camelCaseify(typeName);
 }
 
 type TSuccessReturn<FragmentTypeName extends keyof FragmentTypes> = {loading: false, error: undefined, document: FragmentTypes[FragmentTypeName]};
@@ -118,7 +105,8 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   ssr=true,
   apolloClient,
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
-  const resolverName = getResolverNameFromOptions(collectionName)
+  const typeName = collectionNameToTypeName[collectionName];
+  const resolverName = getSingleResolverName(typeName)
   const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName, resolverName })
   const skipQuery = skip || (!documentId && !slug);
   // TODO: Properly type this generic query

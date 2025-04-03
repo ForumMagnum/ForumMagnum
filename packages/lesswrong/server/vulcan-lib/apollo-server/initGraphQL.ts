@@ -29,8 +29,6 @@ import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/sch
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import gql from 'graphql-tag'; 
 import * as _ from 'underscore';
-import { pluralize } from "../../../lib/vulcan-lib/pluralize";
-import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
 import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
@@ -103,6 +101,7 @@ import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolver
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { getSchema } from '@/lib/schema/allSchemas';
+import { getMultiResolverName, getSingleResolverName } from '@/lib/crud/utils';
 
 export const typeDefs = gql`
   # type Query
@@ -474,9 +473,10 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
 
   const collectionName = collection.collectionName;
 
-  const typeName = collection.typeName
-    ? collection.typeName
-    : camelToSpaces(_.initial(collectionName).join('')); // default to posts -> Post
+  if (!collection.typeName) {
+    throw new Error("Collection is missing typeName");
+  }
+  const typeName = collection.typeName;
 
   const schema = getSchema(collectionName);
 
@@ -528,7 +528,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
       // single
       if (resolvers.single) {
         addedQueries.push({query: singleQueryTemplate({ typeName }), description: resolvers.single.description});
-        queryResolvers[camelCaseify(typeName)] = resolvers.single.resolver.bind(
+        queryResolvers[getSingleResolverName(typeName)] = resolvers.single.resolver.bind(
           resolvers.single
         );
       }
@@ -537,7 +537,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
       if (resolvers.multi) {
         addedQueries.push({query: multiQueryTemplate({ typeName }), description: resolvers.multi.description});
         queryResolvers[
-          camelCaseify(pluralize(typeName))
+          getMultiResolverName(typeName)
         ] = resolvers.multi.resolver.bind(resolvers.multi);
       }
       addedResolvers.push({ Query: { ...queryResolvers } });
