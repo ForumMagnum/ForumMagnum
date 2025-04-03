@@ -7,6 +7,7 @@ import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateIma
 import { useCreate } from "@/lib/crud/withCreate";
 import classNames from "classnames";
 import { gql, useMutation } from "@apollo/client";
+
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Check if it's a Cloudinary URL
   if (!url.includes('cloudinary.com')) return url;
