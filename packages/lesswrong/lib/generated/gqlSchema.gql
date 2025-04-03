@@ -5,7 +5,7 @@ scalar JSON
 scalar Date
 
 type AdvisorRequest {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -100,7 +100,7 @@ enum AdvisorRequestOrderByInput {
 }
 
 type ArbitalCaches {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -185,7 +185,7 @@ enum ArbitalCachesOrderByInput {
 }
 
 type ArbitalTagContentRel {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -284,7 +284,7 @@ enum ArbitalTagContentRelOrderByInput {
 }
 
 type Ban {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -388,7 +388,7 @@ enum BanOrderByInput {
 }
 
 type Book {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -510,7 +510,7 @@ enum BookOrderByInput {
 }
 
 type Chapter {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -616,7 +616,7 @@ enum ChapterOrderByInput {
 }
 
 type CkEditorUserSession {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -713,7 +713,7 @@ enum CkEditorUserSessionOrderByInput {
 }
 
 type ClientId {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -806,7 +806,7 @@ enum ClientIdOrderByInput {
 }
 
 type Collection {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -920,7 +920,7 @@ enum CollectionOrderByInput {
 }
 
 type CommentModeratorAction {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -1016,7 +1016,7 @@ enum CommentModeratorActionOrderByInput {
 }
 
 type Comment {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -1290,7 +1290,7 @@ enum CommentOrderByInput {
 }
 
 type Conversation {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -1493,7 +1493,7 @@ enum CronHistoryOrderByInput {
 }
 
 type CurationEmail {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -1584,7 +1584,7 @@ enum CurationEmailOrderByInput {
 }
 
 type CurationNotice {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -1685,7 +1685,7 @@ enum CurationNoticeOrderByInput {
 }
 
 type DatabaseMetadata {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -1770,7 +1770,7 @@ enum DatabaseMetadataOrderByInput {
 }
 
 type DebouncerEvents {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -1855,7 +1855,7 @@ enum DebouncerEventsOrderByInput {
 }
 
 type DialogueCheck {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -1952,7 +1952,7 @@ enum DialogueCheckOrderByInput {
 }
 
 type DialogueMatchPreference {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2065,7 +2065,7 @@ enum DialogueMatchPreferenceOrderByInput {
 }
 
 type DigestPost {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2164,7 +2164,7 @@ enum DigestPostOrderByInput {
 }
 
 type Digest {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2267,7 +2267,7 @@ enum DigestOrderByInput {
 }
 
 type ElectionCandidate {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2403,7 +2403,7 @@ enum ElectionCandidateOrderByInput {
 }
 
 type ElectionVote {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2625,7 +2625,7 @@ enum ElicitQuestionPredictionOrderByInput {
 }
 
 type ElicitQuestion {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2722,7 +2722,7 @@ enum ElicitQuestionOrderByInput {
 }
 
 type EmailTokens {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2807,7 +2807,7 @@ enum EmailTokensOrderByInput {
 }
 
 type FeaturedResource {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2907,7 +2907,7 @@ enum FeaturedResourceOrderByInput {
 }
 
 type FieldChange {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -2999,7 +2999,7 @@ enum FieldChangeOrderByInput {
 }
 
 type ForumEvent {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3156,7 +3156,7 @@ enum ForumEventOrderByInput {
 }
 
 type GardenCode {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3271,7 +3271,7 @@ enum GardenCodeOrderByInput {
 }
 
 type GoogleServiceAccountSession {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3371,7 +3371,7 @@ enum GoogleServiceAccountSessionOrderByInput {
 }
 
 type Images {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3456,7 +3456,7 @@ enum ImagesOrderByInput {
 }
 
 type JargonTerm {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3561,7 +3561,7 @@ enum JargonTermOrderByInput {
 }
 
 type LWEvent {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3660,7 +3660,7 @@ enum LWEventOrderByInput {
 }
 
 type LegacyData {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3745,7 +3745,7 @@ enum LegacyDataOrderByInput {
 }
 
 type LlmConversation {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3849,7 +3849,7 @@ enum LlmConversationOrderByInput {
 }
 
 type LlmMessage {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -3946,7 +3946,7 @@ enum LlmMessageOrderByInput {
 }
 
 type Localgroup {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4091,7 +4091,7 @@ enum LocalgroupOrderByInput {
 }
 
 type ManifoldProbabilitiesCache {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4188,7 +4188,7 @@ enum ManifoldProbabilitiesCacheOrderByInput {
 }
 
 type Message {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4285,7 +4285,7 @@ enum MessageOrderByInput {
 }
 
 type Migration {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4370,7 +4370,7 @@ enum MigrationOrderByInput {
 }
 
 type ModerationTemplate {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4470,7 +4470,7 @@ enum ModerationTemplateOrderByInput {
 }
 
 type ModeratorAction {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4566,7 +4566,7 @@ enum ModeratorActionOrderByInput {
 }
 
 type MultiDocument {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4699,7 +4699,7 @@ enum MultiDocumentOrderByInput {
 }
 
 type Notification {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4798,7 +4798,7 @@ enum NotificationOrderByInput {
 }
 
 type PageCacheEntry {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4883,7 +4883,7 @@ enum PageCacheEntryOrderByInput {
 }
 
 type PetrovDayAction {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -4974,7 +4974,7 @@ enum PetrovDayActionOrderByInput {
 }
 
 type PetrovDayLaunch {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -5068,7 +5068,7 @@ enum PetrovDayLaunchOrderByInput {
 }
 
 type PodcastEpisode {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -5162,7 +5162,7 @@ enum PodcastEpisodeOrderByInput {
 }
 
 type Podcast {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -5250,7 +5250,7 @@ enum PodcastOrderByInput {
 }
 
 type PostEmbedding {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -5351,7 +5351,7 @@ enum PostEmbeddingOrderByInput {
 }
 
 type PostRecommendation {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -5462,7 +5462,7 @@ enum PostRecommendationOrderByInput {
 }
 
 type PostRelation {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -5559,7 +5559,7 @@ enum PostRelationOrderByInput {
 }
 
 type PostViewTime {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -5644,7 +5644,7 @@ enum PostViewTimeOrderByInput {
 }
 
 type PostViews {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -5729,7 +5729,7 @@ enum PostViewsOrderByInput {
 }
 
 type Post {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -6263,7 +6263,7 @@ enum PostOrderByInput {
 }
 
 type RSSFeed {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -6375,7 +6375,7 @@ enum RSSFeedOrderByInput {
 }
 
 type ReadStatus {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -6460,7 +6460,7 @@ enum ReadStatusOrderByInput {
 }
 
 type RecommendationsCache {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -6563,7 +6563,7 @@ enum RecommendationsCacheOrderByInput {
 }
 
 type Report {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -6677,7 +6677,7 @@ enum ReportOrderByInput {
 }
 
 type ReviewVote {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -6772,7 +6772,7 @@ enum ReviewVoteOrderByInput {
 }
 
 type ReviewWinnerArt {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -6867,7 +6867,7 @@ enum ReviewWinnerArtOrderByInput {
 }
 
 type ReviewWinner {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -6973,7 +6973,7 @@ enum ReviewWinnerOrderByInput {
 }
 
 type Revision {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -7098,7 +7098,7 @@ enum RevisionOrderByInput {
 }
 
 type Sequence {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -7325,7 +7325,7 @@ enum SessionOrderByInput {
 }
 
 type SideCommentCache {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -7414,7 +7414,7 @@ enum SideCommentCacheOrderByInput {
 }
 
 type SplashArtCoordinate {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -7548,7 +7548,7 @@ enum SplashArtCoordinateOrderByInput {
 }
 
 type Spotlight {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -7698,7 +7698,7 @@ enum SpotlightOrderByInput {
 }
 
 type Subscription {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -7794,7 +7794,7 @@ enum SubscriptionOrderByInput {
 }
 
 type SurveyQuestion {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -7892,7 +7892,7 @@ enum SurveyQuestionOrderByInput {
 }
 
 type SurveyResponse {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -7996,7 +7996,7 @@ enum SurveyResponseOrderByInput {
 }
 
 type SurveySchedule {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -8116,7 +8116,7 @@ enum SurveyScheduleOrderByInput {
 }
 
 type Survey {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -8205,7 +8205,7 @@ enum SurveyOrderByInput {
 }
 
 type TagFlag {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -8304,7 +8304,7 @@ enum TagFlagOrderByInput {
 }
 
 type TagRel {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -8412,7 +8412,7 @@ enum TagRelOrderByInput {
 }
 
 type Tag {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -8648,7 +8648,7 @@ enum TagOrderByInput {
 }
 
 type Tweet {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -8733,7 +8733,7 @@ enum TweetOrderByInput {
 }
 
 type TypingIndicator {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -8825,7 +8825,7 @@ enum TypingIndicatorOrderByInput {
 }
 
 type UserActivity {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -8910,7 +8910,7 @@ enum UserActivityOrderByInput {
 }
 
 type UserEAGDetail {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -9012,7 +9012,7 @@ enum UserEAGDetailOrderByInput {
 }
 
 type UserJobAd {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -9111,7 +9111,7 @@ enum UserJobAdOrderByInput {
 }
 
 type UserMostValuablePost {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -9207,7 +9207,7 @@ enum UserMostValuablePostOrderByInput {
 }
 
 type UserRateLimit {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -9311,7 +9311,7 @@ enum UserRateLimitOrderByInput {
 }
 
 type UserTagRel {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -9411,7 +9411,7 @@ enum UserTagRelOrderByInput {
 }
 
 type User {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
@@ -10094,7 +10094,7 @@ enum UserOrderByInput {
 }
 
 type Vote {
-  _id: String
+  _id: String!
   schemaVersion: Float
   createdAt: Date
   legacyData: JSON
