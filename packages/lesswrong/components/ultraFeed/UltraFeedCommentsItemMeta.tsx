@@ -37,6 +37,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   },
   commentShortformIcon: {
     // paddingBottom: 2
+    marginBottom: -2
   },
   karma: {
     display:"inline-block",
@@ -65,10 +66,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   moderatorHat: {
     marginLeft: 10,
   },
-  voteButtons: {
-    marginLeft: 2,
-    paddingTop: 2
-  },
 }));
 
 const UltraFeedCommentsItemMeta = ({
@@ -77,13 +74,11 @@ const UltraFeedCommentsItemMeta = ({
   setShowEdit,
   hideDate,
   hideActionsMenu,
-  hideVoteButtons,
 }: {
   comment: CommentsList,
   post: PostsMinimumInfo,
   setShowEdit?: () => void,
   hideDate?: boolean,
-  hideVoteButtons?: boolean,
   hideActionsMenu?: boolean,
 }) => {
   const classes = useStyles(styles);
@@ -101,29 +96,16 @@ const UltraFeedCommentsItemMeta = ({
       : !comment.hideModeratorHat
   );
 
-  const showKarma = hideVoteButtons && !comment.rejected && !comment.debateResponse;
-  const showVoteButtons = !hideVoteButtons && !comment.rejected && !comment.debateResponse;
-
   return (
     <div className={classes.root}>
       <span className={classes.leftSection}>
         {comment.shortform && <div className={classes.commentShortformIcon}><CommentShortformIcon comment={comment} post={post} />
         </div>}
-        {/* {showKarma && <span className={classes.karma}>
-          {commentGetKarma(comment)}
-        </span>} */}
         <CommentUserName
           comment={comment}
           className={classes.username}
         />
         {!hideDate && <CommentsItemDate comment={comment} post={post} />}
-        {showVoteButtons && <div className={classes.voteButtons}>
-          <SmallSideVote
-            document={comment}
-            collectionName="Comments"
-            hideKarma={post?.hideCommentKarma}
-          />
-        </div>}
         {showModeratorCommentAnnotation &&
           <span className={classes.moderatorHat}>
             {moderatorCommentAnnotation}

@@ -145,11 +145,13 @@ const UltraFeedItemFooter = ({
             voteProps={voteProps}
             verticalArrows
             largeArrows
+            size="large"
           />
           <AgreementVoteAxis
             document={document}
             hideKarma={parentPost?.hideCommentKarma}
             voteProps={voteProps}
+            size="large"
           />
         </>
       )}

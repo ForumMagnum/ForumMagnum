@@ -1091,6 +1091,7 @@ importComponent("FeedContentBody", () => require("../../components/ultraFeed/Fee
 importComponent("FeedItemWrapper", () => require("../../components/ultraFeed/FeedItemWrapper.tsx"));
 importComponent("UltraFeed", () => require("../../components/ultraFeed/UltraFeed.tsx"));
 importComponent(["UltraFeedCompressedCommentsItem", "UltraFeedCommentItem"], () => require("../../components/ultraFeed/UltraFeedCommentItem.tsx"));
+importComponent("UltraFeedCommentsItemMeta", () => require("../../components/ultraFeed/UltraFeedCommentsItemMeta.tsx"));
 importComponent("UltraFeedItemFooter", () => require("../../components/ultraFeed/UltraFeedItemFooter.tsx"));
 importComponent("UltraFeedPostItem", () => require("../../components/ultraFeed/UltraFeedPostItem.tsx"));
 importComponent("UltraFeedPostItemMeta", () => require("../../components/ultraFeed/UltraFeedPostItemMeta.tsx"));
