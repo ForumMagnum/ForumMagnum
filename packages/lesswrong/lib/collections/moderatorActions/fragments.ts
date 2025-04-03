@@ -1,4 +1,6 @@
-export const ModeratorActionDisplay = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+
+export const ModeratorActionDisplay = () => frag`
   fragment ModeratorActionDisplay on ModeratorAction {
     _id
     user {

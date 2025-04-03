@@ -5,7 +5,7 @@ import { generateSQLSchema } from '../scripts/generateSQLSchema';
 import fs from 'fs';
 import path from 'path';
 import { generateCollectionTypeNames } from './generateCollectionTypeNames';
-import { generateDefaultFragments } from './generateDefaultFragments';
+import { generateDefaultFragmentsFile } from './generateDefaultFragments';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -105,7 +105,7 @@ export function generateTypes(repoRoot?: string) {
   }
   
   try {
-    writeIfChanged(generateDefaultFragments(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
+    writeIfChanged(generateDefaultFragmentsFile(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");

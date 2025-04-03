@@ -1,4 +1,6 @@
-export const ForumEventsMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const ForumEventsMinimumInfo = () => frag`
   fragment ForumEventsMinimumInfo on ForumEvent {
     _id
     title
@@ -22,7 +24,7 @@ export const ForumEventsMinimumInfo = `
   }
 `
 
-export const ForumEventsDisplay = `
+export const ForumEventsDisplay = () => frag`
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
     publicData
@@ -53,7 +55,7 @@ export const ForumEventsDisplay = `
   }
 `
 
-export const ForumEventsEdit = `
+export const ForumEventsEdit = () => frag`
   fragment ForumEventsEdit on ForumEvent {
     ...ForumEventsMinimumInfo
     frontpageDescription {
