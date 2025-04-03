@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
-import { useNavigate } from "../../lib/reactRouterWrapper";
+import { useNavigate } from "../../lib/routeUtil";
 import type { Hit } from "react-instantsearch-core";
-import Chip from "@material-ui/core/Chip";
+import Chip from "@/lib/vendor/@material-ui/core/src/Chip";
 import { InstantSearch } from "../../lib/utils/componentsWithChildren";
 
 const styles = (theme: ThemeType) => ({

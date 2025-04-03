@@ -3,8 +3,8 @@ import { gql, useMutation } from "@apollo/client";
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentUser } from "../common/withUser";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -54,18 +54,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const removeForumEventStickerQuery = gql`
-  mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
-    RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
-  }
-`;
-
 const ForumEventStickers: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
   const { ForumEventCommentForm, ForumEventSticker } = Components;
 
-  const { currentForumEvent, refetch } = useCurrentForumEvent();
+  const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -138,7 +132,11 @@ const ForumEventStickers: FC<{
     [containerRef]
   );
 
-  const [removeSticker] = useMutation(removeForumEventStickerQuery);
+  const [removeSticker] = useMutation(gql`
+    mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
+      RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
+    }
+  `);
   const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length
@@ -239,7 +237,8 @@ const ForumEventStickers: FC<{
   const prefilledProps: Partial<DbComment> = {
     forumEventMetadata: {
       eventFormat: "STICKERS",
-      sticker: draftSticker as ForumEventStickerInput // Validated on the server
+      sticker: draftSticker as ForumEventStickerInput, // Validated on the server
+      poll: null
     },
   };
 
@@ -263,7 +262,7 @@ const ForumEventStickers: FC<{
           <ForumEventSticker
             {...draftSticker}
             tooltipDisabled={commentFormOpen}
-            ref={setUserVoteRef}
+            setUserVoteRef={setUserVoteRef}
             onClear={() => clearSticker(null)}
           />
         )}

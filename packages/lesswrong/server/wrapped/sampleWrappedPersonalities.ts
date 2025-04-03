@@ -1,12 +1,12 @@
-import { Globals } from "@/lib/vulcan-lib";
 import { getWrappedUsers } from "./sendWrappedNotifications";
 import { getWrappedDataByYear } from "./wrappedDataByYear";
 import { getWrappedEngagement } from "./wrappedEngagment";
-import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { getAllRepos } from "../repos";
 import type { WrappedYear } from "@/components/ea-forum/wrapped/hooks";
 import sampleSize from "lodash/fp/sampleSize";
 import chunk from "lodash/chunk";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 const getRelevantUsers = async (year: WrappedYear, totalUsers?: number) => {
   const users = await getWrappedUsers(year);
@@ -15,12 +15,14 @@ const getRelevantUsers = async (year: WrappedYear, totalUsers?: number) => {
   return totalUsers ? sampleSize(totalUsers, users) : users;
 }
 
-const sampleWrappedPersonalities = async (
+// Exported to allow running from "yarn repl"
+export const sampleWrappedPersonalities = async (
   year: WrappedYear,
   totalUsers?: number,
 ) => {
+  const context = createAnonymousContext();
   const repos = getAllRepos();
-  const currentUser = await getAdminTeamAccount();
+  const currentUser = await getAdminTeamAccount(context);
   const users = await getRelevantUsers(year, totalUsers);
   const chunks = chunk(users, 10);
 
@@ -57,9 +59,8 @@ const sampleWrappedPersonalities = async (
   console.log(csv);
 }
 
-Globals.sampleWrappedPersonalities = sampleWrappedPersonalities;
-
-const sampleWrappedEngagement = async (
+// Exported to allow running from "yarn repl"
+export const sampleWrappedEngagement = async (
   year: WrappedYear,
   totalUsers?: number,
 ) => {
@@ -70,5 +71,3 @@ const sampleWrappedEngagement = async (
     console.log("Percentile", user._id, engagement.engagementPercentile);
   }
 }
-
-Globals.sampleWrappedEngagement = sampleWrappedEngagement;

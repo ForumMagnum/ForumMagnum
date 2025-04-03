@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -17,17 +17,17 @@ import {
 } from '../../lib/instanceSettings'
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-import { PROGRAM_PARTICIPATION } from '../../lib/collections/users/schema';
+import { PROGRAM_PARTICIPATION } from '../../lib/collections/users/newSchema';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from '../ea-forum/users/modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from './UsersProfile';
-import InfoIcon from '@material-ui/icons/Info'
-import DescriptionIcon from '@material-ui/icons/Description'
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
-import Button from '@material-ui/core/Button';
+import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info'
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd'
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
-import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
+import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -280,7 +280,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     return <Error404/>
   }
 
-  if (user.oldSlugs?.includes(slug) && !user.deleted) {
+  if (slug !== user.slug && user.oldSlugs?.includes(slug) && !user.deleted) {
     return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
   }
 

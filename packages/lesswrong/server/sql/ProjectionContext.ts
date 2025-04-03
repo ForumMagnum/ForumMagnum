@@ -1,4 +1,5 @@
 import { RandIntCallback, randomId, seededRandInt } from "@/lib/random";
+import { getSchema } from "@/lib/schema/allSchemas";
 import isEqual from "lodash/isEqual";
 import chunk from "lodash/chunk";
 
@@ -72,9 +73,18 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     const schema = this.getSchema();
     for (const fieldName in schema) {
       const field = schema[fieldName];
-      if (field.resolveAs) {
-        const resolverName = field.resolveAs.fieldName ?? fieldName;
-        this.resolvers[resolverName] = field.resolveAs;
+      if (field.graphql?.resolver) {
+        const { outputType, resolver, sqlResolver, sqlPostProcess, arguments: resolverArgs } = field.graphql;
+        const customResolver: CustomResolver<N> = {
+          type: outputType,
+          resolver,
+          sqlResolver,
+          sqlPostProcess,
+          arguments: resolverArgs,
+          fieldName,
+        };
+
+        this.resolvers[fieldName] = customResolver;
       }
     }
   }
@@ -124,7 +134,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
   }
 
   getSchema() {
-    return this.collection._schemaFields;
+    return getSchema<N>(this.collection.collectionName);
   }
 
   getResolver(name: string): CustomResolver | null {

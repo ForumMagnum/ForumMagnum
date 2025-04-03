@@ -1,4 +1,4 @@
-import { getCollectionByTypeName } from "@/lib/vulcan-lib/getCollection";
+import { getCollectionByTypeName } from "@/server/collections/allCollections";
 import ProjectionContext, { CustomResolver, PrefixGenerator } from "./ProjectionContext";
 import FragmentLexer from "./FragmentLexer";
 import merge from "lodash/merge";

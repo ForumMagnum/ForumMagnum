@@ -1,11 +1,8 @@
-import { Revisions } from '@/lib/collections/revisions/collection';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
 import { computeAttributions } from '../attributeEdits';
 import { compareVersionNumbers } from '@/lib/editor/utils';
-import { VotesRepo } from '../repos';
 import toDictionary from '@/lib/utils/toDictionary';
-import { getCollection } from '../vulcan-lib';
 import { isLWorAF } from '@/lib/instanceSettings';
 
 export type ContributorStats = {
@@ -33,10 +30,12 @@ interface BuildContributorsListOptions {
   collectionName: string;
   fieldName: string;
   version: string | null;
+  context: ResolverContext;
 }
 
 export async function buildContributorsList(options: BuildContributorsListOptions): Promise<ContributorStatsMap> {
-  const { document, collectionName, fieldName, version } = options;
+  const { document, collectionName, fieldName, version, context } = options;
+  const { Revisions, repos } = context;
 
   if (!document?._id) throw new Error("Invalid document");
 
@@ -51,8 +50,7 @@ export async function buildContributorsList(options: BuildContributorsListOption
     ],
   }).fetch();
 
-  const votesRepo = new VotesRepo();
-  const selfVotes = await votesRepo.getSelfVotes(revisions.map(r => r._id));
+  const selfVotes = await repos.votes.getSelfVotes(revisions.map(r => r._id));
   const selfVotesByUser = groupBy(selfVotes, v => v.userId);
   const selfVoteScoreAdjustmentByUser = toDictionary(
     Object.keys(selfVotesByUser),
@@ -78,7 +76,7 @@ export async function buildContributorsList(options: BuildContributorsListOption
 
   const attributionsData =
     fieldName === 'description' || fieldName === 'contents'
-      ? await computeAttributions(document._id, collectionName, fieldName, version)
+      ? await computeAttributions(document._id, collectionName, fieldName, context, version)
       : null;
 
   const currentCharContribution: Record<string, number> = {};
@@ -118,6 +116,7 @@ interface GetContributorsListOptions {
   collectionName: CollectionNameString;
   fieldName: string;
   version: string | null;
+  context: ResolverContext;
 }
 
 function contributionStatsNeedInvalidation(contributionStats: ContributorStatsMap): boolean {
@@ -127,14 +126,14 @@ function contributionStatsNeedInvalidation(contributionStats: ContributorStatsMa
 }
 
 export async function getContributorsList(options: GetContributorsListOptions): Promise<ContributorStatsMap> {
-  const { document, collectionName, fieldName, version } = options;
+  const { document, collectionName, fieldName, version, context } = options;
 
   if (version) {
-    return await buildContributorsList({ document, collectionName, fieldName, version });
+    return await buildContributorsList({ document, collectionName, fieldName, version, context });
   } else if (document.contributionStats && Object.values(document.contributionStats) && !contributionStatsNeedInvalidation(document.contributionStats)) {
     return document.contributionStats;
   } else {
-    return await updateDenormalizedContributorsList({ document, collectionName, fieldName });
+    return await updateDenormalizedContributorsList({ document, collectionName, fieldName, context });
   }
 }
 
@@ -142,14 +141,15 @@ interface UpdateDenormalizedContributorsListOptions {
   document: { _id: string; contributionStats?: ContributorStatsMap; [key: string]: any };
   collectionName: CollectionNameString;
   fieldName: string;
+  context: ResolverContext;
 }
 
 export async function updateDenormalizedContributorsList(options: UpdateDenormalizedContributorsListOptions): Promise<ContributorStatsMap> {
-  const { document, collectionName, fieldName } = options;
-  const contributionStats = await buildContributorsList({ document, collectionName, fieldName, version: null });
+  const { document, collectionName, fieldName, context } = options;
+  const contributionStats = await buildContributorsList({ document, collectionName, fieldName, version: null, context });
 
   if (JSON.stringify(document.contributionStats) !== JSON.stringify(contributionStats)) {
-    const collection = getCollection(collectionName);
+    const collection = context[collectionName];
     await collection.rawUpdateOne({ _id: document._id }, { $set: { contributionStats } });
   }
 

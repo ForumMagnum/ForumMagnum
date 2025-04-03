@@ -1,14 +1,15 @@
 const { extract } = require('@extractus/article-extractor')
 import { ArxivExtractor } from '../extractors/arxivExtractor'
-import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
 
-import Posts from '../../lib/collections/posts/collection'
-import { addGraphQLSchema, createMutator, sanitize } from '../vulcan-lib'
+import Posts from '../../server/collections/posts/collection'
 import { fetchFragmentSingle } from '../fetchFragment'
-import { defineMutation } from '@/server/utils/serverGraphqlUtil.ts'
-import Users from '@/lib/collections/users/collection'
+import Users from '@/server/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
 import { eligibleToNominate } from '@/lib/reviewUtils';
+import { createMutator } from "../vulcan-lib/mutators";
+import { sanitize } from "../../lib/vulcan-lib/utils";
+import gql from 'graphql-tag';
 
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
@@ -116,38 +117,39 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
   }
 }
 
-defineMutation({
-  name: 'importUrlAsDraftPost',
-  argTypes: '(url: String!)',
-  resultType: 'ExternalPostImportData!',
-  schema: `
-    type CoauthorStatus {
-      userId: String
-      confirmed: Boolean
-      requested: Boolean
-    }
-    type ExternalPost {
-      _id: String!
-      slug: String
-      title: String
-      url: String
-      postedAt: Date
-      createdAt: Date
-      userId: String
-      modifiedAt: Date
-      draft: Boolean
-      content: String
-      coauthorStatuses: [CoauthorStatus]
-    }
-    type ExternalPostImportData {
-      alreadyExists: Boolean
-      post: ExternalPost
-    }
-  `,
-  fn: async (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ExternalPostImportData> => {
+export const importUrlAsDraftPostTypeDefs = gql`
+  type CoauthorStatus {
+    userId: String
+    confirmed: Boolean
+    requested: Boolean
+  }
+  type ExternalPost {
+    _id: String!
+    slug: String
+    title: String
+    url: String
+    postedAt: Date
+    createdAt: Date
+    userId: String
+    modifiedAt: Date
+    draft: Boolean
+    content: String
+    coauthorStatuses: [CoauthorStatus]
+  }
+  type ExternalPostImportData {
+    alreadyExists: Boolean
+    post: ExternalPost
+  }
+  extend type Mutation {
+    importUrlAsDraftPost(url: String!): ExternalPostImportData!
+  }
+`
+
+export const importUrlAsDraftPostGqlMutation = {
+  async importUrlAsDraftPost (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ExternalPostImportData> {
     if (!context.currentUser || !eligibleToNominate(context.currentUser)) {
       throw new Error('You are not eligible to import external posts');
     }
     return importUrlAsDraftPost(url, context)
   }
-})
+}

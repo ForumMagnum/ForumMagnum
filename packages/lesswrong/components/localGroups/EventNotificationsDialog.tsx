@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest } from 'react-geosuggest';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Slider from '@material-ui/lab/Slider';
-import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import FormLabel from '@material-ui/core/FormLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/schema'
+import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/newSchema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {

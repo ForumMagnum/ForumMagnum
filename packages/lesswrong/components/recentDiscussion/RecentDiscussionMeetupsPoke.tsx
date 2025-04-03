@@ -1,12 +1,12 @@
 import React, {useState, useRef} from 'react';
 import { useMessages } from '../common/withMessages';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent'
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
-import Input from '@material-ui/core/Input';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Geosuggest from 'react-geosuggest';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 

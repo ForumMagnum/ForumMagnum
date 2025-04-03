@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import List from '@/lib/vendor/@material-ui/core/src/List';
+import ListItem from '@/lib/vendor/@material-ui/core/src/ListItem';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 

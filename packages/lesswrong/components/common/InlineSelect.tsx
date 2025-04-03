@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import Menu from "@material-ui/core/Menu";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import Menu from "@/lib/vendor/@material-ui/core/src/Menu";
 
 const styles = (theme: ThemeType) => ({
   root: {

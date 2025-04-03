@@ -1,7 +1,7 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
-import { userIsPodcaster } from "../../../lib/vulcan-users";
+import { userIsPodcaster } from "../../../lib/vulcan-users/permissions";
 import { userIsSharedOn } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";

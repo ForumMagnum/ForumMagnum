@@ -1,6 +1,6 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
+import SubdirectoryArrowLeft from '@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 

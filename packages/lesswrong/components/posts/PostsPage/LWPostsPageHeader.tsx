@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
@@ -7,6 +7,9 @@ import { parseUnsafeUrl } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
+import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
+import { titleStyles } from './PostsTopSequencesNav';
+import { Link } from '@/lib/reactRouterWrapper';
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -126,19 +129,89 @@ const styles = (theme: ThemeType) => ({
   },
   readTime: {
     marginRight: 20,
+  },
+  bestOfLessWrong: {
+    ...titleStyles(theme),
+    marginBottom: 12,
+    color: theme.palette.greyAlpha(.7),
+  },
+  splashPageTitle: {
+    '&&': {
+      fontSize: '6rem',
+      marginRight: -100,
+      [theme.breakpoints.down('lg')]: {
+        fontSize: '5rem',
+        marginRight: -50,
+      },
+      [theme.breakpoints.down('md')]: {
+        fontSize: '4rem',
+        marginRight: -25,
+      },
+      [theme.breakpoints.down('xs')]: {
+        fontSize: '3.75rem',
+        marginRight: 0
+      },
+    },
+  },
+  splashPageTitleLong: {
+    '&&': {
+      fontSize: '5rem',
+      marginRight: -100,
+      [theme.breakpoints.down('lg')]: {
+        fontSize: '4.5rem',
+        marginRight: -50,
+      },
+      [theme.breakpoints.down('md')]: {
+        fontSize: '4rem',
+        marginRight: -25,
+      },
+      [theme.breakpoints.down('xs')]: {
+        fontSize: '3.5rem',
+        marginRight: 0
+      },
+    },
+  },
+  splashPageTitleLonger: {
+    '&&': {
+      fontSize: '4.5rem',
+      marginRight: -100,
+      [theme.breakpoints.down('lg')]: {
+        fontSize: '4rem',
+        marginRight: -50,
+      },
+      [theme.breakpoints.down('md')]: {
+        fontSize: '3.5rem',
+        marginRight: -25,
+      },
+      [theme.breakpoints.down('xs')]: {
+        fontSize: '3.25rem',
+        marginRight: 0
+      },
+    },
+  },
+  titleSectionWithSplashPageHeader: {
+    marginBottom: 0,
+  },
+  rootWithSplashPageHeader: {
+    paddingTop: '44vh',
+    [theme.breakpoints.down('xs')]: {
+      marginTop: '44vh',
+      paddingTop: 0,
+    },
   }
 }); 
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
   dialogueResponses: CommentsList[],
   answerCount?: number,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  showSplashPageHeader?: boolean
 }) => {
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
 
@@ -171,60 +244,68 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     </a>
   </LWTooltip> : null;
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer})}>
-      {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
-      <AnalyticsContext pageSectionContext="topSequenceNavigation">
-        {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
-          <PostsTopSequencesNav post={post} />
-        </div>}
-      </AnalyticsContext>
-      <div>
-        <span className={classes.topRight}>
-          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
-        </span>
-        {post && <span className={classes.audioPlayerWrapper}>
-          <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
-        </span>}
-      </div>
-      <div className={classes.titleSection}>
-        <div className={classes.title}>
-          <PostsPageTitle post={post} />
-          <div className={classes.authorAndSecondaryInfo}>
-            <div className={classes.authorInfo}>
-              <PostsAuthors post={post} pageSectionContext="post_header" />
+  const splashPageTitleClass = post.title.length > 60 ? classes.splashPageTitleLong : classes.splashPageTitle;
+
+  const reviewYear = 'reviewWinner' in post && post.reviewWinner?.reviewYear;
+
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
+    {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
+    <AnalyticsContext pageSectionContext="topSequenceNavigation">
+      {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
+        <PostsTopSequencesNav post={post} blackText={showSplashPageHeader}/>
+      </div>}
+    </AnalyticsContext>
+    {showSplashPageHeader && !('sequence' in post && !!post.sequence) && <Link to={`/bestoflesswrong?year=${reviewYear}&category=all`} className={classes.bestOfLessWrong}>
+      Best of LessWrong {reviewYear}
+    </Link>}
+    <div>
+      <span className={classes.topRight}>
+        <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
+      </span>
+      {post && <span className={classes.audioPlayerWrapper}>
+        <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
+      </span>}
+    </div>
+    <div className={classNames(classes.titleSection, {[classes.titleSectionWithSplashPageHeader]: showSplashPageHeader})}>
+      <div className={classes.title}>
+        <PostsPageTitle post={post} className={showSplashPageHeader ? splashPageTitleClass : undefined}/>
+        <div className={classes.authorAndSecondaryInfo}>
+          <div className={classes.authorInfo}>
+            <PostsAuthors post={post} pageSectionContext="post_header" />
+          </div>
+          {crosspostNode}
+          {!post.isEvent && <div className={classes.date}>
+            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+          </div>}
+          {rssFeedSource && rssFeedSource.user &&
+            <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
+              <a href={feedLink}>{rssFeedSource.nickname}</a>
+            </LWTooltip>
+          }
+          <AlignmentCrosspostLink post={post} />
+          {linkpostNode}
+          {post.isEvent && <GroupLinks document={post} noMargin />}
+          <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
+          <div className={classes.mobileButtons}>
+            <div className={classes.readTime}>
+              <ReadTime post={post} dialogueResponses={dialogueResponses} />
             </div>
-            {crosspostNode}
-            {!post.isEvent && <div className={classes.date}>
-              <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-            </div>}
-            {rssFeedSource && rssFeedSource.user &&
-              <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
-                <a href={feedLink}>{rssFeedSource.nickname}</a>
-              </LWTooltip>
-            }
-            <AlignmentCrosspostLink post={post} />
-            {linkpostNode}
-            {post.isEvent && <GroupLinks document={post} noMargin />}
-            <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
-            <div className={classes.mobileButtons}>
-              <div className={classes.readTime}>
-                <ReadTime post={post} dialogueResponses={dialogueResponses} />
-              </div>
-              <LWCommentCount answerCount={answerCount} commentCount={post.commentCount} label={false} />
-              <div className={classes.audioToggle}>
-                <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
-              </div>
-              <PostActionsButton post={post} flip />
+            <LWCommentCount answerCount={answerCount} commentCount={post.commentCount} label={false} />
+            <div className={classes.audioToggle}>
+              <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
             </div>
+            <PostActionsButton post={post} flip />
           </div>
         </div>
-        <div className={classes.mobileHeaderVote}>
-          <PostsVote post={post} />
-        </div>
       </div>
-      {post.isEvent && <div className={classes.eventData}>
-        <PostsPageEventData post={post}/>
-      </div>}
+      <div className={classes.mobileHeaderVote}>
+        <PostsVote post={post} />
+      </div>
+    </div>
+    {post.isEvent && <div className={classes.eventData}>
+      <PostsPageEventData post={post}/>
+    </div>}
+    <ReviewPillContainer postId={post._id} />
   </div>
 }
 
@@ -238,3 +319,4 @@ declare global {
   }
 }
 
+export default LWPostsPageHeaderComponent;

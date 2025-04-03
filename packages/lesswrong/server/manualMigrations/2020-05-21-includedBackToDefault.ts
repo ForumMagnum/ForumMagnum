@@ -1,7 +1,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "includedBackToDefault",
   dateWritten: "2020-05-21",
   idempotent: true,

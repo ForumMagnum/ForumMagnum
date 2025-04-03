@@ -1,15 +1,15 @@
-import { addCronJob } from '../cronUtil';
-import Users from "../../lib/collections/users/collection";
-import { ModeratorActions } from "../../lib/collections/moderatorActions";
+import { addCronJob } from '../cron/cronUtil';
+import Users from "../../server/collections/users/collection";
+import { ModeratorActions } from "../../server/collections/moderatorActions/collection";
 import { allRateLimits } from "../../lib/collections/moderatorActions/schema";
 import { appendToSunshineNotes } from "../../lib/collections/users/helpers";
 import { triggerReview } from "../callbacks/sunshineCallbackUtils";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import * as _ from 'underscore';
 import moment from 'moment';
 
 
-addCronJob({
+export const expiredRateLimitsReturnToReviewQueueCron = addCronJob({
   name: 'expiredRateLimitsReturnToReviewQueue',
   interval: 'every 24 hours',
   async job() {
@@ -29,7 +29,7 @@ addCronJob({
           text: "Rate limit expired",
           context,
         });
-        await triggerReview(user._id);
+        await triggerReview(user._id, context);
       })
       
       // log the action

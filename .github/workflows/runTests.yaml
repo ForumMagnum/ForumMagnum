@@ -65,7 +65,6 @@ jobs:
     - name: Run code generation (EA Forum)
       run: |
         yarn ea-command-ci 'Globals.generateTypesAndSQLSchema()'
-        yarn graphql-codegen --config codegen.yml
     - name: Throw if code changed
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "Changes detected - run yarn generate"; exit 1; fi
     - name: Switch forum type
@@ -74,7 +73,6 @@ jobs:
     - name: Run code generation (LessWrong)
       run: |
         yarn ea-command-ci 'Globals.generateTypesAndSQLSchema()'
-        yarn graphql-codegen --config codegen.yml
     - name: Throw if forum schemas differ
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "LessWrong/EA Forum database schemas differ"; exit 1; fi
 

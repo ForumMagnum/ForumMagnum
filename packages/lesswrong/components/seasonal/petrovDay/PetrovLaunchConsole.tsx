@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
-import TextField from '@material-ui/core/TextField';
-import { PetrovDayActionType } from '@/lib/collections/petrovDayActions/schema';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import type { PetrovDayActionType } from '@/lib/collections/petrovDayActions/newSchema';
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const SubscriptionState = `
   fragment SubscriptionState on Subscription {
     _id
     userId
@@ -11,12 +9,12 @@ registerFragment(`
     deleted
     type
   }
-`);
+`
 
-registerFragment(`
+export const MembersOfGroupFragment = `
   fragment MembersOfGroupFragment on Subscription {
     user {
       ...UsersMinimumInfo
     }
   }
-`);
+`

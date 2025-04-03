@@ -3,11 +3,13 @@ import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
-import { collectionNameToTypeName, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import { isAF } from '../../lib/instanceSettings';
-import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
+import { getDefaultVotingSystem } from '../../lib/voting/getVotingSystem';
+import { VotingSystem } from '@/lib/voting/votingSystems';
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 
 const getVoteMutationQuery = (typeName: string) => {
   const mutationName = `performVote${typeName}`;
@@ -29,7 +31,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
   const query = getVoteMutationQuery(typeName);
   const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
   const {openDialog} = useDialog();

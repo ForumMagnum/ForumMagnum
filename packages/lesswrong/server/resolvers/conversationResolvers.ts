@@ -1,8 +1,8 @@
+import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
-import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
-import { defineMutation } from "../utils/serverGraphqlUtil";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { createMutator } from "../vulcan-lib";
+import { createMutator } from "../vulcan-lib/mutators";
 import { adminAccountSetting } from "@/lib/publicSettings";
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
@@ -31,25 +31,23 @@ const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
   }
 }
 
-defineMutation({
-  name: "markConversationRead",
-  resultType: "Boolean!",
-  argTypes: "(conversationId: String!)",
-  fn: async (_, {conversationId}: {conversationId: string }, {currentUser, repos}) => {
+export const conversationGqlTypeDefs = gql`
+  extend type Mutation {
+    markConversationRead(conversationId: String!): Boolean!
+    sendEventTriggeredDM(eventType: String!): Boolean!
+  }
+
+`
+
+export const conversationGqlMutations = {
+  async markConversationRead (_: void, {conversationId}: {conversationId: string }, {currentUser, repos}: ResolverContext) {
     if (!currentUser) {
       throw new Error("You must be logged in to do this");
     }
     await repos.conversations.markConversationRead(conversationId, currentUser._id);
     return true;
-  }
-});
-
-//mutation to send one of a prespeified type of message to users
-defineMutation({
-  name: "sendEventTriggeredDM",
-  resultType: "Boolean!",
-  argTypes: "(eventType: String!)",
-  fn: async (_, {eventType}: {eventType: string}, context) => {
+  },
+  async sendEventTriggeredDM (_: void, {eventType}: {eventType: string}, context: ResolverContext) {
 
     const { currentUser, Subscriptions, Conversations, Messages } = context;
 
@@ -62,7 +60,7 @@ defineMutation({
       throw new Error("Invalid event type to trigger DM");
     }
 
-    const lwAccount = await getAdminTeamAccount()
+    const lwAccount = await getAdminTeamAccount(context)
 
     if (!lwAccount) {
       throw new Error("Unable to find the lwAccount to send message to user")
@@ -117,4 +115,4 @@ defineMutation({
 
     return true;
   }
-})
+}

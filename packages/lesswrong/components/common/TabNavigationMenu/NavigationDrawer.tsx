@@ -1,6 +1,6 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import SwipeableDrawer from '@/lib/vendor/@material-ui/core/src/SwipeableDrawer';
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
 

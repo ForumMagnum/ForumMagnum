@@ -1,7 +1,7 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import * as _ from 'underscore';
-import Card from '@material-ui/core/Card';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import classNames from 'classnames';
 import moment from 'moment';
 import { useTracking } from '../../../lib/analyticsEvents';

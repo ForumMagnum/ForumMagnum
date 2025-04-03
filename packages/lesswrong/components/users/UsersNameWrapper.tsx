@@ -1,7 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
+import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
 
 /**
  * UsersNameWrapper: You probably should be using UsersName instead.

@@ -1,7 +1,9 @@
 import SimpleSchema from 'simpl-schema';
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
+import { universalFields } from "../../collectionUtils";
 
 const schema: SchemaType<"Bans"> = {
+  ...universalFields({}),
   expirationDate: {
     type: Date,
     optional: false,

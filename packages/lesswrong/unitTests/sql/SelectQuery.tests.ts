@@ -171,6 +171,12 @@ describe("SelectQuery", () => {
       expectedArgs: [1, 2, 3],
     },
     {
+      name: "can build select query with not-in comparison to an empty array [regression test]",
+      getQuery: () => new SelectQuery(testTable, {a: {$nin: []}}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE 1=1',
+      expectedArgs: [],
+    },
+    {
       name: "can build select query with all comparison",
       getQuery: () => new SelectQuery(testTable, {a: {$all: [10, 20]}}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> ARRAY[ $1 ::DOUBLE PRECISION , $2 ::DOUBLE PRECISION ]',
@@ -496,7 +502,7 @@ describe("SelectQuery", () => {
     {
       name: "pipeline lookups are not implemented",
       getQuery: () => new SelectQuery(testTable, {}, {}, {lookup: {
-        from: "SomeCollection",
+        from: "testcollection",
         let: {k: "$a"},
         pipeline: [],
         as: "a",

@@ -1,9 +1,7 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
-import { Comments } from '../comments';
-import TagRels from '../tagRels/collection';
-import { Posts } from '../posts';
+import { universalFields } from '../../collectionUtils';
 
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
@@ -24,6 +22,7 @@ const docIsTagRel = (currentUser: DbUser|UsersCurrent|null, document: DbVote) =>
 }
 
 const schema: SchemaType<"Votes"> = {
+  ...universalFields({}),
   // The id of the document that was voted on
   documentId: {
     type: String,
@@ -150,7 +149,7 @@ const schema: SchemaType<"Votes"> = {
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
         const tagRel = await context.loaders.TagRels.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, TagRels, tagRel, context);
+        return accessFilterSingle(context.currentUser, 'TagRels', tagRel, context);
       } else {
         return null;
       }
@@ -164,7 +163,7 @@ const schema: SchemaType<"Votes"> = {
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "Comments") {
         const comment = await context.loaders.Comments.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, Comments, comment, context);
+        return accessFilterSingle(context.currentUser, 'Comments', comment, context);
       } else {
         return null;
       }
@@ -178,7 +177,7 @@ const schema: SchemaType<"Votes"> = {
     resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "Posts") {
         const post = await context.loaders.Posts.load(vote.documentId);
-        return accessFilterSingle(context.currentUser, Posts, post, context);
+        return accessFilterSingle(context.currentUser, 'Posts', post, context);
       } else {
         return null;
       }

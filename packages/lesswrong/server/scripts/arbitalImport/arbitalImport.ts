@@ -1,33 +1,31 @@
 /* eslint-disable no-console */
 
 import mysql from 'mysql2/promise';
-import { Globals } from "@/lib/vulcan-lib/config";
 import fs from 'node:fs';
-import Users from '@/lib/collections/users/collection';
+import Users from '@/server/collections/users/collection';
 import UsersRepo from "../../repos/UsersRepo";
 import { loadArbitalDatabase, WholeArbitalDatabase, PageSummariesRow, PagesRow, PageInfosRow, DomainsRow, LensesRow } from './arbitalSchema';
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
-import { createAdminContext, createMutator, getCollection, updateMutator } from '@/server/vulcan-lib';
-import Tags from '@/lib/collections/tags/collection';
-import ArbitalTagContentRels from '@/lib/collections/arbitalTagContentRels/collection';
+import Tags from '@/server/collections/tags/collection';
+import ArbitalTagContentRels from '@/server/collections/arbitalTagContentRels/collection';
 import { randomId } from '@/lib/random';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils';
 import path from 'path';
 import { arbitalMarkdownToCkEditorMarkup } from './markdownService';
-import Revisions from '@/lib/collections/revisions/collection';
+import Revisions from '@/server/collections/revisions/collection';
 import { afterCreateRevisionCallback, buildRevision } from '@/server/editor/make_editable_callbacks';
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
 import { getSqlClientOrThrow, runSqlQuery } from '@/server/sql/sqlClient';
-import { Comments } from '@/lib/collections/comments';
+import { Comments } from '@/server/collections/comments/collection.ts';
 import uniq from 'lodash/uniq';
 import maxBy from 'lodash/maxBy';
 import { recomputePingbacks } from '@/server/pingbacks';
 import { performVoteServer } from '@/server/voteServer';
-import { Votes } from '@/lib/collections/votes';
+import { Votes } from '@/server/collections/votes/collection.ts';
 import mapValues from 'lodash/mapValues';
 import flatMap from 'lodash/flatMap';
 import { updatePostDenormalizedTags } from '@/server/tagging/helpers';
@@ -36,6 +34,11 @@ import { slugify } from '@/lib/utils/slugify';
 import ElasticExporter from '@/server/search/elastic/ElasticExporter';
 import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
+import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
+import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
+import { createAdminContext } from "@/server/vulcan-lib/createContexts.ts";
+import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
+import { getCollection } from "@/server/collections/allCollections";
 
 export type ArbitalImportOptions = {
   /**
@@ -104,7 +107,7 @@ export async function connectAndLoadArbitalDatabase(mysqlConnectionString: strin
 
 
 // Create the connection to database
-Globals.importArbitalDb = async (mysqlConnectionString: string, options?: Partial<ArbitalImportOptions>) => {
+export const importArbitalDb = async (mysqlConnectionString: string, options?: Partial<ArbitalImportOptions>) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
   const wholeDatabase = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   const resolverContext = createAdminContext();
@@ -113,7 +116,7 @@ Globals.importArbitalDb = async (mysqlConnectionString: string, options?: Partia
   await doArbitalImport(wholeDatabase, resolverContext, optionsWithDefaults);
 }
 
-Globals.deleteImportedArbitalWikiPages = async (options?: ArbitalImportOptions) => {
+export const deleteImportedArbitalWikiPages = async (options?: ArbitalImportOptions) => {
   const wikiPagesToDelete = await Tags.find({
     "legacyData.arbitalPageId": {$exists: true},
     deleted: false,
@@ -146,7 +149,7 @@ Globals.deleteImportedArbitalWikiPages = async (options?: ArbitalImportOptions) 
   }), options?.parallelism ?? 10);
 }
 
-Globals.deleteImportedArbitalUsers = async () => {
+export const deleteImportedArbitalUsers = async () => {
   const usersToDelete = await Users.find({
     "legacyData.arbitalUserId": {$exists: true}
   }).fetch();
@@ -164,19 +167,19 @@ Globals.deleteImportedArbitalUsers = async () => {
   }
 }
 
-Globals.importArbitalPagePairs = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
+export const importArbitalPagePairs = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
   const database = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   const resolverContext = createAdminContext();
   // Ensure we pass the options through instead of creating a new empty object
   await importPagePairs(database, resolverContext, options || {});
 }
 
-Globals.replaceAllImportedArbitalData = async (mysqlConnectionString: string, options?: ArbitalImportOptions) => {
+export const replaceAllImportedArbitalData = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   console.log(`Removing previously-imported wiki pages`);
-  await Globals.deleteImportedArbitalWikiPages(options);
-  await Globals.deleteRedLinkPlaceholders(options);
+  await deleteImportedArbitalWikiPages(options);
+  await deleteRedLinkPlaceholders(options);
   console.log(`Importing Arbital content`);
-  await Globals.importArbitalDb(mysqlConnectionString, options);
+  await importArbitalDb(mysqlConnectionString, options);
 }
 
 function summaryNameToSortOrder(name: string): number {
@@ -446,7 +449,7 @@ export type ArbitalConversionContext = {
 }
 
 async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: ResolverContext, options: ArbitalImportOptions): Promise<void> {
-  const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(database);
+  const { existingPagesToMove, pagesToConvertToLenses } = await doFindCollidingWikiPages(database);
   await renameCollidingWikiPages(existingPagesToMove);
 
   const conversionContext = await buildConversionContext(database, pagesToConvertToLenses, options);
@@ -473,7 +476,7 @@ async function doArbitalImport(database: WholeArbitalDatabase, resolverContext: 
 }
 
 
-async function findCollidingWikiPages(database: WholeArbitalDatabase): Promise<{
+async function doFindCollidingWikiPages(database: WholeArbitalDatabase): Promise<{
   existingPagesToMove: Array<{
     lwWikiPageSlug: string
     newSlug: string
@@ -540,9 +543,9 @@ async function findCollidingWikiPages(database: WholeArbitalDatabase): Promise<{
   return { existingPagesToMove, pagesToConvertToLenses };
 }
 
-Globals.findCollidingWikiPages = async (mysqlConnectionString: string) => {
+export const findCollidingWikiPages = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
-  const { existingPagesToMove, pagesToConvertToLenses } = await findCollidingWikiPages(arbitalDb);
+  const { existingPagesToMove, pagesToConvertToLenses } = await doFindCollidingWikiPages(arbitalDb);
   console.log(existingPagesToMove);
   console.log(pagesToConvertToLenses);
 }
@@ -1120,7 +1123,7 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
   }), conversionContext.options.parallelism ??1);
 }
 
-Globals.deleteRedLinkPlaceholders = async (options: ArbitalImportOptions) => {
+export const deleteRedLinkPlaceholders = async (options: ArbitalImportOptions) => {
   const redLinkPlaceholderPagesToDelete = await Tags.find({
     isPlaceholderPage: true,
     deleted: false,
@@ -1137,7 +1140,7 @@ Globals.deleteRedLinkPlaceholders = async (options: ArbitalImportOptions) => {
   }), options.parallelism ?? 5);
 }
 
-Globals.deleteExcessRedLinkPlaceholders = async () => {
+export const deleteExcessRedLinkPlaceholders = async () => {
   const redLinkPlaceholderPages = await Tags.find({
     isPlaceholderPage: true,
     deleted: false,
@@ -1313,6 +1316,7 @@ async function importRevisions<N extends CollectionNameString>({
             data: ckEditorMarkup,
           },
           currentUser: revisionCreator,
+          context: resolverContext,
         }),
         fieldName,
         collectionName: collection.collectionName,
@@ -1333,6 +1337,7 @@ async function importRevisions<N extends CollectionNameString>({
     await afterCreateRevisionCallback.runCallbacksAsync([{
       revisionID: lwRevision._id,
       skipDenormalizedAttributions: true,
+      context: resolverContext,
     }]);
   }
   
@@ -1482,7 +1487,7 @@ async function moveReferencesToMergedPage({oldTagIds, newTagId}: {
  * trivial ways (eg First Last vs FirstLast), or one of them may be a
  * nickname that they map to their real name publicly.
  */
-Globals.matchArbitalToLWAccounts = async (mysqlConnectionString: string, outputCsvFilename: string) => {
+export const matchArbitalToLWAccounts = async (mysqlConnectionString: string, outputCsvFilename: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   const usersRepo = new UsersRepo();
   
@@ -1575,7 +1580,7 @@ function shouldIncludeArbitalUser(arbitalDb: WholeArbitalDatabase, arbitalUserId
  * corresponding LW account, and rewrite the CSV file (in place) to include
  * these placeholder accounts.
  */
-Globals.createImportAccounts = async (csvFilename: string) => {
+export const createImportAccounts = async (csvFilename: string) => {
   const parsedCsv = loadUsersCsv(csvFilename);
   const rows = parsedCsv.data;
   const rewrittenCsvRows: string[][] = [
@@ -1662,13 +1667,13 @@ function loadUsersCsv(filename: string) {
   return parsedCsv;
 }
 
-Globals.domainStats = async (mysqlConnectionString: string) => {
+export const domainStats = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   const pageIdsToHide = arbitalDb.pageInfos.filter(pi => pi.seeDomainId !== 0);
   console.log(`${pageIdsToHide.length}/${arbitalDb.pageInfos.length} pages hidden based on domain`);
 }
 
-Globals.hideContentFromNonDefaultDomains = async (mysqlConnectionString: string) => {
+export const hideContentFromNonDefaultDomains = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   
   const pageIdsToDelete = arbitalDb.pageInfos.filter(pi => pi.seeDomainId !== 0).map(pi => pi.pageId);
@@ -1699,7 +1704,7 @@ async function findValidMultiDocument(arbitalLensId: string): Promise<DbMultiDoc
 }
 
 // Function to undo the deletion of imported wiki pages
-Globals.undoDeleteImportedArbitalWikiPages = async () => {
+export const undoDeleteImportedArbitalWikiPages = async () => {
   // Find all deleted wiki pages that were originally imported from Arbital
   const deletedWikiPages = await Tags.find({
     "legacyData.arbitalPageId": { $exists: true },
@@ -1887,7 +1892,7 @@ async function importPagePairs(
 }
 
 
-async function cleanUpAccidentalLensTags(wholeArbitalDb: WholeArbitalDatabase) {
+async function doCleanUpAccidentalLensTags(wholeArbitalDb: WholeArbitalDatabase) {
   const lensIds = Array.from(new Set(wholeArbitalDb.lenses.map(l => l.lensId)));
   await executePromiseQueue(lensIds.map(id => () => Tags.rawUpdateOne({
     "legacyData.arbitalPageId": id,
@@ -1901,12 +1906,12 @@ async function cleanUpAccidentalLensTags(wholeArbitalDb: WholeArbitalDatabase) {
   ), 10);
 }
 
-Globals.cleanUpAccidentalLensTags = async (mysqlConnectionString: string) => {
+export const cleanUpAccidentalLensTags = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
-  await cleanUpAccidentalLensTags(arbitalDb);
+  await doCleanUpAccidentalLensTags(arbitalDb);
 };
 
-Globals.checkAccidentalLensTags = async (mysqlConnectionString: string) => {
+export const checkAccidentalLensTags = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   const lensIds = Array.from(new Set(arbitalDb.lenses.map(l => l.lensId)));
   const tags = await executePromiseQueue(lensIds.map(id => () => Tags.findOne({
@@ -1924,7 +1929,7 @@ Globals.checkAccidentalLensTags = async (mysqlConnectionString: string) => {
  * Run this to fix an earlier import where that field was populated by the ID
  * of the page that the lens is on, rather than the lens ID.
  */
-Globals.updateLensIds = async (mysqlConnectionString: string) => {
+export const updateLensIds = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   
   const arbitalWikiPages = await Tags.find({
@@ -1976,7 +1981,7 @@ function isImportablePage(pageId: string, conversionContext: ArbitalConversionCo
     && pageInfo.seeDomainId === 0;
 }
 
-async function checkDefaultPageSummaries(database: WholeArbitalDatabase) {
+async function doCheckDefaultPageSummaries(database: WholeArbitalDatabase) {
   const conversionContext = await buildConversionContext(database, [], {});
   const { summariesByPageId, liveRevisionsByPageId } = conversionContext;
   const lensesByPageId = groupBy(database.lenses, l=>l.pageId);
@@ -2046,9 +2051,9 @@ async function checkDefaultPageSummaries(database: WholeArbitalDatabase) {
   console.log(`Lenses with no summaries: ${lensesWithNoSummaries.length}`);
 }
 
-Globals.checkDefaultPageSummaries = async (mysqlConnectionString: string) => {
+export const checkDefaultPageSummaries = async (mysqlConnectionString: string) => {
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
-  await checkDefaultPageSummaries(arbitalDb);
+  await doCheckDefaultPageSummaries(arbitalDb);
 }
 
 interface TagAssignment {
@@ -2072,7 +2077,7 @@ function loadCoreTagAssignmentsCsv(filename: string) {
   return parsedCsv;
 }
 
-async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
+export async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
   await Tags.rawUpdateMany(
     { coreTagId: { $exists: true } },
     { $unset: { coreTagId: "" } }
@@ -2153,8 +2158,6 @@ async function importCoreTagAssignments(coreTagAssignmentsFile: string) {
 
   console.log(`Assigned core tags to ${filteredTagAssignments.length} tags.`);
 }
-
-Globals.importCoreTagAssignments = importCoreTagAssignments;
 
 
 async function importSingleLens({conversionContext, lens, parentTagId, resolverContext, lensCreator}: {
@@ -2283,7 +2286,7 @@ async function importSingleLens({conversionContext, lens, parentTagId, resolverC
   });
 }
 
-Globals.importSingleLens = async (mysqlConnectionString: string, options: ArbitalImportOptions, lensId: string) => {
+export const wrappedImportSingleLens = async (mysqlConnectionString: string, options: ArbitalImportOptions, lensId: string) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
   const resolverContext = createAdminContext();
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
@@ -2306,7 +2309,7 @@ Globals.importSingleLens = async (mysqlConnectionString: string, options: Arbita
   });*/
 }
 
-async function updateDenormalizedTagDescriptions() {
+export async function updateDenormalizedTagDescriptions() {
   const tags = await Tags.find({ 'legacyData.arbitalPageId': { $exists: true } }).fetch();
   await executePromiseQueue(tags.map(tag => async () => {
     const denormalizedRevision = await Revisions.findOne({ _id: tag.description_latest });
@@ -2334,8 +2337,6 @@ async function updateDenormalizedTagDescriptions() {
   }), 5);
 }
 
-Globals.updateDenormalizedTagDescriptions = updateDenormalizedTagDescriptions;
-
 
 interface CorrectedLens {
   tag_id: string;
@@ -2350,7 +2351,7 @@ interface CorrectedLens {
   latest_lens_revision_id: string;
 }
 
-Globals.reassignContentsLatestToMultiDocuments = async () => {
+export const reassignContentsLatestToMultiDocuments = async () => {
   const db = getSqlClientOrThrow();
   const rows = await db.any<CorrectedLens>(`
     SELECT
@@ -2374,3 +2375,108 @@ Globals.reassignContentsLatestToMultiDocuments = async () => {
     );
   }
 };
+
+
+export async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: string, options: ArbitalImportOptions) {
+  const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
+  if (!options.userMatchingFile) {
+    throw new Error("User matching file is required");
+  }
+  const matchedUsers = await loadUserMatching(options.userMatchingFile);
+
+  const lenses = await MultiDocuments.find({
+    "legacyData.arbitalLensId": { $exists: true },
+    collectionName: "Tags",
+    fieldName: "description",
+  }).fetch();
+
+  // Create array to store mismatches
+  const mismatches: Array<{
+    lensTitle: string | null,
+    lensId: string,
+    revisionId: string,
+    revisionUserId: string | null,
+    lensUserId: string,
+    arbitalLensId: string,
+    arbitalFirstRevisionUserId: string,
+    matchedUserId: string,
+  }> = [];
+
+  const resolverContext = createAdminContext();
+
+  for (const lens of lenses) {
+    // get the first revision
+    const initialRevision = await Revisions.findOne({
+      documentId: lens._id,
+      updateType: "initial",
+    });
+
+    if (!initialRevision) {
+      console.log(`No initial revision found for lens ${lens._id}`);
+      continue;
+    }
+
+    // find matching page to revision in Arbital DB
+    const arbitalFirstRevision: PagesRow|undefined = arbitalDb.pages.find(p => p.pageId === lens.legacyData.arbitalLensId && p.edit === 1);
+    if (!arbitalFirstRevision) {
+      console.log(`No matching page found for revision ${initialRevision._id} in Arbital DB`);
+      continue;
+    }
+
+    // find matching user in LessWrong DB
+    const matchedUser = matchedUsers[arbitalFirstRevision.creatorId];
+    if (!matchedUser) {
+      console.log(`No matching user found for revision ${initialRevision._id} in LessWrong DB`);
+      continue;
+    }
+
+    if (initialRevision.userId !== matchedUser._id) {
+      const mismatch = {
+        lensTitle: lens.title,
+        lensId: lens._id,
+        revisionId: initialRevision._id,
+        revisionUserId: initialRevision.userId,
+        lensUserId: lens.userId,
+        arbitalLensId: lens.legacyData.arbitalLensId,
+        arbitalFirstRevisionUserId: arbitalFirstRevision.creatorId,
+        matchedUserId: matchedUser._id,
+      };
+      
+      console.log("Correcting record for", mismatch);
+
+      await Revisions.rawUpdateOne({
+        _id: initialRevision._id,
+      }, {
+        $set: { userId: matchedUser._id },
+      });
+
+      await updateDenormalizedHtmlAttributions({
+        document: lens,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+        context: resolverContext,
+      });
+      await updateDenormalizedContributorsList({
+        document: lens,
+        collectionName: "MultiDocuments",
+        fieldName: "contents",
+        context: resolverContext,
+      });
+
+      mismatches.push(mismatch);
+    }
+  }
+
+  // Write mismatches to file
+  if (mismatches.length > 0) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `arbital-lens-user-mismatches-prod-${timestamp}.json`;
+    fs.writeFileSync(filename, JSON.stringify(mismatches, null, 2));
+    console.log(`Wrote ${mismatches.length} mismatches to ${filename}`);
+  } else {
+    console.log("No mismatches found");
+  }
+
+}
+
+

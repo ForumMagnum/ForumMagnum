@@ -1,11 +1,11 @@
-import Messages from '../../lib/collections/messages/collection';
-import { ModeratorActions } from '../../lib/collections/moderatorActions';
-import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/schema';
+import Messages from '../../server/collections/messages/collection';
+import { ModeratorActions } from '../../server/collections/moderatorActions/collection';
+import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/newSchema';
 import { loggerConstructor } from '../../lib/utils/logging';
-import Users from '../../lib/vulcan-users';
+import Users from '../../server/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { createMutator, updateMutator } from '../vulcan-lib';
-import { getAdminTeamAccount } from './commentCallbacks';
+import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -97,11 +97,11 @@ getCollectionHooks("Conversations").updateBefore.add(async function flagUserOnMa
   return data;
 });
 
-getCollectionHooks("Conversations").updateAsync.add(async function leavingNotication({newDocument, oldDocument}) {
+getCollectionHooks("Conversations").updateAsync.add(async function leavingNotication({newDocument, oldDocument, context}) {
   const usersWhoLeft = (oldDocument?.participantIds ?? [])
     .filter(id => !newDocument.participantIds?.includes(id))
   if (usersWhoLeft.length === 0) return;
-  const adminAccount = await getAdminTeamAccount();
+  const adminAccount = await getAdminTeamAccount(context);
   if (!adminAccount) {
     // Something has gone horribly wrong
     throw new Error("Could not find admin account");

@@ -1,6 +1,6 @@
 import "../integrationTestSetup";
 import chai from 'chai';
-import { runQuery } from '../../server/vulcan-lib';
+import { runQuery } from '../../server/vulcan-lib/query';
 import {
   createDummyUser,
   createDummyPost,
@@ -13,7 +13,7 @@ import {
   createDummyUserRateLimit,
 } from '../utils';
 import moment from 'moment';
-import { Comments } from "../../lib/collections/comments";
+import { Comments } from "../../server/collections/comments/collection";
 
 const { assert } = chai;
 

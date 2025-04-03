@@ -3,6 +3,8 @@ import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedField, googleL
 import { localGroupTypeFormOptions } from './groupTypes';
 import { isEAForum, isLW } from '../../instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import { editableFields } from '@/lib/editor/make_editable';
+import { universalFields } from "../../collectionUtils";
 
 export const GROUP_CATEGORIES = [
   {value: 'national', label: 'National'},
@@ -16,16 +18,29 @@ export const GROUP_CATEGORIES = [
   {value: 'affiliation', label: 'Affiliation'},
 ]
 
-const formGroups: Partial<Record<string, FormGroupType<"Localgroups">>> = {
+const formGroups = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
     label: isFriendlyUI ? "Advanced options" : "Advanced Options",
     startCollapsed: true,
   },
-};
+} satisfies Partial<Record<string, FormGroupType<"Localgroups">>>;
 
 const schema: SchemaType<"Localgroups"> = {
+  ...universalFields({}),
+  ...editableFields("Localgroups", {
+    commentEditor: true,
+    commentStyles: true,
+    order: 25,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
+    },
+    hintText: () => "Short description"
+  }),
+  
   name: {
     type: String,
     canRead: ['guests'],
@@ -90,7 +105,7 @@ const schema: SchemaType<"Localgroups"> = {
     ...schemaDefaultValue(["LW"]),
     minCount: 1, // Ensure that at least one type is selected
     form: {
-      options: localGroupTypeFormOptions
+      options: () => localGroupTypeFormOptions
     },
     hidden: !isLW,
   },
@@ -110,7 +125,7 @@ const schema: SchemaType<"Localgroups"> = {
     placeholder: 'Select all that apply',
     form: {
       label: "Group type / intended audience",
-      options: GROUP_CATEGORIES
+      options: () => GROUP_CATEGORIES
     },
     hidden: !isEAForum,
   },
@@ -268,7 +283,7 @@ const schema: SchemaType<"Localgroups"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",
     ...schemaDefaultValue(false),

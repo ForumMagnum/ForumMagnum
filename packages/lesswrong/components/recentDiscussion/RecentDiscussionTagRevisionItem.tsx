@@ -1,6 +1,28 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
-import { Components, registerComponent } from "../../lib/vulcan-lib"
+import { Components, registerComponent } from "../../lib/vulcan-lib/components"
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isFriendlyUI } from '@/themes/forumTheme';
+
+const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
+  root: {
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    marginBottom: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    position: "relative",
+    boxShadow: theme.palette.boxShadow.default,
+    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 18,
+    paddingBottom: 12,
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
+      paddingLeft: 14,
+      paddingRight: 14,
+    },
+  },
+}));
 
 // Pablo, Leo, Lizka
 const megaTagUsers = ['BkbwT5TzSj4aRxJMN', 'pkJTc4xXhsCbNqkZM', 'SuPnfB9qqKWsucNzm']
@@ -23,6 +45,7 @@ function RecentDiscussionTagRevisionItem({
   revision: RevisionHistoryEntry,
   documentId: string,
 }) {
+  const classes = useStyles(styles);
   const { TagRevisionItem } = Components
   
   if (tag.adminOnly) {
@@ -41,13 +64,16 @@ function RecentDiscussionTagRevisionItem({
   ) {
     return null
   }
-  return <TagRevisionItem
-    tag={tag}
-    collapsed={collapsed}
-    headingStyle={headingStyle}
-    revision={revision}
-    documentId={documentId}
-  />
+  return <div className={classes.root}>
+    <TagRevisionItem
+      noContainer
+      tag={tag}
+      collapsed={collapsed}
+      headingStyle={headingStyle}
+      revision={revision}
+      documentId={documentId}
+    />
+  </div>
 }
 
 const RecentDiscussionTagRevisionItemComponent = registerComponent(

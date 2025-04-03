@@ -4,7 +4,7 @@ import { postStatuses } from "../../lib/collections/posts/constants";
 import {
   EA_FORUM_COMMUNITY_TOPIC_ID,
   EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID,
-} from "../../lib/collections/tags/collection";
+} from "../../lib/collections/tags/helpers";
 
 export type RecommendationStrategyConfig = {
   maxRecommendationCount: number,

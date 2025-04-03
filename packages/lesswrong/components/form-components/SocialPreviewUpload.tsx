@@ -1,13 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Components, getSiteUrl, registerComponent, sanitize } from "../../lib/vulcan-lib";
 import { siteImageSetting } from "../vulcan-core/App";
 import { htmlToText } from "html-to-text";
 import { truncate } from "../../lib/editor/ellipsize";
 import { getPostDescription } from "../posts/PostsPage/PostsPage";
 import {
   PLAINTEXT_DESCRIPTION_LENGTH,
-  PLAINTEXT_HTML_TRUNCATION_LENGTH,
-} from "../../lib/collections/revisions/collection";
+  PLAINTEXT_HTML_TRUNCATION_LENGTH
+} from '@/lib/collections/revisions/revisionConstants';
 import markdownIt from "markdown-it";
 import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
@@ -15,7 +14,10 @@ import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
-import Input from "@material-ui/core/Input";
+import Input from "@/lib/vendor/@material-ui/core/src/Input";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
+
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
@@ -114,9 +116,10 @@ interface PostsEditWithLocalData extends PostsEdit {
   readonly contents: (RevisionEdit & { dataWithDiscardedSuggestions: string | null }) | null;
 }
 
+// FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
 const mdi = markdownIt({ linkify: true });
 // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-mdi.use(markdownItContainer, "spoiler");
+mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
 mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);

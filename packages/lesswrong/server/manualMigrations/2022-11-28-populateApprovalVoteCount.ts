@@ -1,8 +1,8 @@
 import { registerMigration, forEachDocumentBatchInCollection } from "./migrationUtils";
-import { Comments } from "../../lib/collections/comments/collection";
-import { Votes } from "../../lib/collections/votes/collection";
+import { Comments } from "../../server/collections/comments/collection";
+import { Votes } from "../../server/collections/votes/collection";
 
-registerMigration({
+export default registerMigration({
   name: "populateApprovalVoteCount",
   dateWritten: "2022-11-28",
   idempotent: true,

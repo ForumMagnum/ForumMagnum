@@ -3,9 +3,9 @@ import { isEAForum } from "@/lib/instanceSettings";
 import { loggerConstructor } from "@/lib/utils/logging";
 import UsersRepo from "../repos/UsersRepo";
 import { wrapAndSendEmail } from "../emails/renderEmail";
-import { Components, Globals } from "@/lib/vulcan-lib";
 import './../emailComponents/EmailAnnualForumUserSurvey';
-import Users from '@/lib/collections/users/collection';
+import Users from '@/server/collections/users/collection';
+import { Components } from "@/lib/vulcan-lib/components.tsx";
 
 /**
  * Used by the EA Forum to send an email to a subset of users
@@ -16,8 +16,10 @@ import Users from '@/lib/collections/users/collection';
  * have already emailed via the userSurveyEmailSentAt field.
  *
  * In 2024, we emailed approximately 20k users total.
+ *
+ * Exported to allow running manually with "yarn repl"
  */
-const sendUserSurveyEmails = async (limit=10) => {
+export const sendUserSurveyEmails = async (limit=10) => {
   if (!isEAForum) return
   
   const logger = loggerConstructor(`sendUserSurveyEmails`)
@@ -51,4 +53,3 @@ const sendUserSurveyEmails = async (limit=10) => {
   logger(`Sent user survey emails to ${users.length} users`)
 }
 
-Globals.sendUserSurveyEmails = sendUserSurveyEmails;

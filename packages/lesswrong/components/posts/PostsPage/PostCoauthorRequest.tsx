@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const styles = (theme: ThemeType) => ({
   coauthorRequest: {
@@ -58,7 +59,7 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
           ...PostsDetails
         }
     }
-    ${getFragment('PostsDetails')}
+    ${fragmentTextForQuery('PostsDetails')}
   `)
 
   if (!isRequestedCoauthor(post, currentUser)) {

@@ -26,6 +26,7 @@ export type CommandLineOptions = {
   port: number|null
   production: boolean
   e2e: boolean
+  codegen: boolean
   settings: string|null
   db: string|null
   postgresUrl: string|null
@@ -34,12 +35,14 @@ export type CommandLineOptions = {
   command: string|null
   lint: boolean
   vite: boolean
+  noSshTunnel: boolean
 }
 const defaultCommandLineOptions: CommandLineOptions = {
   action: "build",
   port: null,
   production: false,
   e2e: false,
+  codegen: false,
   settings: null,
   db: null,
   postgresUrl: null,
@@ -48,6 +51,7 @@ const defaultCommandLineOptions: CommandLineOptions = {
   command: null,
   lint: false,
   vite: false,
+  noSshTunnel: false,
 }
 const helpText = (argv0: string) => `usage: yarn ts-node build-esbuild.ts [options]`
 
@@ -67,6 +71,9 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
           break;
         case "e2e":
           result.e2e = true;
+          break;
+        case "codegen":
+          result.codegen = true;
           break;
         case "settings":
           result.settings = argv[++i];
@@ -116,6 +123,9 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
         case "color":
         case "diag":
           break;
+        case "--no-ssh-tunnel":
+          result.noSshTunnel = true;
+          break;
       }
     } else {
       extraOpts.push(arg);
@@ -128,6 +138,7 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
 const [opts, args] = parseCommandLine(process.argv /*, [
   ["production", "Run in production mode"],
   ["e2e", "Run in end-to-end testing mode"],
+  ["codegen", "Run in codegen mode"],
   ["settings", "A JSON config file for the server", "<file>"],
   ["db", "A path to a database connection config file", "<file>"],
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
@@ -194,6 +205,8 @@ const bundleDefinitions: Record<string,string> = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": `${isProduction}`,
   "bundleIsTest": "false",
+  "bundleIsIntegrationTest": "false",
+  "bundleIsCodegen": "false",
   "bundleIsE2E": `${isE2E}`,
   "bundleIsMigrations": "false",
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
@@ -442,7 +455,7 @@ async function main() {
       ...clientBundleDefinitions,
     },
     external: [
-      "cheerio",
+      "cheerio"
     ],
   });
   
@@ -503,7 +516,7 @@ async function main() {
       "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
       "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
       "cheerio", "vite", "@vitejs/plugin-react", "@google-cloud", "@aws-sdk",
-      "@anthropic-ai/sdk", "openai", "@googlemaps",
+      "@anthropic-ai/sdk", "openai", "@googlemaps"
     ],
   })
   
@@ -515,7 +528,7 @@ async function main() {
   
   if (opts.vite) {
     serverContext.watch();
-    //serverContext.rebuild();
+    // serverContext.rebuild();
     await createViteProxyServer(serverProcess);
   } else if (opts.action === "watch") {
     serverContext.watch();

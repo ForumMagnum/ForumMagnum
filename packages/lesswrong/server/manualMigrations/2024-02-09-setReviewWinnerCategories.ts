@@ -1,6 +1,6 @@
-import ReviewWinners from "../../lib/collections/reviewWinners/collection";
-import { updateMutator } from "../vulcan-lib";
-import { createAdminContext } from "../vulcan-lib/query";
+import ReviewWinners from "../../server/collections/reviewWinners/collection";
+import { updateMutator } from "../vulcan-lib/mutators";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { registerMigration } from "./migrationUtils";
 
 type ReviewWinnerCategoryAndOrder = {
@@ -1465,7 +1465,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
   }
 ]
 
-registerMigration({
+export default registerMigration({
   name: "setReviewWinnerCategories",
   dateWritten: "2024-02-09",
   idempotent: true,

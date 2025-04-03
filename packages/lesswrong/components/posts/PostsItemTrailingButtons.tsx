@@ -1,9 +1,9 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type { UsePostsItem } from "./usePostsItem";
-import ArchiveIcon from "@material-ui/icons/Archive";
-import UnarchiveIcon from "@material-ui/icons/Unarchive";
-import CloseIcon from "@material-ui/icons/Close";
+import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
+import UnarchiveIcon from "@/lib/vendor/@material-ui/icons/src/Unarchive";
+import CloseIcon from "@/lib/vendor/@material-ui/icons/src/Close";
 import { useCurrentUser } from "../common/withUser";
 import { isBookUI } from "../../themes/forumTheme";
 import { defineStyles, useStyles } from "../hooks/useStyles";

@@ -11,100 +11,104 @@ type AdvisorRequestsCollection = CollectionBase<"AdvisorRequests">;
 
 interface DbAdvisorRequest extends DbObject {
   __collectionName?: "AdvisorRequests"
-  userId: string
-  interestedInMetaculus: boolean
-  jobAds: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
+  interestedInMetaculus: boolean
+  jobAds: Array<{
+    state: "seen" | "expanded" | "interested" | "uninterested",
+    uninterestedReason: string | null,
+    lastUpdated: Date,
+  }> | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string
 }
 
 type ArbitalCachesCollection = CollectionBase<"ArbitalCaches">;
 
 interface DbArbitalCaches extends DbObject {
   __collectionName?: "ArbitalCaches"
-  pageAlias: string
-  title: string
-  fetchedAt: Date
-  sanitizedHtml: string
   createdAt: Date
+  fetchedAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  pageAlias: string
+  sanitizedHtml: string
+  title: string
 }
 
 type ArbitalTagContentRelsCollection = CollectionBase<"ArbitalTagContentRels">;
 
 interface DbArbitalTagContentRel extends DbObject {
   __collectionName?: "ArbitalTagContentRels"
-  parentDocumentId: string
-  childDocumentId: string
-  parentCollectionName: "Tags" | "MultiDocuments"
   childCollectionName: "Tags" | "MultiDocuments"
-  type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child" | "parent-is-parent-of-child"
-  level: number
-  isStrong: boolean
+  childDocumentId: string
   createdAt: Date
+  isStrong: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  level: number
+  parentCollectionName: "Tags" | "MultiDocuments"
+  parentDocumentId: string
+  type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child" | "parent-is-parent-of-child"
 }
 
 type BansCollection = CollectionBase<"Bans">;
 
 interface DbBan extends DbObject {
   __collectionName?: "Bans"
-  expirationDate: Date | null
-  userId: string
-  ip: string | null
-  reason: string | null
   comment: string
-  properties: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
+  expirationDate: Date | null
+  ip: string | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  properties: any /*{"definitions":[{"blackbox":true}]}*/
+  reason: string | null
+  userId: string
 }
 
 type BooksCollection = CollectionBase<"Books">;
 
 interface DbBook extends DbObject {
   __collectionName?: "Books"
-  postedAt: Date | null
-  title: string | null
-  subtitle: string | null
-  tocTitle: string | null
-  collectionId: string | null
-  number: number | null
-  postIds: Array<string>
-  sequenceIds: Array<string>
-  displaySequencesAsGrid: boolean | null
-  hideProgressBar: boolean | null
-  showChapters: boolean | null
+  collectionId: string
   contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
+  displaySequencesAsGrid: boolean | null
+  hideProgressBar: boolean | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  number: number | null
+  postIds: Array<string>
+  postedAt: Date | null
+  sequenceIds: Array<string>
+  showChapters: boolean | null
+  subtitle: string | null
+  title: string | null
+  tocTitle: string | null
 }
 
 type ChaptersCollection = CollectionBase<"Chapters">;
 
 interface DbChapter extends DbObject {
   __collectionName?: "Chapters"
-  title: string | null
-  subtitle: string | null
-  number: number | null
-  sequenceId: string | null
-  postIds: Array<string>
   contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  number: number | null
+  postIds: Array<string>
+  sequenceId: string | null
+  subtitle: string | null
+  title: string | null
 }
 
 type CkEditorUserSessionsCollection = CollectionBase<"CkEditorUserSessions">;
 
 interface DbCkEditorUserSession extends DbObject {
   __collectionName?: "CkEditorUserSessions"
+  createdAt: Date
   documentId: string
-  userId: string
   endedAt: Date | null
   endedBy: string | null
-  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string
 }
 
 type ClientIdsCollection = CollectionBase<"ClientIds">;
@@ -112,31 +116,31 @@ type ClientIdsCollection = CollectionBase<"ClientIds">;
 interface DbClientId extends DbObject {
   __collectionName?: "ClientIds"
   clientId: string
-  firstSeenReferrer: string | null
+  createdAt: Date
   firstSeenLandingPage: string | null
-  userIds: Array<string> | null
+  firstSeenReferrer: string | null
   invalidated: boolean
   lastSeenAt: Date | null
-  timesSeen: number
-  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  timesSeen: number
+  userIds: Array<string> | null
 }
 
 type CollectionsCollection = CollectionBase<"Collections">;
 
 interface DbCollection extends DbObject {
   __collectionName?: "Collections"
-  userId: string
-  title: string | null
-  slug: string | null
-  gridImageId: string | null
-  firstPageLink: string
-  hideStartReadingButton: boolean | null
-  noindex: boolean
   contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
+  firstPageLink: string
+  gridImageId: string | null
+  hideStartReadingButton: boolean | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  noindex: boolean
+  slug: string
+  title: string
+  userId: string
 }
 
 type CommentModeratorActionsCollection = CollectionBase<"CommentModeratorActions">;
@@ -144,23 +148,38 @@ type CommentModeratorActionsCollection = CollectionBase<"CommentModeratorActions
 interface DbCommentModeratorAction extends DbObject {
   __collectionName?: "CommentModeratorActions"
   commentId: string
-  type: "downvotedCommentAlert"
-  endedAt: Date | null
   createdAt: Date
+  endedAt: Date | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  type: "downvotedCommentAlert"
 }
 
 type CommentsCollection = CollectionBase<"Comments">;
 
 interface DbComment extends DbObject {
   __collectionName?: "Comments"
-  parentCommentId: string | null
-  topLevelCommentId: string | null
-  postedAt: Date
-  lastEditedAt: Date | null
+  af: boolean
+  afBaseScore: number | null
+  afDate: Date | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
+  agentFoundationsId: string | null
+  answer: boolean
   author: string | null
-  postId: string | null
-  tagId: string | null
+  authorIsUnreviewed: boolean
+  baseScore: number
+  contents: EditableFieldContents | null
+  contents_latest: string | null
+  createdAt: Date
+  debateResponse: boolean | null
+  deleted: boolean
+  deletedByUserId: string | null
+  deletedDate: Date | null
+  deletedPublic: boolean
+  deletedReason: string | null
+  descendentCount: number
+  directChildrenCount: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   forumEventId: string | null
   forumEventMetadata: {
     eventFormat: "BASIC" | "POLL" | "STICKERS",
@@ -170,614 +189,620 @@ interface DbComment extends DbObject {
       y: number,
       theta: number,
       emoji: string,
-    },
+    } | null,
+    poll: {
+      voteWhenPublished: number,
+      latestVote: number | null,
+    } | null,
   } | null
-  tagCommentType: "SUBFORUM" | "DISCUSSION"
-  subforumStickyPriority: number | null
-  userId: string
-  userIP: string | null
-  userAgent: string | null
-  referrer: string | null
-  authorIsUnreviewed: boolean
-  answer: boolean
-  parentAnswerId: string | null
-  directChildrenCount: number
-  descendentCount: number
-  shortform: boolean | null
-  shortformFrontpage: boolean
-  nominatedForReview: string | null
-  reviewingForReview: string | null
-  lastSubthreadActivity: Date | null
-  postVersion: string | null
-  promoted: boolean | null
-  promotedByUserId: string | null
-  promotedAt: Date | null
-  hideKarma: boolean | null
-  legacy: boolean
-  legacyId: string | null
-  legacyPoll: boolean
-  legacyParentId: string | null
-  retracted: boolean
-  deleted: boolean
-  deletedPublic: boolean
-  deletedReason: string | null
-  deletedDate: Date | null
-  deletedByUserId: string | null
-  spam: boolean
-  repliesBlockedUntil: Date | null
-  needsReview: boolean | null
-  reviewedByUserId: string | null
   hideAuthor: boolean
-  moderatorHat: boolean
+  hideKarma: boolean | null
   hideModeratorHat: boolean | null
+  inactive: boolean
   isPinnedOnProfile: boolean
-  title: string | null
-  relevantTagIds: Array<string>
-  debateResponse: boolean | null
-  rejected: boolean
+  lastEditedAt: Date | null
+  lastSubthreadActivity: Date | null
+  legacy: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  legacyId: string | null
+  legacyParentId: string | null
+  legacyPoll: boolean
   modGPTAnalysis: string | null
   modGPTRecommendation: string | null
-  rejectedReason: string | null
-  rejectedByUserId: string | null
-  af: boolean
-  suggestForAlignmentUserIds: Array<string>
-  reviewForAlignmentUserId: string | null
-  afDate: Date | null
+  moderatorHat: boolean
   moveToAlignmentUserId: string | null
-  agentFoundationsId: string | null
+  needsReview: boolean | null
+  nominatedForReview: string | null
   originalDialogueId: string | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents | null
-  contents_latest: string | null
+  parentAnswerId: string | null
+  parentCommentId: string | null
   pingbacks: any /*{"definitions":[{}]}*/
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  postId: string | null
+  postVersion: string | null
+  postedAt: Date
+  promoted: boolean | null
+  promotedAt: Date | null
+  promotedByUserId: string | null
+  referrer: string | null
+  rejected: boolean
+  rejectedByUserId: string | null
+  rejectedReason: string | null
+  relevantTagIds: Array<string>
+  repliesBlockedUntil: Date | null
+  retracted: boolean
+  reviewForAlignmentUserId: string | null
+  reviewedByUserId: string | null
+  reviewingForReview: string | null
   score: number
-  inactive: boolean
-  afBaseScore: number | null
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  afVoteCount: number | null
+  shortform: boolean | null
+  shortformFrontpage: boolean
+  spam: boolean
+  subforumStickyPriority: number | null
+  suggestForAlignmentUserIds: Array<string>
+  tagCommentType: "SUBFORUM" | "DISCUSSION"
+  tagId: string | null
+  title: string | null
+  topLevelCommentId: string | null
+  userAgent: string | null
+  userIP: string | null
+  userId: string
+  voteCount: number
 }
 
 type ConversationsCollection = CollectionBase<"Conversations">;
 
 interface DbConversation extends DbObject {
   __collectionName?: "Conversations"
-  title: string | null
-  participantIds: Array<string>
-  latestActivity: Date | null
   af: boolean | null
-  messageCount: number
-  moderator: boolean | null
   archivedByIds: Array<string>
   createdAt: Date
+  latestActivity: Date | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  messageCount: number
+  moderator: boolean | null
+  participantIds: Array<string>
+  title: string | null
 }
 
 type CronHistoriesCollection = CollectionBase<"CronHistories">;
 
 interface DbCronHistory extends DbObject {
   __collectionName?: "CronHistories"
+  finishedAt: Date | null
   intendedAt: Date
   name: string
-  startedAt: Date
-  finishedAt: Date | null
   result: any /*{"definitions":[{"blackbox":true}]}*/
+  startedAt: Date
 }
 
 type CurationEmailsCollection = CollectionBase<"CurationEmails">;
 
 interface DbCurationEmail extends DbObject {
   __collectionName?: "CurationEmails"
-  userId: string
-  postId: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  userId: string
 }
 
 type CurationNoticesCollection = CollectionBase<"CurationNotices">;
 
 interface DbCurationNotice extends DbObject {
   __collectionName?: "CurationNotices"
-  userId: string
   commentId: string | null
-  postId: string | null
-  deleted: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents | null
   contents_latest: string | null
+  createdAt: Date
+  deleted: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string | null
+  userId: string
 }
 
 type DatabaseMetadataCollection = CollectionBase<"DatabaseMetadata">;
 
 interface DbDatabaseMetadata extends DbObject {
   __collectionName?: "DatabaseMetadata"
-  name: string
-  value: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  name: string
+  value: any
 }
 
 type DebouncerEventsCollection = CollectionBase<"DebouncerEvents">;
 
 interface DbDebouncerEvents extends DbObject {
   __collectionName?: "DebouncerEvents"
-  name: string
   af: boolean | null
+  createdAt: Date
+  delayTime: Date
   dispatched: boolean
   failed: boolean | null
-  delayTime: Date
-  upperBoundTime: Date
   key: string
-  pendingEvents: Array<string> | null
-  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  name: string
+  pendingEvents: Array<string> | null
+  upperBoundTime: Date
 }
 
 type DialogueChecksCollection = CollectionBase<"DialogueChecks">;
 
 interface DbDialogueCheck extends DbObject {
   __collectionName?: "DialogueChecks"
-  userId: string
-  targetUserId: string
   checked: boolean
   checkedAt: Date
-  hideInRecommendations: boolean
   createdAt: Date
+  hideInRecommendations: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  targetUserId: string
+  userId: string
 }
 
 type DialogueMatchPreferencesCollection = CollectionBase<"DialogueMatchPreferences">;
 
 interface DbDialogueMatchPreference extends DbObject {
   __collectionName?: "DialogueMatchPreferences"
+  asyncPreference: "Yes" | "Meh" | "No"
+  calendlyLink: string | null
+  createdAt: Date
+  deleted: boolean
   dialogueCheckId: string
+  formatNotes: string
+  generatedDialogueId: string | null
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  syncPreference: "Yes" | "Meh" | "No"
+  topicNotes: string
   topicPreferences: Array<{
     text: string,
     preference: "Yes" | "No",
     commentSourceId: string | null,
   }>
-  topicNotes: string
-  syncPreference: "Yes" | "Meh" | "No"
-  asyncPreference: "Yes" | "Meh" | "No"
-  formatNotes: string
-  calendlyLink: string | null
-  generatedDialogueId: string | null
-  deleted: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type DigestPostsCollection = CollectionBase<"DigestPosts">;
 
 interface DbDigestPost extends DbObject {
   __collectionName?: "DigestPosts"
-  digestId: string
-  postId: string
-  emailDigestStatus: string | null
-  onsiteDigestStatus: string | null
   createdAt: Date
+  digestId: string
+  emailDigestStatus: string | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  onsiteDigestStatus: string | null
+  postId: string
 }
 
 type DigestsCollection = CollectionBase<"Digests">;
 
 interface DbDigest extends DbObject {
   __collectionName?: "Digests"
-  num: number | null
-  startDate: Date | null
+  createdAt: Date
   endDate: Date | null
-  publishedDate: Date | null
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  num: number
   onsiteImageId: string | null
   onsitePrimaryColor: string | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  publishedDate: Date | null
+  startDate: Date
 }
 
 type ElectionCandidatesCollection = CollectionBase<"ElectionCandidates">;
 
 interface DbElectionCandidate extends DbObject {
   __collectionName?: "ElectionCandidates"
-  electionName: string
-  name: string
-  logoSrc: string
-  href: string
-  fundraiserLink: string | null
-  gwwcLink: string | null
-  gwwcId: string | null
-  description: string
-  userId: string
-  postCount: number
-  tagId: string | null
-  isElectionFundraiser: boolean
-  amountRaised: number | null
-  targetAmount: number | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  amountRaised: number | null
+  baseScore: number
+  createdAt: Date
+  description: string
+  electionName: string
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  fundraiserLink: string | null
+  gwwcId: string | null
+  gwwcLink: string | null
+  href: string
+  inactive: boolean
+  isElectionFundraiser: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  logoSrc: string
+  name: string
+  postCount: number
+  score: number
+  tagId: string
+  targetAmount: number | null
+  userId: string
+  voteCount: number
 }
 
 type ElectionVotesCollection = CollectionBase<"ElectionVotes">;
 
 interface DbElectionVote extends DbObject {
   __collectionName?: "ElectionVotes"
-  electionName: string
-  userId: string | null
   compareState: any /*{"definitions":[{"blackbox":true}]}*/
-  vote: any /*{"definitions":[{"blackbox":true}]}*/
-  submittedAt: Date | null
-  submissionComments: any /*{"definitions":[{"blackbox":true}]}*/
-  userExplanation: string | null
-  userOtherComments: string | null
   createdAt: Date
+  electionName: string
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  submissionComments: any /*{"definitions":[{"blackbox":true}]}*/
+  submittedAt: Date | null
+  userExplanation: string | null
+  userId: string | null
+  userOtherComments: string | null
+  vote: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type ElicitQuestionPredictionsCollection = CollectionBase<"ElicitQuestionPredictions">;
 
 interface DbElicitQuestionPrediction extends DbObject {
   __collectionName?: "ElicitQuestionPredictions"
-  prediction: number | null
+  binaryQuestionId: string
   createdAt: Date
-  notes: string | null
   creator: {
     _id: string,
     displayName: string,
     isQuestionCreator: boolean,
     sourceUserId: string | null,
   }
-  userId: string | null
-  sourceUrl: string | null
-  sourceId: string | null
-  binaryQuestionId: string
   isDeleted: boolean
+  notes: string | null
+  prediction: number | null
+  sourceId: string | null
+  sourceUrl: string | null
+  userId: string | null
 }
 
 type ElicitQuestionsCollection = CollectionBase<"ElicitQuestions">;
 
 interface DbElicitQuestion extends DbObject {
   __collectionName?: "ElicitQuestions"
-  title: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   notes: string | null
   resolution: string | null
   resolvesBy: Date | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  title: string
 }
 
 type EmailTokensCollection = CollectionBase<"EmailTokens">;
 
 interface DbEmailTokens extends DbObject {
   __collectionName?: "EmailTokens"
-  token: string
-  tokenType: string
-  userId: string
-  usedAt: Date | null
-  params: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  params: any /*{"definitions":[{"blackbox":true}]}*/
+  token: string
+  tokenType: string
+  usedAt: Date | null
+  userId: string
 }
 
 type FeaturedResourcesCollection = CollectionBase<"FeaturedResources">;
 
 interface DbFeaturedResource extends DbObject {
   __collectionName?: "FeaturedResources"
-  title: string
   body: string | null
+  createdAt: Date
   ctaText: string
   ctaUrl: string
   expiresAt: Date | null
-  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  title: string
+}
+
+type FieldChangesCollection = CollectionBase<"FieldChanges">;
+
+interface DbFieldChange extends DbObject {
+  __collectionName?: "FieldChanges"
+  changeGroup: string | null
+  createdAt: Date
+  documentId: string | null
+  fieldName: string | null
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  newValue: any /*{"definitions":[{"blackbox":true}]}*/
+  oldValue: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string | null
 }
 
 type ForumEventsCollection = CollectionBase<"ForumEvents">;
 
 interface DbForumEvent extends DbObject {
   __collectionName?: "ForumEvents"
-  title: string
-  startDate: Date
-  endDate: Date
-  darkColor: string
-  lightColor: string
-  bannerTextColor: string
-  contrastColor: string | null
-  tagId: string | null
-  postId: string | null
   bannerImageId: string | null
-  includesPoll: boolean
-  eventFormat: "BASIC" | "POLL" | "STICKERS"
-  maxStickersPerUser: number
-  customComponent: string | null
+  bannerTextColor: string
   commentPrompt: string | null
-  publicData: any /*{"definitions":[{"blackbox":true}]}*/
+  contrastColor: string | null
   createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  customComponent: string | null
+  darkColor: string
+  endDate: Date
+  eventFormat: "BASIC" | "POLL" | "STICKERS"
   frontpageDescription: EditableFieldContents | null
-  frontpageDescription_latest: string | null
   frontpageDescriptionMobile: EditableFieldContents | null
   frontpageDescriptionMobile_latest: string | null
+  frontpageDescription_latest: string | null
+  includesPoll: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  lightColor: string
+  maxStickersPerUser: number
+  pollAgreeWording: string | null
+  pollDisagreeWording: string | null
+  pollQuestion_latest: string | null
+  postId: string | null
   postPageDescription: EditableFieldContents | null
   postPageDescription_latest: string | null
+  publicData: any /*{"definitions":[{"blackbox":true}]}*/
+  startDate: Date
+  tagId: string | null
+  title: string
 }
 
 type GardenCodesCollection = CollectionBase<"GardenCodes">;
 
 interface DbGardenCode extends DbObject {
   __collectionName?: "GardenCodes"
-  code: string
-  title: string
-  userId: string
-  startTime: Date | null
-  endTime: Date
-  fbLink: string | null
-  type: string
-  hidden: boolean
-  deleted: boolean
   afOnly: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  slug: string
+  code: string
   contents: EditableFieldContents | null
   contents_latest: string | null
+  createdAt: Date
+  deleted: boolean
+  endTime: Date
+  fbLink: string | null
+  hidden: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   pingbacks: any /*{"definitions":[{}]}*/
+  slug: string
+  startTime: Date | null
+  title: string
+  type: string
+  userId: string
 }
 
 type GoogleServiceAccountSessionsCollection = CollectionBase<"GoogleServiceAccountSessions">;
 
 interface DbGoogleServiceAccountSession extends DbObject {
   __collectionName?: "GoogleServiceAccountSessions"
-  email: string
-  refreshToken: string
-  estimatedExpiry: Date
   active: boolean
-  revoked: boolean
   createdAt: Date
+  email: string
+  estimatedExpiry: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  refreshToken: string
+  revoked: boolean
 }
 
 type ImagesCollection = CollectionBase<"Images">;
 
 interface DbImages extends DbObject {
   __collectionName?: "Images"
-  originalUrl: string | null
-  identifier: string
-  identifierType: "sha256Hash" | "originalUrl"
   cdnHostedUrl: string
   createdAt: Date
+  identifier: string
+  identifierType: "sha256Hash" | "originalUrl"
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  originalUrl: string | null
 }
 
 type JargonTermsCollection = CollectionBase<"JargonTerms">;
 
 interface DbJargonTerm extends DbObject {
   __collectionName?: "JargonTerms"
-  postId: string
-  term: string
-  approved: boolean
-  deleted: boolean
   altTerms: Array<string>
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  approved: boolean
   contents: EditableFieldContents | null
   contents_latest: string | null
+  createdAt: Date
+  deleted: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  term: string
 }
 
 type LWEventsCollection = CollectionBase<"LWEvents">;
 
 interface DbLWEvent extends DbObject {
   __collectionName?: "LWEvents"
-  userId: string | null
-  name: string | null
+  createdAt: Date
   documentId: string | null
   important: boolean | null
-  properties: any /*{"definitions":[{"blackbox":true}]}*/
   intercom: boolean | null
-  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  name: string | null
+  properties: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string | null
 }
 
 type LegacyDataCollection = CollectionBase<"LegacyData">;
 
 interface DbLegacyData extends DbObject {
   __collectionName?: "LegacyData"
-  objectId: string
   collectionName: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  objectId: string
 }
 
 type LlmConversationsCollection = CollectionBase<"LlmConversations">;
 
 interface DbLlmConversation extends DbObject {
   __collectionName?: "LlmConversations"
-  userId: string
-  title: string
+  createdAt: Date
+  deleted: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   model: string
   systemPrompt: string | null
-  deleted: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  title: string
+  userId: string
 }
 
 type LlmMessagesCollection = CollectionBase<"LlmMessages">;
 
 interface DbLlmMessage extends DbObject {
   __collectionName?: "LlmMessages"
-  userId: string
-  conversationId: string
-  role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant"
   content: string
+  conversationId: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant"
+  userId: string
 }
 
 type LocalgroupsCollection = CollectionBase<"Localgroups">;
 
 interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
-  name: string | null
-  nameInAnotherLanguage: string | null
-  organizerIds: Array<string>
-  lastActivity: Date | null
-  types: Array<string>
-  categories: Array<string> | null
-  isOnline: boolean
-  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  location: string | null
-  contactInfo: string | null
-  facebookLink: string | null
-  facebookPageLink: string | null
-  meetupLink: string | null
-  slackLink: string | null
-  website: string | null
   bannerImageId: string | null
-  inactive: boolean
-  deleted: boolean
-  salesforceId: string | null
+  categories: Array<string> | null
+  contactInfo: string | null
   contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
+  deleted: boolean
+  facebookLink: string | null
+  facebookPageLink: string | null
+  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  inactive: boolean
+  isOnline: boolean
+  lastActivity: Date | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  location: string | null
+  meetupLink: string | null
+  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  name: string | null
+  nameInAnotherLanguage: string | null
+  organizerIds: Array<string>
+  salesforceId: string | null
+  slackLink: string | null
+  types: Array<string>
+  website: string | null
 }
 
 type ManifoldProbabilitiesCachesCollection = CollectionBase<"ManifoldProbabilitiesCaches">;
 
 interface DbManifoldProbabilitiesCache extends DbObject {
   __collectionName?: "ManifoldProbabilitiesCaches"
+  createdAt: Date
+  isResolved: boolean
+  lastUpdated: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   marketId: string
   probability: number
-  isResolved: boolean
-  year: number
-  lastUpdated: Date
   url: string | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  year: number
 }
 
 type MessagesCollection = CollectionBase<"Messages">;
 
 interface DbMessage extends DbObject {
   __collectionName?: "Messages"
-  userId: string
-  conversationId: string
-  noEmail: boolean
   contents: EditableFieldContents | null
   contents_latest: string | null
+  conversationId: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  noEmail: boolean
+  userId: string
 }
 
 type MigrationsCollection = CollectionBase<"Migrations">;
 
 interface DbMigration extends DbObject {
   __collectionName?: "Migrations"
+  createdAt: Date
+  finished: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   name: string
   started: Date
-  finished: boolean
   succeeded: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type ModerationTemplatesCollection = CollectionBase<"ModerationTemplates">;
 
 interface DbModerationTemplate extends DbObject {
   __collectionName?: "ModerationTemplates"
-  name: string
   collectionName: "Messages" | "Comments" | "Rejections"
-  order: number
-  deleted: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents | null
   contents_latest: string | null
+  createdAt: Date
+  deleted: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  name: string
+  order: number
 }
 
 type ModeratorActionsCollection = CollectionBase<"ModeratorActions">;
 
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
-  userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert"
-  endedAt: Date | null
   createdAt: Date
+  endedAt: Date | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert"
+  userId: string
 }
 
 type MultiDocumentsCollection = CollectionBase<"MultiDocuments">;
 
 interface DbMultiDocument extends DbObject {
   __collectionName?: "MultiDocuments"
-  title: string | null
-  preview: string | null
-  tabTitle: string
-  tabSubtitle: string | null
-  userId: string
-  parentDocumentId: string
-  collectionName: "Tags" | "MultiDocuments"
-  fieldName: "description" | "summary"
-  index: number
-  contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
-  htmlWithContributorAnnotations: string | null
-  deleted: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  slug: string
-  oldSlugs: Array<string>
-  contents_latest: string | null
-  pingbacks: any /*{"definitions":[{}]}*/
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  baseScore: number
+  collectionName: "Tags" | "MultiDocuments"
+  contents_latest: string | null
+  contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
+  deleted: boolean
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  fieldName: "description" | "summary"
+  htmlWithContributorAnnotations: string | null
+  inactive: boolean
+  index: number
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  oldSlugs: Array<string>
+  parentDocumentId: string
+  pingbacks: any /*{"definitions":[{}]}*/
+  preview: string | null
+  score: number
+  slug: string
+  tabSubtitle: string | null
+  tabTitle: string
+  title: string | null
+  userId: string
+  voteCount: number
 }
 
 type NotificationsCollection = CollectionBase<"Notifications">;
 
 interface DbNotification extends DbObject {
   __collectionName?: "Notifications"
-  userId: string
+  createdAt: Date
+  deleted: boolean
   documentId: string | null
   documentType: string | null
-  extraData: any /*{"definitions":[{"blackbox":true}]}*/
-  link: string | null
-  title: string | null
-  message: string
-  type: string
-  deleted: boolean
-  viewed: boolean
   emailed: boolean
-  waitingForBatch: boolean
-  createdAt: Date
+  extraData: any /*{"definitions":[{"blackbox":true}]}*/
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  link: string | null
+  message: string
+  title: string | null
+  type: string
+  userId: string
+  viewed: boolean
+  waitingForBatch: boolean
 }
 
 type PageCacheCollection = CollectionBase<"PageCache">;
 
 interface DbPageCacheEntry extends DbObject {
   __collectionName?: "PageCache"
-  path: string
   abTestGroups: any /*{"definitions":[{"blackbox":true}]}*/
   bundleHash: string
-  renderedAt: Date
+  createdAt: Date
   expiresAt: Date
-  ttlMs: number
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  path: string
   renderResult: {
     ssrBody: string,
     headers: Array<string>,
@@ -794,8 +819,8 @@ interface DbPageCacheEntry extends DbObject {
     timezone: string,
     timings: any /*{"definitions":[{"blackbox":true}]}*/,
   }
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  renderedAt: Date
+  ttlMs: number
 }
 
 type PetrovDayActionsCollection = CollectionBase<"PetrovDayActions">;
@@ -803,168 +828,256 @@ type PetrovDayActionsCollection = CollectionBase<"PetrovDayActions">;
 interface DbPetrovDayAction extends DbObject {
   __collectionName?: "PetrovDayActions"
   actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming"
-  data: any /*{"definitions":[{}]}*/
-  userId: string | null
   createdAt: Date
+  data: any /*{"definitions":[{}]}*/
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string | null
 }
 
 type PetrovDayLaunchsCollection = CollectionBase<"PetrovDayLaunchs">;
 
 interface DbPetrovDayLaunch extends DbObject {
   __collectionName?: "PetrovDayLaunchs"
-  launchCode: string
-  hashedLaunchCode: string | null
-  userId: string | null
   createdAt: Date
+  hashedLaunchCode: string | null
+  launchCode: string
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string | null
 }
 
 type PodcastEpisodesCollection = CollectionBase<"PodcastEpisodes">;
 
 interface DbPodcastEpisode extends DbObject {
   __collectionName?: "PodcastEpisodes"
-  podcastId: string
-  title: string | null
-  episodeLink: string | null
-  externalEpisodeId: string | null
   createdAt: Date
+  episodeLink: string
+  externalEpisodeId: string
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  podcastId: string
+  title: string
 }
 
 type PodcastsCollection = CollectionBase<"Podcasts">;
 
 interface DbPodcast extends DbObject {
   __collectionName?: "Podcasts"
-  title: string | null
   applePodcastLink: string | null
-  spotifyPodcastLink: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  spotifyPodcastLink: string | null
+  title: string
 }
 
 type PostEmbeddingsCollection = CollectionBase<"PostEmbeddings">;
 
 interface DbPostEmbedding extends DbObject {
   __collectionName?: "PostEmbeddings"
-  postId: string
-  postHash: string
-  lastGeneratedAt: Date
-  model: string
-  embeddings: Array<number>
   createdAt: Date
+  embeddings: Array<number>
+  lastGeneratedAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  model: string
+  postHash: string
+  postId: string
 }
 
 type PostRecommendationsCollection = CollectionBase<"PostRecommendations">;
 
 interface DbPostRecommendation extends DbObject {
   __collectionName?: "PostRecommendations"
-  userId: string | null
+  clickedAt: Date | null
   clientId: string | null
+  createdAt: Date
+  lastRecommendedAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   postId: string
+  recommendationCount: number
   strategyName: string
   strategySettings: any /*{"definitions":[{"blackbox":true}]}*/
-  recommendationCount: number
-  lastRecommendedAt: Date
-  clickedAt: Date | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string | null
 }
 
 type PostRelationsCollection = CollectionBase<"PostRelations">;
 
 interface DbPostRelation extends DbObject {
   __collectionName?: "PostRelations"
-  type: string
-  sourcePostId: string
-  targetPostId: string
-  order: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  order: number | null
+  sourcePostId: string
+  targetPostId: string
+  type: string
 }
 
 type PostViewTimesCollection = CollectionBase<"PostViewTimes">;
 
 interface DbPostViewTime extends DbObject {
   __collectionName?: "PostViewTimes"
-  updatedAt: Date
-  windowStart: Date
-  windowEnd: Date
   clientId: string
-  postId: string
-  totalSeconds: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  totalSeconds: number
+  updatedAt: Date
+  windowEnd: Date
+  windowStart: Date
 }
 
 type PostViewsCollection = CollectionBase<"PostViews">;
 
 interface DbPostViews extends DbObject {
   __collectionName?: "PostViews"
-  updatedAt: Date
-  windowStart: Date
-  windowEnd: Date
-  postId: string
-  viewCount: number
-  uniqueViewCount: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  uniqueViewCount: number
+  updatedAt: Date
+  viewCount: number
+  windowEnd: Date
+  windowStart: Date
 }
 
 type PostsCollection = CollectionBase<"Posts">;
 
 interface DbPost extends DbObject {
   __collectionName?: "Posts"
-  postedAt: Date
-  modifiedAt: Date | null
-  url: string | null
-  postCategory: "post" | "linkpost" | "question"
-  title: string
-  viewCount: number
-  lastCommentedAt: Date | null
-  clickCount: number
-  deletedDraft: boolean
-  status: number
-  isFuture: boolean
-  sticky: boolean
-  stickyPriority: number
-  userIP: string | null
-  userAgent: string | null
-  referrer: string | null
+  activateRSVPs: boolean | null
+  af: boolean
+  afBaseScore: number | null
+  afCommentCount: number
+  afDate: Date | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afLastCommentedAt: Date | null
+  afSticky: boolean
+  afVoteCount: number | null
+  agentFoundationsId: string | null
   author: string | null
-  userId: string
-  question: boolean
   authorIsUnreviewed: boolean
-  readTimeMinutesOverride: number | null
-  submitToFrontpage: boolean
-  hiddenRelatedQuestion: boolean
-  originalPostRelationSourceId: string | null
-  shortform: boolean
+  autoFrontpage: "show" | "hide" | null
+  bannedUserIds: Array<string> | null
+  baseScore: number
+  canonicalBookId: string | null
+  canonicalCollectionSlug: string | null
+  canonicalNextPostSlug: string | null
+  canonicalPrevPostSlug: string | null
+  canonicalSequenceId: string | null
   canonicalSource: string | null
+  clickCount: number
+  coauthorStatuses: Array<{
+    userId: string,
+    confirmed: boolean,
+    requested: boolean,
+  }> | null
+  collabEditorDialogue: boolean
+  collectionTitle: string | null
+  commentCount: number
+  commentSortOrder: string | null
+  commentsLocked: boolean | null
+  commentsLockedToAccountsCreatedAfter: Date | null
+  contactInfo: string | null
+  contents_latest: string | null
+  createdAt: Date
+  curatedDate: Date | null
+  customHighlight: EditableFieldContents | null
+  customHighlight_latest: string | null
+  debate: boolean
+  defaultRecommendation: boolean
+  deletedDraft: boolean
+  disableRecommendation: boolean
+  disableSidenotes: boolean
+  draft: boolean
+  endTime: Date | null
+  eventImageId: string | null
+  eventRegistrationLink: string | null
+  eventType: string | null
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  facebookLink: string | null
+  feedId: string | null
+  feedLink: string | null
+  finalReviewVoteScoreAF: number
+  finalReviewVoteScoreAllKarma: number
+  finalReviewVoteScoreHighKarma: number
+  finalReviewVotesAF: Array<number>
+  finalReviewVotesAllKarma: Array<number>
+  finalReviewVotesHighKarma: Array<number>
+  fmCrosspost: {
+    isCrosspost: boolean,
+    hostedHere: boolean | null,
+    foreignPostId: string | null,
+  }
+  forceAllowType3Audio: boolean
+  frontpageDate: Date | null
+  generateDraftJargon: boolean
+  globalEvent: boolean
+  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  groupId: string | null
+  hasCoauthorPermission: boolean
+  hiddenRelatedQuestion: boolean
+  hideAuthor: boolean
+  hideCommentKarma: boolean
+  hideFromPopularComments: boolean
+  hideFromRecentDiscussions: boolean
+  hideFrontpageComments: boolean
+  ignoreRateLimits: boolean | null
+  inactive: boolean
+  isEvent: boolean
+  isFuture: boolean
+  joinEventLink: string | null
+  lastCommentPromotedAt: Date | null
+  lastCommentedAt: Date | null
+  legacy: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  legacyId: string | null
+  legacySpam: boolean
+  linkSharingKey: string | null
+  linkSharingKeyUsedBy: Array<string> | null
+  localEndTime: Date | null
+  localStartTime: Date | null
+  location: string | null
+  manifoldReviewMarketId: string | null
+  maxBaseScore: number
+  meetupLink: string | null
+  meta: boolean
+  metaDate: Date | null
+  metaSticky: boolean
+  moderationGuidelines_latest: string | null
+  moderationStyle: string | null
+  modifiedAt: Date | null
+  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  mostRecentPublishedDialogueResponseDate: Date | null
+  nextDayReminderSent: boolean
+  noIndex: boolean
   nominationCount2018: number
   nominationCount2019: number
+  onlineEvent: boolean
+  onlyVisibleToEstablishedAccounts: boolean
+  onlyVisibleToLoggedIn: boolean
+  organizerIds: Array<string>
+  originalPostRelationSourceId: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
+  podcastEpisodeId: string | null
+  positiveReviewVoteCount: number
+  postCategory: "post" | "linkpost" | "question"
+  postedAt: Date
+  question: boolean
+  readTimeMinutesOverride: number | null
+  referrer: string | null
+  rejected: boolean
+  rejectedByUserId: string | null
+  rejectedReason: string | null
+  reviewCount: number
   reviewCount2018: number
   reviewCount2019: number
-  reviewCount: number
+  reviewForAlignmentUserId: string | null
+  reviewForCuratedUserId: string | null
   reviewVoteCount: number
-  positiveReviewVoteCount: number
-  manifoldReviewMarketId: string | null
   reviewVoteScoreAF: number
-  reviewVotesAF: Array<number>
-  reviewVoteScoreHighKarma: number
-  reviewVotesHighKarma: Array<number>
   reviewVoteScoreAllKarma: number
+  reviewVoteScoreHighKarma: number
+  reviewVotesAF: Array<number>
   reviewVotesAllKarma: Array<number>
-  finalReviewVoteScoreHighKarma: number
-  finalReviewVotesHighKarma: Array<number>
-  finalReviewVoteScoreAllKarma: number
-  finalReviewVotesAllKarma: Array<number>
-  finalReviewVoteScoreAF: number
-  finalReviewVotesAF: Array<number>
-  lastCommentPromotedAt: Date | null
-  tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/
-  noIndex: boolean
+  reviewVotesHighKarma: Array<number>
+  reviewedByUserId: string | null
   rsvps: Array<{
     name: string,
     email: string,
@@ -973,681 +1086,621 @@ interface DbPost extends DbObject {
     userId: string | null,
     createdAt: Date,
   }> | null
-  activateRSVPs: boolean | null
-  nextDayReminderSent: boolean
-  onlyVisibleToLoggedIn: boolean
-  onlyVisibleToEstablishedAccounts: boolean
-  hideFromRecentDiscussions: boolean
-  votingSystem: string | null
-  podcastEpisodeId: string | null
-  forceAllowType3Audio: boolean
-  legacy: boolean
-  legacyId: string | null
-  legacySpam: boolean
-  feedId: string | null
-  feedLink: string | null
-  curatedDate: Date | null
-  metaDate: Date | null
-  suggestForCuratedUserIds: Array<string> | null
-  frontpageDate: Date | null
-  autoFrontpage: "show" | "hide" | null
-  collectionTitle: string | null
-  coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }> | null
-  hasCoauthorPermission: boolean
-  socialPreviewImageId: string | null
-  socialPreviewImageAutoUrl: string | null
-  socialPreview: {
-    imageId: string | null,
-    text: string | null,
-  } | null
-  fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  }
-  canonicalSequenceId: string | null
-  canonicalCollectionSlug: string | null
-  canonicalBookId: string | null
-  canonicalNextPostSlug: string | null
-  canonicalPrevPostSlug: string | null
-  unlisted: boolean
-  disableRecommendation: boolean
-  defaultRecommendation: boolean
-  hideFromPopularComments: boolean
-  draft: boolean
-  wasEverUndrafted: boolean
-  meta: boolean
-  hideFrontpageComments: boolean
-  maxBaseScore: number
+  score: number
+  scoreExceeded125Date: Date | null
+  scoreExceeded200Date: Date | null
   scoreExceeded2Date: Date | null
   scoreExceeded30Date: Date | null
   scoreExceeded45Date: Date | null
   scoreExceeded75Date: Date | null
-  scoreExceeded125Date: Date | null
-  scoreExceeded200Date: Date | null
-  bannedUserIds: Array<string> | null
-  commentsLocked: boolean | null
-  commentsLockedToAccountsCreatedAfter: Date | null
-  organizerIds: Array<string>
-  groupId: string | null
-  eventType: string | null
-  isEvent: boolean
-  reviewedByUserId: string | null
-  reviewForCuratedUserId: string | null
-  startTime: Date | null
-  localStartTime: Date | null
-  endTime: Date | null
-  localEndTime: Date | null
-  eventRegistrationLink: string | null
-  joinEventLink: string | null
-  onlineEvent: boolean
-  globalEvent: boolean
-  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  location: string | null
-  contactInfo: string | null
-  facebookLink: string | null
-  meetupLink: string | null
-  website: string | null
-  eventImageId: string | null
-  types: Array<string> | null
-  metaSticky: boolean
-  sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
   shareWithUsers: Array<string>
-  linkSharingKey: string | null
-  linkSharingKeyUsedBy: Array<string> | null
-  commentSortOrder: string | null
-  hideAuthor: boolean
+  sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  shortform: boolean
   sideCommentVisibility: string | null
-  disableSidenotes: boolean
-  moderationStyle: string | null
-  ignoreRateLimits: boolean | null
-  hideCommentKarma: boolean
-  commentCount: number
-  topLevelCommentCount: number
-  debate: boolean
-  collabEditorDialogue: boolean
-  mostRecentPublishedDialogueResponseDate: Date | null
-  rejected: boolean
-  rejectedReason: string | null
-  rejectedByUserId: string | null
-  subforumTagId: string | null
-  af: boolean
-  afDate: Date | null
-  afCommentCount: number
-  afLastCommentedAt: Date | null
-  afSticky: boolean
-  suggestForAlignmentUserIds: Array<string>
-  reviewForAlignmentUserId: string | null
-  agentFoundationsId: string | null
-  swrCachingEnabled: boolean
-  generateDraftJargon: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   slug: string
-  contents_latest: string | null
-  pingbacks: any /*{"definitions":[{}]}*/
-  moderationGuidelines_latest: string | null
-  customHighlight: EditableFieldContents | null
-  customHighlight_latest: string | null
+  socialPreview: {
+    imageId: string | null,
+    text: string | null,
+  } | null
+  socialPreviewImageAutoUrl: string | null
+  socialPreviewImageId: string | null
+  startTime: Date | null
+  status: number
+  sticky: boolean
+  stickyPriority: number
+  subforumTagId: string | null
+  submitToFrontpage: boolean
+  suggestForAlignmentUserIds: Array<string>
+  suggestForCuratedUserIds: Array<string> | null
+  swrCachingEnabled: boolean
+  tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/
+  title: string
+  topLevelCommentCount: number
+  types: Array<string> | null
+  unlisted: boolean
+  url: string | null
+  userAgent: string | null
+  userIP: string | null
+  userId: string
+  viewCount: number
   voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
-  afBaseScore: number | null
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  afVoteCount: number | null
+  votingSystem: string | null
+  wasEverUndrafted: boolean
+  website: string | null
 }
 
 type RSSFeedsCollection = CollectionBase<"RSSFeeds">;
 
 interface DbRSSFeed extends DbObject {
   __collectionName?: "RSSFeeds"
-  userId: string
-  ownedByUser: boolean
+  createdAt: Date
   displayFullContent: boolean
+  importAsDraft: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   nickname: string
-  url: string
-  status: string | null
+  ownedByUser: boolean
   rawFeed: any /*{"definitions":[{}]}*/
   setCanonicalUrl: boolean
-  importAsDraft: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  status: string | null
+  url: string
+  userId: string
 }
 
 type ReadStatusesCollection = CollectionBase<"ReadStatuses">;
 
 interface DbReadStatus extends DbObject {
   __collectionName?: "ReadStatuses"
+  createdAt: Date
+  isRead: boolean
+  lastUpdated: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   postId: string | null
   tagId: string | null
   userId: string
-  isRead: boolean
-  lastUpdated: Date
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type RecommendationsCachesCollection = CollectionBase<"RecommendationsCaches">;
 
 interface DbRecommendationsCache extends DbObject {
   __collectionName?: "RecommendationsCaches"
-  userId: string
-  postId: string
-  source: "recombee" | "vertex"
-  scenario: string
   attributionId: string
-  ttlMs: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  scenario: string
+  source: "recombee" | "vertex"
+  ttlMs: number
+  userId: string
 }
 
 type ReportsCollection = CollectionBase<"Reports">;
 
 interface DbReport extends DbObject {
   __collectionName?: "Reports"
-  userId: string
-  reportedUserId: string | null
-  commentId: string | null
-  postId: string | null
-  link: string | null
   claimedUserId: string | null
-  description: string | null
   closedAt: Date | null
-  markedAsSpam: boolean | null
-  reportedAsSpam: boolean | null
+  commentId: string | null
   createdAt: Date
+  description: string | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  link: string
+  markedAsSpam: boolean | null
+  postId: string | null
+  reportedAsSpam: boolean | null
+  reportedUserId: string | null
+  userId: string
 }
 
 type ReviewVotesCollection = CollectionBase<"ReviewVotes">;
 
 interface DbReviewVote extends DbObject {
   __collectionName?: "ReviewVotes"
-  userId: string
-  postId: string
-  qualitativeScore: number
-  quadraticScore: number
   comment: string | null
-  year: string
-  dummy: boolean
-  reactions: Array<string> | null
   createdAt: Date
+  dummy: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  quadraticScore: number
+  qualitativeScore: number
+  reactions: Array<string> | null
+  userId: string
+  year: string
 }
 
 type ReviewWinnerArtsCollection = CollectionBase<"ReviewWinnerArts">;
 
 interface DbReviewWinnerArt extends DbObject {
   __collectionName?: "ReviewWinnerArts"
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   postId: string
   splashArtImagePrompt: string
   splashArtImageUrl: string
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type ReviewWinnersCollection = CollectionBase<"ReviewWinners">;
 
 interface DbReviewWinner extends DbObject {
   __collectionName?: "ReviewWinners"
-  postId: string
-  reviewYear: number
   category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical"
-  curatedOrder: number | null
-  reviewRanking: number
-  isAI: boolean | null
   createdAt: Date
+  curatedOrder: number | null
+  isAI: boolean | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  reviewRanking: number
+  reviewYear: number
 }
 
 type RevisionsCollection = CollectionBase<"Revisions">;
 
 interface DbRevision extends DbObject {
   __collectionName?: "Revisions"
-  documentId: string | null
-  collectionName: CollectionNameString | null
-  fieldName: string | null
-  editedAt: Date | null
+  afBaseScore: number | null
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number | null
   autosaveTimeoutStart: Date | null
-  updateType: "initial" | "patch" | "minor" | "major" | null
-  version: string
+  baseScore: number
+  changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  collectionName: CollectionNameString | null
   commitMessage: string | null
-  userId: string | null
+  createdAt: Date
+  documentId: string | null
   draft: boolean | null
+  editedAt: Date | null
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  fieldName: string | null
+  googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
+  html: string | null
+  inactive: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   originalContents: {
     type: string,
     data: string,
   } | null
-  html: string | null
-  wordCount: number
-  changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
-  googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
-  skipAttributions: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
-  inactive: boolean
-  afBaseScore: number | null
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  afVoteCount: number | null
+  skipAttributions: boolean
+  updateType: "initial" | "patch" | "minor" | "major" | null
+  userId: string | null
+  version: string
+  voteCount: number
+  wordCount: number
 }
 
 type SequencesCollection = CollectionBase<"Sequences">;
 
 interface DbSequence extends DbObject {
   __collectionName?: "Sequences"
-  lastUpdated: Date
-  userId: string
-  title: string | null
-  bannerImageId: string | null
-  gridImageId: string | null
-  hideFromAuthorPage: boolean
-  draft: boolean
-  isDeleted: boolean
-  curatedOrder: number | null
-  userProfileOrder: number | null
-  canonicalCollectionSlug: string | null
-  hidden: boolean
-  noindex: boolean
   af: boolean
+  bannerImageId: string | null
+  canonicalCollectionSlug: string | null
   contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
+  curatedOrder: number | null
+  draft: boolean
+  gridImageId: string | null
+  hidden: boolean
+  hideFromAuthorPage: boolean
+  isDeleted: boolean
+  lastUpdated: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  noindex: boolean
+  title: string
+  userId: string
+  userProfileOrder: number | null
 }
 
 type SessionsCollection = CollectionBase<"Sessions">;
 
 interface DbSession extends DbObject {
   __collectionName?: "Sessions"
-  session: any /*{"definitions":[{"blackbox":true}]}*/
   expires: Date | null
   lastModified: Date | null
+  session: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type SideCommentCachesCollection = CollectionBase<"SideCommentCaches">;
 
 interface DbSideCommentCache extends DbObject {
   __collectionName?: "SideCommentCaches"
-  postId: string
   annotatedHtml: string
   commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/
-  version: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  version: number
 }
 
 type SplashArtCoordinatesCollection = CollectionBase<"SplashArtCoordinates">;
 
 interface DbSplashArtCoordinate extends DbObject {
   __collectionName?: "SplashArtCoordinates"
-  reviewWinnerArtId: string
-  leftXPct: number
-  leftYPct: number
+  createdAt: Date
+  leftFlipped: boolean
   leftHeightPct: number
   leftWidthPct: number
-  leftFlipped: boolean
-  middleXPct: number
-  middleYPct: number
+  leftXPct: number
+  leftYPct: number
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  middleFlipped: boolean
   middleHeightPct: number
   middleWidthPct: number
-  middleFlipped: boolean
-  rightXPct: number
-  rightYPct: number
+  middleXPct: number
+  middleYPct: number
+  reviewWinnerArtId: string
+  rightFlipped: boolean
   rightHeightPct: number
   rightWidthPct: number
-  rightFlipped: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  rightXPct: number
+  rightYPct: number
 }
 
 type SpotlightsCollection = CollectionBase<"Spotlights">;
 
 interface DbSpotlight extends DbObject {
   __collectionName?: "Spotlights"
+  createdAt: Date
+  customSubtitle: string | null
+  customTitle: string | null
+  deletedDraft: boolean
+  description: EditableFieldContents | null
+  description_latest: string | null
   documentId: string
   documentType: SpotlightDocumentType
-  position: number
+  draft: boolean
   duration: number
-  customTitle: string | null
-  customSubtitle: string | null
-  subtitleUrl: string | null
   headerTitle: string | null
   headerTitleLeftColor: string | null
   headerTitleRightColor: string | null
-  lastPromotedAt: Date
-  spotlightSplashImageUrl: string | null
-  draft: boolean
-  deletedDraft: boolean
-  showAuthor: boolean
   imageFade: boolean
   imageFadeColor: string | null
-  spotlightImageId: string | null
-  spotlightDarkImageId: string | null
-  createdAt: Date
+  lastPromotedAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  description: EditableFieldContents | null
-  description_latest: string | null
+  position: number
+  showAuthor: boolean
+  spotlightDarkImageId: string | null
+  spotlightImageId: string | null
+  spotlightSplashImageUrl: string | null
+  subtitleUrl: string | null
 }
 
 type SubscriptionsCollection = CollectionBase<"Subscriptions">;
 
 interface DbSubscription extends DbObject {
   __collectionName?: "Subscriptions"
-  userId: string
-  state: "subscribed" | "suppressed"
-  documentId: string | null
   collectionName: CollectionNameString
-  deleted: boolean
-  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed"
   createdAt: Date
+  deleted: boolean
+  documentId: string | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  state: "subscribed" | "suppressed"
+  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed"
+  userId: string
 }
 
 type SurveyQuestionsCollection = CollectionBase<"SurveyQuestions">;
 
 interface DbSurveyQuestion extends DbObject {
   __collectionName?: "SurveyQuestions"
-  surveyId: string
-  question: string
-  format: "rank0To10" | "text" | "multilineText"
-  order: number
   createdAt: Date
+  format: "rank0To10" | "text" | "multilineText"
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  order: number
+  question: string
+  surveyId: string
 }
 
 type SurveyResponsesCollection = CollectionBase<"SurveyResponses">;
 
 interface DbSurveyResponse extends DbObject {
   __collectionName?: "SurveyResponses"
+  clientId: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  response: any /*{"definitions":[{"blackbox":true}]}*/
   surveyId: string
   surveyScheduleId: string
   userId: string
-  clientId: string
-  response: any /*{"definitions":[{"blackbox":true}]}*/
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type SurveySchedulesCollection = CollectionBase<"SurveySchedules">;
 
 interface DbSurveySchedule extends DbObject {
   __collectionName?: "SurveySchedules"
-  surveyId: string
-  name: string
-  impressionsLimit: number | null
-  maxVisitorPercentage: number | null
-  minKarma: number | null
-  maxKarma: number | null
-  target: "allUsers" | "loggedInOnly" | "loggedOutOnly"
-  startDate: Date | null
-  endDate: Date | null
-  deactivated: boolean
   clientIds: Array<string>
   createdAt: Date
+  deactivated: boolean
+  endDate: Date | null
+  impressionsLimit: number | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  maxKarma: number | null
+  maxVisitorPercentage: number | null
+  minKarma: number | null
+  name: string
+  startDate: Date | null
+  surveyId: string
+  target: "allUsers" | "loggedInOnly" | "loggedOutOnly"
 }
 
 type SurveysCollection = CollectionBase<"Surveys">;
 
 interface DbSurvey extends DbObject {
   __collectionName?: "Surveys"
-  name: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  name: string
 }
 
 type TagFlagsCollection = CollectionBase<"TagFlags">;
 
 interface DbTagFlag extends DbObject {
   __collectionName?: "TagFlags"
-  name: string
-  deleted: boolean
-  order: number | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  slug: string
   contents: EditableFieldContents | null
   contents_latest: string | null
+  createdAt: Date
+  deleted: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  name: string
+  order: number | null
+  slug: string
 }
 
 type TagRelsCollection = CollectionBase<"TagRels">;
 
 interface DbTagRel extends DbObject {
   __collectionName?: "TagRels"
-  tagId: string
-  postId: string
-  deleted: boolean
-  userId: string | null
-  backfilled: boolean
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  backfilled: boolean
+  baseScore: number
+  createdAt: Date
+  deleted: boolean
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  inactive: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  score: number
+  tagId: string
+  userId: string | null
+  voteCount: number
 }
 
 type TagsCollection = CollectionBase<"Tags">;
 
 interface DbTag extends DbObject {
   __collectionName?: "Tags"
-  name: string
-  shortName: string | null
-  subtitle: string | null
-  core: boolean
-  isPostType: boolean
-  suggestedAsFilter: boolean
-  defaultOrder: number
-  descriptionTruncationCount: number
-  postCount: number
-  userId: string | null
   adminOnly: boolean
-  canEditUserIds: Array<string> | null
-  charsAdded: number | null
-  charsRemoved: number | null
-  deleted: boolean
-  lastCommentedAt: Date | null
-  lastSubforumCommentAt: Date | null
-  needsReview: boolean
-  reviewedByUserId: string | null
-  wikiGrade: number
-  wikiOnly: boolean
-  bannerImageId: string | null
-  squareImageId: string | null
-  tagFlagsIds: Array<string>
-  lesswrongWikiImportRevision: string | null
-  lesswrongWikiImportSlug: string | null
-  lesswrongWikiImportCompleted: boolean | null
-  htmlWithContributorAnnotations: string | null
-  contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
-  introSequenceId: string | null
-  postsDefaultSortOrder: string | null
-  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null
-  isSubforum: boolean
-  subforumModeratorIds: Array<string>
-  subforumIntroPostId: string | null
-  parentTagId: string | null
-  subTagIds: Array<string>
-  autoTagModel: string | null
-  autoTagPrompt: string | null
-  noindex: boolean
-  isPlaceholderPage: boolean
-  coreTagId: string | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  slug: string
-  oldSlugs: Array<string>
-  description: EditableFieldContents | null
-  description_latest: string | null
-  pingbacks: any /*{"definitions":[{}]}*/
-  subforumWelcomeText: EditableFieldContents | null
-  subforumWelcomeText_latest: string | null
-  moderationGuidelines: EditableFieldContents | null
-  moderationGuidelines_latest: string | null
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+  autoTagModel: string | null
+  autoTagPrompt: string | null
+  bannerImageId: string | null
+  baseScore: number
+  canEditUserIds: Array<string> | null
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null
+  charsAdded: number | null
+  charsRemoved: number | null
+  contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
+  core: boolean
+  coreTagId: string | null
+  createdAt: Date
+  defaultOrder: number
+  deleted: boolean
+  description: EditableFieldContents | null
+  descriptionTruncationCount: number
+  description_latest: string | null
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  forceAllowType3Audio: boolean
+  htmlWithContributorAnnotations: string | null
+  inactive: boolean
+  introSequenceId: string | null
+  isPlaceholderPage: boolean
+  isPostType: boolean
+  isSubforum: boolean
+  lastCommentedAt: Date | null
+  lastSubforumCommentAt: Date | null
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  lesswrongWikiImportCompleted: boolean | null
+  lesswrongWikiImportRevision: string | null
+  lesswrongWikiImportSlug: string | null
+  moderationGuidelines: EditableFieldContents | null
+  moderationGuidelines_latest: string | null
+  name: string
+  needsReview: boolean
+  noindex: boolean
+  oldSlugs: Array<string>
+  parentTagId: string | null
+  pingbacks: any /*{"definitions":[{}]}*/
+  postCount: number
+  postsDefaultSortOrder: string | null
+  reviewedByUserId: string | null
+  score: number
+  shortName: string | null
+  slug: string
+  squareImageId: string | null
+  subTagIds: Array<string>
+  subforumIntroPostId: string | null
+  subforumModeratorIds: Array<string>
+  subforumWelcomeText: EditableFieldContents | null
+  subforumWelcomeText_latest: string | null
+  subtitle: string | null
+  suggestedAsFilter: boolean
+  tagFlagsIds: Array<string>
+  userId: string | null
+  voteCount: number
+  wikiGrade: number
+  wikiOnly: boolean
 }
 
 type TweetsCollection = CollectionBase<"Tweets">;
 
 interface DbTweet extends DbObject {
   __collectionName?: "Tweets"
-  postId: string
-  tweetId: string
   content: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  tweetId: string
 }
 
 type TypingIndicatorsCollection = CollectionBase<"TypingIndicators">;
 
 interface DbTypingIndicator extends DbObject {
   __collectionName?: "TypingIndicators"
-  userId: string
+  createdAt: Date
   documentId: string
   lastUpdated: Date
-  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  userId: string
 }
 
 type UserActivitiesCollection = CollectionBase<"UserActivities">;
 
 interface DbUserActivity extends DbObject {
   __collectionName?: "UserActivities"
-  visitorId: string
-  type: "userId" | "clientId"
-  startDate: Date
-  endDate: Date
   activityArray: Array<number>
   createdAt: Date
+  endDate: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  startDate: Date
+  type: "userId" | "clientId"
+  visitorId: string
 }
 
 type UserEAGDetailsCollection = CollectionBase<"UserEAGDetails">;
 
 interface DbUserEAGDetail extends DbObject {
   __collectionName?: "UserEAGDetails"
-  userId: string
   careerStage: Array<string> | null
   countryOrRegion: string | null
-  nearestCity: string | null
-  willingnessToRelocate: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
   experiencedIn: Array<string> | null
   interestedIn: Array<string> | null
   lastUpdated: Date
-  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  nearestCity: string | null
+  userId: string
+  willingnessToRelocate: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type UserJobAdsCollection = CollectionBase<"UserJobAds">;
 
 interface DbUserJobAd extends DbObject {
   __collectionName?: "UserJobAds"
-  userId: string
-  jobName: string
   adState: "seen" | "expanded" | "applied" | "reminderSet"
-  reminderSetAt: Date | null
-  lastUpdated: Date
   createdAt: Date
+  jobName: string
+  lastUpdated: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  reminderSetAt: Date | null
+  userId: string
 }
 
 type UserMostValuablePostsCollection = CollectionBase<"UserMostValuablePosts">;
 
 interface DbUserMostValuablePost extends DbObject {
   __collectionName?: "UserMostValuablePosts"
-  userId: string
-  postId: string
-  deleted: boolean
   createdAt: Date
+  deleted: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  postId: string
+  userId: string
 }
 
 type UserRateLimitsCollection = CollectionBase<"UserRateLimits">;
 
 interface DbUserRateLimit extends DbObject {
   __collectionName?: "UserRateLimits"
-  userId: string
-  type: "allComments" | "allPosts"
-  intervalUnit: "minutes" | "hours" | "days" | "weeks"
-  intervalLength: number
   actionsPerInterval: number
-  endedAt: Date | null
   createdAt: Date
+  endedAt: Date | null
+  intervalLength: number
+  intervalUnit: "minutes" | "hours" | "days" | "weeks"
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  type: "allComments" | "allPosts"
+  userId: string
 }
 
 type UserTagRelsCollection = CollectionBase<"UserTagRels">;
 
 interface DbUserTagRel extends DbObject {
   __collectionName?: "UserTagRels"
-  tagId: string | null
-  userId: string
-  subforumLastVisitedAt: Date | null
-  subforumShowUnreadInSidebar: boolean
-  subforumEmailNotifications: boolean
-  subforumHideIntroPost: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  subforumEmailNotifications: boolean
+  subforumHideIntroPost: boolean
+  subforumLastVisitedAt: Date | null
+  subforumShowUnreadInSidebar: boolean
+  tagId: string | null
+  userId: string
 }
 
 type UsersCollection = CollectionBase<"Users">;
 
 interface DbUser extends DbObject {
   __collectionName?: "Users"
-  username: string | null
-  emails: Array<any /*{"definitions":[{}]}*/> | null
-  isAdmin: boolean
-  profile: any /*{"definitions":[{"blackbox":true}]}*/
-  services: any /*{"definitions":[{"blackbox":true}]}*/
-  displayName: string | null
-  previousDisplayName: string | null
-  email: string | null
-  noindex: boolean
-  groups: Array<string> | null
-  lwWikiImport: boolean | null
-  theme: {
-    name: "default" | "dark" | "auto" | null,
-    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
-  }
-  lastUsedTimezone: string | null
-  whenConfirmationEmailSent: Date | null
-  legacy: boolean
+  abTestKey: string
+  abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
+  acceptedTos: boolean
+  acknowledgedNewUserGuidelines: boolean | null
+  afApplicationText: string | null
+  afCommentCount: number
+  afKarma: number
+  afPostCount: number
+  afSequenceCount: number
+  afSequenceDraftCount: number
+  afSubmittedApplication: boolean | null
+  allCommentingDisabled: boolean | null
+  allPostsFilter: string | null
+  allPostsHideCommunity: boolean | null
+  allPostsIncludeEvents: boolean | null
+  allPostsOpenSettings: boolean | null
+  allPostsShowLowKarma: boolean | null
+  allPostsSorting: string | null
+  allPostsTimeframe: string | null
+  allowDatadogSessionReplay: boolean
+  autoSubscribeAsOrganizer: boolean
+  auto_subscribe_to_my_comments: boolean
+  auto_subscribe_to_my_posts: boolean
+  banned: Date | null
+  bannedPersonalUserIds: Array<string> | null
+  bannedUserIds: Array<string> | null
+  beta: boolean | null
+  bigDownvoteCount: number | null
+  bigDownvoteReceivedCount: number | null
+  bigUpvoteCount: number | null
+  bigUpvoteReceivedCount: number | null
+  biography: EditableFieldContents | null
+  biography_latest: string | null
+  blueskyProfileURL: string | null
+  bookmarkedPostsMetadata: Array<{
+    postId: string,
+  }>
+  careerStage: Array<string> | null
+  collapseModerationGuidelines: boolean | null
+  commentCount: number
   commentSorting: string | null
-  sortDraftsBy: string | null
-  reactPaletteStyle: "listView" | "gridView"
-  noKibitz: boolean | null
-  showHideKarmaOption: boolean | null
-  showPostAuthorCard: boolean | null
-  hideIntercom: boolean
-  markDownPostEditor: boolean
-  hideElicitPredictions: boolean
-  hideAFNonMemberInitialWarning: boolean
-  noSingleLineComments: boolean
-  noCollapseCommentsPosts: boolean
-  noCollapseCommentsFrontpage: boolean
-  hideCommunitySection: boolean
+  commentingOnOtherUsersDisabled: boolean | null
+  conversationsDisabled: boolean | null
+  createdAt: Date
+  criticismTipsDismissed: boolean
+  currentFrontpageFilter: string | null
+  defaultToCKEditor: boolean | null
+  deleteContent: boolean | null
+  deleted: boolean
+  displayName: string | null
+  draftsListShowArchived: boolean | null
+  draftsListShowShared: boolean | null
+  draftsListSorting: string | null
+  email: string | null
+  emailSubscribedToCurated: boolean | null
+  emails: Array<{
+    address: string,
+    verified: boolean,
+  }> | null
   expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
@@ -1655,281 +1708,488 @@ interface DbUser extends DbObject {
     quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null
-  showCommunityInRecentDiscussion: boolean
-  hidePostsRecommendations: boolean
-  petrovOptOut: boolean
-  optedOutOfSurveys: boolean | null
-  postGlossariesPinned: boolean
+  facebookProfileURL: string | null
+  fmCrosspostUserId: string | null
+  frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  frontpagePostCount: number
+  frontpageSelectedTab: string | null
+  fullName: string | null
   generateJargonForDrafts: boolean
   generateJargonForPublishedPosts: boolean
-  acceptedTos: boolean
-  hideNavigationSidebar: boolean | null
-  currentFrontpageFilter: string | null
-  frontpageSelectedTab: string | null
-  frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
-  hideFrontpageFilterSettingsDesktop: boolean | null
-  allPostsTimeframe: string | null
-  allPostsFilter: string | null
-  allPostsSorting: string | null
-  allPostsShowLowKarma: boolean | null
-  allPostsIncludeEvents: boolean | null
-  allPostsHideCommunity: boolean | null
-  allPostsOpenSettings: boolean | null
-  draftsListSorting: string | null
-  draftsListShowArchived: boolean | null
-  draftsListShowShared: boolean | null
-  lastNotificationsCheck: Date | null
-  karma: number
+  githubProfileURL: string | null
   goodHeartTokens: number | null
-  moderationStyle: string | null
-  moderatorAssistance: boolean | null
-  collapseModerationGuidelines: boolean | null
-  bannedUserIds: Array<string> | null
-  bannedPersonalUserIds: Array<string> | null
-  bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
-  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
-  legacyId: string | null
-  deleted: boolean
-  permanentDeletionRequestedAt: Date | null
-  voteBanned: boolean | null
-  nullifyVotes: boolean | null
-  deleteContent: boolean | null
-  banned: Date | null
-  auto_subscribe_to_my_posts: boolean
-  auto_subscribe_to_my_comments: boolean
-  autoSubscribeAsOrganizer: boolean
-  notificationCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationShortformContent: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationRepliesToMyComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationRepliesToSubscribedComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationSubscribedUserPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationSubscribedUserComment: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationPostsInGroups: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationSubscribedTagPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationSubscribedSequencePost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationPrivateMessage: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationSharedWithMe: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationAlignmentSubmissionApproved: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationEventInRadius: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationKarmaPowersGained: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationRSVPs: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationGroupAdministration: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationCommentsOnDraft: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationPostsNominatedReview: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationSubforumUnread: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationNewMention: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationDialogueMessages: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationPublishedDialogueMessages: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationAddedAsCoauthor: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationDebateCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationDebateReplies: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationDialogueMatch: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationNewDialogueChecks: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  notificationYourTurnMatchForm: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
-  }
-  hideDialogueFacilitation: boolean
-  revealChecksToAdmins: boolean
-  optedInToDialogueFacilitation: boolean
-  showDialoguesList: boolean
-  showMyDialogues: boolean
-  showMatches: boolean
-  showRecommendedPartners: boolean
+  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  groups: Array<string> | null
+  hiddenPostsMetadata: Array<{
+    postId: string,
+  }>
+  hideAFNonMemberInitialWarning: boolean
   hideActiveDialogueUsers: boolean
+  hideCommunitySection: boolean
+  hideDialogueFacilitation: boolean
+  hideElicitPredictions: boolean
+  hideFromPeopleDirectory: boolean
+  hideFrontpageBook2019Ad: boolean | null
+  hideFrontpageBook2020Ad: boolean | null
+  hideFrontpageBookAd: boolean | null
+  hideFrontpageFilterSettingsDesktop: boolean | null
+  hideFrontpageMap: boolean | null
+  hideHomeRHS: boolean
+  hideIntercom: boolean
+  hideJobAdUntil: Date | null
+  hideMeetupsPoke: boolean
+  hideNavigationSidebar: boolean | null
+  hidePostsRecommendations: boolean
+  hideSubscribePoke: boolean
+  hideSunshineSidebar: boolean
+  hideTaggingProgressBar: boolean | null
+  hideWalledGardenUI: boolean | null
+  howICanHelpOthers: EditableFieldContents | null
+  howICanHelpOthers_latest: string | null
+  howOthersCanHelpMe: EditableFieldContents | null
+  howOthersCanHelpMe_latest: string | null
+  htmlMapMarkerText: string | null
+  inactiveSurveyEmailSentAt: Date | null
+  isAdmin: boolean
+  jobTitle: string | null
+  karma: number
+  karmaChangeBatchStart: Date | null
+  karmaChangeLastOpened: Date | null
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     showNegativeKarma: boolean,
   }
-  karmaChangeLastOpened: Date | null
-  karmaChangeBatchStart: Date | null
-  emailSubscribedToCurated: boolean | null
-  subscribedToDigest: boolean
-  unsubscribeFromAll: boolean | null
-  hideSubscribePoke: boolean
-  hideMeetupsPoke: boolean
-  hideHomeRHS: boolean
-  frontpagePostCount: number
-  sequenceCount: number
-  sequenceDraftCount: number
-  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
+  lastNotificationsCheck: Date | null
+  lastUsedTimezone: string | null
+  legacy: boolean
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  legacyId: string | null
+  linkedinProfileURL: string | null
   location: string | null
+  lwWikiImport: boolean | null
   mapLocation: any /*{"definitions":[{"blackbox":true}]}*/
   mapLocationSet: boolean | null
   mapMarkerText: string | null
-  htmlMapMarkerText: string | null
+  markDownPostEditor: boolean
+  maxCommentCount: number
+  maxPostCount: number
+  moderationGuidelines: EditableFieldContents | null
+  moderationGuidelines_latest: string | null
+  moderationStyle: string | null
+  moderatorAssistance: boolean | null
+  mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
   nearbyEventsNotifications: boolean
   nearbyEventsNotificationsLocation: any /*{"definitions":[{"blackbox":true}]}*/
   nearbyEventsNotificationsMongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
   nearbyEventsNotificationsRadius: number | null
   nearbyPeopleNotificationThreshold: number | null
-  hideFrontpageMap: boolean | null
-  hideTaggingProgressBar: boolean | null
-  hideFrontpageBookAd: boolean | null
-  hideFrontpageBook2019Ad: boolean | null
-  hideFrontpageBook2020Ad: boolean | null
-  sunshineNotes: string
-  sunshineFlagged: boolean
   needsReview: boolean
-  sunshineSnoozed: boolean
-  snoozedUntilContentCount: number | null
-  reviewedByUserId: string | null
-  reviewedAt: Date | null
-  afKarma: number
-  voteCount: number | null
-  smallUpvoteCount: number | null
-  smallDownvoteCount: number | null
-  bigUpvoteCount: number | null
-  bigDownvoteCount: number | null
-  voteReceivedCount: number | null
-  smallUpvoteReceivedCount: number | null
-  smallDownvoteReceivedCount: number | null
-  bigUpvoteReceivedCount: number | null
-  bigDownvoteReceivedCount: number | null
-  usersContactedBeforeReview: Array<string> | null
-  fullName: string | null
-  shortformFeedId: string | null
-  viewUnreviewedComments: boolean | null
+  noCollapseCommentsFrontpage: boolean
+  noCollapseCommentsPosts: boolean
+  noExpandUnreadCommentsReview: boolean
+  noKibitz: boolean | null
+  noSingleLineComments: boolean
+  noindex: boolean
+  notificationAddedAsCoauthor: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationAlignmentSubmissionApproved: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationCommentsOnDraft: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationCommentsOnSubscribedPost: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationDebateCommentsOnSubscribedPost: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationDebateReplies: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationDialogueMatch: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationDialogueMessages: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationEventInRadius: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationGroupAdministration: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationKarmaPowersGained: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationNewDialogueChecks: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationNewMention: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationPostsInGroups: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationPostsNominatedReview: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationPrivateMessage: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationPublishedDialogueMessages: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationRSVPs: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationRepliesToMyComments: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationRepliesToSubscribedComments: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationSharedWithMe: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationShortformContent: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationSubforumUnread: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationSubscribedSequencePost: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationSubscribedTagPost: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationSubscribedUserComment: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationSubscribedUserPost: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationYourTurnMatchForm: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  nullifyVotes: boolean | null
+  oldSlugs: Array<string>
+  optedInToDialogueFacilitation: boolean
+  optedOutOfSurveys: boolean | null
+  organization: string | null
+  organizerOfGroupIds: Array<string>
   partiallyReadSequences: Array<{
     sequenceId: string,
     collectionId: string,
@@ -1939,78 +2199,22 @@ interface DbUser extends DbObject {
     numTotal: number,
     lastReadTime: Date,
   }> | null
-  beta: boolean | null
-  reviewVotesQuadratic: boolean | null
-  reviewVotesQuadratic2019: boolean | null
-  reviewVotesQuadratic2020: boolean | null
-  petrovPressedButtonDate: Date | null
-  petrovLaunchCodeDate: Date | null
-  defaultToCKEditor: boolean | null
-  signUpReCaptchaRating: number | null
-  noExpandUnreadCommentsReview: boolean
-  postCount: number
-  maxPostCount: number
-  commentCount: number
-  maxCommentCount: number
-  tagRevisionCount: number
-  abTestKey: string
-  abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
-  reenableDraftJs: boolean | null
-  walledGardenInvite: boolean | null
-  hideWalledGardenUI: boolean | null
-  walledGardenPortalOnboarded: boolean | null
-  taggingDashboardCollapsed: boolean | null
-  usernameUnset: boolean
   paymentEmail: string | null
   paymentInfo: string | null
-  profileUpdatedAt: Date
-  profileImageId: string | null
-  jobTitle: string | null
-  organization: string | null
-  careerStage: Array<string> | null
-  website: string | null
-  fmCrosspostUserId: string | null
-  linkedinProfileURL: string | null
-  facebookProfileURL: string | null
-  blueskyProfileURL: string | null
-  twitterProfileURL: string | null
-  twitterProfileURLAdmin: string | null
-  githubProfileURL: string | null
-  profileTagIds: Array<string>
-  organizerOfGroupIds: Array<string>
-  programParticipation: Array<string> | null
+  permanentDeletionRequestedAt: Date | null
+  petrovLaunchCodeDate: Date | null
+  petrovOptOut: boolean
+  petrovPressedButtonDate: Date | null
+  postCount: number
+  postGlossariesPinned: boolean
   postingDisabled: boolean | null
-  allCommentingDisabled: boolean | null
-  commentingOnOtherUsersDisabled: boolean | null
-  conversationsDisabled: boolean | null
-  acknowledgedNewUserGuidelines: boolean | null
-  subforumPreferredLayout: "card" | "list" | null
-  hideJobAdUntil: Date | null
-  criticismTipsDismissed: boolean
-  hideFromPeopleDirectory: boolean
-  allowDatadogSessionReplay: boolean
-  afPostCount: number
-  afCommentCount: number
-  afSequenceCount: number
-  afSequenceDraftCount: number
-  reviewForAlignmentForumUserId: string | null
-  afApplicationText: string | null
-  afSubmittedApplication: boolean | null
-  hideSunshineSidebar: boolean
-  inactiveSurveyEmailSentAt: Date | null
-  userSurveyEmailSentAt: Date | null
-  createdAt: Date
-  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  slug: string
-  oldSlugs: Array<string>
-  moderationGuidelines: EditableFieldContents | null
-  moderationGuidelines_latest: string | null
-  howOthersCanHelpMe: EditableFieldContents | null
-  howOthersCanHelpMe_latest: string | null
-  howICanHelpOthers: EditableFieldContents | null
-  howICanHelpOthers_latest: string | null
-  biography: EditableFieldContents | null
-  biography_latest: string | null
+  previousDisplayName: string | null
+  profile: any
+  profileImageId: string | null
+  profileTagIds: Array<string>
+  profileUpdatedAt: Date
+  programParticipation: Array<string> | null
+  reactPaletteStyle: "listView" | "gridView"
   recommendationSettings: {
     frontpage: {
       method: string,
@@ -2043,27 +2247,80 @@ interface DbUser extends DbObject {
       onlyUnread: boolean,
     },
   } | null
+  reenableDraftJs: boolean | null
+  revealChecksToAdmins: boolean
+  reviewForAlignmentForumUserId: string | null
+  reviewVotesQuadratic: boolean | null
+  reviewVotesQuadratic2019: boolean | null
+  reviewVotesQuadratic2020: boolean | null
+  reviewedAt: Date | null
+  reviewedByUserId: string | null
+  sequenceCount: number
+  sequenceDraftCount: number
+  services: any /*{"definitions":[{"blackbox":true}]}*/
+  shortformFeedId: string | null
+  showCommunityInRecentDiscussion: boolean
+  showDialoguesList: boolean
+  showHideKarmaOption: boolean | null
+  showMatches: boolean
+  showMyDialogues: boolean
+  showPostAuthorCard: boolean | null
+  showRecommendedPartners: boolean
+  signUpReCaptchaRating: number | null
+  slug: string
+  smallDownvoteCount: number | null
+  smallDownvoteReceivedCount: number | null
+  smallUpvoteCount: number | null
+  smallUpvoteReceivedCount: number | null
+  snoozedUntilContentCount: number | null
+  sortDraftsBy: string | null
+  subforumPreferredLayout: "card" | "list" | null
+  subscribedToDigest: boolean
+  sunshineFlagged: boolean
+  sunshineNotes: string
+  sunshineSnoozed: boolean
+  tagRevisionCount: number
+  taggingDashboardCollapsed: boolean | null
+  theme: {
+    name: "default" | "dark" | "auto" | null,
+    siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
+  }
+  twitterProfileURL: string | null
+  twitterProfileURLAdmin: string | null
+  unsubscribeFromAll: boolean | null
+  userSurveyEmailSentAt: Date | null
+  username: string | null
+  usernameUnset: boolean
+  usersContactedBeforeReview: Array<string> | null
+  viewUnreviewedComments: boolean | null
+  voteBanned: boolean | null
+  voteCount: number | null
+  voteReceivedCount: number | null
+  walledGardenInvite: boolean | null
+  walledGardenPortalOnboarded: boolean | null
+  website: string | null
+  whenConfirmationEmailSent: Date | null
 }
 
 type VotesCollection = CollectionBase<"Votes">;
 
 interface DbVote extends DbObject {
   __collectionName?: "Votes"
-  documentId: string
-  collectionName: CollectionNameString
-  userId: string
-  authorIds: Array<string> | null
-  voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote"
-  extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
-  power: number
   afPower: number | null
+  authorIds: Array<string> | null
   cancelled: boolean
-  isUnvote: boolean
-  votedAt: Date
-  documentIsAf: boolean
-  silenceNotification: boolean
+  collectionName: CollectionNameString
   createdAt: Date
+  documentId: string
+  documentIsAf: boolean
+  extendedVoteType: any /*{"definitions":[{}]}*/
+  isUnvote: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  power: number
+  silenceNotification: boolean
+  userId: string
+  voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote"
+  votedAt: Date
 }
 
 interface CollectionsByName {
@@ -2094,6 +2351,7 @@ interface CollectionsByName {
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
+  FieldChanges: FieldChangesCollection
   ForumEvents: ForumEventsCollection
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
@@ -2183,6 +2441,7 @@ interface ObjectsByCollectionName {
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
+  FieldChanges: DbFieldChange
   ForumEvents: DbForumEvent
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
@@ -2272,6 +2531,7 @@ interface ObjectsByTypeName {
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
+  FieldChange: DbFieldChange
   ForumEvent: DbForumEvent
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession

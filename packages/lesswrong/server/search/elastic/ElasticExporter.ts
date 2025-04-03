@@ -9,15 +9,12 @@ import {
   SearchIndexedCollection,
   searchIndexedCollectionNames,
 } from "../../../lib/search/searchUtil";
-import {
-  CommentsRepo,
-  PostsRepo,
-  SequencesRepo,
-  TagsRepo,
-  UsersRepo,
-} from "../../repos";
-import { getCollection } from "../../../lib/vulcan-lib/getCollection";
-import Globals from "../../../lib/vulcan-lib/config";
+import CommentsRepo from "../../repos/CommentsRepo";
+import PostsRepo from "../../repos/PostsRepo";
+import SequencesRepo from "../../repos/SequencesRepo";
+import TagsRepo from "../../repos/TagsRepo";
+import UsersRepo from "../../repos/UsersRepo";
+import { getCollection } from "../../collections/allCollections";
 
 const HTML_FIELDS = [
   "body",
@@ -28,7 +25,13 @@ const HTML_FIELDS = [
   "description",
 ];
 
-class ElasticExporter {
+/**
+ * Class containing functions for exporting to the ElasticSearch index. Most
+ * methods are suitable for calling with "yarn repl"; some are also called
+ * automatically. To invoke manually, your invocation will look something like:
+ *    yarn repl dev packages/lesswrong/server/search/elastic/ElasticExporter.ts 'new ElasticExporter().recreateIndex("Posts")'
+ */
+export class ElasticExporter {
   constructor(
     private client = new ElasticClient(),
   ) {}
@@ -540,35 +543,5 @@ class ElasticExporter {
     await client.indices.open({index});
   }
 }
-
-Globals.getElasticExporter = () => new ElasticExporter();
-Globals.ElasticExporter = ElasticExporter;
-Globals.printElasticClientInfo = () => new ElasticExporter().printClientInfo();
-
-Globals.elasticConfigureIndex = (collectionName: SearchIndexCollectionName) =>
-  new ElasticExporter().configureIndex(collectionName);
-
-Globals.elasticConfigureIndexes = () =>
-  new ElasticExporter().configureIndexes();
-
-Globals.elasticExportCollection = (collectionName: SearchIndexCollectionName) =>
-  new ElasticExporter().exportCollection(collectionName);
-
-Globals.elasticExportAll = () =>
-  new ElasticExporter().exportAll();
-
-Globals.elasticDeleteIndex = (collectionName: SearchIndexCollectionName) =>
-  new ElasticExporter().deleteIndex(collectionName);
-
-Globals.elasticDeleteIndexByName = (indexName: string) =>
-  new ElasticExporter().deleteIndexByName(indexName);
-
-Globals.elasticDeleteOrphanedIndexes = () =>
-  new ElasticExporter().deleteOrphanedIndexes();
-
-Globals.elasticExportDocument = (
-  collectionName: SearchIndexCollectionName,
-  documentId: string,
-) => new ElasticExporter().updateDocument(collectionName, documentId);
 
 export default ElasticExporter;

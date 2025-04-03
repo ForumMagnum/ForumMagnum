@@ -1,12 +1,12 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import type {
   CommentKarmaChange,
   EAReactionChanges,
   PostKarmaChange,
   TagRevisionKarmaChange,
-} from "../../../lib/collections/users/karmaChangesGraphQL";
+} from "../../../server/collections/users/karmaChangesGraphQL";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import {

@@ -1,8 +1,8 @@
-import { Users } from "@/lib/collections/users/collection";
+import { Users } from "@/server/collections/users/collection";
 import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
 import { updateMutator } from "../vulcan-lib/mutators";
-import { createDisplayName } from "@/lib/collections/users/schema";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createDisplayName } from "@/lib/collections/users/newSchema";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 
 export const up = async ({db}: MigrationContext) => {
   // Find and fix any users with null slugs. Theoretically there shouldn't be

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
@@ -7,7 +7,7 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 
 const styles = (theme: ThemeType) => ({
   commentStyling: {
@@ -95,6 +95,7 @@ const CommentBody = ({
       description={`comment ${comment._id}`}
       nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
       replacedSubstrings={highlights}
+      contentStyleType={contentType}
     />
   </ContentStyles>
 

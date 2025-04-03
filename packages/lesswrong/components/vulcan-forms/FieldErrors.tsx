@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -8,14 +8,15 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FieldErrors = ({ errors, classes }: {
+const FieldErrors = ({ errors, getLabel, classes }: {
   errors: any[]
+  getLabel: (fieldName: string, fieldLocale?: any) => string,
   classes: ClassesType<typeof styles>
 }) => (
   <ul className={classNames(classes.root, "form-input-errors")}>
     {errors.map((error, index) => (
       <li key={index}>
-        <Components.FormError error={error} errorContext="field" />
+        <Components.FormError error={error} errorContext="field" getLabel={getLabel} />
       </li>
     ))}
   </ul>

@@ -8,7 +8,7 @@ interface CallbackPropertiesBase<N extends CollectionNameString> {
   currentUser: DbUser|null
   collection: CollectionBase<N>
   context: ResolverContext
-  schema: SchemaType<N>
+  schema: NewSchemaType<N>
 }
 
 export interface CreateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
@@ -47,21 +47,21 @@ export class CollectionMutationCallbacks<N extends CollectionNameString> {
   newSync: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,ResolverContext]>
 
   createAfter: CallbackChainHook<ObjectsByCollectionName[N],[AfterCreateCallbackProperties<N>]>
-  newAfter: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
+  newAfter: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null, AfterCreateCallbackProperties<N>]>
 
   createAsync: CallbackHook<[AfterCreateCallbackProperties<N>]>
-  newAsync: CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any]>
+  newAsync: CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any,AfterCreateCallbackProperties<N>]>
 
   updateValidate: CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<N>]>
 
   updateBefore: CallbackChainHook<Partial<ObjectsByCollectionName[N]>,[UpdateCallbackProperties<N>]>
 
-  editSync: CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N]]>
+  editSync: CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N],UpdateCallbackProperties<N>]>
 
   updateAfter: CallbackChainHook<ObjectsByCollectionName[N],[UpdateCallbackProperties<N>]>
 
   updateAsync: CallbackHook<[UpdateCallbackProperties<N>]>
-  editAsync: CallbackHook<[ObjectsByCollectionName[N],ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>]>
+  editAsync: CallbackHook<[ObjectsByCollectionName[N],ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>,UpdateCallbackProperties<N>]>
 
   deleteValidate: CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<N>]>
   deleteBefore: CallbackChainHook<ObjectsByCollectionName[N],[DeleteCallbackProperties<N>]>
@@ -73,16 +73,16 @@ export class CollectionMutationCallbacks<N extends CollectionNameString> {
     this.createBefore = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[CreateCallbackProperties<N>]>(`${namePrefix}.create.before`);
     this.newSync = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,ResolverContext]>(`${namePrefix}.new.sync`);
     this.createAfter = new CallbackChainHook<ObjectsByCollectionName[N],[AfterCreateCallbackProperties<N>]>(`${namePrefix}.create.after`);
-    this.newAfter = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${namePrefix}.new.after`);
+    this.newAfter = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null, AfterCreateCallbackProperties<N>]>(`${namePrefix}.new.after`);
     this.createAsync = new CallbackHook<[AfterCreateCallbackProperties<N>]>(`${namePrefix}.create.async`);
-    this.newAsync = new CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any]>(`${namePrefix}.new.async`);
+    this.newAsync = new CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any,AfterCreateCallbackProperties<N>]>(`${namePrefix}.new.async`);
 
     this.updateValidate = new CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<N>]>(`${namePrefix}.update.validate`);
     this.updateBefore = new CallbackChainHook<Partial<ObjectsByCollectionName[N]>,[UpdateCallbackProperties<N>]>(`${namePrefix}.update.before`);
-    this.editSync = new CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N]]>(`${namePrefix}.edit.sync`);
+    this.editSync = new CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N],UpdateCallbackProperties<N>]>(`${namePrefix}.edit.sync`);
     this.updateAfter = new CallbackChainHook<ObjectsByCollectionName[N],[UpdateCallbackProperties<N>]>(`${namePrefix}.update.after`);
     this.updateAsync = new CallbackHook<[UpdateCallbackProperties<N>]>(`${namePrefix}.update.async`);
-    this.editAsync = new CallbackHook<[ObjectsByCollectionName[N],ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>]>(`${namePrefix}.edit.async`)
+    this.editAsync = new CallbackHook<[ObjectsByCollectionName[N],ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>,UpdateCallbackProperties<N>]>(`${namePrefix}.edit.async`)
 
     this.deleteValidate = new CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<N>]>(`${namePrefix}.delete.validate`);
     this.deleteBefore = new CallbackChainHook<ObjectsByCollectionName[N],[DeleteCallbackProperties<N>]>(`${namePrefix}.delete.before`);

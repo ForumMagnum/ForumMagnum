@@ -1,9 +1,9 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Votes } from '../../lib/collections/votes/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { TagRels } from '../../server/collections/tagRels/collection';
+import { Votes } from '../../server/collections/votes/collection';
 
-registerMigration({
+export default registerMigration({
   name: "populateTagUser",
   dateWritten: "2020-06-14",
   idempotent: true,

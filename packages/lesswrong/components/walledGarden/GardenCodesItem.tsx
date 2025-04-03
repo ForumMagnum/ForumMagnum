@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import CreateIcon from '@material-ui/icons/Create';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import CreateIcon from '@/lib/vendor/@material-ui/icons/src/Create';
 import { eventRoot, eventName, eventTime, eventFormat } from "./PortalBarGcalEventItem";
 import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip/LWPostsPreviewTooltip';
 import { userOwns, userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import PersonIcon from '@material-ui/icons/Person';
-import LinkIcon from '@material-ui/icons/Link';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
+import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {useMessages} from "../common/withMessages";
 import { FacebookIcon } from "../localGroups/GroupLinks";

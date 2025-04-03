@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { styles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { Link } from '@/lib/reactRouterWrapper';
-import FormLabel from '@material-ui/core/FormLabel';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

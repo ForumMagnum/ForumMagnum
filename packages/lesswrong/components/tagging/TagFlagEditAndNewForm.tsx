@@ -1,8 +1,8 @@
 import React from 'react';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const TagFlagEditAndNewForm = ({ tagFlagId, onClose }: {
   tagFlagId?: string,
@@ -23,8 +23,8 @@ const TagFlagEditAndNewForm = ({ tagFlagId, onClose }: {
         <Components.WrappedSmartForm
           collectionName="TagFlags"
           documentId={tagFlagId}
-          queryFragment={getFragment("TagFlagEditFragment")}
-          mutationFragment={getFragment("TagFlagFragment")}
+          queryFragmentName={'TagFlagEditFragment'}
+          mutationFragmentName={'TagFlagFragment'}
           successCallback={onClose}
         />
       </DialogContent>

@@ -1,9 +1,9 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import CardContent from '@/lib/vendor/@material-ui/core/src/CardContent';
 import { useTimezone } from '../../common/withTimezone';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';

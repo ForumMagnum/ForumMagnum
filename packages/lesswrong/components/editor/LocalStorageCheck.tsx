@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
@@ -67,7 +67,9 @@ type RestorableState = {
 const restorableStateHasMetadata = (savedState: any) => {
   return typeof savedState === "object"
 }
-const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
+type GetLocalStorageHandlers = (editorType?: string) => any;
+
+const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: GetLocalStorageHandlers): RestorableState|null => {
   const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
   
   for (const editorType of editors) {
@@ -86,41 +88,55 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
-const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
-  getLocalStorageHandlers: (editorType?: string) => any,
+const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
+  getLocalStorageHandlers: GetLocalStorageHandlers,
   onRestore: (newState: EditorContents) => void,
   classes: ClassesType<typeof styles>,
+  getNewPostLocalStorageHandlers: GetLocalStorageHandlers,
+  onRestoreNewPostLegacy: (newState: EditorContents) => void,
 }) => {
   const [localStorageChecked, setLocalStorageChecked] = useState(false);
-  const [restorableState, setRestorableState] = useState<RestorableState|null>(null);
+  const [restorableState, setRestorableState] = useState<{restorableState: RestorableState|null, newPostRestorableState: RestorableState|null} | null>(null);
   const currentUser = useCurrentUser();
   
   useEffect(() => {
     if (!localStorageChecked) {
       setLocalStorageChecked(true);
-      setRestorableState(getRestorableState(currentUser, getLocalStorageHandlers));
+      const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
+      const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
+      setRestorableState({
+        restorableState,
+        newPostRestorableState,
+      });
     }
-  }, [localStorageChecked, getLocalStorageHandlers, currentUser]);
+  }, [localStorageChecked, getLocalStorageHandlers, getNewPostLocalStorageHandlers, currentUser]);
+
+  const restorableDocument = restorableState?.restorableState?.savedDocument ?? null;
+  const newPostRestorableDocument = restorableState?.newPostRestorableState?.savedDocument ?? null;
   
-  if (!restorableState)
+  if (!restorableDocument && !newPostRestorableDocument)
     return null;
-  
-  const displayedRestore = htmlToTextDefault(deserializeEditorContents(restorableState.savedDocument)?.value ?? '');
+
+  const displayedRestore = restorableDocument ? htmlToTextDefault(deserializeEditorContents(restorableDocument)?.value ?? '') : null;
+  const legacyRestored = newPostRestorableDocument ? htmlToTextDefault(deserializeEditorContents(newPostRestorableDocument)?.value ?? '') : null;
 
   return <div className={classes.root}>
     <div>
       <a className={classes.restoreLink} onClick={() => {
         setRestorableState(null);
-        const restored = deserializeEditorContents(restorableState.savedDocument);
+        const restored = restorableDocument ? deserializeEditorContents(restorableDocument) : null;
+        const legacyRestored = newPostRestorableDocument ? deserializeEditorContents(newPostRestorableDocument) : null;
         if (restored) {
           onRestore(restored);
+        } else if (legacyRestored) {
+          onRestoreNewPostLegacy(legacyRestored);
         } else {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");
         }
       }}>{preferredHeadingCase("Restore Autosave")}</a>
     </div>
-    <div className={classes.restoreBody}> {displayedRestore} </div>
+    <div className={classes.restoreBody}> {displayedRestore || legacyRestored} </div>
 
     <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
   </div>

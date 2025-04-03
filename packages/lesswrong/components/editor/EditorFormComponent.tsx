@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, getEditableFieldInCollection, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -8,7 +7,6 @@ import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorConten
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
   EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
-import PropTypes from 'prop-types';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -19,11 +17,12 @@ import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicT
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
-import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from './CKEditorPortalProvider';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -80,32 +79,30 @@ export const EditorFormComponent = ({
   label,
   formVariant,
   commentStyles,
+  updateCurrentValues,
+  submitForm,
+  addToSubmitForm,
+  addToSuccessForm,
   classes,
-}: {
+}: FormComponentProps<any> & {
   form: any,
-  formType: "edit"|"new",
   formProps: FormProps,
   document: any,
-  name: any,
   fieldName: any,
-  value: any,
   hintText: string,
-  placeholder: string,
-  label: string,
   formVariant?: "default" | "grey",
   commentStyles: boolean,
   classes: ClassesType<typeof styles>,
-}, context: any) => {
+}) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
-  const { updateCurrentValues, submitForm } = context;
   const { flash } = useMessages()
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
   const { captureEvent } = useTracking()
-  const editableFieldOptions = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName];
+  const { form: { editableFieldOptions } } = getEditableFieldInCollection(collectionName, fieldName)!;
 
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
     const getLocalStorageId = editableFieldOptions.getLocalStorageId;
@@ -113,6 +110,25 @@ export const EditorFormComponent = ({
       getLSKeyPrefix(editorType)
     );
   }, [document, name, editableFieldOptions.getLocalStorageId]);
+
+
+  const getNewPostLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
+    // It would be nice to check that it's a post and not a comment, but it should be fine
+    // in comments as well, because there should always be content when editing a comment
+    // (which we check later).
+    if (formType !== "edit" || document.contents_latest || document.title !== 'Untitled Draft') {
+      return {
+        get: () => null,
+        set: () => {},
+        reset: () => {},
+      };
+    }
+    // pass in {_id: null} to getLocalStorageId to treat this like a new post, without having to change how makeEditableOptions works
+    const getLocalStorageId = (_: any, name: string) => editableFieldOptions.getLocalStorageId?.({_id: null}, name);
+    return getLSHandlers(getLocalStorageId, document, name,
+      getLSKeyPrefix(editorType)
+    );
+  }, [document, name, editableFieldOptions, formType]);
   
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
@@ -254,7 +270,7 @@ export const EditorFormComponent = ({
         ...RevisionEdit
       }
     }
-    ${getFragment('RevisionEdit')}
+    ${fragmentTextForQuery('RevisionEdit')}
   `);
 
   // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
@@ -268,19 +284,11 @@ export const EditorFormComponent = ({
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
       autosaveContentsRef.current = newContents;
-      if (updatedFormType === 'new') {
-        setUpdatedFormType('edit');
-        const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
-        await updateCurrentValues({ draft: true, ...defaultTitle });
-        // We pass in noReload: true and then check that in PostsNewForm's successCallback to avoid refreshing the page
-        await submitForm(null, { noReload: true });
-      } else {
-        await autosaveRevision({ 
-          variables: { postId: document._id, contents: newContents }
-        });
-      }
+      await autosaveRevision({
+        variables: { postId: document._id, contents: newContents }
+      });
     }
-  }, [currentUser, collectionName, fieldName, updatedFormType, document.title, document._id, updateCurrentValues, submitForm, autosaveRevision]);
+  }, [currentUser, collectionName, fieldName, document._id, autosaveRevision]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -291,7 +299,7 @@ export const EditorFormComponent = ({
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
     
     // Preserve other fields in "contents" which may have been sent from the server
-    updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
+    void updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
   }, {
     rateLimitMs: autosaveInterval,
     callOnLeadingEdge: true,
@@ -336,7 +344,7 @@ export const EditorFormComponent = ({
     // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
-    updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
+    void updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
     void throttledSetContentsValue({})
     
     if (autosave) {
@@ -389,10 +397,22 @@ export const EditorFormComponent = ({
       // TODO: Focus editor
     }
   }, [wrappedSetContents, flash, isCollabEditor]);
+
+  const onRestoreNewPostLegacy = useCallback((newState: EditorContents) => {
+    if (isCollabEditor) {
+      // If in collab editing mode, we can't edit the editor contents.
+      flash("Restoring from local storage is not supported in the collaborative editor. Use the Version History button to restore old versions.");
+    } else {
+      wrappedSetContents({contents: newState, autosave: false});
+      getNewPostLocalStorageHandlers(currentEditorType).reset();
+      // TODO: Focus editor
+    }
+  }, [wrappedSetContents, flash, isCollabEditor, currentEditorType, getNewPostLocalStorageHandlers]);
+  
   
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = context.addToSubmitForm(async (submission: any) => {
+      const cleanupSubmitForm = addToSubmitForm(async (submission: any) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current))
           return {
             ...submission,
@@ -401,7 +421,7 @@ export const EditorFormComponent = ({
         else
           return submission;
       });
-      const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
+      const cleanupSuccessForm = addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
         if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
@@ -446,9 +466,9 @@ export const EditorFormComponent = ({
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
+  }, [!!editorRef.current, fieldName, initialEditorType, addToSuccessForm, addToSubmitForm]);
   
-  const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].revisionsHaveCommitMessages;
+  const fieldHasCommitMessages = editableFieldOptions.revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || updatedFormType==="edit");
@@ -489,6 +509,8 @@ export const EditorFormComponent = ({
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
+      onRestoreNewPostLegacy={onRestoreNewPostLegacy}
+      getNewPostLocalStorageHandlers={getNewPostLocalStorageHandlers}
     />}
     <CKEditorPortalProvider>
     <Components.Editor
@@ -540,13 +562,6 @@ export const EditorFormComponent = ({
 export const EditorFormComponentComponent = registerComponent('EditorFormComponent', EditorFormComponent, {
   hocs: [withErrorBoundary], styles
 });
-
-(EditorFormComponent as any).contextTypes = {
-  addToSubmitForm: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  updateCurrentValues: PropTypes.func,
-  submitForm: PropTypes.func,
-};
 
 declare global {
   interface ComponentTypes {

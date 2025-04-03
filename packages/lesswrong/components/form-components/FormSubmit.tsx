@@ -1,8 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
@@ -51,12 +50,10 @@ const FormSubmit = ({
   cancelCallback,
   document,
   collectionName,
-  classes,
-}: FormButtonProps & {classes: ClassesType<typeof styles>},
-{
   updateCurrentValues,
-  addToDeletedValues
-}: FormComponentContext<any>) => {
+  addToDeletedValues,
+  classes,
+}: FormButtonProps & {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
 
   // NOTE: collectionName was previously annotated with type Lowercase<CollectionNameString>
@@ -137,15 +134,6 @@ const FormSubmit = ({
   </div>
 };
 
-(FormSubmit as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToDeletedValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
-}
-
-
-// Replaces FormSubmit from vulcan-forms.
 const FormSubmitComponent = registerComponent('FormSubmit', FormSubmit, {styles});
 
 declare global {

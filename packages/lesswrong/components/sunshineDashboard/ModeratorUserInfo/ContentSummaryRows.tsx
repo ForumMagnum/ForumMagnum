@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import * as _ from 'underscore'
-import MessageIcon from '@material-ui/icons/Message'
-import DescriptionIcon from '@material-ui/icons/Description'
+import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 
 const styles = (theme: ThemeType) => ({
   contentSummaryRow: {

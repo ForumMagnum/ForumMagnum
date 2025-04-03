@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const DialogueMatchPreferenceInfo = `
   fragment DialogueMatchPreferenceInfo on DialogueMatchPreference {
     _id
     dialogueCheckId
@@ -12,4 +10,4 @@ registerFragment(`
     generatedDialogueId
     deleted
   }
-`);
+`

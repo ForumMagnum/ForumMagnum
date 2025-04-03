@@ -1,9 +1,7 @@
-
 import { registerMigration, fillDefaultValues } from './migrationUtils';
+import { Tags } from '../../server/collections/tags/collection';
 
-import { Tags } from '../../lib/collections/tags/collection';
-
-registerMigration({
+export default registerMigration({
   name: "adminOnlyTags",
   dateWritten: "2020-04-20",
   idempotent: true,

@@ -1,6 +1,6 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { useVote } from './withVote';
 import { isAF, isLW } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';

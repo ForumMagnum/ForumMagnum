@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import Menu from '@material-ui/core/Menu';
+import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
-import EditIcon from "@material-ui/icons/Edit";
-import {Components, registerComponent} from "../../lib/vulcan-lib";
+import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
 

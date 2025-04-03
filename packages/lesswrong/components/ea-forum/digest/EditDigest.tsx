@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { gql, useQuery } from '@apollo/client';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
-import FilterIcon from '@material-ui/icons/FilterList';
+import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useMessages } from '../../common/withMessages';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
@@ -12,6 +11,8 @@ import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDiges
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {

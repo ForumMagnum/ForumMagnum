@@ -1,14 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Button from '@material-ui/core/Button'
-import CloseIcon from '@material-ui/icons/Close'
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Button from '@/lib/vendor/@material-ui/core/src/Button'
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close'
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames';
-import OpenInNew from '@material-ui/icons/OpenInNew';
+import OpenInNew from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import moment from 'moment';
 import { Link } from '../../lib/reactRouterWrapper';
-import { CareerStageValue } from '../../lib/collections/users/schema';
+import type { CareerStageValue } from '../../lib/collections/users/newSchema';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType) => ({

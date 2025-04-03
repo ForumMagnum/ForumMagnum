@@ -1,20 +1,21 @@
-import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
-import Users from '../lib/collections/users/collection';
-import { Posts } from '../lib/collections/posts'
-import { Comments } from '../lib/collections/comments'
-import { Votes } from '../lib/collections/votes'
-import Tags from '../lib/collections/tags/collection'
-import Revisions from '../lib/collections/revisions/collection'
-import Conversations from '../lib/collections/conversations/collection';
-import Messages from '../lib/collections/messages/collection';
+import Users from '../server/collections/users/collection';
+import { Posts } from '../server/collections/posts/collection'
+import { Comments } from '../server/collections/comments/collection'
+import { Votes } from '../server/collections/votes/collection'
+import Tags from '../server/collections/tags/collection'
+import Revisions from '../server/collections/revisions/collection'
+import Conversations from '../server/collections/conversations/collection';
+import Messages from '../server/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
 import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
-import Localgroups from '../lib/collections/localgroups/collection';
-import { UserRateLimits } from '../lib/collections/userRateLimits';
+import Localgroups from '../server/collections/localgroups/collection';
+import { UserRateLimits } from '../server/collections/userRateLimits/collection';
 import { callbacksArePending } from '@/server/utils/callbackHooks';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from "@/server/sql/PgCollection";
+import { createMutator } from "../server/vulcan-lib/mutators";
+import { runQuery, setOnGraphQLError } from "../server/vulcan-lib/query";
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,

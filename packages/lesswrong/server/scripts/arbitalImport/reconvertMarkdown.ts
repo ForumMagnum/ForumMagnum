@@ -1,24 +1,24 @@
 /* eslint-disable no-console */
 
-import Revisions from "@/lib/collections/revisions/collection";
-import { Globals, getCollection } from "@/lib/vulcan-lib";
+import Revisions from "@/server/collections/revisions/collection";
 import groupBy from "lodash/groupBy";
 import { ArbitalImportOptions, buildConversionContext, connectAndLoadArbitalDatabase, defaultArbitalImportOptions } from "./arbitalImport";
-import { createAdminContext } from "@/server/vulcan-lib";
+import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { arbitalMarkdownToCkEditorMarkup } from "./markdownService";
-import { Comments } from "@/lib/collections/comments";
-import Tags from "@/lib/collections/tags/collection";
+import { Comments } from "@/server/collections/comments/collection.ts";
+import Tags from "@/server/collections/tags/collection";
 import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
-import { editableCollectionsFieldOptions } from "@/lib/editor/makeEditableOptions";
+import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import { getLatestRev } from "@/server/editor/utils";
 import pick from "lodash/pick";
-import { updateDenormalizedHtmlAttributions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
+import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
 import { buildRevision } from "@/server/editor/make_editable_callbacks";
-import { Users } from "@/lib/collections/users/collection";
+import { Users } from "@/server/collections/users/collection";
+import { getCollection } from "@/server/collections/allCollections";
+import { getEditableFieldInCollection } from "@/lib/editor/make_editable";
 
-Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
+export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
   const resolverContext = createAdminContext();
   const arbitalDb = await connectAndLoadArbitalDatabase(mysqlConnectionString);
@@ -75,6 +75,7 @@ Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, option
             data: newHtml,
           },
           currentUser: user,
+          context: resolverContext,
         });
         await Revisions.rawUpdateOne(
           {_id: rev._id},
@@ -114,19 +115,21 @@ Globals.reconvertArbitalMarkdown  = async (mysqlConnectionString: string, option
   }
   for (const tagId of tagIdsChanged.values()) {
     await updateDenormalizedEditable(tagId, "Tags", "description");
-    await recomputeContributorAnnotations(tagId, "Tags", "description");
+    await recomputeContributorAnnotations({ documentId: tagId, collectionName: "Tags", fieldName: "description", context: resolverContext });
   }
   for (const multiDocumentId of multiDocumentIdsChanged.values()) {
     await updateDenormalizedEditable(multiDocumentId, "MultiDocuments", "contents");
-    await recomputeContributorAnnotations(multiDocumentId, "MultiDocuments", "contents");
+    await recomputeContributorAnnotations({ documentId: multiDocumentId, collectionName: "MultiDocuments", fieldName: "contents", context: resolverContext });
   }
 }
 
 
-async function updateDenormalizedEditable(documentId: string, collectionName: CollectionNameString, fieldName: string) {
+async function updateDenormalizedEditable<N extends CollectionNameString>(documentId: string, collectionName: N, fieldName: string) {
   const collection = getCollection(collectionName);
-  if (!editableCollectionsFieldOptions[collectionName][fieldName].normalized) {
-    const latestRev = await getLatestRev(documentId, fieldName);
+  const context = createAnonymousContext();
+  
+  if (!getEditableFieldInCollection(collectionName, fieldName)?.graphql.editableFieldOptions.normalized) {
+    const latestRev = await getLatestRev(documentId, fieldName, context);
     if (!latestRev) throw new Error(`Could not get latest rev for ${collectionName}["${documentId}"].${fieldName}`);
     await collection.rawUpdateOne(
       {_id: documentId},
@@ -142,18 +145,18 @@ async function updateDenormalizedEditable(documentId: string, collectionName: Co
   }
 }
 
-async function recomputeContributorAnnotations(documentId: string, collectionName: "MultiDocuments"|"Tags", fieldName: "description"|"contents") {
-  const collection = getCollection(collectionName);
+async function recomputeContributorAnnotations(options: Omit<UpdateDenormalizedHtmlAttributionsOptions, 'document'> & { documentId: string }) {
+  const { documentId, context, ...rest } = options;
+  const collection = context[rest.collectionName] as CollectionBase<'Tags' | 'MultiDocuments'>;
   const document = await collection.findOne({_id: documentId});
-  if (!document) throw new Error(`Could not find ${collectionName}[${documentId}]`);
-  await updateDenormalizedHtmlAttributions({
-    document: document,
-    collectionName,
-    fieldName,
-  } as any);
-  await updateDenormalizedContributorsList({
-    document: document,
-    collectionName,
-    fieldName,
-  } as any);
+  if (!document) throw new Error(`Could not find ${rest.collectionName}[${documentId}]`);
+
+  const updateOptions = {
+    ...rest,
+    document,
+    context,
+  } as UpdateDenormalizedHtmlAttributionsOptions;
+  
+  await updateDenormalizedHtmlAttributions(updateOptions);
+  await updateDenormalizedContributorsList(updateOptions);
 }

@@ -1,7 +1,7 @@
 import { forEachDocumentInCollection, registerMigration } from './migrationUtils';
-import { Users } from '../../lib/collections/users/collection';
+import { Users } from '../../server/collections/users/collection';
 
-registerMigration({
+export default registerMigration({
   name: "oauthCleanup",
   dateWritten: "2022-01-30",
   idempotent: true,

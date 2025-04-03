@@ -1,19 +1,17 @@
-import Notifications from '../lib/collections/notifications/collection';
+import Notifications from '../server/collections/notifications/collection';
 import { messageGetLink } from '../lib/helpers';
-import Subscriptions from '../lib/collections/subscriptions/collection';
-import Users from '../lib/collections/users/collection';
+import Subscriptions from '../server/collections/subscriptions/collection';
+import Users from '../server/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
-import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
-import { ensureIndex } from '../lib/collectionIndexUtils';
 import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings, NotificationTypeSettings } from '../lib/collections/users/schema';
+import { defaultNotificationTypeSettings, legacyToNewNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings } from '../lib/collections/users/newSchema';
 import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
-import { createAnonymousContext } from './vulcan-lib/query';
+import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
@@ -82,9 +80,8 @@ import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 export async function getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
   return new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location);
 }
-ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming => {
+const getNotificationTiming = (typeSettings: NotificationChannelSettings): DebouncerTiming => {
   switch (typeSettings.batchingFrequency) {
     case "realtime":
       return { type: "none" };
@@ -106,13 +103,14 @@ const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming =>
   }
 }
 
-const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null, extraData: Record<string,any>) => {
+const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null, extraData: Record<string,any>, context: ResolverContext) => {
   return await getNotificationTypeByName(notificationType)
-    .getMessage({documentType, documentId, extraData});
+    .getMessage({documentType, documentId, extraData, context});
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
-  let document = await getDocument(documentType, documentId);
+  const { Posts } = context
+  let document = await getDocument(documentType, documentId, context);
   const notificationType = getNotificationTypeByName(notificationTypeName);
 
   if (notificationType.getLink) {
@@ -189,41 +187,41 @@ export const createNotification = async ({
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
   const notificationTypeSettings = (userSettingField && user[userSettingField])
-    ? user[userSettingField]
+    ? legacyToNewNotificationTypeSettings(user[userSettingField])
     : fallbackNotificationTypeSettings;
 
   let notificationData = {
     userId: userId,
     documentId: documentId||undefined,
     documentType: documentType||undefined,
-    message: await notificationMessage(notificationType, documentType, documentId, extraData),
+    message: await notificationMessage(notificationType, documentType, documentId, extraData, context),
     type: notificationType,
     link: await getLink(context, notificationType, documentType, documentId, extraData),
     extraData,
   }
 
-  if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
-  {
+  const { onsite, email } = notificationTypeSettings;
+  if (onsite.enabled) {
     const createdNotification = await createMutator({
       collection: Notifications,
       document: {
         ...notificationData,
         emailed: false,
-        waitingForBatch: notificationTypeSettings.batchingFrequency !== "realtime",
+        waitingForBatch: onsite.batchingFrequency !== "realtime",
       },
       currentUser: user,
       validate: false
     });
-    if (notificationTypeSettings.batchingFrequency !== "realtime") {
+    if (onsite.batchingFrequency !== "realtime") {
       await notificationDebouncers[notificationType]!.recordEvent({
         key: {notificationType, userId},
         data: createdNotification.data._id,
-        timing: getNotificationTiming(notificationTypeSettings),
+        timing: getNotificationTiming(onsite),
         af: false, //TODO: Handle AF vs non-AF notifications
       });
     }
   }
-  if ((notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") && !noEmail) {
+  if (email.enabled && !noEmail) {
     const createdNotification = await createMutator({
       collection: Notifications,
       document: {
@@ -239,7 +237,7 @@ export const createNotification = async ({
     await notificationDebouncers[notificationType]!.recordEvent({
       key: {notificationType, userId},
       data: createdNotification.data._id,
-      timing: getNotificationTiming(notificationTypeSettings),
+      timing: getNotificationTiming(email),
       af: false, //TODO: Handle AF vs non-AF notifications
     });
   }

@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const PodcastEpisodeFull = `
   fragment PodcastEpisodeFull on PodcastEpisode {
     _id
     podcastId
@@ -8,4 +6,4 @@ registerFragment(`
     episodeLink
     externalEpisodeId
   }
-`);
+`

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { gql, useMutation } from '@apollo/client';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,13 +7,13 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD, POST_SORTING_MODES } from '../../lib/collections/posts/views'
-import StarIcon from '@material-ui/icons/Star'
-import DescriptionIcon from '@material-ui/icons/Description'
-import MessageIcon from '@material-ui/icons/Message'
-import PencilIcon from '@material-ui/icons/Create'
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star'
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
+import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
@@ -21,7 +21,7 @@ import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions'
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
-import CopyIcon from '@material-ui/icons/FileCopy'
+import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
@@ -232,7 +232,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       return <Error404/>
     }
 
-    if (user.oldSlugs?.includes(slug) && !user.deleted) {
+    if (slug !== user.slug && user.oldSlugs?.includes(slug) && !user.deleted) {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 

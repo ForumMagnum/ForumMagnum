@@ -1,6 +1,6 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Card from '@material-ui/core/Card';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { htmlToText } from 'html-to-text';
 
 const styles = (theme: ThemeType) => ({

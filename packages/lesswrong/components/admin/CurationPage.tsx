@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
-import { userCanDo, userIsAdminOrMod } from '@/lib/vulcan-users';
+import { userCanDo, userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { unflattenComments } from '@/lib/utils/unflatten';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   curated: {
@@ -54,7 +54,7 @@ export const CurationPage = ({classes}: {
                 {post.title}
                 <WrappedSmartForm
                   collectionName="CurationNotices"
-                  mutationFragment={getFragment('CurationNoticesFragment')}
+                  mutationFragmentName={'CurationNoticesFragment'}
                   prefilledProps={{userId: currentUser._id, postId: post._id}}
                 />
               </BasicFormStyles>
@@ -77,7 +77,7 @@ export const CurationPage = ({classes}: {
           </div>
     </SingleColumnSection>
     {<div className={classes.curated}>
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold setCurationPost={setPost}/>
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} atBottom setCurationPost={setPost}/>
     </div>}
   </div>;
 }

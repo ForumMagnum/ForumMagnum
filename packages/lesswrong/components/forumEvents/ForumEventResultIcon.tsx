@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { useIsAboveScreenWidth } from '../hooks/useScreenWidth';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
-import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { POLL_MAX_WIDTH } from './ForumEventPoll';
 
 const styles = (theme: ThemeType) => ({
@@ -66,7 +66,7 @@ const ForumEventResultIcon = ({
   const isDesktop = useIsAboveScreenWidth(POLL_MAX_WIDTH);
 
   const { captureEvent } = useTracking();
-  const { currentForumEvent } = useCurrentForumEvent();
+  const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
   const { user, comment } = vote;
 

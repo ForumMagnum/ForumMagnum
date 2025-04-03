@@ -1,10 +1,9 @@
 import { captureException } from '@sentry/core';
-import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
+import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
 import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
-import { addCronJob } from './cronUtil';
-import { Vulcan } from '../lib/vulcan-lib/config';
-import { DebouncerEventsRepo } from './repos';
+import { addCronJob } from './cron/cronUtil';
+import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
@@ -259,6 +258,7 @@ export const dispatchPendingEvents = async () => {
  * before then. If no date is given, dispatch any pending events, regardless of
  * their timer. You would do this interactively if you're testing and don't
  * want to wait.
+ * Exported to allow running manually with "yarn repl"
  */
 export const forcePendingEvents = async (
   {upToDate, delay}:
@@ -308,18 +308,15 @@ export const forcePendingEvents = async (
   console.log(`Forced ${countHandled} pending event${countHandled === 1 ? "" : "s"}`);
 }
 
-Vulcan.forcePendingEvents = forcePendingEvents;
-
-if (!testServerSetting.get()) {
-  addCronJob({
-    name: "Debounced event handler",
-    // Once per minute, on the minute
-    cronStyleSchedule: '* * * * *',
-    job() {
-      void dispatchPendingEvents();
-    }
-  });
-}
+export const cronDebouncedEventHandler = addCronJob({
+  name: "Debounced event handler",
+  // Once per minute, on the minute
+  cronStyleSchedule: '* * * * *',
+  disabled: testServerSetting.get(),
+  job() {
+    void dispatchPendingEvents();
+  }
+});
 
 function sleepWithVariance(ms: number)
 {

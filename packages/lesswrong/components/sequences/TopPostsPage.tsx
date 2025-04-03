@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
@@ -16,6 +15,8 @@ import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/publicSettings';
 import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -860,7 +861,8 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     setCategory(t);
   }
 
-  return <div className={classes.postsByYearSectionCentered} id="year-category-section">
+  return <AnalyticsContext pageSectionContext="topPostsPageSpotlightSection">
+    <div className={classes.postsByYearSectionCentered} id="year-category-section">
       <div className={classes.yearSelector}>
         {[...publishedReviewYears].map((y) => {
           const postsCount = reviewWinnersWithPosts.filter(post => {
@@ -914,6 +916,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         </div>)}
       </div>
     </div>
+  </AnalyticsContext>
 }
 
 function getPostsInGrid(args: GetPostsInGridArgs) {
@@ -1006,7 +1009,7 @@ const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates
     // We're explicitly not bothering with heightPct right now, since we just want to get "to the bottom" of the image
     [`${coordinatePosition}Flipped` as const]: flipped,
   } = splashCoordinates;
-
+  
   const newXPct = Math.min(1, Math.max(0, xPct - (widthPct * leftBookOffset)));
   const newWidthPct = Math.min(1, Math.max(0, widthPct * 3)); // this will break the url if it goes above 1, but it shouldn't
 

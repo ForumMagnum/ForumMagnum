@@ -1,6 +1,6 @@
 import { addField, dropField } from "./meta/utils";
-import Users from "@/lib/vulcan-users";
-import Posts from "@/lib/collections/posts/collection";
+import Users from "@/server/collections/users/collection";
+import Posts from "@/server/collections/posts/collection";
 
 export const up = async ({db}: MigrationContext) => {
   await addField(db, Users, 'generateJargonForDrafts');

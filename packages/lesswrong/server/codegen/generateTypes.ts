@@ -1,10 +1,11 @@
-import { Vulcan } from '../../lib/vulcan-lib';
 import { generateFragmentTypes } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
 import { generateSQLSchema } from '../scripts/generateSQLSchema';
 import fs from 'fs';
 import path from 'path';
+import { generateCollectionTypeNames } from './generateCollectionTypeNames';
+import { generateDefaultFragments } from './generateDefaultFragments';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -43,7 +44,7 @@ function generateAllComponentsVite(): string {
 function generateAllComponents(): string {
   const componentsDir = "packages/lesswrong/components";
   const header = `// Generated file - run "yarn generate" to update
-import { importComponent } from '../vulcan-lib';
+import { importComponent } from '../vulcan-lib/components';
 
 `;
 
@@ -104,9 +105,11 @@ export function generateTypes(repoRoot?: string) {
   }
   
   try {
+    writeIfChanged(generateDefaultFragments(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
+    writeIfChanged(generateCollectionTypeNames(), "/packages/lesswrong/lib/generated/collectionTypeNames.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
   } catch(e) {
@@ -117,10 +120,7 @@ export function generateTypes(repoRoot?: string) {
 
 // After running this you still need to run:
 //   yarn graphql-codegen --config codegen.yml
-const generateTypesAndSQLSchema = (rootDir?: string) => {
+export const generateTypesAndSQLSchema = (rootDir?: string) => {
   generateSQLSchema(rootDir);
   generateTypes(rootDir);
 }
-
-Vulcan.generateTypes = generateTypes;
-Vulcan.generateTypesAndSQLSchema = generateTypesAndSQLSchema;

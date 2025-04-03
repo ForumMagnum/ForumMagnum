@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -11,7 +11,7 @@ import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './draftjs-plugins/divider';
 import createMathjaxPlugin from './draftjs-plugins/draft-js-mathjax-plugin/src'
 import createMarkdownShortcutsPlugin from './draftjs-plugins/markdown-shortcuts-plugin';
-import { withTheme } from '@material-ui/core/styles';
+import { withTheme } from '@/lib/vendor/@material-ui/core/src/styles';
 import createLinkPlugin from 'draft-js-anchor-plugin';
 import LinkButton from './draftjs-plugins/LinkButton'
 import { myKeyBindingFn } from './draftjs-plugins/keyBindings.js'

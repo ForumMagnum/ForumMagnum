@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const TagFlagFragment = `
   fragment TagFlagFragment on TagFlag {
     _id
     createdAt
@@ -14,13 +12,13 @@ registerFragment(`
       plaintextDescription
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagFlagEditFragment = `
   fragment TagFlagEditFragment on TagFlag {
     ...TagFlagFragment
     contents {
       ...RevisionEdit
     }
   }
-`);
+`

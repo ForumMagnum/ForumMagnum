@@ -1,7 +1,7 @@
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../server/collections/posts/collection";
 import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { loggerConstructor } from "../../lib/utils/logging";
-import { serverId } from "../analyticsWriter";
+import { serverId } from "@/server/analytics/serverAnalyticsWriter";
 import { DatabaseServerSetting } from "../databaseSettings";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront";
@@ -146,24 +146,5 @@ export const swrInvalidatePostRoute = async (postId: string) => {
     void invalidateUrlFromQueue();
   }
 };
-
-//
-// Callbacks for triggering invalidation
-//
-
-const postCallback = ({ _id }: { _id: string }) => {
-  void swrInvalidatePostRoute(_id);
-};
-
-getCollectionHooks("Posts").createAfter.add(postCallback);
-getCollectionHooks("Posts").updateAfter.add(postCallback);
-
-const commentCallback = ({ postId }: { postId: string | null }) => {
-  if (!postId) return;
-  void swrInvalidatePostRoute(postId);
-};
-
-getCollectionHooks("Comments").createAfter.add(commentCallback);
-getCollectionHooks("Comments").updateAfter.add(commentCallback);
 
 // See packages/lesswrong/server/voteServer.ts for callback on votes

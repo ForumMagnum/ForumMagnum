@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import HistoryIcon from '@material-ui/icons/History';
-import Menu from '@material-ui/core/Menu';
-import Tooltip from '@material-ui/core/Tooltip';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import moment from '../../../lib/moment-timezone';
 
 

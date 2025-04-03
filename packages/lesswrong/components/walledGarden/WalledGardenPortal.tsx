@@ -1,17 +1,16 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { useLocation } from "../../lib/routeUtil";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { isMobile } from "../../lib/utils/isMobile";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
+import ExpandLessIcon from '@/lib/vendor/@material-ui/icons/src/ExpandLess';
 import qs from 'qs'
 import {useTagBySlug} from "../tagging/useTag";
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const toggleEventsOffset = "330px"
 

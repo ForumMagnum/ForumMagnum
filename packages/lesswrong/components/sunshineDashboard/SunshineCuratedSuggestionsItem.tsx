@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -31,10 +31,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
+const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeForCuration}: {
   classes: ClassesType<typeof styles>,
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
+  timeForCuration?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const { CurationNoticesItem, SunshineListItem, SidebarHoverOver, Typography, PostsHighlight, SidebarInfo, SidebarAction, SidebarActionMenu, ForumIcon, FormatDate } = Components
@@ -142,9 +143,11 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
               <ForumIcon icon="Undo"/>
             </SidebarAction>
           }
-          <SidebarAction title="Curate Post" onClick={handleCurate}>
-            <ForumIcon icon="Star" />
-          </SidebarAction>
+          { timeForCuration &&
+            <SidebarAction title="Curate Post" onClick={handleCurate}>
+              <ForumIcon icon="Star" />
+            </SidebarAction>
+          }
           <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
             <ForumIcon icon="Clear"/>
           </SidebarAction>

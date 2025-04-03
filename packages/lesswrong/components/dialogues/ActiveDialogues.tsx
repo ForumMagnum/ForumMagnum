@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { ActiveDialogue, useOnServerSentEvent } from '../hooks/useUnreadNotifications';
 import { useCurrentUser } from '../common/withUser';
@@ -7,8 +7,8 @@ import { postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
+import Visibility from '@/lib/vendor/@material-ui/icons/src/Visibility';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import isEqual from 'lodash/isEqual';
 

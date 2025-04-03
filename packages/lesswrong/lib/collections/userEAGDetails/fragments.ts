@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const UserEAGDetailsMinimumInfo = `
   fragment UserEAGDetailsMinimumInfo on UserEAGDetail {
     _id
     userId
@@ -13,4 +11,4 @@ registerFragment(`
     experiencedIn
     interestedIn
   }
-`);
+`

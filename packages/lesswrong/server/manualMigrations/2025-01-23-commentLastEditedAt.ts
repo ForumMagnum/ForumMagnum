@@ -1,10 +1,9 @@
 import { executePromiseQueue } from "../../lib/utils/asyncUtils";
 import { forEachDocumentBatchInCollection, registerMigration } from "./migrationUtils";
-import { Comments } from "@/lib/collections/comments/collection";
-import { getLatestRev } from "../editor/utils";
-import Revisions from "@/lib/collections/revisions/collection";
+import { Comments } from "@/server/collections/comments/collection";
+import Revisions from "@/server/collections/revisions/collection";
 
-registerMigration({
+export default registerMigration({
   name: "commentLastEditedAt",
   dateWritten: "2025-02-23",
   idempotent: true,

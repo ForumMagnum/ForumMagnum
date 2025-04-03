@@ -1,14 +1,15 @@
 import fs from 'mz/fs';
 import Papa from 'papaparse';
-import Localgroups from '../../lib/collections/localgroups/collection';
-import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
-import { createMutator, updateMutator, Vulcan } from '../vulcan-lib';
+import Localgroups from '../../server/collections/localgroups/collection';
+import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/newSchema';
 import { wrapVulcanAsyncScript } from './utils';
+import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 
 /**
  * Import data for localgroups
+ * Exported to allow running manually with "yarn repl"
  */
-Vulcan.importLocalgroups = wrapVulcanAsyncScript(
+export const importLocalgroups = wrapVulcanAsyncScript(
   'importLocalgroups',
   async (fileName='localgroups.csv') => {
     fs.createReadStream(fileName)

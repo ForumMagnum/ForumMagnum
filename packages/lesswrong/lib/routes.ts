@@ -4,13 +4,13 @@ import {
   isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
-import { REVIEW_YEAR } from './reviewUtils';
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
-import { pluralize } from './vulcan-lib';
+import { pluralize } from './vulcan-lib/pluralize';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations, hasSurveys } from './betas';
 import {isFriendlyUI} from '../themes/forumTheme'
@@ -340,7 +340,7 @@ addRoute(
     componentName: 'PostsSingleSlug',
     previewComponentName: 'PostLinkPreviewSlug',
     ...highlightsSubtitle,
-    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     background: postBackground
   },
 
@@ -386,7 +386,7 @@ addRoute(
     previewComponentName: 'TagHoverPreview',
     enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     background: isLWorAF ? "white" : undefined,
-    getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     redirect: (location) => {
       if (!isLWorAF) {
         return null;
@@ -409,7 +409,7 @@ addRoute(
     previewComponentName: 'TagHoverPreview',
     background: isLWorAF ? "white" : undefined,
     noIndex: isEAForum,
-    getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   },
   {
     name: 'tagHistory',
@@ -467,13 +467,13 @@ if (tagUrlBaseSetting.get() !== 'tag') {
       name: 'tagsSingleRedirect',
       path: '/tag/:slug',
       redirect: ({ params }) => `/${tagUrlBaseSetting.get()}/${params.slug}`,
-      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     },
     {
       name: 'tagDiscussionRedirect',
       path: '/tag/:slug/discussion',
       redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/discussion`,
-      getPingback: (parsedUrl) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     },
     {
       name: 'tagHistoryRedirect',
@@ -577,7 +577,7 @@ export function initLegacyRoutes() {
       path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
       componentName: "LegacyPostRedirect",
       previewComponentName: "PostLinkPreviewLegacy",
-      getPingback: (parsedUrl) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id),
+      getPingback: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
     },
     {
       name: 'comment.legacy',
@@ -862,6 +862,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PeopleDirectoryPage',
       title: 'People directory',
     },
+    {
+      name: 'setPassword',
+      path: '/setPassword',
+      componentName: 'Auth0PasswordResetPage',
+      title: 'Set password',
+    },
   ],
   LessWrong: [
     {
@@ -922,6 +928,19 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Meta',
       path: '/meta',
       redirect: () => `/tag/site-meta`,
+    },
+    {
+      name: 'bestOfLessWrongAdmin',
+      path: '/bestoflesswrongadmin',
+      // the "year + 2" is a hack because it's annoying to fetch ReviewWinnerArt by review year
+      // instead we fetch by createdAt date for the art, which is generally 2 years after review
+      redirect: () => `/bestoflesswrongadmin/${BEST_OF_LESSWRONG_PUBLISH_YEAR + 2}`,
+    },
+    {
+      name: 'bestOfLessWrongAdminYear',
+      path: '/bestoflesswrongadmin/:year',
+      componentName: 'BestOfLessWrongAdmin',
+      title: "Best of LessWrong Admin",
     },
     {
       name: 'bestoflesswrong',
@@ -985,7 +1004,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...hpmorSubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
     },
 
@@ -1002,7 +1021,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...codexSubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
     },
     {
@@ -1112,7 +1131,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...rationalitySubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
     },
     {
@@ -1254,7 +1273,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...rationalitySubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
     },
     {
@@ -1512,7 +1531,7 @@ addRoute(
     componentName: 'PostsSingleSlugRedirect',
     titleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSlug',
-    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     background: postBackground,
     noFooter: hasPostRecommendations,
   },

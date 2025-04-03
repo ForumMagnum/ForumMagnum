@@ -1,5 +1,5 @@
 import "../integrationTestSetup";
-import { runQuery } from '../../server/vulcan-lib';
+import { runQuery } from '../../server/vulcan-lib/query';
 import {
   createDummyUser,
   createDummyPost,
@@ -7,7 +7,7 @@ import {
   assertIsPermissionsFlavoredError,
   waitUntilCallbacksFinished,
 } from '../utils'
-import Posts from '../../lib/collections/posts/collection';
+import Posts from '../../server/collections/posts/collection';
 import * as _ from 'underscore';
 
 describe('PostsEdit', () => {

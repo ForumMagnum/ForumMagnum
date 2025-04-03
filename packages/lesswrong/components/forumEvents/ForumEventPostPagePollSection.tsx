@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
@@ -65,7 +65,7 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   const currentUser = useCurrentUser()
   const hasVoted = getForumEventVoteForUser(currentForumEvent, currentUser) !== null
   const themeOptions = useConcreteThemeOptions()
@@ -88,8 +88,15 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
     return null;
   }
 
-  const {bannerImageId, darkColor, lightColor} = currentForumEvent;
-  const pollAreaStyle: CSSProperties = {background: darkColor}
+  const {bannerImageId, darkColor, lightColor, bannerTextColor} = currentForumEvent;
+
+  const pollAreaStyle = {
+    "--forum-event-background": darkColor,
+    "--forum-event-foreground": lightColor,
+    "--forum-event-banner-text": bannerTextColor,
+    background: "--forum-event-background",
+  } as CSSProperties;
+
   if (bannerImageId) {
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
       c: "fill",

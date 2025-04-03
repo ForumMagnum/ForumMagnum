@@ -1,9 +1,9 @@
 import { registerMigration } from './migrationUtils';
 
-import { Users } from '../../lib/collections/users/collection';
+import { Users } from '../../server/collections/users/collection';
 import { getNewSnoozeUntilContentCount } from '../../components/sunshineDashboard/ModeratorActions';
 
-registerMigration({
+export default registerMigration({
   name: "setSnoozeUntilContentCountValues",
   dateWritten: "2022-08-11",
   idempotent: true,

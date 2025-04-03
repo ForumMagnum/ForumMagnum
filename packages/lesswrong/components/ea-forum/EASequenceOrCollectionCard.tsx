@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";

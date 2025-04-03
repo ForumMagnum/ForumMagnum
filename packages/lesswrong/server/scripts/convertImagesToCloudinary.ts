@@ -1,6 +1,4 @@
-import { Globals } from '../../lib/vulcan-lib/config';
-import { Revisions } from '../../lib/collections/revisions/collection';
-import { Images } from '../../lib/collections/images/collection';
+import { Images } from '../../server/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
@@ -9,10 +7,9 @@ import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
 import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../server/collections/posts/collection';
 import { getAtPath, setAtPath } from '../../lib/helpers';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
@@ -20,7 +17,8 @@ import crypto from 'crypto';
 import Papa from 'papaparse';
 import fs from "node:fs";
 import { sleep } from '@/lib/utils/asyncUtils';
-import SideCommentCaches from '@/lib/collections/sideCommentCaches/collection';
+import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -62,6 +60,7 @@ export async function findAlreadyMovedImage(identifier: string): Promise<string|
 /**
  * Re-upload the given image URL to cloudinary, and return the cloudinary URL. If the image has already been uploaded
  * it will return the existing cloudinary URL.
+ * Exported to allow use in "yarn repl"
  */
 export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl: string, originDocumentId: string}): Promise<string|null> {
   const upload = async (credentials: CloudinaryCredentials) => {
@@ -202,6 +201,7 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   }
 }
 
+// Exported to allow use in "yarn repl"
 export async function convertImagesInHTML(
   html: string,
   originDocumentId: string,
@@ -310,20 +310,24 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
  * @param fieldName - The content-editable field tos can for images
  * @param urlFilterFn - A function that takes a URL and returns true if it should be mirrored, by default all URLs are mirrored except those in getImageUrlWhitelist()
  * @returns The number of images that were mirrored
+ *
+ * Exported to allow use in "yarn repl"
  */
 export async function convertImagesInObject<N extends CollectionNameString>(
   collectionName: N,
   _id: string,
+  context: ResolverContext,
   fieldName = "contents",
   urlFilterFn: (url: string) => boolean = ()=>true
 ): Promise<{
   numUploaded: number
   failedUrls: string[]
 }> {
+  const { Revisions } = context;
   const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;
   try {
-    const collection = getCollection(collectionName);
+    const collection: CollectionBase<CollectionNameString> = context[collectionName];
     const obj = await collection.findOne({_id});
 
     if (!obj) {
@@ -332,7 +336,7 @@ export async function convertImagesInObject<N extends CollectionNameString>(
       return {numUploaded: 0, failedUrls: []};
     }
     
-    const latestRev = await getLatestRev(_id, fieldName);
+    const latestRev = await getLatestRev(_id, fieldName, context);
     if (!latestRev) {
       // If this field doesn't have a latest rev, it's empty (common eg for
       // moderation guidelines).
@@ -413,6 +417,7 @@ const postMetaImageFields: string[][] = [
   ["socialPreviewImageId"],
 ];
 
+// Exported to allow use in "yarn repl"
 export const rehostPostMetaImages = async (post: DbPost) => {
   const operations: MongoBulkWriteOperations<DbPost> = [];
 
@@ -455,6 +460,7 @@ export const rehostPostMetaImages = async (post: DbPost) => {
   await Posts.rawCollection().bulkWrite(operations);
 }
 
+// Exported to allow use in "yarn repl"
 export const rehostPostMetaImagesById = async (postId: string) => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
@@ -463,6 +469,7 @@ export const rehostPostMetaImagesById = async (postId: string) => {
   await rehostPostMetaImages(post);
 }
 
+// Exported to allow use in "yarn repl"
 export const rehostAllPostMetaImages = async () => {
   const projection: Partial<Record<keyof DbPost, 1>> = {_id: 1};
   for (const field of postMetaImageFields) {
@@ -475,13 +482,6 @@ export const rehostAllPostMetaImages = async () => {
     await rehostPostMetaImages(post);
   }
 }
-
-Globals.moveImageToCloudinary = moveImageToCloudinary;
-Globals.convertImagesInHTML = convertImagesInHTML;
-Globals.convertImagesInObject = convertImagesInObject;
-Globals.rehostPostMetaImages = rehostPostMetaImages;
-Globals.rehostPostMetaImagesById = rehostPostMetaImagesById;
-Globals.rehostAllPostMetaImages = rehostAllPostMetaImages;
 
 type ImageUploadStats = {
   documentCount: number
@@ -514,7 +514,7 @@ function getEmptyImageUploadStats(): ImageUploadStats {
  * CDN and records that in the Images collection. Any images that are already
  * present in the Images collection will be skipped.
  */
-async function importImageMirrors(csvFilename: string) {
+export async function importImageMirrors(csvFilename: string) {
   const csvStr = fs.readFileSync(csvFilename, 'utf-8');
   const parsedCsv = Papa.parse(csvStr, {
     delimiter: ',',
@@ -568,8 +568,10 @@ async function importImageMirrors(csvFilename: string) {
   console.log(`Finished processing images. Already moved: ${alreadyMovedCount}, skipped: ${skippedCount}, uploaded: ${uploadedCount}, failed: ${failedCount}`);
 }
 
+// Exported to allow use in "yarn repl"
 export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, urlFilter = (url: string) => true) {
   let stats = getEmptyImageUploadStats();
+  const context = createAnonymousContext();
 
   await forEachDocumentBatchInCollection({
     collection: Posts,
@@ -578,7 +580,7 @@ export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, 
     callback: async (posts) => {
       const uploadResults = await Promise.all(
         posts.map(async (post) => {
-          const {numUploaded, failedUrls} = await convertImagesInObject("Posts", post._id, "contents", urlFilter)
+          const {numUploaded, failedUrls} = await convertImagesInObject("Posts", post._id, context, "contents", urlFilter)
           stats.documentCount++;
           stats.uploadedImageCount += numUploaded;
           for (const failedUrl of failedUrls) {
@@ -593,9 +595,11 @@ export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, 
   saveImageUploadResults(stats);
 }
 
+// Exported to allow use in "yarn repl"
 export async function rehostImagesInPost(_id: string) {
   let stats = getEmptyImageUploadStats();
-  const {numUploaded, failedUrls} = await convertImagesInObject("Posts", _id, "contents")
+  const context = createAnonymousContext();
+  const {numUploaded, failedUrls} = await convertImagesInObject("Posts", _id, context, "contents")
   stats.documentCount++;
   stats.uploadedImageCount += numUploaded;
   for (const failedUrl of failedUrls) {
@@ -610,16 +614,12 @@ function saveImageUploadResults(stats: ImageUploadStats) {
 
   if (stats.failedUrls.length > 0) {
     // eslint-disable-next-line no-console
-    console.error(`Failed to upload ${stats.failedUrls.length} images. Failed images written to failed_image_uploads.csv. To restore broken images, fill in the third column with other URLs or local filenames and run \`Globals.importImageMirrorUrls("failed_image_uploads.csv")\``);
+    console.error(`Failed to upload ${stats.failedUrls.length} images. Failed images written to failed_image_uploads.csv. To restore broken images, fill in the third column with other URLs or local filenames and run \`importImageMirrors("failed_image_uploads.csv")\``);
     fs.writeFileSync("failed_image_uploads.csv", Papa.unparse(
       stats.failedUrls.map(({originDocumentId, url}) => [originDocumentId, url, ""]))
     );
   }
 }
-
-Globals.importImageMirrors = importImageMirrors;
-Globals.rehostImagesInPost = rehostImagesInPost;
-Globals.rehostImagesInAllPosts = rehostImagesInAllPosts;
 
 function imageUrlToArchiveDotOrgUrl(imageUrl: string): string {
   // In archive.org URLs, /web/<date>if_/<url> is the version of that URL on or

@@ -1,4 +1,4 @@
-import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import { DbTestObject, testTable, runTestCases, testTable5, DbTestObject5 } from "@/server/sql/tests/testHelpers";
 import UpdateQuery from "@/server/sql/UpdateQuery";
 
 describe("UpdateQuery", () => {
@@ -6,8 +6,8 @@ describe("UpdateQuery", () => {
     {
       name: "can build update with $set",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {b: "test", c: "another-test"}}),
-      expectedSql: 'UPDATE "TestCollection" SET "b" = $1::TEXT , "c" = $2::TEXT WHERE "a" = $3 RETURNING "_id"',
-      expectedArgs: ["test", "another-test", 3],
+      expectedSql: 'UPDATE "TestCollection" SET "b" = $1::TEXT , "c" = $2::JSONB WHERE "a" = $3 RETURNING "_id"',
+      expectedArgs: ["test", '"another-test"', 3],
     },
     {
       name: "can build update with $unset",
@@ -18,8 +18,8 @@ describe("UpdateQuery", () => {
     {
       name: "can build update with $set and $unset",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$unset: {b: ""}, $set: {c: "test"}}),
-      expectedSql: 'UPDATE "TestCollection" SET "c" = $1::TEXT , "b" = $2 WHERE "a" = $3 RETURNING "_id"',
-      expectedArgs: ["test", null, 3],
+      expectedSql: 'UPDATE "TestCollection" SET "c" = $1::JSONB , "b" = $2 WHERE "a" = $3 RETURNING "_id"',
+      expectedArgs: ['"test"', null, 3],
     },
     {
       name: "can build update with string selector",
@@ -98,5 +98,24 @@ describe("UpdateQuery", () => {
       expectedSql: `UPDATE "TestCollection" SET "c" = $1::JSONB WHERE "a" = $2 RETURNING "_id"`,
       expectedArgs: ['[{"d":"test"}]', 3],
     },
+    {
+      name: "can correctly cast and add a type hint for primitive (non-array and non-object) values in a JSONB field",
+      getQuery: () => new UpdateQuery<DbTestObject5>(testTable5, {_id: "abc"}, {$set: {jsonField: "test"}}),
+      expectedSql: `UPDATE "TestCollection5" SET "jsonField" = $1::JSONB WHERE "_id" = $2 RETURNING "_id"`,
+      expectedArgs: ['"test"', "abc"],
+    },
+    {
+      name: "can correctly cast and add a type hint for arrays of primitive values (i.e. text[]) in a JSONB field",
+      getQuery: () => new UpdateQuery<DbTestObject5>(testTable5, {_id: "abc"}, {$set: {jsonField: ["test", "test2"]}}),
+      expectedSql: `UPDATE "TestCollection5" SET "jsonField" = $1::JSONB WHERE "_id" = $2 RETURNING "_id"`,
+      expectedArgs: ['["test","test2"]', "abc"],
+    },
+    {
+      name: "can correctly cast and add a type hint for dates in a JSONB field",
+      getQuery: () => new UpdateQuery<DbTestObject5>(testTable5, {_id: "abc"}, {$set: {jsonField: new Date('2025-01-01')}}),
+      expectedSql: `UPDATE "TestCollection5" SET "jsonField" = $1::JSONB WHERE "_id" = $2 RETURNING "_id"`,
+      expectedArgs: [JSON.stringify(new Date('2025-01-01')), "abc"],
+    },
   ]);
 });
+

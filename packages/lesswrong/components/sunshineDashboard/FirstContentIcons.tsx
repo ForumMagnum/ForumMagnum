@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import DescriptionIcon from '@material-ui/icons/Description'
-import MessageIcon from '@material-ui/icons/Message'
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({

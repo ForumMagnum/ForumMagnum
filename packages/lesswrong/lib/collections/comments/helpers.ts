@@ -1,6 +1,5 @@
 import { isAF, taggingNameSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
@@ -10,8 +9,8 @@ import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } fr
 import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
-export async function commentGetAuthorName(comment: DbComment): Promise<string> {
-  var user = await mongoFindOne("Users", comment.userId);
+export async function commentGetAuthorName(comment: DbComment, context: ResolverContext): Promise<string> {
+  var user = await context.Users.findOne({_id: comment.userId});
   return user ? userGetDisplayName(user) : comment.author ?? "[unknown author]";
 };
 

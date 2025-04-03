@@ -1,8 +1,9 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle, schemaDefaultValue } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
-import { addGraphQLSchema } from '../../vulcan-lib';
 import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
+import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
 
 /**
  * This covers the type of originalContents for all editor types. 
@@ -19,24 +20,6 @@ export const ContentType = new SimpleSchema({
   )
 })
 
-SimpleSchema.extendOptions([ 'inputType' ]);
-
-// Graphql doesn't allow union types that include scalars, which is necessary
-// to accurately represent the data field the ContentType simple schema.
-
-// defining a custom scalar seems to allow it to pass through any data type,
-// but this doesn't seem much more permissive than ContentType was originally
-addGraphQLSchema(`
-  scalar ContentTypeData
-`)
-
-addGraphQLSchema(`
-  type ContentType {
-    type: String
-    data: ContentTypeData
-  }
-`)
-
 const isSharable = (document: any): document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
 }
@@ -52,7 +35,7 @@ export const getOriginalContents = <N extends CollectionNameString>(
     currentUser,
     // We need `userIsPodcaster` here to make it possible for podcasters to open post edit forms to add/update podcast episode info
     // Without it, `originalContents` may resolve to undefined, which causes issues in revisionResolvers
-    { canRead: [userOwns, canViewOriginalContents, userIsPodcaster, 'admins', 'sunshineRegiment'] },
+    [userOwns, canViewOriginalContents, userIsPodcaster, 'admins', 'sunshineRegiment'],
     document
   )
 
@@ -60,6 +43,13 @@ export const getOriginalContents = <N extends CollectionNameString>(
 }
 
 const schema: SchemaType<"Revisions"> = {
+  ...universalFields({
+    legacyDataOptions: {
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
+    }
+  }),
   documentId: {
     type: String,
     canRead: ['guests'],
@@ -263,7 +253,7 @@ const schema: SchemaType<"Revisions"> = {
       if (!revision.documentId)
         return null;
       const tag = await context.loaders.Tags.load(revision.documentId);
-      return await accessFilterSingle(currentUser, Tags, tag, context);
+      return await accessFilterSingle(currentUser, 'Tags', tag, context);
     }
   }),
   post: resolverOnlyField({
@@ -277,7 +267,7 @@ const schema: SchemaType<"Revisions"> = {
       if (!revision.documentId)
         return null;
       const post = await context.loaders.Posts.load(revision.documentId);
-      return await accessFilterSingle(currentUser, Posts, post, context);
+      return await accessFilterSingle(currentUser, 'Posts', post, context);
     }
   }),
   lens: resolverOnlyField({
@@ -296,7 +286,7 @@ const schema: SchemaType<"Revisions"> = {
       if (lens.fieldName !== "description" || lens.collectionName !== "Tags") {
         return null;
       }
-      return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
+      return await accessFilterSingle(currentUser, 'MultiDocuments', lens, context);
     },
     sqlResolver: ({ field, join }) => join({
       table: 'MultiDocuments',
@@ -325,9 +315,11 @@ const schema: SchemaType<"Revisions"> = {
       if (lens.fieldName !== "summary") {
         return null;
       }
-      return await accessFilterSingle(currentUser, MultiDocuments, lens, context);
+      return await accessFilterSingle(currentUser, 'MultiDocuments', lens, context);
     },
   }),
+
+  ...getVoteableSchemaFields('Revisions'),
 };
 
 export default schema;

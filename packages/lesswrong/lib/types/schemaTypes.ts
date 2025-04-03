@@ -1,9 +1,10 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
-import { formProperties } from '../vulcan-forms/schema_utils';
+import type { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
-import { permissionGroups } from "../permissions";
+import type { permissionGroups } from "../permissions";
 import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
+import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldOptions } from '../editor/makeEditableOptions';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -22,7 +23,8 @@ interface CollectionFieldPermissions {
   canCreate?: FieldCreatePermissions,
 }
 
-type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
+type FormInputBuiltinName = 'text' | 'number' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
+type FormInputType = FormInputBuiltinName | keyof ComponentTypes;
 
 type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
 
@@ -106,6 +108,174 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
   sqlPostProcess?: SqlPostProcess<N>,
 }
 
+interface CountOfReferenceOptions {
+  foreignCollectionName: CollectionNameString
+  foreignFieldName: string
+  filterFn: (obj: AnyBecauseHard) => boolean
+  resyncElastic: boolean
+}
+
+interface SlugCallbackOptions<N extends CollectionNameString> {
+  /**
+   * The collection to add slug fields to.
+   */
+  // collection: CollectionBase<CollectionNameString>,
+
+  /**
+   * If set, check for collisions not just within the same collision, but also
+   * within a provided list of other collections.
+   */
+  collectionsToAvoidCollisionsWith: CollectionNameWithSlug[],
+
+  /**
+   * Returns the title that will be used to generate slugs. (This does not have
+   * to already be slugified.)
+   */
+  getTitle: (obj: ObjectsByCollectionName[N] | DbInsertion<ObjectsByCollectionName[N]>) => string,
+  
+  /**
+   * How to handle it when a newly created document's slug, or the new slug in
+   * a document whose slug is being edited, collides with the slug on an
+   * existing document.
+   *   newDocumentGetsSuffix: Add a suffix to the slug of the new document
+   *   rejectNewDocument: Block the creation/edit of the new document that
+   *     had a colliding slug
+   *   rejectIfExplicit: If the colliding slug was inferred from a change to
+   *     the title, deconflict it with a suffix. If the slug was edited
+   *     directly, however, reject the edit.
+   */
+  onCollision: "newDocumentGetsSuffix"|"rejectNewDocument"|"rejectIfExplicit",
+
+  /**
+   * If true, adds a field `oldSlugs` and automatically adds to it when slugs
+   * change.
+   */
+  includesOldSlugs: boolean,
+}
+
+type DatabaseBaseType = `VARCHAR(${number})` | 'TEXT' | 'BOOL' | 'DOUBLE PRECISION' | 'INTEGER' | 'JSONB' | 'TIMESTAMPTZ' | 'VECTOR(1536)';
+
+interface DatabaseFieldSpecification<N extends CollectionNameString> {
+  type: DatabaseBaseType | `${DatabaseBaseType}[]`,
+  defaultValue?: any,
+  typescriptType?: string,
+  denormalized?: boolean, 
+  canAutoDenormalize?: boolean,
+  canAutofillDefault?: boolean,
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
+  getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
+  foreignKey?: CollectionNameString | { collection: CollectionNameString, field: string },
+  logChanges?: boolean,
+  nullable?: boolean,
+}
+
+interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
+  inputType?: string,
+  canRead: FieldPermissions,
+  canUpdate?: FieldPermissions,
+  canCreate?: FieldCreatePermissions,
+  onCreate?: (args: {
+    data: DbInsertion<ObjectsByCollectionName[N]>,
+    currentUser: DbUser|null,
+    collection: CollectionBase<N>,
+    context: ResolverContext,
+    document: ObjectsByCollectionName[N],
+    newDocument: ObjectsByCollectionName[N],
+    fieldName: string
+  }) => any, 
+  onUpdate?: (args: {
+    data: Partial<ObjectsByCollectionName[N]>,
+    oldDocument: ObjectsByCollectionName[N],
+    newDocument: ObjectsByCollectionName[N],
+    document: ObjectsByCollectionName[N],
+    currentUser: DbUser|null,
+    collection: CollectionBase<N>,
+    context: ResolverContext,
+    fieldName: string
+    modifier: MongoModifier<ObjectsByCollectionName[N]>
+  }) => any,
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
+  countOfReferences?: CountOfReferenceOptions;
+  editableFieldOptions?: EditableFieldCallbackOptions,
+  slugCallbackOptions?: SlugCallbackOptions<N>;
+  resolver?: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
+
+  arguments?: string,
+  sqlResolver?: SqlResolver<N>,
+  sqlPostProcess?: undefined,
+}
+
+interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> {
+  canRead: FieldPermissions,
+  canUpdate?: undefined,
+  canCreate?: undefined,
+  arguments?: string|null,
+  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
+  sqlResolver?: SqlResolver<N>,
+  /**
+   * `sqlPostProcess` is run on the result of the database call, in addition
+   * to the `sqlResolver`. It should return the value of this `field`, generally
+   * by performing some operation on the value returned by the `sqlResolver`.
+   * Most of the time this is an anti-pattern which should be avoided, but
+   * sometimes it's unavoidable.
+   */
+  sqlPostProcess?: SqlPostProcess<N>,
+}
+
+type NotAGraphQLFieldSpecification = Record<string, never>;
+
+interface GraphQLBaseFieldSpecification {
+  outputType: string | GraphQLScalarType,
+  typescriptType?: string,
+  validation?: {
+    optional?: boolean,
+    simpleSchema?: SimpleSchema | [SimpleSchema],
+    regEx?: any,
+    allowedValues?: string[],
+    blackbox?: boolean,
+  },
+  // This is a dumb hack to enable the performance optimization of the `PostSideComments` fragment.
+  // We need to include some SideCommentCache fields in the executable schema even if they don't end up served to the client
+  // because they need to live on that fragment (for the optimization), and if they aren't in the executable schema then 
+  // the server barfs when getting a query with a fragment that includes those fields (even though it'll never get anything back for them).
+  forceIncludeInExecutableSchema?: boolean,
+}
+
+type GraphQLFieldSpecification<N extends CollectionNameString> = GraphQLBaseFieldSpecification & (
+  | GraphQLWriteableFieldSpecification<N>
+  | GraphQLResolverOnlyFieldSpecification<N>
+  | NotAGraphQLFieldSpecification
+);
+
+interface FormFieldSpecification<N extends CollectionNameString> {
+  description?: string,
+  min?: number,
+  max?: number,
+  minCount?: number,
+  maxCount?: number,
+  options?: (props: SmartFormProps<N>) => any,
+  form?: Record<string, string | number | boolean | Record<string, any> | ((props: SmartFormProps<N>) => any) | undefined>,
+  beforeComponent?: keyof ComponentTypes,
+  afterComponent?: keyof ComponentTypes,
+  order?: number,
+  label?: string,
+  tooltip?: string,
+  control?: FormInputType,
+  placeholder?: string,
+  hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
+  group?: () => FormGroupType<N>,
+  editableFieldOptions?: EditableFieldClientOptions,
+  canRead?: FieldPermissions,
+  canUpdate?: FieldPermissions,
+  canCreate?: FieldCreatePermissions,
+}
+
+interface NewCollectionFieldSpecification<N extends CollectionNameString> {
+  database?: DatabaseFieldSpecification<N>,
+  graphql?: GraphQLFieldSpecification<N>,
+  form?: FormFieldSpecification<N>,
+}
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -171,13 +341,10 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   order?: number,
   label?: string,
   tooltip?: string,
-  // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
-  input?: FormInputType,
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
-  group?: FormGroupType<N>,
-  inputType?: any,
+  group?: () => FormGroupType<N>,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
   //  * The "document" field in onUpdate is deprecated due to an earlier mixup
@@ -209,24 +376,21 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   }) => any,
   onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
 
-  countOfReferences?: {
-    foreignCollectionName: CollectionNameString
-    foreignFieldName: string
-    filterFn?: (obj: AnyBecauseHard) => boolean
-    resyncElastic: boolean
-  }
+  countOfReferences?: CountOfReferenceOptions;
+  editableFieldOptions?: EditableFieldOptions;
+  slugCallbackOptions?: SlugCallbackOptions<N>;
 }
 
 /** Field specification for a Form field, created from the collection schema */
 type FormField<N extends CollectionNameString> = Pick<
-  CollectionFieldSpecification<N>,
+  FormFieldSpecification<N> & Exclude<GraphQLBaseFieldSpecification['validation'], undefined> & Pick<DatabaseFieldSpecification<N>, 'defaultValue'>,
   typeof formProperties[number]
 > & {
   document: any
   name: string
   datatype: any
   layout: string
-  input: CollectionFieldSpecification<N>["input"] | CollectionFieldSpecification<N>["control"]
+  input: FormInputType
   label: string
   help: string
   path: string
@@ -246,7 +410,8 @@ type FormGroupType<N extends CollectionNameString> = {
   startCollapsed?: boolean,
   helpText?: string,
   hideHeader?: boolean,
-  layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  //layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  layoutComponent?: keyof ComponentTypes
   layoutComponentProps?: Partial<FormGroupLayoutProps>,
   fields?: FormField<N>[]
 }
@@ -258,6 +423,28 @@ type FormGroupSafeType<N extends CollectionNameString> = Omit<FormGroupType<N>, 
 };
 
 type SchemaType<N extends CollectionNameString> = Record<string, CollectionFieldSpecification<N>>;
-type SimpleSchemaType<N extends CollectionNameString> = SimpleSchema & {_schema: SchemaType<N>};
+type OldSimpleSchemaType<N extends CollectionNameString> = SimpleSchema & {_schema: SchemaType<N>};
+
+type DerivedSimpleSchemaFieldType = {
+  optional: boolean,
+  label: string,
+  blackbox?: boolean,
+  nullable?: boolean,
+  typescriptType?: string,
+  type: {
+    singleType: Function | string | SimpleSchema,
+    definitions: Array<{
+      type: NewSimpleSchemaType<CollectionNameString>,
+      allowedValues: string[]
+    }>
+  },
+} & FormFieldSpecification<CollectionNameString>;
+
+type DerivedSimpleSchemaType<T extends Partial<Record<string, any>>> = {
+  [k in keyof T]: DerivedSimpleSchemaFieldType
+};
+
+type NewSchemaType<N extends CollectionNameString> = Record<string, NewCollectionFieldSpecification<N>>;
+type NewSimpleSchemaType<N extends CollectionNameString> = SimpleSchema & { _schema: DerivedSimpleSchemaType<NewSchemaType<N>> };
 
 }

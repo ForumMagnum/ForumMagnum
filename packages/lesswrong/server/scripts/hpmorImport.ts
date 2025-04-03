@@ -1,7 +1,7 @@
 import fs from 'fs';
-import Users from '../../lib/collections/users/collection';
-import { Posts } from '../../lib/collections/posts';
-import { createMutator } from '../vulcan-lib';
+import Users from '../../server/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import { createMutator } from '../vulcan-lib/mutators';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
 const hpmorImport = false;

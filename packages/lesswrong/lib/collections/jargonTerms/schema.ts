@@ -1,6 +1,21 @@
+import { editableFields } from '@/lib/editor/make_editable';
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"JargonTerms"> = {
+  ...universalFields({}),
+  ...editableFields("JargonTerms", {
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    order: 10,
+    hintText: () => 'If you want to add a custom term, use this form.  The description goes here.  The term, as well as any alt terms, must appear in your post.',
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members'],
+    }
+  }),
   postId: {
     canRead: ['guests'],
     canCreate: ['members'],

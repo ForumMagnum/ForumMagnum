@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 
 const COVID_TAG_ID = 'tNsqhzTibgGJKPEWB';
 const RATIONALITY_TAG_ID = 'Ng8Gice9KNkncxqcj';
@@ -7,7 +7,7 @@ const WORLD_MODELING_TAG_ID = '3uE2pXvbcnS9nnZRE';
 
 const EXCLUDE_TAG_IDS = [COVID_TAG_ID, RATIONALITY_TAG_ID, WORLD_MODELING_TAG_ID];
 
-registerMigration({
+export default registerMigration({
   name: "updateDefaultFrontpageTagFilterSettings",
   dateWritten: "2023-01-04",
   idempotent: true,

@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import LinearProgress from '@/lib/vendor/@material-ui/core/src/LinearProgress';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';

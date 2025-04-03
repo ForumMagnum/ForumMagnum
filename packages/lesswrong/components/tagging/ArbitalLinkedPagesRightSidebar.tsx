@@ -27,11 +27,6 @@ const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
     zIndex: 2,
     height: 140,
     width: "100%",
-    // background: `linear-gradient(0deg, 
-    //   ${theme.palette.background.pageActiveAreaBackground} 30%,
-    //   ${theme.palette.panelBackground.translucent} 70%,
-    //   transparent 100%
-    // )`,
     opacity: 1,
   },
 
@@ -40,8 +35,6 @@ const styles = defineStyles("ArbitalLinkedPages", (theme: ThemeType) => ({
     fontSize: '1.0rem',
     marginBottom: 4,
     color: theme.palette.grey[600],
-    minWidth: 'fit-content',
-    // whiteSpace: 'nowrap',
     display: 'block',
     cursor: 'pointer',
     '&:hover': {

@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
+import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useDialog } from '../common/withDialog';
 
 const AddDraftPostDialog = ({documentId, postIds, onClose}: {

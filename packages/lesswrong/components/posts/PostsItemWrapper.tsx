@@ -1,9 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import DragIcon from '@material-ui/icons/DragHandle';
-import RemoveIcon from '@material-ui/icons/Close';
-import AddIcon from '@material-ui/icons/Add';
+import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
+import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({

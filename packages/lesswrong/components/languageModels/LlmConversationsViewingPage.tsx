@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
 import { useSingle } from '@/lib/crud/withSingle';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { userIsAdmin } from '@/lib/vulcan-users';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
-import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
+import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox";
 
 const styles = (theme: ThemeType) => ({
   root: {

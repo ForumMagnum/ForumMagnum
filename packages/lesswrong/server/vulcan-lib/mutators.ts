@@ -29,18 +29,31 @@ Finally, *after* the operation is performed, we execute any async callbacks.
 
 */
 
-import { convertDocumentIdToIdInSelector, Utils } from '../../lib/vulcan-lib/utils';
+import { convertDocumentIdToIdInSelector } from '../../lib/vulcan-lib/utils';
 import { validateDocument, validateData, dataToModifier, modifierToData, } from './validation';
-import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
-import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
-import { logFieldChanges } from '../fieldChanges';
-import { createAnonymousContext } from './query';
+import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
+// This needs to be import type to avoid a dependency cycle
+import type {
+  runCreateBeforeEditableCallbacks as runCreateBeforeEditableCallbacksType,
+  runCreateAfterEditableCallbacks as runCreateAfterEditableCallbacksType,
+  runNewAsyncEditableCallbacks as runNewAsyncEditableCallbacksType,
+  runUpdateBeforeEditableCallbacks as runUpdateBeforeEditableCallbacksType,
+  runUpdateAfterEditableCallbacks as runUpdateAfterEditableCallbacksType,
+  runEditAsyncEditableCallbacks as runEditAsyncEditableCallbacksType,
+} from '../editor/make_editable_callbacks';
+import type { runCountOfReferenceCallbacks as runCountOfReferenceCallbacksType } from '../callbacks/countOfReferenceCallbacks';
+import type { runSlugCreateBeforeCallback as runSlugCreateBeforeCallbackType, runSlugUpdateBeforeCallback as runSlugUpdateBeforeCallbackType } from '../utils/slugUtil';
+
+import { isElasticEnabled } from '@/lib/instanceSettings';
+import { searchIndexedCollectionNamesSet } from '@/lib/search/searchUtil';
+// This needs to be import type to avoid a dependency cycle
+import type { elasticSyncDocument as elasticSyncDocumentType } from '../search/elastic/elasticCallbacks';
 
 const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   createMutatorParams: CreateMutatorParams<N>,
@@ -48,14 +61,15 @@ const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
   const {
     currentUser = null,
     collection,
-    context = createAnonymousContext(),
     document
   } = createMutatorParams;
 
-  const schema = getSchema(collection);
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const schema = getSchema(collection.collectionName);
 
   return {
-    currentUser, collection, context,
+    currentUser, collection,
+    context: createMutatorParams.context ?? require('./createContexts').createAnonymousContext(),
     document: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     newDocument: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     schema
@@ -108,20 +122,40 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     document,
     currentUser=null,
     validate=true,
-    context,
   } = createMutatorParams;
   const logger = loggerConstructor(`mutators-${collection.collectionName.toLowerCase()}`);
   logger('createMutator() begin')
   logger('(new) document', document);
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = createMutatorParams.context ?? require('./createContexts').createAnonymousContext();
 
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const schema = getSchema(collectionName);
 
   const hooks = getCollectionHooks(collectionName);
+
+  // There are some functions we need to run in various mutator stages which themselves call mutators somewhere,
+  // so to avoid dependency cycles we need to dynamically import them.
+
+  const { runSlugCreateBeforeCallback }: {
+    runSlugCreateBeforeCallback: typeof runSlugCreateBeforeCallbackType,
+  } = require('../utils/slugUtil');
+
+  const { runCreateBeforeEditableCallbacks, runCreateAfterEditableCallbacks, runNewAsyncEditableCallbacks }: {
+    runCreateBeforeEditableCallbacks: typeof runCreateBeforeEditableCallbacksType,
+    runCreateAfterEditableCallbacks: typeof runCreateAfterEditableCallbacksType,
+    runNewAsyncEditableCallbacks: typeof runNewAsyncEditableCallbacksType,
+  } = require('../editor/make_editable_callbacks');
+
+  const { elasticSyncDocument }: {
+    elasticSyncDocument: typeof elasticSyncDocumentType,
+  } = require('../search/elastic/elasticCallbacks');
+
+  const { runCountOfReferenceCallbacks }: {
+    runCountOfReferenceCallbacks: typeof runCountOfReferenceCallbacksType,
+  } = require('../callbacks/countOfReferenceCallbacks');
 
   /*
 
@@ -170,11 +204,11 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   const start = Date.now();
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
-    const schemaField = schema[fieldName];
-    if (schemaField.onCreate) {
+    const { graphql } = schema[fieldName];
+    if (graphql && 'onCreate' in graphql && !!graphql.onCreate) {
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schemaField.onCreate({...properties, fieldName} as any); // eslint-disable-line no-await-in-loop
+      autoValue = await graphql.onCreate({...properties, fieldName} as any); // eslint-disable-line no-await-in-loop
     }
     if (typeof autoValue !== 'undefined') {
       logger(`onCreate returned a value to insert for field ${fieldName}: ${autoValue}`)
@@ -201,11 +235,20 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
 
   */
   logger('before callbacks')
+
+  document = await runSlugCreateBeforeCallback(properties);
+
   logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
     iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     properties: [properties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+
+  document = await runCreateBeforeEditableCallbacks({
+    doc: document,
+    props: properties,
+  });
+
   logger('newSync')
   document = await hooks.newSync.runCallbacks({
     iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
@@ -234,11 +277,26 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [afterCreateProperties],
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+
+  // I don't like the casts, but it's what we were doing in `createAfter` callbacks before we pulled out the editable callbacks
+  document = await runCreateAfterEditableCallbacks({
+    newDoc: document as ObjectsByCollectionName[N],
+    props: afterCreateProperties,
+  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+  
+  // This should happen after the editable callbacks
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    newDocument: document,
+    callbackStage: "createAfter",
+    afterCreateProperties,
+  });
+
   logger('newAfter')
   // OpenCRUD backwards compatibility
   document = await hooks.newAfter.runCallbacks({
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    properties: [currentUser]
+    properties: [currentUser, afterCreateProperties]
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
 
   // note: query for document to get fresh document with collection-hooks effects applied
@@ -258,13 +316,24 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   await hooks.createAsync.runCallbacksAsync(
     [{ ...afterCreateProperties, document: completedDocument, newDocument: completedDocument }],
   );
+
+  if (isElasticEnabled && searchIndexedCollectionNamesSet.has(collectionName)) {
+    void elasticSyncDocument(collectionName, insertedId);
+  }
+
   logger('newAsync')
   // OpenCRUD backwards compatibility
   await hooks.newAsync.runCallbacksAsync([
     completedDocument,
     currentUser,
-    collection
+    collection,
+    afterCreateProperties,
   ]);
+
+  await runNewAsyncEditableCallbacks({
+    newDoc: completedDocument,
+    props: afterCreateProperties,
+  });
 
   return { data: completedDocument };
 };
@@ -285,18 +354,18 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   unset = {},
   currentUser=null,
   validate=true,
-  context,
+  context: maybeContext,
   document: oldDocument,
 }: UpdateMutatorParams<N>) => {
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const schema = getSchema(collectionName);
   const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}`);
   logger('updateMutator() begin')
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = maybeContext ?? require('./createContexts').createAnonymousContext();
 
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
@@ -308,6 +377,24 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   let origData = {...data};
 
   const hooks = getCollectionHooks(collectionName);
+
+  const { runSlugUpdateBeforeCallback }: {
+    runSlugUpdateBeforeCallback: typeof runSlugUpdateBeforeCallbackType,
+  } = require('../utils/slugUtil');
+
+  const { runUpdateBeforeEditableCallbacks, runUpdateAfterEditableCallbacks, runEditAsyncEditableCallbacks }: {
+    runUpdateBeforeEditableCallbacks: typeof runUpdateBeforeEditableCallbacksType,
+    runUpdateAfterEditableCallbacks: typeof runUpdateAfterEditableCallbacksType,
+    runEditAsyncEditableCallbacks: typeof runEditAsyncEditableCallbacksType,
+  } = require('../editor/make_editable_callbacks');
+
+  const { elasticSyncDocument }: {
+    elasticSyncDocument: typeof elasticSyncDocumentType,
+  } = require('../search/elastic/elasticCallbacks');
+
+  const { runCountOfReferenceCallbacks }: {
+    runCountOfReferenceCallbacks: typeof runCountOfReferenceCallbacksType,
+  } = require('../callbacks/countOfReferenceCallbacks');
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -377,9 +464,9 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
   const dataAsModifier = dataToModifier(clone(data));
   for (let fieldName of Object.keys(schema)) {
     let autoValue;
-    const schemaField = schema[fieldName];
-    if (schemaField.onUpdate) {
-      autoValue = await schemaField.onUpdate({...properties, fieldName, modifier: dataAsModifier});
+    const { graphql } = schema[fieldName];
+    if (graphql && 'onUpdate' in graphql && !!graphql.onUpdate) {
+      autoValue = await graphql.onUpdate({...properties, fieldName, modifier: dataAsModifier});
     }
     if (typeof autoValue !== 'undefined') {
       logger(`onUpdate returned a value to update for ${fieldName}: ${autoValue}`)
@@ -393,11 +480,20 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
 
   */
   logger('before callbacks')
+
+  data = await runSlugUpdateBeforeCallback(properties);
+  
   logger('updateBefore')
   data = await hooks.updateBefore.runCallbacks({
     iterator: data,
     properties: [properties],
   });
+
+  data = await runUpdateBeforeEditableCallbacks({
+    docData: data,
+    props: properties,
+  });
+
   logger('editSync')
   data = modifierToData(
     await hooks.editSync.runCallbacks({
@@ -405,7 +501,8 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
       properties: [
         oldDocument,
         currentUser,
-        document
+        document,
+        properties,
       ]
     })
   );
@@ -457,6 +554,19 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     properties: [properties],
   });
 
+  document = await runUpdateAfterEditableCallbacks({
+    newDoc: document,
+    props: properties,
+  });
+  
+  // This should happen after the editable callbacks
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    newDocument: document,
+    callbackStage: "updateAfter",
+    updateAfterProperties: properties,
+  });
+
   /*
 
   Async
@@ -472,10 +582,20 @@ export const updateMutator: UpdateMutator = async <N extends CollectionNameStrin
     document,
     oldDocument,
     currentUser,
-    collection
+    collection,
+    properties,
   ]);
+
+  await runEditAsyncEditableCallbacks({
+    newDoc: document,
+    props: properties,
+  });
+
+  if (isElasticEnabled && searchIndexedCollectionNamesSet.has(collectionName)) {
+    void elasticSyncDocument(collectionName, document._id);
+  }
   
-  void logFieldChanges({currentUser, collection, oldDocument, data: origData});
+  void require('../fieldChanges').logFieldChanges({currentUser, collection, oldDocument, data: origData});
 
   return { data: document };
 };
@@ -491,11 +611,12 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   selector,
   currentUser=null,
   validate=true,
-  context,
+  context: maybeContext,
   document,
 }: DeleteMutatorParams<N>) => {
   const { collectionName } = collection;
-  const schema = getSchema(collection);
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const schema = getSchema(collectionName);
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
 
@@ -503,8 +624,11 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
-  if (!context)
-    context = createAnonymousContext();
+  const context = maybeContext ?? require('./createContexts').createAnonymousContext();
+
+  const { runCountOfReferenceCallbacks }: {
+    runCountOfReferenceCallbacks: typeof runCountOfReferenceCallbacksType,
+  } = require('../callbacks/countOfReferenceCallbacks');
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -549,9 +673,9 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
 
   */
   for (let fieldName of Object.keys(schema)) {
-    const onDelete = schema[fieldName].onDelete;
-    if (onDelete) {
-      await onDelete(properties); // eslint-disable-line no-await-in-loop
+    const { graphql } = schema[fieldName];
+    if (graphql && 'onDelete' in graphql && !!graphql.onDelete) {
+      await graphql.onDelete(properties); // eslint-disable-line no-await-in-loop
     }
   }
 
@@ -585,9 +709,11 @@ export const deleteMutator: DeleteMutator = async <N extends CollectionNameStrin
   */
   await hooks.deleteAsync.runCallbacksAsync([properties]);
 
+  await runCountOfReferenceCallbacks({
+    collectionName,
+    callbackStage: "deleteAsync",
+    deleteAsyncProperties: properties,
+  });
+
   return { data: document };
 };
-
-Utils.createMutator = createMutator;
-Utils.updateMutator = updateMutator;
-Utils.deleteMutator = deleteMutator;

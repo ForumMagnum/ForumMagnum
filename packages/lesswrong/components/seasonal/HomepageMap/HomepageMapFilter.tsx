@@ -1,11 +1,11 @@
 import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
-import Divider from '@material-ui/core/Divider';
-import EmailIcon from '@material-ui/icons/Email';
+import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { CloseableComponent, OpenDialogContextType, useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';

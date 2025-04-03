@@ -1,6 +1,6 @@
 /*
 
-    # Vulcan.exportPostDetails({ selector, outputDir })
+    # exportPostDetails({ selector, outputDir })
 
       Script to export a list of post details to a CSV file.
 
@@ -11,7 +11,7 @@
       outputFile (String, optional):
         Filename for your CSV file. Defaults to 'post_details'
 
-    # Vulcan.exportPostDetailsByMonth({ month, outputDir, outputFile })
+    # exportPostDetailsByMonth({ month, outputDir, outputFile })
 
       Export details for a whole month
 
@@ -25,12 +25,11 @@ import moment from 'moment';
 import fs from 'mz/fs';
 import Papa from 'papaparse';
 import path from 'path';
-import { Posts } from '../../lib/collections/posts/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import Users from '../../lib/collections/users/collection';
-import Tags from '../../lib/collections/tags/collection';
+import Users from '../../server/collections/users/collection';
+import Tags from '../../server/collections/tags/collection';
 import { siteUrlSetting } from '../../lib/instanceSettings';
-import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
 import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../manualMigrations/2020-05-13-noIndexLowKarma';
 
@@ -65,7 +64,7 @@ function getPosts (selector: MongoSelector<DbPost>) {
     .find(finalSelector, {projection, sort: { createdAt: 1 }})
 }
 
-Vulcan.exportPostDetails = wrapVulcanAsyncScript(
+export const exportPostDetails = wrapVulcanAsyncScript(
   'exportPostDetails',
   async ({selector, outputDir, outputFile = 'post_details.csv'}: {
     selector: MongoSelector<DbPost>, outputDir: string, outputFile?: string
@@ -115,22 +114,22 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
   }
 )
 
-Vulcan.exportLowKarma = (
+export const exportLowKarma = async (
   {outputFilepath, karma = LOW_KARMA_THRESHOLD}: {outputFilepath: string, karma?: number}
 ) => {
-  Vulcan.exportPostDetails({
+  await exportPostDetails({
     selector: makeLowKarmaSelector(karma),
     outputFile: path.basename(outputFilepath),
     outputDir: path.dirname(outputFilepath)
   })
 }
 
-Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}: AnyBecauseTodo) => {
+export const exportPostDetailsByMonth = async ({month, outputDir, outputFile}: AnyBecauseTodo) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
   outputFile = outputFile || `post_details_${lastMonth.format('YYYY-MM')}`
   //eslint-disable-next-line no-console
   console.log(`Exporting all posts from ${lastMonth.format('MMM YYYY')}`)
-  return Vulcan.exportPostDetails({
+  return await exportPostDetails({
     selector: {
       createdAt: {
         $gte: lastMonth.toDate(), // first of prev month

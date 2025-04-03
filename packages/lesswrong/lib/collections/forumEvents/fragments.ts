@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const ForumEventsMinimumInfo = `
   fragment ForumEventsMinimumInfo on ForumEvent {
     _id
     title
@@ -17,11 +15,14 @@ registerFragment(`
     customComponent
     commentPrompt
 
+    pollAgreeWording
+    pollDisagreeWording
+
     maxStickersPerUser
   }
-`);
+`
 
-registerFragment(`
+export const ForumEventsDisplay = `
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
     publicData
@@ -45,10 +46,14 @@ registerFragment(`
       _id
       html
     }
+    pollQuestion {
+      _id
+      html
+    }
   }
-`);
+`
 
-registerFragment(`
+export const ForumEventsEdit = `
   fragment ForumEventsEdit on ForumEvent {
     ...ForumEventsMinimumInfo
     frontpageDescription {
@@ -60,5 +65,8 @@ registerFragment(`
     postPageDescription {
       ...RevisionEdit
     }
+    pollQuestion {
+      ...RevisionEdit
+    }
   }
-`);
+`

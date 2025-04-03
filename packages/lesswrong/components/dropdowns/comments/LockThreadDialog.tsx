@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMutation, gql } from '@apollo/client';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import Button from '@material-ui/core/Button';
+import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 

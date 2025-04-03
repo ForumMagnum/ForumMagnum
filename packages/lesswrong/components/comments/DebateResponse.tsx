@@ -1,10 +1,10 @@
 import React, {useRef, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
-import {getVotingSystemByName} from '../../lib/voting/votingSystems';
+import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
 import type { ContentItemBody } from '../common/ContentItemBody';
 
 const styles = (theme: ThemeType) => ({

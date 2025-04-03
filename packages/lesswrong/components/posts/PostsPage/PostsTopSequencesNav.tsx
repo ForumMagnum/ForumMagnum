@@ -1,11 +1,25 @@
 import React, {useCallback} from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useNavigate } from "../../../lib/routeUtil";
+import classNames from 'classnames';
+
+export const darkGreyAlpha = .7
+
+export const titleStyles = (theme: ThemeType) => ({
+  display: 'inline-block',
+  fontSize: 22,
+  verticalAlign: '-webkit-baseline-middle',
+  fontFamily: theme.typography.uiSecondary.fontFamily,
+  lineHeight: '24px',
+  color: theme.palette.text.dim,
+  ...theme.typography.smallCaps,
+})
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,20 +27,20 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
   },
-  title: {
-    display: 'inline-block',
-    fontSize: 22,
-    verticalAlign: '-webkit-baseline-middle',
-    fontFamily: theme.typography.uiSecondary.fontFamily,
-    lineHeight: '24px',
-    color: theme.palette.text.dim,
-    ...theme.typography.smallCaps,
+  title: {  
+    ...titleStyles(theme)
+  },
+  blackText: {
+    '&&': {
+      color: theme.palette.greyAlpha(darkGreyAlpha),
+    }
   }
 })
 
-const PostsTopSequencesNav = ({post, classes}: {
+const PostsTopSequencesNav = ({post, classes, blackText}: {
   post: PostSequenceNavigation,
   classes: ClassesType<typeof styles>,
+  blackText?: boolean
 }) => {
   const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();
@@ -67,7 +81,7 @@ const PostsTopSequencesNav = ({post, classes}: {
         direction="left" />
 
       <SequencesTooltip sequence={post.sequence}>
-        <div className={classes.title}>
+        <div className={classNames(classes.title, {[classes.blackText]: blackText})}>
           {post.sequence.draft && "[Draft] "}
           <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
         </div>

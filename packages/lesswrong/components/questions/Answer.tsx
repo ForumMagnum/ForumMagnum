@@ -1,7 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
@@ -10,7 +10,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { ContentItemBody } from '../common/ContentItemBody';
 import { useVote } from '../votes/withVote';
-import { getVotingSystemByName } from '../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 

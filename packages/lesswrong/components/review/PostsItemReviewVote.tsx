@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import Card from '@material-ui/core/Card';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';

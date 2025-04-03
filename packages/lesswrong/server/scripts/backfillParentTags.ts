@@ -1,10 +1,9 @@
-import TagRels from "../../lib/collections/tagRels/collection";
-import Tags from "../../lib/collections/tags/collection";
-import { Globals } from "../vulcan-lib";
+import TagRels from "../../server/collections/tagRels/collection";
+import Tags from "../../server/collections/tags/collection";
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { randomId } from "../../lib/random";
 
-const backfillParentTags = async (parentTagSlug: string) => {
+export const backfillParentTags = async (parentTagSlug: string) => {
   const parentTag = (await Tags.find({slug: parentTagSlug}).fetch())[0];
   const childTags = (await Tags.find({parentTagId: parentTag._id}).fetch());
   for (const childTag of childTags) {
@@ -48,4 +47,3 @@ const backfillParentTags = async (parentTagSlug: string) => {
   }
 }
 
-Globals.backfillParentTags = backfillParentTags;

@@ -1,8 +1,8 @@
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from "../../lib/crud/withSingle";
 import { DatabasePublicSetting } from "../../lib/publicSettings";

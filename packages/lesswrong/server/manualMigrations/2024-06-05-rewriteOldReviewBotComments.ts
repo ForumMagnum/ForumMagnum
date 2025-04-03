@@ -1,9 +1,10 @@
-import { Comments } from "@/lib/collections/comments";
+import { Comments } from "@/server/collections/comments/collection.ts";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { createAdminContext, updateMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { updateMutator } from "../vulcan-lib/mutators";
 
-registerMigration({
+export default registerMigration({
   name: "rewriteOldReviewBotComments",
   dateWritten: "2024-06-05",
   idempotent: true,

@@ -1,22 +1,20 @@
 import RSS from 'rss';
-import { Comments } from '../lib/collections/comments';
+import { Comments } from '../server/collections/comments/collection';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
-import { addStaticRoute, createAnonymousContext } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '../lib/notificationTypes';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
-
-Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
-Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
+import { addStaticRoute } from "./vulcan-lib/staticRoutes";
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
 
 export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();
@@ -86,7 +84,7 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
-      author: await userGetDisplayNameById(post.userId),
+      author: await userGetDisplayNameById(post.userId, context),
       // LESSWRONG - this was added to handle karmaThresholds
       // date: post.postedAt
       date: date,
@@ -108,11 +106,11 @@ const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string
   let parameters = viewTermsToQuery("Comments", terms);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
-  const restrictedComments = await accessFilterMultiple(null, Comments, commentsCursor, null) as DbComment[];
+  const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];
 
   await asyncForeachSequential(restrictedComments, async (comment) => {
     const url = await commentGetPageUrlFromDB(comment, context, true);
-    const parentTitle = await getCommentParentTitle(comment)
+    const parentTitle = await getCommentParentTitle(comment, context)
     feed.item({
      title: 'Comment on ' + parentTitle,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${url}'>Discuss</a>`,

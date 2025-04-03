@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import Menu from '@material-ui/core/Menu';
-import Divider from '@material-ui/core/Divider';
+import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
+import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
@@ -13,7 +13,7 @@ import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 

@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import Paper from '@material-ui/core/Paper';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({

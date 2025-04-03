@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
 
-import Paper from '@material-ui/core/Paper';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 

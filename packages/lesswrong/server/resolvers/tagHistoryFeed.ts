@@ -1,18 +1,23 @@
-import { Comments } from '../../lib/collections/comments/collection';
-import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagRels/collection';
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Comments } from '../../server/collections/comments/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { TagRels } from '../../server/collections/tagRels/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { defineFeedResolver, mergeFeedQueries, fixedResultSubquery, viewBasedSubquery, fieldChangesSubquery } from '../utils/feedUtil';
-import { MultiDocuments } from '@/lib/collections/multiDocuments/collection';
+import { mergeFeedQueries, fixedResultSubquery, viewBasedSubquery, fieldChangesSubquery } from '../utils/feedUtil';
+import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { defaultTagHistorySettings, TagHistorySettings } from '@/components/tagging/history/TagHistoryPage';
 import { MAIN_TAB_ID } from '@/lib/arbital/useTagLenses';
+import gql from 'graphql-tag';
 
-defineFeedResolver<Date>({
-  name: "TagHistoryFeed",
-  args: "tagId: String!, options: JSON",
-  cutoffTypeGraphQL: "Date",
-  resultTypesGraphQL: `
+
+export const tagHistoryFeedGraphQLTypeDefs = gql`
+  type TagHistoryFeedQueryResults {
+    cutoff: Date
+    endOffset: Int!
+    results: [TagHistoryFeedEntryType!]
+  }
+  type TagHistoryFeedEntryType {
+    type: String!
     tagCreated: Tag
     tagApplied: TagRel
     tagRevision: Revision
@@ -21,24 +26,30 @@ defineFeedResolver<Date>({
     summaryRevision: Revision
     wikiMetadataChanged: FieldChange
     lensOrSummaryMetadataChanged: FieldChange
-  `,
-  resolver: async ({limit=25, cutoff, offset, args, context}: {
-    limit?: number,
-    cutoff?: Date,
-    offset?: number,
-    args: {tagId: string, options?: TagHistorySettings},
-    context: ResolverContext
-  }) => {
-    const {tagId, options} = args;
-    const historyOptions: TagHistorySettings = {...defaultTagHistorySettings, ...options};
+  }
+  extend type Query {
+    TagHistoryFeed(
+      limit: Int,
+      cutoff: Date,
+      offset: Int,
+      tagId: String!,
+      options: JSON
+    ): TagHistoryFeedQueryResults!
+  }
+`
+
+export const tagHistoryFeedGraphQLQueries = {
+  TagHistoryFeed: async (_root: void, args: any, context: ResolverContext) => {
+    const {limit, cutoff, offset, tagId, options} = args;
     const {currentUser} = context;
+    type SortKeyType = Date;
+
+    const historyOptions: TagHistorySettings = {...defaultTagHistorySettings, ...options};
     
     const tagRaw = await Tags.findOne({_id: tagId});
     if (!tagRaw) throw new Error("Tag not found");
-    const tag = await accessFilterSingle(currentUser, Tags, tagRaw, context);
+    const tag = await accessFilterSingle(currentUser, 'Tags', tagRaw, context);
     if (!tag) throw new Error("Tag not found");
-    
-    type SortKeyType = Date
     
     const lensesAndSummaries = await MultiDocuments.find({
       parentDocumentId: tagId,
@@ -157,7 +168,9 @@ defineFeedResolver<Date>({
         }) : null),
       ],
     });
-    return result;
+    return {
+      __typename: "TagHistoryFeedQueryResults",
+      ...result
+    };
   }
-});
-
+}

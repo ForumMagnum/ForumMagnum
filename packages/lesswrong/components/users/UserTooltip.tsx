@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
-import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import type { PopperPlacementType } from "@/lib/vendor/@material-ui/core/src/Popper/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = () => ({
@@ -21,12 +21,13 @@ const styles = () => ({
   }
 });
 
-const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, classes}: {
+const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, children, classes}: {
   user: UsersMinimumInfo,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
   // LW specific
   hideFollowButton?: boolean,
+  disabled?: boolean,
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -42,6 +43,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, 
       popperClassName={classes.root}
       titleClassName={classes.overrideTooltip}
       clickable={!isFriendlyUI}
+      disabled={disabled}
     >
       {children}
     </HoverOver>

@@ -1,15 +1,13 @@
-import { emailBodyStyles } from "@/themes/stylePiping";
-import { createAdminContext, createMutator, Globals, runQuery } from "../vulcan-lib";
-import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
-import Users from "@/lib/vulcan-users";
-import Conversations from "@/lib/collections/conversations/collection";
-import { Posts } from "@/lib/collections/posts";
+import PetrovDayActions from "@/server/collections/petrovDayActions/collection";
+import Users from "@/server/collections/users/collection";
 import { filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
-import { create } from "underscore";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { createMutator } from "../vulcan-lib/mutators";
+import { runQuery } from "../vulcan-lib/query";
 
 const context = createAdminContext()
 
-const assignPetrov2024Roles = async () => {
+export const assignPetrov2024Roles = async () => {
   // eslint-disable-next-line no-console
   console.log("Assigning Petrov 2024 roles")
   
@@ -356,6 +354,4 @@ const assignPetrov2024Roles = async () => {
   // eslint-disable-next-line no-console
   console.log("done")
 }
-
-Globals.assignPetrov2024Roles = assignPetrov2024Roles
 

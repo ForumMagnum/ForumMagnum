@@ -7,11 +7,11 @@
  */
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils'
 import { FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings'
-import Users from '../../lib/collections/users/collection'
-import Tags from '../../lib/collections/tags/collection'
-import Posts from '../../lib/collections/posts/collection';
+import Users from '../../server/collections/users/collection'
+import Tags from '../../server/collections/tags/collection'
+import Posts from '../../server/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import TagRels from '../../lib/collections/tagRels/collection';
+import TagRels from '../../server/collections/tagRels/collection';
 import { createMutator } from '../vulcan-lib/mutators';
 
 // Your frontpage settings are shaped like:
@@ -31,7 +31,7 @@ import { createMutator } from '../vulcan-lib/mutators';
 // community section on the EA Forum. We'll now move that weight into the tags
 // section.
 // Also reset personalBlog filtering back to 'Default'
-registerMigration({
+export const metaToCommunityUserSettings = registerMigration({
   name: 'metaToCommunityUserSettings',
   dateWritten: '2020-08-11',
   idempotent: true,
@@ -93,7 +93,7 @@ registerMigration({
 const DEFAULT_ADMIN_USER_SLUG = 'jpaddison'
 
 // Tag all posts with the meta flag as community posts
-registerMigration({
+export const metaToCommunityPosts = registerMigration({
   name: 'metaToCommunityPosts',
   dateWritten: '2020-08-12',
   idempotent: true,
@@ -135,7 +135,7 @@ registerMigration({
 
 // Once we've deployed, run this migration to mark all community posts as
 // frontpage, and remove the meta flag
-registerMigration({
+export const moveMetaToFrontpage = registerMigration({
   name: 'moveMetaToFrontpage',
   dateWritten: '2020-08-14',
   idempotent: true,

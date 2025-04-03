@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
-import LocationIcon from '@material-ui/icons/LocationOn'
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 

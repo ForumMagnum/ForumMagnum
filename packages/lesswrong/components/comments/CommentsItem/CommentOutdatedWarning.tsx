@@ -1,7 +1,7 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
-import HistoryIcon from '@material-ui/icons/History';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({

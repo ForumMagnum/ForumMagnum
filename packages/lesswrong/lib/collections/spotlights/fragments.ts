@@ -1,6 +1,4 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const SpotlightMinimumInfo = `
   fragment SpotlightMinimumInfo on Spotlight {
     _id
     documentId
@@ -23,9 +21,9 @@ registerFragment(`
     imageFade
     imageFadeColor
   }
-`)
+`
 
-registerFragment(`
+export const SpotlightReviewWinner = `
   fragment SpotlightReviewWinner on Spotlight {
     ...SpotlightMinimumInfo
     description {
@@ -35,9 +33,9 @@ registerFragment(`
       ...ChaptersFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const SpotlightHeaderEventSubtitle = `
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
     post {
@@ -52,14 +50,12 @@ registerFragment(`
       slug
     }
   }
-`);
-registerFragment(`
+`
+export const SpotlightDisplay = `
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     post {
-      _id
-      title
-      slug
+      ...PostsMinimumInfo
       user {
         _id
         displayName
@@ -95,14 +91,14 @@ registerFragment(`
       html
     }
   }
-`);
+`
 
 
-registerFragment(`
+export const SpotlightEditQueryFragment = `
   fragment SpotlightEditQueryFragment on Spotlight {
     ...SpotlightMinimumInfo
     description {
       ...RevisionEdit
     }
   }
-`);
+`

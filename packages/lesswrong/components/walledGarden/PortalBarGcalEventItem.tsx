@@ -1,6 +1,6 @@
 import React from 'react'
 import moment from 'moment';
-import {registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const eventRoot = (theme: ThemeType) => ({

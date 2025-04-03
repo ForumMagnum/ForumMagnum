@@ -1,9 +1,9 @@
 import React from "react";
-import Checkbox from "@material-ui/core/Checkbox";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
-import { userCanQuickTake } from "../../lib/vulcan-users";
+import { userCanQuickTake } from "../../lib/vulcan-users/permissions";
 import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,

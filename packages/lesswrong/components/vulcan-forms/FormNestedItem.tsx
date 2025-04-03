@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import type { FormComponentOverridesType } from './propTypes';
 
 const FormNestedItemLayout = ({ content, removeButton }: {
   content: React.ReactNode
@@ -21,24 +22,21 @@ const FormNestedItemLayout = ({ content, removeButton }: {
 );
 const FormNestedItemLayoutComponent = registerComponent('FormNestedItemLayout', FormNestedItemLayout);
 
-const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props }: FormComponentProps<any> & {
+const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props }: FormComponentWrapperProps<any> & {
   nestedFields: any
   name: string
   path: string
   removeItem: (i: string) => void
   itemIndex: number
-  formComponents: ComponentTypes
+  formComponents: FormComponentOverridesType
   hideRemove: boolean
-}, { errors }: {
-  errors: any[]
 }) => {
-  const FormComponents = mergeWithComponents(formComponents);
   const isArray = typeof itemIndex !== 'undefined';
   return (
-    <FormComponents.FormNestedItemLayout
+    <Components.FormNestedItemLayout
       content={nestedFields.map((field: AnyBecauseTodo, i: number) => {
         return (
-          <FormComponents.FormComponent
+          <Components.FormComponent
             key={i}
             {...props}
             {...field}
@@ -55,7 +53,7 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
               variant="danger"
               size="small"
               iconButton
-              tabIndex="-1"
+              tabIndex={-1}
               onClick={() => {
                 removeItem(name);
               }}
@@ -71,10 +69,6 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
       }
     />
   );
-};
-
-FormNestedItem.contextTypes = {
-  errors: PropTypes.array
 };
 
 const FormNestedItemComponent = registerComponent('FormNestedItem', FormNestedItem);

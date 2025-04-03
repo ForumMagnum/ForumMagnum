@@ -1,7 +1,8 @@
-import { graphqlTypeToCollectionName, isValidCollectionName } from '../../lib/vulcan-lib';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'
+import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
+import { isValidCollectionName } from "@/server/collections/allCollections";
 
 export const generatedFileHeader = `//
 // GENERATED FILE
@@ -20,10 +21,31 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
+export function isFieldNullable(fieldSpec: Pick<NewCollectionFieldSpecification<any>, "database" | "graphql">, dbGenContext?: boolean) {
+  const coalescedValue = fieldSpec.database?.nullable ?? fieldSpec.graphql?.validation?.optional;
+  // The implicit default value of `nullable` in the context of database type codegen is `true`, so we need to explicitly rule out `false`, not `undefined`
+  if (dbGenContext) {
+    return coalescedValue !== false;
+  }
+  return !!coalescedValue;
+}
+
+function getAllowedValuesUnionTypeString(allowedValues: string[]) {
+  return allowedValues?.map(v => `"${v}"`).join(' | ');
+}
+
+export function generateAllowedValuesTypeString(allowedValues: string[], fieldSchema: NewCollectionFieldSpecification<any>, dbGenContext?: boolean) {
+  const unionType = getAllowedValuesUnionTypeString(allowedValues);
+  const nullable = isFieldNullable(fieldSchema, dbGenContext);
+  const arrayField = typeof fieldSchema.graphql?.outputType === 'string' && fieldSchema.graphql.outputType.startsWith('[');
+  const fieldType = arrayField ? `Array<${unionType}>` : unionType;
+  return maybeNullable(fieldType, nullable);
+}
+
 export function simplSchemaTypeToTypescript(
-  schema: SchemaType<CollectionNameString>,
+  schema: DerivedSimpleSchemaType<NewSchemaType<CollectionNameString>>,
   fieldName: string,
-  simplSchemaType: AnyBecauseTodo,
+  simplSchemaType: DerivedSimpleSchemaFieldType['type'],
   indent = 2,
   DbType = false,
 ): string {
@@ -58,10 +80,13 @@ export function simplSchemaTypeToTypescript(
     if (graphQLtype) {
       return graphqlTypeToTypescript(graphQLtype);
     } else {
-      const innerSchema = simplSchemaType?.singleType?.schema?.();
-      if (innerSchema) {
-        const objectSchema = simplSchemaObjectTypeToTypescript(innerSchema, indent);
-        return maybeNullable(objectSchema, nullable);
+      const singleType = simplSchemaType.singleType;
+      if (typeof singleType === 'object' && 'schema' in singleType) {
+        const innerSchema = singleType.schema();
+        if (innerSchema) {
+          const objectSchema = simplSchemaObjectTypeToTypescript(innerSchema, indent);
+          return maybeNullable(objectSchema, nullable);
+        }
       }
       return `any /*${JSON.stringify(simplSchemaType)}*/`
     }
@@ -124,6 +149,9 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
       if (graphqlType.collectionName) {
         return graphqlType.collectionName;
       } else {
+        if (graphqlType === "JSON") {
+          return "any";
+        }
         // TODO
         //throw new Error("Unrecognized type: "+graphqlType);
         return `any /*${graphqlType}*/`;

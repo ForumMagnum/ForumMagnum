@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useMulti } from "../../lib/crud/withMulti";
 import type { ChecklistTag } from "../tagging/TagsChecklist";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 
 const filterDefined = <T>(values: (T | null | undefined)[]): T[] =>
@@ -50,7 +50,7 @@ export const useQuickTakesTags = (initialSelectedTagIds: string[] = []): QuickTa
   const [frontpage, setFrontpage] = useState(true);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(initialSelectedTagIds);
 
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
   const {results, loading} = useMulti({
     terms: {

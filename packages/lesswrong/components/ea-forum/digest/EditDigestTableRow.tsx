@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import CheckIcon from '@material-ui/icons/Check';
-import CloseIcon from '@material-ui/icons/Close';
+import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
 import type { DigestPost, PostWithRating } from './EditDigest';

@@ -1,10 +1,9 @@
 import AbstractRepo from "./AbstractRepo";
-import Tags from "../../lib/collections/tags/collection";
+import Tags from "../../server/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getViewableTagsSelector } from "./helpers";
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
+import { MultiDocuments } from "@/server/collections/multiDocuments/collection";
 import sortBy from "lodash/sortBy";
-import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
 
 class TagsRepo extends AbstractRepo<"Tags"> {
   constructor() {
@@ -96,7 +95,10 @@ class TagsRepo extends AbstractRepo<"Tags"> {
   private async lensToSearchDocumentHtml(lens: DbMultiDocument): Promise<string> {
     const contentsRevId = lens.contents_latest
     if (!contentsRevId) return "";
-    const contentsRev = await getLatestContentsRevision(lens);
+    const contentsRev = await this.getRawDb().oneOrNone<DbRevision>(`
+      -- TagsRepo.lensToSearchDocumentHtml
+      SELECT * FROM "Revisions" WHERE "_id" = $1
+    `, [contentsRevId]);
     if (!contentsRev) return "";
     return `<h2>${lens.tabTitle}${lens.tabSubtitle ? (": "+lens.tabSubtitle) : ""}</h2>${contentsRev.html}`;
   }

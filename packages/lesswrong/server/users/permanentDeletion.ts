@@ -1,8 +1,7 @@
-import Users from "@/lib/collections/users/collection";
-import { addCronJob } from "../cronUtil";
+import Users from "@/server/collections/users/collection";
+import { addCronJob } from "../cron/cronUtil";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
-import { Globals, createAdminContext, deleteMutator, updateMutator } from "../vulcan-lib";
-import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { mailchimpAPIKeySetting } from "../serverSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "@/lib/publicSettings";
@@ -11,6 +10,8 @@ import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 import { dogstatsd } from "../datadog/tracer";
 import { isEAForum } from "@/lib/instanceSettings";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { deleteMutator, updateMutator } from "../vulcan-lib/mutators";
 
 type DeleteOptions = { includingNonForumData: boolean };
 const defaultDeleteOptions = { includingNonForumData: false };
@@ -84,7 +85,7 @@ const permanentlyDeleteFromMailchimpList = async ({
 async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   const logger = loggerConstructor(`permanentlyDeleteUsers`);
   const adminContext = createAdminContext();
-  const adminTeamAccount = await getAdminTeamAccount();
+  const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
   // Precaution: Ensure the soft-deleting callbacks have run (unsubscribing from mailchimp, reindexing elasticsearch content)
@@ -135,8 +136,9 @@ async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
 /**
  * Permanently delete a user from the forum, this is sufficient to comply with GDPR deletion
  * requests if their forum account and associated services is the only data we have for them
+ * Exported to allow running with "yarn repl"
  */
-async function permanentlyDeleteUserById(userId: string, options?: DeleteOptions) {
+export async function permanentlyDeleteUserById(userId: string, options?: DeleteOptions) {
   const user = await Users.findOne({_id: userId})
 
   if (!user) {
@@ -150,7 +152,7 @@ async function permanentlyDeleteUserById(userId: string, options?: DeleteOptions
 
 const cutoffOffsetMs = ACCOUNT_DELETION_COOLING_OFF_DAYS * 24 * 60 * 60 * 1000;
 
-addCronJob({
+export const permanentlyDeleteUsersCron = addCronJob({
   name: "permanentlyDeleteUsers",
   interval: "every 1 hour",
   job: async () => {
@@ -175,5 +177,3 @@ addCronJob({
     }
   },
 });
-
-Globals.permanentlyDeleteUserById = permanentlyDeleteUserById

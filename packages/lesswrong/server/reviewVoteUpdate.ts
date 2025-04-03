@@ -1,14 +1,15 @@
-import ReviewVotes from "../lib/collections/reviewVotes/collection"
-import Users from "../lib/collections/users/collection"
+import ReviewVotes from "../server/collections/reviewVotes/collection"
+import Users from "../server/collections/users/collection"
 import { getCostData, REVIEW_YEAR, ReviewWinnerCategory } from "../lib/reviewUtils"
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
-import { createAdminContext, createMutator, Globals } from "./vulcan-lib";
 import { userBigVotePower } from "@/lib/voting/voteTypes";
-import ReviewWinners from "@/lib/collections/reviewWinners/collection";
-import { Tags } from "@/lib/collections/tags/collection";
+import ReviewWinners from "@/server/collections/reviewWinners/collection";
+import { Tags } from "@/server/collections/tags/collection";
+import { createAdminContext } from "./vulcan-lib/createContexts";
+import { createMutator } from "./vulcan-lib/mutators";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -101,6 +102,7 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   console.log("finished updating review vote toals")
 } 
 
+// Exported to allow running manually with "yarn repl"
 export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
 
@@ -127,7 +129,6 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   }
 }
 
-Globals.updateReviewVoteTotals = updateReviewVoteTotals;
 
 export async function createVotingPostHtml () {
   const style = `
@@ -345,7 +346,7 @@ const getReviewWinnerPosts = async () => {
     finalReviewVoteScoreAllKarma: {$gte: 1},
     reviewCount: {$gte: 1},
     positiveReviewVoteCount: {$gte: 1}
-  }, {sort: {finalReviewVoteScoreHighKarma: 1}, limit: 1}).fetch()
+  }, {sort: {finalReviewVoteScoreHighKarma: -1}, limit: 51}).fetch()
 }
 
 const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWinnerCategory, adminContext: ResolverContext) => { 
@@ -365,7 +366,8 @@ const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWin
 
 // This is for manually checking what the default assignments for post categories are, 
 // to sanity check that they make sense before running the final "createReviewWinners" script
-const checkReviewWinners = async () => {
+// Exported to allow running manually with "yarn repl"
+export const checkReviewWinners = async () => {
   const posts = await getReviewWinnerPosts()
   const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
 
@@ -376,7 +378,7 @@ const checkReviewWinners = async () => {
   })
 }
 
-const createReviewWinners = async () => {
+export const createReviewWinners = async () => {
   const posts = await getReviewWinnerPosts()
   const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
   const adminContext = createAdminContext();
@@ -385,8 +387,4 @@ const createReviewWinners = async () => {
     const category = getPostCategory(post, coreTags, aiStrategyTags)
     return createReviewWinner(post, idx, category, adminContext)
   }))
-
 }
-
-Globals.createReviewWinners = createReviewWinners
-Globals.checkReviewWinners = checkReviewWinners

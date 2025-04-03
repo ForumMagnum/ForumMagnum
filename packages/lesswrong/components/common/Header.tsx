@@ -1,10 +1,10 @@
 import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import TocIcon from '@material-ui/icons/Toc';
+import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
 import { useCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -15,7 +15,7 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
-import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
 import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
@@ -299,7 +299,7 @@ const Header = ({
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,

@@ -16,8 +16,7 @@ import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
-import { createAdminContext } from '../vulcan-lib/query';
-import Globals from '@/lib/vulcan-lib/config';
+import { createAdminContext } from '../vulcan-lib/createContexts';
 import util from 'util';
 import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
 
@@ -592,7 +591,7 @@ const recombeeApi = {
     const postIds = [...includedTopOfListPostIds, ...recommendedPostIds];
 
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context)
+    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', posts, context)
 
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, curatedPostIds, stickiedPostIds }));
 
@@ -706,7 +705,7 @@ const recombeeApi = {
     const missingPostCount = intendedNonDeferredPostCount - orderedPosts.length;
     const topDeferredPosts = deferredPosts.slice(0, fixedArmCount + missingPostCount);
 
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
+    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', [...orderedPosts, ...topDeferredPosts], context);
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }));
 
     const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied));
@@ -787,21 +786,4 @@ const recombeeApi = {
 
 export { helpers as recombeeRequestHelpers, recombeeApi };
 
-Globals.recombee = recombeeApi;
-// Also generate serverShellCommands that log the output of every function here, rather than just running them.
-// In general this might only be useful for GET calls, since POST/DELETE/etc operations often don't return anything meaningful.
-// This isn't guaranteed to produce sane results in every single case, but seems like it should be fine most of the time.
-Globals.recombee.log = Object.fromEntries(Object.entries(Globals.recombee).map(([key, val]) => {
-  if (typeof val !== 'function') {
-    return [key, val];
-  }
-
-  const withLoggedOutput = async (...args: any[]) => {
-    const result = await val(...args);
-    // eslint-disable-next-line no-console
-    console.log(util.inspect(result, { depth: null }));
-    return result;
-  };
-
-  return [key, withLoggedOutput];
-}));
+export const recombee = recombeeApi;

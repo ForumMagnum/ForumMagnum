@@ -1,8 +1,7 @@
-import { Components, registerComponent, getFragment } from '@/lib/vulcan-lib';
 import { useMessages } from '@/components/common/withMessages';
 import React from 'react';
 import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '@/lib/collections/users/helpers';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { isEAForum } from '@/lib/instanceSettings';
@@ -10,7 +9,8 @@ import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { useNavigate } from '@/lib/reactRouterWrapper';
+import { useNavigate } from '@/lib/routeUtil.tsx';
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,12 +28,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const passwordResetMutation = gql`
-  mutation resetPassword($email: String) {
-    resetPassword(email: $email)
-  }
-`
-
 const UsersEditForm = ({terms, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
@@ -43,7 +37,11 @@ const UsersEditForm = ({terms, classes}: {
   const navigate = useNavigate();
   const client = useApolloClient();
   const { ErrorAccessDenied } = Components;
-  const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
+  const [ mutate, loading ] = useMutation(gql`
+    mutation resetPassword($email: String) {
+      resetPassword(email: $email)
+    }
+  `, { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
@@ -96,8 +94,8 @@ const UsersEditForm = ({terms, classes}: {
             navigate(userGetProfileUrl(user))
           }
         }}
-        queryFragment={getFragment('UsersEdit')}
-        mutationFragment={getFragment('UsersEdit')}
+        queryFragmentName={'UsersEdit'}
+        mutationFragmentName={'UsersEdit'}
         showRemove={false}
       />
     </div>

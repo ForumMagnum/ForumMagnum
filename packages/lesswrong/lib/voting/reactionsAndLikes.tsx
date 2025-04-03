@@ -1,8 +1,8 @@
 import { VotingProps } from "@/components/votes/votingProps";
 import { isLW } from "../instanceSettings";
-import { Components } from "../vulcan-lib";
+import { Components } from "../vulcan-lib/components";
 import { NamesAttachedReactionsList, UserVoteOnSingleReaction, addReactsVote, getDocumentHighlights, removeReactsVote } from "./namesAttachedReactions";
-import { registerVotingSystem } from "./votingSystems";
+import { defineVotingSystem } from "./votingSystems";
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import keyBy from 'lodash/keyBy';
@@ -24,7 +24,7 @@ type ReactionsAndLikesScore = {
   reacts: NamesAttachedReactionsList
 }
 
-registerVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
+export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
   name: "reactionsAndLikes",
   userCanActivate: isLW,
   description: "Likes (single-axis non-anonymous) plus reactions",

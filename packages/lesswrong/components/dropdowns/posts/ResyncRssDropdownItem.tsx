@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { gql, useApolloClient, useQuery } from '@apollo/client';
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
-import RssFeed from "@material-ui/icons/RssFeed";
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
+import RssFeed from "@/lib/vendor/@material-ui/icons/src/RssFeed";
+import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType) => ({

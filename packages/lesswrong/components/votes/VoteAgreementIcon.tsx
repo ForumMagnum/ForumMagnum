@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { useVoteColors } from './useVoteColors';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 

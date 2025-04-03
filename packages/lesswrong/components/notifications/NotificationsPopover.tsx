@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
-import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
-import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
+import type { KarmaChanges } from "@/server/collections/users/karmaChangesGraphQL";
+import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
 import { gql, useMutation } from "@apollo/client";
@@ -88,14 +88,6 @@ const styles = (theme: ThemeType) => ({
     height: 350,
   },
 });
-
-const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
-  switch (batchingFrequency) {
-    case "daily":  return " since yesterday";
-    case "weekly": return " since last week";
-    default:       return "";
-  }
-}
 
 const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
   switch (batchingFrequency) {

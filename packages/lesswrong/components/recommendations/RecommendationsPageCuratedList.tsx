@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
@@ -38,7 +38,7 @@ const RecommendationsPageCuratedList = ({classes}: {
           </AnalyticsContext>
         </SingleColumnSection>}
         {hasCuratedPostsSetting.get() && currentUser?.isAdmin && <div className={classes.curated}>
-          <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
+          <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} atBottom/>
         </div>}
       </AnalyticsContext>
     </div>

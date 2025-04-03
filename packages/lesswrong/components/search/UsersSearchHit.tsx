@@ -1,7 +1,7 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import PersonIcon from '@material-ui/icons/Person';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import React from 'react';
 import type { SearchHitComponentProps } from './types';
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '@/components/common/withDialog';

@@ -1,5 +1,4 @@
-import { Globals } from "../vulcan-lib";
-import { Posts } from "../../lib/collections/posts";
+import { Posts } from "../../server/collections/posts/collection";
 import { getKarmaInflationSeries } from "../../lib/collections/posts/karmaInflation";
 import { buildInflationAdjustedField } from "../../lib/collections/posts/views";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -7,7 +6,8 @@ import fs from 'fs';
 
 const RELATIVE_TO = '2023-07-01T00:00:00.000Z';
 
-const generateInflationAdjustedKarmaReport = async ({threshold = 100, relativeTo = RELATIVE_TO}: {threshold?: number, relativeTo?: string}) => {
+// Exported to allow running manually with "yarn repl"
+export const generateInflationAdjustedKarmaReport = async ({threshold = 100, relativeTo = RELATIVE_TO}: {threshold?: number, relativeTo?: string}) => {
   const karmaInflationSeries = getKarmaInflationSeries();
 
   // Get threshold in inflation adjusted karma
@@ -52,5 +52,3 @@ const generateInflationAdjustedKarmaReport = async ({threshold = 100, relativeTo
   // eslint-disable-next-line no-console
   console.log(`Inflation adjusted karma report saved to ${csvFileName}`);
 }
-
-Globals.generateInflationAdjustedKarmaReport = generateInflationAdjustedKarmaReport;

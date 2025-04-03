@@ -1,9 +1,9 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper/Popper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (_theme: ThemeType) => ({

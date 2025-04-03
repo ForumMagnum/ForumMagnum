@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -7,8 +7,8 @@ import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
 import { RevealHiddenBlocks, RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Checkbox from '@material-ui/core/Checkbox';
-import Select from '@material-ui/core/Select';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { hasWikiLenses } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
@@ -144,6 +144,7 @@ const TagHistoryPage = () => {
                 headingStyle={"abridged"}
                 documentId={tag._id}
                 showDiscussionLink={false}
+                showIcon={true}
               />
             </div>
           }
@@ -160,6 +161,7 @@ const TagHistoryPage = () => {
                 collapsed={collapseAll && focusedUser!==revision.user?.slug}
                 lens={lens}
                 revision={revision}
+                showIcon={true}
               />
             </div>
           }
@@ -214,11 +216,12 @@ const TagHistoryPage = () => {
           render: (metadataChanges: FieldChangeFragment) => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
-            >
-              <div><UsersName documentId={metadataChanges.userId}/> changed {Object.keys(metadataChanges.after).map(fieldName => {
-                return <span key={fieldName}>{fieldName} from {""+metadataChanges.before[fieldName]} to {""+metadataChanges.after[fieldName]}</span>
-              })}</div>
-            </SingleLineFeedEvent>
+            ><div>
+              <UsersName documentId={metadataChanges.userId}/>
+              {" changed "}{metadataChanges.fieldName}
+              {" from "}{""+metadataChanges.oldValue}
+              {" to "}{""+metadataChanges.newValue}
+            </div></SingleLineFeedEvent>
           },
         },
         lensOrSummaryMetadataChanged: {
@@ -226,11 +229,12 @@ const TagHistoryPage = () => {
           render: (metadataChanges: FieldChangeFragment) => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
-            >
-              <div><UsersName documentId={metadataChanges.userId}/> changed {Object.keys(metadataChanges.after).map(fieldName => {
-                return <span key={fieldName}>{fieldName} from {""+metadataChanges.before[fieldName]} to {""+metadataChanges.after[fieldName]}</span>
-              })}</div>
-            </SingleLineFeedEvent>
+            ><div>
+              <UsersName documentId={metadataChanges.userId}/>
+              {" changed "}{metadataChanges.fieldName}
+              {" from "}{""+metadataChanges.oldValue}
+              {" to "}{""+metadataChanges.newValue}
+            </div></SingleLineFeedEvent>
           },
         },
       }}
@@ -316,7 +320,7 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
       >
         <MenuItem value="all">All lenses</MenuItem>
         {lenses.map(lens =>
-          <MenuItem key={lens._id} value={lens._id}>{`${lens.tabTitle}${lens.tabSubtitle ? `: ${lens.tabSubtitle}` : ""}`}</MenuItem>
+          <MenuItem key={lens._id} value={lens._id}>{`${lens.tabTitle}${lens.tabSubtitle ? `: ${lens.tabSubtitle}` : ""}${lens.deleted ? " [Deleted]" : ""}`}</MenuItem>
         )}
       </Select>
     </div>}

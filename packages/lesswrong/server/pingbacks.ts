@@ -5,15 +5,10 @@ import { classifyHost } from '../lib/routeUtil';
 import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
-import Tags from '@/lib/collections/tags/collection';
-import { editableCollectionsFields } from '@/lib/editor/make_editable';
-import { getCollection } from '@/lib/vulcan-lib/getCollection';
-import { dataToHTML } from './editor/conversionUtils';
-import { EditorContents } from '@/components/editor/Editor';
-import { Globals } from "@/lib/vulcan-lib/config";
-import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
-import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
+import { getCollection } from '@/server/collections/allCollections';
 import { getLatestRev } from './editor/utils';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
@@ -23,13 +18,15 @@ type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 //   html: The document to extract links from
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName: string, documentId: string}>|null): Promise<PingbacksIndex> => {
+export const htmlToPingbacks = async (html: string, exclusions: Array<{collectionName: string, documentId: string}>|null): Promise<PingbacksIndex> => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   
   // collection name => array of distinct referenced document IDs in that
   // collection, in order of first appearance.
   const pingbacks: Partial<Record<CollectionNameString, Array<string>>> = {};
+
+  const context = createAnonymousContext();
   
   for (let link of links)
   {
@@ -49,7 +46,7 @@ export const htmlToPingbacks = async (html: string, exclusions?: Array<{collecti
           onError: (pathname) => {} // Ignore malformed links
         });
         if (parsedUrl?.currentRoute?.getPingback) {
-          const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
+          const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl, context);
           if (pingback) {
             if (exclusions && _.find(exclusions,
               exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))
@@ -83,19 +80,25 @@ const extractLinks = (html: string): Array<string> => {
   return targets;
 }
 
+// Exported to allow running from "yarn repl"
 export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N) {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
+  const context = createAnonymousContext();
+
   await forEachDocumentBatchInCollection({
     collection,
     callback: async (batch) => {
       await Promise.all(batch.map(async (doc: ObjectsByCollectionName[N]) => {
-        for (const editableField of editableCollectionsFields[collectionName]) {
-          const editableFieldOptions = editableCollectionsFieldOptions[collectionName][editableField];
+        const editableFields = getEditableFieldsByCollection()[collectionName];
+        if (!editableFields) return;
+
+        for (const [fieldName, editableField] of Object.entries(editableFields)) {
+          const editableFieldOptions = editableField.graphql.editableFieldOptions;
           if (!editableFieldOptions.pingbacks) continue;
           const fieldContents = editableFieldOptions.normalized
-            ? await getLatestRev(doc._id, editableField)
-            : doc[editableField as keyof T] as AnyBecauseHard;
+            ? await getLatestRev(doc._id, fieldName, context)
+            : doc[fieldName as keyof T] as AnyBecauseHard;
           const html = fieldContents?.html ?? "";
           const pingbacks = await htmlToPingbacks(html, [{
             collectionName, documentId: doc._id
@@ -113,16 +116,19 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
   });
 }
 
-Globals.recomputePingbacks = recomputePingbacks;
-Globals.showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string) => {
+// Exported to allow running from "yarn repl"
+export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string) => {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
   const doc = await collection.findOne({_id});
   if (!doc) return;
+
+  const editableFields = getEditableFieldsByCollection()[collectionName];
+  if (!editableFields) return;
   
-  for (const editableField of editableCollectionsFields[collectionName]) {
-    if (!editableCollectionsFieldOptions[collectionName][editableField].pingbacks) continue;
-    const fieldContents = doc[editableField as keyof T] as AnyBecauseHard;
+  for (const [fieldName, editableField] of Object.entries(editableFields)) {
+    if (!editableField.graphql.editableFieldOptions.pingbacks) continue;
+    const fieldContents = doc[fieldName as keyof T] as AnyBecauseHard;
     const html = fieldContents?.html ?? "";
     const pingbacks = await htmlToPingbacks(html, [{
       collectionName, documentId: doc._id

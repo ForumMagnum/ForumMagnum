@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 // Given all the console logs, this seemed more elegant than commenting on every one
 import { registerMigration } from './migrationUtils';
-import { Votes } from '../../lib/collections/votes';
-import Users from '../../lib/vulcan-users';
+import { Votes } from '../../server/collections/votes/collection';
+import Users from '../../server/collections/users/collection';
 import { calculateVotePower } from '../../lib/voting/voteTypes';
 
 
-registerMigration({
+export default registerMigration({
   name: "legacyKarmaMigration",
   dateWritten: "2020-09-19",
   idempotent: true,

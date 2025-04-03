@@ -1,10 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
-import Card from "@material-ui/core/Card";
+import Card from "@/lib/vendor/@material-ui/core/src/Card";
 import { useTagBySlug } from '../tagging/useTag';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
-import Button from '@material-ui/core/Button'
+import Button from '@/lib/vendor/@material-ui/core/src/Button'
 
 const styles = (theme: ThemeType) => ({
   dialog: {

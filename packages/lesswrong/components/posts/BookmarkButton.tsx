@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type { TooltipProps } from '@material-ui/core/Tooltip';
+import type { TooltipProps } from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 

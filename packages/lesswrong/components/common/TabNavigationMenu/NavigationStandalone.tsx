@@ -1,6 +1,6 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { default as BadlyTypedSlide } from '@material-ui/core/Slide'
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { default as BadlyTypedSlide } from '@/lib/vendor/@material-ui/core/src/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';

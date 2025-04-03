@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import classNames from "classnames";
 import { ForumIconName } from "../common/ForumIcon";
 import { useTracking } from "@/lib/analyticsEvents";
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type ForumEventStickerProps = {
+const ForumEventSticker = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji", tooltipDisabled, onClear, saveDraftSticker, setUserVoteRef, classes }: {
   x: number;
   y: number;
   theta: number;
@@ -70,11 +70,9 @@ type ForumEventStickerProps = {
   tooltipDisabled?: boolean;
   onClear?: () => void;
   saveDraftSticker?: (event: React.MouseEvent) => void;
-};
-const ForumEventSticker = React.forwardRef<
-  HTMLDivElement,
-  ForumEventStickerProps & { classes: ClassesType<typeof styles> }
->(({ x, y, theta, user, comment, emoji, icon = "AddEmoji", tooltipDisabled, onClear, saveDraftSticker, classes }, ref) => {
+  setUserVoteRef?: any
+  classes: ClassesType<typeof styles>
+}) => {
   const { ForumIcon, ForumEventResultPopper, LWTooltip, UsersNameDisplay } = Components;
 
   const isHoverSticker = !!saveDraftSticker;
@@ -92,7 +90,7 @@ const ForumEventSticker = React.forwardRef<
     <InteractionWrapper>
       <div
         className={classNames(classes.sticker, {[classes.hoverSticker]: isHoverSticker})}
-        ref={ref}
+        ref={setUserVoteRef}
         style={{
           left: `${x * 100}%`,
           top: `${y * 100}%`,
@@ -127,7 +125,7 @@ const ForumEventSticker = React.forwardRef<
       </div>
     </InteractionWrapper>
   );
-});
+}
 
 
 const ForumEventStickerComponent = registerComponent( 'ForumEventSticker', ForumEventSticker, {styles});

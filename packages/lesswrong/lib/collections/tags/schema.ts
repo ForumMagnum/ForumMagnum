@@ -1,39 +1,23 @@
-import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple, slugFields } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
-import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
-import Comments from '../comments/collection';
-import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from '../helpers/summariesField';
+import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import uniqBy from 'lodash/uniqBy';
-import { LikesList } from '@/lib/voting/reactionsAndLikes';
-
-addGraphQLSchema(`
-  type TagContributor {
-    user: User
-    contributionScore: Int!
-    currentAttributionCharCount: Int
-    numCommits: Int!
-    voteCount: Int!
-  }
-  type TagContributorsList {
-    contributors: [TagContributor!]
-    totalCount: Int!
-  }
-  type UserLikingTag {
-    _id: String!
-    displayName: String!
-  }
-`);
+import type { LikesList } from '@/lib/voting/reactionsAndLikes';
+import { editableFields } from '@/lib/editor/make_editable';
+import { userIsSubforumModerator } from './helpers';
+import { universalFields } from "../../collectionUtils";
+import { getVoteableSchemaFields } from '@/lib/make_voteable';
 
 export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   relevance: { label: preferredHeadingCase('Most Relevant') },
@@ -57,6 +41,66 @@ async function getTagMultiDocuments(
 }
 
 const schema: SchemaType<"Tags"> = {
+  ...universalFields({
+    legacyDataOptions: {
+      canRead: ['guests'],
+      canCreate: ['admins'],
+      canUpdate: ['admins'],
+    }
+  }),
+  
+  ...editableFields("Tags", {
+    fieldName: "description",
+    commentStyles: true,
+    pingbacks: true,
+    getLocalStorageId: (tag, name) => {
+      if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
+      return {id: `tag:create`, verify:true}
+    },
+    revisionsHaveCommitMessages: true,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
+    },
+    order: 10
+  }),
+
+  ...editableFields("Tags", {
+    fieldName: "subforumWelcomeText",
+    formGroup: () => formGroups.subforumWelcomeMessage,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
+    },
+  }),
+
+  ...editableFields("Tags", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: () => formGroups.subforumModerationGuidelines,
+    hidden: true,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
+    },
+  }),
+
+  ...slugFields("Tags", {
+    collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
+    getTitle: (t) => t.name,
+    slugOptions: {
+      canCreate: ['admins', 'sunshineRegiment'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      group: () => formGroups.advancedOptions,
+    },
+    includesOldSlugs: true,
+  }),
+  
   name: {
     type: String,
     nullable: false,
@@ -72,7 +116,7 @@ const schema: SchemaType<"Tags"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
     nullable: true,
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
   },
   subtitle: {
     type: String,
@@ -81,7 +125,7 @@ const schema: SchemaType<"Tags"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
     nullable: true,
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
   },
   core: {
     label: "Core Tag (moderators check whether it applies when reviewing new posts)",
@@ -89,7 +133,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
   },
@@ -99,7 +143,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     hidden: !isEAForum,
     ...schemaDefaultValue(false),
@@ -110,7 +154,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
   },
@@ -119,7 +163,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
     tooltip: `Rank this ${taggingNameSetting.get()} higher in lists of ${taggingNamePluralSetting.get()}?`
@@ -130,7 +174,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
     // schemaDefaultValue throws an error if this is set to null, but we want to allow that
@@ -166,7 +210,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
   },
@@ -179,7 +223,7 @@ const schema: SchemaType<"Tags"> = {
     label: "Restrict to these authors",
     tooltip: "Only these authors will be able to edit the topic",
     control: "FormUserMultiselect",
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
   },
   'canEditUserIds.$': {
     type: String,
@@ -201,7 +245,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
   lastCommentedAt: {
@@ -220,7 +264,7 @@ const schema: SchemaType<"Tags"> = {
     type: Boolean,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(true)
   },
@@ -248,7 +292,7 @@ const schema: SchemaType<"Tags"> = {
       value: parseInt(grade),
       label: name
     })),
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(2),
   },
@@ -284,7 +328,7 @@ const schema: SchemaType<"Tags"> = {
         limit: tagCommentsLimit ?? 5,
         sort: {postedAt:-1}
       }).fetch();
-      return await accessFilterMultiple(currentUser, Comments, comments, context);
+      return await accessFilterMultiple(currentUser, 'Comments', comments, context);
     }
   }),
   'recentComments.$': {
@@ -297,7 +341,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: [...(isLW ? ['members' as const] : []), 'sunshineRegiment', 'admins'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
   },
@@ -312,7 +356,7 @@ const schema: SchemaType<"Tags"> = {
     label: "Banner Image",
     control: "ImageUpload",
     tooltip: "Minimum 200x600 px",
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     hidden: !isEAForum,
   },
   // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
@@ -325,7 +369,7 @@ const schema: SchemaType<"Tags"> = {
     label: "Square Image",
     control: "ImageUpload",
     tooltip: "Minimum 200x200 px",
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     hidden: !isEAForum,
   },
 
@@ -460,7 +504,7 @@ const schema: SchemaType<"Tags"> = {
       nullable: true,
     }),
     optional: true,
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -469,7 +513,7 @@ const schema: SchemaType<"Tags"> = {
   postsDefaultSortOrder: {
     type: String,
     optional: true,
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -486,7 +530,7 @@ const schema: SchemaType<"Tags"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     optional: true,
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
   },
   'canVoteOnRels.$': {
     type: String,
@@ -497,7 +541,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
   },
@@ -507,7 +551,8 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
       if (!tag.isSubforum) return null;
-      const userTagRel = context.currentUser ? await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}) : null;
+      const { Comments, UserTagRels, currentUser } = context;
+      const userTagRel = currentUser ? await UserTagRels.findOne({userId: currentUser._id, tagId: tag._id}) : null;
       // This is when this field was added, so assume all messages before then have been read
       const earliestDate = new Date('2022-09-30T15:07:34.026Z');
       
@@ -533,7 +578,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     optional: true,
     control: "FormUserMultiselect",
     label: "Subforum Moderators",
@@ -556,7 +601,7 @@ const schema: SchemaType<"Tags"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     label: "Subforum intro post ID",
     tooltip: "Dismissable intro post that will appear at the top of the subforum feed",
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
   },
   parentTagId: {
     ...foreignKeyField({
@@ -571,7 +616,7 @@ const schema: SchemaType<"Tags"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     label: "Parent Tag",
     tooltip: "Parent tag which will also be applied whenever this tag is applied to a post for the first time",
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     control: 'TagSelect',
     onCreate: async ({newDocument: tag, context }) => {
       if (tag.parentTagId) {
@@ -624,7 +669,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['admins'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     nullable: true,
   },
   
@@ -635,7 +680,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['admins'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     nullable: true,
   },
   noindex: {
@@ -644,7 +689,7 @@ const schema: SchemaType<"Tags"> = {
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
     label: "No Index",
     tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,
   },
@@ -694,7 +739,7 @@ const schema: SchemaType<"Tags"> = {
         contents: revisionsById.get(md._id),
       }));
 
-      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
+      return await accessFilterMultiple(context.currentUser, 'MultiDocuments', unfilteredResults, context);
     },
     sqlResolver: ({ field, resolverArg }) => {
       return `(
@@ -782,7 +827,7 @@ const schema: SchemaType<"Tags"> = {
         contents: revisionsById.get(md._id),
       }));
 
-      return await accessFilterMultiple(context.currentUser, MultiDocuments, unfilteredResults, context);
+      return await accessFilterMultiple(context.currentUser, 'MultiDocuments', unfilteredResults, context);
     },
     sqlResolver: ({ field, resolverArg }) => {
       return `(
@@ -838,7 +883,9 @@ const schema: SchemaType<"Tags"> = {
     ...schemaDefaultValue(false),
   },
 
-  ...summariesField('Tags', { group: formGroups.summaries }),
+  ...summariesField('Tags', { group: () => formGroups.summaries }),
+
+  ...textLastUpdatedAtField('Tags'),
 
   isArbitalImport: resolverOnlyField({
     type: Boolean,
@@ -855,7 +902,7 @@ const schema: SchemaType<"Tags"> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    group: formGroups.advancedOptions,
+    group: () => formGroups.advancedOptions,
   },
 
   maxScore: resolverOnlyField({
@@ -896,11 +943,26 @@ const schema: SchemaType<"Tags"> = {
     }),
     optional: true,
   },
+
+  forceAllowType3Audio: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "checkbox",
+    group: () => formGroups.advancedOptions,
+    label: "Force Allow T3 Audio",
+    ...schemaDefaultValue(false),
+  },
+
+  ...getVoteableSchemaFields('Tags'),
 }
 
 export default schema;
 
-export const wikiGradeDefinitions: Partial<Record<number,string>> = {
+const wikiGradeDefinitions: Partial<Record<number,string>> = {
   0: "Uncategorized",
   1: "Flagged",
   2: "Stub",

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -7,10 +7,10 @@ import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/u
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import classNames from 'classnames';
-import CloseIcon from '@material-ui/icons/Close';
-import { PopperPlacementType } from '@material-ui/core/Popper';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
 import { useCurrentUser } from '../common/withUser';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import shuffle from 'lodash/shuffle';

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Paper from "@material-ui/core/Card"
-import CloseIcon from '@material-ui/icons/Close';
-import Fullscreen from '@material-ui/icons/Fullscreen';
-import FullscreenExit from '@material-ui/icons/FullscreenExit';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Paper from "@/lib/vendor/@material-ui/core/src/Card"
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import Fullscreen from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
+import FullscreenExit from '@/lib/vendor/@material-ui/icons/src/FullscreenExit';
 import { useLlmChat } from './LlmChatWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LLM_CHAT_EXPANDED, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';

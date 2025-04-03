@@ -1,6 +1,6 @@
 import "./integrationTestSetup";
 import { expect } from 'chai';
-import { runQuery } from '../server/vulcan-lib';
+import { runQuery } from '../server/vulcan-lib/query';
 import {
   createDummyUser,
   createDummyPost,
@@ -11,7 +11,7 @@ import {
   assertIsPermissionsFlavoredError,
   withNoLogs,
 } from './utils';
-import Users from '../lib/collections/users/collection';
+import Users from '../server/collections/users/collection';
 import {
   userIsBannedFromPost,
   userIsBannedFromAllPosts,

@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Card from '@material-ui/core/Card';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Card from '@/lib/vendor/@material-ui/core/src/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';

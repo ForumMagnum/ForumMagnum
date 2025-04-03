@@ -1,7 +1,9 @@
 import { getWithLoader } from "@/lib/loaders";
 import { accessFilterMultiple, resolverOnlyField } from "@/lib/utils/schemaUtils";
+import { universalFields } from "../../collectionUtils";
 
 const schema: SchemaType<"Surveys"> = {
+  ...universalFields({}),
   name: {
     type: String,
     optional: false,
@@ -25,7 +27,7 @@ const schema: SchemaType<"Surveys"> = {
         survey._id,
       );
       const ordered = questions.sort((a, b) => a.order - b.order);
-      return accessFilterMultiple(currentUser, SurveyQuestions, ordered, context);
+      return accessFilterMultiple(currentUser, 'SurveyQuestions', ordered, context);
     },
     sqlResolver: ({field}) => `(
       SELECT ARRAY_AGG(ROW_TO_JSON(sq.*))

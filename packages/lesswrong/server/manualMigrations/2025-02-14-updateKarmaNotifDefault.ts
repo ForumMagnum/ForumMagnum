@@ -1,7 +1,7 @@
 import { registerMigration } from "./migrationUtils";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { karmaChangeNotifierDefaultSettings } from "@/lib/collections/users/schema";
-import Users from "@/lib/collections/users/collection";
+import { karmaChangeNotifierDefaultSettings } from "@/lib/collections/users/helpers";
+import Users from "@/server/collections/users/collection";
 
 /**
  * For A/B testing: When running locally this will be set to a control group of ~40
@@ -11,7 +11,7 @@ import Users from "@/lib/collections/users/collection";
  */
 const USERS_MANUALLY_EXCLUDED: string[] = [];
 
-registerMigration({
+export default registerMigration({
   name: "updateKarmaNotifDefault",
   dateWritten: "2025-02-14",
   idempotent: true,

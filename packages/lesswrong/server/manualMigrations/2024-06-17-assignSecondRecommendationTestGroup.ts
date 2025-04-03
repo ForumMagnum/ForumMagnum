@@ -1,5 +1,6 @@
 import { registerMigration } from "./migrationUtils";
-import { createAdminContext, updateMutator } from "../vulcan-lib";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { updateMutator } from "../vulcan-lib/mutators";
 
 const testGroupIds = [
   '28WuQvZZ8sApvFZ5j',
@@ -867,7 +868,7 @@ const testGroupIds = [
   'ZZjFdHpS9mPCTkzZJ'
 ];
 
-registerMigration({
+export default registerMigration({
   name: "assignSecondRecommendationTestGroup",
   dateWritten: "2024-06-17",
   idempotent: true,

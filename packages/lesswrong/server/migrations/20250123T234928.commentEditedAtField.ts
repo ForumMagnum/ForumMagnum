@@ -1,4 +1,4 @@
-import { Comments } from "@/lib/collections/comments"
+import { Comments } from "@/server/collections/comments/collection.ts"
 import { addField, dropField } from "./meta/utils"
 import { forEachBucketRangeInCollection } from "../manualMigrations/migrationUtils"
 

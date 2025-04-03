@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
@@ -50,7 +50,7 @@ export const ForumEventPostPageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
   const hideBanner =
     !currentForumEvent ||
@@ -79,17 +79,17 @@ export const ForumEventPostPageBanner = ({classes}: {
 
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
 
+  if (!postPageDescription?.html) return null;
+
   const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
     <div className={classes.root}>
-      {postPageDescription?.html &&
-        <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
-          <ContentItemBody
-            dangerouslySetInnerHTML={{__html: postPageDescription.html}}
-            className={classes.description}
-          />
-        </ContentStyles>
-      }
+      <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: postPageDescription.html}}
+          className={classes.description}
+        />
+      </ContentStyles>
       {bannerImageId &&
         <CloudinaryImage2
           publicId={bannerImageId}

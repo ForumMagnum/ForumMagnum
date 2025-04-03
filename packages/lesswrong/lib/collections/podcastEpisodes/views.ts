@@ -1,5 +1,4 @@
-import { ensureIndex } from "../../collectionIndexUtils";
-import PodcastEpisodes from "./collection"
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface PodcastEpisodesViewTerms extends ViewTermsBase {
@@ -9,10 +8,12 @@ declare global {
   }
 }
 
-PodcastEpisodes.addView("episodeByExternalId", (terms: PodcastEpisodesViewTerms) => {
+function episodeByExternalId(terms: PodcastEpisodesViewTerms) {
   const { _id, externalEpisodeId } = terms;
   const selector = { _id, externalEpisodeId };
   return { selector };
-});
+}
 
-ensureIndex(PodcastEpisodes, { externalEpisodeId: 1 }, { unique: true });
+export const PodcastEpisodesViews = new CollectionViewSet('PodcastEpisodes', {
+  episodeByExternalId
+});

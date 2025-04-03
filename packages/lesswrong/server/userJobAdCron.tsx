@@ -1,18 +1,18 @@
 import React from 'react';
 import moment from 'moment';
 import { JOB_AD_DATA } from '../components/ea-forum/TargetedJobAd';
-import { addCronJob } from './cronUtil';
-import UserJobAds from '../lib/collections/userJobAds/collection';
-import { Users } from '../lib/collections/users/collection';
+import { addCronJob } from './cron/cronUtil';
+import UserJobAds from '../server/collections/userJobAds/collection';
+import { Users } from '../server/collections/users/collection';
 import uniq from 'lodash/fp/uniq';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailJobAdReminder';
-import { Components, Globals } from './vulcan-lib';
 import { loggerConstructor } from '../lib/utils/logging';
 import { isEAForum } from '../lib/instanceSettings';
+import { Components } from "../lib/vulcan-lib/components";
 
-
-const sendJobAdReminderEmails = async () => {
+// Exported to allow running with "yarn repl"
+export const sendJobAdReminderEmails = async () => {
   if (!isEAForum) return
 
   const logger = loggerConstructor(`cron-sendJobAdReminderEmails`)
@@ -65,14 +65,12 @@ const sendJobAdReminderEmails = async () => {
   logger(`Sent email reminders for ${jobNames.join(', ')} to ${users.length} users`)
 }
 
-if (isEAForum) {
-  addCronJob({
-    name: 'sendJobAdReminderEmails',
-    interval: `every 1 day`,
-    job() {
-      void sendJobAdReminderEmails();
-    }
-  });
-}
+export const sendJobAdReminderEmailsCron = addCronJob({
+  name: 'sendJobAdReminderEmails',
+  interval: `every 1 day`,
+  disabled: !isEAForum,
+  job() {
+    void sendJobAdReminderEmails();
+  }
+});
 
-Globals.sendJobAdReminderEmails = sendJobAdReminderEmails;

@@ -1,7 +1,7 @@
 import React, { ReactNode, useState, useEffect, useRef, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from './withHover';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
+import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
 

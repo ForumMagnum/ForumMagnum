@@ -1,10 +1,10 @@
 import React, { MutableRefObject } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
 import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import {
   SearchIndexCollectionName,
   ElasticSorting,
@@ -13,7 +13,7 @@ import {
   getElasticSortingsForCollection,
 } from '../../lib/search/searchUtil';
 import { communityPath } from '../../lib/routes';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 
 const styles = (theme: ThemeType) => ({
   filtersColumn: {

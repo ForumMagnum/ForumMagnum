@@ -1,28 +1,28 @@
 import React, { useCallback, useState } from 'react';
-import Paper from '@material-ui/core/Paper';
-import { useLocation } from '../../lib/routeUtil';
-import { RouterLocation, registerComponent } from '../../lib/vulcan-lib';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import classNames from 'classnames'
-import Divider from '@material-ui/core/Divider';
-import VisibilityIcon from '@material-ui/icons/VisibilityOff';
-import EmailIcon from '@material-ui/icons/Email';
-import AddIcon from '@material-ui/icons/Add';
-import RoomIcon from '@material-ui/icons/Room';
-import StarIcon from '@material-ui/icons/Star';
-import PersonPinIcon from '@material-ui/icons/PersonPin';
-import Tooltip from '@material-ui/core/Tooltip';
+import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
+import VisibilityIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
+import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
+import PersonPinIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { CloseableComponent, OpenDialogContextType, useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
 import { without } from 'underscore';
 import { isEAForum } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
+import { RouterLocation } from "../../lib/vulcan-lib/routes";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const availableFilters = groupTypes.map(t => t.shortName);
 

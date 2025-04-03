@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import FormLabel from '@material-ui/core/FormLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
+import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
+import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
+import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import PropTypes from 'prop-types';
 
 const styles = (theme: ThemeType) => ({
@@ -15,17 +15,17 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FormComponentRadioGroup = ({ path, value, form, options, name, label, classes }: FormComponentProps<string> & {
+const FormComponentRadioGroup = ({ path, value, form, options, name, label, updateCurrentValues, classes }: FormComponentProps<string> & {
   form: any;
   options: any[];
   classes: ClassesType<typeof styles>;
-}, context: FormComponentContext<string>) => {
+}) => {
   const selectOptions = options || (form && form.options)
   return <FormControl>
     <FormLabel>{label}</FormLabel>
     <RadioGroup aria-label={name} name={name} value={value}
       onChange={(event) => {
-        void context.updateCurrentValues({
+        void updateCurrentValues({
           [path]: (event?.target as any)?.value
         })
     }}>
@@ -42,10 +42,6 @@ const FormComponentRadioGroup = ({ path, value, form, options, name, label, clas
     </RadioGroup>
   </FormControl>
 }
-
-(FormComponentRadioGroup as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 const FormComponentRadioGroupComponent = registerComponent("FormComponentRadioGroup", FormComponentRadioGroup, {styles});
 

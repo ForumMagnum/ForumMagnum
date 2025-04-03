@@ -1,16 +1,14 @@
 import type { Request } from "express";
-import Posts from "../../lib/collections/posts/collection";
-import Users from "../../lib/collections/users/collection";
+import Posts from "../../server/collections/posts/collection";
+import Users from "../../server/collections/users/collection";
 import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
-import { Utils } from "../../lib/vulcan-lib";
-import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createMutator } from "../vulcan-lib/mutators";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
 import { verifyToken } from "./tokens";
-import { getAllRepos } from "@/server/repos";
 import {
   ConnectCrossposterPayloadValidator,
   CrosspostPayloadValidator,
@@ -81,7 +79,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
     ...denormalizedData,
   } as Partial<DbPost>;
 
-  const {data: post} = await Utils.createMutator({
+  const {data: post} = await createMutator({
     document,
     collection: Posts,
     validate: false,
@@ -89,11 +87,10 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
     // This is a hack - we have only a fraction of the necessary information for
     // a context. But it appears to be working.
     context: {
+      ...createAnonymousContext(),
       currentUser: user,
       isFMCrosspostRequest: true,
-      Users,
-      repos: getAllRepos(),
-    } as Partial<ResolverContext> as  ResolverContext,
+    },
   });
 
   return {
@@ -112,6 +109,7 @@ export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (r
 };
 
 export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
+  const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
   const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
   const query = getGraphQLSingleQueryFromOptions({

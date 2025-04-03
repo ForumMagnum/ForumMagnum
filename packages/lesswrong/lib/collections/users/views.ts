@@ -1,11 +1,9 @@
-import Users from "../users/collection";
-import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
-import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
+import { spamRiskScoreThreshold } from './helpers';
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
-import { viewFieldNullOrMissing } from "../../vulcan-lib";
-import { isEAForum } from "../../instanceSettings";
+import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -29,33 +27,6 @@ declare global {
   }
 }
 
-// Auto-generated indexes from production
-ensureIndex(Users, {username:1}, {unique:true,sparse:1});
-ensureIndex(Users, {email:1}, {sparse:1});
-ensureIndex(Users, {"emails.address":1}, {unique:true,sparse:1}); //TODO: deprecate emails field – do not build upon
-ensureIndex(Users, {"services.resume.loginTokens.hashedToken":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.resume.loginTokens.token":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.resume.haveLoginTokensToDelete":1}, {sparse:1});
-ensureIndex(Users, {"services.resume.loginTokens.when":1}, {sparse:1});
-ensureIndex(Users, {"services.email.verificationTokens.token":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.password.reset.token":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.password.reset.when":1}, {sparse:1});
-ensureIndex(Users, {"services.twitter.id":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.facebook.id":1}, {unique:true,sparse:1});
-ensureIndex(Users, {"services.google.id":1}, {unique:true,sparse:1});
-ensureIndex(Users, {karma:-1,_id:-1});
-ensureIndex(Users, {slug:1});
-ensureIndex(Users, {isAdmin:1});
-ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
-ensureIndex(Users, {createdAt:-1,_id:-1});
-
-// Used by UsersRepo.getUserByLoginToken
-ensureIndex(Users, {"services.resume.loginTokens": 1});
-
-// Case-insensitive email index
-ensureIndex(Users, {email: 1}, {sparse: 1, collation: { locale: 'en', strength: 2 }})
-ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }}) //TODO: Deprecate or change to use email
-
 const termsToMongoSort = (terms: UsersViewTerms) => {
   if (!terms.sort)
     return undefined;
@@ -69,13 +40,13 @@ const termsToMongoSort = (terms: UsersViewTerms) => {
   );
 }
 
-Users.addView('usersByUserIds', function(terms: UsersViewTerms) {
+function usersByUserIds(terms: UsersViewTerms) {
   return {
     selector: {_id: {$in:terms.userIds}}
   }
-})
+}
 
-Users.addView('usersProfile', function(terms: UsersViewTerms) {
+function usersProfile(terms: UsersViewTerms) {
   if (terms.userId) {
     return {
       selector: {_id:terms.userId}
@@ -85,46 +56,43 @@ Users.addView('usersProfile', function(terms: UsersViewTerms) {
   return {
     selector: {$or: [{slug: terms.slug}, {oldSlugs: terms.slug}]},
   }
-});
+}
 
-ensureIndex(Users, {oldSlugs:1});
-
-Users.addView('LWSunshinesList', function(terms: UsersViewTerms) {
+function LWSunshinesList(terms: UsersViewTerms) {
   return {
     selector: {groups:'sunshineRegiment'},
     options: {
       sort: termsToMongoSort(terms),
     }
   }
-});
+}
 
-Users.addView('LWTrustLevel1List', function(terms: UsersViewTerms) {
+function LWTrustLevel1List(terms: UsersViewTerms) {
   return {
     selector: {groups:'trustLevel1'},
     options: {
       sort: termsToMongoSort(terms),
     }
   }
-});
+}
 
-Users.addView('LWUsersAdmin', (terms: UsersViewTerms) => ({
-  options: {
-    sort: termsToMongoSort(terms),
+function LWUsersAdmin(terms: UsersViewTerms) {
+  return {
+    options: {
+      sort: termsToMongoSort(terms),
+    }
   }
-}));
+}
 
-Users.addView("usersWithBannedUsers", function () {
+function usersWithBannedUsers() {
   return {
     selector: {
       $or: [{bannedPersonalUserIds: {$ne:null}}, {bannedUserIds: {$ne:null}}]
     },
   }
-})
+}
 
-ensureIndex(Users, {bannedPersonalUserIds:1, createdAt:1});
-ensureIndex(Users, {bannedUserIds:1, createdAt:1});
-
-Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
+function sunshineNewUsers(terms: UsersViewTerms) {
   return {
     selector: {
       needsReview: true,
@@ -143,10 +111,9 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
       }
     }
   }
-})
-ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
+}
 
-Users.addView("recentlyActive", function (terms: UsersViewTerms) {
+function recentlyActive(terms: UsersViewTerms) {
   return {
     selector: {
       $or: [
@@ -160,10 +127,9 @@ Users.addView("recentlyActive", function (terms: UsersViewTerms) {
       }
     }
   }  
-})
-ensureIndex(Users, {banned: 1, postCount: 1, commentCount: -1, lastNotificationsCheck: -1})
+}
 
-Users.addView("allUsers", function (terms: UsersViewTerms) {
+function allUsers(terms: UsersViewTerms) {
   return {
     options: {
       sort: {
@@ -173,19 +139,20 @@ Users.addView("allUsers", function (terms: UsersViewTerms) {
       }
     }
   }
-})
-ensureIndex(Users, {reviewedAt: -1, createdAt: -1})
+}
 
-Users.addView("usersMapLocations", function () {
+function usersMapLocations() {
   return {
     selector: {
-      mapLocationSet: true
+      mapLocationSet: true,
+      deleted: {$ne: true},
+      deleteContent: {$ne: true},
+      banned: {$exists: false},
     },
   }
-})
-ensureIndex(Users, {mapLocationSet: 1})
+}
 
-Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
+function tagCommunityMembers(terms: UsersViewTerms) {
   const bioSelector = terms.hasBio ? {
     $and: [
       {'biography.html': {$exists: true}},
@@ -206,10 +173,9 @@ Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
       }
     }
   }
-})
-ensureIndex(Users, {profileTagIds: 1, deleted: 1, deleteContent: 1, karma: 1})
+}
 
-Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
+function reviewAdminUsers(terms: UsersViewTerms) {
   return {
     selector: {
       karma: {$gte: 1000},
@@ -220,9 +186,9 @@ Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
       }
     }
   }
-})
+}
 
-Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
+function usersWithPaymentInfo(terms: UsersViewTerms) {
   return {
     selector: {
       banned: viewFieldNullOrMissing,
@@ -235,7 +201,7 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
       }
     }
   }
-})
+}
 
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",
@@ -253,9 +219,7 @@ export const hashedPetrovLaunchCodes = [
 })
 ensureIndex(Users, {petrovCodesEnteredHashed: 1})*/
 
-
-
-Users.addView("walledGardenInvitees", function () {
+function walledGardenInvitees() {
   return {
     selector: {
       walledGardenInvite: true
@@ -266,10 +230,9 @@ Users.addView("walledGardenInvitees", function () {
       }
     }
   }
-})
-ensureIndex(Users, {walledGardenInvite: 1})
+}
 
-Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersViewTerms) {
+function usersWithOptedInToDialogueFacilitation(terms: UsersViewTerms) {
   return {
     selector: {
       optedInToDialogueFacilitation: true
@@ -280,45 +243,45 @@ Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersVi
       }
     }
   }
-})
+}
 
-ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });
+function alignmentSuggestedUsers() {
+  return {
+    selector: {
+      $or: [
+        {afKarma: {$gte:10}},
+        {afSubmittedApplication: true},
+      ],
+      groups: {$nin: ['alignmentForum']},
+      reviewForAlignmentForumUserId: {$exists:false}
+    },
+    options: {
+      sort: {
+        createdAt: 1,
+      }
+    }
+  }
+}
 
-// These partial indexes are set up to allow for a very efficient index-only scan when deciding which userIds need to be emailed for post curation.
-// Used by `CurationEmailsRepo.getUserIdsToEmail`.
-// The EA Forum version of the index is missing the fm_has_verified_email conditional to match the behavior of `reasonUserCantReceiveEmails`.
-void ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated_verified"
-  ON "Users" USING btree (
-    "emailSubscribedToCurated",
-    "unsubscribeFromAll",
-    "deleted",
-    "email",
-    fm_has_verified_email(emails),
-    "_id"
-  )
-  WHERE "emailSubscribedToCurated" IS TRUE
-    AND "unsubscribeFromAll" IS NOT TRUE
-    AND "deleted" IS NOT TRUE
-    AND "email" IS NOT NULL
-    AND fm_has_verified_email(emails);
-`, {
-  dependencies: [
-    {type: "function", name: "fm_has_verified_email"}
-  ],
+
+// Create the CollectionViewSet instance
+export const UsersViews = new CollectionViewSet('Users', {
+  usersByUserIds,
+  usersProfile,
+  LWSunshinesList,
+  LWTrustLevel1List,
+  LWUsersAdmin,
+  usersWithBannedUsers,
+  sunshineNewUsers,
+  recentlyActive,
+  allUsers,
+  usersMapLocations,
+  tagCommunityMembers,
+  reviewAdminUsers,
+  usersWithPaymentInfo,
+  walledGardenInvitees,
+  usersWithOptedInToDialogueFacilitation,
+  alignmentSuggestedUsers,
+  // Commented out in the original code:
+  // areWeNuked
 });
-
-void ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated"
-  ON "Users" USING btree (
-    "emailSubscribedToCurated",
-    "unsubscribeFromAll",
-    "deleted",
-    "email",
-    "_id"
-  )
-  WHERE "emailSubscribedToCurated" IS TRUE
-    AND "unsubscribeFromAll" IS NOT TRUE
-    AND "deleted" IS NOT TRUE
-    AND "email" IS NOT NULL;
-`);

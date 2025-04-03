@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
-import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
+import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
 
 type NotifyMeDropdownItemInternalProps = {
   document: NotifyMeDocument,

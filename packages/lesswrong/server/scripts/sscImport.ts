@@ -1,8 +1,8 @@
 import feedparser from 'feedparser-promised';
-import Users from '../../lib/collections/users/collection';
-import { Posts } from '../../lib/collections/posts';
-import { createMutator, updateMutator } from '../vulcan-lib';
-import RSSFeeds from '../../lib/collections/rssfeeds/collection';
+import Users from '../../server/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import RSSFeeds from '../../server/collections/rssfeeds/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 

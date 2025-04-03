@@ -1,34 +1,17 @@
-import { MultiDocuments } from "@/lib/collections/multiDocuments/collection";
-import { GraphQLJSON } from "graphql-type-json";
-import { accessFilterMultiple, augmentFieldsDict } from "@/lib/utils/schemaUtils";
-import { getToCforMultiDocument } from "../tableOfContents";
 import { loadByIds } from "@/lib/loaders";
-import { defineMutation } from "../utils/serverGraphqlUtil";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { updateMutator } from "../vulcan-lib";
-import { contributorsField } from '../utils/contributorsFieldHelper';
+import { updateMutator } from "../vulcan-lib/mutators";
+import gql from "graphql-tag";
 
-augmentFieldsDict(MultiDocuments, {
-  contributors: contributorsField({
-    collectionName: 'MultiDocuments',
-    fieldName: 'contents',
-  }),
-  tableOfContents: {
-    resolveAs: {
-      arguments: 'version: String',
-      type: GraphQLJSON,
-      resolver: async (document: DbMultiDocument, { version }: { version: string | null }, context: ResolverContext) => {
-        return await getToCforMultiDocument({ document, version, context });
-      },
-    },
-  },
-});
 
-defineMutation({
-  name: 'reorderSummaries',
-  argTypes: `(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!)`,
-  resultType: 'Boolean',
-  fn: async (root, { parentDocumentId, parentDocumentCollectionName, summaryIds }: { parentDocumentId: string, parentDocumentCollectionName: string, summaryIds: string[] }, context) => {
+export const multiDocumentTypeDefs = gql`
+  extend type Mutation {
+    reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
+  }
+`
+
+export const multiDocumentMutations = {
+  async reorderSummaries(root: void, { parentDocumentId, parentDocumentCollectionName, summaryIds }: { parentDocumentId: string, parentDocumentCollectionName: string, summaryIds: string[] }, context: ResolverContext) {
     const { currentUser, loaders, MultiDocuments } = context;
     if (!currentUser) {
       throw new Error('Must be logged in to reorder summaries');
@@ -58,7 +41,7 @@ defineMutation({
     // Check that the user has permission to edit at least the first summary
     // (permissions should be the same for all summaries, since they are all summaries of the same parent document)
     if (MultiDocuments.options.mutations?.update?.check) {
-      const canEditFirstSummary = await MultiDocuments.options.mutations?.update?.check(currentUser, summaries[0]);
+      const canEditFirstSummary = await MultiDocuments.options.mutations?.update?.check(currentUser, summaries[0], context);
       if (!canEditFirstSummary) {
         throw new Error('User does not have permission to edit summaries for this document');
       }
@@ -76,5 +59,5 @@ defineMutation({
     }
 
     return true;
-  },
-});
+  }
+}

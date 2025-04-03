@@ -1,6 +1,6 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,
@@ -19,8 +19,8 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         showRemove={false}
-        queryFragment={getFragment('CommentEdit')}
-        mutationFragment={getFragment('CommentsList')}
+        queryFragmentName={'CommentEdit'}
+        mutationFragmentName={'CommentsList'}
         submitLabel="Save"
         formProps={formProps}
         prefilledProps={prefilledProps}

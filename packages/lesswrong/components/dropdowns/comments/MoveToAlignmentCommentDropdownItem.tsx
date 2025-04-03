@@ -1,13 +1,13 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
-import Undo from '@material-ui/icons/Undo';
+import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
+import ArrowRightAlt from '@/lib/vendor/@material-ui/icons/src/ArrowRightAlt';
+import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {

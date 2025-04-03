@@ -1,8 +1,8 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { tagCreateUrl } from "../../lib/collections/tags/helpers";
-import Paper from "@material-ui/core/Paper";
+import Paper from "@/lib/vendor/@material-ui/core/src/Paper";
 
 const NewWikiTagMenu = ({ children }: { children: React.ReactNode }) => {
   const subMenuHover = useHover();

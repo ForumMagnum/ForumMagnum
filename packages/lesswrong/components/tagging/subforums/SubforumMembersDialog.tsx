@@ -1,7 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMulti } from '../../../lib/crud/withMulti';
-import DialogContent from '@material-ui/core/DialogContent';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
 
 const styles = (theme: ThemeType) => ({
   titleRow: {

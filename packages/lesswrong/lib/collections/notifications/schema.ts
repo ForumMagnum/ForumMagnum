@@ -1,57 +1,61 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { universalFields } from '../../collectionUtils';
 
 const schema: SchemaType<"Notifications"> = {
+  ...universalFields({
+    createdAtOptions: {canRead: [userOwns]},
+  }),
   userId: {
     type: String,
     foreignKey: "Users",
     optional: true,
     nullable: false,
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   documentId: {
     type: String,
     // No explicit foreign-key relation because which collection this is depends on notification type
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   documentType: {
     type: String,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   extraData: {
     type: Object,
     blackbox: true,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   link: {
     type: String,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   title: {
     type: String,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   message: {
     type: String,
     optional: true,
     nullable: false,
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   type: {
     type: String,
     optional: true,
     nullable: false,
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   deleted: {
     type: Boolean,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns],
     ...schemaDefaultValue(false),
   },
   viewed: {
@@ -66,12 +70,12 @@ const schema: SchemaType<"Notifications"> = {
   emailed: {
     type: Boolean,
     ...schemaDefaultValue(false),
-    canRead: userOwns,
+    canRead: [userOwns],
   },
   waitingForBatch: {
     type: Boolean,
     ...schemaDefaultValue(false),
-    canRead: userOwns,
+    canRead: [userOwns],
   },
 };
 

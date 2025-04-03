@@ -1,11 +1,11 @@
-import Comments from "../../lib/collections/comments/collection";
+import Comments from "../../server/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "@/server/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
@@ -451,6 +451,19 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     
     const commentsByPost = groupBy(comments, c=>c.postId);
     return postIds.map(postId => commentsByPost[postId] ?? []);
+  }
+
+  async setLatestPollVote({ forumEventId, latestVote, userId }: { forumEventId: string; latestVote: number | null; userId: string; }): Promise<void> {
+    await this.getRawDb().none(`
+      -- CommentsRepo.setLatestPollVote
+      UPDATE "Comments"
+      SET "forumEventMetadata" = jsonb_set("forumEventMetadata", '{poll,latestVote}',
+        CASE
+          WHEN $2 IS NULL THEN 'null'::jsonb
+          ELSE to_jsonb($2::float)
+        END)
+      WHERE "forumEventId" = $1 AND "userId" = $3
+    `, [forumEventId, latestVote, userId]);
   }
 }
 

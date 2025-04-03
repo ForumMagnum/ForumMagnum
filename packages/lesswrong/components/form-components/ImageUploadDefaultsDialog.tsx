@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
 
 
 const styles = (theme: ThemeType) => ({

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Table from '@/lib/vendor/@material-ui/core/src/Table';
+import TableRow from '@/lib/vendor/@material-ui/core/src/TableRow';
+import TableCell from '@/lib/vendor/@material-ui/core/src/TableCell';
 import { useCurrentUser } from '../common/withUser';
 import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/helpers";
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({

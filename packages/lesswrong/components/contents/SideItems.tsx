@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import orderBy from 'lodash/orderBy';
 import { createPortal } from 'react-dom';
 import { useHover } from '@/components/common/withHover';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
 export type SideItemOptions = {

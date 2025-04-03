@@ -1,27 +1,34 @@
-// TODO: Import component in components.ts
+// TODO: run `yarn run generate` after creating component
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import { useTracking } from '@/lib/analyticsEvents';
+import { useStyles, defineStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TemplateComponent", (theme: ThemeType) => ({ 
   root: {
-
   }
-});
+}));
 
-export const TemplateComponent = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  return <div className={classes.root}>
+const TemplateComponent = () => {
+  const classes = useStyles(styles);
+  const { captureEvent } = useTracking(); // use this for non-link buttons (eventTypes should be pastTenseVerbs, e.g linkClicked)
 
-  </div>;
+  return (
+    // <AnalyticsContext 
+    // // choose one of: pageContext|pageSectionContext|pageSubSectionContext|pageElementContext|pageElementSubContext=""
+    // >
+      <div className={classes.root}>
+      </div>
+    // </AnalyticsContext>
+  )
 }
 
-const TemplateComponentComponent = registerComponent('TemplateComponent', TemplateComponent, {styles});
+const TemplateComponentComponent = registerComponent('TemplateComponent', TemplateComponent);
 
 declare global {
   interface ComponentTypes {
     TemplateComponent: typeof TemplateComponentComponent
   }
 }
+
+export default TemplateComponent;

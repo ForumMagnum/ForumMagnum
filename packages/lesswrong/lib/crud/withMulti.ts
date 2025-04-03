@@ -2,13 +2,16 @@ import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useAp
 import qs from 'qs';
 import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
-import { extractFragmentInfo, getFragment, pluralize, camelCaseify, collectionNameToTypeName } from '../vulcan-lib';
-import { useLocation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
-import { useNavigate } from '../reactRouterWrapper';
 import { apolloSSRFlag } from '../helpers';
 import { getMultiResolverName } from './utils';
 import type { PrimitiveGraphQLType } from './types';
+import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
+import { getFragment } from "../vulcan-lib/fragments";
+import { pluralize } from "../vulcan-lib/pluralize";
+import { camelCaseify } from "../vulcan-lib/utils";
+import { collectionNameToTypeName } from "../generated/collectionTypeNames";
+import { useLocation, useNavigate } from "../routeUtil";
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:
@@ -155,7 +158,7 @@ export function useMulti<
   const [ limit, setLimit ] = useState(defaultLimit);
   const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
   
-  const typeName = collectionNameToTypeName(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
   const fragment = getFragment(fragmentName);
   
   const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment, extraVariables });

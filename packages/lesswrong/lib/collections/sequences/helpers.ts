@@ -1,13 +1,12 @@
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { Books } from '../books/collection';
-import { Collections } from '../collections/collection';
-import { Sequences } from './collection';
 import { accessFilterMultiple } from '../../utils/schemaUtils';
 import { loadByIds } from '../../loaders';
 import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
+
+export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
 
 interface SequencePostId {
   sequenceId: string,
@@ -38,7 +37,7 @@ export const sequenceGetAllPostIDs = async (sequenceId: string, context: Resolve
   
   // Filter by user access
   const posts = await loadByIds(context, "Posts", validPostIds);
-  const accessiblePosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context);
+  const accessiblePosts = await accessFilterMultiple(context.currentUser, 'Posts', posts, context);
   return accessiblePosts.map(post => post._id!);
 }
 
@@ -56,7 +55,8 @@ export const sequenceGetAllPosts = async (sequenceId: string | null, context: Re
   return _.map(allPostIds, id=>postsById[id]).filter(post => !!post);
 }
 
-const getSequenceCollectionBooks = async function(sequenceId: string) {
+const getSequenceCollectionBooks = async function(sequenceId: string, context: ResolverContext) {
+  const { Sequences, Books, Collections } = context;
   const sequence = await Sequences.findOne({ _id: sequenceId });
   if (!sequence?.canonicalCollectionSlug) return;
 
@@ -71,7 +71,7 @@ const getSequenceCollectionBooks = async function(sequenceId: string) {
 }
 
 const getSurroundingSequencePostIdTuples = async function (sequenceId: string, context: ResolverContext) {
-  const books = await getSequenceCollectionBooks(sequenceId);
+  const books = await getSequenceCollectionBooks(sequenceId, context);
   if (!books) return;
 
   const allSequenceIds = books.flatMap(book => book.sequenceIds);

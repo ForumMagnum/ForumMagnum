@@ -1,10 +1,8 @@
-import { registerFragment } from '../../vulcan-lib';
-
-registerFragment(`
+export const PetrovDayLaunchInfo = `
   fragment PetrovDayLaunchInfo on PetrovDayLaunch {
     _id
     createdAt
     launchCode
     userId
   }
-`);
+`

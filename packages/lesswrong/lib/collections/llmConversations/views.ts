@@ -1,7 +1,4 @@
-import LLMConversations from './collection';
-import { ensureIndex } from '@/lib/collectionIndexUtils';
-
-
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface LlmConversationsWithUserViewTerms {
@@ -18,19 +15,18 @@ declare global {
     view?: undefined,
     userId?: never
   })
-
 }
 
-LLMConversations.addView("llmConversationsWithUser", function (terms: LlmConversationsWithUserViewTerms) {
+function llmConversationsWithUser(terms: LlmConversationsWithUserViewTerms) {
   return {
     selector: {
       userId: terms.userId,
       deleted: false
     }
   };
-});
+}
 
-LLMConversations.addView("llmConversationsAll", function (terms: LlmConversationsAllViewTerms) {
+function llmConversationsAll(terms: LlmConversationsAllViewTerms) {
   return {
     selector: {
       deleted: terms.showDeleted ? undefined : false
@@ -39,8 +35,11 @@ LLMConversations.addView("llmConversationsAll", function (terms: LlmConversation
       sort: {
         createdAt: -1
       }
-  }
-}});
+    }
+  };
+}
 
-ensureIndex(LLMConversations, { userId: 1, deleted: 1, createdAt: 1 });
-
+export const LlmConversationsViews = new CollectionViewSet('LlmConversations', {
+  llmConversationsWithUser,
+  llmConversationsAll
+});

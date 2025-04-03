@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useLocation } from "../../../lib/routeUtil";
 import { useOnSearchHotkey } from "../../common/withGlobalKeydown";
 import { InteractionWrapper } from "../../common/useClickableCell";
-import Collapse from "@material-ui/core/Collapse";
+import Collapse from "@/lib/vendor/@material-ui/core/src/Collapse";
 import classNames from "classnames";
 
 const TRANSITION_DURATION = 200;

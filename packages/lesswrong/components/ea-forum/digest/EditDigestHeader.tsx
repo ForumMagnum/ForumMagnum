@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { getDigestName } from '../../../lib/collections/digests/helpers';
 import moment from 'moment';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 
 const styles = (theme: ThemeType) => ({
   root: {

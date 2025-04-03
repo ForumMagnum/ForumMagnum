@@ -3,20 +3,20 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
-import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useTagBySlug } from '../useTag';
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
+import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
+import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import qs from "qs";
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { getTagStructuredData } from '../TagPageRouter';
 import { taggingNamePluralSetting } from '@/lib/instanceSettings';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
 
 export const styles = (theme: ThemeType) => ({
   tabRow: {

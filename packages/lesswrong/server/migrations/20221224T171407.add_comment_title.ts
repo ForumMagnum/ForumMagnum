@@ -33,7 +33,7 @@
  */
 export const acceptsSchemaHash = "afc7cd96d9085ca54d2a50765d02338f";
 
-import Comments from "../../lib/collections/comments/collection";
+import Comments from "../../server/collections/comments/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

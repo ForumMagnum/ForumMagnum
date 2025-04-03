@@ -1,9 +1,12 @@
-import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyField } from "@/lib/utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, schemaDefaultValue, foreignKeyField, slugFields } from "@/lib/utils/schemaUtils";
+import { textLastUpdatedAtField } from '../helpers/textLastUpdatedAtField';
 import { arbitalLinkedPagesField } from '../helpers/arbitalLinkedPagesField';
 import { summariesField } from "../helpers/summariesField";
 import { formGroups } from "./formGroups";
-import { userOwns } from "@/lib/vulcan-users/permissions";
-import { userIsAdminOrMod } from "@/lib/vulcan-users";
+import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
+import { editableFields } from "@/lib/editor/make_editable";
+import { universalFields } from "@/lib/collectionUtils";
+import { getVoteableSchemaFields } from "@/lib/make_voteable";
 
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
@@ -19,6 +22,36 @@ export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, d
 }
 
 const schema: SchemaType<"MultiDocuments"> = {
+  ...universalFields({
+    legacyDataOptions: {
+      canRead: ['guests'],
+    }
+  }),
+
+  ...editableFields("MultiDocuments", {
+    fieldName: "contents",
+    order: 30,
+    commentStyles: true,
+    normalized: true,
+    revisionsHaveCommitMessages: true,
+    pingbacks: true,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
+    },
+    getLocalStorageId: (multiDocument: DbMultiDocument, name: string) => {
+      const { _id, parentDocumentId, collectionName } = multiDocument;
+      return { id: `multiDocument:${collectionName}:${parentDocumentId}:${_id}`, verify: false };
+    },
+  }),
+
+  ...slugFields("MultiDocuments", {
+    collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
+    getTitle: (md) => md.title ?? md.tabTitle,
+    onCollision: "rejectNewDocument",
+    includesOldSlugs: true,
+  }),
   // In the case of tag lenses, this is the title displayed in the body of the tag page when the lens is selected.
   // In the case of summaries, we don't have a title that needs to be in the "body"; we just use the tab title in the summary tab.
   title: {
@@ -88,7 +121,7 @@ const schema: SchemaType<"MultiDocuments"> = {
       }
 
       const parentTag = await loaders.Tags.load(multiDocument.parentDocumentId);
-      return accessFilterSingle(currentUser, Tags, parentTag, context);
+      return accessFilterSingle(currentUser, 'Tags', parentTag, context);
     },
     sqlResolver: ({ field, join }) => join({
       table: 'Tags',
@@ -108,7 +141,7 @@ const schema: SchemaType<"MultiDocuments"> = {
       }
 
       const parentMultiDocuments = await loaders.MultiDocuments.load(multiDocument.parentDocumentId);
-      return accessFilterSingle(currentUser, MultiDocuments, parentMultiDocuments, context);
+      return accessFilterSingle(currentUser, 'MultiDocuments', parentMultiDocuments, context);
     },
     sqlResolver: ({ field, join }) => join({
       table: 'MultiDocuments',
@@ -191,8 +224,10 @@ const schema: SchemaType<"MultiDocuments"> = {
     denormalized: true,
   },
 
-  ...summariesField('MultiDocuments', { group: formGroups.summaries }),
+  ...summariesField('MultiDocuments', { group: () => formGroups.summaries }),
 
+  ...textLastUpdatedAtField('MultiDocuments'),
+  
   deleted: {
     type: Boolean,
     canRead: ['guests'],
@@ -201,6 +236,8 @@ const schema: SchemaType<"MultiDocuments"> = {
     logChanges: true,
     ...schemaDefaultValue(false),
   },
+
+  ...getVoteableSchemaFields('MultiDocuments'),
 };
 
 export default schema;

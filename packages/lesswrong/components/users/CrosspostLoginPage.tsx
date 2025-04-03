@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import Button from "@material-ui/core/Button";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
 import { forumHeaderTitleSetting } from "../common/Header";
 import { gql, useMutation } from "@apollo/client";
@@ -33,16 +33,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const connectCrossposterMutation = gql`
-  mutation connectCrossposter($token: String) {
-    connectCrossposter(token: $token)
-  }
-`;
-
 const CrosspostLoginPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const [connectCrossposter, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
+  const [connectCrossposter, loading] = useMutation(gql`
+    mutation connectCrossposter($token: String) {
+      connectCrossposter(token: $token)
+    }
+  `, {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
   const {query: {token}} = useLocation();

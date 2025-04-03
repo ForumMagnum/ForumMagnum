@@ -1,12 +1,12 @@
-import { createMutator } from '../vulcan-lib';
+import { createMutator } from '../vulcan-lib/mutators';
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
-import { Comments } from '../../lib/collections/comments/collection';
-import { Posts } from '../../lib/collections/posts/collection';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection';
+import Users from '../../server/collections/users/collection';
+import { Comments } from '../../server/collections/comments/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import { Subscriptions } from '../../server/collections/subscriptions/collection';
 import * as _ from 'underscore';
 
-registerMigration({
+export default registerMigration({
   name: "migrateSubscriptions",
   dateWritten: "2019-05-01",
   idempotent: true,

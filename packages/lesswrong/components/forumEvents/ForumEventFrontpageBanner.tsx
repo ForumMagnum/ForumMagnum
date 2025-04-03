@@ -1,6 +1,6 @@
 import React, { FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
 import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
 import { useDismissable } from "../hooks/useDismissable";
@@ -207,7 +207,8 @@ const styles = (theme: ThemeType) => ({
     top: -HEADER_HEIGHT,
     right: 0,
     width: '100%',
-    height: `calc(100% + ${HEADER_HEIGHT}px)`
+    height: `calc(100% + ${HEADER_HEIGHT}px)`,
+    objectFit: "cover",
   },
   imageWithGradient: {
     right: "-10%",
@@ -285,7 +286,7 @@ const Description = ({forumEvent, classes}: {
 const ForumEventFrontpageBannerBasic = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   const cookieName = HIDE_FORUM_EVENT_BANNER_PREFIX + currentForumEvent?._id;
   const {dismiss, dismissed} = useDismissable(cookieName);
   if (!currentForumEvent || dismissed) {
@@ -332,7 +333,7 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
 const ForumEventFrontpageBannerWithPoll = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   
   if (!currentForumEvent) {
     return null;
@@ -383,7 +384,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
 const ForumEventFrontpageBannerWithStickers = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   
   if (!currentForumEvent) {
     return null;
@@ -410,7 +411,7 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
 export const ForumEventFrontpageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   if (!currentForumEvent) {
     return null;
   }

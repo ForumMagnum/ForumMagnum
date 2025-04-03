@@ -1,8 +1,7 @@
 import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
-import Users from "../../lib/collections/users/collection";
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib";
+import Users from "../../server/collections/users/collection";
 import { ApiError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
@@ -12,6 +11,7 @@ import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { isE2E } from "@/lib/executionEnvironment";
 import { connectCrossposterToken } from "../crossposting/tokens";
+import { gql } from "apollo-server-express";
 // import { makeV2CrossSiteRequest } from "../crossposting/crossSiteRequest";
 // import {
 //   connectCrossposterRoute,
@@ -94,78 +94,82 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   return validatedResponse.right;
 }
 
-const crosspostResolvers = {
-  Mutation: {
-    connectCrossposter: async (
-      _root: void,
-      {token}: ConnectCrossposterArgs,
-      {req, currentUser}: ResolverContext,
-    ) => {
-      const localUserId = getUserId(req);
+export const fmCrosspostGraphQLTypeDefs = gql`
+  extend type Mutation {
+    connectCrossposter(token: String): String
+    unlinkCrossposter: String
+  }
+  extend type Query {
+    getCrosspost(args: JSON): JSON
+  }
+`
 
-      // Throws an error if user doesn't have enough karma on the receiving forum (which is the current execution environment)
-      validateCrosspostingKarmaThreshold(currentUser);
+export const fmCrosspostGraphQLMutations = {
+  connectCrossposter: async (
+    _root: void,
+    {token}: ConnectCrossposterArgs,
+    {req, currentUser}: ResolverContext,
+  ) => {
+    const localUserId = getUserId(req);
 
-      const {foreignUserId} = await makeCrossSiteRequest(
-        'connectCrossposter',
-        {token, localUserId},
-        "Failed to connect accounts for crossposting",
+    // Throws an error if user doesn't have enough karma on the receiving forum (which is the current execution environment)
+    validateCrosspostingKarmaThreshold(currentUser);
+
+    const {foreignUserId} = await makeCrossSiteRequest(
+      'connectCrossposter',
+      {token, localUserId},
+      "Failed to connect accounts for crossposting",
+    );
+    // TODO: Switch to this when V2 is deployed to both sites
+    // const {foreignUserId} = await makeV2CrossSiteRequest(
+    //   connectCrossposterRoute,
+    //   {token, localUserId},
+    //   "Failed to connect accounts for crossposting",
+    // );
+    await Users.rawUpdateOne({_id: localUserId}, {
+      $set: {fmCrosspostUserId: foreignUserId},
+    });
+    return "success";
+  },
+  unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
+    const localUserId = getUserId(req);
+    const foreignUserId = req?.user?.fmCrosspostUserId;
+    if (foreignUserId) {
+      const token = await connectCrossposterToken.create({
+        userId: foreignUserId,
+      });
+      await makeCrossSiteRequest(
+        'unlinkCrossposter',
+        {token},
+        "Failed to unlink crossposting accounts",
       );
       // TODO: Switch to this when V2 is deployed to both sites
-      // const {foreignUserId} = await makeV2CrossSiteRequest(
-      //   connectCrossposterRoute,
-      //   {token, localUserId},
-      //   "Failed to connect accounts for crossposting",
+      // await makeV2CrossSiteRequest(
+      //   unlinkCrossposterRoute,
+      //   {token},
+      //   "Failed to unlink crossposting accounts",
       // );
       await Users.rawUpdateOne({_id: localUserId}, {
-        $set: {fmCrosspostUserId: foreignUserId},
+        $unset: {fmCrosspostUserId: ""},
       });
-      return "success";
-    },
-    unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
-      const localUserId = getUserId(req);
-      const foreignUserId = req?.user?.fmCrosspostUserId;
-      if (foreignUserId) {
-        const token = await connectCrossposterToken.create({
-          userId: foreignUserId,
-        });
-        await makeCrossSiteRequest(
-          'unlinkCrossposter',
-          {token},
-          "Failed to unlink crossposting accounts",
-        );
-        // TODO: Switch to this when V2 is deployed to both sites
-        // await makeV2CrossSiteRequest(
-        //   unlinkCrossposterRoute,
-        //   {token},
-        //   "Failed to unlink crossposting accounts",
-        // );
-        await Users.rawUpdateOne({_id: localUserId}, {
-          $unset: {fmCrosspostUserId: ""},
-        });
-      }
-      return "success";
-    },
-  },
-  Query: {
-    getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
-      const key = stringify(args);
-      let promise = isE2E ? null : foreignPostCache.get(key);
-      if (!promise) {
-        promise = makeCrossSiteRequest(
-          'getCrosspost',
-          args,
-          'Failed to get crosspost'
-        );
-        foreignPostCache.set(key, promise);
-      }
-      const {document} = await promise;
-      return document;
     }
-  }
-};
+    return "success";
+  },
+}
 
-addGraphQLResolvers(crosspostResolvers);
-addGraphQLMutation("connectCrossposter(token: String): String");
-addGraphQLMutation("unlinkCrossposter: String");
-addGraphQLQuery("getCrosspost(args: JSON): JSON");
+export const fmCrosspostGraphQLQueries = {
+  getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
+    const key = stringify(args);
+    let promise = isE2E ? null : foreignPostCache.get(key);
+    if (!promise) {
+      promise = makeCrossSiteRequest(
+        'getCrosspost',
+        args,
+        'Failed to get crosspost'
+      );
+      foreignPostCache.set(key, promise);
+    }
+    const {document} = await promise;
+    return document;
+  }
+}

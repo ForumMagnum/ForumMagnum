@@ -1,12 +1,12 @@
 import React, { ReactNode, useRef, useState }  from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Paper from '@material-ui/core/Paper';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { PopperPlacementType } from '@material-ui/core/Popper';
+import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
 
 const styles = (theme: ThemeType) => ({
   addTagButton: {
