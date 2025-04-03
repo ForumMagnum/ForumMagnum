@@ -1,4 +1,4 @@
-import { generateFragmentTypes } from './generateFragmentTypes';
+import { generateFragmentTypes, generateFragmentsGqlFile } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
 import { generateSQLSchema } from '../scripts/generateSQLSchema';
@@ -107,6 +107,7 @@ export function generateTypes(repoRoot?: string) {
   try {
     writeIfChanged(generateDefaultFragmentsFile(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
+    writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateCollectionTypeNames(), "/packages/lesswrong/lib/generated/collectionTypeNames.ts");

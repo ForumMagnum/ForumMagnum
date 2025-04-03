@@ -89,7 +89,11 @@ export type FragmentFromSource = {
 }
 export type FragmentsFromSource = Record<string, FragmentFromSource>
 
+// Memoize so we don't search the source tree multiple times
+let allFragmentsInSource: FragmentsFromSource|null = null;
+
 export function findFragmentsInSource(): FragmentsFromSource {
+  if (allFragmentsInSource) return allFragmentsInSource;
   const foundFragmentStrings = findFragmentsIn("packages/lesswrong", "frag");
   const defaultFragmentStrings = generateDefaultFragments();
   const fragmentStrings = [
@@ -97,7 +101,7 @@ export function findFragmentsInSource(): FragmentsFromSource {
     ...defaultFragmentStrings,
   ];
 
-  const result = keyBy(filterNonnull(fragmentStrings.map(f => {
+  allFragmentsInSource = keyBy(filterNonnull(fragmentStrings.map(f => {
     let parsedFragment: DocumentNode;
     try {
       parsedFragment = gql(f);
@@ -118,7 +122,7 @@ export function findFragmentsInSource(): FragmentsFromSource {
       parsedFragment: fragmentDefinition,
     }
   })), f=>f.fragmentName);
-  return result;
+  return allFragmentsInSource;
 }
 
 function getFragmentDefinitionInGraphQL(parsedGraphQL: DocumentNode): FragmentDefinitionNode {

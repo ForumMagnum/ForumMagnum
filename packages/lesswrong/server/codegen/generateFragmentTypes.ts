@@ -1,4 +1,4 @@
-import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript, generateAllowedValuesTypeString } from './typeGenerationUtils';
+import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript, generateAllowedValuesTypeString, autoUnindent } from './typeGenerationUtils';
 import { allSchemas, getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import groupBy from 'lodash/groupBy';
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
@@ -31,6 +31,20 @@ export function generateFragmentTypes(): string {
   sb.push(generateCollectionNamesWithSlugIndexType());
   
   return fragmentFileHeader + sb.join('');
+}
+
+export function generateFragmentsGqlFile() {
+  const allFragments = findFragmentsInSource();
+  const fragmentNames = Object.keys(allFragments);
+  const sortedFragmentNames: Array<string> = orderBy(fragmentNames, f=>f);
+
+  const sb: Array<string> = [];
+  for (let fragmentName of sortedFragmentNames) {
+    const fragmentText = allFragments[fragmentName].fragmentText
+    sb.push(autoUnindent(fragmentText));
+  }
+  
+  return sb.join("\n\n");
 }
 
 function fragmentNameToCollectionName(fragment: FragmentFromSource): CollectionNameString {
