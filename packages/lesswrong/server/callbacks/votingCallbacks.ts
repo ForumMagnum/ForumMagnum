@@ -23,6 +23,7 @@ import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor, updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
+import { createTag } from '../collections/tags/mutations';
 
 async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
@@ -241,13 +242,11 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 //       slug: tagSlug,
 //       userId: botUser._id
 //     };   
-
-//     const {data: newTag} = await createMutator({
-//       collection: Tags,
-//       document: tagData,
-//       validate: false,
-//       currentUser: botUser,
-//     });
+//
+//     const newTag = await createTag({
+//       data: tagData
+//     }, context, true);
+//     
 //     if (!newTag) {
 //       //eslint-disable-next-line no-console
 //       console.log(`Failed to create tag with slug "${tagSlug}"`); 

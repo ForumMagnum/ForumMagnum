@@ -1,4 +1,4 @@
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { updateMutator } from '../vulcan-lib/mutators';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { Posts } from '../../server/collections/posts/collection'
 import { ReviewVotes } from '../../server/collections/reviewVotes/collection'
@@ -6,6 +6,7 @@ import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
 import { REVIEW_YEAR, reviewElectionName } from '../../lib/reviewUtils';
 import { TARGET_REVIEW_VOTING_NUM } from '../../components/review/ReviewProgressVoting';
 import gql from 'graphql-tag';
+import { createReviewVote } from '../collections/reviewVotes/mutations';
 
 export const reviewVoteGraphQLTypeDefs = gql`
   type GivingSeasonHeart {
@@ -59,12 +60,9 @@ export const reviewVoteGraphQLMutations = {
     const existingVote = await ReviewVotes.findOne({ postId, userId: currentUser._id });
     if (!existingVote) {
       const finalQuadraticScore = (typeof newQuadraticScore !== 'undefined' ) ? newQuadraticScore : (quadraticChange || 0)
-      const newVote = await createMutator({
-        collection: ReviewVotes,
-        document: { postId, qualitativeScore, quadraticScore: finalQuadraticScore, comment, year, dummy, reactions },
-        validate: false,
-        currentUser,
-      });
+      await createReviewVote({
+        data: { postId, qualitativeScore, quadraticScore: finalQuadraticScore, comment, year, dummy, reactions }
+      }, context, true);
       const newPost = await Posts.findOne({_id:postId})
       if (!newPost) throw Error("Can't find post corresponding to Review Vote")
       return newPost

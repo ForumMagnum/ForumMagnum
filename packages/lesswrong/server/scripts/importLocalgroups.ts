@@ -3,7 +3,9 @@ import Papa from 'papaparse';
 import Localgroups from '../../server/collections/localgroups/collection';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/newSchema';
 import { wrapVulcanAsyncScript } from './utils';
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { updateMutator } from "../vulcan-lib/mutators";
+import { createLocalgroup } from '../collections/localgroups/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 /**
  * Import data for localgroups
@@ -53,17 +55,15 @@ export const importLocalgroups = wrapVulcanAsyncScript(
         if (!data._id) {
           //eslint-disable-next-line no-console
           console.log(`${groupName} not found in the db - adding`)
-          const newGroup = await createMutator({
-            collection: Localgroups,
-            document: {
+          const newGroup = await createLocalgroup({
+            data: {
               ...dataToSet,
               types: ["LW"], // not used by EA Forum but still required
               organizerIds: ['kPucqpaq7QyPczK5W'] // Group Organizer account
-            },
-            validate: false
-          })
+            }
+          }, createAnonymousContext(), true);
           //eslint-disable-next-line no-console
-          console.log(`${newGroup.data._id} - ${groupName} added`)
+          console.log(`${newGroup._id} - ${groupName} added`)
         }
         // replace any existing data with the imported data
         else {

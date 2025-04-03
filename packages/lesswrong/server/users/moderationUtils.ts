@@ -10,6 +10,8 @@ import UsersRepo from "../repos/UsersRepo";
 import { createMutator, updateMutator, deleteMutator } from "../vulcan-lib/mutators";
 import { userGetGroups } from "@/lib/vulcan-users/permissions";
 import type { VoteDocTuple } from "@/lib/voting/vote";
+import { createBan } from "../collections/bans/mutations";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50;
 const TRUSTLEVEL1_THRESHOLD = 2000;
@@ -63,19 +65,15 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
     await asyncForeachSequential(IPs.data.user.result.IPs as Array<string>, async ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      const ban: Partial<DbBan> = {
+      const ban = {
         expirationDate: tomorrow,
         userId: user._id,
         reason: "User account banned",
         comment: "Automatic IP ban",
         ip: ip,
       }
-      await createMutator({
-        collection: Bans,
-        document: ban,
-        currentUser: user,
-        validate: false,
-      })
+      const userContext = await computeContextFromUser({ user, isSSR: false });
+      await createBan({ data: ban }, userContext, true);
     })
   }
 

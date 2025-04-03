@@ -14,11 +14,12 @@ import { randomId } from '@/lib/random';
 import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultExampleAltTerm, defaultExampleDefinition, JARGON_LLM_MODEL } from '@/components/jargon/GlossaryEditForm';
 import { convertZodParserToAnthropicTool } from '@/server/languageModels/llmApiWrapper';
 import uniq from 'lodash/uniq';
+import { computeContextFromUser } from '../../vulcan-lib/apollo-server/context';
 
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
-import { createMutator } from "../../vulcan-lib/mutators";
 import { sanitize } from "../../../lib/vulcan-lib/utils";
 import gql from 'graphql-tag';
+import { createJargonTerm } from "../../collections/jargonTerms/mutations";
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -324,12 +325,12 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
       const newEnglishJargon = await createEnglishExplanations({ post, excludeTerms: termsToExclude, ...exampleParams });
 
       const botAccount = await getAdminTeamAccount(context);
+      const botContext = await computeContextFromUser({ user: botAccount, isSSR: false });
       
       const createdTerms = await Promise.all([
         ...newEnglishJargon.map((term) =>
-          createMutator({
-            collection: JargonTerms,
-            document: {
+          createJargonTerm({
+            data: {
               postId: postId,
               term: term.term,
               approved: false,
@@ -340,26 +341,21 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
                   type: "ckEditorMarkup",
                 },
               },
-              altTerms: term.altTerms,
-            },
-            currentUser: botAccount,
-            validate: false,
-          })
+              altTerms: term.altTerms ?? [],
+            }
+          }, botContext, true)
         ),
         ...jargonTermsToCopy.map((jargonTerm) =>
-          createMutator({
-            collection: JargonTerms,
-            document: {
+          createJargonTerm({
+            data: {
               postId: postId,
               term: jargonTerm.term,
               approved: jargonTerm.approved,
               deleted: jargonTerm.deleted,
               contents: { originalContents: jargonTerm.contents!.originalContents },
               altTerms: jargonTerm.altTerms,
-            },
-            currentUser: botAccount,
-            validate: false,
-          })
+            }
+          }, botContext, true)
         ),
       ]);
       
@@ -373,7 +369,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
     throw err;
   }
 
-  return newJargonTerms.map(result => result.data);
+  return newJargonTerms;
 }
 
 export const jargonTermsGraphQLTypeDefs = gql`

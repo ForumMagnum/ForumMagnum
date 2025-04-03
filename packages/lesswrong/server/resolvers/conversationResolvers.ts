@@ -2,8 +2,10 @@ import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { createMutator } from "../vulcan-lib/mutators";
 import { adminAccountSetting } from "@/lib/publicSettings";
+import { createConversation } from '../collections/conversations/mutations';
+import { createMessage } from '../collections/messages/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
 export type DmTriggeringEvent = UnionOf<typeof dmTriggeringEvents>;
@@ -88,12 +90,12 @@ export const conversationGqlMutations = {
       title
     }
 
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false,
-    });
+    // Create a context with lwAccount as the current user
+    const lwContext = await computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+
+    const conversation = await createConversation({
+      data: conversationData
+    }, lwContext, true);
 
     const firstMessageData = {
       userId: lwAccount._id,
@@ -103,15 +105,12 @@ export const conversationGqlMutations = {
           data: message
         }
       },
-      conversationId: conversation.data._id
+      conversationId: conversation._id
     }
 
-    void createMutator({
-      collection: Messages,
-      document: firstMessageData,
-      currentUser: lwAccount,
-      validate: false,
-    })
+    void createMessage({
+      data: firstMessageData
+    }, lwContext, true);
 
     return true;
   }

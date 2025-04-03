@@ -2,13 +2,14 @@ import { addCronJob } from "./cron/cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/server/collections/posts/collection.ts";
-import Tweets from "@/server/collections/tweets/collection";
 import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/server/collections/users/collection";
 import { dogstatsd } from "./datadog/tracer";
 import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
-import { createMutator } from "./vulcan-lib/mutators";
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
+import { createTweet } from "./collections/tweets/mutations";
+// import { createTweet } from "@/server/collections/tweets/mutations";
 
 const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
 const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");
@@ -101,6 +102,8 @@ export async function runTwitterBot() {
 
   const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: 1, title: 1 } }).fetch();
 
+  const anonymousContext = createAnonymousContext();
+
   for (const post of posts) {
     const content = await writeTweet(post);
     logger(`Attempting to post tweet with content: ${content}`);
@@ -108,15 +111,7 @@ export async function runTwitterBot() {
 
     if (tweetId) {
       logger(`Tweet created, id: ${tweetId}`);
-      await createMutator({
-        collection: Tweets,
-        document: {
-          postId: post._id,
-          content,
-          tweetId
-        },
-        validate: false
-      });
+      await createTweet({ data: { postId: post._id, content, tweetId } }, anonymousContext, true);
       return;
     } else {
       logger(`Failed to create tweet for post with id: ${post._id}, trying next post`);

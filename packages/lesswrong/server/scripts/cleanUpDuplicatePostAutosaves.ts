@@ -1,11 +1,11 @@
 import { Posts } from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
-import Conversations from "../../server/collections/conversations/collection";
 import groupBy from "lodash/groupBy";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import Messages from "../../server/collections/messages/collection";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { updateMutator } from "../vulcan-lib/mutators";
+import { createConversation } from "../collections/conversations/mutations";
+import { createMessage } from "../collections/messages/mutations";
 
 export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
   const db = getSqlClientOrThrow();
@@ -58,17 +58,14 @@ export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
       })
     }
 
-    const conversationData: CreateMutatorParams<"Conversations">['document'] = {
+    const conversationData = {
       participantIds: [userId, adminUser._id],
       title: `Bug fix - cleaning up duplicated posts`,
     };
 
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: adminUser,
-      validate: false
-    });
+    const conversation = await createConversation({
+      data: conversationData
+    }, adminContext, true);
 
     const messageContents = `
       <p>There was recently a bug related to new post auto-saving functionality which caused some duplicate posts.  You were one of the users affected by this.</p>
@@ -84,15 +81,12 @@ export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
           data: messageContents
         }
       },
-      conversationId: conversation.data._id,
+      conversationId: conversation._id,
       noEmail: true
     };
 
-    await createMutator({
-      collection: Messages,
-      document: messageData,
-      currentUser: adminUser,
-      validate: false
-    });
+    await createMessage({
+      data: messageData
+    }, adminContext, true);
   }
 };

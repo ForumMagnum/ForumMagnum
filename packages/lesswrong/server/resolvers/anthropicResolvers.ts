@@ -207,20 +207,6 @@ async function getConversationTitle(args: BasePromptArgs) {
 async function createNewConversation({ query, systemPrompt, model, currentUser, context, postContext, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
   const title = await getConversationTitle({ query, currentPost });
 
-  // BEFORE
-  const newConversation = await createMutator({
-    collection: context.LlmConversations,
-    document: {
-      title,
-      systemPrompt,
-      model,
-      userId: currentUser._id,
-    },
-    context,
-    currentUser,
-  });
-
-  // AFTER
   const newConversation = await createLlmConversation({
     data: {
       title,
@@ -230,7 +216,7 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
     }
   }, context);
 
-  return newConversation.data;
+  return newConversation;
 };
 
 function getPostContextMessage(postsLoadedIntoContext: LlmPost[], currentPost: LlmPost | null): string {

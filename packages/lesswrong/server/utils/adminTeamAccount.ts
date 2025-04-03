@@ -8,13 +8,16 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
   }
   let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
-    const { createMutator }: { createMutator: typeof import("../vulcan-lib/mutators").createMutator } = require("../vulcan-lib/mutators");
-    const newAccount = await createMutator({
-      collection: Users,
-      document: adminAccountData,
-      validate: false,
-    })
-    return newAccount.data
+    const { createUser }: typeof import("../collections/users/mutations") = require("../collections/users/mutations");
+    const { createAnonymousContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
+    // Create an anonymous context since there's no currentUser for this operation
+    const anonContext = createAnonymousContext();
+    
+    const newAccount = await createUser({
+      data: adminAccountData
+    }, anonContext, true);
+    
+    return newAccount;
   }
   return account;
 }

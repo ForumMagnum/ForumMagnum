@@ -6,6 +6,7 @@ import SurveyQuestions from "@/server/collections/surveyQuestions/collection";
 import type { SurveyQuestionInfo } from "@/components/surveys/SurveyEditPage";
 import type { SurveyScheduleWithSurvey } from "../repos/SurveySchedulesRepo";
 import gql from "graphql-tag";
+import { createSurveyQuestion } from "../collections/surveyQuestions/mutations";
 
 
 type EditSurveyArgs = {
@@ -91,11 +92,9 @@ export const surveyResolversGraphQLMutations = {
           validate: false,
         });
       } else {
-        return createMutator({
-          collection: SurveyQuestions,
-          document: data,
-          validate: false,
-        });
+        return createSurveyQuestion({
+          data
+        }, context, true);
       }
     });
     await Promise.all(questionPromises);

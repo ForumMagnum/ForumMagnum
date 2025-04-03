@@ -2,20 +2,25 @@ import Users from '../server/collections/users/collection';
 import { Posts } from '../server/collections/posts/collection'
 import { Comments } from '../server/collections/comments/collection'
 import { Votes } from '../server/collections/votes/collection'
-import Tags from '../server/collections/tags/collection'
-import Revisions from '../server/collections/revisions/collection'
-import Conversations from '../server/collections/conversations/collection';
-import Messages from '../server/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
 import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
-import Localgroups from '../server/collections/localgroups/collection';
-import { UserRateLimits } from '../server/collections/userRateLimits/collection';
 import { callbacksArePending } from '@/server/utils/callbackHooks';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from "@/server/sql/PgCollection";
-import { createMutator } from "../server/vulcan-lib/mutators";
 import { runQuery, setOnGraphQLError } from "../server/vulcan-lib/query";
+import { createPost } from '../server/collections/posts/mutations';
+import { createUser } from '../server/collections/users/mutations';
+import { createComment } from '../server/collections/comments/mutations';
+import { createConversation } from '../server/collections/conversations/mutations';
+import { createMessage } from '../server/collections/messages/mutations';
+import { createLocalgroup } from '../server/collections/localgroups/mutations';
+import { createVote } from '../server/collections/votes/mutations';
+import { createTag } from '../server/collections/tags/mutations';
+import { createRevision } from '../server/collections/revisions/mutations';
+import { createUserRateLimit } from '../server/collections/userRateLimits/mutations';
+import { computeContextFromUser } from '../server/vulcan-lib/apollo-server/context';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -195,16 +200,11 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     createdAt: new Date(),
   }
   const postData = {...defaultData, ...data};
-  const newPostResponse = await createMutator({
-    collection: Posts,
-    // Not the best, createMutator should probably be more flexible about what
-    // it accepts, as long as validate is false
-    document: postData as DbPost,
-    // As long as user has a _id it should be fine
-    currentUser: user as DbUser,
-    validate: false,
-  });
-  return newPostResponse.data
+  const userContext = await computeContextFromUser({user: user as DbUser, isSSR: false});
+  const newPost = await createPost({
+    data: postData as DbPost
+  }, userContext, true);
+  return newPost
 }
 
 export const createDummyUser = async (data?: any) => {
@@ -218,13 +218,12 @@ export const createDummyUser = async (data?: any) => {
     acceptedTos: true,
   }
   const userData = {...defaultData, ...data};
-  const newUserResponse = await createMutator({
-    collection: Users,
-    document: userData,
-    validate: false,
-  })
-  return newUserResponse.data;
+  const newUser = await createUser({
+    data: userData
+  }, createAnonymousContext(), true);
+  return newUser;
 }
+
 export const createDummyComment = async (user: any, data?: any) => {
   const defaultUser = await createDefaultUser();
   let defaultData: any = {
@@ -243,13 +242,11 @@ export const createDummyComment = async (user: any, data?: any) => {
     defaultData.postId = randomPost._id; // By default, just grab ID from a random post
   }
   const commentData = {...defaultData, ...data};
-  const newCommentResponse = await createMutator({
-    collection: Comments,
-    document: commentData,
-    currentUser: user || defaultUser,
-    validate: false,
-  });
-  return newCommentResponse.data
+  const userContext = await computeContextFromUser({user: user || defaultUser, isSSR: false});
+  const newComment = await createComment({
+    data: commentData
+  }, userContext, true);
+  return newComment
 }
 
 export const createDummyConversation = async (user: any, data?: any) => {
@@ -259,13 +256,11 @@ export const createDummyConversation = async (user: any, data?: any) => {
     participantIds: [user._id],
   }
   const conversationData = {...defaultData, ...data};
-  const newConversationResponse = await createMutator({
-    collection: Conversations,
-    document: conversationData,
-    currentUser: user,
-    validate: false,
-  });
-  return newConversationResponse.data
+  const userContext = await computeContextFromUser({user, isSSR: false});
+  const newConversation = await createConversation({
+    data: conversationData
+  }, userContext, true);
+  return newConversation
 }
 
 export const createDummyMessage = async (user: any, data?: any) => {
@@ -275,13 +270,11 @@ export const createDummyMessage = async (user: any, data?: any) => {
     userId: user._id,
   }
   const messageData = {...defaultData, ...data};
-  const newMessageResponse = await createMutator({
-    collection: Messages,
-    document: messageData,
-    currentUser: user,
-    validate: false,
-  });
-  return newMessageResponse.data
+  const userContext = await computeContextFromUser({user, isSSR: false});
+  const newMessage = await createMessage({
+    data: messageData
+  }, userContext, true);
+  return newMessage
 }
 
 export const createDummyLocalgroup = async (data?: any) => {
@@ -291,12 +284,10 @@ export const createDummyLocalgroup = async (data?: any) => {
     organizerIds: [],
   }
   const groupData = {...defaultData, ...data};
-  const groupResponse = await createMutator({
-    collection: Localgroups,
-    document: groupData,
-    validate: false,
-  });
-  return groupResponse.data
+  const newLocalgroup = await createLocalgroup({
+    data: groupData
+  }, createAnonymousContext(), true);
+  return newLocalgroup
 }
 
 const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>): DbVote => {
@@ -324,13 +315,11 @@ const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>): DbVote => 
 
 export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
   const voteData = generateDummyVoteData(user, data);
-  const newVoteResponse = await createMutator({
-    collection: Votes,
-    document: voteData,
-    currentUser: user,
-    validate: false,
-  });
-  return newVoteResponse.data;
+  const userContext = await computeContextFromUser({user, isSSR: false});
+  const newVote = await createVote({
+    data: voteData
+  }, userContext, true);
+  return newVote;
 }
 
 export const createManyDummyVotes = async (count: number, user: DbUser, data?: Partial<DbVote>) => {
@@ -356,13 +345,11 @@ export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
     createdAt: new Date(Date.now()),
   };
   const tagData = {...defaultData, ...data};
-  const newTagResponse = await createMutator({
-    collection: Tags,
-    document: tagData,
-    currentUser: user,
-    validate: false,
-  });
-  return newTagResponse.data;
+  const userContext = await computeContextFromUser({user, isSSR: false});
+  const newTag = await createTag({
+    data: tagData
+  }, userContext, true);
+  return newTag;
 }
 
 export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevision>) => {
@@ -376,23 +363,19 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
     changeMetrics: {} // not nullable field
   };
   const revisionData = {...defaultData, ...data};
-  const newRevisionResponse = await createMutator({
-    collection: Revisions,
-    document: revisionData,
-    currentUser: user,
-    validate: false,
-  });
-  return newRevisionResponse.data;
+  const userContext = await computeContextFromUser({user, isSSR: false});
+  const newRevision = await createRevision({
+    data: revisionData
+  }, userContext, true);
+  return newRevision;
 }
 
-export const createDummyUserRateLimit = async (user: DbUser, data: Partial<DbUserRateLimit>) => {
-  const userRateLimit = await createMutator({
-    collection: UserRateLimits,
-    document: data,
-    currentUser: user,
-    validate: false,
-  });
-  return {...userRateLimit};
+export const createDummyUserRateLimit = async (user: DbUser, data: CreateUserRateLimitDataInput) => {
+  const userContext = await computeContextFromUser({user, isSSR: false});
+  const userRateLimit = await createUserRateLimit({
+    data
+  }, userContext, true);
+  return userRateLimit;
 }
 
 export const clearDatabase = async () => {

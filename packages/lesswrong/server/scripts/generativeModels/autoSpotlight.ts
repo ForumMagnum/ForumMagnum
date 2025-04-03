@@ -6,6 +6,7 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createMutator, updateMutator } from "../../vulcan-lib/mutators";
+import { createSpotlight as createSpotlightMutator } from "@/server/collections/spotlights/mutations";
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
   const client = getAnthropicPromptCachingClientOrThrow()
@@ -22,9 +23,8 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
   const postYear = post.postedAt.getFullYear()
   const cloudinaryImageUrl = reviewWinner?.reviewWinner.reviewWinnerArt?.splashArtImageUrl
 
-  void createMutator({
-    collection: Spotlights,
-    document: {
+  void createSpotlightMutator({
+    data: {
       documentId: post._id,
       documentType: "Post",
       customSubtitle: `Best of LessWrong ${postYear}`,
@@ -34,10 +34,8 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
       spotlightSplashImageUrl: cloudinaryImageUrl,
       description: { originalContents: { type: 'ckEditorMarkup', data: summary } },
       lastPromotedAt: new Date(0),
-    },
-    currentUser: context.currentUser,
-    context
-  })
+    }
+  }, context);
 }
 
 async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlights: DbSpotlight[]}> {

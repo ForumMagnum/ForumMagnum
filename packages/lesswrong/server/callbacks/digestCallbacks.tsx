@@ -1,5 +1,4 @@
 import { UpdateCallbackProperties } from '../mutationCallbacks';
-import { createMutator } from '../vulcan-lib/mutators';
 
 export async function createNextDigestOnPublish({newDocument, oldDocument, context}: UpdateCallbackProperties<"Digests">) {
   const { Digests } = context;
@@ -8,17 +7,15 @@ export async function createNextDigestOnPublish({newDocument, oldDocument, conte
   // if a newer digest already exists, skip
   const newerDigest = await Digests.findOne({ num: {$gt: newDocument.num ?? 0} })
   if (newerDigest) return
-  
-  // when we first publish a digest, create the next one
-  void createMutator({
-    collection: Digests,
-    document: {
+
+  const { createDigest }: typeof import('../collections/digests/mutations') = await require('../collections/digests/mutations');
+
+  void createDigest({
+    data: {
       num: (newDocument.num ?? 0) + 1,
       startDate: newDocument.endDate ?? new Date()
-    },
-    validate: false,
-    context
-  })
+    }
+  }, context, true);
 }
 
 export async function backdatePreviousDigest({newDocument, oldDocument, context}: UpdateCallbackProperties<"Digests">) {

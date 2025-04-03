@@ -118,6 +118,7 @@ async function handleCkEditorWebhook(message: any) {
         const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
         if (!!userId && !!documentId) {
           const adminContext = await createAdminContext()
+          // TODO: Replace with createCkEditorUserSession once it's implemented
           await createMutator({
             collection: CkEditorUserSessions,
             document: {

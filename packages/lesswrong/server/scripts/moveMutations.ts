@@ -167,16 +167,16 @@ ${keepUserCanDo ? `\n  // If we have legacy action permissions defined
 `;
 };
 
-const openingSection = (collectionName: string) => `
+const openingSection = (collectionName: CollectionNameString) => `
 const { createFunction, updateFunction } = getDefaultMutationFunctions('${collectionName}', {
-  createFunction: async (data, context) => {
+  createFunction: async ({ data }: Create${collectionNameToTypeName[collectionName]}Input, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
     const callbackProps = await checkCreatePermissionsAndReturnProps('${collectionName}', {
       context,
       data,
-      newCheck,
       schema,
+      skipValidation,
     });
 
     data = callbackProps.document;
@@ -227,18 +227,15 @@ const newAsyncEditableSection = `
     });
 `;
 
-const createFilteredReturnValueSection = (collectionName: string) => `
-    // There are some fields that users who have permission to create a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, '${collectionName}', documentWithId, context);
-
-    return filteredReturnValue;
+const createReturnValueSection = `
+    return documentWithId;
   },
 `;
 
 const updateFunctionOpeningSection = (collectionName: CollectionNameString, collection: CollectionBase<CollectionNameString>, needsOldDocument: boolean) => {
   const typeName = collectionNameToTypeName[collectionName];
   return `
-  updateFunction: async ({ selector, data }, context) => {
+  updateFunction: async ({ selector, data }, context, skipValidation?: boolean) => {
     const { currentUser, ${collectionName} } = context;
 ${collection.options.logChanges ? `
     // Save the original mutation (before callbacks add more changes to it) for
@@ -248,7 +245,7 @@ ${collection.options.logChanges ? `
       documentSelector: ${typeName.toLowerCase()}Selector,
       previewDocument, 
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('${collectionName}', { selector, context, data, editCheck, schema });
+    } = await checkUpdatePermissionsAndReturnProps('${collectionName}', { selector, context, data, schema, skipValidation });
 ${needsOldDocument ? `\n    const { oldDocument } = updateCallbackProperties;\n` : ''}`
 };
 
@@ -306,11 +303,8 @@ const logFieldChangesSection = (collectionName: string) => `
     void logFieldChanges({ currentUser, collection: ${collectionName}, oldDocument, data: origData });
 `;
 
-const updateFunctionClosingSection = (collectionName: string) => `
-    // There are some fields that users who have permission to edit a document don't have permission to read.
-    const filteredReturnValue = await accessFilterSingle(currentUser, '${collectionName}', updatedDocument, context);
-
-    return filteredReturnValue;
+const updateReturnValueSection = `
+    return updatedDocument;
   },
 });
 `;
@@ -448,7 +442,7 @@ function generateMutationFunctions(collectionName: CollectionNameString) {
     sb.push(newAsyncEditableSection);
   }
 
-  sb.push(createFilteredReturnValueSection(collectionName));
+  sb.push(createReturnValueSection);
 
   const needsOldDocument = hasLogChanges || collectionHooks.editSync.any() || collectionHooks.editAsync.any();
   sb.push(updateFunctionOpeningSection(collectionName, collection, needsOldDocument));
@@ -511,7 +505,7 @@ function generateMutationFunctions(collectionName: CollectionNameString) {
     sb.push(logFieldChangesSection(collectionName));
   }
 
-  sb.push(updateFunctionClosingSection(collectionName));
+  sb.push(updateReturnValueSection);
 
   sb.push('\n\n');
   sb.push(exportFunctionsSection(collectionName));
@@ -566,10 +560,10 @@ export async function generateMutationImports() {
   await writeFile('./packages/lesswrong/server/initGraphQLImports.ts', importBlock + '\n\n' + mutationBlock);
 }
 
-export async function moveVotesMutations() {
-  const mutationFilePath = join(__dirname, `../collections/votes/mutations.ts`);
+export async function moveReviewWinnerArtsMutations() {
+  const mutationFilePath = join(__dirname, `../collections/reviewWinnerArts/mutations.ts`);
 
-  const reviewVoteMutations = generateMutationFunctions('Votes');
+  const reviewVoteMutations = generateMutationFunctions('ReviewWinnerArts');
 
   await writeFile(mutationFilePath, reviewVoteMutations);
 }

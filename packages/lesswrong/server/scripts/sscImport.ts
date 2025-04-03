@@ -1,20 +1,21 @@
 import feedparser from 'feedparser-promised';
 import Users from '../../server/collections/users/collection';
 import { Posts } from '../../server/collections/posts/collection';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { updateMutator } from '../vulcan-lib/mutators';
 import RSSFeeds from '../../server/collections/rssfeeds/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
+import { createRSSFeed } from '../collections/rssfeeds/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { createPost } from '../collections/posts/mutations';
 
 async function rssImport(userId: string, rssURL: string, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {
     let rssPageImports: Array<any> = [];
     let maybeRSSFeed = await RSSFeeds.findOne({nickname: feedName});
     if (!maybeRSSFeed) {
-      maybeRSSFeed = (await createMutator({
-        collection: RSSFeeds,
-        document: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink}
-      })).data;
+      maybeRSSFeed = await createRSSFeed({ data: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink} }, createAnonymousContext());
     }
     if (!maybeRSSFeed) throw Error("Failed to create new rssFeed for rssImport")
     const rssFeed = maybeRSSFeed
@@ -58,13 +59,10 @@ async function rssImport(userId: string, rssURL: string, pages = 100, overwrite 
         const lwUser = await Users.findOne({_id: userId});
         const oldPost = await Posts.findOne({title: post.title, userId: userId});
 
+        const userContext = await computeContextFromUser({ user: lwUser, isSSR: false });
+
         if (!oldPost){
-          void createMutator({
-            collection: Posts,
-            document: post,
-            currentUser: lwUser,
-            validate: false,
-          })
+          void createPost({ data: post }, userContext, true);
         } else {
           if(overwrite) {
             void updateMutator({

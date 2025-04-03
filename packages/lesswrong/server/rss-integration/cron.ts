@@ -12,6 +12,8 @@ import { sanitize } from '../../lib/vulcan-lib/utils';
 import { dataToHTML } from '../editor/conversionUtils';
 import { fetchFragmentSingle } from '../fetchFragment';
 import gql from 'graphql-tag';
+import { createPost } from '../collections/posts/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
 export const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
@@ -71,13 +73,13 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
     };
 
     let lwUser = await Users.findOne({_id: feed.userId});
+    
+    // Create context with the lwUser as the currentUser
+    const lwContext = await computeContextFromUser({ user: lwUser, isSSR: false });
 
-    await createMutator({
-      collection: Posts,
-      document: post,
-      currentUser: lwUser,
-      validate: false,
-    })
+    await createPost({
+      data: post
+    }, lwContext, true);
   })
 }
 

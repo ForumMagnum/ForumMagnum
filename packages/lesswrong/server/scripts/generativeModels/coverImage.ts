@@ -9,7 +9,7 @@ import shuffle from 'lodash/shuffle';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
 import { createAdminContext } from "../../vulcan-lib/createContexts";
-import { createMutator } from "../../vulcan-lib/mutators";
+import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
 
@@ -144,15 +144,15 @@ const saveImage = async (el: string, essay: Essay, url: string) => {
     console.error("Failed to upload image to cloudinary", el, essay)
     return
   }
-  await createMutator({
-    collection: ReviewWinnerArts,
-    context: createAdminContext(),
-    document: {
+
+  await createReviewWinnerArt({
+    data: {
       postId: essay.post._id, 
       splashArtImagePrompt: el,
       splashArtImageUrl: newUrl
     }
-  })
+  }, createAdminContext());
+
   return newUrl
 }
 
