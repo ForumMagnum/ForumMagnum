@@ -17,16 +17,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     borderRadius: 4,
     backgroundColor: theme.palette.panelBackground.default,
   },
-  postStyleHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 24,
-    paddingBottom: 20,
-    marginLeft: -16,
-    marginRight: -16,
-    borderBottom: theme.palette.border.itemSeparatorFeedTop,
-  },
   titleArea: {
     flexGrow: 1,
   },
@@ -55,9 +45,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.4,
     },
-  },
-  expandedPost: {
-    // borderBottom: theme.palette.border.itemSeparatorFeedTop,
   },
   commentsContainer: {
     display: 'flex',
@@ -166,7 +153,6 @@ const UltraFeedThreadItem = ({thread}: {
 
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
-  const { settings } = useUltraFeedSettings();
   const [postExpanded, setPostExpanded] = useState(postMetaInfo.displayStatus === 'expanded');
 
   // 1) Store each comment's displayStatus locally
@@ -208,18 +194,7 @@ const UltraFeedThreadItem = ({thread}: {
     return result;
   });
 
-  console.log("commentDisplayStatuses", commentDisplayStatuses);
-  console.log("highlightStatuses", highlightStatuses);
-
   const { UltraFeedCommentItem, UltraFeedPostItem, UltraFeedCompressedCommentsItem } = Components;
-
-  // Get basic thread statistics
-  const commentCount = comments.length;
-  const topLevelCommentId = comments?.[0]?._id;
-  
-  // Extract post information
-  const postTitle = post.title || "Untitled Post";
-  const postUrl = `/posts/${post._id}`;
 
   // 2) Function to update a single comment's status
   const setDisplayStatus = (commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
@@ -242,46 +217,13 @@ const UltraFeedThreadItem = ({thread}: {
     return compressCollapsedComments(commentDisplayStatuses, visibleComments);
   }, [visibleComments, commentDisplayStatuses]);
 
-  const titleClickHandler = (ev: React.MouseEvent<HTMLAnchorElement>) => {
-    ev.preventDefault();
-    setPostExpanded(!postExpanded);
-  }
-
   const postTitleClickHandler = () => {
     setPostExpanded(true);
   }
 
-  // Determine if we should show the post title as post-style heading
-  const showPostStyleHeading = settings.commentTitleStyle === "postStyleHeading";
-  
-  // Always use the old props for first comment for backward compatibility
-  const showInLineCommentThreadTitle = !showPostStyleHeading;
-      
-  // Only render the title element if we're using the post-style heading
-  const titleElement = showPostStyleHeading ? (
-    <div className={classes.postStyleHeader}>
-      <div className={classes.titleArea}>
-        <Link to={postUrl} className={classes.postTitle} onClick={titleClickHandler}>{postTitle}</Link>
-      </div>
-    </div>
-  ) : undefined;
-
-  const handleViewFullThread = () => {
-    if (comments.length > 0) {
-      const topLevelCommentId = comments[0]._id;
-      captureEvent("ultraFeedThreadViewFull", { threadId: topLevelCommentId });
-    }
-  };
-
-  const threadUrl = `/posts/${post._id}/${comments[0]?._id}`;
-
   return (
     <div className={classes.root}>
-      {postExpanded 
-        ? <div className={classes.expandedPost}>
-          <UltraFeedPostItem post={thread.post} postMetaInfo={thread.postMetaInfo} />
-        </div>
-        : titleElement}
+      {postExpanded && <UltraFeedPostItem post={post} postMetaInfo={thread.postMetaInfo} />}
       {comments.length > 0 && <div className={classes.commentsContainer}>
         <div className={classes.commentsList}>
           {compressedItems.map((item, index) => {
@@ -316,7 +258,7 @@ const UltraFeedThreadItem = ({thread}: {
                   post={thread.post}
                   displayStatus={commentDisplayStatuses[cId]}
                   onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
-                  showInLineCommentThreadTitle={isFirstItem && showInLineCommentThreadTitle}
+                  showInLineCommentThreadTitle={isFirstItem}
                   highlight={highlightStatuses[cId] || false}
                   isFirstComment={isFirstItem}
                   isLastComment={isLastItem}
