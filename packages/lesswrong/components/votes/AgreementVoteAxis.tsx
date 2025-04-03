@@ -23,6 +23,7 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   },
   agreementScore: {
     lineHeight: 1,
+    margin: '0 7px',
   },
   agreementScoreSmall: {
     fontSize: "1.1rem",
@@ -37,7 +38,7 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   },
 }));
 
-const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, size='large', }: {
+const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, size='small', }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -98,7 +99,6 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, size='large',
           axis="agreement"
           orientation="left" color="error" upOrDown="Downvote"
           enabled={canVote}
-          size={size}
           {...voteProps}
         />
       </TooltipIfEnabled>
@@ -126,7 +126,6 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, size='large',
           axis="agreement"
           orientation="right" color="secondary" upOrDown="Upvote"
           enabled={canVote}
-          size={size}
           {...voteProps}
         />
       </TooltipIfEnabled>
