@@ -49,7 +49,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     display: '-webkit-box !important',
     '-webkit-box-orient': 'vertical !important',
     overflow: 'hidden !important',
-    textOverflow: 'ellipsis !important',
+    // textOverflow: 'ellipsis !important',
     maxHeight: 'none !important',
     // TOOD: remove for now to avoid weird sudden clipping of text (I believe this was to give room for danglers?)
     // paddingBottom: '0.25em !important',
@@ -139,15 +139,15 @@ const FeedContentBody = ({
   const isFirstLevel = expansionLevel === 0;
   
   // Add logging at the start of render
-  console.log('[FeedContentBody Render]', {
-    documentId: post?._id || comment?._id || tag?._id,
-    expansionLevel,
-    currentWordLimit,
-    isMaxLevel,
-    isFirstLevel,
-    wordCount,
-    breakpoints
-  });
+  // console.log('[FeedContentBody Render]', {
+  //   documentId: post?._id || comment?._id || tag?._id,
+  //   expansionLevel,
+  //   currentWordLimit,
+  //   isMaxLevel,
+  //   isFirstLevel,
+  //   wordCount,
+  //   breakpoints
+  // });
   
   // Determine entity type and ID
   const documentType = post ? 'post' : comment ? 'comment' : 'tag';
@@ -251,12 +251,6 @@ const FeedContentBody = ({
     // Direct check to ensure we correctly identify if content is truncated
     // This handles cases where truncateWithGrace might not accurately report truncation
     if (wordCount > currentWordLimit && !wasTruncated) {
-      console.log("Correcting truncation detection", {
-        wordCount,
-        currentWordLimit,
-        wasTruncated,
-        truncateWithGraceResult: result,
-      });
       wasTruncated = true;
       wordsLeft = wordCount - currentWordLimit;
     }
@@ -293,17 +287,6 @@ const FeedContentBody = ({
   // - There's more content to show
   // - We're configured to link to full content
   const showContinueReadingLink = isMaxLevel && wasTruncated && linkToDocumentOnFinalExpand;
-
-  if (documentType === "post") {
-    console.log("in FeedContentBody zz", {
-      postTitle: post?.title,
-      wasTruncated,
-      isFirstLevel,
-      isMaxLevel,
-      linkToDocumentOnFinalExpand,
-      showContinueReadingLink,
-    });
-  }
 
   return (
     <div 
