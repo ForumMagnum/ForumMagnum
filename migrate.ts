@@ -53,8 +53,8 @@ import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFile
   }
 
   initGlobals(args, mode==="prod");
-  const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/server/sql/sqlClient");
-  const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
+  const { getSqlClientOrThrow, setSqlClient }: typeof import("./packages/lesswrong/server/sql/sqlClient") = require("./packages/lesswrong/server/sql/sqlClient");
+  const { createSqlConnection }: typeof import("./packages/lesswrong/server/sqlConnection") = require("./packages/lesswrong/server/sqlConnection");
 
   if (isRunCommand) {
     const {initServer} = require("./packages/lesswrong/server/serverStartup");
@@ -69,7 +69,7 @@ import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFile
 
   try {
     await db.tx(async (transaction: ITask<{}>) => {
-      setSqlClient(transaction);
+      setSqlClient(transaction as unknown as SqlClient);
       setSqlClient(db, "noTransaction");
       const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
       const migrator = await createMigrator(transaction, db);

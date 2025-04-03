@@ -65,6 +65,24 @@ const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({
   },
 }));
 
+const ReviewPreview = ({review}: {review: CommentsList}) => {
+  const classes = useStyles(styles);
+  const { UsersName, CommentBody, SmallSideVote } = Components;
+
+  return <div className={classes.reviewPreviewContainer}>
+    <div className={classes.reviewPreview}>
+      <div className={classes.reviewMeta}>
+        <div className={classes.reviewerName}><UsersName user={review.user} /></div>
+        <SmallSideVote document={review} collectionName="Comments" />
+        <span className={classes.reviewPreviewYear}>Review for {review.reviewingForReview} Review</span>
+      </div>
+      <div>
+        <CommentBody comment={review} />
+      </div>
+    </div>
+  </div>
+}
+
 const ReviewPillContainer = ({postId}: {postId: string}) => {
   const classes = useStyles(styles);
 
@@ -80,25 +98,12 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
     limit: 5
   });
 
-  const { LWTooltip, UsersName, CommentBody, SmallSideVote, UsersNameDisplay } = Components;
-
-  const reviewPreview = (review: CommentsList) => <div className={classes.reviewPreviewContainer}>
-    <div className={classes.reviewPreview}>
-      <div className={classes.reviewMeta}>
-        <div className={classes.reviewerName}><UsersName user={review.user} /></div>
-        <SmallSideVote document={review} collectionName="Comments" />
-        <span className={classes.reviewPreviewYear}>Review for {review.reviewingForReview} Review</span>
-      </div>
-      <div>
-        <CommentBody comment={review} />
-      </div>
-    </div>
-  </div>
+  const { LWTooltip, UsersNameDisplay } = Components;
   
   return <AnalyticsContext pageElementContext="reviewPillContainer">
     <div className={classes.root}>
       {reviews?.map((review) => (
-        <LWTooltip key={review._id} title={reviewPreview(review)} tooltip={false} placement="bottom-start" flip={false} clickable={true}>
+        <LWTooltip key={review._id} title={<ReviewPreview review={review} />} tooltip={false} placement="bottom-start" flip={false} clickable={true}>
           <HashLink key={review._id} to={`#${review._id}`}>
             <div className={classes.review}>
               Review by

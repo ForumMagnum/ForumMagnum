@@ -932,7 +932,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestOfLessWrongAdmin',
       path: '/bestoflesswrongadmin',
-      // this is a hack because it's annoying to fetch ReviewWinnerArt by review year
+      // the "year + 2" is a hack because it's annoying to fetch ReviewWinnerArt by review year
       // instead we fetch by createdAt date for the art, which is generally 2 years after review
       redirect: () => `/bestoflesswrongadmin/${BEST_OF_LESSWRONG_PUBLISH_YEAR + 2}`,
     },

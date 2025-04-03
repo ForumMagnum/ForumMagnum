@@ -37,7 +37,7 @@ function allForYear({year}: AllForYearViewTerms) {
     selector: {
       createdAt: {
         $gte: new Date(year, 0, 1), // January 1st of current year
-        $lte: new Date(year + 1, 0, 1) // January 1st of next year
+        $lt: new Date(year + 1, 0, 1) // January 1st of next year
       }
     }
   };

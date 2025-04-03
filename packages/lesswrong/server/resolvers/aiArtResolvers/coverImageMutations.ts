@@ -39,8 +39,10 @@ export const flipSplashArtImageGraphQLTypeDefs = gql`
 
 export const flipSplashArtImageGraphQLMutations = {
   flipSplashArtImage: async (root: void, { reviewWinnerArtId }: { reviewWinnerArtId: string }, context: ResolverContext) => {
-    const currentSplashCoordinates = await SplashArtCoordinates.findOne({ reviewWinnerArtId }, { sort: { createdAt: -1 } });
-    const reviewWinnerArt = await ReviewWinnerArts.findOne({ _id: reviewWinnerArtId });
+    const [currentSplashCoordinates, reviewWinnerArt] = await Promise.all([
+      SplashArtCoordinates.findOne({ reviewWinnerArtId }, { sort: { createdAt: -1 } }),
+      ReviewWinnerArts.findOne({ _id: reviewWinnerArtId })
+    ]);
 
     if (!currentSplashCoordinates || !reviewWinnerArt) {
       throw new Error('No splash art coordinates found for reviewWinnerArtId');

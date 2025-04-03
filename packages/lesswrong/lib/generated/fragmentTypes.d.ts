@@ -2478,16 +2478,6 @@ interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly activeSplashArtCoordinates: SplashArtCoordinatesEdit|null,
 }
 
-interface ReviewWinnerArtImagesForYear extends ReviewWinnerArtImages { // fragment on ReviewWinnerArts
-  readonly post: ReviewWinnerArtImagesForYear_post|null,
-}
-
-interface ReviewWinnerArtImagesForYear_post { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
-}
-
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly schemaVersion: number,
@@ -5694,7 +5684,6 @@ interface FragmentTypes {
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerArtImages: ReviewWinnerArtImages
-  ReviewWinnerArtImagesForYear: ReviewWinnerArtImagesForYear
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
   ReviewWinnerTopPostsDisplay: ReviewWinnerTopPostsDisplay
@@ -5915,7 +5904,7 @@ interface FragmentTypesByCollection {
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
-  ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtImagesForYear"|"ReviewWinnerArtsDefaultFragment"
+  ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
   ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
@@ -6122,7 +6111,6 @@ interface CollectionNamesByFragmentName {
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
-  ReviewWinnerArtImagesForYear: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   ReviewWinnerEditDisplay: "ReviewWinners"
   ReviewWinnerTopPostsDisplay: "ReviewWinners"
