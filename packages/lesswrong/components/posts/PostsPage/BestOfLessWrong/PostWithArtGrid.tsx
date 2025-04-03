@@ -69,7 +69,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
     marginLeft: 10,
   },
   selectedImage: {
-    border: '2px solid #000',
+    border: `2px solid ${theme.palette.grey[900]}`,
   }
 }));
 
