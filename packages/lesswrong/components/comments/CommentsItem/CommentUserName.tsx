@@ -17,6 +17,9 @@ const styles = (theme: ThemeType) => ({
       marginRight: 2,
     }),
   },
+  largeFont: {
+    fontSize: '1.3rem',
+  },
   authorAnswer: {
     ...theme.typography.body2,
     fontFamily: isFriendlyUI
@@ -64,11 +67,13 @@ const CommentUserName = ({
   comment,
   classes,
   simple = false,
+  fontSize = 'default',
   className,
 }: {
   comment: CommentsList,
   classes: ClassesType<typeof styles>,
   simple?: boolean,
+  fontSize?: 'default' | 'large',
   className?: string
 }) => {
   const currentUser = useCurrentUser();
@@ -100,7 +105,7 @@ const CommentUserName = ({
         <UserTooltip user={author}>
           <Link
             to={userGetProfileUrl(author)}
-            className={classNames(classes.mainWrapper, classes.fullWrapper, className)}
+            className={classNames(classes.mainWrapper, classes.fullWrapper, className, fontSize === 'large' && classes.largeFont)}
           >
             {children}
           </Link>

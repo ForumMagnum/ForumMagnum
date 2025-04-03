@@ -37,7 +37,9 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   },
   commentShortformIcon: {
     // paddingBottom: 2
-    marginBottom: -2
+    color: theme.palette.text.dim3,
+    marginRight: 2,
+    marginBottom: -6
   },
   karma: {
     display:"inline-block",
@@ -99,7 +101,8 @@ const UltraFeedCommentsItemMeta = ({
   return (
     <div className={classes.root}>
       <span className={classes.leftSection}>
-        {comment.shortform && <div className={classes.commentShortformIcon}><CommentShortformIcon comment={comment} post={post} />
+        {comment.shortform && <div className={classes.commentShortformIcon}>
+          <CommentShortformIcon comment={comment} post={post} size="large" />
         </div>}
         <CommentUserName
           comment={comment}
