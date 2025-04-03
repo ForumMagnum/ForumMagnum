@@ -613,7 +613,6 @@ export async function handleSetShortformPost(newUser: DbUser, oldUser: DbUser, c
       collection: Posts,
       documentId: post._id,
       set: { shortform: true },
-      unset: {},
       validate: false,
     });
   }
@@ -709,7 +708,6 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
         set: {
           af: true
         },
-        unset: {},
         validate: false,
       })
     }

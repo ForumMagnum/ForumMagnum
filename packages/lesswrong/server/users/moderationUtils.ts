@@ -140,7 +140,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
       collection: Posts,
       documentId: post._id,
       set: {status: postStatuses.STATUS_DELETED},
-      unset: {},
       currentUser: deletingUser,
       validate: false,
     })
@@ -164,7 +163,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
         collection: Reports,
         documentId: report._id,
         set: {closedAt: new Date()},
-        unset: {},
         currentUser: deletingUser,
         validate: false,
       })
@@ -183,7 +181,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
           collection: Comments,
           documentId: comment._id,
           set: {deleted: true, deletedDate: new Date()},
-          unset: {},
           currentUser: deletingUser,
           validate: false,
         })
@@ -214,7 +211,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
         collection: Reports,
         documentId: report._id,
         set: {closedAt: new Date()},
-        unset: {},
         currentUser: deletingUser,
         validate: false,
       })
@@ -231,7 +227,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
       collection: Sequences,
       documentId: sequence._id,
       set: {isDeleted: true},
-      unset: {},
       currentUser: deletingUser,
       validate: false,
     })

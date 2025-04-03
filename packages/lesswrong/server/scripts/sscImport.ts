@@ -69,7 +69,6 @@ async function rssImport(userId: string, rssURL: string, pages = 100, overwrite 
               collection: Posts,
               documentId: oldPost._id,
               set: {...post},
-              unset: {},
               currentUser: lwUser,
               validate: false,
             })

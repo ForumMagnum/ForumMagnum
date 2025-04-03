@@ -100,7 +100,6 @@ export const setUserPartiallyReadSequences = async (userId: string, newPartially
     set: {
       partiallyReadSequences: newPartiallyReadSequences
     },
-    unset: {},
     validate: false,
   });
 }

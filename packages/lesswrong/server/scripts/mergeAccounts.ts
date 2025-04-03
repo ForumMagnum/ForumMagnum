@@ -26,7 +26,6 @@ const transferOwnership = async ({documentId, targetUserId, collection, fieldNam
     collection,
     documentId,
     set: {[fieldName]: targetUserId},
-    unset: {},
     validate: false,
   })
 }
@@ -103,7 +102,6 @@ const transferEditableField = async ({documentId, sourceUserId, targetUserId, co
       collection,
       documentId,
       set: {[`${fieldName}.userId`]: targetUserId},
-      unset: {},
       validate: false
     });
   }

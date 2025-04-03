@@ -236,7 +236,6 @@ describe('Voting', function() {
         collection: Posts,
         documentId: post._id,
         set: { coauthorStatuses: [ { userId: coauthor._id, confirmed: true, requested: true } ] },
-        unset: {},
         validate: false,
       });
 

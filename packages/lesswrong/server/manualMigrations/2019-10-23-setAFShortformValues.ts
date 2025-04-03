@@ -17,7 +17,6 @@ export default registerMigration({
         collection: Posts,
         documentId: afUserWithShortforms.shortformFeedId!,
         set: { af: true },
-        unset: {},
         validate: false,
       });
     }

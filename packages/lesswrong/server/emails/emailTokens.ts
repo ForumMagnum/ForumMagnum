@@ -102,7 +102,6 @@ export const emailTokensGraphQLMutations = {
           set: {
             usedAt: new Date()
           },
-          unset: {},
           validate: false
         });
         
@@ -130,7 +129,6 @@ export const UnsubscribeAllToken = new EmailTokenType({
       set: {
         unsubscribeFromAll: true,
       },
-      unset: {},
       validate: false,
     });
     return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get()}.` };

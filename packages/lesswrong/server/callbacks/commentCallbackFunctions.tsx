@@ -80,7 +80,6 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
       // moves are using raw updates.
       afCommentCount: afComments.length,
     },
-    unset: {},
     validate: false,
   })
 }
@@ -503,7 +502,6 @@ const utils = {
         set: {
           lastCommentedAt: new Date(lastCommentedAt),
         },
-        unset: {},
         validate: false,
       })
     }
@@ -584,7 +582,6 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
       set: {
         shortformFeedId: post._id
       },
-      unset: {},
       validate: false,
     })
 
