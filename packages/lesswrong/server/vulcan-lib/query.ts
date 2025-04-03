@@ -63,7 +63,7 @@ export const runFragmentSingleQuery = async <
 }) => {
   const resolverName = getResolverNameFromOptions(collectionName);
 
-  const query = getGraphQLSingleQueryFromOptions({ collectionName, fragmentName, fragment: undefined, extraVariables });
+  const query = getGraphQLSingleQueryFromOptions({ collectionName, fragmentName, fragment: undefined, resolverName, extraVariables });
 
   const variables = {
     input: { selector: { documentId }, resolverArgs: extraVariablesValues },
@@ -89,7 +89,7 @@ export const runFragmentMultiQuery = async <
   const typeName = collectionNameToTypeName[collectionName];
   const resolverName = getMultiResolverName(typeName);
 
-  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, extraVariables });
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, resolverName, extraVariables });
 
   const variables = {
     input: { terms, resolverArgs: extraVariablesValues },

@@ -112,13 +112,14 @@ export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) =>
   const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
   const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
+  const resolverName = getResolverNameFromOptions(collectionName);
   const query = getGraphQLSingleQueryFromOptions({
     extraVariables,
     collectionName,
     fragmentName,
     fragment: undefined,
+    resolverName,
   });
-  const resolverName = getResolverNameFromOptions(collectionName);
 
   const { data } = await apolloClient.query({
     query,
