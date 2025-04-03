@@ -20,6 +20,7 @@ export async function resetVoteStrengths({startDate, endDate}: {
       $gt: startDate,
       $lt: endDate,
     },
+    legacyData: {$exists: true},
     cancelled: false,
   }).fetch();
   const userIdsWhoVoted = uniq(potentiallyAffectedVotes.map(v => v.userId))
