@@ -46,7 +46,7 @@ export const ReviewWinnerTopPostsPage = `
     reviewWinnerArt {
       splashArtImageUrl
       activeSplashArtCoordinates {
-        ...SplashArtCoordinates
+        ...SplashArtCoordinatesEdit
       }
     }
   }
