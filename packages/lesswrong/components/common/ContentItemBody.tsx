@@ -266,6 +266,11 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       if (block.nodeType === Node.ELEMENT_NODE) {
         const blockAsElement = block as HTMLElement;
         
+        // Only do this for <p> and <div> tags (in practice this is most
+        // top-level blocks, but not the <ol> that wraps footnotes)
+        if (!['P','DIV'].includes(blockAsElement.tagName))
+          continue;
+        
         // Check whether this block is wider than the content-block it's inside
         // of, and if so, wrap it in a horizontal scroller. This makes wide
         // LaTeX formulas and tables functional on mobile.
