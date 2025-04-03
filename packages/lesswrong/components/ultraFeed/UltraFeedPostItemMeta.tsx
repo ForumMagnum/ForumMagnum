@@ -81,14 +81,12 @@ const UltraFeedPostItemMeta = ({
   hideVoteButtons?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { FormatDate, UsersName, SmallSideVote } = Components;
+  const { FormatDate, UsersName } = Components;
   const authorExpandContainer = useRef(null);
   
-  const currentUser = useCurrentUser();
   const { isAnon, authors } = usePostsUserAndCoauthors(post);
 
   const showKarma = hideVoteButtons && !post.rejected;
-  const showVoteButtons = !hideVoteButtons && !post.rejected;
 
   // Simplified author display logic
   const renderAuthors = () => {
@@ -122,17 +120,6 @@ const UltraFeedPostItemMeta = ({
           </span>
         )}
       </span>
-      {showVoteButtons && (
-        <span className={classes.rightSection}>
-          <div className={classes.voteButtons}>
-            <SmallSideVote
-              document={post}
-              collectionName="Posts"
-              hideKarma={false}
-            />
-          </div>
-        </span>
-      )}
     </div>
   );
 };

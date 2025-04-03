@@ -7,7 +7,7 @@ import { useVote } from "../votes/withVote";
 import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttachedReactions";
 
-const styles = defineStyles("UltraFeedCommentItemFooter", (theme: ThemeType) => ({
+const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
     position: "relative",
     paddingLeft: 12,
@@ -24,12 +24,9 @@ const styles = defineStyles("UltraFeedCommentItemFooter", (theme: ThemeType) => 
     fontSize: "1.3rem !important",
     "& *": {
       color: `${theme.palette.text.dim3} !important`,
-      // opacity: `1 !important`,
     },
     "& svg": {
       color: `${theme.palette.text.dim3} !important`,
-      // opacity: `1 !important`,
-      // fill: `${theme.palette.text.dim3} !important`,
     },
     "& a:hover, & a:active": {
       textDecoration: "none",
@@ -39,6 +36,7 @@ const styles = defineStyles("UltraFeedCommentItemFooter", (theme: ThemeType) => 
   commentCount: {
     display: "flex",
     alignItems: "center",
+    paddingBottom: 2,
     "& svg": {
       height: 22,
     },
@@ -75,25 +73,38 @@ const styles = defineStyles("UltraFeedCommentItemFooter", (theme: ThemeType) => 
   reactionCount: {
     marginTop: -2
   },
+  addReactionButtonPlaceholder: {
+    width: 28,
+  },
   bookmarkButton: {
     marginBottom: -2,
   }
 }));
 
+type DocumentType = PostsListWithVotes | CommentsList;
 
-const UltraFeedCommentItemFooter = ({
-  comment,
+interface UltraFeedItemFooterProps {
+  document: DocumentType;
+  post?: PostsListWithVotes; // The parent post when document is a comment
+  collectionName: "Posts" | "Comments"; // Now required, no longer optional
+}
+
+const UltraFeedItemFooter = ({
+  document,
   post,
-}: {
-  comment: CommentsList,
-  post: PostsListWithVotes,
-}) => {
+  collectionName,
+}: UltraFeedItemFooterProps) => {
   const classes = useStyles(styles);
+  const { BookmarkButton, OverallVoteAxis, AgreementVoteAxis, AddReactionButton } = Components;
 
-  const { SmallSideVote, BookmarkButton, OverallVoteAxis, AgreementVoteAxis, ForumIcon, AddReactionButton } = Components;
-
-
-  const commentCount = comment.descendentCount;
+  const isComment = collectionName === "Comments";
+  
+  const parentPost = isComment ? (post || undefined) : document as PostsListWithVotes;
+  
+  const commentCount = isComment 
+    ? (document as CommentsList).descendentCount || 0 
+    : (document as PostsListWithVotes).commentCount || 0;
+    
   const commentsAreClickable = true;
 
   // TODO: Implement this
@@ -108,7 +119,6 @@ const UltraFeedCommentItemFooter = ({
         [classes.commentCountClickable]: commentsAreClickable,
       })}
     >
-      {/* <ForumIcon icon="Comment" /> */}
       <CommentIcon />
       <span className={classes.commentCountText}>
         {commentCount}
@@ -116,59 +126,58 @@ const UltraFeedCommentItemFooter = ({
     </div>
   );
 
-
-  const votingSystem = getVotingSystemByName(post.votingSystem || "default");
+  const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
   const showVoteButtons = votingSystem.name === "namesAttachedReactions";
-  const voteProps = useVote(comment, "Comments", votingSystem);
+  const voteProps = useVote(document, collectionName, votingSystem);
 
   const reacts = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
   const reactionCount = reacts ? Object.keys(reacts).length : 0;
 
+  return (
+    <div className={classes.root}>
+      {commentCountIcon}
+      
+      {showVoteButtons && (
+        <>
+          <OverallVoteAxis
+            document={document}
+            hideKarma={parentPost?.hideCommentKarma}
+            voteProps={voteProps}
+            verticalArrows
+            largeArrows
+          />
+          <AgreementVoteAxis
+            document={document}
+            hideKarma={parentPost?.hideCommentKarma}
+            voteProps={voteProps}
+          />
+        </>
+      )}
 
-
-
-
-
-  return <div className={classes.root}>
-    {commentCountIcon}
-    
-    {showVoteButtons && <><OverallVoteAxis
-      document={comment}
-      hideKarma={post?.hideCommentKarma}
-      voteProps={voteProps}
-      verticalArrows
-      largeArrows
-    />
-      <AgreementVoteAxis
-        document={comment}
-        hideKarma={post?.hideCommentKarma}
-        voteProps={voteProps}
-      />
-    </>}
-
-    <div className={classes.addReactionButton}>
-      <div className={classes.reactionIcon}>
-        <AddReactionButton voteProps={voteProps} document={comment} />
+      <div className={classes.addReactionButton}>
+        <div className={classes.reactionIcon}>
+          <AddReactionButton voteProps={voteProps} />
+        </div>
+        <div className={classes.reactionCount}>
+          {reactionCount > 0 && reactionCount}
+        </div>
       </div>
-      <div className={classes.reactionCount}>
-        {reactionCount > 0 && reactionCount}
-      </div>
+      
+      {parentPost && (
+        <div className={classes.bookmarkButton}>
+          <BookmarkButton post={parentPost} />
+        </div>
+      )}
     </div>
-
-    <div className={classes.bookmarkButton}>
-      <BookmarkButton post={post} />
-    </div>
-
-  </div>;
+  );
 };
 
-const UltraFeedCommentItemFooterComponent = registerComponent("UltraFeedCommentItemFooter", UltraFeedCommentItemFooter);
+const UltraFeedItemFooterComponent = registerComponent("UltraFeedItemFooter", UltraFeedItemFooter);
 
-export default UltraFeedCommentItemFooterComponent;
+export default UltraFeedItemFooterComponent;
 
 declare global {
   interface ComponentTypes {
-    UltraFeedCommentItemFooter: typeof UltraFeedCommentItemFooterComponent
+    UltraFeedItemFooter: typeof UltraFeedItemFooterComponent
   }
 } 
-

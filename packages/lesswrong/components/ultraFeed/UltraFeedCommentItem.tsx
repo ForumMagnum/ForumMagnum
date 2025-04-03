@@ -122,7 +122,15 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'center',
     marginRight: 2,
-    marginTop: -18,
+    marginTop: -17,
+    marginBottom: 0,
+  },
+  verticalLineContainerCompressed: {
+    width: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    marginRight: 2,
+    // marginTop: -17,
     marginBottom: 0,
   },
   verticalLine: {
@@ -158,7 +166,7 @@ const UltraFeedCompressedCommentsItem = ({
   
   return (
     <div className={classes.compressedRoot} onClick={setExpanded}>
-      <div className={classes.verticalLineContainer}>
+      <div className={classes.verticalLineContainerCompressed}>
         <div className={classNames(
           classes.verticalLine,
           { 
@@ -190,11 +198,6 @@ export interface UltraFeedCommentItemProps {
   onPostTitleClick?: () => void;
 }
 
-interface CollapsedPlaceholder {
-  placeholder: true;
-  hiddenComments: DisplayFeedComment[];
-}
-
 const UltraFeedCommentItem = ({
   comment,
   post,
@@ -207,7 +210,7 @@ const UltraFeedCommentItem = ({
   onPostTitleClick,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedCommentItemFooter } = Components;
+  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
   const { settings } = useUltraFeedSettings();
 
   // Get functions from the context
@@ -318,7 +321,7 @@ const UltraFeedCommentItem = ({
             onExpand={handleContentExpand}
           />
         </div>
-        <UltraFeedCommentItemFooter comment={comment} post={post} />
+        <UltraFeedItemFooter document={comment} post={post} collectionName="Comments" />
       </div>
     </div>
   );

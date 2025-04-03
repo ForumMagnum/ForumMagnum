@@ -3,11 +3,12 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
-import { postGetLink } from "@/lib/collections/posts/helpers";
+import { postGetLink, postGetKarma } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
+import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 
 // Styles for the UltraFeedPostItem component
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
@@ -47,8 +48,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       opacity: 0.9,
     },
   },
-  // Match the rightSection and menu classes from UltraFeedCommentsItemMeta
-  rightSection: {
+  headerRightSection: {
     display: "flex",
     flexGrow: 0,
   },
@@ -56,30 +56,74 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     padding: 5,
     marginLeft: 4,
     marginRight: -10,
-    // Override the PostActionsButton icon styling to match CommentsMenu
     "& svg": {
       fontSize: "1.4rem",
       cursor: "pointer",
       color: theme.palette.text.dim,
     }
   },
-  authorInfo: {
-    display: 'flex',
-    alignItems: 'center',
+  metaRoot: {
+    position: "relative",
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.1rem',
+    fontSize: "1.3rem",
+    "& > *": {
+      marginRight: 5,
+    },
+    "& a:hover, & a:active": {
+      textDecoration: "none",
+      color: `${theme.palette.linkHover.dim} !important`,
+    },
   },
-  metadata: {
-    marginTop: 4,
+  metaLeftSection: {
+    display: "flex",
+    alignItems: "center",
+    flex: "1 1 auto",
+    flexWrap: "wrap",
+  },
+  metaRightSection: {
+    display: "flex",
+    alignItems: "center",
+    marginLeft: "auto",
+    marginRight: 0,
+  },
+  metaKarma: {
+    display: "inline-block",
+    textAlign: "center",
+    flexGrow: 0,
+    flexShrink: 0,
+    paddingRight: 8,
+    marginRight: 4,
+  },
+  metaUsername: {
+    marginRight: 12,
+    '& a, & a:hover': {
+      color: theme.palette.link.unmarked,
+    },
     color: theme.palette.text.dim,
-    fontSize: '0.9rem',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  metaCoauthors: {
+    marginLeft: 4,
+    marginRight: 0,
+    color: theme.palette.text.dim,
+    whiteSpace: 'nowrap',
+  },
+  metaDateContainer: {
+    marginRight: 8,
   },
   content: {
     marginTop: 8,
   },
   footer: {
-    paddingBottom: 24,
+    // paddingBottom: 24,
   },
 }));
 
@@ -92,14 +136,33 @@ const UltraFeedPostItem = ({
   postMetaInfo: FeedPostMetaInfo,
 }) => {
   const classes = useStyles(styles);
-  const { FeedPostsHighlight, UltraFeedPostItemMeta, PostActionsButton, FeedContentBody } = Components;
+  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, UsersName, UserNameDeleted } = Components;
   const { settings } = useUltraFeedSettings();
 
-  // Get functions from the context
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
 
-  // Use effect to observe
+  const { isAnon, authors } = usePostsUserAndCoauthors(post);
+  const showKarma = !post.rejected;
+
+  const renderAuthors = () => {
+    if (isAnon || authors.length === 0) {
+      return <UserNameDeleted />;
+    }
+
+    const mainAuthor = authors[0];
+    const additionalAuthorsCount = authors.length - 1;
+
+    return (
+      <span className={classes.metaUsername}>
+        <UsersName user={mainAuthor} />
+        {additionalAuthorsCount > 0 && (
+          <span className={classes.metaCoauthors}>+{additionalAuthorsCount}</span>
+        )}
+      </span>
+    );
+  };
+
   useEffect(() => {
     const currentElement = elementRef.current;
     if (currentElement) {
@@ -107,7 +170,6 @@ const UltraFeedPostItem = ({
     }
   }, [observe, post._id]);
 
-  // Handle content expansion events from FeedContentBody
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
     trackExpansion({
       documentId: post._id,
@@ -125,17 +187,29 @@ const UltraFeedPostItem = ({
           <div className={classes.titleContainer}>
             <Link to={postGetLink(post)} className={classes.title}>{post.title}</Link>
           </div>
-          <span className={classes.rightSection}>
+          <span className={classes.headerRightSection}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostActionsButton 
-                post={post} 
+              <PostActionsButton
+                post={post}
                 vertical={true}
                 className={classes.tripleDotMenu}
               />
             </AnalyticsContext>
           </span>
         </div>
-        <UltraFeedPostItemMeta post={post} />
+        <div className={classes.metaRoot}>
+          <span className={classes.metaLeftSection}>
+            {showKarma && <span className={classes.metaKarma}>
+              {postGetKarma(post)}
+            </span>}
+            {renderAuthors()}
+            {post.postedAt && (
+              <span className={classes.metaDateContainer}>
+                <FormatDate date={post.postedAt} />
+              </span>
+            )}
+          </span>
+        </div>
       </div>
 
       {post.contents && (
@@ -150,7 +224,9 @@ const UltraFeedPostItem = ({
           onExpand={handleContentExpand}
         />
       )}
-      <div className={classes.footer} />
+      <div className={classes.footer}>
+        <UltraFeedItemFooter document={post} collectionName="Posts" />
+      </div>
     </div>
   );
 };
