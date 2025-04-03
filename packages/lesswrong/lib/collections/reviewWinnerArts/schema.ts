@@ -3,6 +3,7 @@ import { universalFields } from "../../collectionUtils";
 export const schema: SchemaType<"ReviewWinnerArts"> = {
   ...universalFields({}),
   postId: {
+    type: String,
     nullable: false,
     canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],

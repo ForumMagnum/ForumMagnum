@@ -36,7 +36,11 @@ const BestOfLessWrongAdminRow = ({post, images, refetchImages}: {post: {_id: str
   const previewUrl = selectedImageInfo?.splashArtImageUrl ? getCloudinaryThumbnail(selectedImageInfo.splashArtImageUrl) : null;
   const imageThumbnail = previewUrl && getCloudinaryThumbnail(previewUrl, previewWidth);
 
-  return post && <div key={post._id} className={classes.root}>
+  if (!post) {
+    return null;
+  }
+
+  return <div key={post._id} className={classes.root}>
     {imageThumbnail && <img src={imageThumbnail} />}
     <div className={classes.imageInfo}>
       <h2>
@@ -139,7 +143,7 @@ export const BestOfLessWrongAdmin = () => {
       year: parseInt(year),
       limit: 5000,
     },
-    skip: !year,
+    skip: !year || !userIsAdmin(currentUser),
   });
   const groupedImages = groupBy(images, (image) => image.postId);
   
@@ -156,10 +160,10 @@ export const BestOfLessWrongAdmin = () => {
         <div>{reviewWinnersWithoutArt.length} Posts without art</div>
       </div>
       <div>
-        {Object.entries(groupedImages).map(([title, images]) => {
-          const post = reviewWinners.find((reviewWinner: PostsTopItemInfo) => reviewWinner._id === title);
-          return post && <ImageProvider key={title}>
-            <BestOfLessWrongAdminRow key={title} post={post} images={images} refetchImages={refetchImages} />
+        {Object.entries(groupedImages).map(([postId, images]) => {
+          const post = reviewWinners.find((reviewWinner: PostsTopItemInfo) => reviewWinner._id === postId);
+          return post && <ImageProvider key={postId}>
+            <BestOfLessWrongAdminRow key={postId} post={post} images={images} refetchImages={refetchImages} />
           </ImageProvider>
         })}
       </div>
