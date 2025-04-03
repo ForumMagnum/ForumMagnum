@@ -72,9 +72,10 @@ const styles = (theme: ThemeType) => ({
   ultraFeed: {
     ...commentBodyStyles(theme),
     fontSize: '1.3rem',
-    '& h1, & h2, & h3': {
+    '& h1, & h2, & h3, & h4': {
       fontSize: "1.6rem",
       marginBlockStart: "0 !important",
+      fontFamily: theme.palette.fonts.sansSerifStack,
     },
     '& img, & iframe': {
       maxWidth: '100%',
