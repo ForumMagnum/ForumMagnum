@@ -411,34 +411,3 @@ export const mutationOutputTemplate = ({ typeName }: {typeName: string}) => (
 }`
 );
 
-/* ------------------------------------- Mutation Queries ------------------------------------- */
-
-/*
-
-Upsert mutation query used on the client
-
-mutation upsertMovie($selector: MovieSelectorUniqueInput!, $data: UpdateMovieDataInput!) {
-  upsertMovie(selector: $selector, data: $data) {
-    data {
-      _id
-      name
-      __typename
-    }
-    __typename
-  }
-}
-
-*/
-export const upsertClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: string,
-  extraVariablesString?: string,
-}) => (
-`mutation upsert${typeName}($selector: ${typeName}SelectorUniqueInput!, $data: Update${typeName}DataInput!, ${extraVariablesString || ''}) {
-  upsert${typeName}(selector: $selector, data: $data) {
-    data {
-      ...${fragmentName}
-    }
-  }
-}`
-);
