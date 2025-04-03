@@ -146,6 +146,7 @@ const UltraFeedItemFooter = ({
             verticalArrows
             largeArrows
             size="large"
+            hideAfScore={true}
           />
           <AgreementVoteAxis
             document={document}

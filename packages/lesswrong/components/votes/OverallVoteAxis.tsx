@@ -9,8 +9,10 @@ import type { VotingProps } from './votingProps';
 import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+// Define the two separate style sets (still requires duplicating common styles)
+const smallStylesDefinition = defineStyles('OverallVoteAxisSmall', theme => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
@@ -29,19 +31,11 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     display: "inline-block",
   },
-  voteScore: {
-    fontSize: '1.1rem',
-    margin: '0 4px',
-    lineHeight: 1,
-  },
+  voteScore: { fontSize: '1.1rem', margin: '0 4px', lineHeight: 1, /* + other styles */ },
   secondarySymbol: {
     fontFamily: theme.typography.body1.fontFamily,
   },
-  secondaryScore: {
-    fontSize: '1.1rem',
-    marginLeft: 2,
-    marginRight: 14
-  },
+  secondaryScore: { fontSize: '1.1rem', marginLeft: 2, marginRight: 14, /* + other styles */ },
   secondaryScoreNumber: {
     marginLeft: 3,
   },
@@ -62,33 +56,82 @@ const styles = (theme: ThemeType) => ({
       display: "block",
     },
   },
-})
+}));
+
+const largeStylesDefinition = defineStyles('OverallVoteAxisLarge', theme => ({
+  overallSection: {
+    display: 'inline-block',
+    height: 24,
+    paddingTop: isFriendlyUI ? 2.5 : 0
+  },
+  overallSectionBox: {
+    marginLeft: 8,
+    outline: theme.palette.border.commentBorder,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
+    textAlign: 'center',
+    minWidth: 60
+  },
+  vote: {
+    fontSize: 25,
+    lineHeight: 0.6,
+    whiteSpace: "nowrap",
+    display: "inline-block",
+  },
+  voteScore: { fontSize: '1.3rem', margin: '0 7px', lineHeight: 1, /* + other styles */ },
+  secondarySymbol: {
+    fontFamily: theme.typography.body1.fontFamily,
+  },
+  secondaryScore: { fontSize: '1.3rem', marginLeft: 2, marginRight: 14, /* + other styles */ },
+  secondaryScoreNumber: {
+    marginLeft: 3,
+  },
+  tooltipHelp: {
+    fontSize: '1rem',
+    fontStyle: "italic"
+  },
+  tooltip: {
+    transform: "translateY(-10px)",
+  },
+  lwTooltip: {
+    transform: "translateY(-3px)",
+  },
+  verticalArrows: {
+    "& .LWTooltip-root": {
+    },
+    "& $voteScore": {
+      display: "block",
+    },
+  },
+}));
 
 const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
 
 const OverallVoteAxis = ({
   document,
-  hideKarma=false,
+  hideKarma = false,
   voteProps,
-  classes,
-  showBox=false,
+  showBox = false,
   verticalArrows,
   largeArrows,
+  hideAfScore,
+  size = 'small', // Default size
   className,
 }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>,
   showBox?: boolean,
   verticalArrows?: boolean,
   largeArrows?: boolean,
+  size?: 'small' | 'large',
+  hideAfScore?: boolean,
   className?: string,
 }) => {
+  const stylesToUse = size === 'small' ? smallStylesDefinition : largeStylesDefinition;
+  const classes = useStyles(stylesToUse);
+
   const currentUser = useCurrentUser();
-
-
-  const { OverallVoteButton, LWTooltip } = Components
+  const { OverallVoteButton, LWTooltip } = Components;
 
   const collectionName = voteProps.collectionName;
   const extendedScore = voteProps.document?.extendedScore
@@ -162,7 +205,7 @@ const OverallVoteAxis = ({
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
-      {!!af && !isAF &&
+      {!!af && !isAF && !hideAfScore &&
         <LWTooltip
           placement={tooltipPlacement}
           popperClassName={classes.tooltip}
@@ -236,7 +279,9 @@ const OverallVoteAxis = ({
   </TooltipIfDisabled>
 }
 
-const OverallVoteAxisComponent = registerComponent('OverallVoteAxis', OverallVoteAxis, {styles});
+const OverallVoteAxisComponent = registerComponent('OverallVoteAxis', OverallVoteAxis);
+
+export default OverallVoteAxisComponent;
 
 declare global {
   interface ComponentTypes {
