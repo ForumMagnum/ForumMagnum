@@ -7,6 +7,7 @@ import path from 'path';
 import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateDefaultFragmentsFile } from './generateDefaultFragments';
 import { getGraphQLTypeDefs } from '../vulcan-lib/apollo-server/getTypeDefs';
+import { print } from 'graphql';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -131,7 +132,7 @@ export const generateTypesAndSQLSchema = (rootDir?: string) => {
 function generateGraphQLSchemaFile(): string {
   const sb: string[] = [];
   sb.push("# Generated file - run 'yarn generate' to update.\n\n");
-  sb.push(getGraphQLTypeDefs().schemaText);
+  const {typeDefs: schema} = getGraphQLTypeDefs();
+  sb.push(print(schema));
   return sb.join("");
 }
-

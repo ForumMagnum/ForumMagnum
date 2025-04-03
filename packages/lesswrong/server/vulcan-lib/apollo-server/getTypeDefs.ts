@@ -55,14 +55,17 @@ export const getGraphQLTypeDefs = () => {
   schemaContents.push(mutationsToGraphQL(allMutations));
 
   return {
-    schemaText: schemaContents.join("\n"),
+    typeDefs: gql`
+      ${gql`${schemaContents.join("\n")}`}
+      ${typeDefs}
+    `,
     addedResolvers: allResolvers,
   };
 };
 
 
 export const getGraphQLSchema = () => {
-  const { schemaText, addedResolvers } = getGraphQLTypeDefs();
+  const { typeDefs, addedResolvers } = getGraphQLTypeDefs();
   
   let allResolvers = {
     JSON: GraphQLJSON,
@@ -75,10 +78,7 @@ export const getGraphQLSchema = () => {
   }
 
   return {
-    typeDefs: gql`
-      ${gql`${schemaText}`}
-      ${typeDefs}
-    `,
+    typeDefs,
     resolvers: allResolvers,
   }
 };// generate a GraphQL schema corresponding to a given collection
