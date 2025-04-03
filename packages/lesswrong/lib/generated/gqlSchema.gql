@@ -11588,735 +11588,491 @@ enum VoteOrderByInput {
 type Query {
   # A single AdvisorRequest document fetched by ID or slug
   advisorRequest(input: SingleAdvisorRequestInput): SingleAdvisorRequestOutput
-  
   # A list of AdvisorRequest documents matching a set of query terms
   advisorRequests(input: MultiAdvisorRequestInput): MultiAdvisorRequestOutput
-  
   # A single ArbitalTagContentRel document fetched by ID or slug
   arbitalTagContentRel(input: SingleArbitalTagContentRelInput): SingleArbitalTagContentRelOutput
-  
   # A list of ArbitalTagContentRel documents matching a set of query terms
   arbitalTagContentRels(input: MultiArbitalTagContentRelInput): MultiArbitalTagContentRelOutput
-  
   # A single Ban document fetched by ID or slug
   ban(input: SingleBanInput): SingleBanOutput
-  
   # A list of Ban documents matching a set of query terms
   bans(input: MultiBanInput): MultiBanOutput
-  
   # A single Book document fetched by ID or slug
   book(input: SingleBookInput): SingleBookOutput
-  
   # A list of Book documents matching a set of query terms
   books(input: MultiBookInput): MultiBookOutput
-  
   # A single Chapter document fetched by ID or slug
   chapter(input: SingleChapterInput): SingleChapterOutput
-  
   # A list of Chapter documents matching a set of query terms
   chapters(input: MultiChapterInput): MultiChapterOutput
-  
   # A single CkEditorUserSession document fetched by ID or slug
   ckEditorUserSession(input: SingleCkEditorUserSessionInput): SingleCkEditorUserSessionOutput
-  
   # A list of CkEditorUserSession documents matching a set of query terms
   ckEditorUserSessions(input: MultiCkEditorUserSessionInput): MultiCkEditorUserSessionOutput
-  
   # A single ClientId document fetched by ID or slug
   clientId(input: SingleClientIdInput): SingleClientIdOutput
-  
   # A list of ClientId documents matching a set of query terms
   clientIds(input: MultiClientIdInput): MultiClientIdOutput
-  
   # A single Collection document fetched by ID or slug
   collection(input: SingleCollectionInput): SingleCollectionOutput
-  
   # A list of Collection documents matching a set of query terms
   collections(input: MultiCollectionInput): MultiCollectionOutput
-  
   # A single CommentModeratorAction document fetched by ID or slug
   commentModeratorAction(input: SingleCommentModeratorActionInput): SingleCommentModeratorActionOutput
-  
   # A list of CommentModeratorAction documents matching a set of query terms
   commentModeratorActions(input: MultiCommentModeratorActionInput): MultiCommentModeratorActionOutput
-  
   # A single Comment document fetched by ID or slug
   comment(input: SingleCommentInput): SingleCommentOutput
-  
   # A list of Comment documents matching a set of query terms
   comments(input: MultiCommentInput): MultiCommentOutput
-  
   # A single Conversation document fetched by ID or slug
   conversation(input: SingleConversationInput): SingleConversationOutput
-  
   # A list of Conversation documents matching a set of query terms
   conversations(input: MultiConversationInput): MultiConversationOutput
-  
   # A single CurationNotice document fetched by ID or slug
   curationNotice(input: SingleCurationNoticeInput): SingleCurationNoticeOutput
-  
   # A list of CurationNotice documents matching a set of query terms
   curationNotices(input: MultiCurationNoticeInput): MultiCurationNoticeOutput
-  
   # A single DialogueCheck document fetched by ID or slug
   dialogueCheck(input: SingleDialogueCheckInput): SingleDialogueCheckOutput
-  
   # A list of DialogueCheck documents matching a set of query terms
   dialogueChecks(input: MultiDialogueCheckInput): MultiDialogueCheckOutput
-  
   # A single DialogueMatchPreference document fetched by ID or slug
   dialogueMatchPreference(input: SingleDialogueMatchPreferenceInput): SingleDialogueMatchPreferenceOutput
-  
   # A list of DialogueMatchPreference documents matching a set of query terms
   dialogueMatchPreferences(input: MultiDialogueMatchPreferenceInput): MultiDialogueMatchPreferenceOutput
-  
   # A single DigestPost document fetched by ID or slug
   digestPost(input: SingleDigestPostInput): SingleDigestPostOutput
-  
   # A list of DigestPost documents matching a set of query terms
   digestPosts(input: MultiDigestPostInput): MultiDigestPostOutput
-  
   # A single Digest document fetched by ID or slug
   digest(input: SingleDigestInput): SingleDigestOutput
-  
   # A list of Digest documents matching a set of query terms
   digests(input: MultiDigestInput): MultiDigestOutput
-  
   # A single ElectionCandidate document fetched by ID or slug
   electionCandidate(input: SingleElectionCandidateInput): SingleElectionCandidateOutput
-  
   # A list of ElectionCandidate documents matching a set of query terms
   electionCandidates(input: MultiElectionCandidateInput): MultiElectionCandidateOutput
-  
   # A single ElectionVote document fetched by ID or slug
   electionVote(input: SingleElectionVoteInput): SingleElectionVoteOutput
-  
   # A list of ElectionVote documents matching a set of query terms
   electionVotes(input: MultiElectionVoteInput): MultiElectionVoteOutput
-  
   # A single ElicitQuestionPrediction document fetched by ID or slug
   elicitQuestionPrediction(input: SingleElicitQuestionPredictionInput): SingleElicitQuestionPredictionOutput
-  
   # A list of ElicitQuestionPrediction documents matching a set of query terms
   elicitQuestionPredictions(input: MultiElicitQuestionPredictionInput): MultiElicitQuestionPredictionOutput
-  
   # A single ElicitQuestion document fetched by ID or slug
   elicitQuestion(input: SingleElicitQuestionInput): SingleElicitQuestionOutput
-  
   # A list of ElicitQuestion documents matching a set of query terms
   elicitQuestions(input: MultiElicitQuestionInput): MultiElicitQuestionOutput
-  
   # A single FeaturedResource document fetched by ID or slug
   featuredResource(input: SingleFeaturedResourceInput): SingleFeaturedResourceOutput
-  
   # A list of FeaturedResource documents matching a set of query terms
   featuredResources(input: MultiFeaturedResourceInput): MultiFeaturedResourceOutput
-  
   # A single ForumEvent document fetched by ID or slug
   forumEvent(input: SingleForumEventInput): SingleForumEventOutput
-  
   # A list of ForumEvent documents matching a set of query terms
   forumEvents(input: MultiForumEventInput): MultiForumEventOutput
-  
   # A single GardenCode document fetched by ID or slug
   gardenCode(input: SingleGardenCodeInput): SingleGardenCodeOutput
-  
   # A list of GardenCode documents matching a set of query terms
   gardenCodes(input: MultiGardenCodeInput): MultiGardenCodeOutput
-  
   # A single GoogleServiceAccountSession document fetched by ID or slug
   googleServiceAccountSession(input: SingleGoogleServiceAccountSessionInput): SingleGoogleServiceAccountSessionOutput
-  
   # A list of GoogleServiceAccountSession documents matching a set of query terms
   googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput): MultiGoogleServiceAccountSessionOutput
-  
   # A single JargonTerm document fetched by ID or slug
   jargonTerm(input: SingleJargonTermInput): SingleJargonTermOutput
-  
   # A list of JargonTerm documents matching a set of query terms
   jargonTerms(input: MultiJargonTermInput): MultiJargonTermOutput
-  
   # A single LWEvent document fetched by ID or slug
   lWEvent(input: SingleLWEventInput): SingleLWEventOutput
-  
   # A list of LWEvent documents matching a set of query terms
   lWEvents(input: MultiLWEventInput): MultiLWEventOutput
-  
   # A single LlmConversation document fetched by ID or slug
   llmConversation(input: SingleLlmConversationInput): SingleLlmConversationOutput
-  
   # A list of LlmConversation documents matching a set of query terms
   llmConversations(input: MultiLlmConversationInput): MultiLlmConversationOutput
-  
   # A single Localgroup document fetched by ID or slug
   localgroup(input: SingleLocalgroupInput): SingleLocalgroupOutput
-  
   # A list of Localgroup documents matching a set of query terms
   localgroups(input: MultiLocalgroupInput): MultiLocalgroupOutput
-  
   # A single Message document fetched by ID or slug
   message(input: SingleMessageInput): SingleMessageOutput
-  
   # A list of Message documents matching a set of query terms
   messages(input: MultiMessageInput): MultiMessageOutput
-  
   # A single ModerationTemplate document fetched by ID or slug
   moderationTemplate(input: SingleModerationTemplateInput): SingleModerationTemplateOutput
-  
   # A list of ModerationTemplate documents matching a set of query terms
   moderationTemplates(input: MultiModerationTemplateInput): MultiModerationTemplateOutput
-  
   # A single ModeratorAction document fetched by ID or slug
   moderatorAction(input: SingleModeratorActionInput): SingleModeratorActionOutput
-  
   # A list of ModeratorAction documents matching a set of query terms
   moderatorActions(input: MultiModeratorActionInput): MultiModeratorActionOutput
-  
   # A single MultiDocument document fetched by ID or slug
   multiDocument(input: SingleMultiDocumentInput): SingleMultiDocumentOutput
-  
   # A list of MultiDocument documents matching a set of query terms
   multiDocuments(input: MultiMultiDocumentInput): MultiMultiDocumentOutput
-  
   # A single Notification document fetched by ID or slug
   notification(input: SingleNotificationInput): SingleNotificationOutput
-  
   # A list of Notification documents matching a set of query terms
   notifications(input: MultiNotificationInput): MultiNotificationOutput
-  
   # A single PetrovDayAction document fetched by ID or slug
   petrovDayAction(input: SinglePetrovDayActionInput): SinglePetrovDayActionOutput
-  
   # A list of PetrovDayAction documents matching a set of query terms
   petrovDayActions(input: MultiPetrovDayActionInput): MultiPetrovDayActionOutput
-  
   # A single PodcastEpisode document fetched by ID or slug
   podcastEpisode(input: SinglePodcastEpisodeInput): SinglePodcastEpisodeOutput
-  
   # A list of PodcastEpisode documents matching a set of query terms
   podcastEpisodes(input: MultiPodcastEpisodeInput): MultiPodcastEpisodeOutput
-  
   # A single Podcast document fetched by ID or slug
   podcast(input: SinglePodcastInput): SinglePodcastOutput
-  
   # A list of Podcast documents matching a set of query terms
   podcasts(input: MultiPodcastInput): MultiPodcastOutput
-  
   # A single PostEmbedding document fetched by ID or slug
   postEmbedding(input: SinglePostEmbeddingInput): SinglePostEmbeddingOutput
-  
   # A list of PostEmbedding documents matching a set of query terms
   postEmbeddings(input: MultiPostEmbeddingInput): MultiPostEmbeddingOutput
-  
   # A single PostRelation document fetched by ID or slug
   postRelation(input: SinglePostRelationInput): SinglePostRelationOutput
-  
   # A list of PostRelation documents matching a set of query terms
   postRelations(input: MultiPostRelationInput): MultiPostRelationOutput
-  
   # A single PostViewTime document fetched by ID or slug
   postViewTime(input: SinglePostViewTimeInput): SinglePostViewTimeOutput
-  
   # A list of PostViewTime documents matching a set of query terms
   postViewTimes(input: MultiPostViewTimeInput): MultiPostViewTimeOutput
-  
   # A single PostView document fetched by ID or slug
   postViews(input: SinglePostViewsInput): SinglePostViewsOutput
-  
   # A list of PostView documents matching a set of query terms
   postViewses(input: MultiPostViewsInput): MultiPostViewsOutput
-  
   # A single Post document fetched by ID or slug
   post(input: SinglePostInput): SinglePostOutput
-  
   # A list of Post documents matching a set of query terms
   posts(input: MultiPostInput): MultiPostOutput
-  
   # A single RSSFeed document fetched by ID or slug
   rSSFeed(input: SingleRSSFeedInput): SingleRSSFeedOutput
-  
   # A list of RSSFeed documents matching a set of query terms
   rSSFeeds(input: MultiRSSFeedInput): MultiRSSFeedOutput
-  
   # A single Report document fetched by ID or slug
   report(input: SingleReportInput): SingleReportOutput
-  
   # A list of Report documents matching a set of query terms
   reports(input: MultiReportInput): MultiReportOutput
-  
   # A single ReviewVote document fetched by ID or slug
   reviewVote(input: SingleReviewVoteInput): SingleReviewVoteOutput
-  
   # A list of ReviewVote documents matching a set of query terms
   reviewVotes(input: MultiReviewVoteInput): MultiReviewVoteOutput
-  
   # A single ReviewWinnerArt document fetched by ID or slug
   reviewWinnerArt(input: SingleReviewWinnerArtInput): SingleReviewWinnerArtOutput
-  
   # A list of ReviewWinnerArt documents matching a set of query terms
   reviewWinnerArts(input: MultiReviewWinnerArtInput): MultiReviewWinnerArtOutput
-  
   # A single ReviewWinner document fetched by ID or slug
   reviewWinner(input: SingleReviewWinnerInput): SingleReviewWinnerOutput
-  
   # A list of ReviewWinner documents matching a set of query terms
   reviewWinners(input: MultiReviewWinnerInput): MultiReviewWinnerOutput
-  
   # A single Revision document fetched by ID or slug
   revision(input: SingleRevisionInput): SingleRevisionOutput
-  
   # A list of Revision documents matching a set of query terms
   revisions(input: MultiRevisionInput): MultiRevisionOutput
-  
   # A single Sequence document fetched by ID or slug
   sequence(input: SingleSequenceInput): SingleSequenceOutput
-  
   # A list of Sequence documents matching a set of query terms
   sequences(input: MultiSequenceInput): MultiSequenceOutput
-  
   # A single SplashArtCoordinate document fetched by ID or slug
   splashArtCoordinate(input: SingleSplashArtCoordinateInput): SingleSplashArtCoordinateOutput
-  
   # A list of SplashArtCoordinate documents matching a set of query terms
   splashArtCoordinates(input: MultiSplashArtCoordinateInput): MultiSplashArtCoordinateOutput
-  
   # A single Spotlight document fetched by ID or slug
   spotlight(input: SingleSpotlightInput): SingleSpotlightOutput
-  
   # A list of Spotlight documents matching a set of query terms
   spotlights(input: MultiSpotlightInput): MultiSpotlightOutput
-  
   # A single Subscription document fetched by ID or slug
   subscription(input: SingleSubscriptionInput): SingleSubscriptionOutput
-  
   # A list of Subscription documents matching a set of query terms
   subscriptions(input: MultiSubscriptionInput): MultiSubscriptionOutput
-  
   # A single SurveyQuestion document fetched by ID or slug
   surveyQuestion(input: SingleSurveyQuestionInput): SingleSurveyQuestionOutput
-  
   # A list of SurveyQuestion documents matching a set of query terms
   surveyQuestions(input: MultiSurveyQuestionInput): MultiSurveyQuestionOutput
-  
   # A single SurveyResponse document fetched by ID or slug
   surveyResponse(input: SingleSurveyResponseInput): SingleSurveyResponseOutput
-  
   # A list of SurveyResponse documents matching a set of query terms
   surveyResponses(input: MultiSurveyResponseInput): MultiSurveyResponseOutput
-  
   # A single SurveySchedule document fetched by ID or slug
   surveySchedule(input: SingleSurveyScheduleInput): SingleSurveyScheduleOutput
-  
   # A list of SurveySchedule documents matching a set of query terms
   surveySchedules(input: MultiSurveyScheduleInput): MultiSurveyScheduleOutput
-  
   # A single Survey document fetched by ID or slug
   survey(input: SingleSurveyInput): SingleSurveyOutput
-  
   # A list of Survey documents matching a set of query terms
   surveys(input: MultiSurveyInput): MultiSurveyOutput
-  
   # A single TagFlag document fetched by ID or slug
   tagFlag(input: SingleTagFlagInput): SingleTagFlagOutput
-  
   # A list of TagFlag documents matching a set of query terms
   tagFlags(input: MultiTagFlagInput): MultiTagFlagOutput
-  
   # A single TagRel document fetched by ID or slug
   tagRel(input: SingleTagRelInput): SingleTagRelOutput
-  
   # A list of TagRel documents matching a set of query terms
   tagRels(input: MultiTagRelInput): MultiTagRelOutput
-  
   # A single Tag document fetched by ID or slug
   tag(input: SingleTagInput): SingleTagOutput
-  
   # A list of Tag documents matching a set of query terms
   tags(input: MultiTagInput): MultiTagOutput
-  
   # A single TypingIndicator document fetched by ID or slug
   typingIndicator(input: SingleTypingIndicatorInput): SingleTypingIndicatorOutput
-  
   # A list of TypingIndicator documents matching a set of query terms
   typingIndicators(input: MultiTypingIndicatorInput): MultiTypingIndicatorOutput
-  
   # A single UserEAGDetail document fetched by ID or slug
   userEAGDetail(input: SingleUserEAGDetailInput): SingleUserEAGDetailOutput
-  
   # A list of UserEAGDetail documents matching a set of query terms
   userEAGDetails(input: MultiUserEAGDetailInput): MultiUserEAGDetailOutput
-  
   # A single UserJobAd document fetched by ID or slug
   userJobAd(input: SingleUserJobAdInput): SingleUserJobAdOutput
-  
   # A list of UserJobAd documents matching a set of query terms
   userJobAds(input: MultiUserJobAdInput): MultiUserJobAdOutput
-  
   # A single UserMostValuablePost document fetched by ID or slug
   userMostValuablePost(input: SingleUserMostValuablePostInput): SingleUserMostValuablePostOutput
-  
   # A list of UserMostValuablePost documents matching a set of query terms
   userMostValuablePosts(input: MultiUserMostValuablePostInput): MultiUserMostValuablePostOutput
-  
   # A single UserRateLimit document fetched by ID or slug
   userRateLimit(input: SingleUserRateLimitInput): SingleUserRateLimitOutput
-  
   # A list of UserRateLimit documents matching a set of query terms
   userRateLimits(input: MultiUserRateLimitInput): MultiUserRateLimitOutput
-  
   # A single UserTagRel document fetched by ID or slug
   userTagRel(input: SingleUserTagRelInput): SingleUserTagRelOutput
-  
   # A list of UserTagRel documents matching a set of query terms
   userTagRels(input: MultiUserTagRelInput): MultiUserTagRelOutput
-  
   # A single User document fetched by ID or slug
   user(input: SingleUserInput): SingleUserOutput
-  
   # A list of User documents matching a set of query terms
   users(input: MultiUserInput): MultiUserOutput
-  
   # A single Vote document fetched by ID or slug
   vote(input: SingleVoteInput): SingleVoteOutput
-  
   # A list of Vote documents matching a set of query terms
   votes(input: MultiVoteInput): MultiVoteOutput
-  
 }
 
 
 type Mutation {
-
   # Mutation for creating new AdvisorRequest documents
   createAdvisorRequest(data: CreateAdvisorRequestDataInput!) : AdvisorRequestOutput
-
   # Mutation for updating a AdvisorRequest document
   updateAdvisorRequest(selector: AdvisorRequestSelectorUniqueInput!, data: UpdateAdvisorRequestDataInput! ) : AdvisorRequestOutput
-
   # Mutation for creating new ArbitalTagContentRel documents
   createArbitalTagContentRel(data: CreateArbitalTagContentRelDataInput!) : ArbitalTagContentRelOutput
-
   # Mutation for updating a ArbitalTagContentRel document
   updateArbitalTagContentRel(selector: ArbitalTagContentRelSelectorUniqueInput!, data: UpdateArbitalTagContentRelDataInput! ) : ArbitalTagContentRelOutput
-
   # Mutation for creating new Ban documents
   createBan(data: CreateBanDataInput!) : BanOutput
-
   # Mutation for updating a Ban document
   updateBan(selector: BanSelectorUniqueInput!, data: UpdateBanDataInput! ) : BanOutput
-
   # Mutation for creating new Book documents
   createBook(data: CreateBookDataInput!) : BookOutput
-
   # Mutation for updating a Book document
   updateBook(selector: BookSelectorUniqueInput!, data: UpdateBookDataInput! ) : BookOutput
-
   # Mutation for creating new Chapter documents
   createChapter(data: CreateChapterDataInput!) : ChapterOutput
-
   # Mutation for updating a Chapter document
   updateChapter(selector: ChapterSelectorUniqueInput!, data: UpdateChapterDataInput! ) : ChapterOutput
-
   # Mutation for creating new Collection documents
   createCollection(data: CreateCollectionDataInput!) : CollectionOutput
-
   # Mutation for updating a Collection document
   updateCollection(selector: CollectionSelectorUniqueInput!, data: UpdateCollectionDataInput! ) : CollectionOutput
-
   # Mutation for creating new CommentModeratorAction documents
   createCommentModeratorAction(data: CreateCommentModeratorActionDataInput!) : CommentModeratorActionOutput
-
   # Mutation for updating a CommentModeratorAction document
   updateCommentModeratorAction(selector: CommentModeratorActionSelectorUniqueInput!, data: UpdateCommentModeratorActionDataInput! ) : CommentModeratorActionOutput
-
   # Mutation for creating new Comment documents
   createComment(data: CreateCommentDataInput!) : CommentOutput
-
   # Mutation for updating a Comment document
   updateComment(selector: CommentSelectorUniqueInput!, data: UpdateCommentDataInput! ) : CommentOutput
-
   # Mutation for creating new Conversation documents
   createConversation(data: CreateConversationDataInput!) : ConversationOutput
-
   # Mutation for updating a Conversation document
   updateConversation(selector: ConversationSelectorUniqueInput!, data: UpdateConversationDataInput! ) : ConversationOutput
-
   # Mutation for creating new CurationNotice documents
   createCurationNotice(data: CreateCurationNoticeDataInput!) : CurationNoticeOutput
-
   # Mutation for updating a CurationNotice document
   updateCurationNotice(selector: CurationNoticeSelectorUniqueInput!, data: UpdateCurationNoticeDataInput! ) : CurationNoticeOutput
-
   # Mutation for creating new DialogueMatchPreference documents
   createDialogueMatchPreference(data: CreateDialogueMatchPreferenceDataInput!) : DialogueMatchPreferenceOutput
-
   # Mutation for updating a DialogueMatchPreference document
   updateDialogueMatchPreference(selector: DialogueMatchPreferenceSelectorUniqueInput!, data: UpdateDialogueMatchPreferenceDataInput! ) : DialogueMatchPreferenceOutput
-
   # Mutation for creating new DigestPost documents
   createDigestPost(data: CreateDigestPostDataInput!) : DigestPostOutput
-
   # Mutation for updating a DigestPost document
   updateDigestPost(selector: DigestPostSelectorUniqueInput!, data: UpdateDigestPostDataInput! ) : DigestPostOutput
-
   # Mutation for creating new Digest documents
   createDigest(data: CreateDigestDataInput!) : DigestOutput
-
   # Mutation for updating a Digest document
   updateDigest(selector: DigestSelectorUniqueInput!, data: UpdateDigestDataInput! ) : DigestOutput
-
   # Mutation for creating new ElectionCandidate documents
   createElectionCandidate(data: CreateElectionCandidateDataInput!) : ElectionCandidateOutput
-
   # Mutation for updating a ElectionCandidate document
   updateElectionCandidate(selector: ElectionCandidateSelectorUniqueInput!, data: UpdateElectionCandidateDataInput! ) : ElectionCandidateOutput
-
   # Mutation for creating new ElectionVote documents
   createElectionVote(data: CreateElectionVoteDataInput!) : ElectionVoteOutput
-
   # Mutation for updating a ElectionVote document
   updateElectionVote(selector: ElectionVoteSelectorUniqueInput!, data: UpdateElectionVoteDataInput! ) : ElectionVoteOutput
-
   # Mutation for creating new ElicitQuestion documents
   createElicitQuestion(data: CreateElicitQuestionDataInput!) : ElicitQuestionOutput
-
   # Mutation for updating a ElicitQuestion document
   updateElicitQuestion(selector: ElicitQuestionSelectorUniqueInput!, data: UpdateElicitQuestionDataInput! ) : ElicitQuestionOutput
-
   # Mutation for creating new ForumEvent documents
   createForumEvent(data: CreateForumEventDataInput!) : ForumEventOutput
-
   # Mutation for updating a ForumEvent document
   updateForumEvent(selector: ForumEventSelectorUniqueInput!, data: UpdateForumEventDataInput! ) : ForumEventOutput
-
   # Mutation for creating new GardenCode documents
   createGardenCode(data: CreateGardenCodeDataInput!) : GardenCodeOutput
-
   # Mutation for updating a GardenCode document
   updateGardenCode(selector: GardenCodeSelectorUniqueInput!, data: UpdateGardenCodeDataInput! ) : GardenCodeOutput
-
   # Mutation for creating new GoogleServiceAccountSession documents
   createGoogleServiceAccountSession(data: CreateGoogleServiceAccountSessionDataInput!) : GoogleServiceAccountSessionOutput
-
   # Mutation for updating a GoogleServiceAccountSession document
   updateGoogleServiceAccountSession(selector: GoogleServiceAccountSessionSelectorUniqueInput!, data: UpdateGoogleServiceAccountSessionDataInput! ) : GoogleServiceAccountSessionOutput
-
   # Mutation for creating new JargonTerm documents
   createJargonTerm(data: CreateJargonTermDataInput!) : JargonTermOutput
-
   # Mutation for updating a JargonTerm document
   updateJargonTerm(selector: JargonTermSelectorUniqueInput!, data: UpdateJargonTermDataInput! ) : JargonTermOutput
-
   # Mutation for creating new LWEvent documents
   createLWEvent(data: CreateLWEventDataInput!) : LWEventOutput
-
   # Mutation for updating a LWEvent document
   updateLWEvent(selector: LWEventSelectorUniqueInput!, data: UpdateLWEventDataInput! ) : LWEventOutput
-
   # Mutation for creating new LlmConversation documents
   createLlmConversation(data: CreateLlmConversationDataInput!) : LlmConversationOutput
-
   # Mutation for updating a LlmConversation document
   updateLlmConversation(selector: LlmConversationSelectorUniqueInput!, data: UpdateLlmConversationDataInput! ) : LlmConversationOutput
-
   # Mutation for creating new Localgroup documents
   createLocalgroup(data: CreateLocalgroupDataInput!) : LocalgroupOutput
-
   # Mutation for updating a Localgroup document
   updateLocalgroup(selector: LocalgroupSelectorUniqueInput!, data: UpdateLocalgroupDataInput! ) : LocalgroupOutput
-
   # Mutation for creating new Message documents
   createMessage(data: CreateMessageDataInput!) : MessageOutput
-
   # Mutation for updating a Message document
   updateMessage(selector: MessageSelectorUniqueInput!, data: UpdateMessageDataInput! ) : MessageOutput
-
   # Mutation for creating new ModerationTemplate documents
   createModerationTemplate(data: CreateModerationTemplateDataInput!) : ModerationTemplateOutput
-
   # Mutation for updating a ModerationTemplate document
   updateModerationTemplate(selector: ModerationTemplateSelectorUniqueInput!, data: UpdateModerationTemplateDataInput! ) : ModerationTemplateOutput
-
   # Mutation for creating new ModeratorAction documents
   createModeratorAction(data: CreateModeratorActionDataInput!) : ModeratorActionOutput
-
   # Mutation for updating a ModeratorAction document
   updateModeratorAction(selector: ModeratorActionSelectorUniqueInput!, data: UpdateModeratorActionDataInput! ) : ModeratorActionOutput
-
   # Mutation for creating new MultiDocument documents
   createMultiDocument(data: CreateMultiDocumentDataInput!) : MultiDocumentOutput
-
   # Mutation for updating a MultiDocument document
   updateMultiDocument(selector: MultiDocumentSelectorUniqueInput!, data: UpdateMultiDocumentDataInput! ) : MultiDocumentOutput
-
   # Mutation for creating new Notification documents
   createNotification(data: CreateNotificationDataInput!) : NotificationOutput
-
   # Mutation for updating a Notification document
   updateNotification(selector: NotificationSelectorUniqueInput!, data: UpdateNotificationDataInput! ) : NotificationOutput
-
   # Mutation for creating new PetrovDayAction documents
   createPetrovDayAction(data: CreatePetrovDayActionDataInput!) : PetrovDayActionOutput
-
   # Mutation for updating a PetrovDayAction document
   updatePetrovDayAction(selector: PetrovDayActionSelectorUniqueInput!, data: UpdatePetrovDayActionDataInput! ) : PetrovDayActionOutput
-
   # Mutation for creating new PodcastEpisode documents
   createPodcastEpisode(data: CreatePodcastEpisodeDataInput!) : PodcastEpisodeOutput
-
   # Mutation for updating a PodcastEpisode document
   updatePodcastEpisode(selector: PodcastEpisodeSelectorUniqueInput!, data: UpdatePodcastEpisodeDataInput! ) : PodcastEpisodeOutput
-
   # Mutation for creating new PostEmbedding documents
   createPostEmbedding(data: CreatePostEmbeddingDataInput!) : PostEmbeddingOutput
-
   # Mutation for updating a PostEmbedding document
   updatePostEmbedding(selector: PostEmbeddingSelectorUniqueInput!, data: UpdatePostEmbeddingDataInput! ) : PostEmbeddingOutput
-
   # Mutation for creating new PostViewTime documents
   createPostViewTime(data: CreatePostViewTimeDataInput!) : PostViewTimeOutput
-
   # Mutation for updating a PostViewTime document
   updatePostViewTime(selector: PostViewTimeSelectorUniqueInput!, data: UpdatePostViewTimeDataInput! ) : PostViewTimeOutput
-
   # Mutation for creating new PostView documents
   createPostViews(data: CreatePostViewsDataInput!) : PostViewsOutput
-
   # Mutation for updating a PostView document
   updatePostViews(selector: PostViewsSelectorUniqueInput!, data: UpdatePostViewsDataInput! ) : PostViewsOutput
-
   # Mutation for creating new Post documents
   createPost(data: CreatePostDataInput!) : PostOutput
-
   # Mutation for updating a Post document
   updatePost(selector: PostSelectorUniqueInput!, data: UpdatePostDataInput! ) : PostOutput
-
   # Mutation for creating new RSSFeed documents
   createRSSFeed(data: CreateRSSFeedDataInput!) : RSSFeedOutput
-
   # Mutation for updating a RSSFeed document
   updateRSSFeed(selector: RSSFeedSelectorUniqueInput!, data: UpdateRSSFeedDataInput! ) : RSSFeedOutput
-
   # Mutation for creating new Report documents
   createReport(data: CreateReportDataInput!) : ReportOutput
-
   # Mutation for updating a Report document
   updateReport(selector: ReportSelectorUniqueInput!, data: UpdateReportDataInput! ) : ReportOutput
-
   # Mutation for creating new ReviewWinnerArt documents
   createReviewWinnerArt(data: CreateReviewWinnerArtDataInput!) : ReviewWinnerArtOutput
-
   # Mutation for updating a ReviewWinnerArt document
   updateReviewWinnerArt(selector: ReviewWinnerArtSelectorUniqueInput!, data: UpdateReviewWinnerArtDataInput! ) : ReviewWinnerArtOutput
-
   # Mutation for creating new ReviewWinner documents
   createReviewWinner(data: CreateReviewWinnerDataInput!) : ReviewWinnerOutput
-
   # Mutation for updating a ReviewWinner document
   updateReviewWinner(selector: ReviewWinnerSelectorUniqueInput!, data: UpdateReviewWinnerDataInput! ) : ReviewWinnerOutput
-
   # Mutation for updating a Revision document
   updateRevision(selector: RevisionSelectorUniqueInput!, data: UpdateRevisionDataInput! ) : RevisionOutput
-
   # Mutation for creating new Sequence documents
   createSequence(data: CreateSequenceDataInput!) : SequenceOutput
-
   # Mutation for updating a Sequence document
   updateSequence(selector: SequenceSelectorUniqueInput!, data: UpdateSequenceDataInput! ) : SequenceOutput
-
   # Mutation for creating new SplashArtCoordinate documents
   createSplashArtCoordinate(data: CreateSplashArtCoordinateDataInput!) : SplashArtCoordinateOutput
-
   # Mutation for updating a SplashArtCoordinate document
   updateSplashArtCoordinate(selector: SplashArtCoordinateSelectorUniqueInput!, data: UpdateSplashArtCoordinateDataInput! ) : SplashArtCoordinateOutput
-
   # Mutation for creating new Spotlight documents
   createSpotlight(data: CreateSpotlightDataInput!) : SpotlightOutput
-
   # Mutation for updating a Spotlight document
   updateSpotlight(selector: SpotlightSelectorUniqueInput!, data: UpdateSpotlightDataInput! ) : SpotlightOutput
-
   # Mutation for creating new Subscription documents
   createSubscription(data: CreateSubscriptionDataInput!) : SubscriptionOutput
-
   # Mutation for creating new SurveyQuestion documents
   createSurveyQuestion(data: CreateSurveyQuestionDataInput!) : SurveyQuestionOutput
-
   # Mutation for updating a SurveyQuestion document
   updateSurveyQuestion(selector: SurveyQuestionSelectorUniqueInput!, data: UpdateSurveyQuestionDataInput! ) : SurveyQuestionOutput
-
   # Mutation for creating new SurveyResponse documents
   createSurveyResponse(data: CreateSurveyResponseDataInput!) : SurveyResponseOutput
-
   # Mutation for updating a SurveyResponse document
   updateSurveyResponse(selector: SurveyResponseSelectorUniqueInput!, data: UpdateSurveyResponseDataInput! ) : SurveyResponseOutput
-
   # Mutation for creating new SurveySchedule documents
   createSurveySchedule(data: CreateSurveyScheduleDataInput!) : SurveyScheduleOutput
-
   # Mutation for updating a SurveySchedule document
   updateSurveySchedule(selector: SurveyScheduleSelectorUniqueInput!, data: UpdateSurveyScheduleDataInput! ) : SurveyScheduleOutput
-
   # Mutation for creating new Survey documents
   createSurvey(data: CreateSurveyDataInput!) : SurveyOutput
-
   # Mutation for updating a Survey document
   updateSurvey(selector: SurveySelectorUniqueInput!, data: UpdateSurveyDataInput! ) : SurveyOutput
-
   # Mutation for creating new TagFlag documents
   createTagFlag(data: CreateTagFlagDataInput!) : TagFlagOutput
-
   # Mutation for updating a TagFlag document
   updateTagFlag(selector: TagFlagSelectorUniqueInput!, data: UpdateTagFlagDataInput! ) : TagFlagOutput
-
   # Mutation for creating new TagRel documents
   createTagRel(data: CreateTagRelDataInput!) : TagRelOutput
-
   # Mutation for updating a TagRel document
   updateTagRel(selector: TagRelSelectorUniqueInput!, data: UpdateTagRelDataInput! ) : TagRelOutput
-
   # Mutation for creating new Tag documents
   createTag(data: CreateTagDataInput!) : TagOutput
-
   # Mutation for updating a Tag document
   updateTag(selector: TagSelectorUniqueInput!, data: UpdateTagDataInput! ) : TagOutput
-
   # Mutation for creating new UserEAGDetail documents
   createUserEAGDetail(data: CreateUserEAGDetailDataInput!) : UserEAGDetailOutput
-
   # Mutation for updating a UserEAGDetail document
   updateUserEAGDetail(selector: UserEAGDetailSelectorUniqueInput!, data: UpdateUserEAGDetailDataInput! ) : UserEAGDetailOutput
-
   # Mutation for creating new UserJobAd documents
   createUserJobAd(data: CreateUserJobAdDataInput!) : UserJobAdOutput
-
   # Mutation for updating a UserJobAd document
   updateUserJobAd(selector: UserJobAdSelectorUniqueInput!, data: UpdateUserJobAdDataInput! ) : UserJobAdOutput
-
   # Mutation for creating new UserMostValuablePost documents
   createUserMostValuablePost(data: CreateUserMostValuablePostDataInput!) : UserMostValuablePostOutput
-
   # Mutation for updating a UserMostValuablePost document
   updateUserMostValuablePost(selector: UserMostValuablePostSelectorUniqueInput!, data: UpdateUserMostValuablePostDataInput! ) : UserMostValuablePostOutput
-
   # Mutation for creating new UserRateLimit documents
   createUserRateLimit(data: CreateUserRateLimitDataInput!) : UserRateLimitOutput
-
   # Mutation for updating a UserRateLimit document
   updateUserRateLimit(selector: UserRateLimitSelectorUniqueInput!, data: UpdateUserRateLimitDataInput! ) : UserRateLimitOutput
-
   # Mutation for creating new UserTagRel documents
   createUserTagRel(data: CreateUserTagRelDataInput!) : UserTagRelOutput
-
   # Mutation for updating a UserTagRel document
   updateUserTagRel(selector: UserTagRelSelectorUniqueInput!, data: UpdateUserTagRelDataInput! ) : UserTagRelOutput
-
   # Mutation for creating new User documents
   createUser(data: CreateUserDataInput!) : UserOutput
-
   # Mutation for updating a User document
   updateUser(selector: UserSelectorUniqueInput!, data: UpdateUserDataInput! ) : UserOutput
-
 }
-
 
