@@ -32,6 +32,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     whiteSpace: "nowrap",
   },
+  agreementButtons: {
+    marginLeft: 8
+  },
   footerReactions: {
     display: "inline-block",
     fontSize: 25,
@@ -294,11 +297,13 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
       verticalArrows
       largeArrows
     />
-    <AgreementVoteAxis
-      document={document}
-      hideKarma={hideKarma}
-      voteProps={voteProps}
-    />
+    <div className={classes.agreementButtons}>
+      <AgreementVoteAxis
+        document={document}
+        hideKarma={hideKarma}
+        voteProps={voteProps}
+      />
+    </div>
   </span>
 }
 
