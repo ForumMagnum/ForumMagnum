@@ -27,6 +27,7 @@ export const recentDiscussionFeedGraphQLTypeDefs = gql`
     cutoff: Date
     endOffset: Int!
     results: [RecentDiscussionFeedEntryType!]
+    sessionId: String
   }
   type RecentDiscussionFeedEntryType {
     type: String!
@@ -41,13 +42,14 @@ export const recentDiscussionFeedGraphQLTypeDefs = gql`
       cutoff: Date,
       offset: Int,
       af: Boolean,
+      sessionId: String,
     ): RecentDiscussionFeedQueryResults!
   }
 `
 
 export const recentDiscussionFeedGraphQLQueries = {
   RecentDiscussionFeed: async (_root: void, args: any, context: ResolverContext) => {
-    const {limit, cutoff, offset, af, ...rest} = args;
+    const {limit, cutoff, offset, af, sessionId, ...rest} = args;
     type SortKeyType = Date;
     const {currentUser} = context;
 
@@ -159,7 +161,8 @@ export const recentDiscussionFeedGraphQLQueries = {
     
     return {
       __typename: "RecentDiscussionFeedQueryResults",
-      ...result
+      ...result,
+      sessionId
     }
   }
 }
