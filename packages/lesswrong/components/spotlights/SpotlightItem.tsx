@@ -16,6 +16,7 @@ import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const TEXT_WIDTH = 350;
 
@@ -500,141 +501,143 @@ export const SpotlightItem = ({
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
   const spotlightReviews = getSpotlightDisplayReviews(spotlight);
 
-  return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div
-      id={spotlight._id}
-      style={style}
-      className={classNames(classes.root, className)}
-    >
-      <div className={classNames(classes.spotlightItem, {
-        [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
-      })}>
-        <div className={classes.contentContainer}>
-          <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
-            <div className={classes.title}>
-              <Link to={url}>
-                {getSpotlightDisplayTitle(spotlight)}
-              </Link>
-              <span className={classes.editDescriptionButton}>
-                {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                  <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
-                </LWTooltip>}
-              </span>
-            </div>
-            {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
-              {subtitleComponent}
-            </div>}
-            {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
-              {editDescription ? 
-                <div className={classes.editDescription}>
-                  <WrappedSmartForm
-                    collectionName="Spotlights"
-                    fields={['description']}
-                    documentId={spotlight._id}
-                    mutationFragmentName={'SpotlightEditQueryFragment'}
-                    queryFragmentName={'SpotlightEditQueryFragment'}
-                    successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
-                  />
-                </div>
-                :
-                <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                  description={`${spotlight.documentType} ${spotlightDocument?._id}`}
-                />
-              }
-            </div>}
-            {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
-              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
-            </Typography>}
-            <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
-          </div>
-          {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
-          {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
-            <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
-          </div>}
-          {spotlight.spotlightImageId && <CloudinaryImage2
-            publicId={spotlight.spotlightImageId}
-            darkPublicId={spotlight.spotlightDarkImageId}
-            className={classNames(classes.image, {
-              [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
-              [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
-            })}
-            imgProps={{w: "500"}}
-            loading="lazy"
-          />}
-        </div>
-        <div className={classes.reviews}>
-          {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
-            <CommentsNode comment={review} treeOptions={{
-              singleLineCollapse: true,
-              forceSingleLine: true,
-              hideSingleLineMeta: true,
-              post: spotlight.post ?? undefined,
-            }} nestingLevel={1}/>
-          </div>)}
-        </div>
-        {hideBanner && (
-          isFriendlyUI
-            ? (
-              <ForumIcon
-                icon="Close"
-                onClick={hideBanner}
-                className={classes.hideButton}
-              />
-            )
-            : (
-              <div className={classes.closeButtonWrapper}>
-                <LWTooltip title="Hide this spotlight" placement="right">
-                  <Button className={classes.closeButton} onClick={hideBanner}>
-                    <ForumIcon icon="Close" />
-                  </Button>
-                </LWTooltip>
+  return <AnalyticsContext pageElementContext="spotlightItem">
+      <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
+        <div
+          id={spotlight._id}
+          style={style}
+          className={classNames(classes.root, className)}
+      >
+        <div className={classNames(classes.spotlightItem, {
+          [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
+        })}>
+          <div className={classes.contentContainer}>
+            <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
+              <div className={classes.title}>
+                <Link to={url}>
+                  {getSpotlightDisplayTitle(spotlight)}
+                </Link>
+                <span className={classes.editDescriptionButton}>
+                  {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+                    <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
+                  </LWTooltip>}
+                </span>
               </div>
+              {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
+                {subtitleComponent}
+              </div>}
+              {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
+                {editDescription ? 
+                  <div className={classes.editDescription}>
+                    <WrappedSmartForm
+                      collectionName="Spotlights"
+                      fields={['description']}
+                      documentId={spotlight._id}
+                      mutationFragmentName={'SpotlightEditQueryFragment'}
+                      queryFragmentName={'SpotlightEditQueryFragment'}
+                      successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
+                    />
+                  </div>
+                  :
+                  <ContentItemBody
+                    dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                    description={`${spotlight.documentType} ${spotlightDocument?._id}`}
+                  />
+                }
+              </div>}
+              {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
+                by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
+              </Typography>}
+              <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+            </div>
+            {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
+            {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
+              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>
+            </div>}
+            {spotlight.spotlightImageId && <CloudinaryImage2
+              publicId={spotlight.spotlightImageId}
+              darkPublicId={spotlight.spotlightDarkImageId}
+              className={classNames(classes.image, {
+                [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+                [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
+              })}
+              imgProps={{w: "500"}}
+              loading="lazy"
+            />}
+          </div>
+          <div className={classes.reviews}>
+            {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
+              <CommentsNode comment={review} treeOptions={{
+                singleLineCollapse: true,
+                forceSingleLine: true,
+                hideSingleLineMeta: true,
+                post: spotlight.post ?? undefined,
+              }} nestingLevel={1}/>
+            </div>)}
+          </div>
+          {hideBanner && (
+            isFriendlyUI
+              ? (
+                <ForumIcon
+                  icon="Close"
+                  onClick={hideBanner}
+                  className={classes.hideButton}
+                />
+              )
+              : (
+                <div className={classes.closeButtonWrapper}>
+                  <LWTooltip title="Hide this spotlight" placement="right">
+                    <Button className={classes.closeButton} onClick={hideBanner}>
+                      <ForumIcon icon="Close" />
+                    </Button>
+                  </LWTooltip>
+                </div>
+              )
             )
-          )
-        }
-        <div className={classes.editAllButton}>
-          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-            <MoreVertIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
-          </LWTooltip>}
-        </div>
-        <div className={classes.draftButton}>
-          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
-            <LWTooltip title={spotlight.draft ? "Undraft, and archive duplicates" : "Draft"}>
-              <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
-                !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
-            </LWTooltip>
           }
+          <div className={classes.editAllButton}>
+            {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+              <MoreVertIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
+            </LWTooltip>}
+          </div>
+          <div className={classes.draftButton}>
+            {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
+              <LWTooltip title={spotlight.draft ? "Undraft, and archive duplicates" : "Draft"}>
+                <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
+                  !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
+              </LWTooltip>
+            }
+          </div>
+          {spotlight.draft && <div className={classes.deleteButton}>
+            {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Archive">
+              <CloseIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => deleteDraft()}/>
+            </LWTooltip>}
+          </div>}
         </div>
-        {spotlight.draft && <div className={classes.deleteButton}>
-          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Archive">
-            <CloseIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => deleteDraft()}/>
-          </LWTooltip>}
-        </div>}
+        {edit && <div className={classes.form}>
+              <SpotlightEditorStyles>
+              <WrappedSmartForm
+                collectionName="Spotlights"
+                documentId={spotlight._id}
+                mutationFragmentName={'SpotlightEditQueryFragment'}
+                queryFragmentName={'SpotlightEditQueryFragment'}
+                successCallback={onUpdate}
+              />
+              </SpotlightEditorStyles>
+            </div>
+        }
+        {!edit && showAdminInfo &&  <div className={classes.metaData}>
+              {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
+              <MetaInfo>{spotlight.position}</MetaInfo>
+              <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
+              <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
+                <MetaInfo>{duration} days</MetaInfo>
+              </LWTooltip>
+            </div>
+        }
       </div>
-      {edit && <div className={classes.form}>
-            <SpotlightEditorStyles>
-            <WrappedSmartForm
-              collectionName="Spotlights"
-              documentId={spotlight._id}
-              mutationFragmentName={'SpotlightEditQueryFragment'}
-              queryFragmentName={'SpotlightEditQueryFragment'}
-              successCallback={onUpdate}
-            />
-            </SpotlightEditorStyles>
-          </div>
-      }
-      {!edit && showAdminInfo &&  <div className={classes.metaData}>
-            {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
-            <MetaInfo>{spotlight.position}</MetaInfo>
-            <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
-            <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
-              <MetaInfo>{duration} days</MetaInfo>
-            </LWTooltip>
-          </div>
-      }
-    </div>
-  </AnalyticsTracker>
+    </AnalyticsTracker>
+  </AnalyticsContext>
 }
 
 const SpotlightItemComponent = registerComponent('SpotlightItem', SpotlightItem, {

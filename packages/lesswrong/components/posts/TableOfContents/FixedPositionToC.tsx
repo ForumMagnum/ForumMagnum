@@ -226,9 +226,6 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
-    '& .TableOfContentsRow-link': {
-      background: theme.palette.panelBackground.default
-    },
     '& .TableOfContentsDivider-divider': {
       marginLeft: 4,
     },
