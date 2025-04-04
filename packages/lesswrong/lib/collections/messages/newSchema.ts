@@ -96,7 +96,7 @@ const schema = {
   },
   conversation: {
     graphql: {
-      outputType: "Conversation!",
+      outputType: "Conversation",
       canRead: ["members"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Conversations", fieldName: "conversationId" }),
     },
