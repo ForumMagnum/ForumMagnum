@@ -51,3 +51,17 @@ export const ReviewWinnerTopPostsPage = `
     }
   }
 `
+
+export const ReviewWinnerAnnouncement = `
+  fragment ReviewWinnerAnnouncement on ReviewWinner {
+    _id
+    category
+    postId
+    reviewYear
+    reviewRanking
+    postId
+    post {
+      ...PostsTopItemInfo
+    }
+  }
+`

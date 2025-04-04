@@ -1,7 +1,8 @@
+import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 interface PostReviewWinnersViewTerms extends ViewTermsBase {
-  view?: 'reviewWinnerSingle';
+  view?: 'reviewWinnerSingle'|'bestOfLessWrongAnnouncement';
   reviewYear?: number;
   reviewRanking?: number;
   category?: string;
@@ -21,6 +22,21 @@ function reviewWinnerSingle(terms: PostReviewWinnersViewTerms) {
   };
 }
 
+function bestOfLessWrongAnnouncement() {
+  return {
+    selector: {
+      reviewYear: REVIEW_YEAR
+    },
+    options: {
+      sort: {
+        reviewRanking: 1
+      },
+      limit: 6
+    }
+  };
+}
+
 export const ReviewWinnersViews = new CollectionViewSet('ReviewWinners', {
-  reviewWinnerSingle
+  reviewWinnerSingle,
+  bestOfLessWrongAnnouncement
 });
