@@ -58,10 +58,43 @@ describe("graphql schemas", () => {
     }
     
     if (badFields.length > 0) {
+      // eslint-disable-next-line no-console
       console.error(`The following fields have a non-nullable graphql type, but have a nullable database type or a restrictive permission that means the field will be missing for some users:\n${badFields.map(f => `${f.collectionName}.${f.fieldName}: ${f.message}`).join("\n")}`);
       chai.assert.equal(badFields.length, 0);
     }
-  })
+  });
+  /*
+  it("Doesn't mark fields nullable when they correspond to a non-nullable database field", () => {
+    const collections = getAllCollections();
+    const badFields: FieldProblem[] = [];
+
+    for (const collection of collections) {
+      const schema = getSchema(collection.collectionName);
+      for (const [name,field] of Object.entries(schema)) {
+        if (field.graphql) {
+          const dbNonnull = field.database && !field.database.nullable;
+          const fieldPermissionsGated = field.graphql.canRead && !permissionsAllowGuest(field.graphql.canRead);
+          const outputType = field.graphql.outputType;
+          const graphqlNullable = (typeof outputType !== 'string') || !outputType.endsWith("!");
+          const hasCustomResolver = !!field.graphql.resolver;
+          if (graphqlNullable && dbNonnull && !fieldPermissionsGated && !hasCustomResolver) {
+            badFields.push({
+              collectionName: collection.collectionName,
+              fieldName: name,
+              message: "GraphQL outputType is nullable, but it doesn't need to be"
+            });
+          }
+        }
+      }
+    }
+    
+    if (badFields.length > 0) {
+      // eslint-disable-next-line no-console
+      console.error(`The following fields have a nullable graphql type, but don't need to:\n${badFields.map(f => `${f.collectionName}.${f.fieldName}`).join("\n")}`);
+      chai.assert.equal(badFields.length, 0);
+    }
+  });
+  */
 });
 
 export function permissionsAllowGuest(permissions: FieldPermissions) {
