@@ -42,8 +42,19 @@ ${fieldNames.map(fieldName => {
   }
 };
 
-export function generateDefaultFragments() {
-  const sb: Array<string> = [];
+export function generateDefaultFragments(): string[] {
+  const fragments: string[] = [];
+  for (const [collectionName, schema] of Object.entries(allSchemas)) {
+    const fragment = getDefaultFragmentText(collectionName as CollectionNameString, schema);
+    if (fragment) {
+      fragments.push(fragment);
+    }
+  }
+  return fragments
+}
+
+export function generateDefaultFragmentsFile(): string {
+  const sb: string[] = [];
   for (const [collectionName, schema] of Object.entries(allSchemas)) {
     const fragmentName = `${collectionName}DefaultFragment`;
     const fragment = getDefaultFragmentText(collectionName as CollectionNameString, schema);

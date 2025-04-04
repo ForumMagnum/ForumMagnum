@@ -10,11 +10,6 @@ import { isAnyTest } from '../executionEnvironment';
 // Generated default fragments
 import * as defaultFragments from '@/lib/generated/defaultFragments';
 
-// Alignment Forum imports
-import * as alignmentCommentsFragments from '../alignment-forum/comments/fragments';
-import * as alignmentPostsFragments from '../alignment-forum/posts/fragments';
-import * as alignmentUsersFragments from '../alignment-forum/users/fragments';
-
 // Collection imports
 import * as advisorRequestsFragments from '../collections/advisorRequests/fragments';
 import * as bansFragments from '../collections/bans/fragments';
@@ -83,6 +78,7 @@ import * as votesFragments from '../collections/votes/fragments';
 
 // Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
+import { transformFragments } from './fragmentWrapper';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
@@ -94,12 +90,7 @@ if (isAnyTest) {
   testFragments = {};
 }
 
-const staticFragments = {
-  // Alignment Forum fragments
-  ...alignmentCommentsFragments,
-  ...alignmentPostsFragments,
-  ...alignmentUsersFragments,
-
+const staticFragments = transformFragments({
   // Collection fragments
   ...advisorRequestsFragments,
   ...bansFragments,
@@ -171,7 +162,7 @@ const staticFragments = {
 
   // Test fragments
   ...testFragments,
-} satisfies Record<string, string>;
+});
 
 // TODO: I originally implemented this with deferred execution because getDefaultFragments needed to be called after the collections were registered
 // But now we're generating the default fragments in a separate step, so maybe we can just do this in one go?
