@@ -34,14 +34,6 @@ const schema = {
       nullable: false,
     },
   },
-  post: {
-    // postId used to be a foreignKeyField, which might be why we have a resolver with no canRead permissions?
-    graphql: {
-      outputType: "Post!",
-      canRead: [],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
-    },
-  },
   /** The number of views on the post in the given window, including duplicates from the same user */
   viewCount: {
     database: {

@@ -3340,7 +3340,7 @@ const schema = {
   },
   organizers: {
     graphql: {
-      outputType: "[User!]!",
+      outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "organizerIds" }),
     },
@@ -3904,7 +3904,7 @@ const schema = {
   },
   usersSharedWith: {
     graphql: {
-      outputType: "[User!]!",
+      outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "shareWithUsers" }),
     },
@@ -4439,7 +4439,7 @@ const schema = {
   },
   languageModelSummary: {
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["admins"],
       resolver: async (post, _args, context) => {
         if (!post.contents_latest) {
@@ -4883,7 +4883,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String]",
-      canRead: ["members"],
+      canRead: ["guests"],
       canUpdate: ["members", "alignmentForum", "alignmentForumAdmins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -4901,7 +4901,7 @@ const schema = {
   suggestForAlignmentUsers: {
     graphql: {
       outputType: "[User!]!",
-      canRead: ["members"],
+      canRead: ["guests"],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "suggestForAlignmentUserIds" }),
     },
   },
