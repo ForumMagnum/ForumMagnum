@@ -1,4 +1,6 @@
-export const CurationNoticesFragment = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+
+export const CurationNoticesFragment = () => frag`
   fragment CurationNoticesFragment on CurationNotice {
     _id
     createdAt

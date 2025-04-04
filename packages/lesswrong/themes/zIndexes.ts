@@ -4,6 +4,7 @@ export const defaultZIndexes = {
   sequenceBanner: 0,
   reviewExpandButton: 1,
   reviewVotingCanvas: 1,
+  bestOfLessWrongAdminHeader: 1,
   modTopBar: 1,
   spotlightItem: 1,
   editorPresenceList: 1,

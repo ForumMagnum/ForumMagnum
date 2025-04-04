@@ -1,4 +1,6 @@
-export const localGroupsBase = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const localGroupsBase = () => frag`
   fragment localGroupsBase on Localgroup {
     _id
     createdAt
@@ -27,7 +29,7 @@ export const localGroupsBase = `
   }
 `
 
-export const localGroupsHomeFragment = `
+export const localGroupsHomeFragment = () => frag`
   fragment localGroupsHomeFragment on Localgroup {
     ...localGroupsBase
     contents {
@@ -36,7 +38,7 @@ export const localGroupsHomeFragment = `
   }
 `
 
-export const localGroupsEdit = `
+export const localGroupsEdit = () => frag`
   fragment localGroupsEdit on Localgroup {
     ...localGroupsBase
     contents {
@@ -45,7 +47,7 @@ export const localGroupsEdit = `
   }
 `
 
-export const localGroupsIsOnline = `
+export const localGroupsIsOnline = () => frag`
   fragment localGroupsIsOnline on Localgroup {
     _id
     name

@@ -56,8 +56,8 @@ const EditDigestActionButtons = ({digest, classes}: {
       })
     } else {
       openDialog({
-        componentName: 'ConfirmPublishDialog',
-        componentProps: {digest}
+        name: 'ConfirmPublishDialog',
+        contents: ({onClose}) => <Components.ConfirmPublishDialog onClose={onClose} digest={digest} />
       })
     }
   }

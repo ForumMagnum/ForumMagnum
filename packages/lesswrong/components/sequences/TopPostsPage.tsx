@@ -861,7 +861,8 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     setCategory(t);
   }
 
-  return <div className={classes.postsByYearSectionCentered} id="year-category-section">
+  return <AnalyticsContext pageSectionContext="topPostsPageSpotlightSection">
+    <div className={classes.postsByYearSectionCentered} id="year-category-section">
       <div className={classes.yearSelector}>
         {[...publishedReviewYears].map((y) => {
           const postsCount = reviewWinnersWithPosts.filter(post => {
@@ -915,6 +916,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         </div>)}
       </div>
     </div>
+  </AnalyticsContext>
 }
 
 function getPostsInGrid(args: GetPostsInGridArgs) {
@@ -1007,7 +1009,7 @@ const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates
     // We're explicitly not bothering with heightPct right now, since we just want to get "to the bottom" of the image
     [`${coordinatePosition}Flipped` as const]: flipped,
   } = splashCoordinates;
-
+  
   const newXPct = Math.min(1, Math.max(0, xPct - (widthPct * leftBookOffset)));
   const newWidthPct = Math.min(1, Math.max(0, widthPct * 3)); // this will break the url if it goes above 1, but it shouldn't
 

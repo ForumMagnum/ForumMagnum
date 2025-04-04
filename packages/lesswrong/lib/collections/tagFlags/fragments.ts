@@ -1,4 +1,6 @@
-export const TagFlagFragment = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const TagFlagFragment = () => frag`
   fragment TagFlagFragment on TagFlag {
     _id
     createdAt
@@ -14,7 +16,7 @@ export const TagFlagFragment = `
   }
 `
 
-export const TagFlagEditFragment = `
+export const TagFlagEditFragment = () => frag`
   fragment TagFlagEditFragment on TagFlag {
     ...TagFlagFragment
     contents {

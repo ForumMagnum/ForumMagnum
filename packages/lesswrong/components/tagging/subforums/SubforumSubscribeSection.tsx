@@ -64,8 +64,8 @@ const SubforumSubscribeSection = ({
         await subforumMembershipMutation({variables: {tagId: tag._id, member: true}});
       } else {
         openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
+          name: "LoginPopup",
+          contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
         });
       }
     } catch(error) {

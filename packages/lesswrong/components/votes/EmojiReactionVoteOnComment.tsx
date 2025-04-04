@@ -96,9 +96,9 @@ const BallotEmojiReaction = ({reaction, voteProps, classes}: {
   return <div className={classNames(classes.voteButton, {[classes.voteButtonSelected]: isSelected})} onClick={async () => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
-      })
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+      });
     } else {
       await voteProps.vote({
         document: voteProps.document,
