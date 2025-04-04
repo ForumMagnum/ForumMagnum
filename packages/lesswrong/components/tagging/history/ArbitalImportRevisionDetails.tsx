@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
 
 const styles = defineStyles("ArbitalImportRevisionDetails", (theme) => ({
   title: {

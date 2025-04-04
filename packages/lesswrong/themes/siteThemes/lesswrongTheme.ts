@@ -115,13 +115,6 @@ export const lessWrongTheme: SiteThemeSpecification = {
           margin: "25% 15% 15% 15%"
         }
       },
-      MuiDialogContent: {
-        root: {
-          fontFamily: sansSerifStack,
-          fontSize: 15.08,
-          lineHeight: "1.5em"
-        }
-      },
       MuiMenuItem: {
         root: {
           fontFamily: sansSerifStack,

@@ -1,0 +1,28 @@
+import React from 'react';
+import classNames from 'classnames';
+import Typography from '@/lib/vendor/@material-ui/core/src/Typography';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+
+export const styles = defineStyles("DialogTitle", theme => ({
+  /* Styles applied to the root element. */
+  root: {
+    margin: 0,
+    padding: '24px 24px 20px',
+    flex: '0 0 auto',
+  },
+}));
+
+export function DialogTitle(props: {
+  className?: string,
+  disableTypography?: boolean,
+  children: React.ReactNode,
+}) {
+  const { children, className, disableTypography=false } = props;
+  const classes = useStyles(styles);
+
+  return (
+    <div className={classNames(classes.root, className)}>
+      {disableTypography ? children : <Typography variant="title">{children}</Typography>}
+    </div>
+  );
+}
