@@ -102,6 +102,7 @@ import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/serve
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { getMultiResolverName, getSingleResolverName } from '@/lib/crud/utils';
+import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 
 export const typeDefs = gql`
   # type Query
@@ -179,6 +180,8 @@ export const typeDefs = gql`
   ${diffGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
+  ${generateCoverImagesForPostGraphQLTypeDefs}
+  ${flipSplashArtImageGraphQLTypeDefs}
 `
 
 export const resolvers = {
@@ -257,6 +260,8 @@ export const resolvers = {
     ...cronGraphQLMutations,
     ...partiallyReadSequencesMutations,
     ...jargonTermsGraphQLMutations,
+    ...generateCoverImagesForPostGraphQLMutations,
+    ...flipSplashArtImageGraphQLMutations,
     ...rsvpToEventsMutations,
     ...tagsGqlMutations,
     ...analyticsEventGraphQLMutations,
