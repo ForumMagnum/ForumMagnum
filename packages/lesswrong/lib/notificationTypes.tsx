@@ -22,7 +22,7 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
-import { NotificationChannel } from './collections/users/schema';
+import { NotificationChannel } from './collections/users/newSchema';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<

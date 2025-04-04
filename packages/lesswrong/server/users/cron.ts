@@ -4,7 +4,7 @@ import { ModeratorActions } from "../../server/collections/moderatorActions/coll
 import { allRateLimits } from "../../lib/collections/moderatorActions/schema";
 import { appendToSunshineNotes } from "../../lib/collections/users/helpers";
 import { triggerReview } from "../callbacks/sunshineCallbackUtils";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import * as _ from 'underscore';
 import moment from 'moment';
 
@@ -29,7 +29,7 @@ export const expiredRateLimitsReturnToReviewQueueCron = addCronJob({
           text: "Rate limit expired",
           context,
         });
-        await triggerReview(user._id);
+        await triggerReview(user._id, context);
       })
       
       // log the action

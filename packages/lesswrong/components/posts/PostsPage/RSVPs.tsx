@@ -1,6 +1,6 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React, { useCallback, useEffect } from 'react';
-import { RSVPType } from '../../../lib/collections/posts/schema';
+import type { RSVPType } from '../../../lib/collections/posts/newSchema';
 import { useLocation } from '../../../lib/routeUtil';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
@@ -115,8 +115,12 @@ const RSVPs = ({post, classes}: {
   const currentUser = useCurrentUser()
   const openRSVPForm = useCallback((initialResponse: string) => {
     openDialog({
-      componentName: "RSVPForm",
-      componentProps: { post, initialResponse }
+      name: "RSVPForm",
+      contents: ({onClose}) => <Components.RSVPForm
+        onClose={onClose}
+        post={post}
+        initialResponse={initialResponse}
+      />
     })
   }, [post, openDialog])
   useEffect(() => {

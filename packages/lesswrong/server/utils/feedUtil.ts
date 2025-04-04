@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { FieldChanges } from '@/server/collections/fieldChanges/collection';
+import gql from 'graphql-tag';
 
 type FeedSubquery<ResultType extends {}, SortKeyType> = {
   type: string,
@@ -103,7 +103,7 @@ export function fixedIndexSubquery<ResultType extends DbObject>({type, index, re
   };
 }
 
-export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffTypeGraphQL, resultTypesGraphQL}: {
+export function getFeedResolverGraphQL<CutoffType>({name, resolver, args, cutoffTypeGraphQL, resultTypesGraphQL}: {
   name: string,
   resolver: ({limit, cutoff, args, context}: {
     limit?: number,
@@ -118,7 +118,8 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   cutoffTypeGraphQL: string,
   resultTypesGraphQL: string,
 }) {
-  addGraphQLSchema(`
+  const graphQLTypeDefs = gql`
+
     type ${name}QueryResults {
       cutoff: ${cutoffTypeGraphQL}
       endOffset: Int!
@@ -128,29 +129,29 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
       type: String!
       ${resultTypesGraphQL}
     }
-  `);
-  addGraphQLQuery(`${name}(
-    limit: Int,
-    cutoff: ${cutoffTypeGraphQL},
-    offset: Int
-    ${(args && args.length>0) ? ", " : ""}${args}
-  ): ${name}QueryResults!`);
+    extend type Query {
+      ${name}(
+        limit: Int,
+        cutoff: ${cutoffTypeGraphQL},
+        offset: Int
+        ${(args && args.length>0) ? ", " : ""}${args}
+      ): ${name}QueryResults!
+    }
+  `
+  const graphQLQueries = {
+    [name]: async (_root: void, args: any, context: ResolverContext) => {
+      const {limit, cutoff, offset, ...rest} = args;
+      return {
+        __typename: `${name}QueryResults`,
+        ...await resolver({
+          limit, cutoff, offset,
+          args: rest,
+          context
+        })
+      };
+    }
+  }
   
-  addGraphQLResolvers({
-    Query: {
-      [name]: async (_root: void, args: any, context: ResolverContext) => {
-        const {limit, cutoff, offset, ...rest} = args;
-        return {
-          __typename: `${name}QueryResults`,
-          ...await resolver({
-            limit, cutoff, offset,
-            args: rest,
-            context
-          })
-        };
-      }
-    },
-  });
 }
 
 const applyCutoff = <T extends Sortable<SortKeyType>, SortKeyType extends number | Date>(

@@ -1,4 +1,4 @@
-import { restrictionModeratorActions } from './schema';
+import { restrictionModeratorActions } from './newSchema';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {

@@ -1,16 +1,14 @@
 import type { Request } from "express";
 import Posts from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
-import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
+import { getGraphQLSingleQueryFromOptions } from "../../lib/crud/withSingle";
 import { createMutator } from "../vulcan-lib/mutators";
-import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
 import { verifyToken } from "./tokens";
-import { getAllRepos } from "@/server/repos";
 import {
   ConnectCrossposterPayloadValidator,
   CrosspostPayloadValidator,
@@ -18,6 +16,8 @@ import {
   UpdateCrosspostPayloadValidator,
 } from "./types";
 import { connectCrossposterToken } from "../crossposting/tokens";
+import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
+import { getSingleResolverName } from "@/lib/crud/utils";
 
 export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
   const {user} = req;
@@ -111,15 +111,18 @@ export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (r
 };
 
 export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
+  const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
   const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
+  const typeName = collectionNameToTypeName[collectionName];
+  const resolverName = getSingleResolverName(typeName);
   const query = getGraphQLSingleQueryFromOptions({
     extraVariables,
     collectionName,
     fragmentName,
     fragment: undefined,
+    resolverName,
   });
-  const resolverName = getResolverNameFromOptions(collectionName);
 
   const { data } = await apolloClient.query({
     query,

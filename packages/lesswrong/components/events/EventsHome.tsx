@@ -14,7 +14,7 @@ import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isEAForum } from '../../lib/instanceSettings';
-import { EVENT_TYPES } from '../../lib/collections/posts/schema';
+import { EVENT_TYPES } from '../../lib/collections/posts/newSchema';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -294,9 +294,17 @@ const EventsHome = ({classes}: {
   }, [userLocation])
 
   const openEventNotificationsForm = () => {
-    openDialog({
-      componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "EventNotificationsDialog",
+        contents: ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
+    }
   }
   
   const handleChangeDistance = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -16,19 +16,19 @@ import unset from 'lodash/unset';
 import update from 'lodash/update';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { getParentPath } from '../../lib/vulcan-forms/path_utils';
-import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
+import { ConvertedFormSchema, convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
-import { isFunction } from '../../lib/utils/typeGuardUtils';
+import { filterNonnull, isFunction } from '../../lib/utils/typeGuardUtils';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import classNames from 'classnames';
 import { runCallbacksList } from './runCallbacksList';
 import { getErrors } from "../../lib/vulcan-lib/errors";
 import { Components } from "../../lib/vulcan-lib/components";
+import { getSimpleSchema } from '@/lib/schema/allSchemas';
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
@@ -61,10 +61,8 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
 };
 
 const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
-  // TODO: figure out why it doesn't like the type assignment
-  // In practice, it was working fine before I fixed the type of the schema field in the props
-  const schema = new SimpleSchema(nextProps.schema as AnyBecauseHard);
-  const convertedSchema = convertSchema(schema as any)!;
+  const schema = getSimpleSchema(nextProps.collectionName);
+  const convertedSchema = convertSchema(schema) ?? {};
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document
   const defaultValues =
@@ -98,7 +96,7 @@ const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<
     // TODO: type convertedSchema
     schema: convertedSchema,
     // Also store all field schemas (including nested schemas) in a flat structure
-    flatSchema: convertSchema(schema as any, true),
+    flatSchema: convertSchema(schema, true) ?? {},
     // the initial document passed as props
     initialDocument,
     // initialize the current document to be the same as the initial document
@@ -111,10 +109,16 @@ interface FormState {
   errors: any[],
   deletedValues: any[],
   currentValues: any,
-  schema: any,
-  flatSchema: any
+  schema: ConvertedFormSchema,
+  flatSchema: ConvertedFormSchema
   initialDocument: any,
   currentDocument: any
+}
+
+interface GetFieldNamesProps extends Partial<Pick<FormState, 'schema'>> {
+  addExtraFields?: boolean;
+  excludeRemovedFields?: boolean;
+  excludeHiddenFields?: boolean;
 }
 
 /**
@@ -155,7 +159,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   };
 
   /** Get a list of all insertable fields */
-  getInsertableFields = (schema: SchemaType<N>) => {
+  getInsertableFields = (schema: ConvertedFormSchema) => {
     return getInsertableFields(
       schema || this.state.schema,
       this.props.currentUser??null
@@ -163,7 +167,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   };
 
   /** Get a list of all editable fields */
-  getEditableFields = (schema: SchemaType<N>) => {
+  getEditableFields = (schema: ConvertedFormSchema) => {
     return getEditableFields(
       schema || this.state.schema,
       this.props.currentUser??null,
@@ -172,7 +176,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   };
 
   /** Get a list of all mutable (insertable/editable depending on current form type) fields */
-  getMutableFields = (schema: SchemaType<N>) => {
+  getMutableFields = (schema: ConvertedFormSchema) => {
     return this.getFormType() === 'edit'
       ? this.getEditableFields(schema)
       : this.getInsertableFields(schema);
@@ -189,7 +193,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
    *
    * Also remove any deleted values.
    */
-  getData = async (customArgs: AnyBecauseTodo) => {
+  getData = async (customArgs: { addExtraFields?: boolean }) => {
     // we want to keep prefilled data even for hidden/removed fields
     const args = {
       excludeRemovedFields: false,
@@ -238,7 +242,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   getFieldGroups = (): FormGroupType<N>[] => {
     let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
-    let fields = this.getFieldNames(this.props).map((fieldName: string) => {
+    let fields = this.getFieldNames({ ...this.props, schema: this.state.schema }).map((fieldName: string) => {
       // get schema for the current field
       return this.createField(fieldName, this.state.schema, mutableFields);
     });
@@ -246,13 +250,17 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     fields = _.sortBy(fields, 'order');
 
     // get list of all unique groups (based on their name) used in current fields
-    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g) => g && g.name));
+    const fieldGroupGetters = filterNonnull(fields.map(field => field.group));
+    const deduplicatedGroups = uniqBy(
+      fieldGroupGetters.map(group => group()),
+      (group) => group.name
+    );
 
     // for each group, add relevant fields
-    groups = groups.map(group => {
+    const groups = deduplicatedGroups.map(group => {
       group.label = group.label || formatMessage({ id: group.name });
       group.fields = fields.filter(field => {
-        return field.group && field.group.name === group.name;
+        return field.group && field.group().name === group.name;
       })
       return group;
     });
@@ -268,9 +276,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     });
 
     // sort by order
-    groups = _.sortBy(groups, 'order');
-
-    return groups;
+    return _.sortBy(groups, 'order');
   };
 
   /**
@@ -278,9 +284,9 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
    *
    * Note: when submitting the form (getData()), do not include any extra fields
    */
-  getFieldNames = (args?: any) => {
+  getFieldNames = (args?: GetFieldNamesProps) => {
     // we do this to avoid having default values in arrow functions, which breaks MS Edge support. See https://github.com/meteor/meteor/issues/10171
-    let args0 = args || {};
+    let args0: GetFieldNamesProps = args || {};
     const {
       schema = this.state.schema,
       excludeHiddenFields = true,
@@ -322,7 +328,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
         const hidden = schema[fieldName].hidden;
         return typeof hidden === 'function'
           ? hidden({ ...this.props, document })
-          : hidden;
+          : !!hidden;
       });
     }
 
@@ -335,7 +341,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   // TODO: fieldSchema is actually a slightly added-to version of
   // CollectionFieldSpecification, see convertSchema in schema_utils, but in
   // this function, it acts like CollectionFieldSpecification
-  initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<N>) => {
+  initField = (fieldName: string, fieldSchema: ConvertedFormSchema[string]) => {
     // intialize properties
     let field: FormFieldUnfinished<N> = {
       ...pick(fieldSchema, formProperties),
@@ -345,7 +351,10 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       layout: this.props.layout || "horizontal",
       input: fieldSchema.control
     };
-    field.label = this.getLabel(fieldName);
+
+    if (!field.editableFieldOptions) {
+      field.label = this.getLabel(fieldName);
+    }
 
     // if options are a function, call it
     if (typeof field.options === 'function') {
@@ -392,7 +401,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     }
     return field;
   };
-  handleFieldChildren = (field: FormFieldUnfinished<N>, fieldName: string, fieldSchema: any, mutableFields: any, schema: any) => {
+  handleFieldChildren = (field: FormFieldUnfinished<N>, fieldName: string, fieldSchema: ConvertedFormSchema[string], mutableFields: any, schema: ConvertedFormSchema) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -431,7 +440,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
    * Given a field's name, the containing schema, and parent, create the
    * complete form-field object to be passed to the component
    */
-  createField = (fieldName: string, schema: any, mutableFields: any, parentFieldName?: string, parentPath?: string) => {
+  createField = (fieldName: string, schema: ConvertedFormSchema, mutableFields: any, parentFieldName?: string, parentPath?: string) => {
     const fieldSchema = schema[fieldName];
     let field: FormFieldUnfinished<N> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);

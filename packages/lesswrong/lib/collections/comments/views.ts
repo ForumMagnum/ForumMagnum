@@ -372,7 +372,6 @@ function sunshineNewCommentsList(terms: CommentsViewTerms) {
     selector: {
       ...dontHideDeletedAndUnreviewed,
       $or: [
-        {$and: []},
         {needsReview: true},
         {baseScore: {$lte:0}}
       ],
@@ -609,14 +608,16 @@ function reviews2019({userId, postId, sortBy="top"}: CommentsViewTerms) {
   };
 }
 
-function reviews({userId, postId, reviewYear, sortBy="top"}: CommentsViewTerms) {
+function reviews({userId, postId, reviewYear, sortBy="top", minimumKarma}: CommentsViewTerms) {
   const reviewingForReviewQuery = reviewYear ? reviewYear+"" : {$ne: null}
+  const minimumKarmaQuery = minimumKarma ? {baseScore: {$gte: minimumKarma}} : {}
   return {
     selector: { 
       userId, 
       postId, 
       reviewingForReview: reviewingForReviewQuery,
-      deleted: false
+      deleted: false,
+      ...minimumKarmaQuery
     },
     options: {
       sort: { ...sortings[sortBy], postedAt: -1 }

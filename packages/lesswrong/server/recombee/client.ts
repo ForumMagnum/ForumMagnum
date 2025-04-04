@@ -16,7 +16,7 @@ import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
-import { createAdminContext } from '../vulcan-lib/query';
+import { createAdminContext } from '../vulcan-lib/createContexts';
 import util from 'util';
 import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
 

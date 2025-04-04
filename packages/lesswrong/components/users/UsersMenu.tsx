@@ -14,7 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
+import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/newSchema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
@@ -214,7 +214,10 @@ const UsersMenu = ({classes}: {
       ? (
         <DropdownItem
           title={styleSelect({friendly: "Dialogue", default: preferredHeadingCase("New Dialogue")})}
-          onClick={() => openDialog({componentName:"NewDialogueDialog"})}
+          onClick={() => openDialog({
+            name:"NewDialogueDialog",
+            contents: ({onClose}) => <Components.NewDialogueDialog onClose={onClose}/>
+          })}
         />
       )
     : null,
@@ -228,7 +231,10 @@ const UsersMenu = ({classes}: {
         ? (
           <DropdownItem
             title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
-            onClick={() => openDialog({componentName:"NewShortformDialog"})}
+            onClick={() => openDialog({
+              name:"NewShortformDialog",
+              contents: ({onClose}) => <Components.NewShortformDialog onClose={onClose}/>
+            })}
           />
         )
       : null,
@@ -333,7 +339,10 @@ const UsersMenu = ({classes}: {
               {isAF && !isAfMember &&
                 <DropdownItem
                   title={preferredHeadingCase("Apply for Membership")}
-                  onClick={() => openDialog({componentName: "AFApplicationForm"})}
+                  onClick={() => openDialog({
+                    name: "AFApplicationForm",
+                    contents: ({onClose}) => <Components.AFApplicationForm onClose={onClose}/>
+                  })}
                 />
               }
               {currentUser.noKibitz &&

@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
@@ -50,7 +50,7 @@ export const ForumEventPostPageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
   const hideBanner =
     !currentForumEvent ||

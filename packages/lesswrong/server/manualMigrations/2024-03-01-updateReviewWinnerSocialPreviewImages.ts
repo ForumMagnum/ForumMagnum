@@ -1,5 +1,5 @@
 import { registerMigration } from "./migrationUtils";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { updateMutator } from "../vulcan-lib/mutators";
 
 export default registerMigration({

@@ -47,8 +47,8 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
     event.preventDefault();
     event.stopPropagation();
     openDialog({
-      componentName: "LoginPopup",
-      componentProps: {},
+      name: "LoginPopup",
+      contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
     });
   };
 

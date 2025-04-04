@@ -8,7 +8,7 @@ interface CallbackPropertiesBase<N extends CollectionNameString> {
   currentUser: DbUser|null
   collection: CollectionBase<N>
   context: ResolverContext
-  schema: SchemaType<N>
+  schema: NewSchemaType<N>
 }
 
 export interface CreateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {

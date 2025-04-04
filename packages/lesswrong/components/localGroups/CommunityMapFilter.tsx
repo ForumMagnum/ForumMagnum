@@ -10,7 +10,8 @@ import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import PersonPinIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
-import { CloseableComponent, OpenDialogContextType, useDialog } from '../common/withDialog'
+import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
+import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
@@ -180,14 +181,20 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const createFallBackDialogHandler = (
+export const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],
-  dialogName: CloseableComponent,
+  name: string,
+  contents: DialogContentsFn,
   currentUser: UsersCurrent | null
 ) => {
-  return () => openDialog({
-    componentName: currentUser ? dialogName : "LoginPopup",
-  });
+  if (currentUser) {
+    return () => openDialog({ name, contents });
+  } else {
+    return () => openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+    });
+  }
 }
 
 const getInitialFilters = ({query}: RouterLocation) => {
@@ -319,7 +326,11 @@ const CommunityMapFilter = ({
             {(!isEAForum || isAdmin) && <TooltipSpan title="Create New Group">
               <AddIcon
                 className={classNames(classes.actionIcon, classes.addIcon)}
-                onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)}
+                onClick={createFallBackDialogHandler(
+                  openDialog, "GroupFormDialog",
+                  ({onClose}) => <Components.GroupFormDialog onClose={onClose}/>,
+                  currentUser
+                )}
               />
             </ TooltipSpan>}
             <TooltipSpan title="Hide groups from map">
@@ -366,7 +377,13 @@ const CommunityMapFilter = ({
           <span className={classes.buttonText}> Individuals </span>
           <span className={classes.actionContainer}>
             <TooltipSpan title="Add your location to the map">
-              <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}/>
+              <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={
+                createFallBackDialogHandler(
+                  openDialog, "SetPersonalMapLocationDialog",
+                  ({onClose}) => <Components.SetPersonalMapLocationDialog onClose={onClose} />,
+                  currentUser
+                )
+              }/>
             </TooltipSpan>
             <TooltipSpan title="Hide individual user locations from map">
               <VisibilityIcon
@@ -380,7 +397,11 @@ const CommunityMapFilter = ({
       <SimpleDivider className={classNames(classes.divider, classes.bottomDivider)} />
       <div
         className={classNames(classes.filterSection, classes.subscribeSection)}
-        onClick={createFallBackDialogHandler(openDialog, "EventNotificationsDialog", currentUser)}
+        onClick={createFallBackDialogHandler(
+          openDialog, "EventNotificationsDialog",
+          ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />,
+          currentUser
+        )}
       >
         <EmailIcon className={classNames(classes.actionIcon, classes.subscribeIcon)} />
         <span className={classes.buttonText}> Subscribe to events</span>

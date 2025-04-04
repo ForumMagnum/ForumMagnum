@@ -170,10 +170,11 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
     if (isRegularClick(ev) && isMobile() && footnoteHTML !== null) {
       setDisableHover(true);
       openDialog({
-        componentName: "FootnoteDialog",
-        componentProps: {
-          footnoteHTML: footnoteHTML,
-        },
+        name: "FootnoteDialog",
+        contents: ({onClose}) => <Components.FootnoteDialog
+          onClose={onClose}
+          footnoteHTML={footnoteHTML}
+        />
       });
       ev.preventDefault();
     } else {

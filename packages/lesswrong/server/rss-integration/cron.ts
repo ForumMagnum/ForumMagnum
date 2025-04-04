@@ -6,12 +6,12 @@ import Users from '../../server/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import feedparser from 'feedparser-promised';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from '../resolvers/htmlDiff';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import { dataToHTML } from '../editor/conversionUtils';
 import { fetchFragmentSingle } from '../fetchFragment';
+import gql from 'graphql-tag';
 
 export const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
@@ -93,40 +93,22 @@ function getRssPostContents(rssPost: AnyBecauseHard): string {
   }
 }
 
-defineMutation({
-  name: "resyncRssFeed",
-  argTypes: "(feedId: String!)",
-  resultType: "Boolean!",
-  fn: async (_root: void, args: {feedId: string}, context: ResolverContext) => {
-    const { currentUser } = context;
-    if (!currentUser) throw new Error("Must be logged in");
-
-    const feed = await RSSFeeds.findOne({_id: args.feedId});
-
-    if (!feed) {
-      throw new Error("Invalid feed ID");
-    }
-    if (!userIsAdminOrMod(currentUser) && currentUser._id !== feed.userId) {
-      throw new Error("Only admins and moderators ca manually resync RSS feeds they don't own");
-    }
-    
-    await resyncFeed(feed);
-    return true;
+export const cronGraphQLTypeDefs = gql`
+  type RssPostChangeInfo {
+    isChanged: Boolean!
+    newHtml: String!
+    htmlDiff: String!
   }
-});
+  extend type Mutation {
+    resyncRssFeed(feedId: String!): Boolean!
+  }
+  extend type Query {
+    RssPostChanges(postId: String!): RssPostChangeInfo!
+  }
+`;
 
-defineQuery({
-  name: "RssPostChanges",
-  argTypes: "(postId: String!)",
-  resultType: "RssPostChangeInfo!",
-  schema: `
-    type RssPostChangeInfo {
-      isChanged: Boolean!
-      newHtml: String!
-      htmlDiff: String!
-    }
-  `,
-  fn: async (_root: void, args: {postId: string}, context: ResolverContext) => {
+export const cronGraphQLQueries = {
+  RssPostChanges: async (_root: void, args: {postId: string}, context: ResolverContext) => {
     // Find and validate the post, feed, etc
     const { currentUser } = context;
     if (!currentUser) {
@@ -179,7 +161,7 @@ defineQuery({
     
     // Diff the contents between the RSS feed and the LW version
     const newHtml = sanitize(getRssPostContents(matchingPost));
-    const oldHtml = sanitize(await dataToHTML(post.contents?.originalContents.data, post.contents?.originalContents.type ?? "", { sanitize: true }));
+    const oldHtml = sanitize(await dataToHTML(post.contents?.originalContents.data, post.contents?.originalContents.type ?? "", context, { sanitize: true }));
     const htmlDiff = diffHtml(oldHtml, newHtml, false);
 
     return {
@@ -187,8 +169,28 @@ defineQuery({
       newHtml: newHtml,
       htmlDiff: htmlDiff,
     };
-  },
-});
+  }
+}
+
+export const cronGraphQLMutations = {
+  resyncRssFeed: async (_root: void, args: {feedId: string}, context: ResolverContext) => {
+    const { currentUser } = context;
+    if (!currentUser) throw new Error("Must be logged in");
+
+    const feed = await RSSFeeds.findOne({_id: args.feedId});
+
+    if (!feed) {
+      throw new Error("Invalid feed ID");
+    }
+    if (!userIsAdminOrMod(currentUser) && currentUser._id !== feed.userId) {
+      throw new Error("Only admins and moderators ca manually resync RSS feeds they don't own");
+    }
+    
+    await resyncFeed(feed);
+    return true;
+    
+  }
+}
 
 export const addNewRSSPostsCron = addCronJob({
   name: 'addNewRSSPosts',

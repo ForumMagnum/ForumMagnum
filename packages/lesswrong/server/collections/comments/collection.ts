@@ -1,10 +1,10 @@
-import schema from '@/lib/collections/comments/schema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '@/lib/collections/users/helpers';
 import { getDefaultMutations, type MutationOptions } from '@/server/resolvers/defaultMutations';
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { commentVotingOptions } from '@/lib/collections/comments/voting';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: async (user: DbUser|null, document: DbComment|null, context: ResolverContext) => {
@@ -40,12 +40,11 @@ export const commentMutationOptions: MutationOptions<DbComment> = {
 export const Comments = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
-  schema,
-  resolvers: getDefaultResolvers('Comments'),
+    resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),
   logChanges: true,
   voteable: commentVotingOptions,
 });
 
-
+export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('Comments');
 export default Comments;

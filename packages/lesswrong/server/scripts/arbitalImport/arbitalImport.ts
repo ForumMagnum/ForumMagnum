@@ -36,7 +36,7 @@ import { SearchIndexCollectionName } from '@/lib/search/searchUtil';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
 import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
-import { createAdminContext } from "@/server/vulcan-lib/query.ts";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts.ts";
 import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
 import { getCollection } from "@/server/collections/allCollections";
 
@@ -1316,6 +1316,7 @@ async function importRevisions<N extends CollectionNameString>({
             data: ckEditorMarkup,
           },
           currentUser: revisionCreator,
+          context: resolverContext,
         }),
         fieldName,
         collectionName: collection.collectionName,
@@ -1336,6 +1337,7 @@ async function importRevisions<N extends CollectionNameString>({
     await afterCreateRevisionCallback.runCallbacksAsync([{
       revisionID: lwRevision._id,
       skipDenormalizedAttributions: true,
+      context: resolverContext,
     }]);
   }
   
@@ -2400,6 +2402,8 @@ export async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: s
     matchedUserId: string,
   }> = [];
 
+  const resolverContext = createAdminContext();
+
   for (const lens of lenses) {
     // get the first revision
     const initialRevision = await Revisions.findOne({
@@ -2450,11 +2454,13 @@ export async function fixArbitalLensFirstRevisionUserId(mysqlConnectionString: s
         document: lens,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context: resolverContext,
       });
       await updateDenormalizedContributorsList({
         document: lens,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context: resolverContext,
       });
 
       mismatches.push(mismatch);

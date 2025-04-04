@@ -323,8 +323,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 <div
                   className={classes.subscribeButton}
                   onClick={() => openDialog({ 
-                    componentName: "NewDialogueDialog", 
-                    componentProps: { initialParticipantIds: [user._id] } 
+                    name: "NewDialogueDialog", 
+                    contents: ({onClose}) => <Components.NewDialogueDialog
+                      onClose={onClose}
+                      initialParticipantIds={[user._id]}
+                    />
                   })}
                 >
                   <a>Dialogue</a>
