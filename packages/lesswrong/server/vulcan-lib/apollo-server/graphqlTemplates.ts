@@ -1,6 +1,5 @@
 import type { SchemaGraphQLFieldDescription, SchemaGraphQLFieldArgument } from './initGraphQL';
-import { camelCaseify } from "../../../lib/vulcan-lib/utils";
-import { pluralize } from "../../../lib/vulcan-lib/pluralize";
+import { getMultiResolverName, getSingleResolverName } from '@/lib/crud/utils';
 
 const convertToGraphQL = (fields: SchemaGraphQLFieldDescription[], indentation: string) => {
   return fields.length > 0 ? fields.map(f => fieldTemplate(f, indentation)).join('\n') : '';
@@ -135,7 +134,8 @@ A query for a single document
 movie(input: SingleMovieInput) : SingleMovieOutput
 
 */
-export const singleQueryTemplate = ({ typeName }: {typeName: string}) => `${camelCaseify(typeName)}(input: Single${typeName}Input): Single${typeName}Output`;
+export const singleQueryTemplate = ({ typeName }: {typeName: string}) =>
+  `${getSingleResolverName(typeName)}(input: Single${typeName}Input): Single${typeName}Output`;
 
 
 /*
@@ -145,7 +145,8 @@ A query for multiple documents
 movies(input: MultiMovieInput) : MultiMovieOutput
 
 */
-export const multiQueryTemplate = ({ typeName }: {typeName: string}) => `${camelCaseify(pluralize(typeName))}(input: Multi${typeName}Input): Multi${typeName}Output`;
+export const multiQueryTemplate = ({ typeName }: {typeName: string}) =>
+  `${getMultiResolverName(typeName)}(input: Multi${typeName}Input): Multi${typeName}Output`;
 
 /* ------------------------------------- Query Input Types ------------------------------------- */
 
