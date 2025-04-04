@@ -24,7 +24,6 @@ const styles = defineStyles("Badge", theme => ({
     top: -RADIUS,
     right: -RADIUS,
     fontFamily: theme.typography.fontFamily,
-    fontWeight: theme.typography.fontWeight,
     fontSize: 12,
     width: RADIUS * 2,
     height: RADIUS * 2,
