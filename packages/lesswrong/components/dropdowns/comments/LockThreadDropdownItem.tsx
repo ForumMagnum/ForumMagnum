@@ -23,8 +23,11 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
 
   const handleLockThread = () => {
     openDialog({
-      componentName: "LockThreadDialog",
-      componentProps: {commentId: comment._id},
+      name: "LockThreadDialog",
+      contents: ({onClose}) => <Components.LockThreadDialog
+        onClose={onClose}
+        commentId={comment._id}
+      />
     });
   }
 

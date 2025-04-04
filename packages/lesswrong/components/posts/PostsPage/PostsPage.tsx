@@ -521,10 +521,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
     if (fullPost) {
       openDialog({
-        componentName: "SharePostPopup",
-        componentProps: {
-          post: fullPost,
-        },
+        name: "SharePostPopup",
+        contents: ({onClose}) => <Components.SharePostPopup
+          onClose={onClose}
+          post={fullPost}
+        />,
         closeOnNavigate: true,
       });
     }
@@ -681,10 +682,12 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
-      componentName: "ReplyCommentDialog",
-      componentProps: {
-        post, initialHtml: html
-      },
+      name: "ReplyCommentDialog",
+      contents: ({onClose}) => <Components.ReplyCommentDialog
+        onClose={onClose}
+        post={post}
+        initialHtml={html}
+      />
     })
   }, [openDialog, post]);
 
