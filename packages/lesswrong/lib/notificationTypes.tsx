@@ -624,16 +624,23 @@ export const NewReplyNotification = registerNotificationType({
 export const NewReplyToYouNotification = registerNotificationType({
   name: "newReplyToYou",
   userSettingField: "notificationRepliesToMyComments",
-  async getMessage({documentType, documentId, context}: GetMessageProps) {
+  async getMessage({documentType, documentId, context, extraData}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return await commentGetAuthorName(document, context) + ' replied to your comment on "' + await getCommentParentTitle(document, context) + '"';
+    if (extraData?.direct === false) {
+      return await commentGetAuthorName(document, context) + ' replied to a thread you\'re in on "' + await getCommentParentTitle(document, context) + '"';
+    } else {
+      return await commentGetAuthorName(document, context) + ' replied to your comment on "' + await getCommentParentTitle(document, context) + '"';
+    }
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  Display: ({User, Comment, Post}) => <>
-    <User /> replied to your <Comment /> on <Post />
-  </>,
+  Display: ({notification, User, Comment, Post}) => {
+    const isDirect = notification.extraData?.direct !== false;
+    return <>
+      <User /> replied to {isDirect ? 'your comment' : 'a thread you\'re in'} on <Post />
+    </>;
+  },
 });
 
 // Vulcan notification that we don't really use
