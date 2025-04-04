@@ -2,7 +2,8 @@ import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
-import { getSqlFragment } from "@/lib/vulcan-lib/fragments";
+import { getSqlFragment } from "@/lib/fragments/allFragments";
+import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 
 type FetchFragmentOptions<
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
@@ -70,7 +71,8 @@ export const fetchFragment = async <
     isSSR: false,
   });
 
-  const sqlFragment = getSqlFragment(fragmentName);
+  const fragmentText = fragmentTextForQuery(fragmentName);
+  const sqlFragment = getSqlFragment(fragmentName, fragmentText);
 
   const query = new SelectFragmentQuery(
     sqlFragment,
