@@ -9,8 +9,6 @@ import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 
 const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) => ({ 
-  root: {
-  },
   title: {
     ...theme.typography.title,
     fontSize: 50,
@@ -178,8 +176,6 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
   }
 }));
 
-type Category = 'rationality' | 'modeling' | 'optimization' | 'ai strategy' | 'ai safety' | 'practical';
-
 const BestOfLessWrongAnnouncement = () => {
   const classes = useStyles(styles);
 
@@ -230,34 +226,32 @@ const BestOfLessWrongAnnouncement = () => {
   return (
     <AnalyticsContext pageSectionContext="bestOfLessWrongAnnouncement">
       <SingleColumnSection>
-        <div className={classes.root}>
-          <div className={classes.title}>
-            Best of LessWrong {REVIEW_YEAR}
-          </div>
-          <div className={classes.categoriesContainer}>
-            {Object.keys(sections).map(category => {
-              const section = sections[category as keyof typeof sections];
-              return <div className={classes.category} key={category}>
-                <div className={classes.categoryImageContainer}>
-                  <img src={section.img} className={classNames(classes.categoryImage, {
-                    [classes.categoryImageHover]: hoveringCategory === category,
-                  })}/>
-                  <div className={classes.winnersContainer}> 
-                    {section.top3?.map((result, index) => <Link key={result._id} to={`/posts/${result.post?._id}/${result.post?.slug}`} className={classes.winnerItem}>
-                      <div className={classes.winnerImageBackground} />
-                      <div className={classes.winnerTitle}>
-                        {result.post?.title}
-                      </div>
-                      <div className={classes.winnerCategoryRank}>#{index + 1} in {category}</div>
-                    </Link>)}
-                  </div>
-                </div>
-                <div className={classes.categoryTitle}>
-                  {category}
+        <div className={classes.title}>
+          Best of LessWrong {REVIEW_YEAR}
+        </div>
+        <div className={classes.categoriesContainer}>
+          {Object.keys(sections).map(category => {
+            const section = sections[category as keyof typeof sections];
+            return <div className={classes.category} key={category}>
+              <div className={classes.categoryImageContainer}>
+                <img src={section.img} className={classNames(classes.categoryImage, {
+                  [classes.categoryImageHover]: hoveringCategory === category,
+                })}/>
+                <div className={classes.winnersContainer}> 
+                  {section.top3?.map((result, index) => <Link key={result._id} to={`/posts/${result.post?._id}/${result.post?.slug}`} className={classes.winnerItem}>
+                    <div className={classes.winnerImageBackground} />
+                    <div className={classes.winnerTitle}>
+                      {result.post?.title}
+                    </div>
+                    <div className={classes.winnerCategoryRank}>#{index + 1} in {category}</div>
+                  </Link>)}
                 </div>
               </div>
-              })}
-          </div>
+              <div className={classes.categoryTitle}>
+                {category}
+              </div>
+            </div>
+            })}
         </div>
       </SingleColumnSection>
     </AnalyticsContext>
