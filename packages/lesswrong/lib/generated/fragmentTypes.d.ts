@@ -2470,6 +2470,23 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly competitorCount: number|null,
 }
 
+interface ReviewWinnerAnnouncement { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
+  readonly curatedOrder: number | null,
+  readonly reviewYear: number,
+  readonly reviewRanking: number,
+  readonly competitorCount: number|null,
+  readonly postId: string,
+  readonly post: ReviewWinnerAnnouncement_post|null,
+}
+
+interface ReviewWinnerAnnouncement_post { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+}
+
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly postId: string,
@@ -5683,6 +5700,7 @@ interface FragmentTypes {
   ReportsDefaultFragment: ReportsDefaultFragment
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
+  ReviewWinnerAnnouncement: ReviewWinnerAnnouncement
   ReviewWinnerArtImages: ReviewWinnerArtImages
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
@@ -5905,7 +5923,7 @@ interface FragmentTypesByCollection {
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
   ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
-  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
+  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   Sessions: "SessionsDefaultFragment"
@@ -6110,6 +6128,7 @@ interface CollectionNamesByFragmentName {
   ReportsDefaultFragment: "Reports"
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
+  ReviewWinnerAnnouncement: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   ReviewWinnerEditDisplay: "ReviewWinners"

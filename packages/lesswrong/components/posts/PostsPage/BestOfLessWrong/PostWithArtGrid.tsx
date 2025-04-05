@@ -85,7 +85,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   const { create: createSplashArtCoordinateMutation } = useCreate({
     collectionName: 'SplashArtCoordinates',
     fragmentName: 'SplashArtCoordinatesEdit'
-  });   
+  });
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
     // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
