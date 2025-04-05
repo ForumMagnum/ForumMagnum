@@ -200,11 +200,11 @@ const BestOfLessWrongAnnouncement = () => {
 
   const sections = {
     'Rationality': {
-      img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,w_0.15,x_0.15,y_0,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753260/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_09275054-eb84-43c4-9cfa-4a05e1818c9e_rmov5i.png',
+      img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,w_0.15,x_0.3,y_-0.2,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753260/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_09275054-eb84-43c4-9cfa-4a05e1818c9e_rmov5i.png',
       top3: topPerCategory['rationality']?.slice(0, 3),
     },
     'Modeling': {
-      img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/a_hflip/c_crop,w_1b,x_-0.5,y_0.25,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753450/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_15ba02c3-b268-45f1-a780-322bbaa6fc22_eu9l0l.png',
+      img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/a_hflip/c_crop,w_1,x_0,y_0.05,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753450/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_15ba02c3-b268-45f1-a780-322bbaa6fc22_eu9l0l.png',
       top3: topPerCategory['modeling']?.slice(0, 3),
     },
     'Optimization': {
