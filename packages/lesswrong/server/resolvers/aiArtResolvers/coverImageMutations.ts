@@ -3,9 +3,6 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection';
 import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection';
 import { gql } from 'apollo-server';
-import { createMutator } from '@/server/vulcan-lib/mutators';
-import { createAdminContext } from '@/server/vulcan-lib/createContexts';
-import Spotlights from '@/server/collections/spotlights/collection';
 
 export const generateCoverImagesForPostGraphQLTypeDefs = gql`
   extend type Mutation {
