@@ -52,13 +52,6 @@ const schema = {
       nullable: false,
     },
   },
-  post: {
-    graphql: {
-      outputType: "Post!",
-      canRead: [],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
-    },
-  },
   /** The total number of seconds the given clientId spent on this post, in the given time window */
   totalSeconds: {
     database: {

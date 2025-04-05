@@ -2008,6 +2008,11 @@
     "@ckeditor/ckeditor5-utils" "43.3.1"
     lodash-es "4.17.21"
 
+"@ckeditor/ckeditor5-inspector@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-inspector/-/ckeditor5-inspector-4.1.0.tgz#ceb970f353ed6bd54ebf0c89a297f0f7fb4512f2"
+  integrity sha512-yKoIFpaSVQQIhgFEyoltwG40OSsWX5psYdYvNxW84nfxgrs90DJrbMQDtdchVZNMXBu6CkJfPiPG0WBLU9su3g==
+
 "@ckeditor/ckeditor5-theme-lark@^43.1.0":
   version "43.3.1"
   resolved "https://registry.npmjs.org/@ckeditor/ckeditor5-theme-lark/-/ckeditor5-theme-lark-43.3.1.tgz"
@@ -18784,10 +18789,10 @@ verror@1.10.0:
   dependencies:
     "@math.gl/web-mercator" "^3.1.3"
 
-vite@^5.4.12:
-  version "5.4.12"
-  resolved "https://registry.npmjs.org/vite/-/vite-5.4.12.tgz"
-  integrity sha512-KwUaKB27TvWwDJr1GjjWthLMATbGEbeWYZIbGZ5qFIsgPP3vWzLu4cVooqhm5/Z2SPDUMjyPVjTztm5tYKwQxA==
+vite@^5.4.16:
+  version "5.4.16"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-5.4.16.tgz#471983257a890ef33f2700cbbbc2134f2d08abf1"
+  integrity sha512-Y5gnfp4NemVfgOTDQAunSD4346fal44L9mszGGY/e+qxsRT5y1sMlS/8tiQ8AFAp+MFgYNSINdfEchJiPm41vQ==
   dependencies:
     esbuild "^0.21.3"
     postcss "^8.4.43"

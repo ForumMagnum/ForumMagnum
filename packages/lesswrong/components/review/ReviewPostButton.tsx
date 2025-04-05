@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
@@ -33,15 +33,15 @@ const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   const handleClick = () => {
     if (currentUser) {
       openCommentBox({
-        componentName: "ReviewPostForm",
-        componentProps: {
-          post: post
-        }
+        commentBox: ({onClose}) => <Components.ReviewPostForm
+          onClose={onClose}
+          post={post}
+        />
       });
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
     }
   }

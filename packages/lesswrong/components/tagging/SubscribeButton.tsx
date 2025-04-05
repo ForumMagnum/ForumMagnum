@@ -182,8 +182,8 @@ const SubscribeButton = ({
         flash({messageString: isSubscribed ? "Unsubscribed" : "Subscribed"});
       } else {
         openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
+          name: "LoginPopup",
+          contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
         });
       }
     } catch(error) {

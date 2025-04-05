@@ -39,13 +39,6 @@ const schema = {
       nullable: false,
     },
   },
-  user: {
-    graphql: {
-      outputType: "User!",
-      canRead: [],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
-    },
-  },
   isRead: {
     database: {
       type: "BOOL",

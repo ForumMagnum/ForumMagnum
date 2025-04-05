@@ -358,10 +358,10 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       close();
       // this component requires a currentUser so we don't need to do a login check
       openCommentBox({
-        componentName: "ReviewPostForm",
-        componentProps: {
-          post: post
-        }
+        commentBox: ({onClose}) => <Components.ReviewPostForm
+          onClose={onClose}
+          post={post}
+        />
       });
       setExpandedPost(post)
     }

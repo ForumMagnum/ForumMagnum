@@ -282,8 +282,8 @@ const ImageUpload = ({
         {(name === 'eventImageId') && <Button
           variant="outlined"
           onClick={() => openDialog({
-            componentName: "ImageUploadDefaultsDialog",
-            componentProps: {onSelect: chooseDefaultImg}
+            name: "ImageUploadDefaultsDialog",
+            contents: ({onClose}) => <Components.ImageUploadDefaultsDialog onClose={onClose} onSelect={chooseDefaultImg} />
           })}
         >
           Choose from ours
@@ -292,10 +292,12 @@ const ImageUpload = ({
           <Button
             variant="outlined"
             onClick={() => openDialog({
-              componentName: "ImageUploadDefaultsDialog",
-              componentProps: {
-                onSelect: chooseDefaultImg,
-                type: "Profile"}
+              name: "ImageUploadDefaultsDialog",
+              contents: ({onClose}) => <Components.ImageUploadDefaultsDialog
+                onClose={onClose}
+                onSelect={chooseDefaultImg}
+                type={"Profile"}
+              />
             })}
           >
             Choose from ours

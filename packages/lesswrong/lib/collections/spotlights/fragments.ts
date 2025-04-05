@@ -1,4 +1,6 @@
-export const SpotlightMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const SpotlightMinimumInfo = () => frag`
   fragment SpotlightMinimumInfo on Spotlight {
     _id
     documentId
@@ -23,7 +25,7 @@ export const SpotlightMinimumInfo = `
   }
 `
 
-export const SpotlightReviewWinner = `
+export const SpotlightReviewWinner = () => frag`
   fragment SpotlightReviewWinner on Spotlight {
     ...SpotlightMinimumInfo
     description {
@@ -35,7 +37,7 @@ export const SpotlightReviewWinner = `
   }
 `
 
-export const SpotlightHeaderEventSubtitle = `
+export const SpotlightHeaderEventSubtitle = () => frag`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
     post {
@@ -51,7 +53,7 @@ export const SpotlightHeaderEventSubtitle = `
     }
   }
 `
-export const SpotlightDisplay = `
+export const SpotlightDisplay = () => frag`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     post {
@@ -94,7 +96,7 @@ export const SpotlightDisplay = `
 `
 
 
-export const SpotlightEditQueryFragment = `
+export const SpotlightEditQueryFragment = () => frag`
   fragment SpotlightEditQueryFragment on Spotlight {
     ...SpotlightMinimumInfo
     description {
