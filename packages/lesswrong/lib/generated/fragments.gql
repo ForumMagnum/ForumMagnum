@@ -2686,6 +2686,22 @@ fragment ReviewWinnerAll on ReviewWinner {
   competitorCount
 }
 
+fragment ReviewWinnerAnnouncement on ReviewWinner {
+  _id
+  category
+  curatedOrder
+  reviewYear
+  reviewRanking
+  reviewWinnerArt {
+    ...ReviewWinnerArtImages
+  }
+  competitorCount
+  postId
+  post {
+    ...PostsTopItemInfo
+  }
+}
+
 fragment ReviewWinnerArtImages on ReviewWinnerArt {
   _id
   postId

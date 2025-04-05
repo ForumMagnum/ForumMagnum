@@ -54,7 +54,7 @@ export const ReviewWinnerTopPostsPage = () => frag`
   }
 `
 
-export const ReviewWinnerAnnouncement = `
+export const ReviewWinnerAnnouncement = () => frag`
   fragment ReviewWinnerAnnouncement on ReviewWinner {
     _id
     category

@@ -2479,7 +2479,7 @@ interface ReviewWinnerAnnouncement { // fragment on ReviewWinners
   readonly reviewWinnerArt: ReviewWinnerArtImages|null,
   readonly competitorCount: number|null,
   readonly postId: string,
-  readonly post: PostsTopItemInfo,
+  readonly post: PostsTopItemInfo|null,
 }
 
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
