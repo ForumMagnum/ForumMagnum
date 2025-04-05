@@ -56,9 +56,14 @@ export const ReviewWinnerAnnouncement = `
   fragment ReviewWinnerAnnouncement on ReviewWinner {
     _id
     category
+    curatedOrder
     postId
     reviewYear
     reviewRanking
+    reviewWinnerArt {
+      ...ReviewWinnerArtImages
+    }
+    competitorCount
     postId
     post {
       ...PostsTopItemInfo

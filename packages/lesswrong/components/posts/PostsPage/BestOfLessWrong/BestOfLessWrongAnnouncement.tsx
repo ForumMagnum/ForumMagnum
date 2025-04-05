@@ -1,4 +1,3 @@
-// TODO: run `yarn run generate` after creating component
 import React, { useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
