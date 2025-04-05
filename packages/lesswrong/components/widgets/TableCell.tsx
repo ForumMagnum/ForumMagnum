@@ -14,8 +14,8 @@ export const styles = defineStyles("TableCell", theme => ({
     borderBottom: `1px solid
     ${
       theme.palette.type === 'light'
-        ? lighten(fade(theme.palette.divider, 1), 0.88)
-        : darken(fade(theme.palette.divider, 1), 0.8)
+        ? lighten(fade(theme.palette.greyAlpha(0.12), 1), 0.88)
+        : darken(fade(theme.palette.greyAlpha(0.12), 1), 0.8)
     }`,
     textAlign: 'left',
     padding: '4px 56px 4px 24px',
@@ -26,20 +26,20 @@ export const styles = defineStyles("TableCell", theme => ({
   /* Styles applied to the root element if `variant="head"` or `context.table.head`. */
   head: {
     color: theme.palette.text.secondary,
-    fontSize: theme.typography.pxToRem(12),
-    fontWeight: theme.typography.fontWeightMedium,
+    fontSize: "0.75rem",
+    fontWeight: 500,
   },
   /* Styles applied to the root element if `variant="body"` or `context.table.body`. */
   body: {
     color: theme.palette.text.primary,
-    fontSize: theme.typography.pxToRem(13),
-    fontWeight: theme.typography.fontWeightRegular,
+    fontSize: "0.8125rem",
+    fontWeight: 400,
   },
   /* Styles applied to the root element if `variant="footer"` or `context.table.footer`. */
   footer: {
     borderBottom: 0,
     color: theme.palette.text.secondary,
-    fontSize: theme.typography.pxToRem(12),
+    fontSize: "0.75rem",
   },
 }));
 
