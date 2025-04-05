@@ -112,6 +112,9 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     '&:hover $winnerCategoryRank': {
       color: theme.palette.grey[300],
     },
+    '&:hover $winnerTitle': {
+      color: theme.palette.grey[100],
+    },
     '&:hover $winnerImageBackground': {
       opacity: .2,
     },
