@@ -1,4 +1,6 @@
-export const MultiDocumentMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const MultiDocumentMinimumInfo = () => frag`
   fragment MultiDocumentMinimumInfo on MultiDocument {
     _id
     parentDocumentId
@@ -27,7 +29,7 @@ export const MultiDocumentMinimumInfo = `
   }
 `
 
-export const MultiDocumentContentDisplay = `
+export const MultiDocumentContentDisplay = () => frag`
   fragment MultiDocumentContentDisplay on MultiDocument {
     ...MultiDocumentMinimumInfo
     tableOfContents
@@ -38,7 +40,7 @@ export const MultiDocumentContentDisplay = `
   }
 `
 
-export const MultiDocumentEdit = `
+export const MultiDocumentEdit = () => frag`
   fragment MultiDocumentEdit on MultiDocument {
     ...MultiDocumentContentDisplay
     arbitalLinkedPages {
@@ -51,7 +53,7 @@ export const MultiDocumentEdit = `
   }
 `
 
-export const MultiDocumentParentDocument = `
+export const MultiDocumentParentDocument = () => frag`
   fragment MultiDocumentParentDocument on MultiDocument {
     ...MultiDocumentEdit
     parentTag {
@@ -60,7 +62,7 @@ export const MultiDocumentParentDocument = `
   }
 `
 
-export const MultiDocumentWithContributors = `
+export const MultiDocumentWithContributors = () => frag`
   fragment MultiDocumentWithContributors on MultiDocument {
     ...MultiDocumentEdit
     contributors {
@@ -75,7 +77,7 @@ export const MultiDocumentWithContributors = `
   }
 `
 
-export const MultiDocumentRevision = `
+export const MultiDocumentRevision = () => frag`
   fragment MultiDocumentRevision on MultiDocument {
     ...MultiDocumentMinimumInfo
     contents(version: $version) {
@@ -85,7 +87,7 @@ export const MultiDocumentRevision = `
   }
 `
 
-export const MultiDocumentWithContributorsRevision = `
+export const MultiDocumentWithContributorsRevision = () => frag`
   fragment MultiDocumentWithContributorsRevision on MultiDocument {
     ...MultiDocumentRevision
     contributors(version: $version) {
@@ -105,7 +107,7 @@ export const MultiDocumentWithContributorsRevision = `
   }
 `
 
-export const WithVoteMultiDocument = `
+export const WithVoteMultiDocument = () => frag`
   fragment WithVoteMultiDocument on MultiDocument {
     ...MultiDocumentMinimumInfo
   }

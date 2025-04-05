@@ -1,4 +1,6 @@
-export const ElectionVoteInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const ElectionVoteInfo = () => frag`
   fragment ElectionVoteInfo on ElectionVote {
     _id
     electionName
@@ -12,7 +14,7 @@ export const ElectionVoteInfo = `
   }
 `
 
-export const ElectionVoteRecentDiscussion = `
+export const ElectionVoteRecentDiscussion = () => frag`
   fragment ElectionVoteRecentDiscussion on ElectionVote {
     _id
     electionName

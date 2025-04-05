@@ -7,3 +7,4 @@ declare module 'draft-js-alignment-plugin';
 declare module 'draft-js-focus-plugin';
 declare module 'draft-js-richbuttons-plugin';
 declare module 'draft-js-block-breakout-plugin';
+declare module '@ckeditor/ckeditor5-inspector';

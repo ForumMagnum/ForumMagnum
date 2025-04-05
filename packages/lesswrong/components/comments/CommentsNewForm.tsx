@@ -240,8 +240,8 @@ const CommentSubmit = ({
         onClick={(ev) => {
           if (!currentUser) {
             openDialog({
-              componentName: "LoginPopup",
-              componentProps: {},
+              name: "LoginPopup",
+              contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>,
             });
             ev.preventDefault();
           }
@@ -355,8 +355,11 @@ const CommentsNewForm = ({
       const dialogProps = { user: currentUser, post };
       if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
         openDialog({
-          componentName: 'NewUserGuidelinesDialog',
-          componentProps: dialogProps,
+          name: 'NewUserGuidelinesDialog',
+          contents: ({onClose}) => <Components.NewUserGuidelinesDialog
+            onClose={onClose}
+            {...dialogProps}
+          />
         });
       }
       if (isLWorAF) {

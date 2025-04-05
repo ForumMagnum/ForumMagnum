@@ -28,13 +28,6 @@ const schema = {
       forceIncludeInExecutableSchema: true,
     },
   },
-  post: {
-    graphql: {
-      outputType: "Post!",
-      canRead: [],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
-    },
-  },
   annotatedHtml: {
     database: {
       type: "TEXT",

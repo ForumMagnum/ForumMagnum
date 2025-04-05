@@ -40,10 +40,11 @@ const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, clas
   
   function showArbitalImportDetails() {
     openDialog({
-      componentName: "ArbitalImportRevisionDetails",
-      componentProps: {
-        revision,
-      },
+      name: "ArbitalImportRevisionDetails",
+      contents: ({onClose}) => <Components.ArbitalImportRevisionDetails
+        onClose={onClose}
+        revision={revision}
+      />
     });
   }
   

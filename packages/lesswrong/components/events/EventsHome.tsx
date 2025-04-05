@@ -294,9 +294,17 @@ const EventsHome = ({classes}: {
   }, [userLocation])
 
   const openEventNotificationsForm = () => {
-    openDialog({
-      componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "EventNotificationsDialog",
+        contents: ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
+    }
   }
   
   const handleChangeDistance = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

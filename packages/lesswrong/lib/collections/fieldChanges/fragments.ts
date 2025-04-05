@@ -1,5 +1,6 @@
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const FieldChangeFragment = `
+export const FieldChangeFragment = () => frag`
   fragment FieldChangeFragment on FieldChange {
     _id
     createdAt

@@ -54,8 +54,8 @@ const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
   function onClick() {
     closeMenu();
     openDialog({
-      componentName: "ResyncRssDialog",
-      componentProps: { post },
+      name: "ResyncRssDialog",
+      contents: ({onClose}) => <Components.ResyncRssDialog onClose={onClose} post={post} />
     });
   }
 

@@ -17,18 +17,18 @@ class MoreFromAuthorStrategy extends RecommendationStrategy {
       SELECT p.*
       FROM "Posts" p
       JOIN "Posts" src ON src."_id" = $(postId)
-      LEFT JOIN LATERAL (
-        SELECT UNNEST(p."coauthorStatuses") "status"
-      ) coauthor ON TRUE
       ${postFilter.join}
       WHERE
         ${postFilter.filter}
         p."_id" <> $(postId) AND
-        (p."userId" = src."userId" OR (
-          coauthor."status"->>'userId' = src."userId" AND
-          (coauthor."status"->'confirmed' = TO_JSONB(TRUE) OR p."hasCoauthorPermission")
+        (p."userId" = src."userId" OR EXISTS (
+          SELECT 1
+          FROM unnest(p."coauthorStatuses") AS status
+          WHERE
+            status->>'userId' = src."userId" AND
+            (status->'confirmed' = TO_JSONB(TRUE) OR p."hasCoauthorPermission")
         ))
-      ORDER BY coauthor."status"->>'userId' = src."userId" DESC, p."score" DESC
+      ORDER BY p."score" DESC
       LIMIT $(count)
     `, {
       postId,

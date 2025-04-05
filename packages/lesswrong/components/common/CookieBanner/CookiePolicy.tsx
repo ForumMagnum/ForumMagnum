@@ -116,7 +116,10 @@ const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         {/* TODO possibly make this generic for all CEA websites once all the cookie banners are done */}
         We use cookies on the EA Forum. This cookie notice applies only to the EA Forum. You may access and change your
         cookie preferences at any time by clicking{" "}
-        <a onClick={() => openDialog({ componentName: "CookieDialog", componentProps: {} })}>here</a>.
+        <a onClick={() => openDialog({
+          name: "CookieDialog",
+          contents: ({onClose}) => <Components.CookieDialog onClose={onClose} />
+        })}>here</a>.
       </Typography>
       <Typography variant="body1">
         If you choose to reject cookies you are ultimately responsible for removing any that have already been set (such as if you

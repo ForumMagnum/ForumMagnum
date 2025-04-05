@@ -1,4 +1,6 @@
-export const ConversationsMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const ConversationsMinimumInfo = () => frag`
   fragment ConversationsMinimumInfo on Conversation {
     _id
     createdAt
@@ -11,7 +13,7 @@ export const ConversationsMinimumInfo = `
   }
 `
 
-export const ConversationsList = `
+export const ConversationsList = () => frag`
   fragment ConversationsList on Conversation {
     ...ConversationsMinimumInfo
     participants {
@@ -23,7 +25,7 @@ export const ConversationsList = `
   }
 `
 
-export const ConversationsListWithReadStatus = `
+export const ConversationsListWithReadStatus = () => frag`
   fragment ConversationsListWithReadStatus on Conversation {
     ...ConversationsList
     hasUnreadMessages

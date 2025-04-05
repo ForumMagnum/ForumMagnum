@@ -45,11 +45,12 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
   const showAddDraftPostDialog = () => {
     if (saved) {
       openDialog({
-        componentName: "AddDraftPostDialog",
-        componentProps: {
-          documentId: documentId,
-          postIds: postIds,
-        }
+        name: "AddDraftPostDialog",
+        contents: ({onClose}) => <Components.AddDraftPostDialog
+          onClose={onClose}
+          documentId={documentId}
+          postIds={postIds}
+        />
       });
     } else {
       flash("Save your changes before adding draft posts.")

@@ -154,11 +154,12 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
     e.stopPropagation()
 
     openDialog({
-      componentName: "ModerationGuidelinesEditForm",
-      componentProps: {
-        commentType,
-        documentId,
-      }
+      name: "ModerationGuidelinesEditForm",
+      contents: ({onClose}) => <Components.ModerationGuidelinesEditForm
+        onClose={onClose}
+        commentType={commentType}
+        documentId={documentId}
+      />
     });
   }
   

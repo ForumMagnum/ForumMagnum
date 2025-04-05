@@ -1,4 +1,6 @@
-export const GardenCodeFragment = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const GardenCodeFragment = () => frag`
   fragment GardenCodeFragment on GardenCode {
     _id
     code
@@ -17,7 +19,7 @@ export const GardenCodeFragment = `
   }
 `
 
-export const GardenCodeFragmentEdit = `
+export const GardenCodeFragmentEdit = () => frag`
   fragment GardenCodeFragmentEdit on GardenCode {
     _id
     code

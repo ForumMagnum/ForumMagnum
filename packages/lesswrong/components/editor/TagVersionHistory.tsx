@@ -70,10 +70,11 @@ const TagVersionHistoryButton = ({tagId, classes}: {
     onClick={() => {
       captureEvent("tagVersionHistoryButtonClicked", {tagId})
       openDialog({
-        componentName: "TagVersionHistory",
-        componentProps: {
-          tagId
-        },
+        name: "TagVersionHistory",
+        contents: ({onClose}) => <Components.TagVersionHistory
+          onClose={onClose}
+          tagId={tagId}
+        />
       })
     }}
   >

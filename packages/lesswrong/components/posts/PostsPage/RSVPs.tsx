@@ -115,8 +115,12 @@ const RSVPs = ({post, classes}: {
   const currentUser = useCurrentUser()
   const openRSVPForm = useCallback((initialResponse: string) => {
     openDialog({
-      componentName: "RSVPForm",
-      componentProps: { post, initialResponse }
+      name: "RSVPForm",
+      contents: ({onClose}) => <Components.RSVPForm
+        onClose={onClose}
+        post={post}
+        initialResponse={initialResponse}
+      />
     })
   }, [post, openDialog])
   useEffect(() => {

@@ -6,13 +6,14 @@ import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
 import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
-import { CloseableComponent, OpenDialogContextType, useDialog } from '../../common/withDialog'
+import { useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';
 import { captureEvent } from '../../../lib/analyticsEvents';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
+import { createFallBackDialogHandler } from '@/components/localGroups/CommunityMapFilter';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -62,16 +63,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const createFallBackDialogHandler = (
-  openDialog: OpenDialogContextType['openDialog'],
-  dialogName: CloseableComponent,
-  currentUser: UsersCurrent | null
-) => {
-  return () => openDialog({
-    componentName: currentUser ? dialogName : "LoginPopup",
-  });
-}
-
 const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
@@ -116,7 +107,11 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
     <LWTooltip title="Get notified when events are in your area" placement="left">
       <div
           className={classNames(classes.section, classes.subscribeSection)}
-          onClick={createFallBackDialogHandler(openDialog, "EventNotificationsDialog", currentUser)}
+          onClick={createFallBackDialogHandler(
+            openDialog, "EventNotificationsDialog",
+            ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />,
+            currentUser
+          )}
         >
         <EmailIcon className={classNames(classes.actionIcon, classes.subscribeIcon)} /> 
         <span className={classes.buttonText}> Subscribe to events</span>

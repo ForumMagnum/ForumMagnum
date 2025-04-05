@@ -4,6 +4,7 @@ import { camelCaseify } from "../vulcan-lib/utils";
 import { pluralize } from "../vulcan-lib/pluralize";
 
 export const getMultiQueryName = (typeName: string) => `multi${typeName}Query`;
+export const getSingleResolverName = (typeName: string) => camelCaseify(typeName);
 export const getMultiResolverName = (typeName: string) => camelCaseify(pluralize(typeName));
 export const getCreateMutationName = (typeName: string) => `create${typeName}`;
 export const getUpdateMutationName = (typeName: string) => `update${typeName}`;

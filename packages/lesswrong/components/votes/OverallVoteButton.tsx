@@ -42,8 +42,8 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
       });
     } else {
       vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});

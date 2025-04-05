@@ -1,4 +1,6 @@
-export const ElectionCandidateBasicInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const ElectionCandidateBasicInfo = () => frag`
   fragment ElectionCandidateBasicInfo on ElectionCandidate {
     _id
     electionName
@@ -24,7 +26,7 @@ export const ElectionCandidateBasicInfo = `
 `
 
 // For use in the "Other donation opportunities" section at the bottom of the Giving Portal
-export const ElectionCandidateSimple = `
+export const ElectionCandidateSimple = () => frag`
   fragment ElectionCandidateSimple on ElectionCandidate {
     _id
     name
@@ -37,7 +39,7 @@ export const ElectionCandidateSimple = `
 
 // This fragment has to be fully dereferenced, because the context of vote
 // fragments doesn't allow for spreading other fragments
-export const WithVoteElectionCandidate = `
+export const WithVoteElectionCandidate = () => frag`
   fragment WithVoteElectionCandidate on ElectionCandidate {
     __typename
     _id

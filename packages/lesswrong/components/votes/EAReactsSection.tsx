@@ -253,8 +253,8 @@ const EAReactsSection: FC<{
     
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
       });
       return;
     }

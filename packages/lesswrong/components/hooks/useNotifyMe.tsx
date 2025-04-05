@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback } from "react";
+import React, { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCreate } from "../../lib/crud/withCreate";
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
@@ -13,6 +13,7 @@ import type { SubscriptionType } from "../../lib/collections/subscriptions/helpe
 import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
+import { Components } from "@/lib/vulcan-lib/components";
 
 export type NotifyMeDocument =
   UsersProfile |
@@ -128,7 +129,10 @@ export const useNotifyMe = ({
 
   const onSubscribe = useCallback(async (e: MouseEvent) => {
     if (!currentUser) {
-      openDialog({componentName: "LoginPopup"});
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
       return;
     }
 

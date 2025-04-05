@@ -136,8 +136,12 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
 
   const openModal = () => {
     openDialog({
-      componentName: 'SideCommentDialog',
-      componentProps: { commentIds, post }
+      name: 'SideCommentDialog',
+      contents: ({onClose}) => <Components.SideCommentDialog
+        onClose={onClose}
+        commentIds={commentIds}
+        post={post}
+      />
     });
   };
     

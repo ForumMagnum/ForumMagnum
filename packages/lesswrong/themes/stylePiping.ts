@@ -286,8 +286,8 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // title-vs-contents distinction invisible
     background: isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
     
-    "&>p": {
-      display: "inline-block",
+    "&>*": {
+      display: "inline",
     },
   },
   '& .detailsBlockTitle[open]': {

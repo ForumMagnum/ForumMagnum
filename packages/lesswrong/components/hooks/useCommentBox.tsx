@@ -1,10 +1,9 @@
-import React, { ComponentProps, useCallback, useMemo, useState } from 'react';
-import { Components } from '../../lib/vulcan-lib/components';
+import React, { useCallback, useMemo, useState } from 'react';
 import { hookToHoc } from '../../lib/hocUtils';
-import type { CloseableComponent } from '../common/withDialog';
 
+type CommentBoxFn = (args: {onClose: () => void}) => React.ReactNode
 interface CommentBoxContextType {
-  openCommentBox: <T extends CloseableComponent>({componentName, componentProps}: {componentName: T, componentProps: Omit<ComponentProps<ComponentTypes[T]>, 'onClose' | 'classes'>}) => void,
+  openCommentBox: ({commentBox}: {commentBox: CommentBoxFn}) => void,
   close: () => void,
 }
 export const CommentBoxContext = React.createContext<CommentBoxContextType|null>(null);
@@ -12,21 +11,15 @@ export const CommentBoxContext = React.createContext<CommentBoxContextType|null>
 export const CommentBoxManager = ({ children }: {
   children: React.ReactNode
 }) => {
-  const [ componentName, setComponentName] = useState<CloseableComponent|null>(null)
-  const [ componentProps, setComponentProps] = useState<Record<string,any>|null>(null)
-
-  const CommentBoxComponent = componentName ? Components[componentName] : null;
+  const [ commentBox, setCommentBox] = useState<CommentBoxFn|null>(null)
 
   const close = useCallback(() => {
-    setComponentName(null)
-    setComponentProps(null)
+    setCommentBox(null);
   }, []);
-  const openCommentBox = useCallback(({componentName, componentProps}: {
-    componentName: CloseableComponent,
-    componentProps: AnyBecauseHard,
+  const openCommentBox = useCallback(({commentBox}: {
+    commentBox: CommentBoxFn
   }) => {
-    setComponentName(componentName)
-    setComponentProps(componentProps)
+    setCommentBox(() => commentBox);
   }, []);
   const commentBoxContext = useMemo(
     () => ({ openCommentBox, close }),
@@ -36,12 +29,9 @@ export const CommentBoxManager = ({ children }: {
   return (
     <CommentBoxContext.Provider value={commentBoxContext}>
       {children}
-      {CommentBoxComponent && componentName &&
-        <CommentBoxComponent
-          {...componentProps as AnyBecauseHard}
-          onClose={close}
-        />
-      }
+      {commentBox && <span>
+        {commentBox({onClose: close})}
+      </span>}
     </CommentBoxContext.Provider>
   );
 }

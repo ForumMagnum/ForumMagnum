@@ -1,8 +1,11 @@
-export const CommentModeratorActionDisplay = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+import { CommentsListWithModerationMetadata } from "../comments/fragments";
+
+export const CommentModeratorActionDisplay = () => frag`
   fragment CommentModeratorActionDisplay on CommentModeratorAction {
     _id
     comment {
-      ...CommentsListWithModerationMetadata
+      ${CommentsListWithModerationMetadata}
     }
     commentId
     type

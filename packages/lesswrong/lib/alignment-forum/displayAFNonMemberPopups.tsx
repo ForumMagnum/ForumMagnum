@@ -1,7 +1,9 @@
+import React from 'react';
 import {userNeedsAFNonMemberWarning} from "./users/helpers";
 import {commentSuggestForAlignment} from "./comments/helpers";
 import {postSuggestForAlignment} from "./posts/helpers";
 import {OpenDialogContextType} from "../../components/common/withDialog";
+import { Components } from "../vulcan-lib/components";
 
 
 const isComment = (document: PostsBase | CommentsList): document is CommentsList => {
@@ -11,7 +13,10 @@ const isComment = (document: PostsBase | CommentsList): document is CommentsList
 
 export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"]): boolean => {
   if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
-    openDialog({componentName: "AFNonMemberInitialPopup"})
+    openDialog({
+      name: "AFNonMemberInitialPopup",
+      contents: ({onClose}) => <Components.AFNonMemberInitialPopup onClose={onClose}/>
+    })
     return true;
   }
   return false;
@@ -29,14 +34,21 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
     if (isComment(document)) {
       void commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument})
       openDialog({
-        componentName: "AFNonMemberSuccessPopup",
-        componentProps: {_id: document._id, postId: document.postId}
+        name: "AFNonMemberSuccessPopup",
+        contents: ({onClose}) => <Components.AFNonMemberSuccessPopup
+          _id={document._id}
+          postId={document.postId}
+          onClose={onClose}
+        />,
       })
     } else {
       void postSuggestForAlignment({currentUser, post: document, updatePost: updateDocument})
       openDialog({
-        componentName: "AFNonMemberSuccessPopup",
-        componentProps: {_id: document._id}
+        name: "AFNonMemberSuccessPopup",
+        contents: ({onClose}) => <Components.AFNonMemberSuccessPopup
+          onClose={onClose}
+          _id={document._id}
+        />,
       })
     }
   }

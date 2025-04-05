@@ -78,10 +78,11 @@ const DeleteAccountSection = ({
       void confirmAction()
     } else {
       openDialog({
-        componentName: 'DeleteAccountConfirmationModal',
-        componentProps: {
-          confirmAction
-        }
+        name: 'DeleteAccountConfirmationModal',
+        contents: ({onClose}) => <Components.DeleteAccountConfirmationModal
+          onClose={onClose}
+          confirmAction={confirmAction}
+        />
       })
     }
   }, [openDialog, updateUser, user._id, user.deleted, user.permanentDeletionRequestedAt]);

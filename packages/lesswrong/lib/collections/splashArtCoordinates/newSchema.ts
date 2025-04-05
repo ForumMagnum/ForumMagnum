@@ -22,7 +22,7 @@ const schema = {
   },
   reviewWinnerArt: {
     graphql: {
-      outputType: "ReviewWinnerArt!",
+      outputType: "ReviewWinnerArt",
       canRead: ["sunshineRegiment", "admins"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "ReviewWinnerArts", fieldName: "reviewWinnerArtId" }),
     },

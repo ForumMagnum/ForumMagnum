@@ -424,14 +424,16 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
   name: "newReplyToYou",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const anyIndirect = notifications.some(n => n.extraData?.direct === false);
+
     if (notifications.length > 1) {
-      return `${notifications.length} replies to your comments`;
+      return anyIndirect ? `${notifications.length} replies to threads you participated in` : `${notifications.length} replies to your comments`;
     } else {
       const comment = await Comments.findOne(notifications[0].documentId);
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
-      return `${userGetDisplayName(author)} replied to your comment`;
+      return anyIndirect ? `${userGetDisplayName(author)} replied to a thread you participated in` : `${userGetDisplayName(author)} replied to your comment`;
     }
   },
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {

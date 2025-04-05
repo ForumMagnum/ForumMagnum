@@ -327,15 +327,31 @@ const Community = ({classes}: {
   const keywordSearchTimer = useRef<any>(null)
 
   const openEventNotificationsForm = () => {
-    openDialog({
-      componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "EventNotificationsDialog",
+        contents: ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
+    }
   }
   
   const openSetPersonalLocationForm = () => {
-    openDialog({
-      componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "SetPersonalMapLocationDialog",
+        contents: ({onClose}) => <Components.SetPersonalMapLocationDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
+    }
   }
   
   const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink,

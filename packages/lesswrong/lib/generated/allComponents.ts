@@ -644,6 +644,7 @@ importComponent("PostsNoMore", () => require("../../components/posts/PostsNoMore
 importComponent("PostsNoResults", () => require("../../components/posts/PostsNoResults.tsx"));
 importComponent("AudioToggle", () => require("../../components/posts/PostsPage/AudioToggle.tsx"));
 importComponent("BestOfLWPostsPageSplashImage", () => require("../../components/posts/PostsPage/BestOfLessWrong/BestOfLWPostsPageSplashImage.tsx"));
+importComponent("BestOfLessWrongAnnouncement", () => require("../../components/posts/PostsPage/BestOfLessWrong/BestOfLessWrongAnnouncement.tsx"));
 importComponent("ImageCropPreview", () => require("../../components/posts/PostsPage/BestOfLessWrong/ImageCropPreview.tsx"));
 importComponent("ReviewPillContainer", () => require("../../components/posts/PostsPage/BestOfLessWrong/ReviewPillContainer.tsx"));
 importComponent("SplashImageEditing", () => require("../../components/posts/PostsPage/BestOfLessWrong/SplashImageEditing.tsx"));

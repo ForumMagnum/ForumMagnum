@@ -1,4 +1,6 @@
-export const TagBasicInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const TagBasicInfo = () => frag`
   fragment TagBasicInfo on Tag {
     _id
     userId
@@ -31,7 +33,7 @@ export const TagBasicInfo = `
   }
 `
 
-export const TagDetailsFragment = `
+export const TagDetailsFragment = () => frag`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
     subtitle
@@ -58,7 +60,7 @@ export const TagDetailsFragment = `
   }
 `
 
-export const TagFragment = `
+export const TagFragment = () => frag`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
@@ -79,7 +81,7 @@ export const TagFragment = `
   }
 `
 
-export const TagHistoryFragment = `
+export const TagHistoryFragment = () => frag`
   fragment TagHistoryFragment on Tag {
     ...TagFragment
     textLastUpdatedAt
@@ -93,7 +95,7 @@ export const TagHistoryFragment = `
   }
 `
 
-export const TagCreationHistoryFragment = `
+export const TagCreationHistoryFragment = () => frag`
   fragment TagCreationHistoryFragment on Tag {
     ...TagFragment
     user {
@@ -105,7 +107,7 @@ export const TagCreationHistoryFragment = `
   }
 `
 
-export const TagRevisionFragment = `
+export const TagRevisionFragment = () => frag`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
@@ -130,7 +132,7 @@ export const TagRevisionFragment = `
   }
 `
 
-export const TagPreviewFragment = `
+export const TagPreviewFragment = () => frag`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -149,7 +151,7 @@ export const TagPreviewFragment = `
   }
 `
 
-export const TagSectionPreviewFragment = `
+export const TagSectionPreviewFragment = () => frag`
   fragment TagSectionPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -167,7 +169,7 @@ export const TagSectionPreviewFragment = `
   }
 `
 
-export const TagSubforumFragment = `
+export const TagSubforumFragment = () => frag`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     subforumModeratorIds
@@ -180,7 +182,7 @@ export const TagSubforumFragment = `
 `
 
 // TODO: would prefer to fetch subtags in fewer places
-export const TagSubtagFragment = `
+export const TagSubtagFragment = () => frag`
   fragment TagSubtagFragment on Tag {
     _id
     subforumModeratorIds
@@ -190,13 +192,13 @@ export const TagSubtagFragment = `
   }
 `
 
-export const TagSubforumSidebarFragment = `
+export const TagSubforumSidebarFragment = () => frag`
   fragment TagSubforumSidebarFragment on Tag {
     ...TagBasicInfo
   }
 `
 
-export const TagDetailedPreviewFragment = `
+export const TagDetailedPreviewFragment = () => frag`
   fragment TagDetailedPreviewFragment on Tag {
     ...TagDetailsFragment
     description {
@@ -206,7 +208,7 @@ export const TagDetailedPreviewFragment = `
   }
 `
 
-export const TagWithFlagsFragment = `
+export const TagWithFlagsFragment = () => frag`
   fragment TagWithFlagsFragment on Tag {
     ...TagFragment
     tagFlagsIds
@@ -216,7 +218,7 @@ export const TagWithFlagsFragment = `
   }
 `
 
-export const TagWithFlagsAndRevisionFragment = `
+export const TagWithFlagsAndRevisionFragment = () => frag`
   fragment TagWithFlagsAndRevisionFragment on Tag {
     ...TagRevisionFragment
     tagFlagsIds
@@ -227,7 +229,7 @@ export const TagWithFlagsAndRevisionFragment = `
 `
 
 // This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
-export const ArbitalLinkedPagesFragment = `
+export const ArbitalLinkedPagesFragment = () => frag`
   fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
     faster {
       _id
@@ -272,7 +274,7 @@ export const ArbitalLinkedPagesFragment = `
   }
 `
 
-export const TagPageArbitalContentFragment = `
+export const TagPageArbitalContentFragment = () => frag`
   fragment TagPageArbitalContentFragment on Tag {
     lenses {
       ...MultiDocumentWithContributors
@@ -283,7 +285,7 @@ export const TagPageArbitalContentFragment = `
   }
 `
 
-export const TagPageFragment = `
+export const TagPageFragment = () => frag`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
@@ -313,21 +315,21 @@ export const TagPageFragment = `
   }
 `
 
-export const TagPageWithArbitalContentFragment = `
+export const TagPageWithArbitalContentFragment = () => frag`
   fragment TagPageWithArbitalContentFragment on Tag {
     ...TagPageFragment
     ...TagPageArbitalContentFragment
   }  
 `
 
-export const AllTagsPageFragment = `
+export const AllTagsPageFragment = () => frag`
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
   }
 `
 
-export const TagPageWithRevisionFragment = `
+export const TagPageWithRevisionFragment = () => frag`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
@@ -357,14 +359,14 @@ export const TagPageWithRevisionFragment = `
   }
 `
 
-export const TagPageRevisionWithArbitalContentFragment = `
+export const TagPageRevisionWithArbitalContentFragment = () => frag`
   fragment TagPageRevisionWithArbitalContentFragment on Tag {
     ...TagPageWithRevisionFragment
     ...TagPageArbitalContentFragment
   }  
 `
 
-export const TagFullContributorsList = `
+export const TagFullContributorsList = () => frag`
   fragment TagFullContributorsList on Tag {
     contributors {
       totalCount
@@ -381,7 +383,7 @@ export const TagFullContributorsList = `
   }
 `
 
-export const TagEditFragment = `
+export const TagEditFragment = () => frag`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     isPostType
@@ -409,7 +411,7 @@ export const TagEditFragment = `
   }
 `
 
-export const TagRecentDiscussion = `
+export const TagRecentDiscussion = () => frag`
   fragment TagRecentDiscussion on Tag {
     ...TagFragment
     lastVisitedAt
@@ -419,7 +421,7 @@ export const TagRecentDiscussion = `
   }
 `
 
-export const SunshineTagFragment = `
+export const SunshineTagFragment = () => frag`
   fragment SunshineTagFragment on Tag {
     ...TagFragment
     user {
@@ -428,7 +430,7 @@ export const SunshineTagFragment = `
   }
 `
 
-export const UserOnboardingTag = `
+export const UserOnboardingTag = () => frag`
   fragment UserOnboardingTag on Tag {
     _id
     name
@@ -438,7 +440,7 @@ export const UserOnboardingTag = `
   }
 `
 
-export const TagName = `
+export const TagName = () => frag`
   fragment TagName on Tag {
     _id
     name
@@ -446,7 +448,7 @@ export const TagName = `
   }
 `
 
-export const ExplorePageTagFragment = `
+export const ExplorePageTagFragment = () => frag`
   fragment ExplorePageTagFragment on Tag {
     ...TagFragment
     contributors(limit: $contributorsLimit) {
@@ -465,7 +467,7 @@ export const ExplorePageTagFragment = `
   }
 `
 
-export const ConceptItemFragment = `
+export const ConceptItemFragment = () => frag`
   fragment ConceptItemFragment on Tag {
     _id
     core
@@ -489,7 +491,7 @@ export const ConceptItemFragment = `
   }
 `
 
-export const TagPageWithArbitalContentAndLensRevisionFragment = `
+export const TagPageWithArbitalContentAndLensRevisionFragment = () => frag`
   fragment TagPageWithArbitalContentAndLensRevisionFragment on Tag {
     ...TagPageFragment
     arbitalLinkedPages {
@@ -501,7 +503,7 @@ export const TagPageWithArbitalContentAndLensRevisionFragment = `
   }
 `
 
-export const WithVoteTag = `
+export const WithVoteTag = () => frag`
   fragment WithVoteTag on Tag {
     ...TagBasicInfo
   }

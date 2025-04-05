@@ -1,4 +1,6 @@
-export const RSSFeedMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const RSSFeedMinimumInfo = () => frag`
   fragment RSSFeedMinimumInfo on RSSFeed {
     _id
     userId
@@ -14,7 +16,7 @@ export const RSSFeedMinimumInfo = `
   }
 `
 
-export const newRSSFeedFragment = `
+export const newRSSFeedFragment = () => frag`
   fragment newRSSFeedFragment on RSSFeed {
     _id
     userId
@@ -30,7 +32,7 @@ export const newRSSFeedFragment = `
 
 
 
-export const RSSFeedMutationFragment = `
+export const RSSFeedMutationFragment = () => frag`
   fragment RSSFeedMutationFragment on RSSFeed {
     _id
     userId

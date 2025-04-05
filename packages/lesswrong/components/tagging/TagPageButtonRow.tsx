@@ -177,20 +177,21 @@ const TagPageButtonRow = ({
     captureEvent('tagPageButtonRowNewLensClick');
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
       return;
     }
 
     if (!refetchTag || !updateSelectedLens) return;
     openDialog({
-      componentName: "NewLensDialog",
-      componentProps: {
-        tag,
-        refetchTag,
-        updateSelectedLens,
-      }
+      name: "NewLensDialog",
+      contents: ({onClose}) => <Components.NewLensDialog
+        onClose={onClose}
+        tag={tag}
+        refetchTag={refetchTag}
+        updateSelectedLens={updateSelectedLens}
+      />
     });
   }
 
@@ -200,8 +201,8 @@ const TagPageButtonRow = ({
       setEditing(true)
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
       e.preventDefault();
     }

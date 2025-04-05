@@ -51,7 +51,8 @@ export const LanguageModelLauncherButton = ({classes}: {
   const openLlmChat = useCallback(() => {
     captureEvent("languageModelLauncherButtonClicked");
     openDialog({
-      componentName:"PopupLanguageModelChat",
+      name: "PopupLanguageModelChat",
+      contents: ({onClose}) => <Components.PopupLanguageModelChat onClose={onClose}/>,
     })
     setCookie(SHOW_LLM_CHAT_COOKIE, "true", { path: "/" });
   },[openDialog, captureEvent, setCookie]);

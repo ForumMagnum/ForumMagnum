@@ -34,15 +34,16 @@ const ReportUserButton = ({user, classes}: {
     if (!user) return
   
     openDialog({
-      componentName: "ReportForm",
-      componentProps: {
-        reportedUserId: user._id,
-        link: `/users/${user.slug}`,
-        userId: currentUser._id,
-        onSubmit: () => {
+      name: "ReportForm",
+      contents: ({onClose}) => <Components.ReportForm
+        onClose={onClose}
+        reportedUserId={user._id}
+        link={`/users/${user.slug}`}
+        userId={currentUser._id}
+        onSubmit={() => {
           flash({messageString: "Your report has been sent to the moderators"})
-        }
-      }
+        }}
+      />,
     })
   }
   

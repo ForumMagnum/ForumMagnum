@@ -38,7 +38,7 @@ const schema = {
   },
   user: {
     graphql: {
-      outputType: "User!",
+      outputType: "User",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },

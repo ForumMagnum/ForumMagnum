@@ -158,3 +158,29 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
       }
   }
 }
+
+/**
+ * Given a multiline string with indentation, find the least-indented line and
+ * remove that much indentation from every line in it. Also trim the result
+ * (removing blank lines and whitespace from the top and bottom).
+ */
+export function autoUnindent(s: string): string {
+  const lines = s.split('\n');
+  
+  const nonEmptyLines = lines.filter(line => line.trim().length > 0);
+  if (nonEmptyLines.length === 0) return '';
+  
+  const minIndent = nonEmptyLines.reduce((min, line) => {
+    const indent = line.length - line.trimLeft().length;
+    return Math.min(min, indent);
+  }, Infinity);
+  
+  const unindentedLines = lines.map(line => {
+    if (line.trim().length > 0) {
+      return line.substring(minIndent);
+    }
+    return line;
+  });
+  
+  return unindentedLines.join('\n').trim();
+}

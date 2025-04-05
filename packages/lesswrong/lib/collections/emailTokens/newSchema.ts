@@ -25,13 +25,6 @@ const schema = {
       nullable: false,
     },
   },
-  user: {
-    graphql: {
-      outputType: "User!",
-      canRead: [],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
-    },
-  },
   usedAt: {
     database: {
       type: "TIMESTAMPTZ",

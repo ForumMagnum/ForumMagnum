@@ -8,8 +8,11 @@ import type { ClaimsPluginConfiguration, CreateClaimDialogProps } from './claims
 export const claimsConfig = (portalContext: CkEditorPortalContextType|null, openDialog: OpenDialogContextType['openDialog']): ClaimsPluginConfiguration => ({
   openNewClaimDialog: (props: CreateClaimDialogProps) => {
     openDialog({
-      componentName: "CreateClaimDialog",
-      componentProps: props,
+      name: "CreateClaimDialog",
+      contents: ({onClose}) => <Components.CreateClaimDialog
+        onClose={onClose}
+        {...props}
+      />
     });
   },
   renderClaimPreviewInto: (element: HTMLElement, claimId: string) => {

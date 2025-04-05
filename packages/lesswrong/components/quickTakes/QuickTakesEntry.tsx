@@ -124,8 +124,8 @@ const QuickTakesEntry = ({
         onSignup();
       } else {
         openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
+          name: "LoginPopup",
+          contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
         });
         setExpanded(true);
       }

@@ -1,4 +1,6 @@
-export const NotificationsList = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+
+export const NotificationsList = () => frag`
   fragment NotificationsList on Notification {
     _id
     documentId

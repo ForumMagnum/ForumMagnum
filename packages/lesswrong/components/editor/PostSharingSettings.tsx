@@ -132,12 +132,13 @@ const PostSharingSettings = ({document, formType, value, updateCurrentValues, su
     }
     
     openDialog({
-      componentName: "PostSharingSettingsDialog",
-      componentProps: {
-        post: document,
-        linkSharingKey: document.linkSharingKey ?? undefined,
-        initialSharingSettings,
-        onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
+      name: "PostSharingSettingsDialog",
+      contents: ({onClose}) => <Components.PostSharingSettingsDialog
+        onClose={onClose}
+        post={document}
+        linkSharingKey={document.linkSharingKey ?? undefined}
+        initialSharingSettings={initialSharingSettings}
+        onConfirm={async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
             await updateCurrentValues({
               sharingSettings: newSharingSettings,
@@ -157,9 +158,9 @@ const PostSharingSettings = ({document, formType, value, updateCurrentValues, su
             }
           }
           closeDialog();
-        },
-        initialShareWithUsers: document.shareWithUsers || [],
-      },
+        }}
+        initialShareWithUsers={document.shareWithUsers || []}
+      />
     });
   }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
 

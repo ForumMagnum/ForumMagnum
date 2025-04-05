@@ -35,7 +35,7 @@ const schema = {
   },
   survey: {
     graphql: {
-      outputType: "Survey!",
+      outputType: "Survey",
       canRead: [userOwns, "admins"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Surveys", fieldName: "surveyId" }),
     },

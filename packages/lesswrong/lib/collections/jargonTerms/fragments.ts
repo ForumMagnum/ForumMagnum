@@ -1,4 +1,6 @@
-export const JargonTerms = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const JargonTerms = () => frag`
   fragment JargonTerms on JargonTerm {
     _id
     postId
@@ -13,7 +15,7 @@ export const JargonTerms = `
   }
 `
 
-export const JargonTermsPost = `
+export const JargonTermsPost = () => frag`
   fragment JargonTermsPost on JargonTerm {
     _id
     term
@@ -27,7 +29,7 @@ export const JargonTermsPost = `
   }
 `
 
-export const JargonTermsWithPostInfo = `
+export const JargonTermsWithPostInfo = () => frag`
   fragment JargonTermsWithPostInfo on JargonTerm {
     ...JargonTerms
     post {

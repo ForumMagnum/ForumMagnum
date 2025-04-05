@@ -110,8 +110,12 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
     onClick={() => {
       captureEvent("versionHistoryButtonClicked", {postId})
       openDialog({
-        componentName: "PostVersionHistory",
-        componentProps: {post, postId},
+        name: "PostVersionHistory",
+        contents: ({onClose}) => <Components.PostVersionHistory
+          onClose={onClose}
+          post={post}
+          postId={postId}
+        />
       })
     }}
     variant={"outlined"}

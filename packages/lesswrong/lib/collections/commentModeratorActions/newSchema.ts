@@ -38,7 +38,7 @@ const schema = {
   },
   comment: {
     graphql: {
-      outputType: "Comment!",
+      outputType: "Comment",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "commentId" }),
     },
@@ -87,7 +87,7 @@ const schema = {
   },
   active: {
     graphql: {
-      outputType: "Boolean!",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: (doc) => isCommentActionActive(doc),
     },

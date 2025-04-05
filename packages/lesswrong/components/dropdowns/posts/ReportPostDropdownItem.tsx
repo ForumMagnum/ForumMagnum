@@ -17,12 +17,13 @@ const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
       return;
     }
     openDialog({
-      componentName: "ReportForm",
-      componentProps: {
-        postId: post._id,
-        link: "/posts/" + post._id,
-        userId: currentUser._id,
-      },
+      name: "ReportForm",
+      contents: ({onClose}) => <Components.ReportForm
+        onClose={onClose}
+        postId={post._id}
+        link={"/posts/" + post._id}
+        userId={currentUser._id}
+      />
     });
   }
 

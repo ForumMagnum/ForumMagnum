@@ -127,14 +127,18 @@ const TaggingDashboard = ({classes}: {
           <SectionButton>
             {query.focus && <QueryLink query={{}}> Reset Filter </QueryLink>}
             {currentUser?.isAdmin &&
-                <span className={classes.editButton} onClick={() => openDialog({
-                  componentName: "TagFlagEditAndNewForm",
-                  componentProps: query.focus ? {tagFlagId: query.focus} : {}
-                })}>
-                  {query.focus ?
-                    `Edit ${taggingNameCapitalSetting.get()} Flag` :
-                    `New ${taggingNameCapitalSetting.get()} Flag`}
-                </span>
+              <span className={classes.editButton} onClick={() => openDialog({
+                name: "TagFlagEditAndNewForm",
+                contents: ({onClose}) => <Components.TagFlagEditAndNewForm
+                  onClose={onClose}
+                  {...(query.focus ? {tagFlagId: query.focus} : {})}
+                />
+              })}>
+                {query.focus
+                  ? `Edit ${taggingNameCapitalSetting.get()} Flag`
+                  : `New ${taggingNameCapitalSetting.get()} Flag`
+                }
+              </span>
             }
             <a
               className={classes.collapseButton}
@@ -162,12 +166,12 @@ const TaggingDashboard = ({classes}: {
           </QueryLink>)}
         </div>
         {!loading && tagsFiltered?.map(tag => <TagsDetailsItem
-              key={tag._id}
-              tag={tag}
-              showFlags
-              flagId={query.focus}
-              collapse={collapsed}
-            />)}
+          key={tag._id}
+          tag={tag}
+          showFlags
+          flagId={query.focus}
+          collapse={collapsed}
+        />)}
         <div className={classes.loadMore}>
           <LoadMore {...loadMoreProps}/>
         </div>

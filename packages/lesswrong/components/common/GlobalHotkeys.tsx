@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useGlobalKeydown } from './withGlobalKeydown';
+import { useGlobalKeydown, useOnSearchHotkey } from './withGlobalKeydown';
 import { useSetTheme, useConcreteThemeOptions } from '../themes/useTheme';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from './withUser';
@@ -38,6 +38,17 @@ export const GlobalHotkeys = () => {
 
     if (isLW && userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
       replaceText();
+    }
+  });
+  
+  useOnSearchHotkey(() => {
+    // When you press Cmd+F/Ctrl+F/etc, expand all collapsible sections
+    const collapsibleSections = document.getElementsByTagName("details");
+    for (let i=0; i<collapsibleSections.length; i++) {
+      const detailsTag = collapsibleSections.item(i);
+      if (detailsTag && !detailsTag.getAttribute("open")) {
+        detailsTag.setAttribute("open", "true");
+      }
     }
   });
 

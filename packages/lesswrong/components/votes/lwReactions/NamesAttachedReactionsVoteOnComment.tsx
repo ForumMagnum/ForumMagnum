@@ -175,9 +175,9 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
 
   function openLoginDialog() {
     openDialog({
-      componentName: "LoginPopup",
-      componentProps: {}
-    })
+      name: "LoginPopup",
+      contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+    });
   }
 
   async function toggleReaction(name: string, quote: QuoteLocator|null) {
