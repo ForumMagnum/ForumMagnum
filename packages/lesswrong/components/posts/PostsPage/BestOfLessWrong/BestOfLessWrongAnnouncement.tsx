@@ -243,10 +243,10 @@ const BestOfLessWrongAnnouncement = () => {
                     [classes.categoryImageHover]: hoveringCategory === category,
                   })}/>
                   <div className={classes.winnersContainer}> 
-                    {section.top3?.map((result, index) => <Link key={result._id} to={`/posts/${result.post._id}/${result.post.slug}`} className={classes.winnerItem}>
+                    {section.top3?.map((result, index) => <Link key={result._id} to={`/posts/${result.post?._id}/${result.post?.slug}`} className={classes.winnerItem}>
                       <div className={classes.winnerImageBackground} />
                       <div className={classes.winnerTitle}>
-                        {result.post.title}
+                        {result.post?.title}
                       </div>
                       <div className={classes.winnerCategoryRank}>#{index + 1} in {category}</div>
                     </Link>)}
