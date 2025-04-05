@@ -535,35 +535,18 @@ const styles = (theme: ThemeType) => ({
   },
   spotlightCheckmark: {
     display: 'inline-block',
-    width: 52,
-    height: 52,
-    borderRadius: 2,
-    // border: `solid 1px ${theme.palette.grey[400]}`,
+    width: 14,
+    height: 14,
+    borderRadius: 3,
+    border: `solid 1px ${theme.palette.grey[400]}`,
     backgroundColor: theme.palette.grey[100],
-    filter: "brightness(0.5) saturate(0.0)",
-    overflow: "hidden",
-    margin: 1,
-    '&:hover': {
-      filter: "brightness(1) saturate(.5)",
-      opacity: 1,
-    }
+    margin: 2
   },
   spotlightCheckmarkIsRead: {
     backgroundColor: theme.palette.lwTertiary.main,
     borderColor: theme.palette.grey[700],
     backgroundOpacity: .2,
-    filter: "brightness(1) saturate(.5)",
     opacity: .7
-  },
-  spotlightCheckmarkImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    objectPosition: "center",
-    borderRadius: 3,
-    transform: "scale(2)",
-    border: `solid 1px ${theme.palette.grey[400]}`,
-    backgroundColor: theme.palette.grey[100],
   }
 });
 
@@ -920,9 +903,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
           {(postYear || postCategory) && <div><em>{postYear} <span style={{textTransform: 'capitalize'}}>{postCategory}</span></em></div>}</>
 
           return <LWTooltip key={spotlight._id} title={tooltip}>
-            <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.post?.isRead && classes.spotlightCheckmarkIsRead)}>
-              <img className={classes.spotlightCheckmarkImage} src={spotlight.post?.reviewWinner?.reviewWinnerArt?.splashArtImageUrl?.replace('upload/', 'upload/c_fill,h_100,w_100/')} />
-            </Link>
+            <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.post?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
           </LWTooltip>
         })}
       </div>
