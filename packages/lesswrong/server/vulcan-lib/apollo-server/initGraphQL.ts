@@ -734,7 +734,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
     schemaFragments.push(multiInputTemplate({ typeName }));
     schemaFragments.push(singleOutputTemplate({ typeName }));
     schemaFragments.push(multiOutputTemplate({ typeName }));
-    schemaFragments.push(mutationOutputTemplate({ typeName }));
+    // schemaFragments.push(mutationOutputTemplate({ typeName }));
 
     // if (create.length) {
     //   schemaFragments.push(createInputTemplate({ typeName }));

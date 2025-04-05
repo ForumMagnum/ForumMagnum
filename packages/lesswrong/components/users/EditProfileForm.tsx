@@ -84,7 +84,7 @@ const EditProfileForm = ({classes}: {
   ]);
 
   const {
-    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile,
+    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile, Loading,
   } = Components;
 
   let terms: {slug?: string, documentId?: string} = {}
@@ -94,7 +94,7 @@ const EditProfileForm = ({classes}: {
     terms.documentId = currentUser._id
   }
 
-  const { user } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersProfileEdit', skip: !terms.slug });
+  const { user, loading: loadingUser } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersProfileEdit', skip: !terms.slug });
 
   // no matching user
   if ((!terms.slug && !terms.documentId) || !currentUser) {
@@ -156,7 +156,8 @@ const EditProfileForm = ({classes}: {
         </div>
       }
 
-      <WrappedSmartForm
+      {loadingUser && <Loading />}
+      {!loadingUser && <WrappedSmartForm
         collectionName="Users"
         documentId={user?._id}
         fields={[
@@ -188,7 +189,7 @@ const EditProfileForm = ({classes}: {
         successCallback={async (user: AnyBecauseTodo) => {
           navigate(userGetProfileUrl(user))
         }}
-      />
+      />}
     </div>
   )
 }

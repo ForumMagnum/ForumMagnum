@@ -46,9 +46,11 @@ const UsersEditForm = ({terms, classes}: {
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
-  const { user: userBySlug } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersEdit', skip: !userCanEditUser(currentUser, terms) });
+  const userHasEditAccess = userCanEditUser(currentUser, terms);
 
-  if(!userCanEditUser(currentUser, terms)) {
+  const { user: userBySlug, loading: loadingUser } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersEdit', skip: !userHasEditAccess });
+
+  if(!userHasEditAccess) {
     return <ErrorAccessDenied />;
   }
   const isCurrentUser = (terms.slug === currentUser?.slug)
@@ -79,7 +81,8 @@ const UsersEditForm = ({terms, classes}: {
         {preferredHeadingCase("Reset Password")}
       </Button>}
 
-      <Components.WrappedSmartForm
+      {loadingUser && <Components.Loading />}
+      {!loadingUser && <Components.WrappedSmartForm
         collectionName="Users"
         documentId={userBySlug?._id}
         removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
@@ -103,7 +106,7 @@ const UsersEditForm = ({terms, classes}: {
         queryFragmentName={'UsersEdit'}
         mutationFragmentName={'UsersEdit'}
         showRemove={false}
-      />
+      />}
     </div>
   );
 };

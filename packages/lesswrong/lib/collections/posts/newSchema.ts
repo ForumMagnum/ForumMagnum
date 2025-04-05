@@ -3178,7 +3178,8 @@ const schema = {
     graphql: {
       outputType: "Float",
       canRead: ["guests"],
-      onCreate: ({ document }) => ('baseScore' in document && document.baseScore) ?? 0,
+      // This needs to be a `||` rather than `??` because otherwise it coalesces to `false`, which isn't a number and causes a db error.
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore) || 0,
       validation: {
         optional: true,
       },
