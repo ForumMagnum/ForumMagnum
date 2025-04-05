@@ -57,7 +57,6 @@ export const ReviewWinnerAnnouncement = `
     _id
     category
     curatedOrder
-    postId
     reviewYear
     reviewRanking
     reviewWinnerArt {

@@ -2474,7 +2474,6 @@ interface ReviewWinnerAnnouncement { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
   readonly curatedOrder: number | null,
-  readonly postId: string,
   readonly reviewYear: number,
   readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerArtImages|null,
