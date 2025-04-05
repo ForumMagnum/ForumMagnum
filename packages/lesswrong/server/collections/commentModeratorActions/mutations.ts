@@ -124,8 +124,12 @@ export const graphqlCommentModeratorActionTypeDefs = gql`
     data: UpdateCommentModeratorActionDataInput!
   }
   
+  type CommentModeratorActionOutput {
+    data: CommentModeratorAction
+  }
+
   extend type Mutation {
-    createCommentModeratorAction(input: CreateCommentModeratorActionInput!): CommentModeratorAction
-    updateCommentModeratorAction(selector: SelectorInput!, data: UpdateCommentModeratorActionDataInput!): CommentModeratorAction
+    createCommentModeratorAction(data: CreateCommentModeratorActionDataInput!): CommentModeratorActionOutput
+    updateCommentModeratorAction(selector: SelectorInput!, data: UpdateCommentModeratorActionDataInput!): CommentModeratorActionOutput
   }
 `;

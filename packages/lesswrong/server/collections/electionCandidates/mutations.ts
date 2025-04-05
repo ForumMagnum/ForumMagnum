@@ -127,8 +127,12 @@ export const graphqlElectionCandidateTypeDefs = gql`
     data: UpdateElectionCandidateDataInput!
   }
   
+  type ElectionCandidateOutput {
+    data: ElectionCandidate
+  }
+
   extend type Mutation {
-    createElectionCandidate(input: CreateElectionCandidateInput!): ElectionCandidate
-    updateElectionCandidate(selector: SelectorInput!, data: UpdateElectionCandidateDataInput!): ElectionCandidate
+    createElectionCandidate(data: CreateElectionCandidateDataInput!): ElectionCandidateOutput
+    updateElectionCandidate(selector: SelectorInput!, data: UpdateElectionCandidateDataInput!): ElectionCandidateOutput
   }
 `;

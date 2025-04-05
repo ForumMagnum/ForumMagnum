@@ -140,8 +140,12 @@ export const graphqlUserMostValuablePostTypeDefs = gql`
     data: UpdateUserMostValuablePostDataInput!
   }
   
+  type UserMostValuablePostOutput {
+    data: UserMostValuablePost
+  }
+
   extend type Mutation {
-    createUserMostValuablePost(input: CreateUserMostValuablePostInput!): UserMostValuablePost
-    updateUserMostValuablePost(selector: SelectorInput!, data: UpdateUserMostValuablePostDataInput!): UserMostValuablePost
+    createUserMostValuablePost(data: CreateUserMostValuablePostDataInput!): UserMostValuablePostOutput
+    updateUserMostValuablePost(selector: SelectorInput!, data: UpdateUserMostValuablePostDataInput!): UserMostValuablePostOutput
   }
 `;

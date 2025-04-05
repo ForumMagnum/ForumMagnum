@@ -128,8 +128,12 @@ export const graphqlDigestTypeDefs = gql`
     data: UpdateDigestDataInput!
   }
   
+  type DigestOutput {
+    data: Digest
+  }
+
   extend type Mutation {
-    createDigest(input: CreateDigestInput!): Digest
-    updateDigest(selector: SelectorInput!, data: UpdateDigestDataInput!): Digest
+    createDigest(data: CreateDigestDataInput!): DigestOutput
+    updateDigest(selector: SelectorInput!, data: UpdateDigestDataInput!): DigestOutput
   }
 `;

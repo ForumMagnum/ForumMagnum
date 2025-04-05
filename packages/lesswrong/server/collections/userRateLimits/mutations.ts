@@ -140,8 +140,12 @@ export const graphqlUserRateLimitTypeDefs = gql`
     data: UpdateUserRateLimitDataInput!
   }
   
+  type UserRateLimitOutput {
+    data: UserRateLimit
+  }
+
   extend type Mutation {
-    createUserRateLimit(input: CreateUserRateLimitInput!): UserRateLimit
-    updateUserRateLimit(selector: SelectorInput!, data: UpdateUserRateLimitDataInput!): UserRateLimit
+    createUserRateLimit(data: CreateUserRateLimitDataInput!): UserRateLimitOutput
+    updateUserRateLimit(selector: SelectorInput!, data: UpdateUserRateLimitDataInput!): UserRateLimitOutput
   }
 `;

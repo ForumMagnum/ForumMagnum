@@ -182,8 +182,12 @@ export const graphqlMultiDocumentTypeDefs = gql`
     data: UpdateMultiDocumentDataInput!
   }
   
+  type MultiDocumentOutput {
+    data: MultiDocument
+  }
+
   extend type Mutation {
-    createMultiDocument(input: CreateMultiDocumentInput!): MultiDocument
-    updateMultiDocument(selector: SelectorInput!, data: UpdateMultiDocumentDataInput!): MultiDocument
+    createMultiDocument(data: CreateMultiDocumentDataInput!): MultiDocumentOutput
+    updateMultiDocument(selector: SelectorInput!, data: UpdateMultiDocumentDataInput!): MultiDocumentOutput
   }
 `;

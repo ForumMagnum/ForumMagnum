@@ -214,8 +214,12 @@ export const graphqlUserTypeDefs = gql`
     data: UpdateUserDataInput!
   }
   
+  type UserOutput {
+    data: User
+  }
+
   extend type Mutation {
-    createUser(input: CreateUserInput!): User
-    updateUser(selector: SelectorInput!, data: UpdateUserDataInput!): User
+    createUser(data: CreateUserDataInput!): UserOutput
+    updateUser(selector: SelectorInput!, data: UpdateUserDataInput!): UserOutput
   }
 `;

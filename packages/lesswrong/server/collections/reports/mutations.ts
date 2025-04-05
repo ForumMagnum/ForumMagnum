@@ -143,8 +143,12 @@ export const graphqlReportTypeDefs = gql`
     data: UpdateReportDataInput!
   }
   
+  type ReportOutput {
+    data: Report
+  }
+
   extend type Mutation {
-    createReport(input: CreateReportInput!): Report
-    updateReport(selector: SelectorInput!, data: UpdateReportDataInput!): Report
+    createReport(data: CreateReportDataInput!): ReportOutput
+    updateReport(selector: SelectorInput!, data: UpdateReportDataInput!): ReportOutput
   }
 `;

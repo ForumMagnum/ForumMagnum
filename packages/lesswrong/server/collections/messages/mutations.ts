@@ -167,8 +167,12 @@ export const graphqlMessageTypeDefs = gql`
     data: UpdateMessageDataInput!
   }
   
+  type MessageOutput {
+    data: Message
+  }
+
   extend type Mutation {
-    createMessage(input: CreateMessageInput!): Message
-    updateMessage(selector: SelectorInput!, data: UpdateMessageDataInput!): Message
+    createMessage(data: CreateMessageDataInput!): MessageOutput
+    updateMessage(selector: SelectorInput!, data: UpdateMessageDataInput!): MessageOutput
   }
 `;

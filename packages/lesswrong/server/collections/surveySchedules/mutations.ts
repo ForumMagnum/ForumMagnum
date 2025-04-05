@@ -124,8 +124,12 @@ export const graphqlSurveyScheduleTypeDefs = gql`
     data: UpdateSurveyScheduleDataInput!
   }
   
+  type SurveyScheduleOutput {
+    data: SurveySchedule
+  }
+
   extend type Mutation {
-    createSurveySchedule(input: CreateSurveyScheduleInput!): SurveySchedule
-    updateSurveySchedule(selector: SelectorInput!, data: UpdateSurveyScheduleDataInput!): SurveySchedule
+    createSurveySchedule(data: CreateSurveyScheduleDataInput!): SurveyScheduleOutput
+    updateSurveySchedule(selector: SelectorInput!, data: UpdateSurveyScheduleDataInput!): SurveyScheduleOutput
   }
 `;

@@ -104,8 +104,12 @@ export const graphqlLlmConversationTypeDefs = gql`
     selector: SelectorInput!
     data: UpdateLlmConversationDataInput!
   }
+
+  type LlmConversationOutput {
+    data: LlmConversation
+  }
   
   extend type Mutation {
-    updateLlmConversation(selector: SelectorInput!, data: UpdateLlmConversationDataInput!): LlmConversation
+    updateLlmConversation(selector: SelectorInput!, data: UpdateLlmConversationDataInput!): LlmConversationOutput
   }
 `;

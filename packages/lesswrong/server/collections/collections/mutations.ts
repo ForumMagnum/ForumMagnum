@@ -174,8 +174,12 @@ export const graphqlCollectionTypeDefs = gql`
     data: UpdateCollectionDataInput!
   }
   
+  type CollectionOutput {
+    data: Collection
+  }
+
   extend type Mutation {
-    createCollection(input: CreateCollectionInput!): Collection
-    updateCollection(selector: SelectorInput!, data: UpdateCollectionDataInput!): Collection
+    createCollection(data: CreateCollectionDataInput!): CollectionOutput
+    updateCollection(selector: SelectorInput!, data: UpdateCollectionDataInput!): CollectionOutput
   }
 `;

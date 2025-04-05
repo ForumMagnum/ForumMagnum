@@ -300,8 +300,12 @@ export const graphqlPostTypeDefs = gql`
     data: UpdatePostDataInput!
   }
   
+  type PostOutput {
+    data: Post
+  }
+
   extend type Mutation {
-    createPost(input: CreatePostInput!): Post
-    updatePost(selector: SelectorInput!, data: UpdatePostDataInput!): Post
+    createPost(data: CreatePostDataInput!): PostOutput
+    updatePost(selector: SelectorInput!, data: UpdatePostDataInput!): PostOutput
   }
 `;

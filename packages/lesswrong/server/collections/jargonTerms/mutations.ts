@@ -188,8 +188,12 @@ export const graphqlJargonTermTypeDefs = gql`
     data: UpdateJargonTermDataInput!
   }
   
+  type JargonTermOutput {
+    data: JargonTerm
+  }
+
   extend type Mutation {
-    createJargonTerm(input: CreateJargonTermInput!): JargonTerm
-    updateJargonTerm(selector: SelectorInput!, data: UpdateJargonTermDataInput!): JargonTerm
+    createJargonTerm(data: CreateJargonTermDataInput!): JargonTermOutput
+    updateJargonTerm(selector: SelectorInput!, data: UpdateJargonTermDataInput!): JargonTermOutput
   }
 `;

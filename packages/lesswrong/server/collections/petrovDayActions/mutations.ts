@@ -84,8 +84,12 @@ export const graphqlPetrovDayActionTypeDefs = gql`
   input CreatePetrovDayActionInput {
     data: CreatePetrovDayActionDataInput!
   }
+
+  type PetrovDayActionOutput {
+    data: PetrovDayAction
+  }
   
   extend type Mutation {
-    createPetrovDayAction(input: CreatePetrovDayActionInput!): PetrovDayAction
+    createPetrovDayAction(data: CreatePetrovDayActionDataInput!): PetrovDayActionOutput
   }
 `;

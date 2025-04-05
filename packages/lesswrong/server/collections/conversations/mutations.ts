@@ -128,8 +128,12 @@ export const graphqlConversationTypeDefs = gql`
     data: UpdateConversationDataInput!
   }
   
+  type ConversationOutput {
+    data: Conversation
+  }
+
   extend type Mutation {
-    createConversation(input: CreateConversationInput!): Conversation
-    updateConversation(selector: SelectorInput!, data: UpdateConversationDataInput!): Conversation
+    createConversation(data: CreateConversationDataInput!): ConversationOutput
+    updateConversation(selector: SelectorInput!, data: UpdateConversationDataInput!): ConversationOutput
   }
 `;

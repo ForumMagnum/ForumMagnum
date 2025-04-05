@@ -110,8 +110,12 @@ export const graphqlSplashArtCoordinateTypeDefs = gql`
     data: UpdateSplashArtCoordinateDataInput!
   }
   
+  type SplashArtCoordinateOutput {
+    data: SplashArtCoordinate
+  }
+
   extend type Mutation {
-    createSplashArtCoordinate(input: CreateSplashArtCoordinateInput!): SplashArtCoordinate
-    updateSplashArtCoordinate(selector: SelectorInput!, data: UpdateSplashArtCoordinateDataInput!): SplashArtCoordinate
+    createSplashArtCoordinate(data: CreateSplashArtCoordinateDataInput!): SplashArtCoordinateOutput
+    updateSplashArtCoordinate(selector: SelectorInput!, data: UpdateSplashArtCoordinateDataInput!): SplashArtCoordinateOutput
   }
 `;

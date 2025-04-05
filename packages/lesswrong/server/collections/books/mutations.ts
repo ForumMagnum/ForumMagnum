@@ -163,8 +163,12 @@ export const graphqlBookTypeDefs = gql`
     data: UpdateBookDataInput!
   }
   
+  type BookOutput {
+    data: Book
+  }
+
   extend type Mutation {
-    createBook(input: CreateBookInput!): Book
-    updateBook(selector: SelectorInput!, data: UpdateBookDataInput!): Book
+    createBook(data: CreateBookDataInput!): BookOutput
+    updateBook(selector: SelectorInput!, data: UpdateBookDataInput!): BookOutput
   }
 `;

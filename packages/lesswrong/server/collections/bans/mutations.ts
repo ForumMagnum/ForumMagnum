@@ -123,8 +123,12 @@ export const graphqlBanTypeDefs = gql`
     data: UpdateBanDataInput!
   }
   
+  type BanOutput {
+    data: Ban
+  }
+
   extend type Mutation {
-    createBan(input: CreateBanInput!): Ban
-    updateBan(selector: SelectorInput!, data: UpdateBanDataInput!): Ban
+    createBan(data: CreateBanDataInput!): BanOutput
+    updateBan(selector: SelectorInput!, data: UpdateBanDataInput!): BanOutput
   }
 `;

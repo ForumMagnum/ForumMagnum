@@ -140,8 +140,12 @@ export const graphqlUserJobAdTypeDefs = gql`
     data: UpdateUserJobAdDataInput!
   }
   
+  type UserJobAdOutput {
+    data: UserJobAd
+  }
+
   extend type Mutation {
-    createUserJobAd(input: CreateUserJobAdInput!): UserJobAd
-    updateUserJobAd(selector: SelectorInput!, data: UpdateUserJobAdDataInput!): UserJobAd
+    createUserJobAd(data: CreateUserJobAdDataInput!): UserJobAdOutput
+    updateUserJobAd(selector: SelectorInput!, data: UpdateUserJobAdDataInput!): UserJobAdOutput
   }
 `;

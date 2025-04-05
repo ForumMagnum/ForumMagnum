@@ -124,8 +124,12 @@ export const graphqlSurveyTypeDefs = gql`
     data: UpdateSurveyDataInput!
   }
   
+  type SurveyOutput {
+    data: Survey
+  }
+
   extend type Mutation {
-    createSurvey(input: CreateSurveyInput!): Survey
-    updateSurvey(selector: SelectorInput!, data: UpdateSurveyDataInput!): Survey
+    createSurvey(data: CreateSurveyDataInput!): SurveyOutput
+    updateSurvey(selector: SelectorInput!, data: UpdateSurveyDataInput!): SurveyOutput
   }
 `;

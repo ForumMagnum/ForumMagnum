@@ -114,8 +114,12 @@ export const graphqlArbitalTagContentRelTypeDefs = gql`
     data: UpdateArbitalTagContentRelDataInput!
   }
   
+  type ArbitalTagContentRelOutput {
+    data: ArbitalTagContentRel
+  }
+
   extend type Mutation {
-    createArbitalTagContentRel(input: CreateArbitalTagContentRelInput!): ArbitalTagContentRel
-    updateArbitalTagContentRel(selector: SelectorInput!, data: UpdateArbitalTagContentRelDataInput!): ArbitalTagContentRel
+    createArbitalTagContentRel(data: CreateArbitalTagContentRelDataInput!): ArbitalTagContentRelOutput
+    updateArbitalTagContentRel(selector: SelectorInput!, data: UpdateArbitalTagContentRelDataInput!): ArbitalTagContentRelOutput
   }
 `;

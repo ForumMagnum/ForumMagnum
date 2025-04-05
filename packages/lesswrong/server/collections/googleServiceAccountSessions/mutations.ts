@@ -112,8 +112,12 @@ export const graphqlGoogleServiceAccountSessionTypeDefs = gql`
     data: UpdateGoogleServiceAccountSessionDataInput!
   }
   
+  type GoogleServiceAccountSessionOutput {
+    data: GoogleServiceAccountSession
+  }
+
   extend type Mutation {
-    createGoogleServiceAccountSession(input: CreateGoogleServiceAccountSessionInput!): GoogleServiceAccountSession
-    updateGoogleServiceAccountSession(selector: SelectorInput!, data: UpdateGoogleServiceAccountSessionDataInput!): GoogleServiceAccountSession
+    createGoogleServiceAccountSession(data: CreateGoogleServiceAccountSessionDataInput!): GoogleServiceAccountSessionOutput
+    updateGoogleServiceAccountSession(selector: SelectorInput!, data: UpdateGoogleServiceAccountSessionDataInput!): GoogleServiceAccountSessionOutput
   }
 `;

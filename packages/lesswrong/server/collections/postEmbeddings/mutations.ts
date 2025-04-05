@@ -114,8 +114,12 @@ export const graphqlPostEmbeddingTypeDefs = gql`
     data: UpdatePostEmbeddingDataInput!
   }
   
+  type PostEmbeddingOutput {
+    data: PostEmbedding
+  }
+
   extend type Mutation {
-    createPostEmbedding(input: CreatePostEmbeddingInput!): PostEmbedding
-    updatePostEmbedding(selector: SelectorInput!, data: UpdatePostEmbeddingDataInput!): PostEmbedding
+    createPostEmbedding(data: CreatePostEmbeddingDataInput!): PostEmbeddingOutput
+    updatePostEmbedding(selector: SelectorInput!, data: UpdatePostEmbeddingDataInput!): PostEmbeddingOutput
   }
 `;

@@ -116,8 +116,12 @@ export const graphqlRevisionTypeDefs = gql`
     selector: SelectorInput!
     data: UpdateRevisionDataInput!
   }
+
+  type RevisionOutput {
+    data: Revision
+  }
   
   extend type Mutation {
-    updateRevision(selector: SelectorInput!, data: UpdateRevisionDataInput!): Revision
+    updateRevision(selector: SelectorInput!, data: UpdateRevisionDataInput!): RevisionOutput
   }
 `;

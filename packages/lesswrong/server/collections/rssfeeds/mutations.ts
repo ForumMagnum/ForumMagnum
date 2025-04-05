@@ -127,8 +127,12 @@ export const graphqlRSSFeedTypeDefs = gql`
     data: UpdateRSSFeedDataInput!
   }
   
+  type RSSFeedOutput {
+    data: RSSFeed
+  }
+
   extend type Mutation {
-    createRSSFeed(input: CreateRSSFeedInput!): RSSFeed
-    updateRSSFeed(selector: SelectorInput!, data: UpdateRSSFeedDataInput!): RSSFeed
+    createRSSFeed(data: CreateRSSFeedDataInput!): RSSFeedOutput
+    updateRSSFeed(selector: SelectorInput!, data: UpdateRSSFeedDataInput!): RSSFeedOutput
   }
 `;

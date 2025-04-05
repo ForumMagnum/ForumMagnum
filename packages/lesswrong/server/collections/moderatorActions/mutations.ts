@@ -133,8 +133,12 @@ export const graphqlModeratorActionTypeDefs = gql`
     data: UpdateModeratorActionDataInput!
   }
   
+  type ModeratorActionOutput {
+    data: ModeratorAction
+  }
+
   extend type Mutation {
-    createModeratorAction(input: CreateModeratorActionInput!): ModeratorAction
-    updateModeratorAction(selector: SelectorInput!, data: UpdateModeratorActionDataInput!): ModeratorAction
+    createModeratorAction(data: CreateModeratorActionDataInput!): ModeratorActionOutput
+    updateModeratorAction(selector: SelectorInput!, data: UpdateModeratorActionDataInput!): ModeratorActionOutput
   }
 `;

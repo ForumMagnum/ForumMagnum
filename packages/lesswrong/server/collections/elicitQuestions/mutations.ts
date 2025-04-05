@@ -122,8 +122,12 @@ export const graphqlElicitQuestionTypeDefs = gql`
     data: UpdateElicitQuestionDataInput!
   }
   
+  type ElicitQuestionOutput {
+    data: ElicitQuestion
+  }
+
   extend type Mutation {
-    createElicitQuestion(input: CreateElicitQuestionInput!): ElicitQuestion
-    updateElicitQuestion(selector: SelectorInput!, data: UpdateElicitQuestionDataInput!): ElicitQuestion
+    createElicitQuestion(data: CreateElicitQuestionDataInput!): ElicitQuestionOutput
+    updateElicitQuestion(selector: SelectorInput!, data: UpdateElicitQuestionDataInput!): ElicitQuestionOutput
   }
 `;

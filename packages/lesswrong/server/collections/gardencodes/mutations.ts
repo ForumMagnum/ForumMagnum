@@ -182,8 +182,12 @@ export const graphqlGardenCodeTypeDefs = gql`
     data: UpdateGardenCodeDataInput!
   }
   
+  type GardenCodeOutput {
+    data: GardenCode
+  }
+
   extend type Mutation {
-    createGardenCode(input: CreateGardenCodeInput!): GardenCode
-    updateGardenCode(selector: SelectorInput!, data: UpdateGardenCodeDataInput!): GardenCode
+    createGardenCode(data: CreateGardenCodeDataInput!): GardenCodeOutput
+    updateGardenCode(selector: SelectorInput!, data: UpdateGardenCodeDataInput!): GardenCodeOutput
   }
 `;

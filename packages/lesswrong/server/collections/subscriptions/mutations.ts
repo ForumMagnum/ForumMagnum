@@ -97,7 +97,11 @@ export const graphqlSubscriptionTypeDefs = gql`
     data: CreateSubscriptionDataInput!
   }
   
+  type SubscriptionOutput {
+    data: Subscription
+  }
+  
   extend type Mutation {
-    createSubscription(input: CreateSubscriptionInput!): Subscription
+    createSubscription(data: CreateSubscriptionDataInput!): SubscriptionOutput
   }
 `;

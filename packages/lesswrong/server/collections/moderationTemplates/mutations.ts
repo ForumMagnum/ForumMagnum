@@ -161,8 +161,12 @@ export const graphqlModerationTemplateTypeDefs = gql`
     data: UpdateModerationTemplateDataInput!
   }
   
+  type ModerationTemplateOutput {
+    data: ModerationTemplate
+  }
+
   extend type Mutation {
-    createModerationTemplate(input: CreateModerationTemplateInput!): ModerationTemplate
-    updateModerationTemplate(selector: SelectorInput!, data: UpdateModerationTemplateDataInput!): ModerationTemplate
+    createModerationTemplate(data: CreateModerationTemplateDataInput!): ModerationTemplateOutput
+    updateModerationTemplate(selector: SelectorInput!, data: UpdateModerationTemplateDataInput!): ModerationTemplateOutput
   }
 `;
