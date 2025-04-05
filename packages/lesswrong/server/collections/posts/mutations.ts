@@ -302,6 +302,6 @@ export const graphqlPostTypeDefs = gql`
   
   extend type Mutation {
     createPost(input: CreatePostInput!): Post
-    updatePost(input: UpdatePostInput!): Post
+    updatePost(selector: SelectorInput!, data: UpdatePostDataInput!): Post
   }
 `;

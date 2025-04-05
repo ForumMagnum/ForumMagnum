@@ -119,6 +119,6 @@ export const graphqlTagRelTypeDefs = gql`
   
   extend type Mutation {
     createTagRel(input: CreateTagRelInput!): TagRel
-    updateTagRel(input: UpdateTagRelInput!): TagRel
+    updateTagRel(selector: SelectorInput!, data: UpdateTagRelDataInput!): TagRel
   }
 `;

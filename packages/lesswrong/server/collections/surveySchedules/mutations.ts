@@ -126,6 +126,6 @@ export const graphqlSurveyScheduleTypeDefs = gql`
   
   extend type Mutation {
     createSurveySchedule(input: CreateSurveyScheduleInput!): SurveySchedule
-    updateSurveySchedule(input: UpdateSurveyScheduleInput!): SurveySchedule
+    updateSurveySchedule(selector: SelectorInput!, data: UpdateSurveyScheduleDataInput!): SurveySchedule
   }
 `;

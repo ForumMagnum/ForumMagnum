@@ -126,6 +126,6 @@ export const graphqlPostViewsTypeDefs = gql`
   
   extend type Mutation {
     createPostViews(input: CreatePostViewsInput!): PostViews
-    updatePostViews(input: UpdatePostViewsInput!): PostViews
+    updatePostViews(selector: SelectorInput!, data: UpdatePostViewsDataInput!): PostViews
   }
 `;

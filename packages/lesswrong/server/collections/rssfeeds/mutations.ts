@@ -129,6 +129,6 @@ export const graphqlRSSFeedTypeDefs = gql`
   
   extend type Mutation {
     createRSSFeed(input: CreateRSSFeedInput!): RSSFeed
-    updateRSSFeed(input: UpdateRSSFeedInput!): RSSFeed
+    updateRSSFeed(selector: SelectorInput!, data: UpdateRSSFeedDataInput!): RSSFeed
   }
 `;

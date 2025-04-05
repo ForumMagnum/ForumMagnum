@@ -142,6 +142,6 @@ export const graphqlUserEAGDetailTypeDefs = gql`
   
   extend type Mutation {
     createUserEAGDetail(input: CreateUserEAGDetailInput!): UserEAGDetail
-    updateUserEAGDetail(input: UpdateUserEAGDetailInput!): UserEAGDetail
+    updateUserEAGDetail(selector: SelectorInput!, data: UpdateUserEAGDetailDataInput!): UserEAGDetail
   }
 `;

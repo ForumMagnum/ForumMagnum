@@ -126,6 +126,6 @@ export const graphqlCommentModeratorActionTypeDefs = gql`
   
   extend type Mutation {
     createCommentModeratorAction(input: CreateCommentModeratorActionInput!): CommentModeratorAction
-    updateCommentModeratorAction(input: UpdateCommentModeratorActionInput!): CommentModeratorAction
+    updateCommentModeratorAction(selector: SelectorInput!, data: UpdateCommentModeratorActionDataInput!): CommentModeratorAction
   }
 `;

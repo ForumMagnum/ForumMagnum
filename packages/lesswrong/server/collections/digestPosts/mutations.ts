@@ -126,6 +126,6 @@ export const graphqlDigestPostTypeDefs = gql`
   
   extend type Mutation {
     createDigestPost(input: CreateDigestPostInput!): DigestPost
-    updateDigestPost(input: UpdateDigestPostInput!): DigestPost
+    updateDigestPost(selector: SelectorInput!, data: UpdateDigestPostDataInput!): DigestPost
   }
 `;

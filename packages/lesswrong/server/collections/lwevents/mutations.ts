@@ -127,6 +127,6 @@ export const graphqlLWEventTypeDefs = gql`
   
   extend type Mutation {
     createLWEvent(input: CreateLWEventInput!): LWEvent
-    updateLWEvent(input: UpdateLWEventInput!): LWEvent
+    updateLWEvent(selector: SelectorInput!, data: UpdateLWEventDataInput!): LWEvent
   }
 `;

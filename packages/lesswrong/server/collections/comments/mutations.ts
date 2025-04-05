@@ -233,6 +233,6 @@ export const graphqlCommentTypeDefs = gql`
   
   extend type Mutation {
     createComment(input: CreateCommentInput!): Comment
-    updateComment(input: UpdateCommentInput!): Comment
+    updateComment(selector: SelectorInput!, data: UpdateCommentDataInput!): Comment
   }
 `;

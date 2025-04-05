@@ -165,6 +165,6 @@ export const graphqlBookTypeDefs = gql`
   
   extend type Mutation {
     createBook(input: CreateBookInput!): Book
-    updateBook(input: UpdateBookInput!): Book
+    updateBook(selector: SelectorInput!, data: UpdateBookDataInput!): Book
   }
 `;

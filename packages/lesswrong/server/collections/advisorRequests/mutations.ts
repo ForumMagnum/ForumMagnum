@@ -141,6 +141,6 @@ export const graphqlAdvisorRequestTypeDefs = gql`
   
   extend type Mutation {
     createAdvisorRequest(input: CreateAdvisorRequestInput!): AdvisorRequest
-    updateAdvisorRequest(input: UpdateAdvisorRequestInput!): AdvisorRequest
+    updateAdvisorRequest(selector: SelectorInput!, data: UpdateAdvisorRequestDataInput!): AdvisorRequest
   }
 `;

@@ -112,6 +112,6 @@ export const graphqlPodcastEpisodeTypeDefs = gql`
   
   extend type Mutation {
     createPodcastEpisode(input: CreatePodcastEpisodeInput!): PodcastEpisode
-    updatePodcastEpisode(input: UpdatePodcastEpisodeInput!): PodcastEpisode
+    updatePodcastEpisode(selector: SelectorInput!, data: UpdatePodcastEpisodeDataInput!): PodcastEpisode
   }
 `;

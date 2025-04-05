@@ -216,6 +216,6 @@ export const graphqlUserTypeDefs = gql`
   
   extend type Mutation {
     createUser(input: CreateUserInput!): User
-    updateUser(input: UpdateUserInput!): User
+    updateUser(selector: SelectorInput!, data: UpdateUserDataInput!): User
   }
 `;

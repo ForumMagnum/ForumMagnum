@@ -144,6 +144,6 @@ export const graphqlElectionVoteTypeDefs = gql`
   
   extend type Mutation {
     createElectionVote(input: CreateElectionVoteInput!): ElectionVote
-    updateElectionVote(input: UpdateElectionVoteInput!): ElectionVote
+    updateElectionVote(selector: SelectorInput!, data: UpdateElectionVoteDataInput!): ElectionVote
   }
 `;

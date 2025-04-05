@@ -126,6 +126,6 @@ export const graphqlPostViewTimeTypeDefs = gql`
   
   extend type Mutation {
     createPostViewTime(input: CreatePostViewTimeInput!): PostViewTime
-    updatePostViewTime(input: UpdatePostViewTimeInput!): PostViewTime
+    updatePostViewTime(selector: SelectorInput!, data: UpdatePostViewTimeDataInput!): PostViewTime
   }
 `;

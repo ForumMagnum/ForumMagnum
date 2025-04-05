@@ -166,6 +166,6 @@ export const graphqlTagFlagTypeDefs = gql`
   
   extend type Mutation {
     createTagFlag(input: CreateTagFlagInput!): TagFlag
-    updateTagFlag(input: UpdateTagFlagInput!): TagFlag
+    updateTagFlag(selector: SelectorInput!, data: UpdateTagFlagDataInput!): TagFlag
   }
 `;

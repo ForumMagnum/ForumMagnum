@@ -169,6 +169,6 @@ export const graphqlMessageTypeDefs = gql`
   
   extend type Mutation {
     createMessage(input: CreateMessageInput!): Message
-    updateMessage(input: UpdateMessageInput!): Message
+    updateMessage(selector: SelectorInput!, data: UpdateMessageDataInput!): Message
   }
 `;

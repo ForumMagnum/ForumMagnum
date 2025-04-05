@@ -175,6 +175,6 @@ export const graphqlChapterTypeDefs = gql`
   
   extend type Mutation {
     createChapter(input: CreateChapterInput!): Chapter
-    updateChapter(input: UpdateChapterInput!): Chapter
+    updateChapter(selector: SelectorInput!, data: UpdateChapterDataInput!): Chapter
   }
 `;

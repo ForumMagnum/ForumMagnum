@@ -106,6 +106,6 @@ export const graphqlLlmConversationTypeDefs = gql`
   }
   
   extend type Mutation {
-    updateLlmConversation(input: UpdateLlmConversationInput!): LlmConversation
+    updateLlmConversation(selector: SelectorInput!, data: UpdateLlmConversationDataInput!): LlmConversation
   }
 `;

@@ -163,6 +163,6 @@ export const graphqlForumEventTypeDefs = gql`
   
   extend type Mutation {
     createForumEvent(input: CreateForumEventInput!): ForumEvent
-    updateForumEvent(input: UpdateForumEventInput!): ForumEvent
+    updateForumEvent(selector: SelectorInput!, data: UpdateForumEventDataInput!): ForumEvent
   }
 `;

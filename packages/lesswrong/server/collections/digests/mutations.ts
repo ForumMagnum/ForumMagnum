@@ -130,6 +130,6 @@ export const graphqlDigestTypeDefs = gql`
   
   extend type Mutation {
     createDigest(input: CreateDigestInput!): Digest
-    updateDigest(input: UpdateDigestInput!): Digest
+    updateDigest(selector: SelectorInput!, data: UpdateDigestDataInput!): Digest
   }
 `;

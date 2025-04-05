@@ -174,6 +174,6 @@ export const graphqlLocalgroupTypeDefs = gql`
   
   extend type Mutation {
     createLocalgroup(input: CreateLocalgroupInput!): Localgroup
-    updateLocalgroup(input: UpdateLocalgroupInput!): Localgroup
+    updateLocalgroup(selector: SelectorInput!, data: UpdateLocalgroupDataInput!): Localgroup
   }
 `;

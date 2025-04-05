@@ -184,6 +184,6 @@ export const graphqlGardenCodeTypeDefs = gql`
   
   extend type Mutation {
     createGardenCode(input: CreateGardenCodeInput!): GardenCode
-    updateGardenCode(input: UpdateGardenCodeInput!): GardenCode
+    updateGardenCode(selector: SelectorInput!, data: UpdateGardenCodeDataInput!): GardenCode
   }
 `;

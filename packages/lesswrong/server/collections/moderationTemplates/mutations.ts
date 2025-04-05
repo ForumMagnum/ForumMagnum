@@ -163,6 +163,6 @@ export const graphqlModerationTemplateTypeDefs = gql`
   
   extend type Mutation {
     createModerationTemplate(input: CreateModerationTemplateInput!): ModerationTemplate
-    updateModerationTemplate(input: UpdateModerationTemplateInput!): ModerationTemplate
+    updateModerationTemplate(selector: SelectorInput!, data: UpdateModerationTemplateDataInput!): ModerationTemplate
   }
 `;

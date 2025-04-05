@@ -142,6 +142,6 @@ export const graphqlUserMostValuablePostTypeDefs = gql`
   
   extend type Mutation {
     createUserMostValuablePost(input: CreateUserMostValuablePostInput!): UserMostValuablePost
-    updateUserMostValuablePost(input: UpdateUserMostValuablePostInput!): UserMostValuablePost
+    updateUserMostValuablePost(selector: SelectorInput!, data: UpdateUserMostValuablePostDataInput!): UserMostValuablePost
   }
 `;

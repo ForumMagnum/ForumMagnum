@@ -132,6 +132,6 @@ export const graphqlDialogueMatchPreferenceTypeDefs = gql`
   
   extend type Mutation {
     createDialogueMatchPreference(input: CreateDialogueMatchPreferenceInput!): DialogueMatchPreference
-    updateDialogueMatchPreference(input: UpdateDialogueMatchPreferenceInput!): DialogueMatchPreference
+    updateDialogueMatchPreference(selector: SelectorInput!, data: UpdateDialogueMatchPreferenceDataInput!): DialogueMatchPreference
   }
 `;

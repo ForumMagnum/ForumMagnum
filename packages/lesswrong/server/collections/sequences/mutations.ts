@@ -180,6 +180,6 @@ export const graphqlSequenceTypeDefs = gql`
   
   extend type Mutation {
     createSequence(input: CreateSequenceInput!): Sequence
-    updateSequence(input: UpdateSequenceInput!): Sequence
+    updateSequence(selector: SelectorInput!, data: UpdateSequenceDataInput!): Sequence
   }
 `;

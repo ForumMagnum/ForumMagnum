@@ -153,6 +153,6 @@ export const graphqlSpotlightTypeDefs = gql`
   
   extend type Mutation {
     createSpotlight(input: CreateSpotlightInput!): Spotlight
-    updateSpotlight(input: UpdateSpotlightInput!): Spotlight
+    updateSpotlight(selector: SelectorInput!, data: UpdateSpotlightDataInput!): Spotlight
   }
 `;

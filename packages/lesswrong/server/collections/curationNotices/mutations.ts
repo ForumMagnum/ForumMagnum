@@ -159,6 +159,6 @@ export const graphqlCurationNoticeTypeDefs = gql`
   
   extend type Mutation {
     createCurationNotice(input: CreateCurationNoticeInput!): CurationNotice
-    updateCurationNotice(input: UpdateCurationNoticeInput!): CurationNotice
+    updateCurationNotice(selector: SelectorInput!, data: UpdateCurationNoticeDataInput!): CurationNotice
   }
 `;

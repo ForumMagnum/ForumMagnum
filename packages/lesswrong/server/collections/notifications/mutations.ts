@@ -118,6 +118,6 @@ export const graphqlNotificationTypeDefs = gql`
   
   extend type Mutation {
     createNotification(input: CreateNotificationInput!): Notification
-    updateNotification(input: UpdateNotificationInput!): Notification
+    updateNotification(selector: SelectorInput!, data: UpdateNotificationDataInput!): Notification
   }
 `;

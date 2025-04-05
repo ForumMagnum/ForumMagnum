@@ -199,6 +199,6 @@ export const graphqlTagTypeDefs = gql`
   
   extend type Mutation {
     createTag(input: CreateTagInput!): Tag
-    updateTag(input: UpdateTagInput!): Tag
+    updateTag(selector: SelectorInput!, data: UpdateTagDataInput!): Tag
   }
 `;
