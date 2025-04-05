@@ -2692,13 +2692,12 @@ fragment ReviewWinnerAnnouncement on ReviewWinner {
   curatedOrder
   reviewYear
   reviewRanking
-  reviewWinnerArt {
-    ...ReviewWinnerArtImages
-  }
   competitorCount
   postId
   post {
-    ...PostsTopItemInfo
+    _id
+    title
+    slug
   }
 }
 

@@ -183,7 +183,7 @@ const BestOfLessWrongAnnouncement = () => {
     terms: {
       view: "bestOfLessWrongAnnouncement",
     },
-    limit: 50,
+    limit: 18,
     ssr: true,
     collectionName: "ReviewWinners",
     fragmentName: "ReviewWinnerAnnouncement",
@@ -219,9 +219,7 @@ const BestOfLessWrongAnnouncement = () => {
       top3: topPerCategory['practical']?.slice(0, 3),
     },
   }
-
-  const [hoveringCategory, setHoveringCategory] = useState<string | undefined>(undefined);
-  const [hoveringWinner, setHoveringWinner] = useState<string | undefined>("test");
+  console.log(Object.values(sections).flatMap(s => s.top3?.map(r => r._id)));
 
   return (
     <AnalyticsContext pageSectionContext="bestOfLessWrongAnnouncement">
@@ -234,9 +232,7 @@ const BestOfLessWrongAnnouncement = () => {
             const section = sections[category as keyof typeof sections];
             return <div className={classes.category} key={category}>
               <div className={classes.categoryImageContainer}>
-                <img src={section.img} className={classNames(classes.categoryImage, {
-                  [classes.categoryImageHover]: hoveringCategory === category,
-                })}/>
+                <img src={section.img} className={classes.categoryImage}/>
                 <div className={classes.winnersContainer}> 
                   {section.top3?.map((result, index) => <Link key={result._id} to={`/posts/${result.post?._id}/${result.post?.slug}`} className={classes.winnerItem}>
                     <div className={classes.winnerImageBackground} />

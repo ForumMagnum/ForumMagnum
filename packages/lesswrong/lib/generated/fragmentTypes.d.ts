@@ -2476,10 +2476,15 @@ interface ReviewWinnerAnnouncement { // fragment on ReviewWinners
   readonly curatedOrder: number | null,
   readonly reviewYear: number,
   readonly reviewRanking: number,
-  readonly reviewWinnerArt: ReviewWinnerArtImages|null,
   readonly competitorCount: number|null,
   readonly postId: string,
-  readonly post: PostsTopItemInfo|null,
+  readonly post: ReviewWinnerAnnouncement_post|null,
+}
+
+interface ReviewWinnerAnnouncement_post { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
 }
 
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts

@@ -61,13 +61,12 @@ export const ReviewWinnerAnnouncement = () => frag`
     curatedOrder
     reviewYear
     reviewRanking
-    reviewWinnerArt {
-      ...ReviewWinnerArtImages
-    }
     competitorCount
     postId
     post {
-      ...PostsTopItemInfo
+      _id
+      title
+      slug
     }
   }
 `
