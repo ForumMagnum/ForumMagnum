@@ -89,7 +89,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
     // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
-    const { errors } = await createSplashArtCoordinateMutation({ data: { 
+    const { errors } = await createSplashArtCoordinateMutation({ data: {
       reviewWinnerArtId: image._id,
       leftXPct: .33, // note: XPcts are right-aligned, not left-aligned like you might expect
       leftYPct: .15,
