@@ -6,7 +6,7 @@ import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
 import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { Link } from '@/lib/reactRouterWrapper';
-import classNames from 'classnames';
+import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 
 const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) => ({ 
   title: {
@@ -71,7 +71,6 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
   },
   category: {
     width: "calc(16% - 2px)",
-    // height: 362,
     overflow: "hidden",
     marginBottom: 8,
     position: "relative",
@@ -84,7 +83,6 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     ...theme.typography.body1,
     fontSize: 18,
     ...theme.typography.headerStyle,
-    // color: theme.palette.grey[700],
     lineHeight: '1.2',
     textAlign: 'center',
     fontWeight: 600,
@@ -129,8 +127,6 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     objectFit: "cover",
     objectPosition: "center",
     transform: "scale(2)",
-    // filter: "brightness(0.45) saturate(.5)",
-    // filter: "brightness(.5) saturate(.0)",
     borderRadius: 2,
     filter: "brightness(0.75) saturate(.75)",
     transition: "opacity 0.2s ease-in-out",
@@ -184,7 +180,6 @@ const BestOfLessWrongAnnouncement = () => {
       view: "bestOfLessWrongAnnouncement",
     },
     limit: 18,
-    ssr: true,
     collectionName: "ReviewWinners",
     fragmentName: "ReviewWinnerAnnouncement",
   });
@@ -196,30 +191,29 @@ const BestOfLessWrongAnnouncement = () => {
   const sections = {
     'Rationality': {
       img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,w_0.15,x_0.29,y_-0.05,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753260/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_09275054-eb84-43c4-9cfa-4a05e1818c9e_rmov5i.png',
-      top3: topPerCategory['rationality']?.slice(0, 3),
+      topThree: topPerCategory['rationality']?.slice(0, 3),
     },
     'Modeling': {
       img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/a_hflip/c_crop,w_1,x_0,y_0.05,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753450/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_15ba02c3-b268-45f1-a780-322bbaa6fc22_eu9l0l.png',
-      top3: topPerCategory['modeling']?.slice(0, 3),
+      topThree: topPerCategory['modeling']?.slice(0, 3),
     },
     'Optimization': {
-      img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,w_0.99,x_0.07,y_0.2,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753382/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_242eda7f-95a9-4c3b-8090-991a1b11286f_xcjhxq.png',
-      top3: topPerCategory['optimization']?.slice(0, 3),
+      img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,a_hflip,w_0.99,x_-0.35,y_0.2,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753382/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_242eda7f-95a9-4c3b-8090-991a1b11286f_xcjhxq.png',
+      topThree: topPerCategory['optimization']?.slice(0, 3),
     },
     'AI Safety': {
       img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,w_0.801,x_0.6,y_0.4,h_1/dpr_2.0,w_1080/f_auto,fl_progressive,q_auto/v1708570131/lwbot_topographic_watercolor_artwork_of_a_giant_robot_hand_gent_e4e9f305-9611-4787-8768-d7af3d702ed4_ta2ii9.png',
-      top3: topPerCategory['ai strategy']?.slice(0, 3),
+      topThree: topPerCategory['ai safety']?.slice(0, 3),
     },
     'AI Strategy': {
       img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,w_0.99,x_0,y_0,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708753570/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_8dda30ee-71d6-4b24-80c7-a8499a5b25c6_uacvgk.png',
-      top3: topPerCategory['ai safety']?.slice(0, 3),
+      topThree: topPerCategory['ai strategy']?.slice(0, 3),
     },
     'Practical': {
       img: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/c_crop,w_0.651,x_0.32,y_0.05,h_1/dpr_2.0,w_1080/f_auto,q_auto/v1708974564/ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_4f6449e2-569b-48a3-b878-a400315b3ef0_hqutxe.png',
-      top3: topPerCategory['practical']?.slice(0, 3),
+      topThree: topPerCategory['practical']?.slice(0, 3),
     },
   }
-  console.log(Object.values(sections).flatMap(s => s.top3?.map(r => r._id)));
 
   return (
     <AnalyticsContext pageSectionContext="bestOfLessWrongAnnouncement">
@@ -234,13 +228,16 @@ const BestOfLessWrongAnnouncement = () => {
               <div className={classes.categoryImageContainer}>
                 <img src={section.img} className={classes.categoryImage}/>
                 <div className={classes.winnersContainer}> 
-                  {section.top3?.map((result, index) => <Link key={result._id} to={`/posts/${result.post?._id}/${result.post?.slug}`} className={classes.winnerItem}>
-                    <div className={classes.winnerImageBackground} />
-                    <div className={classes.winnerTitle}>
-                      {result.post?.title}
-                    </div>
-                    <div className={classes.winnerCategoryRank}>#{index + 1} in {category}</div>
-                  </Link>)}
+                  {section.topThree?.map(({post, _id}, index) => {
+                    if (!post) return null;
+                    return <Link key={_id} to={postGetPageUrl(post)} className={classes.winnerItem}>
+                      <div className={classes.winnerImageBackground} />
+                      <div className={classes.winnerTitle}>
+                        {post?.title}
+                      </div>
+                      <div className={classes.winnerCategoryRank}>#{index + 1} in {category}</div>
+                    </Link>
+                  })}
                 </div>
               </div>
               <div className={classes.categoryTitle}>
