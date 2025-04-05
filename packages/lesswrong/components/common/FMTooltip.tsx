@@ -3,7 +3,7 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsProps } from '@/lib/analyticsEvents';
 import { useHover } from './withHover';
-import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 
 const styles = defineStyles("TooltipRef", (theme: ThemeType) => ({

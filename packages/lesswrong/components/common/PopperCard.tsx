@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
 
 const PopperCard = ({
   children,

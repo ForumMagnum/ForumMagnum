@@ -4,7 +4,7 @@ import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 
 const styles = (theme: ThemeType) => ({
   container: {

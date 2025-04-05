@@ -8,7 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { useCurrentUser } from '../common/withUser';
 import { Paper }from '@/components/widgets/Paper';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';

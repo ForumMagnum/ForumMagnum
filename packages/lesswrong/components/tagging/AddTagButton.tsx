@@ -6,7 +6,7 @@ import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 
 const styles = (theme: ThemeType) => ({
   addTagButton: {

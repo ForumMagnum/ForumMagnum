@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
