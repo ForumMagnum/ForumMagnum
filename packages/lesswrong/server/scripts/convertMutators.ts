@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import {
   Project,
   SyntaxKind,
@@ -13,6 +15,8 @@ import {
   Expression,
   AsExpression,
   AwaitExpression,
+  ShorthandPropertyAssignment,
+  Statement,
 } from "ts-morph";
 import path from "path";
 import { pascalCase } from "pascal-case"; // Or use another library for case conversion
@@ -38,7 +42,7 @@ async function ensureFunctionIsAsync(callExpression: CallExpression): Promise<vo
     ) {
       if (!func.isAsync()) {
         func.setIsAsync(true);
-        console.log(`  -> Made ancestor function/method async: ${'getName' in func ? func.getName() : "<anonymous>"}`);
+        console.log(`  -> Made ancestor function/method async: ${"getName" in func ? func.getName() : "<anonymous>"}`);
       }
     }
   } else {
@@ -75,6 +79,17 @@ function getBaseName(expression: Expression | undefined): string | null {
   return null;
 }
 
+// Helper to insert statements before a given statement
+function insertStatementBefore(targetStatement: Statement, newStatementText: string) {
+  const insertionIndex = targetStatement.getChildIndex();
+  const parentContainer = targetStatement.getParent();
+  if (parentContainer && typeof (parentContainer as any).insertStatements === "function") {
+    (parentContainer as any).insertStatements(insertionIndex, newStatementText);
+    return true;
+  }
+  return false;
+}
+
 async function runConversion() {
   const project = new Project({
     tsConfigFilePath: path.resolve(__dirname, "../../../../tsconfig.json"), // Adjust path to your root tsconfig
@@ -95,173 +110,297 @@ async function runConversion() {
   for (const sourceFile of allSourceFiles) {
     let fileChanged = false;
     const filePath = sourceFile.getFilePath();
-    console.log(`Processing file: ${filePath}`);
 
     // Track imports needed specifically for *this* file
     const fileImportsToAdd = {
       computeContextFromUser: false,
       createAnonymousContext: false,
-      newCreateFunctions: new Set<string>(),
+      newMutatorFunctions: new Set<string>(), // Renamed for clarity
     };
 
-    // Use a loop that allows modification while iterating (e.g., process in reverse or re-query)
-    // Getting all calls upfront and iterating is safer if replacements change node structure significantly
-    const createMutatorCalls = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression).filter((callExpr) => {
+    // Find both createMutator and updateMutator calls
+    const mutatorCalls = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression).filter((callExpr) => {
       const expression = callExpr.getExpression();
-      return Node.isIdentifier(expression) && expression.getText() === "createMutator";
+      return (
+        Node.isIdentifier(expression) &&
+        (expression.getText() === "createMutator" || expression.getText() === "updateMutator")
+      );
     });
 
-    if (createMutatorCalls.length === 0) {
-      console.log(`  No createMutator calls found in ${filePath}.`);
-      continue; // Skip files with no createMutator calls
+    if (mutatorCalls.length === 0) {
+      continue; // Skip files with no relevant calls
     }
 
-    console.log(`  Found ${createMutatorCalls.length} createMutator calls.`);
+    console.log(`Processing file: ${filePath}`); // Log only if calls are found
+    console.log(`  Found ${mutatorCalls.length} create/updateMutator calls.`);
 
-    // Iterate backwards to handle nested calls or multiple calls within a statement safely
-    for (let i = createMutatorCalls.length - 1; i >= 0; i--) {
-      const callExpression = createMutatorCalls[i];
+    // Iterate backwards
+    for (let i = mutatorCalls.length - 1; i >= 0; i--) {
+      const callExpression = mutatorCalls[i];
+      const originalFunctionName = callExpression.getExpression().getText(); // "createMutator" or "updateMutator"
+
       try {
-        // Check if the node is still valid (might have been replaced by a previous iteration)
         if (callExpression.wasForgotten()) {
-            console.log("  -> Skipping forgotten node.");
-            continue;
+          console.log("  -> Skipping forgotten node.");
+          continue;
         }
 
         const parentStatement = callExpression.getAncestors().find(Node.isStatement);
         if (!parentStatement || !Node.isStatement(parentStatement)) {
-          console.warn(`  -> Skipping call not directly within a statement: ${callExpression.getText().substring(0, 50)}...`);
+          console.warn(
+            `  -> Skipping call not directly within a statement: ${callExpression.getText().substring(0, 50)}...`
+          );
           continue;
         }
 
         const args = callExpression.getArguments();
         if (args.length !== 1 || !Node.isObjectLiteralExpression(args[0])) {
-          console.warn(`  -> Skipping call with unexpected arguments: ${callExpression.getText().substring(0, 50)}...`);
+          console.warn(
+            `  -> Skipping ${originalFunctionName} call with unexpected arguments: ${callExpression
+              .getText()
+              .substring(0, 50)}...`
+          );
           continue;
         }
 
         const optionsObject = args[0] as ObjectLiteralExpression;
 
-        // Extract properties
-        const collectionProp = optionsObject.getProperty("collection") as PropertyAssignment | undefined; // Make optional
-        const documentProp = optionsObject.getProperty("document") as PropertyAssignment | undefined; // Make optional
-        const contextProp = optionsObject.getProperty("context") as PropertyAssignment | undefined;
+        // --- Common Property Extraction ---
+        const collectionProp = optionsObject.getProperty("collection") as PropertyAssignment | undefined;
+        const contextProp = optionsObject.getProperty("context") as
+          | PropertyAssignment
+          | ShorthandPropertyAssignment
+          | undefined;
         const currentUserProp = optionsObject.getProperty("currentUser") as PropertyAssignment | undefined;
         const validateProp = optionsObject.getProperty("validate") as PropertyAssignment | undefined;
 
-        // --- Updated Collection Handling ---
+        // --- Collection and New Function Name ---
         const collectionInitializer = collectionProp?.getInitializer();
-        const collectionName = getBaseName(collectionInitializer); // Use helper
+        const collectionName = getBaseName(collectionInitializer);
 
         if (!collectionInitializer || !collectionName) {
           console.warn(
-            `  -> Skipping call missing 'collection', or collection is not an Identifier or PropertyAccess: ${callExpression
+            `  -> Skipping ${originalFunctionName} call missing 'collection', or collection is not an Identifier or PropertyAccess: ${callExpression
               .getText()
               .substring(0, 50)}...`
           );
           continue;
         }
-        // --- End Updated Collection Handling ---
 
-        // --- Updated Document Handling ---
-        let documentInitializer = documentProp?.getInitializer();
-        if (!documentInitializer) {
-           console.warn(
-            `  -> Skipping call missing 'document': ${callExpression
-              .getText()
-              .substring(0, 50)}...`
-          );
-          continue;
-        }
-        // Handle 'as' expressions
-        if (Node.isAsExpression(documentInitializer)) {
-            documentInitializer = documentInitializer.getExpression();
-        }
-        // No longer checking if it's an ObjectLiteralExpression
-        const documentText = documentInitializer.getText();
-        // --- End Updated Document Handling ---
-
-
-        // Attempt to singularize and format: MultiDocuments -> createMultiDocument
-        // Handle potential pluralization inconsistencies (e.g., 'Messages' -> 'Message')
         let singularName = collectionName;
-        if (collectionName.endsWith('s')) {
-            singularName = collectionName.slice(0, -1);
+        if (collectionName.endsWith("s")) {
+          singularName = collectionName.slice(0, -1);
         } else {
-            console.warn(`  -> Collection name "${collectionName}" doesn't end with 's', using as is for function name.`);
-            // Or implement more robust singularization if needed
+          console.warn(
+            `  -> Collection name "${collectionName}" doesn't end with 's', using as is for function name prefix.`
+          );
         }
-        const newFunctionName = `create${pascalCase(singularName)}`;
-        fileImportsToAdd.newCreateFunctions.add(newFunctionName); // Track needed imports for this file
+        const functionPrefix = originalFunctionName === "createMutator" ? "create" : "update";
+        const newFunctionName = `${functionPrefix}${pascalCase(singularName)}`;
+        fileImportsToAdd.newMutatorFunctions.add(newFunctionName);
 
-        const contextValue = contextProp?.getInitializer()?.getText(); // Handles shorthand
-        const currentUserValue = currentUserProp?.getInitializer()?.getText(); // Handles shorthand
+        // --- Context, CurrentUser, Validate (Common Logic) ---
+        // Fix for context handling
+        let contextText: string | undefined;
+        if (contextProp) {
+          if (Node.isPropertyAssignment(contextProp)) {
+            contextText = contextProp.getInitializer()?.getText();
+          } else if (Node.isShorthandPropertyAssignment(contextProp)) {
+            // Handle { context } shorthand (equivalent to { context: context })
+            contextText = contextProp.getName();
+          }
+        }
+
+        const currentUserValue = currentUserProp?.getInitializer()?.getText();
         const validateValue = validateProp?.getInitializer();
-
-        const newArgs: string[] = [];
-
-        // Argument 1: { data: documentObject }
-        newArgs.push(`{ data: ${documentText} }`);
-
-        // Argument 2: Context
         let contextArg = "";
         let contextComputationStatement: string | null = null;
 
-        if (contextValue) {
-          contextArg = contextValue;
+        if (contextText) {
+          contextArg = contextText;
         } else if (currentUserValue) {
-          // Generate unique variable name for context
-          const contextVarName = "userContext"; // Simple unique name
+          const contextVarName = "userContext";
           contextComputationStatement = `const ${contextVarName} = await computeContextFromUser({ user: ${currentUserValue}, isSSR: false });`;
           contextArg = contextVarName;
           fileImportsToAdd.computeContextFromUser = true;
-          await ensureFunctionIsAsync(callExpression); // Ensure parent function is async
+          await ensureFunctionIsAsync(callExpression);
         } else {
           contextArg = `createAnonymousContext()`;
           fileImportsToAdd.createAnonymousContext = true;
         }
-        newArgs.push(contextArg);
 
-        // Argument 3: Skip Validation (true if validate was false)
-        if (validateValue && Node.isFalseLiteral(validateValue)) {
-          newArgs.push("true");
+        const skipValidationArg = validateValue && Node.isFalseLiteral(validateValue);
+
+        // --- Argument Construction (Specific to create/update) ---
+        const newArgs: string[] = [];
+        let firstArgObjectText = "";
+
+        if (originalFunctionName === "createMutator") {
+          const documentProp = optionsObject.getProperty("document") as PropertyAssignment | undefined;
+          let documentInitializer = documentProp?.getInitializer();
+          if (!documentInitializer) {
+            console.warn(
+              `  -> Skipping createMutator call missing 'document': ${callExpression.getText().substring(0, 50)}...`
+            );
+            continue;
+          }
+          if (Node.isAsExpression(documentInitializer)) {
+            documentInitializer = documentInitializer.getExpression();
+          }
+          const documentText = documentInitializer.getText();
+          firstArgObjectText = documentText; // Pass the document directly as first arg
+        } else {
+          // updateMutator logic
+          const documentIdProp = optionsObject.getProperty("documentId") as PropertyAssignment | undefined;
+          const dataProp = optionsObject.getProperty("data") as PropertyAssignment | undefined;
+          const setProp = optionsObject.getProperty("set") as PropertyAssignment | undefined;
+          const unsetProp = optionsObject.getProperty("unset") as PropertyAssignment | undefined;
+
+          // 1. Handle documentId -> selector
+          const documentIdInitializer = documentIdProp?.getInitializer();
+          if (!documentIdInitializer) {
+            console.warn(
+              `  -> Skipping updateMutator call missing 'documentId': ${callExpression.getText().substring(0, 50)}...`
+            );
+            continue;
+          }
+          const documentIdText = documentIdInitializer.getText();
+          const selectorObjectText = `{ _id: ${documentIdText} }`;
+
+          // 2. Handle data, set, unset -> merged data object
+          const dataParts: string[] = [];
+          let dataInitializer = dataProp?.getInitializer();
+          let setInitializer = setProp?.getInitializer();
+          let unsetInitializer = unsetProp?.getInitializer();
+
+          // Handle 'as' expressions
+          if (dataInitializer && Node.isAsExpression(dataInitializer))
+            dataInitializer = dataInitializer.getExpression();
+          if (setInitializer && Node.isAsExpression(setInitializer)) setInitializer = setInitializer.getExpression();
+          if (unsetInitializer && Node.isAsExpression(unsetInitializer))
+            unsetInitializer = unsetInitializer.getExpression();
+
+          const dataText = dataInitializer?.getText();
+          const setText = setInitializer?.getText();
+          const unsetText = unsetInitializer?.getText();
+          let hasDataSource = false;
+          let newDataObjectText = "{}";
+
+          // First, check if we have a direct object literal for data that we can use directly
+          if (dataInitializer && Node.isObjectLiteralExpression(dataInitializer)) {
+            hasDataSource = true;
+            // If it's an inline object literal without other sources, just use it directly
+            if (!setText && !unsetText) {
+              newDataObjectText = dataText ?? "{ /* TODO: Missing data fields? */ }";
+            } else {
+              // If we need to merge with other sources, spread it
+              dataParts.push(`...${dataText}`);
+            }
+          } else if (dataText) {
+            // For variables or other expressions, use spreading
+            hasDataSource = true;
+            dataParts.push(`...${dataText}`);
+          }
+
+          // Next handle set - similar approach
+          if (setInitializer && Node.isObjectLiteralExpression(setInitializer)) {
+            hasDataSource = true;
+            // If data wasn't an object literal or we don't have data, and no unset
+            if (dataParts.length === 0 && newDataObjectText === "{}" && !unsetText) {
+              newDataObjectText = setText ?? "{ /* TODO: Missing set fields? */ }"; // Use set directly without spreading
+            } else {
+              // Otherwise we need to merge, so spread it
+              dataParts.push(`...${setText}`);
+            }
+          } else if (setText) {
+            // For variables or other expressions, use spreading
+            hasDataSource = true;
+            dataParts.push(`...${setText}`);
+          }
+
+          // Handle unset properties - always convert to field: null pairs
+          if (unsetInitializer && Node.isObjectLiteralExpression(unsetInitializer)) {
+            hasDataSource = true;
+            const unsetProps = unsetInitializer.getProperties();
+            for (const prop of unsetProps) {
+              // Handle both PropertyAssignment (key: value) and ShorthandPropertyAssignment (key)
+              if (Node.isPropertyAssignment(prop) || Node.isShorthandPropertyAssignment(prop)) {
+                const propName = prop.getName();
+                // Ensure property name doesn't need quotes if it's complex
+                const needsQuotes = !Node.isIdentifier(prop.getNameNode()) || prop.getName().includes("-"); // Basic check
+                const formattedPropName = needsQuotes ? `"${propName}"` : propName;
+                dataParts.push(`${formattedPropName}: null`);
+              }
+            }
+          } else if (unsetText) {
+            hasDataSource = true;
+            console.warn(
+              `  -> Cannot automatically handle 'unset' when it's not an object literal: ${unsetText}. Adding TODO.`
+            );
+            // Insert comment before the statement
+            const todoComment = `// TODO: Manually handle unset fields from variable '${unsetText}' in the data object below.`;
+            if (!insertStatementBefore(parentStatement, todoComment)) {
+              console.warn(`  -> Could not insert TODO comment for variable unset.`);
+            }
+            // Add a placeholder comment in the object itself too
+            dataParts.push(`/* TODO: Handle unset from ${unsetText} */`);
+          }
+
+          // Final assembly of the data object
+          // If we have accumulated parts but don't have a direct object, create merged object
+          if (dataParts.length > 0) {
+            newDataObjectText = `{ ${dataParts.join(", ")} }`;
+          } else if (!hasDataSource) {
+            // Add TODO comment if no data/set/unset found
+            console.warn(`  -> No data/set/unset found for updateMutator call. Adding TODO.`);
+            const todoComment = `// TODO: No data, set, or unset properties found for this updateMutator call: ${callExpression
+              .getText()
+              .substring(0, 50)}...`;
+            if (!insertStatementBefore(parentStatement, todoComment)) {
+              console.warn(`  -> Could not insert TODO comment for missing data/set/unset.`);
+            }
+            newDataObjectText = `{ /* TODO: Add data fields */ }`;
+          }
+
+          // update expects { data: ..., selector: ... }
+          firstArgObjectText = `{ data: ${newDataObjectText}, selector: ${selectorObjectText} }`;
         }
 
-        // Construct the new call text
-        const wasAwaited = Node.isAwaitExpression(callExpression.getParent());
-        const newCallText = `${wasAwaited ? "await " : ""}${newFunctionName}(${newArgs.join(", ")})`;
+        // --- Assemble Arguments ---
+        newArgs.push(firstArgObjectText);
+        newArgs.push(contextArg);
+        if (skipValidationArg) {
+          newArgs.push("true"); // Third argument is skipValidation = true
+        }
 
-        // Replace the old call
-        const replacementNode = wasAwaited ? callExpression.getParent() : callExpression;
+        // --- Replacement ---
+        const parent = callExpression.getParent();
+        const wasAwaited = Node.isAwaitExpression(parent);
+        const nodeToReplace = wasAwaited ? parent : callExpression;
+        const newCallText = wasAwaited
+          ? `await ${newFunctionName}(${newArgs.join(", ")})`
+          : `${newFunctionName}(${newArgs.join(", ")})`;
 
         if (contextComputationStatement) {
-          // Insert context computation statement before the statement containing the call
-          const insertionIndex = parentStatement.getChildIndex();
-          const parentContainer = parentStatement.getParent(); // e.g., Block, SourceFile, etc.
-
-          // Check if parentContainer has `insertStatements` method (like Block, SourceFile)
-          if (parentContainer && typeof (parentContainer as any).insertStatements === 'function') {
-             (parentContainer as any).insertStatements(insertionIndex, contextComputationStatement);
-             console.log(`  -> Added context computation: ${contextComputationStatement}`);
+          if (!insertStatementBefore(parentStatement, contextComputationStatement)) {
+            console.warn(
+              `  -> Could not insert context computation statement for: ${callExpression.getText().substring(0, 50)}...`
+            );
           } else {
-             console.warn(`  -> Could not insert context computation statement for: ${callExpression.getText().substring(0,50)}... Parent container type: ${parentContainer?.getKindName()}`);
-             // Fallback or error handling needed? Maybe insert as text if desperate?
-             // For now, we'll proceed without inserting the statement if the container is unexpected.
+            console.log(`  -> Added context computation: ${contextComputationStatement}`);
           }
         }
 
-        // Replace the original node with the new call text
-        // Important: Use replaceWithText on the *correct* node (await or call)
-        replacementNode?.replaceWithText(newCallText);
-        console.log(`  -> Replaced with: ${newCallText.substring(0, 100)}...`);
+        nodeToReplace.replaceWithText(newCallText);
+        console.log(`  -> Replaced ${originalFunctionName} with: ${newCallText.substring(0, 100)}...`);
 
         fileChanged = true;
         changesMade = true;
       } catch (error: any) {
-        console.error(`  -> Error processing call in ${filePath}: ${error.message}`);
+        console.error(`  -> Error processing ${originalFunctionName} call in ${filePath}: ${error.message}`);
         console.error(`     Call text: ${callExpression.getText().substring(0, 100)}...`);
         if (error.stack) {
-            console.error(error.stack);
+          console.error(error.stack);
         }
       }
     }
@@ -270,38 +409,29 @@ async function runConversion() {
       filesChangedCount++;
       // Add necessary imports to this file
       if (fileImportsToAdd.computeContextFromUser) {
-        // Assuming computeContextFromUser is in a specific file, adjust path as needed
         addOrUpdateImport(sourceFile, ["computeContextFromUser"], "@/server/vulcan-lib/apollo-server/context"); // Adjust path
       }
       if (fileImportsToAdd.createAnonymousContext) {
-        // Assuming createAnonymousContext is in a specific file, adjust path as needed
         addOrUpdateImport(sourceFile, ["createAnonymousContext"], "@/server/vulcan-lib/createContexts"); // Adjust path
       }
-      // Add imports for the new create functions (assuming they are exported from a central place)
-      // You might need more sophisticated logic if they come from different files
-      // if (importsToAdd.newCreateFunctions.size > 0) {
-        // addOrUpdateImport(sourceFile, Array.from(importsToAdd.newCreateFunctions), "~/modules/vulcan/mutations2"); // Adjust path
+      // Add imports for the new create/update functions used in *this file*
+      // if (fileImportsToAdd.newMutatorFunctions.size > 0) {
+      //   // *** Adjust this path to where your new functions are exported from ***
+      //   addOrUpdateImport(sourceFile, Array.from(fileImportsToAdd.newMutatorFunctions), "~/modules/vulcan/mutations2");
       // }
-
-      // Reset file-specific import flags
-      fileImportsToAdd.computeContextFromUser = false;
-      fileImportsToAdd.createAnonymousContext = false;
-      fileImportsToAdd.newCreateFunctions.clear();
 
       await sourceFile.save();
       console.log(`  Saved changes to ${filePath}`);
     } else {
-      // Only log if we didn't find any calls initially
-      if (createMutatorCalls.length > 0) {
-          console.log(`  No applicable changes needed for ${filePath} despite finding calls.`);
+      // Only log if we didn't find any calls initially and processed the file
+      if (mutatorCalls.length > 0) {
+        console.log(`  No applicable changes needed for ${filePath} despite finding calls.`);
       }
     }
   }
 
   if (changesMade) {
     console.log(`\nConversion complete. ${filesChangedCount} files were modified.`);
-    // Optional: Format the changed files using Prettier or ESLint
-    // await project.save(); // Already saved individually
   } else {
     console.log("\nConversion complete. No files were modified.");
   }

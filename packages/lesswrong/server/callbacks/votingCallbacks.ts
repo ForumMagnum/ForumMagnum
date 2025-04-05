@@ -15,12 +15,41 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/newSchema';
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
-import { updateModerateOwnPersonal, updateTrustedStatus } from '../users/moderationUtils';
 import { captureException } from '@sentry/core';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
+import { userGetGroups } from '@/lib/vulcan-users/permissions';
+
+const MODERATE_OWN_PERSONAL_THRESHOLD = 50;
+const TRUSTLEVEL1_THRESHOLD = 2000;
+
+async function updateTrustedStatus({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
+  const { Users } = context;
+
+  const user = await Users.findOne(newDocument.userId)
+  if (user && (user?.karma) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
+    await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
+    const updatedUser = await Users.findOne(newDocument.userId)
+    //eslint-disable-next-line no-console
+    console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
+  }
+}
+
+async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
+  const { Users } = context;
+  
+  const user = await Users.findOne(newDocument.userId)
+  if (!user) throw Error("Couldn't find user")
+  if ((user.karma) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
+    await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
+    const updatedUser = await Users.findOne(newDocument.userId)
+    if (!updatedUser) throw Error("Couldn't find user to update")
+    //eslint-disable-next-line no-console
+    console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
+  }
+}
 
 async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {

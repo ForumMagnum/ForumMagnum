@@ -3,7 +3,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { gql } from '@apollo/client';
 import { capitalize } from '../../lib/vulcan-lib/utils';
 import { useCreate } from '../../lib/crud/withCreate';
-import { useSingle, DocumentIdOrSlug } from '../../lib/crud/withSingle';
+import { useSingle, SelectorInput } from '../../lib/crud/withSingle';
 import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
@@ -122,7 +122,7 @@ const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}
   const newProps = { ...props, location, history };
   
   // if a document is being passed, this is an edit form
-  const formType = (props.documentId || props.slug) ? 'edit' : 'new';
+  const formType = props.documentId ? 'edit' : 'new';
 
   if (formType === "edit") {
     return <FormWrapperEdit {...newProps} showRemove={showRemove} schema={schema}/>
@@ -169,9 +169,8 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
   // if we're not e.g. being redirected after an autosave, we always want to load a fresh copy of the document
   const fetchPolicy = editFormFetchPolicy ?? 'network-only';
   
-  const selector: DocumentIdOrSlug = props.documentId
-    ? {documentId: props.documentId}
-    : {slug: props.slug}
+  const selector = { documentId: props.documentId };
+
   const { document, loading } = useSingle<AnyBecauseHard>({
     ...selector,
     collectionName,

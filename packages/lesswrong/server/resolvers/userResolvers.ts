@@ -9,8 +9,9 @@ import { userFindOneByEmail } from "../commonQueries";
 import UsersRepo from '../repos/UsersRepo';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
-import { updateMutator } from "../vulcan-lib/mutators";
 import gql from 'graphql-tag';
+import { updateUser } from '../collections/users/mutations';
+import { accessFilterSingle } from '@/lib/utils/schemaUtils';
 
 type NewUserUpdates = {
   username: string
@@ -86,6 +87,7 @@ export const graphqlTypeDefs = gql`
     UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]
     GetRandomUser(userIsAuthor: String!): User
     IsDisplayNameTaken(displayName: String!): Boolean!
+    GetUserBySlug(slug: String!): User
   }
 
   ${suggestedFeedTypeDefs}
@@ -123,21 +125,17 @@ export const graphqlMutations = {
     if (email && !SimpleSchema.RegEx.Email.test(email)) {
       throw new Error('Invalid email')
     }
-    const updatedUser = (await updateMutator({
-      collection: Users,
-      documentId: currentUser._id,
-      set: {
+    const updatedUser = await updateUser({
+      data: {
         usernameUnset: false,
         username,
         displayName: username,
         slug: await getUnusedSlugByCollectionName("Users", slugify(username)),
-        ...(email ? {email} : {}),
+        ...(email ? { email } : {}),
         subscribedToDigest: subscribeToDigest,
         acceptedTos,
-      },
-      // We've already done necessary gating
-      validate: false
-    })).data
+      }, selector: { _id: currentUser._id }
+    }, context, true);
     // Don't want to return the whole object without more permission checking
     return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
   },
@@ -164,14 +162,11 @@ export const graphqlMutations = {
     }
 
     const newProfileTagIds = member ? [...(currentUser.profileTagIds || []), tagId] : currentUser.profileTagIds?.filter(id => id !== tagId) || []
-    const updatedUser = await updateMutator({
-      collection: Users,
-      documentId: currentUser._id,
-      set: {
+    const updatedUser = await updateUser({
+      data: {
         profileTagIds: newProfileTagIds
-      },
-      validate: false
-    })
+      }, selector: { _id: currentUser._id }
+    }, context, true)
     
     return updatedUser
   },
@@ -215,5 +210,16 @@ export const graphqlQueries = {
     const isTaken = await context.repos.users.isDisplayNameTaken({ displayName, currentUserId: currentUser._id });
     return isTaken;
   },
-  ...suggestedFeedQuery
+  ...suggestedFeedQuery,
+  async GetUserBySlug(root: void, { slug }: { slug: string }, context: ResolverContext) {
+    const { Users } = context;
+
+    const userBySlug = await Users.findOne({ slug });
+
+    if (!userBySlug) {
+      return null;
+    }
+
+    return accessFilterSingle(context.currentUser, 'Users', userBySlug, context);
+  }
 }

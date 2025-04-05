@@ -98,7 +98,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateUserInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: UpdateUserDataInput | Partial<DbUser>, selector: SelectorInput }, context, skipValidation?: boolean) => {
     const { currentUser, Users } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for

@@ -22,7 +22,7 @@ const updateClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
   fragmentName: string,
   extraVariablesString?: string,
 }) =>
-`mutation update${typeName}($selector: ${typeName}SelectorUniqueInput!, $data: Update${typeName}DataInput!, ${extraVariablesString || ''}) {
+`mutation update${typeName}($selector: SelectorInput!, $data: Update${typeName}DataInput!, ${extraVariablesString || ''}) {
   update${typeName}(selector: $selector, data: $data) {
     data {
       ...${fragmentName}

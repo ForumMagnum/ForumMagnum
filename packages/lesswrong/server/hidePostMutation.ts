@@ -1,9 +1,9 @@
 import Users from '../server/collections/users/collection';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
-import { updateMutator } from './vulcan-lib/mutators';
 import some from 'lodash/some'
 import reject from 'lodash/reject'
 import gql from 'graphql-tag';
+import { updateUser } from './collections/users/mutations';
 
 export const hidePostGqlTypeDefs = gql`
   extend type Mutation {
@@ -34,13 +34,10 @@ export const hidePostGqlMutations = {
         newHiddenList = reject(oldHiddenList, hiddenMetadata=>hiddenMetadata.postId===postId)
     }
     
-    await updateMutator({
-      collection: Users,
-      documentId: currentUser._id,
-      set: {hiddenPostsMetadata: newHiddenList},
-      currentUser, context,
-      validate: false,
-    });
+    await updateUser({
+      data: {hiddenPostsMetadata: newHiddenList},
+      selector: { _id: currentUser._id }
+    }, context, true);
     
     const updatedUser = await Users.findOne(currentUser._id)!;
     return (await accessFilterSingle(currentUser, 'Users', updatedUser, context))!;

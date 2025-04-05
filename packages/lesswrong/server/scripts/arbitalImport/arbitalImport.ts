@@ -37,14 +37,13 @@ import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
 import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
 import { createAdminContext } from "@/server/vulcan-lib/createContexts.ts";
-import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
 import { getCollection } from "@/server/collections/allCollections";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { createTag } from '@/server/collections/tags/mutations';
+import { createTag, updateTag } from '@/server/collections/tags/mutations';
 import { createComment } from '@/server/collections/comments/mutations';
 import { createUser } from '@/server/collections/users/mutations';
 import { createRevision } from '@/server/collections/revisions/mutations';
-import { createMultiDocument } from '@/server/collections/multiDocuments/mutations';
+import { createMultiDocument, updateMultiDocument } from '@/server/collections/multiDocuments/mutations';
 import { createArbitalTagContentRel } from '@/server/collections/arbitalTagContentRels/mutations';
 
 export type ArbitalImportOptions = {
@@ -805,10 +804,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
 
       const pageAlternatives = alternativesByPageId[pageId];
       if (pageAlternatives && Object.values(pageAlternatives).some(alternatives => alternatives.length > 0)) {
-        await updateMutator({
-          collection: Tags,
-          documentId: wiki._id,
-          set: {
+        await updateTag({
+          data: {
             legacyData: {
               ...wiki.legacyData,
               arbitalFasterAlternatives: pageAlternatives.faster ?? [],
@@ -816,10 +813,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
               arbitalMoreTechnicalAlternatives: pageAlternatives.more_technical ?? [],
               arbitalLessTechnicalAlternatives: pageAlternatives.less_technical ?? [],
             },
-          },
-          currentUser: pageCreator,
-          context: resolverContext,
-        });
+          }, selector: { _id: wiki._id }
+        }, resolverContext);
       }
 
       await createSummariesForPage({
@@ -1329,21 +1324,28 @@ async function importRevisions<N extends CollectionNameString>({
   const lastRevision = revisions[revisions.length-1];
   const lastRevCkEditorMarkup = ckEditorMarkupByRevisionIndex[revisions.length-1];
   const lastRevisionCreator = conversionContext.matchedUsers[lastRevision.creatorId] ?? conversionContext.defaultUser;
-  const modifiedObj = (await updateMutator<N>({
-    collection,
-    documentId,
-    set: {
-      [fieldName]: {
-        originalContents: {
-          type: "ckEditorMarkup",
-          data: lastRevCkEditorMarkup,
-        }
-      },
-    } as AnyBecauseHard,
-    currentUser: lastRevisionCreator,
-    context: resolverContext,
-    validate: false,
-  })).data;
+  const data = {
+    [fieldName]: {
+      originalContents: {
+        type: "ckEditorMarkup",
+        data: lastRevCkEditorMarkup,
+      }
+    },
+  };
+
+  const selector = { _id: documentId };
+
+  let modifiedObj: DbTag | DbMultiDocument;
+  if (collection.collectionName === "Tags") {
+    modifiedObj = await updateTag({
+      data, selector,
+    }, resolverContext, true);
+  } else {
+    modifiedObj = await updateMultiDocument({
+      data, selector
+    }, resolverContext, true);
+  }
+
   if (collection.collectionName === "Tags") {
     await backDateDenormalizedEditable(collection, documentId, fieldName, lastRevision.createdAt);
   }

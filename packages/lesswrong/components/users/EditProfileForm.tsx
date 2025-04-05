@@ -10,6 +10,7 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useGetUserBySlug } from '../hooks/useGetUserBySlug';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -93,6 +94,8 @@ const EditProfileForm = ({classes}: {
     terms.documentId = currentUser._id
   }
 
+  const { user } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersProfileEdit', skip: !terms.slug });
+
   // no matching user
   if ((!terms.slug && !terms.documentId) || !currentUser) {
     return (
@@ -155,7 +158,7 @@ const EditProfileForm = ({classes}: {
 
       <WrappedSmartForm
         collectionName="Users"
-        {...terms}
+        documentId={user?._id}
         fields={[
           ...(isFriendlyUI ? ['displayName'] : []), // In UsersEditForm ("Account settings") in book UI
           'profileImageId',

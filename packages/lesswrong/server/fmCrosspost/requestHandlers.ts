@@ -16,8 +16,7 @@ import {
 } from "./types";
 import { connectCrossposterToken } from "../crossposting/tokens";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
-import { createPost } from "../collections/posts/mutations";
-
+import { createPost } from '../collections/posts/mutations';
 export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
   const {user} = req;
   if (!user) {
@@ -81,7 +80,6 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
   };
 
   const userContext = await computeContextFromUser({ user, isSSR: false })
-
   const post = await createPost({ data: document }, { ...userContext, isFMCrosspostRequest: true }, true);
 
   return {

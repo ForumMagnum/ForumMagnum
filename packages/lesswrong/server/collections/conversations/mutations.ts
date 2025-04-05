@@ -57,7 +57,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateConversationInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: UpdateConversationDataInput | Partial<DbConversation>; selector: SelectorInput }, context, skipValidation?: boolean) => {
     const { currentUser, Conversations } = context;
 
     const {

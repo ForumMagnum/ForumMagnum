@@ -29,7 +29,7 @@ export interface UpdateCallbackProperties<N extends CollectionNameString, D exte
   data: D,
   oldDocument: ObjectsByCollectionName[N],
   /** Is a "preview" of the new document */
-  newDocument: ObjectsByCollectionName[N] // & UpdateInputsByCollectionName[N]['data'] // UpdatePreviewDocument<ObjectsByCollectionName[N]>
+  newDocument: ObjectsByCollectionName[N]
 }
 
 export interface DeleteCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {

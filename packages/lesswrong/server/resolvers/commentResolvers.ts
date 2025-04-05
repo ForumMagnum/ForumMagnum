@@ -1,14 +1,12 @@
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { updateMutator } from '../vulcan-lib/mutators';
-import { Comments } from '../../server/collections/comments/collection';
 import CommentsRepo from '../repos/CommentsRepo';
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { fetchFragmentSingle } from '../fetchFragment';
 import gql from 'graphql-tag';
+import { updateComment } from '../collections/comments/mutations';
 
 const { Query: commentsWithReactsQuery, typeDefs: commentsWithReactsTypeDefs } = createPaginatedResolver({
   name: "CommentsWithReacts",
@@ -62,14 +60,10 @@ export const graphqlMutations = {
         set.deletedByUserId = null;
       }
       
-      const {data: updatedComment} = await updateMutator({
-        collection: Comments,
-        documentId: commentId,
-        set,
-        currentUser: currentUser,
-        validate: false,
-        context
-      });
+      const updatedComment = await updateComment({
+        data: set,
+        selector: { _id: commentId },
+      }, context, true);
       return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
     } else {
       throw new Error(encodeIntlError({id: `app.user_cannot_moderate_post`}));

@@ -1,11 +1,10 @@
-import { Posts } from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
 import groupBy from "lodash/groupBy";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
-import { updateMutator } from "../vulcan-lib/mutators";
 import { createConversation } from "../collections/conversations/mutations";
 import { createMessage } from "../collections/messages/mutations";
+import { updatePost } from "../collections/posts/mutations";
 
 export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
   const db = getSqlClientOrThrow();
@@ -46,16 +45,10 @@ export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
 
   for (let [userId, userPosts] of Object.entries(postsByUsers)) {
     for (let duplicatePost of userPosts) {
-      await updateMutator({
-        collection: Posts,
-        context: adminContext,
-        currentUser: adminUser,
-        documentId: duplicatePost.postId,
-        data: {
-          draft: true,
-          deletedDraft: true
-        }
-      })
+      await updatePost({
+        data: { draft: true , deletedDraft: true },
+        selector: { _id: duplicatePost.postId }
+      }, adminContext)
     }
 
     const conversationData = {

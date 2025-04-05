@@ -2,9 +2,11 @@ import { SENT_MODERATOR_MESSAGE } from '../../lib/collections/moderatorActions/n
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { loadByIds } from '../../lib/loaders';
 import { CreateCallbackProperties } from '../mutationCallbacks';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updateConversation } from '../collections/conversations/mutations';
 
 export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
   const { data } = (message.contents && message.contents.originalContents) || {}
@@ -71,15 +73,10 @@ export async function addParticipantIfNew({ document, currentUser, context }: Cr
     conversation &&
     !conversation.participantIds.includes(currentUser._id)
   ) {
-    await updateMutator({
-      currentUser,
-      collection: Conversations,
-      documentId: conversationId,
-      set: {
-        participantIds: [...conversation.participantIds, currentUser._id],
-      },
-      validate: false,
-    });
+    await updateConversation({
+      data: { participantIds: [...conversation.participantIds, currentUser._id] },
+      selector: { _id: conversationId }
+    }, createAnonymousContext(), true);
   }
 }
 
@@ -90,13 +87,9 @@ export async function updateConversationActivity(message: DbMessage, context: Re
   const user = await Users.findOne(message.userId);
   const conversation = await Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
-  await updateMutator({
-    collection: Conversations,
-    documentId: conversation._id,
-    set: {latestActivity: message.createdAt},
-    currentUser: user,
-    validate: false,
-  });
+    
+  const userContext = await computeContextFromUser({ user: user, isSSR: false });
+  await updateConversation({ data: {latestActivity: message.createdAt}, selector: { _id: conversation._id } }, userContext, true);
 }
 
 export async function sendMessageNotifications(message: DbMessage, context: ResolverContext) {

@@ -1,9 +1,7 @@
 import { registerMigration } from './migrationUtils';
-import { updateMutator } from '../vulcan-lib/mutators';
-
-
-import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updatePost } from '../collections/posts/mutations';
 
 export default registerMigration({
   name: "setAfShortformValues",
@@ -13,12 +11,7 @@ export default registerMigration({
     const afUsers = await Users.find({groups: "alignmentForum"}).fetch()
     const afUsersWithShortforms = afUsers.filter(user => !!user.shortformFeedId)
     for (const afUserWithShortforms of afUsersWithShortforms) {
-      await updateMutator({
-        collection: Posts,
-        documentId: afUserWithShortforms.shortformFeedId!,
-        set: { af: true },
-        validate: false,
-      });
+      await updatePost({ data: { af: true }, selector: { _id: afUserWithShortforms.shortformFeedId! } }, createAnonymousContext(), true);
     }
   },
 });

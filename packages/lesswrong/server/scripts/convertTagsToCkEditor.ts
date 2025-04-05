@@ -1,9 +1,10 @@
 import { forEachDocumentInCollection } from "../manualMigrations/migrationUtils";
 import { Users } from "@/server/collections/users/collection";
 import Tags from "@/server/collections/tags/collection";
-import { updateMutator } from "@/server/vulcan-lib/mutators";
 import { dataToCkEditor } from "../editor/conversionUtils";
 import { parseSemver } from "@/lib/editor/utils";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { updateTag } from "../collections/tags/mutations";
 
 // Exported to allow running manually with "yarn repl"
 export const convertTagsToCkEditor = async (conversionUserSlug?: string) => {
@@ -29,12 +30,9 @@ async function convertTagToCkEditor(tag: DbTag, conversionUser: DbUser) {
   if (tag.description?.originalContents?.type === 'draftJS') {
     const [oldMajor,oldMinor,oldPatch] = parseSemver(tag.description.version);
     const newVersion = `${oldMajor}.${oldMinor}.${oldPatch+1}`;
-
-    await updateMutator({
-      collection: Tags,
-      documentId: tag._id,
-      currentUser: conversionUser,
-      set: {
+    const userContext = await computeContextFromUser({ user: conversionUser, isSSR: false });
+    await updateTag({
+      data: {
         description: {
           originalContents: {
             type: "ckEditorMarkup",
@@ -42,8 +40,7 @@ async function convertTagToCkEditor(tag: DbTag, conversionUser: DbUser) {
           },
           commitMessage: "Convert editor type to CkEditor",
         },
-      },
-      validate: false,
-    });
+      }, selector: { _id: tag._id }
+    }, userContext, true);
   }
 }

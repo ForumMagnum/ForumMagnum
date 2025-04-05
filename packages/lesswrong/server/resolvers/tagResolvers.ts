@@ -33,9 +33,9 @@ import { namedPromiseAll } from '@/lib/utils/asyncUtils';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { getLatestRev } from '../editor/utils';
-import { updateMutator } from "../vulcan-lib/mutators";
 import gql from 'graphql-tag';
-import { createAdminContext } from '../vulcan-lib/createContexts';
+import { createAdminContext } from "@/server/vulcan-lib/createContexts";
+import { updateTag } from '../collections/tags/mutations';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -511,13 +511,7 @@ export const tagResolversGraphQLMutations = {
       const sourceSubTags = await Tags.find({ parentTagId: sourceTagId }).fetch()
 
       for (const subTag of sourceSubTags) {
-        await updateMutator({
-          collection: Tags,
-          documentId: subTag._id,
-          // This will run a callback to update the subTags field on the parent tag
-          set: { parentTagId: targetTagId },
-          validate: false,
-        });
+        await updateTag({ data: { parentTagId: targetTagId }, selector: { _id: subTag._id } }, context, true);
       }
     }
 
@@ -541,12 +535,7 @@ export const tagResolversGraphQLMutations = {
       );
 
       // Soft delete the source tag, making sure to run the callbacks
-      await updateMutator({
-        collection: Tags,
-        documentId: sourceTagId,
-        set: { deleted: true },
-        validate: false,
-      });
+      await updateTag({ data: { deleted: true }, selector: { _id: sourceTagId } }, context, true);
     }
 
     return true;

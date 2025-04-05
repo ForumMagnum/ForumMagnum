@@ -40,7 +40,7 @@ interface NewAsyncEditableCallbackProperties<N extends CollectionNameString> {
 }
 
 interface EditAsyncEditableCallbackProperties<N extends CollectionNameString> {
-  newDoc: ObjectsByCollectionName[N] | UpdatePreviewDocument<ObjectsByCollectionName[N]>;
+  newDoc: ObjectsByCollectionName[N];
   props: UpdateCallbackProperties<N>;
 }
 

@@ -1,7 +1,6 @@
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import ElicitQuestions from '../../server/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../server/collections/elicitQuestionPredictions/collection';
-import { createMutator } from '../vulcan-lib/mutators';
 import { randomId } from '@/lib/random';
 import gql from 'graphql-tag';
 import { createElicitQuestionPrediction } from '../collections/elicitQuestionPredictions/mutations';

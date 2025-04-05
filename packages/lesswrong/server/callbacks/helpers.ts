@@ -1,3 +1,5 @@
+import { randomSecret } from "@/lib/random";
+
 export function getRejectionMessage(rejectedContentLink: string, rejectedReason: string|null) {
   let messageContents = `
   <p>Unfortunately, I rejected your ${rejectedContentLink}.</p>
@@ -13,4 +15,8 @@ export async function triggerReview(userId: string, context: ResolverContext, re
   const { Users } = context;
   // TODO: save the reason
   await  Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
+}
+
+export function generateLinkSharingKey(): string {
+  return randomSecret();
 }

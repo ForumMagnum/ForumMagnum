@@ -4,8 +4,7 @@ import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collecti
 import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/schema";
 import { getWithLoader } from "../../lib/loaders";
 import { forumSelect } from "../../lib/forumTypeUtils";
-import { updateMutator } from "../vulcan-lib/mutators";
-import { createModeratorAction } from "../collections/moderatorActions/mutations";
+import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { triggerReview } from "./helpers";
 import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
 
@@ -111,15 +110,10 @@ async function disableModerationAction(userId: string, warningType: DbModeratorA
 
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   if (lastModeratorAction && isActionActive(lastModeratorAction)) {
-    void updateMutator({
-      collection: ModeratorActions,
-      documentId: lastModeratorAction._id,
-      data: {
-        endedAt: new Date()
-      },
-      currentUser: context.currentUser,
-      context
-    });
+    void updateModeratorAction({
+      data: { endedAt: new Date() },
+      selector: { _id: lastModeratorAction._id }
+    }, context);
   }
 }
 

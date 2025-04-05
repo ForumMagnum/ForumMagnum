@@ -67,7 +67,6 @@ import './server/collections/users/karmaChangesGraphQL';
 import './server/tagging/tagsGraphQL';
 import './server/callbacks/multiDocumentCallbacks';
 
-import './server/callbacks/commentCallbacks';
 import './server/callbacks/conversationCallbacks';
 import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';

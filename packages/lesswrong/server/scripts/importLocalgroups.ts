@@ -3,9 +3,8 @@ import Papa from 'papaparse';
 import Localgroups from '../../server/collections/localgroups/collection';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/newSchema';
 import { wrapVulcanAsyncScript } from './utils';
-import { updateMutator } from "../vulcan-lib/mutators";
-import { createLocalgroup } from '../collections/localgroups/mutations';
-import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { createLocalgroup, updateLocalgroup } from '../collections/localgroups/mutations';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 /**
  * Import data for localgroups
@@ -67,12 +66,7 @@ export const importLocalgroups = wrapVulcanAsyncScript(
         }
         // replace any existing data with the imported data
         else {
-          void updateMutator({
-            collection: Localgroups,
-            documentId: data._id,
-            set: dataToSet,
-            validate: false
-          })
+          void updateLocalgroup({ data: { ...dataToSet }, selector: { _id: data._id } }, createAnonymousContext(), true)
         }
       })
   }

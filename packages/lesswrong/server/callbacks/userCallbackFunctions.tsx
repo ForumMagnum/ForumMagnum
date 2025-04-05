@@ -29,17 +29,18 @@ import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/modera
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { updateMutator } from "../vulcan-lib/mutators";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
-import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { createConversation } from "../collections/conversations/mutations";
 import { createMessage } from "../collections/messages/mutations";
-import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
-
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updatePost } from "../collections/posts/mutations";
+import { updateComment } from "../collections/comments/mutations";
+import { createUser, updateUser } from "../collections/users/mutations";
 
 async function sendWelcomeMessageTo(userId: string) {
   const context = createAnonymousContext();
@@ -178,10 +179,7 @@ const utils = {
         displayName: "AI Alignment Forum",
         email: "aialignmentforum@lesswrong.com",
       }
-      const afAccountContext = await computeContextFromUser({ user: account, req: context.req, res: context.res, isSSR: context.isSSR });
-      // Pretty tricky to get around this dependency cycle without moving the create-if-not-exists logic somewhere out of band
-      const { createUser }: typeof import('../collections/users/mutations') = require('../collections/users/mutations');
-      const response = await createUser({ data: userData }, afAccountContext, true);
+      const response = await createUser({ data: userData }, context, true);
       account = response
     }
     return account;
@@ -410,12 +408,10 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
       throw new Error("This display name is already taken");
     }
     if (data.shortformFeedId && !isLWorAF) {
-      void updateMutator({
-        collection: Posts,
-        documentId: data.shortformFeedId,
-        set: {title: userShortformPostTitle(newDocument)},
-        validate: false,
-      });
+      void updatePost({
+        data: {title: userShortformPostTitle(newDocument)},
+        selector: { _id: data.shortformFeedId }
+      }, createAnonymousContext(), true);
     }
   }
   return data;
@@ -557,15 +553,13 @@ export async function approveUnreviewedSubmissions(newUser: DbUser, oldUser: DbU
     // to now so that it goes to the right place int he latest posts list.
     const unreviewedPosts = await Posts.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let post of unreviewedPosts) {
-      await updateMutator<"Posts">({
-        collection: Posts,
-        documentId: post._id,
-        set: {
+      await updatePost({
+        data: {
           authorIsUnreviewed: false,
           postedAt: new Date(),
         },
-        validate: false
-      });
+        selector: { _id: post._id }
+      }, context, true);
     }
     
     // For each comment by this author which has the authorIsUnreviewed flag set, clear the authorIsUnreviewed flag.
@@ -573,14 +567,10 @@ export async function approveUnreviewedSubmissions(newUser: DbUser, oldUser: DbU
     // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
     const unreviewedComments = await Comments.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let comment of unreviewedComments) {
-      await updateMutator<"Comments">({
-        collection: Comments,
-        documentId: comment._id,
-        set: {
-          authorIsUnreviewed: false,
-        },
-        validate: false
-      });
+      await updateComment({
+        data: { authorIsUnreviewed: false },
+        selector: { _id: comment._id }
+      }, context, true);
     }
   }
 }
@@ -609,12 +599,7 @@ export async function handleSetShortformPost(newUser: DbUser, oldUser: DbUser, c
     // So, don't bother checking for an old post in the shortformFeedId field.
     
     // Mark the post as shortform
-    await updateMutator({
-      collection: Posts,
-      documentId: post._id,
-      set: { shortform: true },
-      validate: false,
-    });
+    await updatePost({ data: { shortform: true }, selector: { _id: post._id } }, createAnonymousContext(), true);
   }
 }
 
@@ -636,13 +621,7 @@ export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldU
   // we don't want this action to count toward their one username change
   const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset
   if (user.displayName !== oldUser.displayName && !isSettingUsername) {
-    await updateMutator({
-      collection: Users,
-      documentId: user._id,
-      set: {previousDisplayName: oldUser.displayName},
-      currentUser: user,
-      validate: false,
-    });
+    await updateUser({ data: {previousDisplayName: oldUser.displayName}, selector: { _id: user._id } }, context, true);
   }
 }
 
@@ -702,14 +681,9 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
   const { Posts } = context;
   if (utils.isAlignmentForumMember(newUser) && !utils.isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
-      await updateMutator({
-        collection: Posts,
-        documentId: newUser.shortformFeedId,
-        set: {
-          af: true
-        },
-        validate: false,
-      })
+      await updatePost({ data: {
+                  af: true
+                }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext(), true)
     }
   }
 }

@@ -1,14 +1,13 @@
 import feedparser from 'feedparser-promised';
 import Users from '../../server/collections/users/collection';
 import { Posts } from '../../server/collections/posts/collection';
-import { updateMutator } from '../vulcan-lib/mutators';
 import RSSFeeds from '../../server/collections/rssfeeds/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 import { createRSSFeed } from '../collections/rssfeeds/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { createPost } from '../collections/posts/mutations';
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createPost, updatePost } from '../collections/posts/mutations';
 
 async function rssImport(userId: string, rssURL: string, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {
@@ -65,13 +64,8 @@ async function rssImport(userId: string, rssURL: string, pages = 100, overwrite 
           void createPost({ data: post }, userContext, true);
         } else {
           if(overwrite) {
-            void updateMutator({
-              collection: Posts,
-              documentId: oldPost._id,
-              set: {...post},
-              currentUser: lwUser,
-              validate: false,
-            })
+            const userContext = await computeContextFromUser({ user: lwUser, isSSR: false });
+            void updatePost({ data: {...post}, selector: { _id: oldPost._id } }, userContext, true)
           }
           //eslint-disable-next-line no-console
           console.warn("Post already imported: ", oldPost.title);

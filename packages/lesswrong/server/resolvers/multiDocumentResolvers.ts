@@ -1,7 +1,7 @@
 import { loadByIds } from "@/lib/loaders";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { updateMutator } from "../vulcan-lib/mutators";
 import gql from "graphql-tag";
+import { updateMultiDocument } from "../collections/multiDocuments/mutations";
 
 
 export const multiDocumentTypeDefs = gql`
@@ -49,13 +49,7 @@ export const multiDocumentMutations = {
 
     // This is not even remotely safe, but lol.
     for (const [index, summaryId] of summaryIds.entries()) {
-      await updateMutator({
-        collection: MultiDocuments,
-        documentId: summaryId,
-        set: { index },
-        currentUser,
-        context,
-      });
+      await updateMultiDocument({ data: { index }, selector: { _id: summaryId } }, context);
     }
 
     return true;

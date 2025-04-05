@@ -13,7 +13,6 @@ import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 import { slugify } from '@/lib/utils/slugify';
-import { createMutator } from "../vulcan-lib/mutators";
 import { createUser } from '../collections/users/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 

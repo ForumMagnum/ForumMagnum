@@ -16,11 +16,10 @@ import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
 import { clientIdMiddleware } from "../clientIdMiddleware";
-import { createMutator } from "../vulcan-lib/mutators";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { createLlmMessage } from "../collections/llmMessages/mutations";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -603,8 +602,7 @@ export function addLlmChatEndpoint(app: Express) {
     const createNewMessagesSequentiallyPromise = asyncMapSequential(
       newMessageRecords,
       (message) => {
-        // TODO: Replace with createLlmMessage once it's implemented
-        return createLlmMessage({ data: message }, createAnonymousContext()).then(({ data }) => data);
+        return createLlmMessage({ data: message }, context);
       }
     );
 
@@ -657,8 +655,7 @@ export function addLlmChatEndpoint(app: Express) {
         sendEventToClient
       });
 
-      // TODO: Replace with createLlmMessage once it's implemented
-      await createLlmMessage({ data: claudeResponse }, createAnonymousContext());
+      await createLlmMessage({ data: claudeResponse }, context);
       
       await sendStreamEndEvent(conversationId, sendEventToClient);
     } catch (err) {

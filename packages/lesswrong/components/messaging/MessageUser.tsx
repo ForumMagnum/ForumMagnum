@@ -4,6 +4,7 @@ import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useSingle } from "@/lib/crud/withSingle";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
+import { useGetUserBySlug } from "../hooks/useGetUserBySlug";
 
 const styles = (theme: ThemeType) => ({
   error: {
@@ -39,12 +40,7 @@ const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { params } = useLocation();
   const { Loading, SingleColumnSection } = Components;
 
-  const { document: user, loading } = useSingle({
-    slug: params.slug,
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
-    skip: !currentUser || !params.slug,
-  });
+  const { user, loading } = useGetUserBySlug(params.slug, { fragmentName: 'UsersMinimumInfo', skip: !currentUser || !params.slug });
 
   if (!currentUser) {
     return <SingleColumnSection className={classes.error}>Log in to access private messages.</SingleColumnSection>;

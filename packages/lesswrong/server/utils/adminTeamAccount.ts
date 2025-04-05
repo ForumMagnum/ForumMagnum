@@ -6,16 +6,15 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
   if (!adminAccountData) {
     return null;
   }
+
+  // We need this dynamic require because the jargonTerms schema actually uses `getAdminTeamAccountId` when declaring the schema.
+  const { createUser }: typeof import("../collections/users/mutations") = require("../collections/users/mutations");
+
   let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
-    const { createUser }: typeof import("../collections/users/mutations") = require("../collections/users/mutations");
-    const { createAnonymousContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
-    // Create an anonymous context since there's no currentUser for this operation
-    const anonContext = createAnonymousContext();
-    
     const newAccount = await createUser({
       data: adminAccountData
-    }, anonContext, true);
+    }, context, true);
     
     return newAccount;
   }

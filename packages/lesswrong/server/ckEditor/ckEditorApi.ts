@@ -13,11 +13,10 @@ import { buildRevision } from '../editor/conversionUtils';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
-import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { createRevision } from '../collections/revisions/mutations';
+import { updateCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -207,14 +206,11 @@ const documentHelpers = {
 
   async endCkEditorUserSession(documentId: string, endedBy: string, endedAt: Date = new Date()) {
     const adminContext = createAdminContext();
-  
-    return updateMutator({
-      collection: CkEditorUserSessions,
-      documentId,
-      set: { endedAt, endedBy },
-      context: adminContext,
-      currentUser: adminContext.currentUser,
-    });
+
+    return updateCkEditorUserSession({
+      data: { endedAt, endedBy },
+      selector: { _id: documentId },
+    }, adminContext);
   }
 };
 

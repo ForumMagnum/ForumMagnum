@@ -91,7 +91,8 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   mutationFragmentName?: FragmentName
 
   documentId?: string
-  slug?: string
+  /** @deprecated Don't use this.  If you need to fetch a document by something other than documentId, fetch it outside the form. */
+  // slug?: string
   /**
    * Warning - passing in a prefetched document into a wrapped smart form might cause unexpected issues for anything using ckEditor, if the loaded document comes back with different data than what was prefetched.
    */

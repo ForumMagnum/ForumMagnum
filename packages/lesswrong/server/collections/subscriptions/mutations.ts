@@ -6,9 +6,11 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { deleteOldSubscriptions } from "@/server/callbacks/subscriptionCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapCreateMutatorFunction, wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
+import { wrapCreateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
+import { clone } from "underscore";
 
 function newCheck(user: DbUser | null, document: CreateSubscriptionDataInput | null) {
   if (!user || !document) return false;
@@ -16,7 +18,7 @@ function newCheck(user: DbUser | null, document: CreateSubscriptionDataInput | n
 }
 
 
-const { createFunction } = getDefaultMutationFunctions('Subscriptions', {
+const { createFunction, updateFunction } = getDefaultMutationFunctions('Subscriptions', {
   createFunction: async ({ data }: CreateSubscriptionInput, context, skipValidation?: boolean) => {
     const { currentUser } = context;
 
@@ -45,6 +47,35 @@ const { createFunction } = getDefaultMutationFunctions('Subscriptions', {
 
     return documentWithId;
   },
+
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbSubscription> }, context, skipValidation?: boolean) => {
+    const { currentUser, Subscriptions } = context;
+
+    const {
+      documentSelector: subscriptionSelector,
+      previewDocument, 
+      updateCallbackProperties,
+    } = await checkUpdatePermissionsAndReturnProps('Subscriptions', { selector, context, data, schema, skipValidation });
+
+    const dataAsModifier = dataToModifier(clone(data));
+    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+
+    let modifier = dataToModifier(data);
+
+    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
+    // The only difference could be in the case where there's no update (due to an empty modifier) and
+    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
+    let updatedDocument = await updateAndReturnDocument(modifier, Subscriptions, subscriptionSelector, context) ?? previewDocument as DbSubscription;
+
+    await runCountOfReferenceCallbacks({
+      collectionName: 'Spotlights',
+      newDocument: updatedDocument,
+      callbackStage: "updateAfter",
+      updateAfterProperties: updateCallbackProperties,
+    });
+
+    return updatedDocument;
+  },
 });
 
 const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
@@ -53,7 +84,7 @@ const wrappedCreateFunction = wrapCreateMutatorFunction(createFunction, {
 });
 
 
-export { createFunction as createSubscription };
+export { createFunction as createSubscription, updateFunction as updateSubscription };
 export { wrappedCreateFunction as createSubscriptionMutation };
 
 

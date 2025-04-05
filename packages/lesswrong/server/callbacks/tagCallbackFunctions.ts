@@ -1,6 +1,5 @@
 import { taggingNameSetting } from "@/lib/instanceSettings";
-import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
-import { updateMutator } from "../vulcan-lib/mutators";
+import { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { elasticSyncDocument } from "../search/elastic/elasticCallbacks";
 import { userCanUseTags } from "@/lib/betas";
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
@@ -10,6 +9,7 @@ import { createNotifications, getSubscribedUsers } from "../notificationCallback
 import { postIsPublic } from "@/lib/collections/posts/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import _ from "underscore";
+import { updateTag } from "../collections/tags/mutations";
 
 const utils = {
   isValidTagName: (name: string) => {
@@ -121,24 +121,18 @@ export async function updateParentTagSubTagIds(newDoc: DbTag, { oldDocument, con
   // Remove this tag from the subTagIds of the old parent
   if (oldDocument.parentTagId) {
     const oldParent = await Tags.findOne(oldDocument.parentTagId);
-    await updateMutator({
-      collection: Tags,
-      documentId: oldDocument.parentTagId,
-      // TODO change to $pull (reverse of $addToSet) once it is implemented in postgres
-      set: {subTagIds: [...(oldParent?.subTagIds || []).filter((id: string) => id !== newDoc._id)]},
-      validate: false,
-    })
+    await updateTag({
+      data: {subTagIds: [...(oldParent?.subTagIds || []).filter((id: string) => id !== newDoc._id)]},
+      selector: { _id: oldDocument.parentTagId }
+    }, context, true)
   }
   // Add this tag to the subTagIds of the new parent
   if (newDoc.parentTagId) {
     const newParent = await Tags.findOne(newDoc.parentTagId);
-    await updateMutator({
-      collection: Tags,
-      documentId: newDoc.parentTagId,
-      // TODO change to $addToSet once it is implemented in postgres
-      set: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
-      validate: false,
-    })
+    await updateTag({
+      data: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
+      selector: { _id: newDoc.parentTagId }
+    }, context, true)
   }
   return newDoc;
 }

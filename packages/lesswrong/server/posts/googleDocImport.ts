@@ -2,10 +2,9 @@ import { OAuth2Client } from 'google-auth-library';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import GoogleServiceAccountSessions from '../../server/collections/googleServiceAccountSessions/collection';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { drive } from '@googleapis/drive';
-import { createGoogleServiceAccountSession } from '../collections/googleServiceAccountSessions/mutations';
-import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { createGoogleServiceAccountSession, updateGoogleServiceAccountSession } from '../collections/googleServiceAccountSessions/mutations';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 export const googleDocImportClientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
 export const googleDocImportClientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
@@ -104,12 +103,7 @@ export async function revokeAllAccessTokens() {
     try {
       await oauth2Client.revokeToken(session.refreshToken);
 
-      await updateMutator({
-        collection: GoogleServiceAccountSessions,
-        documentId: session._id,
-        set: { active: false, revoked: true },
-        validate: false
-      });
+      await updateGoogleServiceAccountSession({ data: { active: false, revoked: true }, selector: { _id: session._id } }, createAnonymousContext(), true);
 
       return true;
     } catch (error) {

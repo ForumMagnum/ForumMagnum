@@ -1,14 +1,15 @@
 import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/newSchema';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import difference from 'lodash/difference';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
-import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { createMessage } from '../collections/messages/mutations';
+import { updateUser } from '../collections/users/mutations';
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -69,15 +70,14 @@ export async function flagOrBlockUserOnManyDMs({
       },
     }, context, true);
   }
+  
   // Always update the numUsersContacted field, for denormalization
-  void updateMutator({
-    collection: Users,
-    documentId: currentUser._id,
-    set: {
+  void updateUser({
+    data: {
       usersContactedBeforeReview: allUsersEverContacted,
     },
-    validate: false,
-  });
+    selector: { _id: currentUser._id }
+  }, createAnonymousContext(), true);
   
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
     logger('Blocking user')

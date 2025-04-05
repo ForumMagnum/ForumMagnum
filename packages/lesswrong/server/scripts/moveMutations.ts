@@ -560,10 +560,10 @@ export async function generateMutationImports() {
   await writeFile('./packages/lesswrong/server/initGraphQLImports.ts', importBlock + '\n\n' + mutationBlock);
 }
 
-export async function movePostRelationsMutations() {
-  const mutationFilePath = join(__dirname, `../collections/postRelations/mutations.ts`);
+export async function moveLlmMessagesMutations() {
+  const mutationFilePath = join(__dirname, `../collections/llmMessages/mutations.ts`);
 
-  const reviewVoteMutations = generateMutationFunctions('PostRelations');
+  const reviewVoteMutations = generateMutationFunctions('LlmMessages');
 
   await writeFile(mutationFilePath, reviewVoteMutations);
 }

@@ -54,7 +54,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateNotificationInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: UpdateNotificationDataInput | Partial<DbNotification>, selector: SelectorInput }, context, skipValidation?: boolean) => {
     const { currentUser, Notifications } = context;
 
     const {

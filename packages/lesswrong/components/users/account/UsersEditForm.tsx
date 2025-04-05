@@ -11,6 +11,7 @@ import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,6 +46,8 @@ const UsersEditForm = ({terms, classes}: {
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
+  const { user: userBySlug } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersEdit', skip: !userCanEditUser(currentUser, terms) });
+
   if(!userCanEditUser(currentUser, terms)) {
     return <ErrorAccessDenied />;
   }
@@ -58,6 +61,9 @@ const UsersEditForm = ({terms, classes}: {
     const { data } = await mutate({variables: { email: getUserEmail(currentUser) }})
     flash(data?.resetPassword)
   }
+
+  // console.log(`userBySlug`, { userBySlug });
+
 
   return (
     <div className={classes.root}>
@@ -75,7 +81,7 @@ const UsersEditForm = ({terms, classes}: {
 
       <Components.WrappedSmartForm
         collectionName="Users"
-        {...terms}
+        documentId={userBySlug?._id}
         removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
         successCallback={async (user: AnyBecauseTodo) => {
           if (user?.theme) {

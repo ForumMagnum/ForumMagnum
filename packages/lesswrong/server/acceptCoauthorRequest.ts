@@ -1,7 +1,8 @@
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import { createNotification } from './notificationCallbacksHelpers';
-import { updateMutator } from "./vulcan-lib/mutators";
 import gql from 'graphql-tag';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updatePost } from './collections/posts/mutations';
 
 export const acceptCoauthorRequestTypeDefs = gql`
   extend type Mutation {
@@ -42,16 +43,16 @@ export const acceptCoauthorRequestMutations = {
       postedAt = now;
     }
 
-    const updatedPost = (await updateMutator({
-      collection: Posts,
-      documentId: postId,
-      set: {
-        coauthorStatuses: post.coauthorStatuses,
-        shareWithUsers: post.shareWithUsers,
-        postedAt,
-      },
-      validate: false
-    })).data;
+    const updatedPost = (
+      await updatePost({
+        data: {
+          coauthorStatuses: post.coauthorStatuses,
+          shareWithUsers: post.shareWithUsers,
+          postedAt,
+        },
+        selector: { _id: postId },
+      }, createAnonymousContext(), true)
+    );
 
     return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
   },

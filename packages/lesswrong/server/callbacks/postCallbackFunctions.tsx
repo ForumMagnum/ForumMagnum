@@ -13,7 +13,6 @@ import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { isWeekend } from "@/lib/utils/timeUtil";
 import { Components } from '@/lib/vulcan-lib/components';
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { generateLinkSharingKey } from "../ckEditor/ckEditorCallbacks";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
 import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
@@ -34,22 +33,25 @@ import { moveImageToCloudinary } from "../scripts/convertImagesToCloudinary";
 import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import { cheerioParse } from "../utils/htmlUtil";
-import { updateMutator } from "../vulcan-lib/mutators";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
-import { getRejectionMessage } from "./helpers";
+import { getRejectionMessage, generateLinkSharingKey } from "./helpers";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createConversation } from "../collections/conversations/mutations";
 import { createMessage } from "../collections/messages/mutations";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 import { createPostRelation } from "../collections/postRelations/mutations";
+import { updatePost } from "../collections/posts/mutations";
+import { updateDialogueMatchPreference } from "../collections/dialogueMatchPreferences/mutations";
+import { updateDialogueCheck } from "../collections/dialogueChecks/mutations";
+import { updateNotification } from "../collections/notifications/mutations";
 
 /** Create notifications for a new post being published */
-export async function sendNewPostNotifications(post: DbPost | UpdatePreviewDocument<DbPost>) {
+export async function sendNewPostNotifications(post: DbPost) {
   const context = createAnonymousContext();
   const { Localgroups } = context;
 
@@ -104,7 +106,7 @@ export async function sendNewPostNotifications(post: DbPost | UpdatePreviewDocum
 }
 
 const onPublishUtils = {
-  updateRecombeeWithPublishedPost: (post: DbPost | UpdatePreviewDocument<DbPost>, context: ResolverContext) => {
+  updateRecombeeWithPublishedPost: (post: DbPost, context: ResolverContext) => {
     if (!isRecombeeRecommendablePost(post)) return;
   
     if (recombeeEnabledSetting.get()) {
@@ -132,7 +134,7 @@ const onPublishUtils = {
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
-export async function onPostPublished(post: DbPost | UpdatePreviewDocument<DbPost>, context: ResolverContext) {
+export async function onPostPublished(post: DbPost, context: ResolverContext) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
   await sendNewPostNotifications(post);
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
@@ -278,16 +280,13 @@ const utils = {
     );
   
     if (autoFrontpageReview) {
-      await updateMutator({
-        collection: Posts,
-        documentId: post._id,
+      await updatePost({
         data: {
           frontpageDate: defaultFrontpageHide ? new Date() : null,
           autoFrontpage: defaultFrontpageHide ? "show" : "hide"
         },
-        currentUser: context.currentUser,
-        context,
-      });
+        selector: { _id: post._id }
+      }, context);
     }
   },
 
@@ -297,22 +296,14 @@ const utils = {
     const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
     if (dialogueCheck) {
       await Promise.all([
-        updateMutator({ // reset check
-          collection: DialogueChecks,
-          documentId: dialogueCheck._id,
-          set: { checked: false, hideInRecommendations: false },
-          currentUser: adminContext.currentUser,
-          context: adminContext,
-          validate: false
-        }),
-        updateMutator({ // soft delete topic form
-          collection: DialogueMatchPreferences,
-          documentId: matchForm._id,
-          set: { deleted: true },
-          currentUser: adminContext.currentUser,
-          context: adminContext,
-          validate: false
-        })
+        updateDialogueCheck({
+          data: { checked: false, hideInRecommendations: false },
+          selector: { _id: dialogueCheck._id }
+        }, adminContext, true),
+        updateDialogueMatchPreference({
+          data: { deleted: true },
+          selector: { _id: matchForm._id }
+        }, adminContext, true)
       ]);
     }
   },
@@ -364,11 +355,11 @@ const utils = {
   sendPostRejectionPM: async ({ messageContents, lwAccount, post, noEmail, context }: {
     messageContents: string,
     lwAccount: DbUser,
-    post: DbPost | UpdatePreviewDocument<DbPost>,
+    post: DbPost,
     noEmail: boolean,
     context: ResolverContext,
   }) => {
-    const conversationData: CreateMutatorParams<"Conversations">['document'] = {
+    const conversationData: CreateConversationDataInput = {
       participantIds: [post.userId, lwAccount._id],
       title: `Your post ${post.title} was rejected`,
       moderator: true
@@ -1046,23 +1037,13 @@ export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | '
 
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
-    postNotifications.forEach(notification => void updateMutator({
-      collection: Notifications,
-      documentId: notification._id,
-      data: { deleted: true },
-      validate: false
-    }));
+    postNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context, true));
 
     // delete tagRel notifications (note this deletes them even if the TagRel itself has `deleted: true`)
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
     await asyncForeachSequential(tagRels, async (tagRel) => {
       const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()
-      tagRelNotifications.forEach(notification => void updateMutator({
-        collection: Notifications,
-        documentId: notification._id,
-        data: { deleted: true },
-        validate: false
-      }));
+      tagRelNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context, true));
     });
   }
 }
@@ -1149,18 +1130,6 @@ export async function sendPostSharedWithUserNotifications(newPost: DbPost, oldPo
     // TODO: probably fix that, such that users can see when they've lost access to post. [but, eh, I'm not sure this matters that much]
     const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
     await createNotifications({userIds: sharedUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: newPost._id})
-  }
-}
-
-export async function sendAlignmentSubmissionApprovalNotifications(newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) {
-  const newlyAF = newDocument.af && !oldDocument.af
-  const userSubmitted = oldDocument.suggestForAlignmentUserIds && oldDocument.suggestForAlignmentUserIds.includes(oldDocument.userId)
-  const reviewed = !!newDocument.reviewForAlignmentUserId
-  
-  const documentType = newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
-  
-  if (newlyAF && userSubmitted && reviewed) {
-    await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
 

@@ -43,7 +43,7 @@ import {
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";

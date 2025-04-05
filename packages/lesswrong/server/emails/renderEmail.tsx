@@ -17,7 +17,6 @@ import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';

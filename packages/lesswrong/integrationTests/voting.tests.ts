@@ -1,5 +1,4 @@
 import "./integrationTestSetup";
-import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
@@ -13,6 +12,7 @@ import omitBy from "lodash/omitBy";
 import isNil from "lodash/isNil";
 import { slugify } from "@/lib/utils/slugify";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updatePost } from "@/server/collections/posts/mutations";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -232,12 +232,12 @@ describe('Voting', function() {
       expect(updatedAuthor.karma).toBe(1);
       expect(updatedCoauthor.karma).toBe(0);
 
-      await updateMutator({
-        collection: Posts,
-        documentId: post._id,
-        set: { coauthorStatuses: [ { userId: coauthor._id, confirmed: true, requested: true } ] },
-        validate: false,
-      });
+      await updatePost({
+        data: {
+          coauthorStatuses: [ { userId: coauthor._id, confirmed: true, requested: true } ]
+        },
+        selector: { _id: post._id }
+      }, createAnonymousContext(), true);
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilCallbacksFinished();

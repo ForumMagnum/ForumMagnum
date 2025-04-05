@@ -1,4 +1,3 @@
-import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../server/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';

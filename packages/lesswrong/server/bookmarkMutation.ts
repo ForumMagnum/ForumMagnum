@@ -1,8 +1,8 @@
 import Users from '../server/collections/users/collection';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
-import { updateMutator } from './vulcan-lib/mutators';
 import * as _ from 'underscore';
 import gql from 'graphql-tag';
+import { updateUser } from './collections/users/mutations';
 
 export const bookmarkGqlTypeDefs = gql`
   extend type Mutation {
@@ -22,13 +22,11 @@ export const bookmarkGqlMutations = {
       : _.reject(oldBookmarksList, bookmark=>bookmark.postId===postId)
     );
     
-    await updateMutator({
-      collection: Users,
-      documentId: currentUser._id,
-      set: {bookmarkedPostsMetadata: newBookmarksList},
-      currentUser, context,
-      validate: false,
-    });
+    await updateUser(
+      { data: { bookmarkedPostsMetadata: newBookmarksList }, selector: { _id: currentUser._id } },
+      context,
+      true
+    );
     
     const updatedUser = await Users.findOne(currentUser._id)!;
     return (await accessFilterSingle(currentUser, 'Users', updatedUser, context))!;

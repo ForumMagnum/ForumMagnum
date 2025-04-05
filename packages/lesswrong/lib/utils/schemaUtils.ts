@@ -521,7 +521,7 @@ export function getFillIfMissing(defaultValue: any) {
 
 export function throwIfSetToNull<N extends CollectionNameString>({ oldDocument, newDocument, fieldName }: {
   oldDocument: ObjectsByCollectionName[N];
-  newDocument: ObjectsByCollectionName[N] | UpdatePreviewDocument<ObjectsByCollectionName[N]>;
+  newDocument: ObjectsByCollectionName[N];
   fieldName: string;
 }) {
   const typedName = fieldName as keyof ObjectsByCollectionName[N];

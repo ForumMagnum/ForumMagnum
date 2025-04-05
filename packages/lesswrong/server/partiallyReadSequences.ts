@@ -1,4 +1,3 @@
-import Users from '../server/collections/users/collection';
 import { Sequences } from '../server/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
 import { Collections } from '../server/collections/collections/collection';
@@ -6,8 +5,9 @@ import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers'
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
 import { runSqlQuery } from '../server/sql/sqlClient';
-import { updateMutator } from "./vulcan-lib/mutators";
 import gql from 'graphql-tag';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updateUser } from './collections/users/mutations';
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
 // that they read it in the context of, determine whether this means they have
@@ -94,14 +94,10 @@ export const updateSequenceReadStatusForPostRead = async (userId: string, postId
 }
 
 export const setUserPartiallyReadSequences = async (userId: string, newPartiallyReadSequences: AnyBecauseTodo) => {
-  await updateMutator({
-    collection: Users,
-    documentId: userId,
-    set: {
-      partiallyReadSequences: newPartiallyReadSequences
-    },
-    validate: false,
-  });
+  await updateUser({
+    data: { partiallyReadSequences: newPartiallyReadSequences },
+    selector: { _id: userId }
+  }, createAnonymousContext(), true);
 }
 
 const getReadPostIds = async (user: DbUser, postIDs: Array<string>): Promise<string[]> => {

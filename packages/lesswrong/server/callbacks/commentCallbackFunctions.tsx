@@ -9,15 +9,14 @@ import { isEAForum } from "@/lib/instanceSettings";
 import { recombeeEnabledSetting } from "@/lib/publicSettings";
 import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { noDeletionPmReason } from "../deleteUserContent";
+import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { checkModGPT } from "../languageModels/modGPT";
-import { CreateCallbackProperties, UpdateCallbackProperties, CallbackValidationErrors, AfterCreateCallbackProperties, DeleteCallbackProperties } from "../mutationCallbacks";
+import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties, DeleteCallbackProperties } from "../mutationCallbacks";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
 import { recombeeApi } from "../recombee/client";
 import { getCommentAncestorIds, getCommentSubtree } from "../utils/commentTreeUtils";
-import { createMutator, updateMutator, deleteMutator } from "../vulcan-lib/mutators";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureEvent } from "@/lib/analyticsEvents";
 import { akismetKeySetting, commentAncestorsToNotifySetting } from "../databaseSettings";
@@ -36,9 +35,12 @@ import uniq from "lodash/uniq";
 import { createConversation } from "../collections/conversations/mutations";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createMessage } from "../collections/messages/mutations";
-import { createPost } from "../collections/posts/mutations";
+import { createPost, updatePost } from "../collections/posts/mutations";
 import { getRejectionMessage } from "./helpers";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updateUser } from "../collections/users/mutations";
+import { updateComment } from "../collections/comments/mutations";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -68,10 +70,8 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
   const lastComment: DbComment = _.max(afComments, function(c){return c.postedAt;})
   const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(postId))?.postedAt || new Date()
 
-  void updateMutator({
-    collection: Posts,
-    documentId: postId,
-    set: {
+  void updatePost({
+    data: {
       // Needs to be recomputed after anything moves to/from AF; can't be handled
       // incrementally by simpler callbacks because a comment being removed from
       // AF might mean an unrelated comment is now the newest.
@@ -80,8 +80,8 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
       // moves are using raw updates.
       afCommentCount: afComments.length,
     },
-    validate: false,
-  })
+    selector: { _id: postId }
+  }, createAnonymousContext(), true)
 }
 
 const utils = {
@@ -357,7 +357,7 @@ const utils = {
   sendModerationPM: async ({ messageContents, lwAccount, comment, noEmail, contentTitle, action, context }: SendModerationPMParams) => {
     const { Conversations, Messages } = context;
 
-    const conversationData: CreateMutatorParams<"Conversations">['document'] = {
+    const conversationData: CreateConversationDataInput = {
       participantIds: [comment.userId, lwAccount._id],
       title: `Comment ${action} on ${contentTitle}`,
       ...(action === 'rejected' ? { moderator: true } : {})
@@ -496,14 +496,12 @@ const utils = {
       const lastComment: DbComment = _.max(comments, (c) => c.postedAt)
       const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(comment.postId))?.postedAt || new Date()
     
-      void updateMutator({
-        collection: Posts,
-        documentId: comment.postId,
-        set: {
+      void updatePost({
+        data: {
           lastCommentedAt: new Date(lastCommentedAt),
         },
-        validate: false,
-      })
+        selector: { _id: comment.postId }
+      }, createAnonymousContext(), true)
     }
     if (action === 'deleted') {
       void utils.commentsDeleteSendPMAsync(comment, currentUser, context);
@@ -576,14 +574,12 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
       },
     }, context, true);
 
-    await updateMutator({
-      collection: Users,
-      documentId: currentUser._id,
-      set: {
+    await updateUser({
+      data: {
         shortformFeedId: post._id
       },
-      validate: false,
-    })
+      selector: { _id: currentUser._id }
+    }, createAnonymousContext(), true)
 
     return ({
       ...comment,
@@ -804,17 +800,14 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
       if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
         // eslint-disable-next-line no-console
         console.log("Deleting comment from user below spam threshold", comment)
-        await updateMutator({
-          collection: Comments,
-          documentId: comment._id,
-          // NOTE: This mutation has no user attached. This interacts with commentsDeleteSendPMAsync so that the PM notification of a deleted comment appears to come from themself.
-          set: {
+        await updateComment({
+          data: {
             deleted: true,
             deletedDate: new Date(),
             deletedReason: "This comment has been marked as spam by the Akismet spam integration. We've sent the poster a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)."
           },
-          validate: false,
-        });
+          selector: { _id: comment._id }
+        }, createAnonymousContext(), true);
       }
     } else {
       //eslint-disable-next-line no-console
@@ -912,16 +905,9 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 /* UPDATE BEFORE */
 export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
   if (data?.promoted && !oldDocument.promoted && newDocument.postId) {
-    void updateMutator({
-      collection: context.Posts,
-      context,
-      documentId: newDocument.postId,
-      data: {
-        lastCommentPromotedAt: new Date(),
-      },
-      currentUser,
-      validate: false,
-    });
+    void updatePost({ data: {
+            lastCommentPromotedAt: new Date(),
+          }, selector: { _id: newDocument.postId } }, context, true);
     const promotedByUserId = currentUser?._id;
     return { ...data, promotedByUserId };
   }
@@ -1039,14 +1025,9 @@ export async function updateDescendentCommentCountsOnEdit(comment: DbComment, pr
 export async function updatedCommentMaybeTriggerReview({ currentUser, context }: UpdateCallbackProperties<"Comments">) {
   const { Users } = context;
   if (!currentUser) return;
-  currentUser.snoozedUntilContentCount && await updateMutator({
-    collection: Users,
-    documentId: currentUser._id,
-    set: {
-      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
-    },
-    validate: false,
-  })
+  currentUser.snoozedUntilContentCount && await updateUser({ data: {
+        snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
+      }, selector: { _id: currentUser._id } }, createAnonymousContext(), true)
   await triggerReviewIfNeeded(currentUser._id, context)
 }
 
@@ -1129,39 +1110,4 @@ export async function commentsPublishedNotifications(comment: DbComment, oldComm
   if (commentIsHidden(oldComment) && !commentIsHidden(comment)) {
     void utils.sendNewCommentNotifications(comment, context)
   }
-}
-
-
-// Elastic callback might go here
-
-/* DELETE VALIDATE */
-
-/* DELETE BEFORE */
-
-/* DELETE ASYNC */
-export async function commentsRemovePostCommenters({ document: comment, context: { Posts, Comments } }: DeleteCallbackProperties<'Comments'>) {
-  const { postId } = comment;
-
-  if (postId) {
-    const postComments = await Comments.find({postId, debateResponse: false, deleted: false}, {sort: {postedAt: -1}}).fetch();
-    const lastCommentedAt = postComments[0] && postComments[0].postedAt;
-  
-    // update post with a decremented comment count, and corresponding last commented at date
-    await Posts.rawUpdateOne(postId, {
-      $set: {lastCommentedAt},
-    });
-  }
-}
-
-export async function commentsRemoveChildrenComments({ document: comment, currentUser, context: { Comments } }: DeleteCallbackProperties<'Comments'>) {
-  const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch();
-
-  childrenComments.forEach(childComment => {
-    void deleteMutator({
-      collection: Comments,
-      documentId: childComment._id,
-      currentUser: currentUser,
-      validate: false
-    });
-  });
 }

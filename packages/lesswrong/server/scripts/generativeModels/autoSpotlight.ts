@@ -3,10 +3,9 @@ import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
 import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
-import { Posts } from "@/server/collections/posts/collection.ts";
 import { createAdminContext } from "../../vulcan-lib/createContexts";
-import { createMutator, updateMutator } from "../../vulcan-lib/mutators";
-import { createSpotlight as createSpotlightMutator } from "@/server/collections/spotlights/mutations";
+import { createSpotlight as createSpotlightMutator, updateSpotlight } from "@/server/collections/spotlights/mutations";
+import { updatePost } from "@/server/collections/posts/mutations";
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
   const client = getAnthropicPromptCachingClientOrThrow()
@@ -210,20 +209,8 @@ export const updateSpotlightUrlsAndPostCustomHighlights = async () => {
     const category = reviewWinner?.reviewWinner.category
     const year = reviewWinner?.reviewWinner.reviewYear
 
-    await updateMutator({
-      collection: Spotlights,
-      documentId: spotlight._id,
-      set: {subtitleUrl: `/bestoflesswrong?year=${year}&category=${category}`},
-      validate: false,
-      currentUser
-    })
+    await updateSpotlight({ data: {subtitleUrl: `/bestoflesswrong?year=${year}&category=${category}`}, selector: { _id: spotlight._id } }, context, true)
 
-    await updateMutator({
-      collection: Posts,
-      documentId: spotlight.documentId,
-      set: {customHighlight: spotlight.description},
-      validate: false,
-      currentUser
-    })
+    await updatePost({ data: {customHighlight: spotlight.description}, selector: { _id: spotlight.documentId } }, context, true)
   }
 }
