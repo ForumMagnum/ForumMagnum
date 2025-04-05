@@ -49,7 +49,6 @@ import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutation
 import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
 import { analyticsGraphQLQueries, analyticsGraphQLTypeDefs } from '@/server/resolvers/analyticsResolvers';
 import { arbitalGraphQLTypeDefs, arbitalGraphQLQueries } from '@/server/resolvers/arbitalPageData';
-import { coronaLinkDatabaseGraphQLTypeDefs, coronaLinkDatabaseGraphQLQueries } from '@/server/resolvers/coronaLinkDatabase';
 import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elicitPredictionsGraphQLFieldResolvers, elicitPredictionsGraphQLMutations } from '@/server/resolvers/elicitPredictions';
 import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
 import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
@@ -128,7 +127,6 @@ export const typeDefs = gql`
   ${karmaChangesTypeDefs}
   ${analyticsGraphQLTypeDefs}
   ${arbitalGraphQLTypeDefs}
-  ${coronaLinkDatabaseGraphQLTypeDefs}
   ${elicitPredictionsGraphQLTypeDefs}
   ${notificationResolversGqlTypeDefs}
   ${lightcone2024FundraiserGraphQLTypeDefs}
@@ -192,7 +190,6 @@ export const resolvers = {
     ...commentQueries,
     ...analyticsGraphQLQueries,
     ...arbitalGraphQLQueries,
-    ...coronaLinkDatabaseGraphQLQueries,
     ...elicitPredictionsGraphQLQueries,
     ...notificationResolversGqlQueries,
     ...elicitPredictionsGraphQLQueries,
@@ -334,9 +331,6 @@ type SchemaGraphQLFields = {
   mainType: SchemaGraphQLFieldDescription[],
   create: SchemaGraphQLFieldDescription[],
   update: SchemaGraphQLFieldDescription[],
-  selector: SchemaGraphQLFieldDescription[],
-  selectorUnique: SchemaGraphQLFieldDescription[],
-  orderBy: SchemaGraphQLFieldDescription[],
 }
 
 // for a given schema, return main type fields, selector fields,
@@ -349,9 +343,6 @@ const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typ
     mainType: [],
     create: [],
     update: [],
-    selector: [],
-    selectorUnique: [],
-    orderBy: [],
   };
   const addedResolvers: Array<any> = [];
 
@@ -493,7 +484,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
     ? collection.options.description
     : `Type for ${collectionName}`;
 
-  const { mainType, create, update, selector, selectorUnique, orderBy } = fields;
+  const { mainType, create, update } = fields;
 
   let addedQueries: Array<any> = [];
   let addedResolvers: Array<any> = [...fieldResolvers];
@@ -521,11 +512,11 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
       schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
     }
 
-    schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
+    schemaFragments.push(selectorInputTemplate({ typeName, fields: [] }));
 
-    schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
+    schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: [] }));
 
-    schemaFragments.push(orderByInputTemplate({ typeName, fields: orderBy }));
+    schemaFragments.push(orderByInputTemplate({ typeName, fields: [] }));
 
     if (!_.isEmpty(resolvers)) {
       const queryResolvers: Partial<Record<string,any>> = {};

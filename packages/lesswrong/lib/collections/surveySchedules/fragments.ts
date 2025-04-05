@@ -1,4 +1,6 @@
-export const SurveyScheduleMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const SurveyScheduleMinimumInfo = () => frag`
   fragment SurveyScheduleMinimumInfo on SurveySchedule {
     _id
     survey {
@@ -7,7 +9,7 @@ export const SurveyScheduleMinimumInfo = `
   }
 `
 
-export const SurveyScheduleEdit = `
+export const SurveyScheduleEdit = () => frag`
   fragment SurveyScheduleEdit on SurveySchedule {
     ...SurveyScheduleMinimumInfo
     surveyId
