@@ -10,3 +10,7 @@ export const userFindOneByEmail = function (email: string): Promise<DbUser | nul
 export const usersFindAllByEmail: (email: string) => Promise<Array<DbUser | null>> = async function (email: string) {
   return new UsersRepo().getAllUsersByEmail(email);
 };
+
+export const userFindOneByUsernameOrEmail = function (usernameOrEmail: string): Promise<DbUser | null> {
+  return new UsersRepo().getUserByUsernameOrEmail(usernameOrEmail);
+};
