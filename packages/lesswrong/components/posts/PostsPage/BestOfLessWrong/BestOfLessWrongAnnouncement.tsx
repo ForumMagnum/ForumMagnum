@@ -7,12 +7,16 @@ import groupBy from 'lodash/groupBy';
 import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import FragmentLexer from '@/server/sql/FragmentLexer';
 
 const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) => ({ 
   title: {
     ...theme.typography.title,
     fontSize: 50,
+    marginTop: 12,
     marginBottom: 16,
+    display: 'block',
+    
   },
   categoriesContainer: {
     display: "flex",
@@ -172,7 +176,21 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     backgroundColor: theme.palette.background.paper,
     opacity: 0,
     zIndex: 1,
-  }
+  },
+  viewAllLinkContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    width: '100%',
+  },
+  viewAllLink: {
+    ...theme.typography.body1,
+    fontSize: 18,
+    ...theme.typography.headerStyle,
+    textTransform: 'uppercase',
+    padding: '8px 14px',
+    borderRadius: 3,
+    display: 'block'
+  },
 }));
 
 const BestOfLessWrongAnnouncement = () => {
@@ -221,9 +239,9 @@ const BestOfLessWrongAnnouncement = () => {
   return (
     <AnalyticsContext pageSectionContext="bestOfLessWrongAnnouncement">
       <SingleColumnSection>
-        <div className={classes.title}>
+        <Link to={`/bestoflesswrong`} className={classes.title}>
           Best of LessWrong {REVIEW_YEAR}
-        </div>
+        </Link>
         <div className={classes.categoriesContainer}>
           {Object.keys(sections).map(category => {
             const section = sections[category as keyof typeof sections];
@@ -248,6 +266,11 @@ const BestOfLessWrongAnnouncement = () => {
               </div>
             </div>
             })}
+        </div>
+        <div className={classes.viewAllLinkContainer}> 
+          <Link to={`/bestoflesswrong`} className={classes.viewAllLink}> 
+            View All 
+          </Link>
         </div>
       </SingleColumnSection>
     </AnalyticsContext>
