@@ -10,12 +10,32 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import FragmentLexer from '@/server/sql/FragmentLexer';
 
 const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) => ({ 
+  titleContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   title: {
     ...theme.typography.title,
-    fontSize: 50,
+    fontSize: 40,
     marginTop: 12,
     marginBottom: 16,
     display: 'block',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 40,
+    },
+  },
+  viewAllLink: {
+    ...theme.typography.body1,
+    fontSize: '1.1rem',
+    ...theme.typography.commentStyle,
+    textTransform: 'uppercase',
+    color: theme.palette.grey[700],
+    position: 'relative',
+    top: 2,
+    [theme.breakpoints.down('sm')]: {
+      paddingRight: 14,
+    },
   },
   categoriesContainer: {
     display: "flex",
@@ -23,33 +43,33 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     justifyContent: "space-between",
     flexWrap: "wrap",
     '&:hover $categoryTitle': {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('xs')]: {
         opacity: 0,
       },
     },
     '&:hover $categoryImage': {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('xs')]: {
         filter: "brightness(0.5) saturate(.5)",
       },
     },
     '&:hover $winnerItem': {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('xs')]: {
         opacity: 1,
         borderBottom: theme.palette.border.grey200,
       },
     },
     '&:hover $winnerItem:last-child': {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('xs')]: {
         borderBottom: 'none',
       },
     },
     '&:hover $winnerTitle': {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('xs')]: {
         opacity: 1,
       },
     },
     '&:hover $winnerCategoryRank': {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('xs')]: {
         opacity: 1,
       },
     },
@@ -200,20 +220,6 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     opacity: 0,
     zIndex: 1,
   },
-  viewAllLinkContainer: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    width: '100%',
-  },
-  viewAllLink: {
-    ...theme.typography.body1,
-    fontSize: 18,
-    ...theme.typography.headerStyle,
-    textTransform: 'uppercase',
-    padding: '8px 14px',
-    borderRadius: 3,
-    display: 'block'
-  },
 }));
 
 const BestOfLessWrongAnnouncement = () => {
@@ -262,9 +268,14 @@ const BestOfLessWrongAnnouncement = () => {
   return (
     <AnalyticsContext pageSectionContext="bestOfLessWrongAnnouncement">
       <SingleColumnSection>
-        <Link to={`/bestoflesswrong`} className={classes.title}>
-          Best of LessWrong {REVIEW_YEAR}
-        </Link>
+        <div className={classes.titleContainer}>
+          <Link to={`/bestoflesswrong`} className={classes.title}>
+            Best of LessWrong {REVIEW_YEAR}
+          </Link>
+          <Link to={`/bestoflesswrong`} className={classes.viewAllLink}> 
+            View All 
+          </Link>
+        </div>
         <div className={classes.categoriesContainer}>
           {Object.keys(sections).map(category => {
             const section = sections[category as keyof typeof sections];
@@ -289,11 +300,6 @@ const BestOfLessWrongAnnouncement = () => {
               </div>
             </div>
             })}
-        </div>
-        <div className={classes.viewAllLinkContainer}> 
-          <Link to={`/bestoflesswrong`} className={classes.viewAllLink}> 
-            View All 
-          </Link>
         </div>
       </SingleColumnSection>
     </AnalyticsContext>
