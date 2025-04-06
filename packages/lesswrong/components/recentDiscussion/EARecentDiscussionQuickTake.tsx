@@ -25,23 +25,23 @@ const styles = (_theme: ThemeType) => ({
 
 const getItemProps = (
   post: PostsRecentDiscussion,
-  {item}: CommentTreeNode<CommentsListWithTopLevelComment>,
+  comment: CommentsListWithTopLevelComment,
 ): EARecentDiscussionItemProps => {
-  return item.parentCommentId
+  return comment.parentCommentId
     ? {
       // We have comments on a quick take
       icon: "CommentFilled",
       iconVariant: "primary",
-      user: item.user,
+      user: comment.user,
       action: "commented on",
       postTitleOverride: `${post.user?.displayName}'s quick take`,
       postUrlOverride: commentGetPageUrlFromIds({
-        commentId: item.topLevelCommentId ?? item._id,
+        commentId: comment.topLevelCommentId ?? comment._id,
         postId: post._id,
         postSlug: post.slug,
       }),
       post,
-      timestamp: item.postedAt,
+      timestamp: comment.postedAt,
     }
     : {
       // We have a new quick take without comments yet
@@ -51,27 +51,30 @@ const getItemProps = (
       action: "posted a",
       postTitleOverride: "Quick Take",
       postUrlOverride: commentGetPageUrlFromIds({
-        commentId: item._id,
+        commentId: comment._id,
         postId: post._id,
         postSlug: post.slug,
       }),
       post,
-      timestamp: item.postedAt,
+      timestamp: comment.postedAt,
     };
 }
 
 type NestedComments = CommentTreeNode<CommentsListWithTopLevelComment>;
 
-const splitByTopLevelComment = (nodes: NestedComments[]): NestedComments[][] => {
+const groupByQuickTake = (nodes: NestedComments[]): Record<string, NestedComments[]> => {
   const result: Record<string, NestedComments[]> = {};
   for (const node of nodes) {
-    if (result[node.item.topLevelCommentId]) {
-      result[node.item.topLevelCommentId].push(node);
+    // If this comment has no topLevelCommentId, then it must be a quick take.
+    // Make sure to separate it from other quick takes.
+    const id = node.item.topLevelCommentId ?? node.item._id
+    if (result[id]) {
+      result[id].push(node);
     } else {
-      result[node.item.topLevelCommentId] = [node];
+      result[id] = [node];
     }
   }
-  return Object.values(result);
+  return result
 }
 
 const EARecentDiscussionQuickTake = ({
@@ -99,60 +102,81 @@ const EARecentDiscussionQuickTake = ({
     initialExpandAllThreads,
   });
 
-  if (isSkippable) {
+  // Quick takes are comments, so if we have no comments then there is nothing to display
+  if (isSkippable || !comments || !comments.length) {
     return null;
   }
-
-  const splitComments = splitByTopLevelComment(nestedComments);
+  
+  // It's possible for the comments prop to include comments over multiple quick takes,
+  // because it's a list of the most recent comments on the *post*.
+  const splitComments = groupByQuickTake(nestedComments);
+  // To reduce clutter in "Recent discussion", for now we are only going to display
+  // the quick take which was last posted / commented on.
+  const quickTakeId = comments[0].topLevelCommentId ?? comments[0]._id
+  const commentsToDisplay = splitComments[quickTakeId]
 
   const {EARecentDiscussionItem, CommentsItem, CommentsNode} = Components;
+  
+  if (!commentsToDisplay.length) {
+    return null;
+  }
+  
+  // Find the most recently posted comment that's related to the current quick take
+  const latestComment = comments.filter(c => [c._id, c.topLevelCommentId].includes(quickTakeId))[0]
+  // If the most recently posted comment has a parentCommentId,
+  // that means it's a reply to the quick take, so make sure
+  // to display the comments under the quick take.
+  const hasComments = !!latestComment.parentCommentId;
+  const quickTake = hasComments
+    ? latestComment.topLevelComment
+    : commentsToDisplay[0].item;
+
+  if (!quickTake) {
+    return null;
+  }
+  
+  // Create a comment tree that excludes the quick take itself,
+  // so we don't duplicate the quick take when displaying the replies
+  let replies: CommentTreeNode<CommentsListWithTopLevelComment>[] = []
+  commentsToDisplay.forEach(comment => {
+    if (!comment.item.topLevelCommentId) {
+      replies = replies.concat(comment.children)
+    } else {
+      replies.push(comment)
+    }
+  })
+
   return (
-    <>
-      {splitComments.map((comments) => {
-        if (!comments.length) {
-          return null;
-        }
-        const hasComments = !!comments[0].item.parentCommentId;
-        const quickTake = hasComments
-          ? comments[0].item.topLevelComment
-          : comments[0].item;
-        if (!quickTake) {
-          return null;
-        }
-        return (
-          <EARecentDiscussionItem
-            key={quickTake._id}
-            {...getItemProps(post, comments[0])}
-          >
-            <CommentsItem
-              treeOptions={treeOptions}
-              comment={quickTake}
-              nestingLevel={1}
-              truncated={false}
-              excerptLines={(quickTake.descendentCount ?? 0) > 1 ? 3 : 20}
-              className={classNames(classes.quickTakeBody, {
-                [classes.noBottomPadding]: !hasComments,
-              })}
-            />
-            {hasComments && comments.map((comment) => (
-              <CommentsNode
-                key={comment.item._id}
-                treeOptions={{
-                  ...treeOptions,
-                  hideParentCommentToggleForTopLevel: true,
-                }}
-                truncated={false}
-                expandAllThreads={expandAllThreads}
-                expandNewComments={false}
-                nestingLevel={1}
-                comment={comment.item}
-                childComments={comment.children}
-              />
-            ))}
-          </EARecentDiscussionItem>
-        );
-      })}
-    </>
+    <EARecentDiscussionItem
+      key={quickTake._id}
+      {...getItemProps(post, latestComment)}
+    >
+      <CommentsItem
+        treeOptions={treeOptions}
+        comment={quickTake}
+        nestingLevel={1}
+        truncated={false}
+        excerptLines={(quickTake.descendentCount ?? 0) > 1 ? 3 : 20}
+        className={classNames(classes.quickTakeBody, {
+          [classes.noBottomPadding]: !hasComments,
+        })}
+      />
+      {hasComments && replies.map((comment) => (
+        <CommentsNode
+          key={comment.item._id}
+          treeOptions={{
+            ...treeOptions,
+            hideParentCommentToggleForTopLevel: true,
+          }}
+          truncated={false}
+          expandAllThreads={expandAllThreads}
+          expandNewComments={false}
+          nestingLevel={1}
+          comment={comment.item}
+          childComments={comment.children}
+        />
+      ))}
+    </EARecentDiscussionItem>
   );
 }
 
