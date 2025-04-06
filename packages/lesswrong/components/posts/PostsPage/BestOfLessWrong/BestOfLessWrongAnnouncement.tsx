@@ -55,6 +55,19 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     top: 0,
     left: 0,
   },
+  category: {
+    width: "calc(16.6% - 2px)",
+    overflow: "hidden",
+    marginBottom: 8,
+    position: "relative",
+    cursor: "pointer",
+    '&:hover': {
+      opacity: 1
+    },
+    [theme.breakpoints.down('sm')]: {
+      width: "calc(16.6% - .5px)",
+    },
+  },
   categoryImage: {
     width: "100%",
     height: 360,
@@ -73,16 +86,6 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
   categoryImageHover: {
     opacity: 0,
   },
-  category: {
-    width: "calc(16% - 2px)",
-    overflow: "hidden",
-    marginBottom: 8,
-    position: "relative",
-    cursor: "pointer",
-    '&:hover': {
-      opacity: 1
-    },
-  },
   categoryTitle: {
     ...theme.typography.body1,
     fontSize: 18,
@@ -99,6 +102,9 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     whiteSpace: 'nowrap',
     backdropFilter: 'blur(1px)',
     textShadow: `0 0 4px ${theme.palette.greyAlpha(.8)}, 0 0 8px ${theme.palette.greyAlpha(.2)}`,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 15,
+    },
   },
   winnerItem: {
     width: "100%",
@@ -166,6 +172,9 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     left: 8,
     opacity: 0,
     textShadow: `0 0 4px ${theme.palette.greyAlpha(.8)}`,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   winnerImageBackground: {
     position: "absolute",
