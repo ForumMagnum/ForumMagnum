@@ -16,7 +16,6 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     marginTop: 12,
     marginBottom: 16,
     display: 'block',
-    
   },
   categoriesContainer: {
     display: "flex",
