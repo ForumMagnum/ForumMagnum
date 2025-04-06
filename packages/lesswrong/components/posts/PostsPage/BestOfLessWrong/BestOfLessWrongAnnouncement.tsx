@@ -23,40 +23,40 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     flexDirection: "row",
     justifyContent: "space-between",
     flexWrap: "wrap",
-    '&:hover $item': {
-      opacity: 1,
-    },
-    '&:hover $winnerItem': {
-      opacity: 1,
-      borderBottom: theme.palette.border.grey200,
-    },
-    '&:hover $winnerItem:last-child': {
-      borderBottom: 'none',
-    },
-    '&:hover $winnerTitle': {
-      opacity: 1,
+    '&:hover $categoryTitle': {
+      [theme.breakpoints.up('sm')]: {
+        opacity: 0,
+      },
     },
     '&:hover $categoryImage': {
-      filter: "brightness(0.5) saturate(.5)",
+      [theme.breakpoints.up('sm')]: {
+        filter: "brightness(0.5) saturate(.5)",
+      },
     },
-    '&:hover $categoryTitle': {
-      opacity: 0,
+    '&:hover $winnerItem': {
+      [theme.breakpoints.up('sm')]: {
+        opacity: 1,
+        borderBottom: theme.palette.border.grey200,
+      },
+    },
+    '&:hover $winnerItem:last-child': {
+      [theme.breakpoints.up('sm')]: {
+        borderBottom: 'none',
+      },
+    },
+    '&:hover $winnerTitle': {
+      [theme.breakpoints.up('sm')]: {
+        opacity: 1,
+      },
     },
     '&:hover $winnerCategoryRank': {
-      opacity: 1,
+      [theme.breakpoints.up('sm')]: {
+        opacity: 1,
+      },
     },
   },
-  winnersContainer: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-  },
   category: {
-    width: "calc(16.6% - 2px)",
+    width: "calc(16.6% - 3px)",
     overflow: "hidden",
     marginBottom: 8,
     position: "relative",
@@ -65,7 +65,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
       opacity: 1
     },
     [theme.breakpoints.down('sm')]: {
-      width: "calc(16.6% - .5px)",
+      width: "calc(33.3% - 3px)",
     },
   },
   categoryImage: {
@@ -76,12 +76,18 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     borderRadius: 2,
     filter: "brightness(0.85) saturate(1)",
     transition: "opacity 0.2s ease-in-out",
+    [theme.breakpoints.down('sm')]: {
+      height: 180,
+    },
   },
   categoryImageContainer: {
     height: 360,
     width: "100%",
     overflow: "hidden",
     position: "relative",
+    [theme.breakpoints.down('sm')]: {
+      height: 180,
+    },
   },
   categoryImageHover: {
     opacity: 0,
@@ -102,8 +108,17 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     whiteSpace: 'nowrap',
     backdropFilter: 'blur(1px)',
     textShadow: `0 0 4px ${theme.palette.greyAlpha(.8)}, 0 0 8px ${theme.palette.greyAlpha(.2)}`,
+  },
+  winnersContainer: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    left: 0,
     [theme.breakpoints.down('sm')]: {
-      fontSize: 15,
+      display: 'none',
     },
   },
   winnerItem: {
