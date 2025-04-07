@@ -15,7 +15,6 @@ import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabe
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import withMobileDialog from '@/lib/vendor/@material-ui/core/src/withMobileDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -24,6 +23,7 @@ import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 
 const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
@@ -132,7 +132,6 @@ type EventWithSelectTarget = {
 const SubscribeDialog = (props: {
   method: any,
   view: keyof typeof viewNames,
-  fullScreen?: boolean,
   onClose: any,
   open: boolean,
 }) => {
@@ -212,7 +211,8 @@ const SubscribeDialog = (props: {
     setView(view);
   }
 
-  const { fullScreen, onClose, open, } = props;
+  const fullScreen = !useIsAboveBreakpoint('sm');
+  const { onClose, open } = props;
   const { LWDialog, MenuItem } = Components;
 
   const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
@@ -332,9 +332,7 @@ const SubscribeDialog = (props: {
   );
 }
 
-const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog, {
-  hocs: [withMobileDialog()]
-});
+const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog);
 
 declare global {
   interface ComponentTypes {
