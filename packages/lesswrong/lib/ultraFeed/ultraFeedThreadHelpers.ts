@@ -8,7 +8,7 @@
  * - Deciding which comments to expand/highlight
  */
 
-import { PreDisplayFeedComment, PreDisplayFeedCommentThread, FeedPostWithComments, FeedCommentMetaInfo, FeedItemSourceType } from '../../components/ultraFeed/ultraFeedTypes';
+import { PreDisplayFeedComment, PreDisplayFeedCommentThread, FeedCommentsThread } from '../../components/ultraFeed/ultraFeedTypes';
 
 // Define local parameters for UltraFeed time decay - allows independent tuning
 const ULTRAFEED_SCORE_BIAS = 3; // Similar to SCORE_BIAS elsewhere, adjusts starting decay
@@ -366,17 +366,14 @@ function findNewestComment(thread: PreDisplayFeedCommentThread): PreDisplayFeedC
  */
 export function prepareCommentThreadForResolver(
   prioritizedInfo: PrioritizedThreadInfo
-): FeedPostWithComments {
+): FeedCommentsThread {
   const { thread, reason, latestUserInteractionTs, latestUserViewTs } = prioritizedInfo;
   const numComments = thread.length;
   
   if (numComments === 0) {
     // Should not happen if filtered earlier, but handle defensively
     return { 
-      postId: undefined,
-      commentIds: [],
-      commentMetaInfos: {},
-      postMetaInfo: { sources: ['commentThreads'], displayStatus: 'hidden' }
+      comments: [],
     };
   }
 
@@ -457,39 +454,7 @@ export function prepareCommentThreadForResolver(
     expandedCommentIds.add(firstCommentId);
   }
 
-  // --- Build final commentMetaInfos ---
-  const commentIds = thread.map((item: PreDisplayFeedComment) => item.commentId);
-  
-  const commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo} = thread.reduce(
-    (acc: {[commentId: string]: FeedCommentMetaInfo}, comment: PreDisplayFeedComment) => {
-      const commentId = comment.commentId;
-
-      // Highlight if never served
-      const highlight = comment.metaInfo?.lastServed === null;
-
-      // Set displayStatus based on whether it was chosen for expansion
-      const displayStatus = expandedCommentIds.has(commentId) ? 'expanded' : 'collapsed';
-
-      acc[commentId] = {
-        sources: comment.metaInfo?.sources || null,
-        displayStatus,
-        siblingCount: comment.metaInfo?.siblingCount ?? null,
-        highlight,
-        lastServed: comment.metaInfo?.lastServed ?? null,
-        lastViewed: comment.metaInfo?.lastViewed ?? null,
-        lastInteracted: comment.metaInfo?.lastInteracted ?? null,
-        postedAt: comment.metaInfo?.postedAt ?? null,
-      };
-      
-      return acc;
-    }, 
-    {}
-  );
-
   return {
-    postId: thread[0].postId,
-    commentIds,
-    commentMetaInfos,
-    postMetaInfo: { sources: ['commentThreads'], displayStatus: 'hidden' },
+    comments: thread,
   };
 } 

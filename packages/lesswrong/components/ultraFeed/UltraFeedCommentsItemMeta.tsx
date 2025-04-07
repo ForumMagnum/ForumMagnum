@@ -72,13 +72,11 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
 
 const UltraFeedCommentsItemMeta = ({
   comment,
-  post,
   setShowEdit,
   hideDate,
   hideActionsMenu,
 }: {
-  comment: CommentsList,
-  post: PostsMinimumInfo,
+  comment: UltraFeedComment,
   setShowEdit?: () => void,
   hideDate?: boolean,
   hideActionsMenu?: boolean,
@@ -87,6 +85,10 @@ const UltraFeedCommentsItemMeta = ({
   const { CommentsMenu, CommentsItemDate, CommentUserName, SmallSideVote, CommentShortformIcon } = Components;
 
   const currentUser = useCurrentUser();
+  const { post } = comment;
+  if (!post) {
+    return null;
+  }
 
   const moderatorCommentAnnotation = comment.hideModeratorHat
     ? "Moderator Comment (Invisible)"

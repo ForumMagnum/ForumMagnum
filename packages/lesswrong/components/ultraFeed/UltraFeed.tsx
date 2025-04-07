@@ -328,11 +328,13 @@ const UltraFeedContent = () => {
                           console.log("Missing spotlight data:", item);
                           return null;
                         }
+
+                        const { spotlight } = item.spotlight;
                         
                         return (
                           <FeedItemWrapper sources={['spotlights']}>
                             <SpotlightFeedItem 
-                              spotlight={item.spotlight}
+                              spotlight={spotlight}
                               showSubtitle={true}
                             />
                           </FeedItemWrapper>
