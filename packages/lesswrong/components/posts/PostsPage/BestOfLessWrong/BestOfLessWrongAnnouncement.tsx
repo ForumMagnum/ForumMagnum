@@ -7,7 +7,6 @@ import groupBy from 'lodash/groupBy';
 import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import FragmentLexer from '@/server/sql/FragmentLexer';
 
 const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) => ({ 
   titleContainer: {
