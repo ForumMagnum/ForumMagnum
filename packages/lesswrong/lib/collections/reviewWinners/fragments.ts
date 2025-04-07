@@ -53,3 +53,20 @@ export const ReviewWinnerTopPostsPage = () => frag`
     }
   }
 `
+
+export const ReviewWinnerAnnouncement = () => frag`
+  fragment ReviewWinnerAnnouncement on ReviewWinner {
+    _id
+    category
+    curatedOrder
+    reviewYear
+    reviewRanking
+    competitorCount
+    postId
+    post {
+      _id
+      title
+      slug
+    }
+  }
+`

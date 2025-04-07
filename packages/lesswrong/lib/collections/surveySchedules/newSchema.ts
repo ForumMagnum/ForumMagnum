@@ -230,7 +230,7 @@ const schema = {
   },
   clients: {
     graphql: {
-      outputType: "[ClientId!]!",
+      outputType: "[ClientId!]",
       canRead: ["admins"],
       resolver: generateIdResolverMulti({ foreignCollectionName: "ClientIds", fieldName: "clientIds" }),
     },
