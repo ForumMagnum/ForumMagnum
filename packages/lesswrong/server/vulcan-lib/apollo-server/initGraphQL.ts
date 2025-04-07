@@ -713,7 +713,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
 
   const { fields, resolvers: fieldResolvers } = getFields(schema, typeName);
 
-  const { interfaces = [], resolvers, mutations } = collection.options;
+  const { interfaces = [], resolvers } = collection.options;
 
   const description = collection.options.description
     ? collection.options.description
@@ -774,61 +774,61 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
       addedResolvers.push({ Query: { ...queryResolvers } });
     }
 
-    if (mutations && !_.isEmpty(mutations)) {
-      const mutationResolvers: Partial<Record<string,any>> = {};
-      // create
-      if (mutations.create) {
-        // e.g. "createMovie(input: CreateMovieInput) : Movie"
-        if (create.length === 0) {
-          // eslint-disable-next-line no-console
-          console.log(
-            `// Warning: you defined a "create" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "create" mutation or define a "canCreate" property on a field to disable this warning`
-          );
-        } else {
-          addedMutations.push({mutation: createMutationTemplate({ typeName }), description: mutations.create.description});
-          mutationResolvers[`create${typeName}`] = mutations.create.mutation.bind(
-            mutations.create
-          );
-        }
-      }
-      // update
-      if (mutations.update) {
-        // e.g. "updateMovie(input: UpdateMovieInput) : Movie"
-        if (update.length === 0) {
-          // eslint-disable-next-line no-console
-          console.log(
-            `// Warning: you defined an "update" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "update" mutation or define a "canUpdate" property on a field to disable this warning`
-          );
-        } else {
-          addedMutations.push({mutation: updateMutationTemplate({ typeName }), description: mutations.update.description});
-          mutationResolvers[`update${typeName}`] = mutations.update.mutation.bind(
-            mutations.update
-          );
-        }
-      }
-      // upsert
-      if (mutations.upsert) {
-        // e.g. "upsertMovie(input: UpsertMovieInput) : Movie"
-        if (update.length === 0) {
-          // eslint-disable-next-line no-console
-          console.log(
-            `// Warning: you defined an "upsert" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "upsert" mutation or define a "canUpdate" property on a field to disable this warning`
-          );
-        } else {
-          addedMutations.push({mutation: upsertMutationTemplate({ typeName }), description: mutations.upsert.description});
-          mutationResolvers[`upsert${typeName}`] = mutations.upsert.mutation.bind(
-            mutations.upsert
-          );
-        }
-      }
-      // delete
-      if (mutations.delete) {
-        // e.g. "deleteMovie(input: DeleteMovieInput) : Movie"
-        addedMutations.push({mutation: deleteMutationTemplate({ typeName }), description: mutations.delete.description});
-        mutationResolvers[`delete${typeName}`] = mutations.delete.mutation.bind(mutations.delete);
-      }
-      addedResolvers.push({ Mutation: { ...mutationResolvers } });
-    }
+    // if (mutations && !_.isEmpty(mutations)) {
+    //   const mutationResolvers: Partial<Record<string,any>> = {};
+    //   // create
+    //   if (mutations.create) {
+    //     // e.g. "createMovie(input: CreateMovieInput) : Movie"
+    //     if (create.length === 0) {
+    //       // eslint-disable-next-line no-console
+    //       console.log(
+    //         `// Warning: you defined a "create" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "create" mutation or define a "canCreate" property on a field to disable this warning`
+    //       );
+    //     } else {
+    //       addedMutations.push({mutation: createMutationTemplate({ typeName }), description: mutations.create.description});
+    //       mutationResolvers[`create${typeName}`] = mutations.create.mutation.bind(
+    //         mutations.create
+    //       );
+    //     }
+    //   }
+    //   // update
+    //   if (mutations.update) {
+    //     // e.g. "updateMovie(input: UpdateMovieInput) : Movie"
+    //     if (update.length === 0) {
+    //       // eslint-disable-next-line no-console
+    //       console.log(
+    //         `// Warning: you defined an "update" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "update" mutation or define a "canUpdate" property on a field to disable this warning`
+    //       );
+    //     } else {
+    //       addedMutations.push({mutation: updateMutationTemplate({ typeName }), description: mutations.update.description});
+    //       mutationResolvers[`update${typeName}`] = mutations.update.mutation.bind(
+    //         mutations.update
+    //       );
+    //     }
+    //   }
+    //   // upsert
+    //   if (mutations.upsert) {
+    //     // e.g. "upsertMovie(input: UpsertMovieInput) : Movie"
+    //     if (update.length === 0) {
+    //       // eslint-disable-next-line no-console
+    //       console.log(
+    //         `// Warning: you defined an "upsert" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "upsert" mutation or define a "canUpdate" property on a field to disable this warning`
+    //       );
+    //     } else {
+    //       addedMutations.push({mutation: upsertMutationTemplate({ typeName }), description: mutations.upsert.description});
+    //       mutationResolvers[`upsert${typeName}`] = mutations.upsert.mutation.bind(
+    //         mutations.upsert
+    //       );
+    //     }
+    //   }
+    //   // delete
+    //   if (mutations.delete) {
+    //     // e.g. "deleteMovie(input: DeleteMovieInput) : Movie"
+    //     addedMutations.push({mutation: deleteMutationTemplate({ typeName }), description: mutations.delete.description});
+    //     mutationResolvers[`delete${typeName}`] = mutations.delete.mutation.bind(mutations.delete);
+    //   }
+    //   addedResolvers.push({ Mutation: { ...mutationResolvers } });
+    // }
     graphQLSchema = schemaFragments.join('\n\n') + '\n\n\n';
   } else {
     // eslint-disable-next-line no-console

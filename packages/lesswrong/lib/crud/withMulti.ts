@@ -82,7 +82,6 @@ export interface UseMultiOptions<
   skip?: boolean,
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
-  createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
   ssr?: boolean,
 }
 
@@ -145,7 +144,6 @@ export function useMulti<
   skip = false,
   queryLimitName,
   alwaysShowLoadMore = false,
-  createIfMissing,
   ssr = true,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
@@ -168,10 +166,10 @@ export function useMulti<
     input: {
       terms: { ...terms, limit: defaultLimit },
       resolverArgs: extraVariablesValues,
-      enableCache, enableTotal, createIfMissing
+      enableCache, enableTotal
     },
     ...extraVariablesValues
-  }), [terms, defaultLimit, enableCache, enableTotal, createIfMissing, extraVariablesValues]);
+  }), [terms, defaultLimit, enableCache, enableTotal, extraVariablesValues]);
 
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {

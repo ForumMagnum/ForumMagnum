@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "../common/withUser";
-import { useSingle } from "@/lib/crud/withSingle";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useGetUserBySlug } from "../hooks/useGetUserBySlug";
 
@@ -19,9 +18,12 @@ const styles = (theme: ThemeType) => ({
 const MessageUserInner = ({ user, classes }: { user: UsersMinimumInfo; classes: ClassesType<typeof styles> }) => {
   const { Loading, PermanentRedirect, SingleColumnSection } = Components;
 
-  const { conversation, conversationLoading } = useInitiateConversation({
-    userIds: [user._id],
-  });
+  const { conversation, conversationLoading, initiateConversation } = useInitiateConversation();
+
+  useEffect(() => {
+    initiateConversation([user._id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!conversation) {
     return conversationLoading ? (

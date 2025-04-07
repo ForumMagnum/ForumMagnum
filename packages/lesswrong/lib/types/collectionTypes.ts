@@ -110,7 +110,6 @@ type CollectionOptions<N extends CollectionNameString> = {
   dbCollectionName?: string,
   collection?: any,
   resolvers?: any,
-  mutations?: DefaultMutations<ObjectsByCollectionName[N]>,
   interfaces?: string[],
   description?: string,
   logChanges?: boolean,

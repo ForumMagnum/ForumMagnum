@@ -261,8 +261,6 @@ export const multiInputTemplate = ({ typeName }: {typeName: string}) => (
   enableCache: Boolean
   # Whether to calculate totalCount for this query
   enableTotal: Boolean
-  # The document to create if none are found
-  createIfMissing: JSON
   # OpenCRUD fields
   where: SelectorInput
   # orderBy: ${typeName}OrderByInput

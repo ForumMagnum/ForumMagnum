@@ -3,12 +3,12 @@ import { UpdateSelector, convertDocumentIdToIdInSelector } from "@/lib/vulcan-li
 import isEmpty from "lodash/isEmpty";
 import { throwError } from "../errors";
 
-interface CreateMutationOptions<D, T extends DbObject, R extends { [ACCESS_FILTERED]: true } | null> {
+interface CreateMutationOptions<D, T extends DbObject, R extends { [ACCESS_FILTERED]: true } | null = { [ACCESS_FILTERED]: true } | null> {
   newCheck: (user: DbUser | null, document: D | null, context: ResolverContext) => Promise<boolean> | boolean,
   accessFilter: (rawResult: T, context: ResolverContext) => Promise<R>,
 }
 
-interface UpdateMutationOptions<T extends DbObject, R extends { [ACCESS_FILTERED]: true } | null> {
+interface UpdateMutationOptions<T extends DbObject, R extends { [ACCESS_FILTERED]: true } | null = { [ACCESS_FILTERED]: true } | null> {
   editCheck: (user: DbUser | null, document: T | null, context: ResolverContext) => Promise<boolean> | boolean,
   accessFilter: (rawResult: T, context: ResolverContext) => Promise<R>,
 }
@@ -19,7 +19,7 @@ export function wrapCreateMutatorFunction<
   O extends CreateMutationOptions<D, Awaited<ReturnType<T>>, R>,
   R extends { [ACCESS_FILTERED]: true } | null
 >(func: T, options: O) {
-  return async (root: void, args: Parameters<T>[0], context: ResolverContext) => {
+  return async (root: void, args: Parameters<T>[0], context: ResolverContext): Promise<{ data: Awaited<ReturnType<O['accessFilter']>> }> => {
     const { newCheck, accessFilter } = options;
     if (!(await newCheck(context.currentUser, args.data, context))) {
       throwError({ id: 'app.operation_not_allowed' });
@@ -27,7 +27,7 @@ export function wrapCreateMutatorFunction<
 
     const rawResult = await func(args, context);
     const filteredResult = await accessFilter(rawResult, context);
-    return { data: filteredResult };
+    return { data: filteredResult as Awaited<ReturnType<O['accessFilter']>> };
   };
 }
 
@@ -38,7 +38,7 @@ export function wrapUpdateMutatorFunction<
   O extends UpdateMutationOptions<ObjectsByCollectionName[N], R>,
   R extends { [ACCESS_FILTERED]: true } | null
 >(collectionName: N, func: T, options: O) {
-  return async (root: void, args: Parameters<T>[0], context: ResolverContext) => {
+  return async (root: void, args: Parameters<T>[0], context: ResolverContext): Promise<{ data: Awaited<ReturnType<O['accessFilter']>> }> => {
     const { editCheck, accessFilter } = options;
     const { loaders, currentUser } = context;
     const { selector } = args;
@@ -61,6 +61,6 @@ export function wrapUpdateMutatorFunction<
     
     const rawResult = await func(args, context);
     const filteredResult = await accessFilter(rawResult, context);
-    return { data: filteredResult };
+    return { data: filteredResult as Awaited<ReturnType<O['accessFilter']>> };
   };
 }

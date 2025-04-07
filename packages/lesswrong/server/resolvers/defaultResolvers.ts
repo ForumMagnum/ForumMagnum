@@ -65,7 +65,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         terms: ViewTermsBase & Record<string, unknown>,
         enableCache?: boolean,
         enableTotal?: boolean,
-        createIfMissing?: Partial<T>,
         resolverArgs?: Record<string, unknown>
       },
       [resolverArgKeys: string]: unknown
@@ -76,7 +75,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const collection = context[collectionName] as CollectionBase<N>;
     // const startResolve = Date.now()
     const { input } = args ?? { input: {} };
-    const { terms = {}, enableCache = false, enableTotal = false, createIfMissing, resolverArgs = {} } = input ?? {};
+    const { terms = {}, enableCache = false, enableTotal = false, resolverArgs = {} } = input ?? {};
     const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
     logger('multi resolver()')
     logger('multi terms', terms)
@@ -161,12 +160,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       );
     }
     let docs = await fetchDocs();
-
-    // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
-    if (createIfMissing && docs.length === 0) {
-      await collection.options.mutations?.create?.mutation(root, {data: createIfMissing}, context)
-      docs = await fetchDocs();
-    }
 
     // Were there enough results to reach the limit specified in the query?
     const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
