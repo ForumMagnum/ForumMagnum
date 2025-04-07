@@ -19,7 +19,7 @@ import gql from "graphql-tag";
 import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
-function newCheck(user: DbUser | null, tag: CreateTagDataInput | null) {
+export function newCheck(user: DbUser | null, tag: CreateTagDataInput | null) {
   if (!user) return false;
   if (user.deleted) return false;
 
@@ -29,7 +29,7 @@ function newCheck(user: DbUser | null, tag: CreateTagDataInput | null) {
   return userCanCreateTags(user);
 }
 
-function editCheck(user: DbUser | null, tag: DbTag | null) {
+export function editCheck(user: DbUser | null, tag: DbTag | null) {
   if (!user) return false;
   if (user.deleted) return false;
 

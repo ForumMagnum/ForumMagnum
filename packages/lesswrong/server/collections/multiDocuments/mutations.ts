@@ -21,7 +21,7 @@ function newCheck(user: DbUser | null, multiDocument: CreateMultiDocumentDataInp
   return canMutateParentDocument(user, multiDocument, 'create', context);
 }
 
-async function editCheck(user: DbUser | null, multiDocument: DbMultiDocument | null, context: ResolverContext) {
+export async function editCheck(user: DbUser | null, multiDocument: DbMultiDocument | null, context: ResolverContext) {
   if (!multiDocument) {
     return false;
   }

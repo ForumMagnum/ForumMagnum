@@ -99,9 +99,9 @@ function newCheck(user: DbUser | null, document: Partial<DbInsertion<Db${collect
 const allActions = new Set(allUserGroups.flatMap(group => group.actions));
 
 const getCreatePermissionCheckSection = (collection: CollectionBase<CollectionNameString>) => {
-  if (collection.options.mutations?.options?.newCheck) {
-    return '// Collection has custom newCheck';
-  }
+  // if (collection.options.mutations?.options?.newCheck) {
+    // return '// Collection has custom newCheck';
+  // }
 
   const collectionName = collection.collectionName;
 
@@ -126,9 +126,9 @@ const getUpdateAllActionName = (collectionName: CollectionNameString) => `${coll
 const getEditAllActionName = (collectionName: CollectionNameString) => `${collectionName.toLowerCase()}.edit.all`;
 
 const getUpdatePermissionCheckSection = (collection: CollectionBase<CollectionNameString>) => {
-  if (collection.options.mutations?.options?.editCheck) {
-    return '// Collection has custom editCheck';
-  }
+  // if (collection.options.mutations?.options?.editCheck) {
+    // return '// Collection has custom editCheck';
+  // }
 
   const collectionName = collection.collectionName;
   const typeName = collectionNameToTypeName[collectionName];
@@ -516,49 +516,49 @@ function generateMutationFunctions(collectionName: CollectionNameString) {
 }
 
 
-export async function moveMutations() {
-  const allCollections = getAllCollections();
-  for (const collection of allCollections) {
-    const collectionName = collection.collectionName;
-    const collectionMutations = collection.options.mutations;
+// export async function moveMutations() {
+//   const allCollections = getAllCollections();
+//   for (const collection of allCollections) {
+//     const collectionName = collection.collectionName;
+//     const collectionMutations = collection.options.mutations;
 
-    if (!collectionMutations) continue;
+//     if (!collectionMutations) continue;
 
-    const mutationFilePath = join(__dirname, `../collections/${collectionName}/mutations.ts`);
+//     const mutationFilePath = join(__dirname, `../collections/${collectionName}/mutations.ts`);
 
-    const mutationFileContents = generateMutationFunctions(collectionName);
+//     const mutationFileContents = generateMutationFunctions(collectionName);
 
-    await writeFile(mutationFilePath, mutationFileContents);
-  }
-}
+//     await writeFile(mutationFilePath, mutationFileContents);
+//   }
+// }
 
-export async function generateMutationImports() {
-  const allCollections = getAllCollections();
-  const imports: string[] = [];
-  const functionNames: string[] = [];
+// export async function generateMutationImports() {
+//   const allCollections = getAllCollections();
+//   const imports: string[] = [];
+//   const functionNames: string[] = [];
 
-  for (const collection of allCollections) {
-    const collectionName = collection.collectionName;
-    const collectionMutations = collection.options.mutations;
+//   for (const collection of allCollections) {
+//     const collectionName = collection.collectionName;
+//     const collectionMutations = collection.options.mutations;
 
-    if (!collectionMutations) continue;
+//     if (!collectionMutations) continue;
 
-    const createFunctionName = `create${collectionNameToTypeName[collectionName]}`;
-    const updateFunctionName = `update${collectionNameToTypeName[collectionName]}`;
+//     const createFunctionName = `create${collectionNameToTypeName[collectionName]}`;
+//     const updateFunctionName = `update${collectionNameToTypeName[collectionName]}`;
 
-    const collectionPathPart = collectionName[0].toLowerCase() + collectionName.slice(1);
+//     const collectionPathPart = collectionName[0].toLowerCase() + collectionName.slice(1);
 
-    const importLine = `import { ${createFunctionName}, ${updateFunctionName} } from "@/server/collections/${collectionPathPart}/mutations";`;
-    imports.push(importLine);
-    functionNames.push(createFunctionName);
-    functionNames.push(updateFunctionName);
-  }
+//     const importLine = `import { ${createFunctionName}, ${updateFunctionName} } from "@/server/collections/${collectionPathPart}/mutations";`;
+//     imports.push(importLine);
+//     functionNames.push(createFunctionName);
+//     functionNames.push(updateFunctionName);
+//   }
 
-  const importBlock = imports.join('\n');
-  const mutationBlock = functionNames.map(functionName => `${functionName}: addRootArg(${functionName})`).join(',\n');
+//   const importBlock = imports.join('\n');
+//   const mutationBlock = functionNames.map(functionName => `${functionName}: addRootArg(${functionName})`).join(',\n');
 
-  await writeFile('./packages/lesswrong/server/initGraphQLImports.ts', importBlock + '\n\n' + mutationBlock);
-}
+//   await writeFile('./packages/lesswrong/server/initGraphQLImports.ts', importBlock + '\n\n' + mutationBlock);
+// }
 
 export async function moveLlmMessagesMutations() {
   const mutationFilePath = join(__dirname, `../collections/llmMessages/mutations.ts`);

@@ -1,10 +1,9 @@
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/mutations";
 
 export function isMultiDocument(document: DbTag | DbMultiDocument): document is DbMultiDocument {
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;
 }
-
-// export type InsertableMultiDocument = //Partial<DbInsertion<DbMultiDocument>> & { collectionName: string, parentDocumentId: string };
 
 export async function getRootDocument(
   multiDocument: DbMultiDocument | CreateMultiDocumentDataInput,
@@ -59,14 +58,7 @@ export async function canMutateParentDocument(user: DbUser | null, multiDocument
     return false;
   }
 
-  const { document: parentDocument, parentCollectionName } = rootDocumentInfo;
-  const parentCollection = context[parentCollectionName];
-  const check = parentCollection.options.mutations?.[mutation]?.check;
-  if (!check) {
-    // eslint-disable-next-line no-console
-    console.error(`No check for ${mutation} mutation on parent collection ${parentCollectionName} when trying to ${mutation} MultiDocument for parent with id ${parentDocument._id}`);
-    return false;
-  }
-
-  return check(user, parentDocument, context);
+  const { document: parentDocument } = rootDocumentInfo;
+  const check = mutation === 'create' ? newTagCheck : editTagCheck;
+  return check(user, parentDocument);
 }
