@@ -7,7 +7,7 @@ import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributions
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { wrapUpdateMutatorFunction } from "@/server/vulcan-lib/apollo-server/helpers";
+import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
@@ -98,7 +98,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
   },
 });
 
-const wrappedUpdateFunction = wrapUpdateMutatorFunction('Revisions', updateFunction, {
+const wrappedUpdateFunction = makeGqlUpdateMutation('Revisions', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Revisions', rawResult, context)
 });

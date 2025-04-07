@@ -13,7 +13,7 @@ interface UpdateMutationOptions<T extends DbObject, R extends { [ACCESS_FILTERED
   accessFilter: (rawResult: T, context: ResolverContext) => Promise<R>,
 }
 
-export function wrapCreateMutatorFunction<
+export function makeGqlCreateMutation<
   D,
   T extends (args: { data: D }, context: ResolverContext, skipValidation?: boolean) => Promise<any>,
   O extends CreateMutationOptions<D, Awaited<ReturnType<T>>, R>,
@@ -31,7 +31,7 @@ export function wrapCreateMutatorFunction<
   };
 }
 
-export function wrapUpdateMutatorFunction<
+export function makeGqlUpdateMutation<
   N extends CollectionNameString,
   D,
   T extends (args: { selector: SelectorInput, data: D }, context: ResolverContext, skipValidation?: boolean) => Promise<any>,
