@@ -187,8 +187,7 @@ const UltraFeedCompressedCommentsItem = ({
 const UltraFeedCompressedCommentsItemComponent = registerComponent("UltraFeedCompressedCommentsItem", UltraFeedCompressedCommentsItem);
 
 export interface UltraFeedCommentItemProps {
-  comment: CommentsList;
-  post: PostsListWithVotes;
+  comment: UltraFeedComment;
   displayStatus: "expanded" | "collapsed" | "hidden";
   onChangeDisplayStatus: (newStatus: "expanded" | "collapsed" | "hidden") => void;
   showInLineCommentThreadTitle?: boolean;
@@ -200,7 +199,6 @@ export interface UltraFeedCommentItemProps {
 
 const UltraFeedCommentItem = ({
   comment,
-  post,
   displayStatus,
   onChangeDisplayStatus,
   showInLineCommentThreadTitle,
@@ -216,6 +214,7 @@ const UltraFeedCommentItem = ({
   // Get functions from the context
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const { post } = comment;
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -254,6 +253,11 @@ const UltraFeedCommentItem = ({
     const fullBreakpoints = settings.commentTruncationBreakpoints || []; // Default to empty array if undefined
     const collapsedLimit = settings.collapsedCommentTruncation;
 
+  if (!post) {
+    console.log("Missing post data:", comment._id);
+    return null;
+  }
+
     if (expanded) {
       // If the item is already expanded, use the standard breakpoints
       return fullBreakpoints;
@@ -285,7 +289,7 @@ const UltraFeedCommentItem = ({
       </div>
       
       <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-        {titleAboveMetaInfo && (
+        {titleAboveMetaInfo && post && (
           <div className={classes.inlineCommentThreadTitleAbove}>
             <button 
               className={classes.inlineCommentThreadTitleLink}
@@ -296,8 +300,8 @@ const UltraFeedCommentItem = ({
           </div>
         )}
         <div className={classes.commentHeader}>
-          <UltraFeedCommentsItemMeta comment={comment} post={post} />
-          {shouldShowInlineTitle && !titleAboveMetaInfo && !comment.shortform && (
+          <UltraFeedCommentsItemMeta comment={comment} />
+          {shouldShowInlineTitle && !titleAboveMetaInfo && !comment.shortform && post && (
             <div className={classes.inlineCommentThreadTitle}>
               <button 
                 className={classes.inlineCommentThreadTitleLink}
@@ -312,7 +316,7 @@ const UltraFeedCommentItem = ({
           <FeedContentBody
             comment={comment}
             html={comment.contents?.html || ""}
-            breakpoints={truncationBreakpoints}
+            breakpoints={truncationBreakpoints || []}
             wordCount={comment.contents?.wordCount || 0}
             linkToDocumentOnFinalExpand={expanded}
             initialExpansionLevel={0}
@@ -321,7 +325,7 @@ const UltraFeedCommentItem = ({
             onExpand={handleContentExpand}
           />
         </div>
-        <UltraFeedItemFooter document={comment} post={post} collectionName="Comments" />
+        <UltraFeedItemFooter document={comment} collectionName="Comments" />
       </div>
     </div>
   );

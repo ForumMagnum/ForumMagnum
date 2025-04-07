@@ -982,12 +982,16 @@ interface FeedCommentItemFragment_contents { // fragment on Revisions
   readonly wordCount: number,
 }
 
-interface FeedPostWithCommentsFragment { // fragment on non-collection type
+interface FeedCommentThreadFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly commentMetaInfos: any,
+  readonly comments: any,
+}
+
+interface FeedPostFragment { // fragment on non-collection type
   readonly _id: any,
   readonly postMetaInfo: any,
-  readonly commentMetaInfos: any,
   readonly post: any,
-  readonly comments: any,
 }
 
 interface FeedSpotlightFragment { // fragment on non-collection type
@@ -3719,6 +3723,14 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly lastUpdated: Date,
 }
 
+interface UltraFeedComment extends CommentsList { // fragment on Comments
+  readonly post: UltraFeedComment_post|null,
+}
+
+interface UltraFeedComment_post extends PostsMinimumInfo { // fragment on Posts
+  readonly votingSystem: string,
+}
+
 interface UltraFeedEventsDefaultFragment { // fragment on UltraFeedEvents
   readonly _id: string,
   readonly createdAt: Date,
@@ -5633,7 +5645,8 @@ interface FragmentTypes {
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
   FeedCommentItemFragment: FeedCommentItemFragment
-  FeedPostWithCommentsFragment: FeedPostWithCommentsFragment
+  FeedCommentThreadFragment: FeedCommentThreadFragment
+  FeedPostFragment: FeedPostFragment
   FeedSpotlightFragment: FeedSpotlightFragment
   FieldChangeFragment: FieldChangeFragment
   FieldChangesDefaultFragment: FieldChangesDefaultFragment
@@ -5841,6 +5854,7 @@ interface FragmentTypes {
   TweetsDefaultFragment: TweetsDefaultFragment
   TypingIndicatorInfo: TypingIndicatorInfo
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
+  UltraFeedComment: UltraFeedComment
   UltraFeedEventsDefaultFragment: UltraFeedEventsDefaultFragment
   UnclaimedReportsList: UnclaimedReportsList
   UserActivitiesDefaultFragment: UserActivitiesDefaultFragment
@@ -5912,7 +5926,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"FeedCommentItemFragment"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"FeedCommentItemFragment"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -5929,6 +5943,8 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionFragment"|"ElicitQuestionsDefaultFragment"
   EmailTokenses: "EmailTokensDefaultFragment"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
+  FeedCommentThreads: "FeedCommentThreadFragment"
+  FeedPosts: "FeedPostFragment"
   FeedSpotlightItems: "FeedSpotlightFragment"
   FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
@@ -5984,7 +6000,6 @@ interface FragmentTypesByCollection {
   Tweets: "TweetsDefaultFragment"
   TypingIndicators: "TypingIndicatorInfo"|"TypingIndicatorsDefaultFragment"
   UltraFeedEvents: "UltraFeedEventsDefaultFragment"
-  UltraFeedPostWithCommentses: "FeedPostWithCommentsFragment"
   UserActivities: "UserActivitiesDefaultFragment"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
@@ -6066,7 +6081,8 @@ interface CollectionNamesByFragmentName {
   FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
   FeedCommentItemFragment: "Comments"
-  FeedPostWithCommentsFragment: never
+  FeedCommentThreadFragment: never
+  FeedPostFragment: never
   FeedSpotlightFragment: never
   FieldChangeFragment: "FieldChanges"
   FieldChangesDefaultFragment: "FieldChanges"
@@ -6274,6 +6290,7 @@ interface CollectionNamesByFragmentName {
   TweetsDefaultFragment: "Tweets"
   TypingIndicatorInfo: "TypingIndicators"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
+  UltraFeedComment: "Comments"
   UltraFeedEventsDefaultFragment: "UltraFeedEvents"
   UnclaimedReportsList: "Reports"
   UserActivitiesDefaultFragment: "UserActivities"

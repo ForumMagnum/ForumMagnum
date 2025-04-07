@@ -1,13 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
-import { DisplayFeedComment, DisplayFeedPostWithComments } from "./ultraFeedTypes";
-import classNames from "classnames";
-import { Link } from "../../lib/reactRouterWrapper";
+import { DisplayFeedComment, DisplayFeedCommentThread } from "./ultraFeedTypes";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import UnfoldMoreDoubleIcon from "@/lib/vendor/@material-ui/icons/src/UnfoldMoreDouble";
-import UnfoldLessDoubleIcon from "@/lib/vendor/@material-ui/icons/src/UnfoldLessDouble";
-import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
 
 // Styles for the UltraFeedThreadItem component
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
@@ -85,17 +80,13 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   },
 }));
 
-interface CollapsedPlaceholder {
-  placeholder: true;
-  hiddenComments: DisplayFeedComment[];
-}
 
 // Utility to compress collapsed sequences
 function compressCollapsedComments(
   displayStatuses: Record<string, "expanded" | "collapsed" | "hidden">,
-  comments: CommentsList[],
+  comments: UltraFeedComment[],
 ) {
-  const result: Array<CommentsList | { placeholder: true; hiddenComments: CommentsList[] }> = [];
+  const result: Array<UltraFeedComment | { placeholder: true; hiddenComments: UltraFeedComment[] }> = [];
 
   // If there are no comments, return empty array
   if (comments.length === 0) return result;
@@ -106,7 +97,7 @@ function compressCollapsedComments(
   }
 
   // Start from the second comment for compression
-  let tempGroup: CommentsList[] = [];
+  let tempGroup: UltraFeedComment[] = [];
 
   const flushGroupIfNeeded = () => {
     if (tempGroup.length >= 2) {
@@ -147,13 +138,13 @@ function compressCollapsedComments(
 
 // Main component definition
 const UltraFeedThreadItem = ({thread}: {
-  thread: DisplayFeedPostWithComments,
+  thread: DisplayFeedCommentThread,
 }) => {
-  const { post, comments, postMetaInfo, commentMetaInfos } = thread;
+  const { comments, commentMetaInfos } = thread;
 
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
-  const [postExpanded, setPostExpanded] = useState(postMetaInfo.displayStatus === 'expanded');
+  const [postExpanded, setPostExpanded] = useState(false);
 
   // 1) Store each comment's displayStatus locally
   const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<Record<string, "expanded" | "collapsed" | "hidden">>(() => {
@@ -194,7 +185,7 @@ const UltraFeedThreadItem = ({thread}: {
     return result;
   });
 
-  const { UltraFeedCommentItem, UltraFeedPostItem, UltraFeedCompressedCommentsItem } = Components;
+  const { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } = Components;
 
   // 2) Function to update a single comment's status
   const setDisplayStatus = (commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
@@ -223,7 +214,6 @@ const UltraFeedThreadItem = ({thread}: {
 
   return (
     <div className={classes.root}>
-      {postExpanded && <UltraFeedPostItem post={post} postMetaInfo={thread.postMetaInfo} />}
       {comments.length > 0 && <div className={classes.commentsContainer}>
         <div className={classes.commentsList}>
           {compressedItems.map((item, index) => {
@@ -255,7 +245,6 @@ const UltraFeedThreadItem = ({thread}: {
               <div key={cId} className={classes.commentItem}>
                 <UltraFeedCommentItem
                   comment={item}
-                  post={thread.post}
                   displayStatus={commentDisplayStatuses[cId]}
                   onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
                   showInLineCommentThreadTitle={isFirstItem}

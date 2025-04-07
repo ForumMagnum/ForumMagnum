@@ -11,7 +11,6 @@ import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { Link } from '@/lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { DisplayFeedPostWithComments } from './ultraFeedTypes';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 
 // Add this at the top level of your file
@@ -136,9 +135,9 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
 // Define the main component implementation
 const UltraFeedContent = () => {
   const classes = useStyles(styles);
-  const { SectionFooterCheckbox, MixedTypeFeed, SuggestedFeedSubscriptions, UltraFeedCommentItem,
-    FeedItemWrapper, FeedPostCommentsCard, SectionTitle, SingleColumnSection, SettingsButton, 
-    Divider, UltraFeedThreadItem, SpotlightFeedItem, UltraFeedSettings } = Components;
+  const { SectionFooterCheckbox, MixedTypeFeed, UltraFeedPostItem,
+    FeedItemWrapper, SectionTitle, SingleColumnSection, SettingsButton, 
+    SpotlightFeedItem, UltraFeedSettings, UltraFeedThreadItem } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -293,8 +292,8 @@ const UltraFeedContent = () => {
                 resolverArgsValues={{ sessionId }}
                 renderers={{
                     feedCommentThread: {
-                      fragmentName: 'FeedPostWithCommentsFragment',
-                      render: (item: DisplayFeedPostWithComments) => {
+                      fragmentName: 'FeedCommentThreadFragment',
+                      render: (item: FeedCommentThreadFragment) => {
                         if (!item) {
                           console.log("Missing feed item data:", item);
                           return null;
@@ -308,8 +307,8 @@ const UltraFeedContent = () => {
                       }
                     },
                     feedPost: {
-                      fragmentName: 'FeedPostWithCommentsFragment',
-                      render: (item: DisplayFeedPostWithComments) => {
+                      fragmentName: 'FeedPostFragment',
+                      render: (item: FeedPostFragment) => {
                         if (!item) {
                           console.log("Missing feed item data:", item);
                           return null;
@@ -317,14 +316,14 @@ const UltraFeedContent = () => {
                         
                         return (
                           <FeedItemWrapper sources={['postThreads']}>
-                            <UltraFeedThreadItem thread={item} />
+                            <UltraFeedPostItem post={item.post} postMetaInfo={item.postMetaInfo} />
                           </FeedItemWrapper>
                         );
                       }
                     },
                     feedSpotlight: {
                       fragmentName: 'FeedSpotlightFragment',
-                      render: (item: {_id: string, spotlight: SpotlightDisplay}) => {
+                      render: (item: {_id: string, spotlight: FeedSpotlightFragment}) => {
                         if (!item || !item.spotlight) {
                           console.log("Missing spotlight data:", item);
                           return null;

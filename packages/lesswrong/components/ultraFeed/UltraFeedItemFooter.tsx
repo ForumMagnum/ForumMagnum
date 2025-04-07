@@ -85,13 +85,11 @@ type DocumentType = PostsListWithVotes | CommentsList;
 
 interface UltraFeedItemFooterProps {
   document: DocumentType;
-  post?: PostsListWithVotes; // The parent post when document is a comment
   collectionName: "Posts" | "Comments"; // Now required, no longer optional
 }
 
 const UltraFeedItemFooter = ({
   document,
-  post,
   collectionName,
 }: UltraFeedItemFooterProps) => {
   const classes = useStyles(styles);
@@ -99,7 +97,7 @@ const UltraFeedItemFooter = ({
 
   const isComment = collectionName === "Comments";
   
-  const parentPost = isComment ? (post || undefined) : document as PostsListWithVotes;
+  const parentPost = isComment ? (document as UltraFeedComment).post : undefined;
   
   const commentCount = isComment 
     ? (document as CommentsList).descendentCount || 0 
@@ -168,7 +166,8 @@ const UltraFeedItemFooter = ({
       
       {parentPost && (
         <div className={classes.bookmarkButton}>
-          <BookmarkButton post={parentPost} />
+          {/* TODO: make this work by making bookmarks */}
+          <BookmarkButton post={parentPost as PostsListWithVotes} />
         </div>
       )}
     </div>

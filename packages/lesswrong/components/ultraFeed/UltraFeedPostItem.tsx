@@ -14,9 +14,11 @@ import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     paddingTop: 24,
-    // paddingLeft: 12,
-    // paddingRight: 12,
+    paddingLeft: 16,
+    paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.panelBackground.default,
+    borderRadius: 4,
   },
   header: {
     display: 'flex',

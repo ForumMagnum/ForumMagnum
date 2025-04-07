@@ -7,16 +7,22 @@
  * This includes both metadata fields and content fields loaded via IDs
  */
 
-export const FeedPostWithCommentsFragment = `
-  fragment FeedPostWithCommentsFragment on UltraFeedPostWithComments {
+export const FeedPostFragment = `
+  fragment FeedPostFragment on FeedPost {
     _id
     postMetaInfo
-    commentMetaInfos
     post {
       ...PostsListWithVotes
     }
+  }
+`;
+
+export const FeedCommentThreadFragment = `
+  fragment FeedCommentThreadFragment on FeedCommentThread {
+    _id
+    commentMetaInfos
     comments {
-      ...CommentsList
+      ...UltraFeedComment
     }
   }
 `;

@@ -1,4 +1,4 @@
-export type FeedItemSourceType = 'postThreads' | 'commentThreads' | 'spotlights' | 'quickTakes' | 'topComments' | 'RecombeeHybridPosts';
+export type FeedItemSourceType = 'postThreads' | 'commentThreads' | 'spotlights' | 'quickTakes' | 'topComments' | 'RecombeeHybridPosts'
 
 export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
@@ -69,10 +69,23 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
  * Lightweight feed post/comment thread with ID and metadata, without full content.
  * Used when retrieving data from repos for the feed.
  */
-export interface FeedPostWithComments {
-  postId?: string;
-  commentIds?: string[];
-  commentMetaInfos?: {[commentId: string]: FeedCommentMetaInfo};
+// export interface FeedPostWithComments {
+//   postId: string;
+//   comments: PreDisplayFeedComment[];
+//   postMetaInfo: FeedPostMetaInfo;
+//   commentIds?: string[];
+// }
+
+export interface FeedCommentsThread {
+  comments: PreDisplayFeedComment[];
+}
+
+/**
+ * Represents a POST item fetched with its full data object.
+ * Used for 'postThreads' source in the feed.
+ */
+export interface FeedFullPost {
+  post: Partial<DbPost>;
   postMetaInfo: FeedPostMetaInfo;
 }
 
@@ -85,14 +98,26 @@ export interface FeedSpotlightItem {
   spotlight: DbSpotlight;
 }
 
-export type FeedItem = FeedPostWithComments | FeedSpotlight;
+export type FeedItem = FeedCommentsThread | FeedSpotlight | FeedFullPost;
 
-export interface FeedPostWithCommentsResolverType {
+// export interface FeedPostWithCommentsResolverType {
+//   _id: string;
+//   post: DbPost;
+//   postMetaInfo: FeedPostMetaInfo;
+//   comments: DbComment[];
+//   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
+// }
+
+export interface FeedCommentsThreadResolverType {
   _id: string;
-  post: DbPost;
-  postMetaInfo: FeedPostMetaInfo;
   comments: DbComment[];
   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
+}
+
+export interface FeedPostResolverType {
+  _id: string;
+  post: Partial<DbPost>;
+  postMetaInfo: FeedPostMetaInfo;
 }
 
 export interface FeedSpotlightResolverType {
@@ -100,22 +125,35 @@ export interface FeedSpotlightResolverType {
   spotlight: DbSpotlight;
 }
 
-export type FeedItemResolverType = FeedPostWithCommentsResolverType | FeedSpotlightResolverType;
+export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType;
 
 export interface UltraFeedResolverType {
   type: FeedItemRenderType;
-  feedPost?: FeedPostWithCommentsResolverType;
-  feedCommentThread?: FeedPostWithCommentsResolverType;
+  feedPost?: FeedPostResolverType;
+  feedCommentThread?: FeedCommentsThreadResolverType;
   feedSpotlight?: FeedSpotlightResolverType;
 }
 
-export interface DisplayFeedPostWithComments {
+// export interface DisplayFeedPostWithComments {
+//   _id: string;
+//   postMetaInfo: FeedPostMetaInfo;
+//   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
+//   post: PostsListWithVotes;
+//   comments: CommentsList[];
+// }
+
+export interface DisplayFeedCommentThread {
+  _id: string;
+  comments: UltraFeedComment[];
+  commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
+}
+
+export interface DisplayFeedPost {
   _id: string;
   postMetaInfo: FeedPostMetaInfo;
-  commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
   post: PostsListWithVotes;
-  comments: CommentsList[];
 }
+
 
 /**
  * Statistics about a thread, used for prioritization.
@@ -147,7 +185,7 @@ export interface LinearCommentThreadStatistics {
 //  * Used in: UltraFeed component
 //  */
 export interface DisplayFeedComment {
-  comment: CommentsList;
+  comment: UltraFeedComment;
   metaInfo: Pick<FeedCommentMetaInfo, 'sources' | 'displayStatus'>;
 }
 
