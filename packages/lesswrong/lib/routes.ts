@@ -752,6 +752,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: "MyAnalyticsPage",
     },
     {
+      name: "openThread",
+      path:'/open-thread',
+      componentName: "CurrentOpenThreadPage",
+    },
+    {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },
