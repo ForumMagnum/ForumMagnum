@@ -323,18 +323,16 @@ const UltraFeedContent = () => {
                     },
                     feedSpotlight: {
                       fragmentName: 'FeedSpotlightFragment',
-                      render: (item: {_id: string, spotlight: FeedSpotlightFragment}) => {
+                      render: (item: {_id: string, spotlight: FeedSpotlightFragment['spotlight']}) => {
                         if (!item || !item.spotlight) {
-                          console.log("Missing spotlight data:", item);
+                          console.log("Missing spotlight data from UltraFeed render function:", item);
                           return null;
                         }
 
-                        const { spotlight } = item.spotlight;
-                        
                         return (
                           <FeedItemWrapper sources={['spotlights']}>
                             <SpotlightFeedItem 
-                              spotlight={spotlight}
+                              spotlight={item.spotlight}
                               showSubtitle={true}
                             />
                           </FeedItemWrapper>

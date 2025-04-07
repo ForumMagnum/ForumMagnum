@@ -124,8 +124,13 @@ const UltraFeedItemFooter = ({
     </div>
   );
 
-  const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
-  const showVoteButtons = votingSystem.name === "namesAttachedReactions";
+  // Determine the voting system based on the actual document type
+  const votingSystemName = isComment ? parentPost?.votingSystem : (document as PostsListWithVotes)?.votingSystem;
+  const votingSystem = getVotingSystemByName(votingSystemName || "default");
+
+  // Show vote buttons only if the voting system matches and it's not a comment with hidden karma (or adjust logic as needed)
+  const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !(isComment && parentPost?.hideCommentKarma);
+  
   const voteProps = useVote(document, collectionName, votingSystem);
 
   const reacts = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
@@ -139,7 +144,7 @@ const UltraFeedItemFooter = ({
         <>
           <OverallVoteAxis
             document={document}
-            hideKarma={parentPost?.hideCommentKarma}
+            hideKarma={isComment && parentPost?.hideCommentKarma}
             voteProps={voteProps}
             verticalArrows
             largeArrows
@@ -148,7 +153,7 @@ const UltraFeedItemFooter = ({
           />
           <AgreementVoteAxis
             document={document}
-            hideKarma={parentPost?.hideCommentKarma}
+            hideKarma={isComment && parentPost?.hideCommentKarma}
             voteProps={voteProps}
             size="large"
           />
@@ -164,10 +169,10 @@ const UltraFeedItemFooter = ({
         </div>
       </div>
       
-      {parentPost && (
+      {((collectionName === "Comments" && parentPost) || (collectionName === "Posts")) && (
         <div className={classes.bookmarkButton}>
           {/* TODO: make this work by making bookmarks */}
-          <BookmarkButton post={parentPost as PostsListWithVotes} />
+          <BookmarkButton post={parentPost ?? document as PostsListWithVotes} />
         </div>
       )}
     </div>

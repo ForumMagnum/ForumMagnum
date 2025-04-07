@@ -20,8 +20,6 @@ import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
 
-const TEXT_WIDTH = 350;
-
 const buildFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
   return {mask, "-webkit-mask-image": mask};
@@ -303,17 +301,20 @@ const SpotlightFeedItem = ({
 
   useEffect(() => {
     const currentElement = elementRef.current;
-    if (currentElement) {
+    if (currentElement && spotlight) {
       observe(currentElement, {
         documentId: spotlight._id,
         documentType: 'spotlight'
       });
     }
-  }, [observe, spotlight._id]);
+  }, [observe, spotlight]);
+
+  if (!spotlight) {
+    return null;
+  }
 
   const url = getSpotlightUrl(spotlight);
 
-  // Define fade color with a CSS variable to be accessed in the styles
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
   } as CSSProperties;
