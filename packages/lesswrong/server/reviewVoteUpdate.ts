@@ -349,6 +349,15 @@ const getReviewWinnerPosts = async () => {
   }, {sort: {finalReviewVoteScoreHighKarma: -1}, limit: 51}).fetch()
 }
 
+export const createReviewWinnerFromId = async (postId: string, idx: number, category: ReviewWinnerCategory) => {
+  const post = await Posts.findOne({_id: postId})
+  if (!post) {
+    throw new Error(`Post not found: ${postId}`)
+  }
+  const adminContext = createAdminContext();
+  return createReviewWinner(post, idx, category, adminContext)
+}
+
 const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWinnerCategory, adminContext: ResolverContext) => { 
   return createMutator({
     collection: ReviewWinners,
@@ -388,3 +397,48 @@ export const createReviewWinners = async () => {
     return createReviewWinner(post, idx, category, adminContext)
   }))
 }
+
+
+// you only need this if you make a mistake somewhere in the review finishing process
+export const updateReviewWinnerRankings = async (year: number) => {
+  const adminContext = createAdminContext();
+  
+  const [reviewWinners, posts] = await Promise.all([
+    ReviewWinners.find({reviewYear: year}).fetch(),
+    Posts.find({
+      _id: { $in: (await ReviewWinners.find({reviewYear: year}, {projection: {postId: 1}}).fetch())
+          .map(winner => winner.postId)
+      }
+    }).fetch()
+  ]);
+  
+  const postsById = Object.fromEntries(posts.map(post => [post._id, post]));
+  
+  const sortedWinners = [...reviewWinners].sort((a, b) => {
+    const scoreA = postsById[a.postId]?.finalReviewVoteScoreHighKarma ?? 0;
+    const scoreB = postsById[b.postId]?.finalReviewVoteScoreHighKarma ?? 0;
+    return scoreB - scoreA; // Sort descending
+  });
+
+  // 4. Set temporary rankings in parallel
+  // (we need to do this to )
+  const tempRankStart = -10000;
+  await Promise.all(
+    sortedWinners.map((winner, i) => 
+      ReviewWinners.rawUpdateOne(
+        {_id: winner._id},
+        {$set: {reviewRanking: tempRankStart - i}}
+      )
+    )
+  );
+
+  // 5. Set final rankings in parallel
+  await Promise.all(
+    sortedWinners.map((winner, i) => 
+      ReviewWinners.rawUpdateOne(
+        {_id: winner._id},
+        {$set: {reviewRanking: i}}
+      )
+    )
+  );
+};
