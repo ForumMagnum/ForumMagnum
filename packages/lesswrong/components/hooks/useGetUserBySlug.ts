@@ -4,7 +4,6 @@ import { gql, useQuery } from "@apollo/client";
 interface GetUserBySlugOptions<FragmentName extends FragmentTypesByCollection['Users']> {
   fragmentName: FragmentName;
   skip?: boolean;
-
 }
 
 export function useGetUserBySlug<FragmentName extends FragmentTypesByCollection['Users']>(slug: string | undefined, options: GetUserBySlugOptions<FragmentName>) {

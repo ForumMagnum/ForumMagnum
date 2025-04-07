@@ -171,7 +171,7 @@ export const createDefaultUser = async() => {
 
 // Posts can be created pretty flexibly
 type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {
-  postedAt?: Date | number,
+  postedAt?: Date,
   contents?: Partial<EditableFieldContents> | null,
 }
 
@@ -202,7 +202,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
   const postData = {...defaultData, ...data};
   const userContext = await computeContextFromUser({user: user as DbUser, isSSR: false});
   const newPost = await createPost({
-    data: postData as DbPost
+    data: postData as CreatePostDataInput
   }, userContext, true);
   return newPost
 }

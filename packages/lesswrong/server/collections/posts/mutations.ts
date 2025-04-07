@@ -58,8 +58,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     data = callbackProps.document;
 
     // former createValidate callbacks
-    // debateMustHaveCoauthor([], callbackProps);
-    await postsNewRateLimit([], callbackProps);
+    if (!skipValidation) {
+      await postsNewRateLimit([], callbackProps);
+    }
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
@@ -164,7 +165,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     const { oldDocument } = updateCallbackProperties;
 
     // former updateValidate callbacks
-    await postsUndraftRateLimit([], updateCallbackProperties);
+    if (!skipValidation) {
+      await postsUndraftRateLimit([], updateCallbackProperties);
+    }
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);

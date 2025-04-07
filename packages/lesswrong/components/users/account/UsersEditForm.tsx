@@ -64,9 +64,6 @@ const UsersEditForm = ({terms, classes}: {
     flash(data?.resetPassword)
   }
 
-  // console.log(`userBySlug`, { userBySlug });
-
-
   return (
     <div className={classes.root}>
       {/* TODO(EA): Need to add a management API call to get the reset password
