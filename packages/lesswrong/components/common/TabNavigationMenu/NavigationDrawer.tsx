@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Drawer from '@/lib/vendor/@material-ui/core/src/Drawer';
+import { Drawer } from '@/components/material-ui/Drawer'
 
 const styles = defineStyles("NavigationDrawer", (theme: ThemeType) => ({
   paperWithoutToC: {
@@ -65,7 +65,7 @@ const NavigationDrawer = ({open, handleClose, toc}: {
   return <Drawer
     open={open}
     onClose={(event) => handleClose()}
-    classes={{paper: showToc ? classes.paperWithToC : classes.paperWithoutToC}}
+    paperClassName={showToc ? classes.paperWithToC : classes.paperWithoutToC}
   >
     <div className={classNames(
       classes.drawerNavigationMenuUncompressed,

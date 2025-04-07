@@ -29,7 +29,6 @@ const getUsedMuiStyles = () => {
     MuiDialogContentText: require("@/lib/vendor/@material-ui/core/src/DialogContentText/DialogContentText").styles,
     MuiDialogTitle: require("@/lib/vendor/@material-ui/core/src/DialogTitle/DialogTitle").styles,
     MuiDivider: require("@/lib/vendor/@material-ui/core/src/Divider/Divider").styles,
-    MuiDrawer: require("@/lib/vendor/@material-ui/core/src/Drawer/Drawer").styles,
     MuiFormControl: require("@/lib/vendor/@material-ui/core/src/FormControl/FormControl").styles,
     MuiFormControlLabel: require("@/lib/vendor/@material-ui/core/src/FormControlLabel/FormControlLabel").styles,
     MuiFormLabel: require("@/lib/vendor/@material-ui/core/src/FormLabel/FormLabel").styles,

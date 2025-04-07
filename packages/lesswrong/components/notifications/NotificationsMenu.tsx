@@ -12,7 +12,7 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import Drawer from '@/lib/vendor/@material-ui/core/src/Drawer';
+import { Drawer } from '@/components/material-ui/Drawer'
 
 const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
@@ -121,9 +121,7 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
           open={open}
           anchor="right"
           onClose={() => setIsOpen(false)}
-          classes={{
-            paper: classes.drawerPaper,
-          }}
+          paperClassName={classes.drawerPaper}
           variant="persistent"
         >
           { hasOpened && <div className="notifications-menu-content">
