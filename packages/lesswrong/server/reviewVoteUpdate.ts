@@ -407,19 +407,13 @@ export const createReviewWinners = async () => {
 // (This is similar but not identical to the updateCuratedOrder function in ReviewWinnersRepo,
 // which handles a similar case for the curatedOrder field, although only one post at a time)
 export const updateReviewWinnerRankings = async (year: number) => {
-  const adminContext = createAdminContext();
   
-  const [reviewWinners, posts] = await Promise.all([
-    ReviewWinners.find({reviewYear: year}).fetch(),
-    Posts.find({
-      _id: { $in: (await ReviewWinners.find({reviewYear: year}, {projection: {postId: 1}}).fetch())
-          .map(winner => winner.postId)
-      }
-    }).fetch()
-  ]);
-  
-  const postsById = Object.fromEntries(posts.map(post => [post._id, post]));
-  
+  const reviewWinners = await ReviewWinners.find({reviewYear: year}).fetch()
+  const postIds = reviewWinners.map(winner => winner.postId)
+  const posts = await Posts.find({ _id: { $in: postIds } }).fetch()
+
+  const postsById = Object.fromEntries(posts.map(post => [post._id, post]))
+
   const sortedWinners = [...reviewWinners].sort((a, b) => {
     const scoreA = postsById[a.postId]?.finalReviewVoteScoreHighKarma ?? 0;
     const scoreB = postsById[b.postId]?.finalReviewVoteScoreHighKarma ?? 0;
@@ -427,7 +421,7 @@ export const updateReviewWinnerRankings = async (year: number) => {
   });
 
   // 4. Set temporary rankings in parallel
-  // (we need to do this to )
+  // (to avoid errors from the enforced uniqueness)
   const tempRankStart = -10000;
   await Promise.all(
     sortedWinners.map((winner, i) => 
@@ -438,13 +432,9 @@ export const updateReviewWinnerRankings = async (year: number) => {
     )
   );
 
-  // 5. Set final rankings in parallel
-  await Promise.all(
-    sortedWinners.map((winner, i) => 
-      ReviewWinners.rawUpdateOne(
-        {_id: winner._id},
-        {$set: {reviewRanking: i}}
-      )
+  sortedWinners.map((winner, i) => ReviewWinners.rawUpdateOne(
+      {_id: winner._id},
+      {$set: {reviewRanking: i}}
     )
-  );
+  )
 };
