@@ -7,9 +7,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
@@ -60,21 +58,14 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
 
     const {
       documentSelector: reviewwinnerSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('ReviewWinners', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, ReviewWinners, reviewwinnerSelector, context) ?? previewDocument as DbReviewWinner;
+    let updatedDocument = await updateAndReturnDocument(data, ReviewWinners, reviewwinnerSelector, context);
 
     await runCountOfReferenceCallbacks({
       collectionName: 'ReviewWinners',

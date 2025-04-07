@@ -3,8 +3,6 @@ import schema from "@/lib/collections/emailTokens/newSchema";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
-import clone from "lodash/clone";
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('EmailTokens', {
@@ -40,19 +38,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('EmailTok
 
     const {
       documentSelector: emailtokensSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('EmailTokens', { selector, context, data, schema, skipValidation });
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, EmailTokens, emailtokensSelector, context) ?? previewDocument as DbEmailTokens;
+    let updatedDocument = await updateAndReturnDocument(data, EmailTokens, emailtokensSelector, context);
 
     await runCountOfReferenceCallbacks({
       collectionName: 'EmailTokens',

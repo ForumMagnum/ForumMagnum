@@ -9,9 +9,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
@@ -71,21 +69,14 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
 
     const {
       documentSelector: moderatoractionSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('ModeratorActions', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, ModeratorActions, moderatoractionSelector, context) ?? previewDocument as DbModeratorAction;
+    let updatedDocument = await updateAndReturnDocument(data, ModeratorActions, moderatoractionSelector, context);
 
     await runCountOfReferenceCallbacks({
       collectionName: 'ModeratorActions',
@@ -117,7 +108,7 @@ export { wrappedCreateFunction as createModeratorActionMutation, wrappedUpdateFu
 
 export const graphqlModeratorActionTypeDefs = gql`
   input CreateModeratorActionDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateModeratorActionInput {
@@ -125,7 +116,7 @@ export const graphqlModeratorActionTypeDefs = gql`
   }
   
   input UpdateModeratorActionDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateModeratorActionInput {

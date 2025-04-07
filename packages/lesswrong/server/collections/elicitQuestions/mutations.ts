@@ -8,9 +8,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 function newCheck(user: DbUser | null) {
@@ -60,21 +58,14 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
 
     const {
       documentSelector: elicitquestionSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('ElicitQuestions', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, ElicitQuestions, elicitquestionSelector, context) ?? previewDocument as DbElicitQuestion;
+    let updatedDocument = await updateAndReturnDocument(data, ElicitQuestions, elicitquestionSelector, context);
 
     await runCountOfReferenceCallbacks({
       collectionName: 'ElicitQuestions',
@@ -106,7 +97,7 @@ export { wrappedCreateFunction as createElicitQuestionMutation, wrappedUpdateFun
 
 export const graphqlElicitQuestionTypeDefs = gql`
   input CreateElicitQuestionDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateElicitQuestionInput {
@@ -114,7 +105,7 @@ export const graphqlElicitQuestionTypeDefs = gql`
   }
   
   input UpdateElicitQuestionDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateElicitQuestionInput {

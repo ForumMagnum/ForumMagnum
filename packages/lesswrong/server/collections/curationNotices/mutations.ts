@@ -9,9 +9,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 function newCheck(user: DbUser | null, document: CreateCurationNoticeDataInput | null) {
@@ -80,26 +78,19 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
 
     const {
       documentSelector: curationnoticeSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('CurationNotices', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
     data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, CurationNotices, curationnoticeSelector, context) ?? previewDocument as DbCurationNotice;
+    let updatedDocument = await updateAndReturnDocument(data, CurationNotices, curationnoticeSelector, context);
 
     updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
@@ -141,7 +132,7 @@ export { wrappedCreateFunction as createCurationNoticeMutation, wrappedUpdateFun
 
 export const graphqlCurationNoticeTypeDefs = gql`
   input CreateCurationNoticeDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateCurationNoticeInput {
@@ -149,7 +140,7 @@ export const graphqlCurationNoticeTypeDefs = gql`
   }
   
   input UpdateCurationNoticeDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateCurationNoticeInput {

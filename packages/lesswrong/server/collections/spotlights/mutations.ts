@@ -8,9 +8,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 
 
 function newCheck(user: DbUser | null, document: CreateSpotlightDataInput | null, context: ResolverContext) {
@@ -78,24 +76,17 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
 
     const {
       documentSelector: spotlightSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('Spotlights', { selector, context, data, schema, skipValidation });
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
     data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, Spotlights, spotlightSelector, context) ?? previewDocument as DbSpotlight;
+    let updatedDocument = await updateAndReturnDocument(data, Spotlights, spotlightSelector, context);
 
     updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
@@ -135,7 +126,7 @@ export { wrappedCreateFunction as createSpotlightMutation, wrappedUpdateFunction
 
 export const graphqlSpotlightTypeDefs = gql`
   input CreateSpotlightDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateSpotlightInput {
@@ -143,7 +134,7 @@ export const graphqlSpotlightTypeDefs = gql`
   }
   
   input UpdateSpotlightDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateSpotlightInput {

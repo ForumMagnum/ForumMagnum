@@ -78,7 +78,7 @@ export { wrappedCreateFunction as createPetrovDayActionMutation };
 
 export const graphqlPetrovDayActionTypeDefs = gql`
   input CreatePetrovDayActionDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreatePetrovDayActionInput {

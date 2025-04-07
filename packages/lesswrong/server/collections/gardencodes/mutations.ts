@@ -10,9 +10,7 @@ import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/serv
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
@@ -108,14 +106,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
 
     const {
       documentSelector: gardencodeSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('GardenCodes', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
     data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
@@ -124,12 +120,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
       props: updateCallbackProperties,
     });
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, GardenCodes, gardencodeSelector, context) ?? previewDocument as DbGardenCode;
+    let updatedDocument = await updateAndReturnDocument(data, GardenCodes, gardencodeSelector, context);
 
     updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
@@ -171,7 +162,7 @@ export { wrappedCreateFunction as createGardenCodeMutation, wrappedUpdateFunctio
 
 export const graphqlGardenCodeTypeDefs = gql`
   input CreateGardenCodeDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateGardenCodeInput {
@@ -179,7 +170,7 @@ export const graphqlGardenCodeTypeDefs = gql`
   }
   
   input UpdateGardenCodeDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateGardenCodeInput {

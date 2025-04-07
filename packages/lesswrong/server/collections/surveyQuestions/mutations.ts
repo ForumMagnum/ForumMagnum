@@ -8,9 +8,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 
@@ -62,21 +60,14 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyQu
 
     const {
       documentSelector: surveyquestionSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('SurveyQuestions', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, SurveyQuestions, surveyquestionSelector, context) ?? previewDocument as DbSurveyQuestion;
+    let updatedDocument = await updateAndReturnDocument(data, SurveyQuestions, surveyquestionSelector, context);
 
     await runCountOfReferenceCallbacks({
       collectionName: 'SurveyQuestions',
@@ -108,7 +99,7 @@ export { wrappedCreateFunction as createSurveyQuestionMutation, wrappedUpdateFun
 
 export const graphqlSurveyQuestionTypeDefs = gql`
   input CreateSurveyQuestionDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateSurveyQuestionInput {
@@ -116,7 +107,7 @@ export const graphqlSurveyQuestionTypeDefs = gql`
   }
   
   input UpdateSurveyQuestionDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateSurveyQuestionInput {

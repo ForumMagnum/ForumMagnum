@@ -110,7 +110,6 @@ type CollectionOptions<N extends CollectionNameString> = {
   dbCollectionName?: string,
   collection?: any,
   resolvers?: any,
-  interfaces?: string[],
   description?: string,
   logChanges?: boolean,
   writeAheadLogged?: boolean,

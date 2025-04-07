@@ -9,9 +9,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 function editCheck(user: DbUser | null) {
@@ -67,21 +65,14 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
 
     const {
       documentSelector: revisionSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('Revisions', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, Revisions, revisionSelector, context) ?? previewDocument as DbRevision;
+    let updatedDocument = await updateAndReturnDocument(data, Revisions, revisionSelector, context);
 
     await runCountOfReferenceCallbacks({
       collectionName: 'Revisions',
@@ -109,7 +100,7 @@ export { wrappedUpdateFunction as updateRevisionMutation };
 
 export const graphqlRevisionTypeDefs = gql`
   input UpdateRevisionDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateRevisionInput {

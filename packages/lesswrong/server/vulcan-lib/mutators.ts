@@ -1,9 +1,10 @@
 import { convertDocumentIdToIdInSelector, UpdateSelector } from '../../lib/vulcan-lib/utils';
-import { validateDocument, validateData } from './validation';
+import { validateDocument, validateData, dataToModifier } from './validation';
 import { throwError } from './errors';
 import type { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import isEmpty from 'lodash/isEmpty';
 import pickBy from 'lodash/pickBy';
+import clone from 'lodash/clone';
 
 /**
  * @deprecated Prefer to avoid using onCreate callbacks on fields for new collections.
@@ -37,9 +38,9 @@ export async function runFieldOnUpdateCallbacks<
 >(
   schema: S,
   data: D,
-  dataAsModifier: MongoModifier,
   properties: UpdateCallbackProperties<CollectionName, D>
 ): Promise<D> {
+  const dataAsModifier = dataToModifier(clone(data));
   for (let fieldName in schema) {
     let autoValue;
     const { graphql } = schema[fieldName];
@@ -183,7 +184,14 @@ export async function insertAndReturnCreateAfterProps<N extends CollectionNameSt
   return afterCreateProperties;
 }
 
-export async function updateAndReturnDocument<N extends CollectionNameString>(modifier: MongoModifier, collection: CollectionBase<N>, selector: { _id: string }, context: ResolverContext) {
+export async function updateAndReturnDocument<N extends CollectionNameString>(
+  data: UpdateInputsByCollectionName[N]['data'] | Partial<ObjectsByCollectionName[N]>,
+  collection: CollectionBase<N>,
+  selector: { _id: string },
+  context: ResolverContext
+): Promise<ObjectsByCollectionName[N]> {
+  const modifier = dataToModifier(data);
+
   // remove empty modifiers
   if (isEmpty(modifier.$set)) {
     delete modifier.$set;
@@ -192,9 +200,9 @@ export async function updateAndReturnDocument<N extends CollectionNameString>(mo
     delete modifier.$unset;
   }
 
-  // if there's nothing to update, return
+  // if there's nothing to update, return the original document
   if (isEmpty(modifier)) {
-    return;
+    return (await collection.findOne(selector))!;
   }
 
   // update document

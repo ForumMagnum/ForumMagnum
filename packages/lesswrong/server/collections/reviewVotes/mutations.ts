@@ -4,8 +4,6 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { ensureUniqueVotes, positiveReviewVoteNotifications } from "@/server/callbacks/reviewVoteCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
-import clone from "lodash/clone";
 
 type CreateReviewVoteDataInput = Partial<DbReviewVote>;
 type UpdateReviewVoteDataInput = Partial<DbReviewVote>;
@@ -49,19 +47,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
 
     const {
       documentSelector: reviewvoteSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('ReviewVotes', { selector, context, data, schema, skipValidation });
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, ReviewVotes, reviewvoteSelector, context) ?? previewDocument as DbReviewVote;
+    let updatedDocument = await updateAndReturnDocument(data, ReviewVotes, reviewvoteSelector, context);
 
     await runCountOfReferenceCallbacks({
       collectionName: 'ReviewVotes',

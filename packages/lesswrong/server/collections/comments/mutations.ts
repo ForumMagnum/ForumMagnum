@@ -14,9 +14,8 @@ import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
+import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 async function newCheck(user: DbUser | null, document: CreateCommentDataInput | null, context: ResolverContext) {
@@ -138,14 +137,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
 
     const {
       documentSelector: commentSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('Comments', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
     data = updatePostLastCommentPromotedAt(data, updateCallbackProperties);
     data = await validateDeleteOperations(data, updateCallbackProperties);  
@@ -156,14 +153,11 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     });
 
     let modifier = dataToModifier(data);
-
     modifier = await moveToAnswers(modifier, oldDocument, context);
-    modifier = await handleForumEventMetadataEdit(modifier, oldDocument, context);  
+    modifier = await handleForumEventMetadataEdit(modifier, oldDocument, context);
 
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, Comments, commentSelector, context) ?? previewDocument as DbComment;
+    data = modifierToData(modifier);
+    let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
 
     invalidatePostOnCommentUpdate(updatedDocument);
     updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
@@ -222,7 +216,7 @@ export { wrappedCreateFunction as createCommentMutation, wrappedUpdateFunction a
 
 export const graphqlCommentTypeDefs = gql`
   input CreateCommentDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateCommentInput {
@@ -230,7 +224,7 @@ export const graphqlCommentTypeDefs = gql`
   }
   
   input UpdateCommentDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateCommentInput {

@@ -7,9 +7,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import { sendIntercomEvent, updatePartiallyReadSequences, updateReadStatus } from "./helpers";
 
 function newCheck(user: DbUser | null, document: CreateLWEventDataInput | null) {
@@ -67,19 +65,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
 
     const {
       documentSelector: lweventSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('LWEvents', { selector, context, data, schema, skipValidation });
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, LWEvents, lweventSelector, context) ?? previewDocument as DbLWEvent;
+    let updatedDocument = await updateAndReturnDocument(data, LWEvents, lweventSelector, context);
 
     await runCountOfReferenceCallbacks({
       collectionName: 'LWEvents',
@@ -109,7 +100,7 @@ export { wrappedCreateFunction as createLWEventMutation, wrappedUpdateFunction a
 
 export const graphqlLWEventTypeDefs = gql`
   input CreateLWEventDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateLWEventInput {
@@ -117,7 +108,7 @@ export const graphqlLWEventTypeDefs = gql`
   }
   
   input UpdateLWEventDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateLWEventInput {

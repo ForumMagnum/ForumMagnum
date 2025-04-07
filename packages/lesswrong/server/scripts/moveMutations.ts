@@ -457,8 +457,7 @@ function generateMutationFunctions(collectionName: CollectionNameString) {
   }
 
   sb.push(`
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);\n`);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);\n`);
 
   if (hasSlug) {
     sb.push(slugUpdateBeforeSection);

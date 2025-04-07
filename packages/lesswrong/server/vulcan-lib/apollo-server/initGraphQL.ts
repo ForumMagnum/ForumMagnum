@@ -707,7 +707,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
 
   const { fields, resolvers: fieldResolvers } = getFields(schema, typeName);
 
-  const { interfaces = [], resolvers } = collection.options;
+  const { resolvers } = collection.options;
 
   const description = collection.options.description
     ? collection.options.description
@@ -721,7 +721,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
 
   if (mainType.length) {
     schemaFragments.push(
-      mainTypeTemplate({ typeName, description, interfaces, fields: mainType })
+      mainTypeTemplate({ typeName, description, interfaces: [], fields: mainType })
     );
 
     schemaFragments.push(singleInputTemplate({ typeName }));

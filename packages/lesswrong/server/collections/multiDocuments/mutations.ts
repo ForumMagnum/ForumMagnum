@@ -12,9 +12,7 @@ import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/serv
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
-import { dataToModifier } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
-import clone from "lodash/clone";
 import cloneDeep from "lodash/cloneDeep";
 
 function newCheck(user: DbUser | null, multiDocument: CreateMultiDocumentDataInput | null, context: ResolverContext) {
@@ -101,14 +99,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
 
     const {
       documentSelector: multidocumentSelector,
-      previewDocument, 
       updateCallbackProperties,
     } = await checkUpdatePermissionsAndReturnProps('MultiDocuments', { selector, context, data, schema, skipValidation });
 
     const { oldDocument } = updateCallbackProperties;
 
-    const dataAsModifier = dataToModifier(clone(data));
-    data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
+    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
     data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
@@ -117,12 +113,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       props: updateCallbackProperties,
     });
 
-    let modifier = dataToModifier(data);
-
-    // This cast technically isn't safe but it's implicitly been there since the original updateMutator logic
-    // The only difference could be in the case where there's no update (due to an empty modifier) and
-    // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
-    let updatedDocument = await updateAndReturnDocument(modifier, MultiDocuments, multidocumentSelector, context) ?? previewDocument as DbMultiDocument;
+    let updatedDocument = await updateAndReturnDocument(data, MultiDocuments, multidocumentSelector, context);
 
     updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
@@ -166,7 +157,7 @@ export { wrappedCreateFunction as createMultiDocumentMutation, wrappedUpdateFunc
 
 export const graphqlMultiDocumentTypeDefs = gql`
   input CreateMultiDocumentDataInput {
-    ${getCreatableGraphQLFields(schema, '    ')}
+    ${getCreatableGraphQLFields(schema)}
   }
 
   input CreateMultiDocumentInput {
@@ -174,7 +165,7 @@ export const graphqlMultiDocumentTypeDefs = gql`
   }
   
   input UpdateMultiDocumentDataInput {
-    ${getUpdatableGraphQLFields(schema, '    ')}
+    ${getUpdatableGraphQLFields(schema)}
   }
 
   input UpdateMultiDocumentInput {

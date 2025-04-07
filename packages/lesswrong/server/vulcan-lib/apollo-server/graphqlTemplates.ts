@@ -35,7 +35,7 @@ const getGraphQLType = <N extends CollectionNameString>(
   return graphql.outputType;
 };
 
-export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
+export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding = '    ') {
   const fieldDescriptions = Object.entries(schema)
     .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
     .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canCreate?.length)
@@ -57,7 +57,7 @@ export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameSt
   return convertToGraphQL(fieldDescriptions, padding);
 }
 
-export function getUpdatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding: string) {
+export function getUpdatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding = '    ') {
   const fieldDescriptions = Object.entries(schema)
     .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
     .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canUpdate?.length)
