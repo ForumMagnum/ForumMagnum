@@ -23,7 +23,7 @@ const schema = {
   },
   post: {
     graphql: {
-      outputType: "Post!",
+      outputType: "Post",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
       sqlResolver: getForeignKeySqlResolver({

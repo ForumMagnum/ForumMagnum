@@ -259,10 +259,10 @@ interface CommentEdit extends CommentsList { // fragment on Comments
 
 interface CommentModeratorActionDisplay { // fragment on CommentModeratorActions
   readonly _id: string,
-  readonly comment: CommentsListWithModerationMetadata,
+  readonly comment: CommentsListWithModerationMetadata|null,
   readonly commentId: string,
   readonly type: "downvotedCommentAlert",
-  readonly active: boolean,
+  readonly active: boolean|null,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
 }
@@ -1295,7 +1295,7 @@ interface ManifoldProbabilitiesCachesDefaultFragment { // fragment on ManifoldPr
 }
 
 interface MembersOfGroupFragment { // fragment on Subscriptions
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface MessagesDefaultFragment { // fragment on Messages
@@ -1664,7 +1664,7 @@ interface PostWithDialogueMessage { // fragment on Posts
 
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
-  readonly languageModelSummary: string,
+  readonly languageModelSummary: string|null,
 }
 
 interface PostsAuthors { // fragment on Posts
@@ -2470,6 +2470,23 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly competitorCount: number|null,
 }
 
+interface ReviewWinnerAnnouncement { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
+  readonly curatedOrder: number | null,
+  readonly reviewYear: number,
+  readonly reviewRanking: number,
+  readonly competitorCount: number|null,
+  readonly postId: string,
+  readonly post: ReviewWinnerAnnouncement_post|null,
+}
+
+interface ReviewWinnerAnnouncement_post { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+}
+
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly postId: string,
@@ -2499,7 +2516,7 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
 interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
-  readonly post: PostsTopItemInfo,
+  readonly post: PostsTopItemInfo|null,
   readonly reviewYear: number,
   readonly curatedOrder: number | null,
   readonly reviewRanking: number,
@@ -3677,7 +3694,7 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
 interface UnclaimedReportsList { // fragment on Reports
   readonly _id: string,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly commentId: string,
   readonly comment: UnclaimedReportsList_comment|null,
   readonly postId: string,
@@ -5268,7 +5285,7 @@ interface UsersSocialMediaInfo extends UsersProfile { // fragment on Users
 }
 
 interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
-  readonly reviewVoteCount: number,
+  readonly reviewVoteCount: number|null,
   readonly email: string,
 }
 
@@ -5683,6 +5700,7 @@ interface FragmentTypes {
   ReportsDefaultFragment: ReportsDefaultFragment
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
+  ReviewWinnerAnnouncement: ReviewWinnerAnnouncement
   ReviewWinnerArtImages: ReviewWinnerArtImages
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
@@ -5905,7 +5923,7 @@ interface FragmentTypesByCollection {
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
   ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
-  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
+  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   Sessions: "SessionsDefaultFragment"
@@ -6110,6 +6128,7 @@ interface CollectionNamesByFragmentName {
   ReportsDefaultFragment: "Reports"
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
+  ReviewWinnerAnnouncement: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   ReviewWinnerEditDisplay: "ReviewWinners"

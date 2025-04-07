@@ -520,7 +520,7 @@ type Chapter {
   subtitle: String
   number: Float
   sequenceId: String
-  sequence: Sequence!
+  sequence: Sequence
   postIds: [String]
   posts: [Post!]!
 }
@@ -721,7 +721,7 @@ type ClientId {
   firstSeenReferrer: String
   firstSeenLandingPage: String
   userIds: [String]
-  users: [User!]!
+  users: [User!]
   invalidated: Boolean
   lastSeenAt: Date
   timesSeen: Float
@@ -925,10 +925,10 @@ type CommentModeratorAction {
   createdAt: Date
   legacyData: JSON
   commentId: String
-  comment: Comment!
+  comment: Comment
   type: String
   endedAt: Date
-  active: Boolean!
+  active: Boolean
 }
 
 input DeleteCommentModeratorActionInput {
@@ -1296,7 +1296,7 @@ type Conversation {
   legacyData: JSON
   title: String
   participantIds: [String]
-  participants: [User!]!
+  participants: [User!]
   latestActivity: Date
   af: Boolean
   messageCount: Float
@@ -2072,7 +2072,7 @@ type DigestPost {
   digestId: String
   digest: Digest!
   postId: String
-  post: Post!
+  post: Post
   emailDigestStatus: String
   onsiteDigestStatus: String
 }
@@ -2409,7 +2409,7 @@ type ElectionVote {
   legacyData: JSON
   electionName: String
   userId: String
-  user: User!
+  user: User
   compareState: JSON
   vote: JSON
   submittedAt: Date
@@ -4197,7 +4197,7 @@ type Message {
   userId: String
   user: User
   conversationId: String
-  conversation: Conversation!
+  conversation: Conversation
   noEmail: Boolean
 }
 
@@ -5255,7 +5255,7 @@ type PostEmbedding {
   createdAt: Date
   legacyData: JSON
   postId: String
-  post: Post!
+  post: Post
   postHash: String
   lastGeneratedAt: Date
   model: String
@@ -5356,10 +5356,10 @@ type PostRecommendation {
   createdAt: Date
   legacyData: JSON
   userId: String
-  user: User!
+  user: User
   clientId: String
   postId: String
-  post: Post!
+  post: Post
   strategyName: String
   strategySettings: JSON
   recommendationCount: Int
@@ -5884,7 +5884,7 @@ type Post {
   commentsLocked: Boolean
   commentsLockedToAccountsCreatedAfter: Date
   organizerIds: [String]
-  organizers: [User!]!
+  organizers: [User!]
   groupId: String
   group: Localgroup
   eventType: String
@@ -5912,7 +5912,7 @@ type Post {
   metaSticky: Boolean
   sharingSettings: JSON
   shareWithUsers: [String]
-  usersSharedWith: [User!]!
+  usersSharedWith: [User!]
   linkSharingKey: String
   linkSharingKeyUsedBy: [String]
   commentSortOrder: String
@@ -5929,7 +5929,7 @@ type Post {
   commentCount: Float
   topLevelCommentCount: Float
   recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment]
-  languageModelSummary: String!
+  languageModelSummary: String
   debate: Boolean
   collabEditorDialogue: Boolean
   totalDialogueResponseCount: Int!
@@ -6568,7 +6568,7 @@ type Report {
   createdAt: Date
   legacyData: JSON
   userId: String
-  user: User!
+  user: User
   reportedUserId: String
   reportedUser: User
   commentId: String
@@ -6872,7 +6872,7 @@ type ReviewWinner {
   createdAt: Date
   legacyData: JSON
   postId: String
-  post: Post!
+  post: Post
   reviewWinnerArt: ReviewWinnerArt
   competitorCount: Int
   reviewYear: Float
@@ -7419,7 +7419,7 @@ type SplashArtCoordinate {
   createdAt: Date
   legacyData: JSON
   reviewWinnerArtId: String
-  reviewWinnerArt: ReviewWinnerArt!
+  reviewWinnerArt: ReviewWinnerArt
   leftXPct: Float
   leftYPct: Float
   leftHeightPct: Float
@@ -7555,7 +7555,7 @@ type Spotlight {
   description(version: String): Revision
   description_latest: String
   documentId: String
-  document: Post!
+  document: Post
   post: Post
   sequence: Sequence
   tag: Tag
@@ -7703,7 +7703,7 @@ type Subscription {
   createdAt: Date
   legacyData: JSON
   userId: String
-  user: User!
+  user: User
   state: String
   documentId: String
   collectionName: String
@@ -7897,7 +7897,7 @@ type SurveyResponse {
   createdAt: Date
   legacyData: JSON
   surveyId: String
-  survey: Survey!
+  survey: Survey
   surveyScheduleId: String
   surveySchedule: SurveySchedule
   userId: String
@@ -8012,7 +8012,7 @@ type SurveySchedule {
   endDate: Date
   deactivated: Boolean
   clientIds: [String]
-  clients: [ClientId!]!
+  clients: [ClientId!]
 }
 
 input DeleteSurveyScheduleInput {
@@ -9490,9 +9490,9 @@ type User {
   bannedUserIds: [String]
   bannedPersonalUserIds: [String]
   bookmarkedPostsMetadata: [JSON]
-  bookmarkedPosts: [Post!]!
+  bookmarkedPosts: [Post!]
   hiddenPostsMetadata: [JSON]
-  hiddenPosts: [Post!]!
+  hiddenPosts: [Post!]
   legacyId: String
   deleted: Boolean
   permanentDeletionRequestedAt: Date
@@ -9600,7 +9600,7 @@ type User {
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
-  reviewVoteCount: Int!
+  reviewVoteCount: Int
   reviewVotesQuadratic2020: Boolean
   petrovPressedButtonDate: Date
   petrovLaunchCodeDate: Date

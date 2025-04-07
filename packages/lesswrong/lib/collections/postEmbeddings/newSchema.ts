@@ -33,7 +33,7 @@ const schema = {
   },
   post: {
     graphql: {
-      outputType: "Post!",
+      outputType: "Post",
       canRead: ["admins"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
