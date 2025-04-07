@@ -82,7 +82,6 @@ export const getOrCreateForumUser = async <P extends Profile>(
         const user = matchingUsers[0];
         if (user) {
           const userUpdated = await updateUser({ data: {[profilePath]: profile}, selector: { _id: user._id } }, createAnonymousContext(), true);
-          // const userUpdated = await mergeAccount(profilePath, user, profile);
           if (user.banned && new Date(user.banned) > new Date()) {
             return callback(new Error("banned"));
           }

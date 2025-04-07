@@ -91,7 +91,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
 
     const { oldDocument } = updateCallbackProperties;
 
-    await validateTagUpdate(updateCallbackProperties);
+    if (!skipValidation) {
+      await validateTagUpdate(updateCallbackProperties);
+    }
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);

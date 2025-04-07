@@ -507,7 +507,7 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
 
 export function getFillIfMissing(defaultValue: any) {
   return function fillIfMissing<N extends CollectionNameString>({ newDocument, fieldName }: {
-    newDocument: CreateInputsByCollectionName[N]['data']; // Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+    newDocument: CreateInputsByCollectionName[N]['data'];
     fieldName: string;
   }) {
     if (newDocument[fieldName as keyof CreateInputsByCollectionName[N]['data']] === undefined) {

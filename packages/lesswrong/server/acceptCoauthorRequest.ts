@@ -1,7 +1,6 @@
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import { createNotification } from './notificationCallbacksHelpers';
 import gql from 'graphql-tag';
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updatePost } from './collections/posts/mutations';
 
 export const acceptCoauthorRequestTypeDefs = gql`
@@ -51,7 +50,7 @@ export const acceptCoauthorRequestMutations = {
           postedAt,
         },
         selector: { _id: postId },
-      }, createAnonymousContext(), true)
+      }, context, true)
     );
 
     return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);

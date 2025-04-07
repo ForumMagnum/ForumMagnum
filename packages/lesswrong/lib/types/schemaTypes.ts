@@ -117,11 +117,6 @@ interface CountOfReferenceOptions {
 
 interface SlugCallbackOptions<N extends CollectionNameString> {
   /**
-   * The collection to add slug fields to.
-   */
-  // collection: CollectionBase<CollectionNameString>,
-
-  /**
    * If set, check for collisions not just within the same collision, but also
    * within a provided list of other collections.
    */
@@ -179,15 +174,15 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
     context: ResolverContext,
-    document: CreateInputsByCollectionName[N]['data'], // Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-    newDocument: CreateInputsByCollectionName[N]['data'], // Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    document: CreateInputsByCollectionName[N]['data'],
+    newDocument: CreateInputsByCollectionName[N]['data'],
     fieldName: string
   }) => any,
   /** @deprecated Prefer to avoid using onCreate callbacks on fields for new collections. */
   onUpdate?: (args: {
-    data: UpdateInputsByCollectionName[N]['data'], // Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    data: UpdateInputsByCollectionName[N]['data'],
     oldDocument: ObjectsByCollectionName[N],
-    newDocument: ObjectsByCollectionName[N], // & UpdateInputsByCollectionName[N], // Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+    newDocument: ObjectsByCollectionName[N],
     currentUser: DbUser|null,
     collection: CollectionBase<N>,
     context: ResolverContext,

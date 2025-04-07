@@ -209,7 +209,7 @@ export async function updateAndReturnDocument<N extends CollectionNameString>(mo
   // This used to be documentId, but I think the fact that it was documentId
   // and not _id was just a bug???
   if (selector._id && context) {
-    context.loaders.Posts.clear(selector._id);
+    context.loaders[collection.collectionName].clear(selector._id);
   }
 
   return updatedDocument;

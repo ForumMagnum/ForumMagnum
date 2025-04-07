@@ -88,7 +88,7 @@ export class CollectionMutationCallbacks<N extends CollectionNameString> {
 
 const collectionHooks: any = {};
 
-export const getCollectionHooks = <N extends CollectionNameString>(collectionName: N)/*: CollectionMutationCallbacks<N>*/ =>  {
+export const getCollectionHooks = <N extends CollectionNameString>(collectionName: N) =>  {
   if (!(collectionName in collectionHooks)) {
     collectionHooks[collectionName] = new CollectionMutationCallbacks(collectionName);
   }

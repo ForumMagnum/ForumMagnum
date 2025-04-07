@@ -12,7 +12,7 @@ import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { checkModGPT } from "../languageModels/modGPT";
-import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties, DeleteCallbackProperties } from "../mutationCallbacks";
+import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from "../mutationCallbacks";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
 import { recombeeApi } from "../recombee/client";
