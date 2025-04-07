@@ -32,12 +32,12 @@ export function setClientMountedStyles(styles: StylesContextType) {
 
 export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
 
-export const defineStyles = <T extends string>(
-  name: string,
+export const defineStyles = <T extends string, N extends string>(
+  name: N,
   styles: (theme: ThemeType) => JssStyles<T>,
   options?: StyleOptions
-): StyleDefinition<T> => {
-  const definition: StyleDefinition<T> = {
+): StyleDefinition<T,N> => {
+  const definition: StyleDefinition<T,N> = {
     name,
     styles,
     options,
@@ -115,6 +115,13 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyl
     styles.nameProxy = classNameProxy(styles.name+"-");
   }
   return styles.nameProxy;
+}
+
+export function getClassName<T extends StyleDefinition>(
+  stylesName: T["name"],
+  className: keyof ReturnType<T["styles"]> & string
+) {
+  return `${stylesName}-${className}`;
 }
 
 export const withAddClasses = (
