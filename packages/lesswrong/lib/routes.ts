@@ -993,17 +993,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: 'Bookmarks',
     },
     {
-      name: 'Walled Garden',
-      path: '/walledGarden',
-      componentName: 'WalledGardenHome',
-      title: "Walled Garden",
-    },
-    {
-      name: 'Walled Garden Portal',
-      path: '/walledGardenPortal',
-      redirect: () => `/walledGarden`,
-    },
-    {
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
       componentName: 'PostsSingleSlug',

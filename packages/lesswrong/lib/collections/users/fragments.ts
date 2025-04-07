@@ -472,9 +472,6 @@ export const UserAltAccountsFragment = () => frag`
 
 export const SharedUserBooleans = () => frag`
   fragment SharedUserBooleans on User {
-    walledGardenInvite
-    hideWalledGardenUI
-    walledGardenPortalOnboarded
     taggingDashboardCollapsed
     usernameUnset
   }
