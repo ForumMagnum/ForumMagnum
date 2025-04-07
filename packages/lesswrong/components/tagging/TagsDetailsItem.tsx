@@ -7,6 +7,7 @@ import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {

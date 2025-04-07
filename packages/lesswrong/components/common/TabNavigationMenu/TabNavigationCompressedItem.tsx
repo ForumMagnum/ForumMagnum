@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const compressedIconSize = 23
 
