@@ -16,7 +16,10 @@ const styles = (theme: ThemeType) => ({
       fill: "currentColor",
       width: compressedIconSize,
       height: compressedIconSize,
-    }
+    },
+    ...(isFriendlyUI && {
+      opacity: 1,
+    }),
   },
   navText: {
     ...theme.typography.body2,

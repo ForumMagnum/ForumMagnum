@@ -27,7 +27,10 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
       maxWidth: "unset"
-    }
+    },
+    ...(isFriendlyUI && {
+      maxWidth: 490,
+    }),
   },
   collapsedDescription: {
     display: "flex",

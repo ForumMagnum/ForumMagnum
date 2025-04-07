@@ -10,6 +10,7 @@ import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
@@ -38,7 +39,14 @@ const styles = (theme: ThemeType) => ({
         width: '100% !important',
         height: 'inherit !important'
       }
-    }
+    },
+    ...(isFriendlyUI && {
+      background: theme.palette.grey[0],
+      marginTop: 'unset',
+      marginBottom: 'unset',
+      padding: '20px',
+      boxShadow: "0 1px 5px rgba(0,0,0,.025)",
+    }),
   },
   edit: {
     float: "right",
