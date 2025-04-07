@@ -42,7 +42,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
 
     data = callbackProps.document;
 
-    validateGroupIsOnlineOrHasLocation(data);
+    if (!skipValidation) {
+      validateGroupIsOnlineOrHasLocation(data);
+    }
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
@@ -97,7 +99,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
 
     const { oldDocument, newDocument } = updateCallbackProperties;
 
-    validateGroupIsOnlineOrHasLocation(newDocument);
+    if (!skipValidation) {
+      validateGroupIsOnlineOrHasLocation(newDocument);
+    }
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);

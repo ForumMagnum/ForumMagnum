@@ -30,7 +30,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
 
     data = callbackProps.document;
 
-    await validateTagCreate(callbackProps);
+    if (!skipValidation) {
+      await validateTagCreate(callbackProps);
+    }
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 

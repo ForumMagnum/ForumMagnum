@@ -53,25 +53,6 @@ export async function validateTagCreate({ document: tag, context }: CreateCallba
     throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
 }
 
-/* CREATE BEFORE */
-
-// slugCreateBeforeCallbackFunction-Tags
-// 3x editorSerializationBeforeCreate
-
-/* NEW SYNC */
-
-/* CREATE AFTER */
-
-// 3x (editorSerializationAfterCreate, notifyUsersAboutMentions)
-
-/* CREATE ASYNC */
-
-// elasticSyncDocument
-
-/* NEW ASYNC */
-
-// 3x convertImagesInObject
-
 /* UPDATE VALIDATE */
 export async function validateTagUpdate({ oldDocument, newDocument, context }: UpdateCallbackProperties<'Tags'>): Promise<void> {
   const { Tags } = context;
@@ -92,13 +73,6 @@ export async function validateTagUpdate({ oldDocument, newDocument, context }: U
     }
   }
 }
-
-/* UPDATE BEFORE */
-
-// slugUpdateBeforeCallbackFunction-Tags
-// 3x editorSerializationEdit
-
-/* EDIT SYNC */
 
 /* UPDATE AFTER */
 export async function cascadeSoftDeleteToTagRels(newDoc: DbTag, { oldDocument, context }: UpdateCallbackProperties<'Tags'>): Promise<DbTag> {
@@ -157,16 +131,6 @@ export async function reexportProfileTagUsersToElastic(newDocument: DbTag, { old
   return newDocument;
 }
 
-// 3x notifyUsersAboutMentions
-
-/* UPDATE ASYNC */
-
-/* EDIT ASYNC */
-
-// 3x convertImagesInObject
-// elasticSyncDocument
-
-
 
 /* TAG REL CALLBACKS */
 
@@ -183,10 +147,6 @@ export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTa
     throw new Error(`You do not have permission to add this ${taggingNameSetting.get()}`);
   }
 }
-
-/* CREATE AFTER */
-
-// 1x countOfReferenceCallbacks
 
 /* NEW AFTER */
 export async function voteForTagWhenCreated(tagRel: DbTagRel, { context }: AfterCreateCallbackProperties<'TagRels'>): Promise<DbTagRel> {
@@ -229,11 +189,3 @@ export async function taggedPostNewNotifications(tagRel: DbTagRel, { context }: 
     await createNotifications({userIds: tagSubscriberIdsToNotify, notificationType: 'newTagPosts', documentType: 'tagRel', documentId: tagRel._id});
   }
 }
-
-/* UPDATE AFTER */
-
-// 1x countOfReferenceCallbacks
-
-/* DELETE ASYNC */
-
-// 1x countOfReferenceCallbacks

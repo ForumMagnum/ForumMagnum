@@ -23,7 +23,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
 
     data = callbackProps.document;
 
-    await ensureUniqueVotes(callbackProps);
+    if (!skipValidation) {
+      await ensureUniqueVotes(callbackProps);
+    }
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 

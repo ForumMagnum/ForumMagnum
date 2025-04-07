@@ -113,7 +113,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
 
     const { oldDocument } = updateCallbackProperties;
 
-    await changeDisplayNameRateLimit(updateCallbackProperties);
+    if (!skipValidation) {
+      await changeDisplayNameRateLimit(updateCallbackProperties);
+    }
 
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);

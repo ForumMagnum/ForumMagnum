@@ -44,7 +44,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
 
     data = callbackProps.document;
 
-    checkIfNewMessageIsEmpty(data);
+    if (!skipValidation) {
+      checkIfNewMessageIsEmpty(data);
+    }
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 

@@ -197,14 +197,6 @@ const utils = {
   },
 };
 
-
-/* CREATE VALIDATE */
-
-/* CREATE BEFORE */
-
-// slugCreateBeforeCallbackFunction-Users
-// 4x editorSerializationBeforeCreate
-
 /* NEW SYNC */
 export async function makeFirstUserAdminAndApproved(user: CreateUserDataInput, context: ResolverContext) {
   const { Users } = context;
@@ -225,14 +217,6 @@ export async function makeFirstUserAdminAndApproved(user: CreateUserDataInput, c
   return user;
 }
 
-/* CREATE AFTER */
-
-// editorSerializationAfterCreate
-// notifyUsersAboutMentions
-// x4
-
-/* NEW AFTER */
-
 /* CREATE ASYNC */
 export function createRecombeeUser({ document }: {document: DbUser}) {
   if (!recombeeEnabledSetting.get()) return;
@@ -245,8 +229,6 @@ export function createRecombeeUser({ document }: {document: DbUser}) {
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending created user to recombee', { e }));
 }
-
-// elasticSyncDocument
 
 /* NEW ASYNC */
 export async function subscribeOnSignup(user: DbUser) {
@@ -305,8 +287,6 @@ export async function sendWelcomingPM(user: DbUser) {
   });
 }
 
-// 4x convertImagesInObject
-
 /* UPDATE VALIDATE */
 export async function changeDisplayNameRateLimit({ oldDocument, newDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (oldDocument.displayName !== newDocument.displayName) {
@@ -315,8 +295,6 @@ export async function changeDisplayNameRateLimit({ oldDocument, newDocument, cur
 }
 
 /* UPDATE BEFORE */
-
-// slugUpdateBeforeCallbackFunction-Users
 
 /**
  * Handle subscribing/unsubscribing in mailchimp when `subscribedToDigest` is changed, including cases where this
@@ -417,8 +395,6 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
   return data;
 }
 
-// 4x editorSerializationEdit
-
 /* EDIT SYNC */
 export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser) {
   const { $set: { whenConfirmationEmailSent } } = modifier;
@@ -502,10 +478,6 @@ export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
   return modifier;
 }
 
-/* UPDATE AFTER */
-
-// 4x notifyUsersAboutMentions
-
 /* UPDATE ASYNC */
 export function updateUserMayTriggerReview({newDocument, data, context}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
@@ -514,7 +486,6 @@ export function updateUserMayTriggerReview({newDocument, data, context}: UpdateC
   }
 }
 
-// updateAsync
 export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
     await nullifyVotesForUser(newDocument);
@@ -687,10 +658,6 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
     }
   }
 }
-
-// 4x convertImagesInObject
-
-// elasticSyncDocument
 
 export async function reindexDeletedUserContent(newUser: DbUser, oldUser: DbUser, context: ResolverContext) {
   const { repos } = context;

@@ -56,8 +56,10 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
 
     data = callbackProps.document;
 
-    newCommentsEmptyCheck(callbackProps);
-    await newCommentsRateLimit(callbackProps);
+    if (!skipValidation) {
+      newCommentsEmptyCheck(callbackProps);
+      await newCommentsRateLimit(callbackProps);
+    }
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 

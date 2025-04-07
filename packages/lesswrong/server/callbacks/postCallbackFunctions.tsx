@@ -397,14 +397,6 @@ const utils = {
 
 
 /* CREATE VALIDATE */
-// export function debateMustHaveCoauthor(validationErrors: CallbackValidationErrors, { document }: CreateCallbackProperties<'Posts'>): CallbackValidationErrors {
-//   if (document.debate && !document.coauthorStatuses?.length) {
-//     throw new Error('Dialogue must have at least one co-author!');
-//   }
-
-//   return validationErrors;
-// }
-
 export async function postsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: post, currentUser, context }: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
   if (!post.draft && !post.isEvent) {
     await utils.enforcePostRateLimit(currentUser!, context);
