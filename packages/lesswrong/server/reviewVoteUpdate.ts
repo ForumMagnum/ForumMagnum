@@ -398,8 +398,14 @@ export const createReviewWinners = async () => {
   }))
 }
 
-
-// you only need this if you make a mistake somewhere in the review finishing process
+// If you made any mistakes with the rank-order of the ReviewWinners (i.e. because you decided
+// to remove a post from the list), run this function to fix the rank orders.
+//
+// This is necessary because the reviewRanking has enforced uniqueness for rank+year, and
+// you can't edit an individual
+//
+// (This is similar but not identical to the updateCuratedOrder function in ReviewWinnersRepo,
+// which handles a similar case for the curatedOrder field, although only one post at a time)
 export const updateReviewWinnerRankings = async (year: number) => {
   const adminContext = createAdminContext();
   
