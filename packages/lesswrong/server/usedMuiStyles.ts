@@ -21,7 +21,6 @@ const getUsedMuiStyles = () => {
     MuiCard: require("@/lib/vendor/@material-ui/core/src/Card/Card").styles,
     MuiCardContent: require("@/lib/vendor/@material-ui/core/src/CardContent/CardContent").styles,
     MuiCheckbox: require("@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox").styles,
-    MuiChip: require("@/lib/vendor/@material-ui/core/src/Chip/Chip").styles,
     MuiClickAwayListener: require("@/lib/vendor/@material-ui/core/src/ClickAwayListener/ClickAwayListener").styles,
     MuiDialog: require("@/lib/vendor/@material-ui/core/src/Dialog/Dialog").styles,
     MuiDivider: require("@/lib/vendor/@material-ui/core/src/Divider/Divider").styles,

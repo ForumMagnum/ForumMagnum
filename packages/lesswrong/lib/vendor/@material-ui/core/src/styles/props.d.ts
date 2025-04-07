@@ -100,7 +100,6 @@ export interface ComponentsPropsList {
   MuiCardHeader: CardHeaderProps;
   MuiCardMedia: CardMediaProps;
   MuiCheckbox: CheckboxProps;
-  MuiChip: ChipProps;
   MuiCircularProgress: CircularProgressProps;
   MuiCollapse: CollapseProps;
   MuiCssBaseline: CssBaselineProps;

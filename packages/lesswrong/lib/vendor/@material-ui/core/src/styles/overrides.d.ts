@@ -106,7 +106,6 @@ export interface ComponentNameToClassKey {
   MuiCardHeader: CardHeaderClassKey;
   MuiCardMedia: CardMediaClassKey;
   MuiCheckbox: CheckboxClassKey;
-  MuiChip: ChipClassKey;
   MuiCircularProgress: CircularProgressClassKey;
   MuiCollapse: CollapseClassKey;
   MuiCssBaseline: CssBaselineClassKey;
