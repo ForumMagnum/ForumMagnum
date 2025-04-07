@@ -1,12 +1,13 @@
 import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
-import { ContentType, getOriginalContents } from '../collections/revisions/newSchema'
+import { getOriginalContents } from '../collections/revisions/helpers';
 import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldName, EditableFieldOptions, MakeEditableOptions } from './makeEditableOptions';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
+import { ContentType } from '../collections/revisions/revisionConstants';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},

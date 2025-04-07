@@ -1,5 +1,5 @@
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/mutations";
+import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/helpers";
 
 export function isMultiDocument(document: DbTag | DbMultiDocument): document is DbMultiDocument {
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;

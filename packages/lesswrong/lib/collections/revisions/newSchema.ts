@@ -1,8 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { accessFilterSingle, generateIdResolverSingle } from "../../utils/schemaUtils";
-import SimpleSchema from "simpl-schema";
-import { userCanReadField, userIsPodcaster, userOwns } from "../../vulcan-users/permissions";
-import { SharableDocument, userIsSharedOn } from "../users/helpers";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { parseDocumentFromString } from "@/lib/domParser";
 import { highlightFromHTML, truncate } from "@/lib/editor/ellipsize";
@@ -14,10 +11,11 @@ import { htmlStartingAtHash } from "@/server/extractHighlights";
 import { dataToDraftJS } from "@/server/resolvers/toDraft";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import _ from "underscore";
-import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
+import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH, ContentType } from "./revisionConstants";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import gql from "graphql-tag";
+import { getOriginalContents } from "./helpers";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -34,18 +32,6 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
   ]
 });
 
-/**
- * This covers the type of originalContents for all editor types.
- * (DraftJS uses object type. DraftJs is deprecated but there are still many documents that use it)
- */
-export const ContentType = new SimpleSchema({
-  type: String,
-  data: SimpleSchema.oneOf(String, {
-    type: Object,
-    blackbox: true,
-  }),
-});
-
 // Graphql doesn't allow union types that include scalars, which is necessary
 // to accurately represent the data field the ContentType simple schema.
 
@@ -58,29 +44,6 @@ export const graphqlTypeDefs = gql`
     data: ContentTypeData
   }
 `
-
-const isSharable = (document: any): document is SharableDocument => {
-  return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document;
-};
-
-export const getOriginalContents = <N extends CollectionNameString>(
-  currentUser: DbUser | null,
-  document: ObjectsByCollectionName[N],
-  originalContents: EditableFieldContents["originalContents"]
-) => {
-  const canViewOriginalContents = (user: DbUser | null, doc: DbObject) =>
-    isSharable(doc) ? userIsSharedOn(user, doc) : true;
-
-  const returnOriginalContents = userCanReadField(
-    currentUser,
-    // We need `userIsPodcaster` here to make it possible for podcasters to open post edit forms to add/update podcast episode info
-    // Without it, `originalContents` may resolve to undefined, which causes issues in revisionResolvers
-    [userOwns, canViewOriginalContents, userIsPodcaster, "admins", "sunshineRegiment"],
-    document
-  );
-
-  return returnOriginalContents ? originalContents : null;
-};
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
