@@ -5,7 +5,7 @@ import { isAF, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
-import { filters, postStatuses, startHerePostIdSetting } from './constants';
+import { filters, openThreadTagIdSetting, postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
@@ -1332,6 +1332,18 @@ function alignmentSuggestedPosts() {
   }
 }
 
+function currentOpenThread(terms: PostsViewTerms) {
+  return {
+    selector: {
+      sticky: true,
+      [`tagRelevance.${openThreadTagIdSetting.get()}`]: { $gte: 1 }
+    },
+    options: {
+      sort: { postedAt: -1 },
+      limit: 1
+    }
+  }
+}
 
 export const PostsViews = new CollectionViewSet('Posts', {
   userPosts,
@@ -1394,4 +1406,5 @@ export const PostsViews = new CollectionViewSet('Posts', {
   reviewFinalVoting,
   myBookmarkedPosts,
   alignmentSuggestedPosts,
+  currentOpenThread,
 }, defaultView);
