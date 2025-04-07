@@ -3,7 +3,7 @@ import schema from "@/lib/collections/moderationTemplates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -41,7 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -49,7 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ModerationTemplates', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -67,7 +67,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
       newDocument: documentWithId,
     };
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -93,7 +93,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -105,7 +105,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, ModerationTemplates, moderationtemplateSelector, context) ?? previewDocument as DbModerationTemplate;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -117,7 +117,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
       updateAfterProperties: updateCallbackProperties,
     });
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

@@ -199,7 +199,12 @@ const insertIntoDbSection = (collectionName: string) => `
 `;
 
 const createAfterEditableSection = `
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
+      newDoc: documentWithId,
+      props: afterCreateProperties,
+    });
+
+    documentWithId = await notifyUsersOfPingbackMentions({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });

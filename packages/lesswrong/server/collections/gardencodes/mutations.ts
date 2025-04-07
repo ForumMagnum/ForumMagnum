@@ -3,7 +3,7 @@ import schema from "@/lib/collections/gardencodes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
@@ -60,7 +60,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
 
     data = await runSlugCreateBeforeCallback(callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -68,7 +68,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'GardenCodes', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
+      newDoc: documentWithId,
+      props: afterCreateProperties,
+    });
+
+    documentWithId = await notifyUsersOfPingbackMentions({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -86,7 +91,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
       newDocument: documentWithId,
     };
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -114,7 +119,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
 
     data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -126,7 +131,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, GardenCodes, gardencodeSelector, context) ?? previewDocument as DbGardenCode;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -138,7 +143,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
       updateAfterProperties: updateCallbackProperties,
     });
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

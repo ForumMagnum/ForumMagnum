@@ -2,7 +2,6 @@ import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {htmlToPingbacks} from '../pingbacks'
 import { isEditableField } from '../../lib/editor/make_editable'
 import { collectionNameToTypeName } from '../../lib/generated/collectionTypeNames'
-import { CallbackHook } from '../utils/callbackHooks'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import isEqual from 'lodash/isEqual'
@@ -340,7 +339,7 @@ async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: Ed
   await convertImagesInObject(collectionName, doc._id, context, fieldName);
 }
 
-export async function runCreateBeforeEditableCallbacks<P extends CreateBeforeEditableCallbackProperties<N>, N extends CollectionNameString>(runCallbackStageProperties: P): Promise<P['doc']> {
+export async function createInitialRevisionsForEditableFields<P extends CreateBeforeEditableCallbackProperties<N>, N extends CollectionNameString>(runCallbackStageProperties: P): Promise<P['doc']> {
   let { props, doc: mutableDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
@@ -352,21 +351,31 @@ export async function runCreateBeforeEditableCallbacks<P extends CreateBeforeEdi
   return mutableDoc;
 }
 
-export async function runCreateAfterEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: CreateAfterEditableCallbackProperties<N>) {
+export async function updateRevisionsDocumentIds<N extends CollectionNameString>(runCallbackStageProperties: CreateAfterEditableCallbackProperties<N>) {
   let { props, newDoc: mutableDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
-
+  
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
     mutableDoc = await updateRevisionDocumentId<N>(mutableDoc, props, editableFieldCallbackProps);
-    mutableDoc = await notifyUsersAboutPingbackMentionsInCreate<N>(mutableDoc, props, editableFieldCallbackProps);
-
   }
 
   return mutableDoc;
 }
 
-export async function runNewAsyncEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: NewAsyncEditableCallbackProperties<N>) {
+export async function notifyUsersOfPingbackMentions<N extends CollectionNameString>(runCallbackStageProperties: CreateAfterEditableCallbackProperties<N>) {
+  let { props, newDoc: mutableDoc } = runCallbackStageProperties;
+
+  const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
+
+  for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
+    mutableDoc = await notifyUsersAboutPingbackMentionsInCreate<N>(mutableDoc, props, editableFieldCallbackProps);
+  }
+
+  return mutableDoc;
+}
+
+export async function uploadImagesInEditableFields<N extends CollectionNameString>(runCallbackStageProperties: NewAsyncEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
   const { context } = props;
 
@@ -377,7 +386,7 @@ export async function runNewAsyncEditableCallbacks<N extends CollectionNameStrin
   }
 }
 
-export async function runUpdateBeforeEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: UpdateBeforeEditableCallbackProperties<N>) {
+export async function createRevisionsForEditableFields<N extends CollectionNameString>(runCallbackStageProperties: UpdateBeforeEditableCallbackProperties<N>) {
   let { props, docData } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
@@ -389,7 +398,7 @@ export async function runUpdateBeforeEditableCallbacks<N extends CollectionNameS
   return docData;
 }
 
-export async function runUpdateAfterEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: UpdateAfterEditableCallbackProperties<N>) {
+export async function notifyUsersOfNewPingbackMentions<N extends CollectionNameString>(runCallbackStageProperties: UpdateAfterEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
@@ -401,7 +410,7 @@ export async function runUpdateAfterEditableCallbacks<N extends CollectionNameSt
   return newDoc;
 }
 
-export async function runEditAsyncEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: EditAsyncEditableCallbackProperties<N>) {
+export async function reuploadImagesIfEditableFieldsChanged<N extends CollectionNameString>(runCallbackStageProperties: EditAsyncEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
   const { context } = props;
 

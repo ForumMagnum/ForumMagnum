@@ -7,7 +7,7 @@ import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { addReferrerToComment, assignPostVersion, checkCommentForSpamWithAkismet, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
@@ -69,7 +69,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     data = await handleReplyToAnswer(data, callbackProps);
     data = await setTopLevelCommentId(data, callbackProps);  
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -84,7 +84,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     invalidatePostOnCommentCreate(documentWithId);
     documentWithId = await updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties);  
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
+      newDoc: documentWithId,
+      props: afterCreateProperties,
+    });
+
+    documentWithId = await notifyUsersOfPingbackMentions({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -116,7 +121,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     await commentsAlignmentNew(documentWithId, context);
     await commentsNewNotifications(documentWithId, context);
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -145,7 +150,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     data = updatePostLastCommentPromotedAt(data, updateCallbackProperties);
     data = await validateDeleteOperations(data, updateCallbackProperties);  
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -163,7 +168,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     invalidatePostOnCommentUpdate(updatedDocument);
     updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -185,7 +190,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     await commentsPublishedNotifications(updatedDocument, oldDocument, context);
     await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

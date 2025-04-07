@@ -65,14 +65,6 @@ const getTypeDefs = () => {
 
   schemaContents.push(queriesToGraphQL(allQueries));
   schemaContents.push(mutationsToGraphQL(allMutations));
-//   if (!allMutations.length) {
-//     console.log('No mutations are defined');
-//     schemaContents.push(`
-// type Mutation {
-//   noop(input: Boolean): Boolean
-// }
-//     `);
-//   }
 
   return {
     schemaText: schemaContents.join("\n"),
@@ -93,10 +85,6 @@ export const getGraphQLSchema = () => {
   for (let addedResolverGroup of addedResolvers) {
     allResolvers = deepmerge(allResolvers, addedResolverGroup);
   }
-
-  require('fs').writeFileSync('./schema.txt', schemaText);
-
-  require('fs').writeFileSync('./inputTypes.txt', print(typeDefs));
 
   return {
     typeDefs: gql`

@@ -4,7 +4,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { canonizeChapterPostInfo, notifyUsersOfNewPosts, updateSequenceLastUpdated } from "@/server/callbacks/chapterCallbacks";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -46,7 +46,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -54,7 +54,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Chapters', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -74,7 +74,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
 
     await canonizeChapterPostInfo(documentWithId, context);
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -100,7 +100,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -112,7 +112,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, Chapters, chapterSelector, context) ?? previewDocument as DbChapter;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -129,7 +129,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
 
     await canonizeChapterPostInfo(updatedDocument, context);
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

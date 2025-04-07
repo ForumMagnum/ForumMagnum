@@ -5,7 +5,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { approveUnreviewedSubmissions, changeDisplayNameRateLimit, clearKarmaChangeBatchOnSettingsChange, createRecombeeUser, handleSetShortformPost, makeFirstUserAdminAndApproved, maybeSendVerificationEmail, newAlignmentUserMoveShortform, newAlignmentUserSendPMAsync, newSubforumMemberNotifyMods, reindexDeletedUserContent, sendWelcomingPM, subscribeOnSignup, subscribeToEAForumAudience, syncProfileUpdatedAt, updateDigestSubscription, updateDisplayName, updateUserMayTriggerReview, updatingPostAudio, userEditBannedCallbacksAsync, userEditChangeDisplayNameCallbacksAsync, userEditDeleteContentCallbacksAsync, usersEditCheckEmail } from "@/server/callbacks/userCallbackFunctions";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
@@ -52,7 +52,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
 
     data = await runSlugCreateBeforeCallback(callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -62,7 +62,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Users', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -90,7 +90,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     await subscribeToEAForumAudience(documentWithId);
     await sendWelcomingPM(documentWithId);
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -125,7 +125,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     await updateDigestSubscription(data, updateCallbackProperties);
     await updateDisplayName(data, updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -142,7 +142,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, Users, userSelector, context) ?? previewDocument as DbUser;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -166,7 +166,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);
     await newAlignmentUserMoveShortform(updatedDocument, oldDocument, context);
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

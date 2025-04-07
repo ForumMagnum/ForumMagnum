@@ -6,7 +6,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { sanitizeJargonTerm } from "@/server/callbacks/jargonTermCallbacks";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -66,7 +66,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
 
     data = sanitizeJargonTerm(data);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -74,7 +74,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'JargonTerms', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -92,7 +92,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
       newDocument: documentWithId,
     };
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -120,7 +120,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
 
     data = sanitizeJargonTerm(data);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -132,7 +132,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, JargonTerms, jargontermSelector, context) ?? previewDocument as DbJargonTerm;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -144,7 +144,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
       updateAfterProperties: updateCallbackProperties,
     });
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

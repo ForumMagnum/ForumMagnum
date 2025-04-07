@@ -3,7 +3,7 @@ import schema from "@/lib/collections/tagFlags/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
@@ -42,7 +42,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
 
     data = await runSlugCreateBeforeCallback(callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -50,7 +50,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'TagFlags', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -68,7 +68,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
       newDocument: documentWithId,
     };
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -96,7 +96,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
 
     data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -108,7 +108,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, TagFlags, tagflagSelector, context) ?? previewDocument as DbTagFlag;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -120,7 +120,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
       updateAfterProperties: updateCallbackProperties,
     });
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

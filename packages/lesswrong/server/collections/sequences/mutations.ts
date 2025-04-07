@@ -5,7 +5,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userOwns, userCanDo } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createFirstChapter } from "@/server/callbacks/sequenceCallbacks";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
@@ -48,7 +48,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Sequence
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -56,7 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Sequence
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Sequences', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -80,7 +80,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Sequence
 
     createFirstChapter(documentWithId, context);
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -106,7 +106,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Sequence
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -118,7 +118,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Sequence
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, Sequences, sequenceSelector, context) ?? previewDocument as DbSequence;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -130,7 +130,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Sequence
       updateAfterProperties: updateCallbackProperties,
     });
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

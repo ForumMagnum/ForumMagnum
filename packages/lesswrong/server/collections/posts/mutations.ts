@@ -10,7 +10,7 @@ import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/c
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from "@/server/embeddings";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { handleCrosspostUpdate, performCrosspost } from "@/server/fmCrosspost/crosspost";
@@ -69,7 +69,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     // former createBefore
     data = addReferrerToPost(data, callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -100,7 +100,12 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     documentWithId = await applyNewPostTags(documentWithId, afterCreateProperties);
     documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
+      newDoc: documentWithId,
+      props: afterCreateProperties,
+    });
+
+    documentWithId = await notifyUsersOfPingbackMentions({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -141,7 +146,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
   
     await rehostPostMetaImages(documentWithId);
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -188,7 +193,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     data = await handleCrosspostUpdate(data, updateCallbackProperties);
     data = onEditAddLinkSharingKey(data, updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -211,7 +216,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
     updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -255,7 +260,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     await extractSocialPreviewImage(updatedDocument, updateCallbackProperties);
     await oldPostsLastCommentedAt(updatedDocument, context);  
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

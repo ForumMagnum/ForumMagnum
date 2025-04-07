@@ -26,7 +26,7 @@ import {
   convertToGraphQL,
 } from './graphqlTemplates';
 import type { GraphQLScalarType } from 'graphql';
-import { ACCESS_FILTERED, accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
+import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import gql from 'graphql-tag'; 
 import * as _ from 'underscore';
@@ -158,10 +158,6 @@ import { createUserRateLimitMutation, updateUserRateLimitMutation, graphqlUserRa
 import { createUserTagRelMutation, updateUserTagRelMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
 import { createUserMutation, updateUserMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
 import { getSchema } from '@/lib/schema/allSchemas';
-
-function addRootArg<T extends (args: any, context: ResolverContext) => any>(func: T) {
-  return (root: void, args: Parameters<T>[0], context: ResolverContext) => func(args, context);
-}
 
 const selectorInput = gql`
   input SelectorInput {
@@ -563,7 +559,6 @@ type SchemaGraphQLFields = {
   update: SchemaGraphQLFieldDescription[],
   selector: SchemaGraphQLFieldDescription[],
   selectorUnique: SchemaGraphQLFieldDescription[],
-  orderBy: SchemaGraphQLFieldDescription[],
 }
 
 // for a given schema, return main type fields, selector fields,
@@ -578,7 +573,6 @@ export const getFields = <N extends CollectionNameString>(schema: NewSchemaType<
     update: [],
     selector: [],
     selectorUnique: [],
-    orderBy: [],
   };
   const addedResolvers: Array<any> = [];
 
@@ -719,7 +713,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
     ? collection.options.description
     : `Type for ${collectionName}`;
 
-  const { mainType, create, update, selector, selectorUnique, orderBy } = fields;
+  const { mainType, create, update, selector, selectorUnique } = fields;
 
   let addedQueries: Array<any> = [];
   let addedResolvers: Array<any> = [...fieldResolvers];
@@ -729,29 +723,11 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
     schemaFragments.push(
       mainTypeTemplate({ typeName, description, interfaces, fields: mainType })
     );
-    // schemaFragments.push(deleteInputTemplate({ typeName }));
+
     schemaFragments.push(singleInputTemplate({ typeName }));
     schemaFragments.push(multiInputTemplate({ typeName }));
     schemaFragments.push(singleOutputTemplate({ typeName }));
     schemaFragments.push(multiOutputTemplate({ typeName }));
-    // schemaFragments.push(mutationOutputTemplate({ typeName }));
-
-    // if (create.length) {
-    //   schemaFragments.push(createInputTemplate({ typeName }));
-    //   schemaFragments.push(createDataInputTemplate({ typeName, fields: create }));
-    // }
-
-    // if (update.length) {
-    //   schemaFragments.push(updateInputTemplate({ typeName }));
-    //   schemaFragments.push(upsertInputTemplate({ typeName }));
-    //   schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
-    // }
-
-    // schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
-
-    // schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
-
-    schemaFragments.push(orderByInputTemplate({ typeName, fields: orderBy }));
 
     if (!_.isEmpty(resolvers)) {
       const queryResolvers: Partial<Record<string,any>> = {};
@@ -774,61 +750,6 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
       addedResolvers.push({ Query: { ...queryResolvers } });
     }
 
-    // if (mutations && !_.isEmpty(mutations)) {
-    //   const mutationResolvers: Partial<Record<string,any>> = {};
-    //   // create
-    //   if (mutations.create) {
-    //     // e.g. "createMovie(input: CreateMovieInput) : Movie"
-    //     if (create.length === 0) {
-    //       // eslint-disable-next-line no-console
-    //       console.log(
-    //         `// Warning: you defined a "create" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "create" mutation or define a "canCreate" property on a field to disable this warning`
-    //       );
-    //     } else {
-    //       addedMutations.push({mutation: createMutationTemplate({ typeName }), description: mutations.create.description});
-    //       mutationResolvers[`create${typeName}`] = mutations.create.mutation.bind(
-    //         mutations.create
-    //       );
-    //     }
-    //   }
-    //   // update
-    //   if (mutations.update) {
-    //     // e.g. "updateMovie(input: UpdateMovieInput) : Movie"
-    //     if (update.length === 0) {
-    //       // eslint-disable-next-line no-console
-    //       console.log(
-    //         `// Warning: you defined an "update" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "update" mutation or define a "canUpdate" property on a field to disable this warning`
-    //       );
-    //     } else {
-    //       addedMutations.push({mutation: updateMutationTemplate({ typeName }), description: mutations.update.description});
-    //       mutationResolvers[`update${typeName}`] = mutations.update.mutation.bind(
-    //         mutations.update
-    //       );
-    //     }
-    //   }
-    //   // upsert
-    //   if (mutations.upsert) {
-    //     // e.g. "upsertMovie(input: UpsertMovieInput) : Movie"
-    //     if (update.length === 0) {
-    //       // eslint-disable-next-line no-console
-    //       console.log(
-    //         `// Warning: you defined an "upsert" mutation for collection ${collectionName}, but it doesn't have any mutable fields, so no corresponding mutation types can be generated. Remove the "upsert" mutation or define a "canUpdate" property on a field to disable this warning`
-    //       );
-    //     } else {
-    //       addedMutations.push({mutation: upsertMutationTemplate({ typeName }), description: mutations.upsert.description});
-    //       mutationResolvers[`upsert${typeName}`] = mutations.upsert.mutation.bind(
-    //         mutations.upsert
-    //       );
-    //     }
-    //   }
-    //   // delete
-    //   if (mutations.delete) {
-    //     // e.g. "deleteMovie(input: DeleteMovieInput) : Movie"
-    //     addedMutations.push({mutation: deleteMutationTemplate({ typeName }), description: mutations.delete.description});
-    //     mutationResolvers[`delete${typeName}`] = mutations.delete.mutation.bind(mutations.delete);
-    //   }
-    //   addedResolvers.push({ Mutation: { ...mutationResolvers } });
-    // }
     graphQLSchema = schemaFragments.join('\n\n') + '\n\n\n';
   } else {
     // eslint-disable-next-line no-console

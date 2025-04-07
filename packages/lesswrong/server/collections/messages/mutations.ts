@@ -4,7 +4,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { addParticipantIfNew, checkIfNewMessageIsEmpty, sendMessageNotifications, unArchiveConversations, updateConversationActivity, updateUserNotesOnModMessage } from "@/server/callbacks/messageCallbacks";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -50,7 +50,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -58,7 +58,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Messages', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -83,7 +83,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
     await updateConversationActivity(documentWithId, context);
     await sendMessageNotifications(documentWithId, context);
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -103,7 +103,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
     const dataAsModifier = dataToModifier(clone(data));
     data = await runFieldOnUpdateCallbacks(schema, data, dataAsModifier, updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -115,7 +115,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, Messages, messageSelector, context) ?? previewDocument as DbMessage;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -127,7 +127,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
       updateAfterProperties: updateCallbackProperties,
     });
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });

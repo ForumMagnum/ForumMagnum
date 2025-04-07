@@ -5,7 +5,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { reindexParentTagIfNeeded } from "@/server/callbacks/multiDocumentCallbacks";
-import { runCreateAfterEditableCallbacks, runCreateBeforeEditableCallbacks, runEditAsyncEditableCallbacks, runNewAsyncEditableCallbacks, runUpdateAfterEditableCallbacks, runUpdateBeforeEditableCallbacks } from "@/server/editor/make_editable_callbacks";
+import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
@@ -56,7 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
 
     data = await runSlugCreateBeforeCallback(callbackProps);
 
-    data = await runCreateBeforeEditableCallbacks({
+    data = await createInitialRevisionsForEditableFields({
       doc: data,
       props: callbackProps,
     });
@@ -64,7 +64,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'MultiDocuments', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await runCreateAfterEditableCallbacks({
+    documentWithId = await updateRevisionsDocumentIds({
       newDoc: documentWithId,
       props: afterCreateProperties,
     });
@@ -84,7 +84,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
 
     reindexParentTagIfNeeded(documentWithId);
 
-    await runNewAsyncEditableCallbacks({
+    await uploadImagesInEditableFields({
       newDoc: documentWithId,
       props: asyncProperties,
     });
@@ -112,7 +112,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
 
     data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-    data = await runUpdateBeforeEditableCallbacks({
+    data = await createRevisionsForEditableFields({
       docData: data,
       props: updateCallbackProperties,
     });
@@ -124,7 +124,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
     // we're left with the previewDocument, which could have EditableFieldInsertion values for its editable fields
     let updatedDocument = await updateAndReturnDocument(modifier, MultiDocuments, multidocumentSelector, context) ?? previewDocument as DbMultiDocument;
 
-    updatedDocument = await runUpdateAfterEditableCallbacks({
+    updatedDocument = await notifyUsersOfNewPingbackMentions({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
@@ -138,7 +138,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
 
     reindexParentTagIfNeeded(updatedDocument);
 
-    await runEditAsyncEditableCallbacks({
+    await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,
       props: updateCallbackProperties,
     });
