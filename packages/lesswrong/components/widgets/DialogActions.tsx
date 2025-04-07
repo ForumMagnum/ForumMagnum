@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { cloneChildrenWithClassName } from '@/lib/vendor/@material-ui/core/src/utils/reactHelpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-export const styles = defineStyles("DialogActions", (theme) => ({
+export const styles = defineStyles("MuiDialogActions", (theme) => ({
   /* Styles applied to the root element. */
   root: {
     display: 'flex',
@@ -16,7 +16,7 @@ export const styles = defineStyles("DialogActions", (theme) => ({
   action: {
     margin: '0 4px',
   },
-}));
+}), {stylePriority: -1});
 
 export function DialogActions(props: {
   className?: string

@@ -10,7 +10,7 @@ export const styles = defineStyles("DialogTitle", theme => ({
     padding: '24px 24px 20px',
     flex: '0 0 auto',
   },
-}));
+}), {stylePriority: -1});
 
 export function DialogTitle(props: {
   className?: string,

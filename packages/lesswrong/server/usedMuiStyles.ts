@@ -15,7 +15,6 @@
  */
 const getUsedMuiStyles = () => {
   const components = {
-    MuiBadge: require("@/lib/vendor/@material-ui/core/src/Badge/Badge").styles,
     MuiButtonBase: require("@/lib/vendor/@material-ui/core/src/ButtonBase/ButtonBase").styles,
     MuiButton: require("@/lib/vendor/@material-ui/core/src/Button/Button").styles,
     MuiCard: require("@/lib/vendor/@material-ui/core/src/Card/Card").styles,
@@ -43,7 +42,6 @@ const getUsedMuiStyles = () => {
     MuiMenuItem: require("@/lib/vendor/@material-ui/core/src/MenuItem/MenuItem").styles,
     MuiModal: require("@/lib/vendor/@material-ui/core/src/Modal/Modal").styles,
     MuiOutlinedInput: require("@/lib/vendor/@material-ui/core/src/OutlinedInput/OutlinedInput").styles,
-    MuiPaper: require("@/lib/vendor/@material-ui/core/src/Paper/Paper").styles,
     MuiPopover: require("@/lib/vendor/@material-ui/core/src/Popover/Popover").styles,
     MuiPortal: require("@/lib/vendor/@material-ui/core/src/Portal/Portal").styles,
     MuiRadio: require("@/lib/vendor/@material-ui/core/src/Radio/Radio").styles,

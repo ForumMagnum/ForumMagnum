@@ -1,7 +1,6 @@
 import { AppBarClassKey } from '../AppBar';
 import { AvatarClassKey } from '../Avatar';
 import { BackdropClassKey } from '../Backdrop';
-import { BadgeClassKey } from '../Badge';
 import { BottomNavigationActionClassKey } from '../BottomNavigationAction';
 import { BottomNavigationClassKey } from '../BottomNavigation';
 import { ButtonBaseClassKey } from '../ButtonBase';
@@ -95,7 +94,6 @@ export interface ComponentNameToClassKey {
   MuiAppBar: AppBarClassKey;
   MuiAvatar: AvatarClassKey;
   MuiBackdrop: BackdropClassKey;
-  MuiBadge: BadgeClassKey;
   MuiBottomNavigation: BottomNavigationClassKey;
   MuiBottomNavigationAction: BottomNavigationActionClassKey;
   MuiButton: ButtonClassKey;
@@ -146,7 +144,6 @@ export interface ComponentNameToClassKey {
   MuiModal: ModalClassKey;
   MuiNativeSelect: NativeSelectClassKey;
   MuiOutlinedInput: OutlinedInputClassKey;
-  MuiPaper: PaperClassKey;
   MuiPopover: PopoverClassKey;
   MuiRadio: RadioClassKey;
   MuiSelect: SelectClassKey;

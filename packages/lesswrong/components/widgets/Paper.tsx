@@ -2,11 +2,15 @@ import React, { type CSSProperties } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
-const styles = defineStyles("Paper", (theme: ThemeType) => {
+const styles = defineStyles("MuiPaper", (theme: ThemeType) => {
   const elevations: Record<string,AnyBecauseHard> = {};
   theme.shadows.forEach((shadow, index) => {
     elevations[`elevation${index}`] = {
       boxShadow: shadow,
+      
+      ...(theme.themeOptions.name === "dark" && {
+        boxShadow: "none",
+      }),
     };
   });
 
@@ -20,7 +24,7 @@ const styles = defineStyles("Paper", (theme: ThemeType) => {
     },
     ...elevations,
   };
-})
+}, {stylePriority: -1})
 
 /**
  * A card with a border and a drop shadow. Based on the material-UI <Paper>

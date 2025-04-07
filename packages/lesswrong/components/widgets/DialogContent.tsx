@@ -19,7 +19,7 @@ export const styles = defineStyles("DialogContent", (theme) => ({
       lineHeight: "1.5em"
     }),
   },
-}));
+}), {stylePriority: -1});
 
 export function DialogContent(props: {
   className?: string,

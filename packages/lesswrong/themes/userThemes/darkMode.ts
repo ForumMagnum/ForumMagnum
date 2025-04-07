@@ -182,17 +182,6 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
           color: palette.icon.dim,
         },
       },
-      MuiPaper: {
-        elevation1: {boxShadow: "none"},
-        elevation2: {boxShadow: "none"},
-        elevation3: {boxShadow: "none"},
-        elevation4: {boxShadow: "none"},
-        elevation5: {boxShadow: "none"},
-        elevation6: {boxShadow: "none"},
-        elevation7: {boxShadow: "none"},
-        elevation8: {boxShadow: "none"},
-        elevation24: {boxShadow: "none"},
-      },
     },
     default: {},
   });

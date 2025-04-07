@@ -1,7 +1,6 @@
 import { AppBarProps } from '../AppBar';
 import { AvatarProps } from '../Avatar';
 import { BackdropProps } from '../Backdrop';
-import { BadgeProps } from '../Badge';
 import { BottomNavigationActionProps } from '../BottomNavigationAction';
 import { BottomNavigationProps } from '../BottomNavigation';
 import { ButtonBaseProps } from '../ButtonBase';
@@ -89,7 +88,6 @@ export interface ComponentsPropsList {
   MuiAppBar: AppBarProps;
   MuiAvatar: AvatarProps;
   MuiBackdrop: BackdropProps;
-  MuiBadge: BadgeProps;
   MuiBottomNavigation: BottomNavigationProps;
   MuiBottomNavigationAction: BottomNavigationActionProps;
   MuiButton: ButtonProps;
@@ -137,7 +135,6 @@ export interface ComponentsPropsList {
   MuiMobileStepper: MobileStepperProps;
   MuiModal: ModalProps;
   MuiNativeSelect: NativeSelectProps;
-  MuiPaper: PaperProps;
   MuiPopover: PopoverProps;
   MuiRadio: RadioProps;
   MuiSelect: SelectProps;

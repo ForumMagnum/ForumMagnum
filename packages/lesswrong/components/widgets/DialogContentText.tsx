@@ -7,7 +7,7 @@ import { defineStyles } from '../hooks/useStyles';
 export const styles = defineStyles("DialogContentText", theme => ({
   /* Styles applied to the root element. */
   root: {},
-}));
+}), {stylePriority: -1});
 
 export function DialogContentText({className, children}: {
   className?: string
