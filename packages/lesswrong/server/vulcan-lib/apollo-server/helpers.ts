@@ -4,6 +4,7 @@ import isEmpty from "lodash/isEmpty";
 import { throwError } from "../errors";
 import { validateData, validateDocument } from "../validation";
 import { getPreviewDocument } from "../mutators";
+import { createError } from "apollo-errors";
 
 interface CreateMutationOptions<D, T extends DbObject, R extends { [ACCESS_FILTERED]: true } | null = { [ACCESS_FILTERED]: true } | null> {
   newCheck: (user: DbUser | null, document: D | null, context: ResolverContext) => Promise<boolean> | boolean,
@@ -71,7 +72,9 @@ export function makeGqlUpdateMutation<
 
     const validationErrors = validateData<N>(data, previewDocument, collectionName, context);
     if (validationErrors.length) {
-      throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
+      const ValidationError = createError('app.validation_error', { message: JSON.stringify(validationErrors) });
+      throw new ValidationError({ data: { break: true, errors: validationErrors } });
+      // throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
     }
     
     const rawResult = await func(args, context);
