@@ -282,6 +282,7 @@ export const createDummyLocalgroup = async (data?: any) => {
     _id: randomId(),
     name: randomId(),
     organizerIds: [],
+    isOnline: true,
   }
   const groupData = {...defaultData, ...data};
   const newLocalgroup = await createLocalgroup({
