@@ -19,7 +19,7 @@ import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import { getClassName } from '@/components/hooks/useStyles';
 import type { TableOfContentsRowStyles } from './TableOfContentsRow';
-import { TableOfContentsDividerStyles } from './TableOfContentsDivider';
+import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
