@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
       marginTop: 'unset',
       marginBottom: 'unset',
       padding: '20px',
-      boxShadow: "0 1px 5px rgba(0,0,0,.025)",
+      boxShadow: `0 1px 5px ${theme.palette.greyAlpha(.025)}`,
     }),
   },
   edit: {
