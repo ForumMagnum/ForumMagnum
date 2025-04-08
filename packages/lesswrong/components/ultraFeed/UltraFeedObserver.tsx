@@ -72,12 +72,9 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
       }
 
       if (entry.isIntersecting && entry.intersectionRatio >= INTERSECTION_THRESHOLD) {
-        // Start timer if not already running for this element
         if (!timerMapRef.current.has(element)) {
           const timerId = setTimeout(() => {
-            // Check again if it's still being observed and hasn't been marked viewed
             if (elementDataMapRef.current.has(element) && !viewedItemsRef.current.has(elementData.documentId)) {
-              // Include userId in the event data
               const eventData = {
                 userId: currentUser._id,
                 eventType: 'viewed' as const,
@@ -85,7 +82,6 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
                 collectionName: mapDocumentTypeToCollectionName(elementData.documentType),
               };
 
-              // Use the create function from useCreate
               createUltraFeedEvent({
                 data: eventData
               }).catch(err => {
@@ -93,18 +89,15 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
                 console.error("Failed to log UltraFeed 'viewed' event:", err);
               });
 
-              // Mark as viewed and stop observing this specific element
               viewedItemsRef.current.add(elementData.documentId);
               observerRef.current?.unobserve(element);
-              elementDataMapRef.current.delete(element); // Clean up data map
+              elementDataMapRef.current.delete(element);
             }
-            // Clean up timer map regardless
             timerMapRef.current.delete(element);
           }, VIEW_THRESHOLD_MS);
           timerMapRef.current.set(element, timerId);
         }
       } else {
-        // Element is not intersecting sufficiently, clear its timer
         if (timerMapRef.current.has(element)) {
           clearTimeout(timerMapRef.current.get(element)!);
           timerMapRef.current.delete(element);
@@ -113,29 +106,30 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
     });
   }, [createUltraFeedEvent, currentUser]);
 
-  // Initialize observer on mount
   useEffect(() => {
-    observerRef.current = new IntersectionObserver(handleIntersection, {
-      root: null, // Use viewport
-      threshold: INTERSECTION_THRESHOLD, // Trigger when 50% visible/hidden
-    });
-
-    // Capture the ref's current value for the cleanup function
+    // Capture current ref values inside the effect
     const currentTimerMap = timerMapRef.current;
+    const currentElementDataMap = elementDataMapRef.current;
+    const currentViewedItems = viewedItemsRef.current;
 
-    // Cleanup observer on unmount
+    // Create and assign the observer
+    observerRef.current = new IntersectionObserver(handleIntersection, {
+      root: null,
+      threshold: INTERSECTION_THRESHOLD,
+    });
+    // Capture the specific observer instance created in *this* effect run
+    const observerInstance = observerRef.current;
+
+    // Cleanup function uses the captured values
     return () => {
-      observerRef.current?.disconnect();
-      // Clear any pending timers using the captured map
+      observerInstance?.disconnect();
       currentTimerMap.forEach(clearTimeout);
-      // Clear the maps/sets in the ref directly (this is fine)
-      timerMapRef.current.clear();
-      elementDataMapRef.current.clear();
-      viewedItemsRef.current.clear();
+      currentTimerMap.clear();
+      currentElementDataMap.clear();
+      currentViewedItems.clear();
     };
   }, [handleIntersection]);
 
-  // Function for children to register themselves
   const observe = useCallback((element: Element, data: ObserveData) => {
     if (observerRef.current && !viewedItemsRef.current.has(data.documentId) && !elementDataMapRef.current.has(element)) {
        elementDataMapRef.current.set(element, data);
@@ -143,20 +137,17 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
     }
   }, []);
 
-  // Function for children to unregister
   const unobserve = useCallback((element: Element) => {
     if (observerRef.current && elementDataMapRef.current.has(element)) {
       observerRef.current.unobserve(element);
-      // Clear any associated timer
       if (timerMapRef.current.has(element)) {
         clearTimeout(timerMapRef.current.get(element)!);
         timerMapRef.current.delete(element);
       }
-      elementDataMapRef.current.delete(element); // Clean up data map
+      elementDataMapRef.current.delete(element);
     }
   }, []);
 
-  // Function for children to track expansion
   const trackExpansion = useCallback((data: TrackExpansionData) => {
     if (!currentUser) return;
     
@@ -172,10 +163,10 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
       },
     };
 
-    // Use the create function from useCreate
     createUltraFeedEvent({
       data: eventData
     }).catch(err => {
+      // eslint-disable-next-line no-console
       console.error("Failed to log UltraFeed 'expanded' event:", err);
     });
   }, [createUltraFeedEvent, currentUser]);
@@ -189,11 +180,10 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
   );
 };
 
-// Custom hook to use the context
 export const useUltraFeedObserver = () => {
   const context = useContext(UltraFeedObserverContext);
   if (!context) {
     throw new Error('useUltraFeedObserver must be used within an UltraFeedObserverProvider');
   }
   return context;
-}; 
+};
