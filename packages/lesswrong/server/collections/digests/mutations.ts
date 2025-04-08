@@ -34,8 +34,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
       schema,
     });
 
-    assignUserIdToData(data, currentUser, schema);
-
     data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);

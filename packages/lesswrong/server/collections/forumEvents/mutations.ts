@@ -34,8 +34,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ForumEve
       schema,
     });
 
-    assignUserIdToData(data, currentUser, schema);
-
     data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);

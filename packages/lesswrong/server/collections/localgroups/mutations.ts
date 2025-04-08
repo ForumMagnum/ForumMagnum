@@ -37,8 +37,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
       schema,
     });
 
-    assignUserIdToData(data, currentUser, schema);
-
     data = callbackProps.document;
 
     validateGroupIsOnlineOrHasLocation(data);

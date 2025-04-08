@@ -35,8 +35,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
       schema,
     });
 
-    assignUserIdToData(data, currentUser, schema);
-
     data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);

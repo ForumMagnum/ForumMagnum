@@ -31,8 +31,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
       schema,
     });
 
-    assignUserIdToData(data, currentUser, schema);
-
     data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);

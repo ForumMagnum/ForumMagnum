@@ -57,8 +57,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
       schema,
     });
 
-    assignUserIdToData(data, currentUser, schema);
-
     data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);

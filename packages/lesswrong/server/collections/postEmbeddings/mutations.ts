@@ -31,8 +31,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostEmbe
       schema,
     });
 
-    assignUserIdToData(data, currentUser, schema);
-
     data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);

@@ -33,8 +33,6 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Surveys'
       schema,
     });
 
-    assignUserIdToData(data, currentUser, schema);
-
     data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);

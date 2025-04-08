@@ -1,5 +1,5 @@
 import { convertDocumentIdToIdInSelector, UpdateSelector } from '../../lib/vulcan-lib/utils';
-import { validateDocument, validateData, dataToModifier } from './validation';
+import { dataToModifier } from './validation';
 import { throwError } from './errors';
 import type { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import isEmpty from 'lodash/isEmpty';
@@ -144,7 +144,7 @@ export async function getLegacyUpdateCallbackProps<const T extends CollectionNam
   };
 }
 
-export function assignUserIdToData(data: unknown, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString>) {
+export function assignUserIdToData(data: unknown, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString> & { userId: NewCollectionFieldSpecification<CollectionNameString> }) {
   // You know, it occurs to me that this seems to allow users to insert arbitrary userIds
   // for documents they're creating if they have a userId field and canCreate: member.
   if (currentUser && schema.userId && !(data as HasUserIdType).userId) {
