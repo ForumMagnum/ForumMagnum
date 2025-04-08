@@ -17,9 +17,11 @@ import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
-import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import { type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
+import pick from 'lodash/pick';
+import mapValues from 'lodash/mapValues';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -41,9 +43,26 @@ export type StyleOptions = {
 }
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
-  importAllComponents();
+  const allStyles = getAllStylesByName();
   
-  const context: any = {};
+  const theme = getForumTheme(themeOptions);
+  const cssVars = requestedCssVarsToString(theme);
+  const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions);
+  
+  const mergedCSS = [
+    draftjsStyles(),
+    miscStyles(),
+    jssStylesheet,
+    ...theme.rawCSS,
+    cssVars,
+  ].join("\n");
+
+  const minifiedCSS = minify(mergedCSS).css;
+  return Buffer.from(minifiedCSS, "utf8");
+}
+
+function getAllStylesByName() {
+  importAllComponents();
   
   // Sort components by stylePriority, tiebroken by name (alphabetical)
   const componentStyles: Record<string,StyleDefinition> = keyBy(
@@ -57,11 +76,15 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
       })),
     c=>c.name
   );
-  const allStyles = {
+  
+  return {
     ...componentStyles,
     ...topLevelStyleDefinitions,
   };
-  
+}
+
+function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType, themeOptions: ThemeOptions): string {
+  const context: any = {};
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);
   const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
   
@@ -81,19 +104,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
-  const theme = getForumTheme(themeOptions);
-  const cssVars = requestedCssVarsToString(theme);
-  
-  const mergedCSS = [
-    draftjsStyles(),
-    miscStyles(),
-    jssStylesheet,
-    ...theme.rawCSS,
-    cssVars,
-  ].join("\n");
-
-  const minifiedCSS = minify(mergedCSS).css;
-  return Buffer.from(minifiedCSS, "utf8");
+  return jssStylesheet;
 }
 
 type StylesheetAndHash = {
@@ -129,6 +140,24 @@ export const getMergedStylesheet = (theme: ThemeOptions): StylesheetAndHash => {
   const mergedStylesheet = mergedStylesheets[themeKey]!;
   
   return mergedStylesheet;
+}
+
+export function generateEmailStylesheet({muiSheetsRegistry, stylesContext, theme, themeOptions}: {
+  muiSheetsRegistry: any,
+  stylesContext: StylesContextType,
+  theme: ThemeType
+  themeOptions: ThemeOptions
+}): string {
+  const muiSheet = muiSheetsRegistry.toString();
+  
+  const mountedStyles = stylesContext.mountedStyles;
+  const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition)
+  const usedStylesByName = keyBy(usedStyleDefinitions, s=>s.name);
+  const css = stylesToStylesheet(usedStylesByName, theme, themeOptions);
+  //console.log(css);
+  console.log(`Email used styles: ${Object.keys(mountedStyles).join(",")}`);
+
+  return muiSheet + css;
 }
 
 addStaticRoute("/allStyles", async ({query}, req, res, next) => {
