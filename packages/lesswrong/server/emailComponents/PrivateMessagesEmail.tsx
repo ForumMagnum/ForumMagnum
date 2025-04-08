@@ -7,18 +7,19 @@ import './EmailUsername';
 import './EmailFormatDate';
 import './EmailContentItemBody';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PriveMessagesEmail", (theme: ThemeType) => ({
   message: {
   },
-});
+}));
 
-const PrivateMessagesEmail = ({conversations, messages, participantsById, classes}: {
+const PrivateMessagesEmail = ({conversations, messages, participantsById}: {
   conversations: Array<DbConversation>,
   messages: Array<DbMessage>,
   participantsById: Record<string,DbUser>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (conversations.length === 1) {
     return <React.Fragment>
       <p>
@@ -69,12 +70,12 @@ const EmailListOfUsers = ({users}: {
 }
 const EmailListOfUsersComponent = registerComponent("EmailListOfUsers", EmailListOfUsers);
 
-const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, classes}: {
+const PrivateMessagesEmailConversation = ({conversation, messages, participantsById}: {
   conversation: ConversationsList|DbConversation,
   messages: Array<DbMessage>,
   participantsById: Partial<Record<string,DbUser>>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { EmailUsername, EmailListOfUsers, EmailFormatDate, EmailContentItemBody } = Components;
   const sitename = siteNameWithArticleSetting.get()
@@ -101,7 +102,7 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
   </React.Fragment>);
 }
 
-const PrivateMessagesEmailConversationComponent = registerComponent("PrivateMessagesEmailConversation", PrivateMessagesEmailConversation, {styles});
+const PrivateMessagesEmailConversationComponent = registerComponent("PrivateMessagesEmailConversation", PrivateMessagesEmailConversation);
 
 declare global {
   interface ComponentTypes {

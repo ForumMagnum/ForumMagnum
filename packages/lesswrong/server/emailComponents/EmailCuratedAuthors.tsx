@@ -1,8 +1,9 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EmailCuratedAuthors", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 15,
@@ -14,17 +15,13 @@ const styles = (theme: ThemeType) => ({
   hr: {
     marginTop: 30,
   }
-});
+}));
 
-const EmailCuratedAuthors = ({
-  user,
-  post,
-  classes,
-}: {
+const EmailCuratedAuthors = ({ user, post }: {
   user: DbUser;
   post: DbPost;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
 
   return (
     <div className={classes.root}>
@@ -55,11 +52,7 @@ const EmailCuratedAuthors = ({
   );
 };
 
-const EmailCuratedAuthorsComponent = registerComponent(
-  "EmailCuratedAuthors",
-  EmailCuratedAuthors,
-  { styles }
-);
+const EmailCuratedAuthorsComponent = registerComponent("EmailCuratedAuthors", EmailCuratedAuthors);
 
 declare global {
   interface ComponentTypes {

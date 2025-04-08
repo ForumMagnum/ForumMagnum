@@ -6,6 +6,7 @@ import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collec
 import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
 import { LocationContext, NavigationContext } from '@/lib/vulcan-core/appContext';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -67,7 +68,7 @@ const getTruncatedHtml = (html: string) => {
   }
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
   heading: {
     textAlign: "center",
     color: theme.palette.primary.main,
@@ -104,19 +105,18 @@ const styles = (theme: ThemeType) => ({
     marginTop: 30,
     marginBottom: 30,
   },
-});
+}));
 
 function PostsEmailInner({
   postIds,
   reason,
   hideRecommendations,
-  classes,
 }: {
   postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
-  classes: ClassesType<typeof styles>;
 }) {
+  const classes = useStyles(styles);
   const { results: posts } = useMulti({
     collectionName: "Posts",
     fragmentName: "PostsRevision",
@@ -214,12 +214,12 @@ function PostsEmailInner({
   );
 }
 
-const PostsEmail = ({ postIds, reason, hideRecommendations, classes }: {
+const PostsEmail = ({ postIds, reason, hideRecommendations}: {
   postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   return (
     // Providers are required for useMulti
     <LocationContext.Provider
@@ -256,14 +256,13 @@ const PostsEmail = ({ postIds, reason, hideRecommendations, classes }: {
           postIds={postIds}
           reason={reason}
           hideRecommendations={hideRecommendations}
-          classes={classes}
         />
       </NavigationContext.Provider>
     </LocationContext.Provider>
   );
 };
 
-const PostsEmailComponent = registerComponent("PostsEmail", PostsEmail, { styles });
+const PostsEmailComponent = registerComponent("PostsEmail", PostsEmail);
 
 declare global {
   interface ComponentTypes {

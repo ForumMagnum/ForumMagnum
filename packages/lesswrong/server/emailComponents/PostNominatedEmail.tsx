@@ -15,7 +15,6 @@ import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 const PostNominatedEmail = ({documentId, reason}: {
   documentId: string,
   reason?: string,
-  classes: any,
 }) => {
   const { document: post } = useSingle({
     documentId,

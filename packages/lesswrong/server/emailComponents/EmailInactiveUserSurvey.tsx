@@ -1,7 +1,8 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EmailInactiveUserSurvey", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 15,
@@ -13,15 +14,12 @@ const styles = (theme: ThemeType) => ({
   hr: {
     marginTop: 30,
   }
-});
+}));
 
-const EmailInactiveUserSurvey = ({
-  user,
-  classes,
-}: {
+const EmailInactiveUserSurvey = ({ user }: {
   user: DbUser;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const surveyLink = 'https://docs.google.com/forms/d/e/1FAIpQLSevnR0viER-xSUbcL0AsQpQ8Zn7X5iuvUgMcs3XEqk55SngLw/viewform'
 
   return (
@@ -50,11 +48,7 @@ const EmailInactiveUserSurvey = ({
   );
 };
 
-const EmailInactiveUserSurveyComponent = registerComponent(
-  "EmailInactiveUserSurvey",
-  EmailInactiveUserSurvey,
-  { styles }
-);
+const EmailInactiveUserSurveyComponent = registerComponent("EmailInactiveUserSurvey", EmailInactiveUserSurvey);
 
 declare global {
   interface ComponentTypes {

@@ -7,16 +7,16 @@ import './EmailContentItemBody';
 import './EmailPostDate';
 import { useRecommendations } from '../../components/recommendations/withRecommendations';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EmailFooterRecommendations", (theme: ThemeType) => ({
   recommendedPostsHeader: {
     fontSize: '1rem'
   }
-});
+}));
 
-const EmailFooterRecommendations = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const EmailFooterRecommendations = () => {
+  const classes = useStyles(styles);
   const algorithm: RecommendationsAlgorithm = {
     method: "sample",
     count: 5,
@@ -40,7 +40,7 @@ const EmailFooterRecommendations = ({classes}: {
   </>
 }
 
-const EmailFooterRecommendationsComponent = registerComponent("EmailFooterRecommendations", EmailFooterRecommendations, {styles});
+const EmailFooterRecommendationsComponent = registerComponent("EmailFooterRecommendations", EmailFooterRecommendations);
 
 declare global {
   interface ComponentTypes {
