@@ -117,7 +117,7 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
           </>}
           {reportedUser && <div>
             <Link to={report.link} className={classes.reportedUser}>
-              <strong><UsersName user={reportedUser} /></strong>
+              <strong><UsersName user={reportedUser} simple={true} /></strong>
               <PersonOutlineIcon className={classes.reportedUserIcon}/>
             </Link>
           </div>}
