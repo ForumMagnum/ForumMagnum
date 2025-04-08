@@ -13,14 +13,18 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
 async function newCheck(user: DbUser | null, document: CreateCommentDataInput | null, context: ResolverContext) {
-  if (!user) return false;
-  if (!document || !document.postId) return userCanDo(user, 'comments.new')
+  if (!user || !document) return false;
+  
+  newCommentsEmptyCheck(document);
+  await newCommentsRateLimit(document, user, context);
+
+  if (!document.postId) return userCanDo(user, 'comments.new')
   const post = await context.loaders.Posts.load(document.postId)
   if (!post) return true
 
@@ -43,22 +47,18 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments', {
-  createFunction: async ({ data }: CreateCommentInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateCommentInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Comments', {
+    const callbackProps = await getLegacyCreateCallbackProps('Comments', {
       context,
       data,
       schema,
-      skipValidation,
     });
 
-    data = callbackProps.document;
+    assignUserIdToData(data, currentUser, schema);
 
-    if (!skipValidation) {
-      newCommentsEmptyCheck(callbackProps);
-      await newCommentsRateLimit(callbackProps);
-    }
+    data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
@@ -128,7 +128,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateCommentInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateCommentInput, context) => {
     const { currentUser, Comments } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -138,7 +138,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
     const {
       documentSelector: commentSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Comments', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Comments', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -199,7 +199,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
   },
 });
 
-export const createCommentGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createCommentGqlMutation = makeGqlCreateMutation('Comments', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context)
 });

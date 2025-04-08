@@ -103,7 +103,7 @@ export async function revokeAllAccessTokens() {
     try {
       await oauth2Client.revokeToken(session.refreshToken);
 
-      await updateGoogleServiceAccountSession({ data: { active: false, revoked: true }, selector: { _id: session._id } }, createAnonymousContext(), true);
+      await updateGoogleServiceAccountSession({ data: { active: false, revoked: true }, selector: { _id: session._id } }, createAnonymousContext());
 
       return true;
     } catch (error) {
@@ -125,7 +125,7 @@ export async function updateActiveServiceAccount({email, refreshToken}: {email: 
       active: true,
       revoked: false,
     }
-  }, createAnonymousContext(), true)
+  }, createAnonymousContext())
 
   oAuth2Client = null;
   cacheTimestamp = null;

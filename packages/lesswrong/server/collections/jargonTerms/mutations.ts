@@ -11,7 +11,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -48,15 +48,16 @@ function editCheck(user: DbUser | null, jargonTerm: DbJargonTerm | null, context
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTerms', {
-  createFunction: async ({ data }: CreateJargonTermInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateJargonTermInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('JargonTerms', {
+    const callbackProps = await getLegacyCreateCallbackProps('JargonTerms', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -98,7 +99,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateJargonTermInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateJargonTermInput, context) => {
     const { currentUser, JargonTerms } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -108,7 +109,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
     const {
       documentSelector: jargontermSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('JargonTerms', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('JargonTerms', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -146,7 +147,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
   },
 });
 
-export const createJargonTermGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createJargonTermGqlMutation = makeGqlCreateMutation('JargonTerms', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context)
 });

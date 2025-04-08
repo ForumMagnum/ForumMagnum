@@ -7,7 +7,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -23,15 +23,16 @@ function editCheck(user: DbUser | null, document: DbBan | null) {
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
-  createFunction: async ({ data }: CreateBanInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateBanInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Bans', {
+    const callbackProps = await getLegacyCreateCallbackProps('Bans', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -50,7 +51,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateBanInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateBanInput, context) => {
     const { currentUser, Bans } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -60,7 +61,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
     const {
       documentSelector: banSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Bans', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Bans', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -81,7 +82,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
   },
 });
 
-export const createBanGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createBanGqlMutation = makeGqlCreateMutation('Bans', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Bans', rawResult, context)
 });

@@ -61,11 +61,11 @@ async function rssImport(userId: string, rssURL: string, pages = 100, overwrite 
         const userContext = await computeContextFromUser({ user: lwUser, isSSR: false });
 
         if (!oldPost){
-          void createPost({ data: post }, userContext, true);
+          void createPost({ data: post }, userContext);
         } else {
           if(overwrite) {
             const userContext = await computeContextFromUser({ user: lwUser, isSSR: false });
-            void updatePost({ data: {...post}, selector: { _id: oldPost._id } }, userContext, true)
+            void updatePost({ data: {...post}, selector: { _id: oldPost._id } }, userContext)
           }
           //eslint-disable-next-line no-console
           console.warn("Post already imported: ", oldPost.title);

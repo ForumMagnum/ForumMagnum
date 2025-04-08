@@ -9,7 +9,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -24,15 +24,16 @@ function editCheck(user: DbUser | null, document: DbTagFlag | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags', {
-  createFunction: async ({ data }: CreateTagFlagInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateTagFlagInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('TagFlags', {
+    const callbackProps = await getLegacyCreateCallbackProps('TagFlags', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -74,7 +75,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateTagFlagInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateTagFlagInput, context) => {
     const { currentUser, TagFlags } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -84,7 +85,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
     const {
       documentSelector: tagflagSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('TagFlags', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('TagFlags', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -122,7 +123,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
   },
 });
 
-export const createTagFlagGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createTagFlagGqlMutation = makeGqlCreateMutation('TagFlags', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'TagFlags', rawResult, context)
 });

@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null) {
@@ -18,15 +18,16 @@ function editCheck(user: DbUser | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashArtCoordinates', {
-  createFunction: async ({ data }: CreateSplashArtCoordinateInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateSplashArtCoordinateInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('SplashArtCoordinates', {
+    const callbackProps = await getLegacyCreateCallbackProps('SplashArtCoordinates', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -45,13 +46,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashAr
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateSplashArtCoordinateInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateSplashArtCoordinateInput, context) => {
     const { currentUser, SplashArtCoordinates } = context;
 
     const {
       documentSelector: splashartcoordinateSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('SplashArtCoordinates', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('SplashArtCoordinates', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -68,7 +69,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashAr
   },
 });
 
-export const createSplashArtCoordinateGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createSplashArtCoordinateGqlMutation = makeGqlCreateMutation('SplashArtCoordinates', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SplashArtCoordinates', rawResult, context)
 });

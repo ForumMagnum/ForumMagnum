@@ -343,7 +343,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
               },
               altTerms: term.altTerms ?? [],
             }
-          }, botContext, true)
+          }, botContext)
         ),
         ...jargonTermsToCopy.map((jargonTerm) =>
           createJargonTerm({
@@ -355,7 +355,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
               contents: { originalContents: jargonTerm.contents!.originalContents },
               altTerms: jargonTerm.altTerms,
             }
-          }, botContext, true)
+          }, botContext)
         ),
       ]);
       

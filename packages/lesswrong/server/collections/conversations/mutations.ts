@@ -8,7 +8,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null, document: DbConversation | null) {
@@ -26,15 +26,16 @@ function editCheck(user: DbUser | null, document: DbConversation | null) {
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversations', {
-  createFunction: async ({ data }: CreateConversationInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateConversationInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Conversations', {
+    const callbackProps = await getLegacyCreateCallbackProps('Conversations', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -55,13 +56,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { data: UpdateConversationDataInput | Partial<DbConversation>; selector: SelectorInput }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: UpdateConversationDataInput | Partial<DbConversation>; selector: SelectorInput }, context) => {
     const { currentUser, Conversations } = context;
 
     const {
       documentSelector: conversationSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Conversations', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Conversations', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -86,7 +87,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
   },
 });
 
-export const createConversationGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createConversationGqlMutation = makeGqlCreateMutation('Conversations', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context)
 });

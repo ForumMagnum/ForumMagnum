@@ -94,7 +94,7 @@ export default registerMigration({
           if (newSubscriptions.length > 0) {
             numTotalSubscriptions += newSubscriptions.length;
             await Promise.all(_.map(newSubscriptions, async sub => {
-              await createSubscription({ data: sub }, await computeContextFromUser({ user, isSSR: false }), true);
+              await createSubscription({ data: sub }, await computeContextFromUser({ user, isSSR: false }));
             }));
           }
           

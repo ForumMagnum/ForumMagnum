@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null, document: DbNotification | null) {
@@ -25,15 +25,16 @@ function editCheck(user: DbUser | null, document: DbNotification | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifications', {
-  createFunction: async ({ data }: CreateNotificationInput & { data: { emailed?: boolean | null; waitingForBatch?: boolean | null } }, context: ResolverContext, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateNotificationInput & { data: { emailed?: boolean | null; waitingForBatch?: boolean | null } }, context: ResolverContext) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Notifications', {
+    const callbackProps = await getLegacyCreateCallbackProps('Notifications', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -52,13 +53,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { data: UpdateNotificationDataInput | Partial<DbNotification>, selector: SelectorInput }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: UpdateNotificationDataInput | Partial<DbNotification>, selector: SelectorInput }, context) => {
     const { currentUser, Notifications } = context;
 
     const {
       documentSelector: notificationSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Notifications', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Notifications', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -75,7 +76,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
   },
 });
 
-export const createNotificationGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createNotificationGqlMutation = makeGqlCreateMutation('Notifications', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context)
 });

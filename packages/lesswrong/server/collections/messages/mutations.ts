@@ -8,7 +8,7 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
@@ -30,21 +30,20 @@ async function editCheck(user: DbUser | null, document: DbMessage | null, contex
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages', {
-  createFunction: async ({ data }: CreateMessageInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateMessageInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Messages', {
+    const callbackProps = await getLegacyCreateCallbackProps('Messages', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
-    if (!skipValidation) {
-      checkIfNewMessageIsEmpty(data);
-    }
+    checkIfNewMessageIsEmpty(data);
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
@@ -89,13 +88,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateMessageInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateMessageInput, context) => {
     const { currentUser, Messages } = context;
 
     const {
       documentSelector: messageSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Messages', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Messages', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -127,7 +126,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
   },
 });
 
-export const createMessageGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createMessageGqlMutation = makeGqlCreateMutation('Messages', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Messages', rawResult, context)
 });

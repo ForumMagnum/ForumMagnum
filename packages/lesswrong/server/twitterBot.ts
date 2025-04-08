@@ -111,7 +111,7 @@ export async function runTwitterBot() {
 
     if (tweetId) {
       logger(`Tweet created, id: ${tweetId}`);
-      await createTweet({ data: { postId: post._id, content, tweetId } }, anonymousContext, true);
+      await createTweet({ data: { postId: post._id, content, tweetId } }, anonymousContext);
       return;
     } else {
       logger(`Failed to create tweet for post with id: ${post._id}, trying next post`);

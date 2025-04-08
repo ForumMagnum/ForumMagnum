@@ -14,7 +14,7 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
   if (!account) {
     const newAccount = await createUser({
       data: adminAccountData
-    }, context, true);
+    }, context);
     
     return newAccount;
   }

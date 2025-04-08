@@ -8,7 +8,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -38,15 +38,16 @@ function editCheck(user: DbUser | null, document: DbCollection | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Collections', {
-  createFunction: async ({ data }: CreateCollectionInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateCollectionInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Collections', {
+    const callbackProps = await getLegacyCreateCallbackProps('Collections', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -86,7 +87,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Collecti
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateCollectionInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateCollectionInput, context) => {
     const { currentUser, Collections } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -96,7 +97,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Collecti
     const {
       documentSelector: collectionSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Collections', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Collections', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -132,7 +133,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Collecti
   },
 });
 
-export const createCollectionGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createCollectionGqlMutation = makeGqlCreateMutation('Collections', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Collections', rawResult, context)
 });

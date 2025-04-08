@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -22,15 +22,16 @@ function editCheck(user: DbUser | null, document: DbReviewWinner | null, context
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWinners', {
-  createFunction: async ({ data }: { data: Partial<DbInsertion<DbReviewWinner>> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbInsertion<DbReviewWinner>> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('ReviewWinners', {
+    const callbackProps = await getLegacyCreateCallbackProps('ReviewWinners', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -49,7 +50,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbInsertion<DbReviewWinner>> }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbInsertion<DbReviewWinner>> }, context) => {
     const { currentUser, ReviewWinners } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -59,7 +60,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
     const {
       documentSelector: reviewwinnerSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ReviewWinners', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('ReviewWinners', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 

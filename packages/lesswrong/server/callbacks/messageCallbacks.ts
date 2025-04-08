@@ -76,7 +76,7 @@ export async function addParticipantIfNew({ document, currentUser, context }: Cr
     await updateConversation({
       data: { participantIds: [...conversation.participantIds, currentUser._id] },
       selector: { _id: conversationId }
-    }, createAnonymousContext(), true);
+    }, createAnonymousContext());
   }
 }
 
@@ -89,7 +89,7 @@ export async function updateConversationActivity(message: DbMessage, context: Re
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
     
   const userContext = await computeContextFromUser({ user: user, isSSR: false });
-  await updateConversation({ data: {latestActivity: message.createdAt}, selector: { _id: conversation._id } }, userContext, true);
+  await updateConversation({ data: {latestActivity: message.createdAt}, selector: { _id: conversation._id } }, userContext);
 }
 
 export async function sendMessageNotifications(message: DbMessage, context: ResolverContext) {

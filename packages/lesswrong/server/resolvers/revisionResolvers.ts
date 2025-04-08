@@ -101,7 +101,7 @@ export const revisionResolversGraphQLMutations = {
 
     const createdRevision = await createRevision({
       data: newRevision
-    }, context, true);
+    }, context);
 
     return createdRevision;
   }

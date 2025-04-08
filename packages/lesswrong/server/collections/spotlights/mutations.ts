@@ -7,7 +7,7 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 
@@ -23,15 +23,16 @@ function editCheck(user: DbUser | null, document: DbSpotlight | null, context: R
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotlights', {
-  createFunction: async ({ data }: CreateSpotlightInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateSpotlightInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Spotlights', {
+    const callbackProps = await getLegacyCreateCallbackProps('Spotlights', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -71,13 +72,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateSpotlightInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateSpotlightInput, context) => {
     const { currentUser, Spotlights } = context;
 
     const {
       documentSelector: spotlightSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Spotlights', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Spotlights', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -109,7 +110,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
   },
 });
 
-export const createSpotlightGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createSpotlightGqlMutation = makeGqlCreateMutation('Spotlights', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Spotlights', rawResult, context)
 });

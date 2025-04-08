@@ -7,7 +7,7 @@ import { deleteOldSubscriptions } from "@/server/callbacks/subscriptionCallbacks
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import { clone } from "underscore";
 
@@ -18,15 +18,16 @@ function newCheck(user: DbUser | null, document: CreateSubscriptionDataInput | n
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Subscriptions', {
-  createFunction: async ({ data }: CreateSubscriptionInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateSubscriptionInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Subscriptions', {
+    const callbackProps = await getLegacyCreateCallbackProps('Subscriptions', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -47,13 +48,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Subscrip
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbSubscription> }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbSubscription> }, context) => {
     const { currentUser, Subscriptions } = context;
 
     const {
       documentSelector: subscriptionSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Subscriptions', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Subscriptions', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -70,7 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Subscrip
   },
 });
 
-export const createSubscriptionGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createSubscriptionGqlMutation = makeGqlCreateMutation('Subscriptions', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Subscriptions', rawResult, context)
 });

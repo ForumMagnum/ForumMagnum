@@ -3,20 +3,21 @@ import schema from "@/lib/collections/postRelations/newSchema";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('PostRelations', {
-  createFunction: async ({ data }: { data: Partial<DbPostRelation> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbPostRelation> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('PostRelations', {
+    const callbackProps = await getLegacyCreateCallbackProps('PostRelations', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -35,7 +36,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostRela
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbPostRelation> }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbPostRelation> }, context) => {
     const { currentUser, PostRelations } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -45,7 +46,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostRela
     const {
       documentSelector: postrelationSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('PostRelations', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('PostRelations', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 

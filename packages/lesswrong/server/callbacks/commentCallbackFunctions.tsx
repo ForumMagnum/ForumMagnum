@@ -81,7 +81,7 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
       afCommentCount: afComments.length,
     },
     selector: { _id: postId }
-  }, createAnonymousContext(), true)
+  }, createAnonymousContext())
 }
 
 const utils = {
@@ -367,7 +367,7 @@ const utils = {
 
     const conversation = await createConversation({
       data: conversationData,
-    }, lwAccountContext, true);
+    }, lwAccountContext);
 
     const messageData = {
       userId: lwAccount._id,
@@ -383,7 +383,7 @@ const utils = {
 
     await createMessage({
       data: messageData,
-    }, lwAccountContext, true);
+    }, lwAccountContext);
 
     if (!isAnyTest) {
       // eslint-disable-next-line no-console
@@ -501,7 +501,7 @@ const utils = {
           lastCommentedAt: new Date(lastCommentedAt),
         },
         selector: { _id: comment.postId }
-      }, createAnonymousContext(), true)
+      }, createAnonymousContext())
     }
     if (action === 'deleted') {
       void utils.commentsDeleteSendPMAsync(comment, currentUser, context);
@@ -513,18 +513,18 @@ const utils = {
 
 
 /* CREATE VALIDATE */
-export function newCommentsEmptyCheck({document: comment}: CreateCallbackProperties<"Comments">) {
+export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot submit an empty comment");
   }
 }
 
-export async function newCommentsRateLimit({ newDocument: comment, currentUser, context }: CreateCallbackProperties<"Comments">) {
+export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-  await utils.enforceCommentRateLimit({user: currentUser, comment, context});
+  await utils.enforceCommentRateLimit({user: currentUser, comment: newComment, context});
 }
 
 /* CREATE BEFORE */
@@ -572,14 +572,14 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
         title: userShortformPostTitle(currentUser),
         af: currentUser.groups?.includes('alignmentForum'),
       },
-    }, context, true);
+    }, context);
 
     await updateUser({
       data: {
         shortformFeedId: post._id
       },
       selector: { _id: currentUser._id }
-    }, createAnonymousContext(), true)
+    }, createAnonymousContext())
 
     return ({
       ...comment,
@@ -807,7 +807,7 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
             deletedReason: "This comment has been marked as spam by the Akismet spam integration. We've sent the poster a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)."
           },
           selector: { _id: comment._id }
-        }, createAnonymousContext(), true);
+        }, createAnonymousContext());
       }
     } else {
       //eslint-disable-next-line no-console
@@ -907,7 +907,7 @@ export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { 
   if (data?.promoted && !oldDocument.promoted && newDocument.postId) {
     void updatePost({ data: {
             lastCommentPromotedAt: new Date(),
-          }, selector: { _id: newDocument.postId } }, context, true);
+          }, selector: { _id: newDocument.postId } }, context);
     const promotedByUserId = currentUser?._id;
     return { ...data, promotedByUserId };
   }
@@ -1027,7 +1027,7 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context }:
   if (!currentUser) return;
   currentUser.snoozedUntilContentCount && await updateUser({ data: {
         snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
-      }, selector: { _id: currentUser._id } }, createAnonymousContext(), true)
+      }, selector: { _id: currentUser._id } }, createAnonymousContext())
   await triggerReviewIfNeeded(currentUser._id, context)
 }
 

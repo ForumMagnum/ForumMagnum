@@ -3,20 +3,21 @@ import schema from "@/lib/collections/dialogueChecks/newSchema";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('DialogueChecks', {
-  createFunction: async ({ data }: { data: Partial<DbDialogueCheck> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbDialogueCheck> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('DialogueChecks', {
+    const callbackProps = await getLegacyCreateCallbackProps('DialogueChecks', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -35,7 +36,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Dialogue
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { data: Partial<DbDialogueCheck>, selector: SelectorInput }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: Partial<DbDialogueCheck>, selector: SelectorInput }, context) => {
     const { currentUser, DialogueChecks } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -45,7 +46,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Dialogue
     const {
       documentSelector: dialoguecheckSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('DialogueChecks', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('DialogueChecks', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 

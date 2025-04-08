@@ -7,7 +7,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -22,15 +22,16 @@ function editCheck(user: DbUser | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQuestions', {
-  createFunction: async ({ data }: CreateElicitQuestionInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateElicitQuestionInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('ElicitQuestions', {
+    const callbackProps = await getLegacyCreateCallbackProps('ElicitQuestions', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -49,7 +50,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateElicitQuestionInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateElicitQuestionInput, context) => {
     const { currentUser, ElicitQuestions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -59,7 +60,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
     const {
       documentSelector: elicitquestionSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ElicitQuestions', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('ElicitQuestions', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -80,7 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
   },
 });
 
-export const createElicitQuestionGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createElicitQuestionGqlMutation = makeGqlCreateMutation('ElicitQuestions', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context)
 });

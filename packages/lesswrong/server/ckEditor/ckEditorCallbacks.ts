@@ -145,7 +145,7 @@ export const ckEditorCallbacksGraphQLMutations = {
             },
           },
           selector: { _id: post._id }
-        }, context, true);
+        }, context);
       } else {
         // eslint-disable-next-line no-console
         console.log("Not creating a new revision (it already matches the head revision");

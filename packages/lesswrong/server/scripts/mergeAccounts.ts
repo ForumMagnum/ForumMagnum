@@ -189,7 +189,7 @@ const transferOwnership = async ({documentId, targetUserId, collection, fieldNam
   await updateMutator({
     data: { [fieldName]: targetUserId },
     selector: { _id: documentId },
-  }, createAnonymousContext(), true);
+  }, createAnonymousContext());
 }
 
 const transferEditableField = async <N extends TransferableCollectionName>({documentId, sourceUserId, targetUserId, collection, fieldName = "contents"}: {
@@ -205,7 +205,7 @@ const transferEditableField = async <N extends TransferableCollectionName>({docu
     await updateMutator({
       data: { [`${fieldName}.userId`]: targetUserId },
       selector: { _id: documentId },
-    }, createAnonymousContext(), true);
+    }, createAnonymousContext());
   }
   // Update the revisions themselves
   await Revisions.rawUpdateMany({ documentId, userId: sourceUserId, fieldName }, {$set: {userId: targetUserId}}, { multi: true })
@@ -247,8 +247,8 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
       if (!dryRun) {
 
         // if we don't remove the profile from the old account, we'll get a duplicate key error
-        await updateUser({ data: { [`services.${profilePath}`]: null }, selector: { _id: sourceUser._id } }, createAnonymousContext(), true)
-        await updateUser({ data: {[`services.${profilePath}`]: sourceProfile}, selector: { _id: targetUser._id } }, createAnonymousContext(), true)
+        await updateUser({ data: { [`services.${profilePath}`]: null }, selector: { _id: sourceUser._id } }, createAnonymousContext())
+        await updateUser({ data: {[`services.${profilePath}`]: sourceProfile}, selector: { _id: targetUser._id } }, createAnonymousContext())
       } 
     } else {
       // eslint-disable-next-line no-console
@@ -414,7 +414,7 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
           // af karma is a lot more complicated
           afKarma: (sourceUser.afKarma) + (targetUser.afKarma)
         }, selector: { _id: targetUserId }
-      }, createAnonymousContext(), true)
+      }, createAnonymousContext())
     }    
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -449,7 +449,7 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
       // eslint-disable-next-line no-console
       console.log("Changing slugs of target account", sourceUser.slug, newOldSlugs)
       
-      await updateUser({ data: {oldSlugs: filterNonnull(newOldSlugs)}, selector: { _id: targetUserId } }, createAnonymousContext(), true)
+      await updateUser({ data: {oldSlugs: filterNonnull(newOldSlugs)}, selector: { _id: targetUserId } }, createAnonymousContext())
     }
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -522,7 +522,7 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
           deleted: true,
           'services.resume': null
       } as UpdateUserDataInput, selector: { _id: sourceUserId }
-    }, createAnonymousContext(), true)
+    }, createAnonymousContext())
   }
 }
 

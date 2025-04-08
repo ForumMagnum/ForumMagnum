@@ -7,7 +7,7 @@ import { taggedPostNewNotifications, validateTagRelCreate, voteForTagWhenCreated
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null, tag: CreateTagRelDataInput | null) {
@@ -19,15 +19,16 @@ function editCheck(user: DbUser | null, tag: DbTagRel | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels', {
-  createFunction: async ({ data }: CreateTagRelInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateTagRelInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('TagRels', {
+    const callbackProps = await getLegacyCreateCallbackProps('TagRels', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -52,13 +53,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateTagRelInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateTagRelInput, context) => {
     const { currentUser, TagRels } = context;
 
     const {
       documentSelector: tagrelSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('TagRels', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('TagRels', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -75,7 +76,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
   },
 });
 
-export const createTagRelGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createTagRelGqlMutation = makeGqlCreateMutation('TagRels', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'TagRels', rawResult, context)
 });

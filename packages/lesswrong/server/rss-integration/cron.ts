@@ -47,7 +47,7 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
   var set: any = {};
   set.rawFeed = currentPosts;
 
-  await updateRSSFeed({ data: { ...set }, selector: { _id: feed._id } }, createAnonymousContext(), true)
+  await updateRSSFeed({ data: { ...set }, selector: { _id: feed._id } }, createAnonymousContext())
 
   await asyncForeachSequential(newPosts, async newPost => {
     const body = getRssPostContents(newPost);
@@ -74,7 +74,7 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
 
     await createPost({
       data: post
-    }, lwContext, true);
+    }, lwContext);
   })
 }
 

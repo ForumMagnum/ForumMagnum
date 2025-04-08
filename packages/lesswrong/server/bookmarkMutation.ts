@@ -22,11 +22,10 @@ export const bookmarkGqlMutations = {
       : _.reject(oldBookmarksList, bookmark=>bookmark.postId===postId)
     );
     
-    await updateUser(
-      { data: { bookmarkedPostsMetadata: newBookmarksList }, selector: { _id: currentUser._id } },
-      context,
-      true
-    );
+    await updateUser({
+      data: { bookmarkedPostsMetadata: newBookmarksList },
+      selector: { _id: currentUser._id }
+    }, context);
     
     const updatedUser = await Users.findOne(currentUser._id)!;
     return (await accessFilterSingle(currentUser, 'Users', updatedUser, context))!;

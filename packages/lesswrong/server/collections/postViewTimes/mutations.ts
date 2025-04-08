@@ -7,7 +7,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -24,15 +24,16 @@ function editCheck(user: DbUser | null, document: DbPostViewTime | null, context
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('PostViewTimes', {
-  createFunction: async ({ data }: CreatePostViewTimeInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreatePostViewTimeInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('PostViewTimes', {
+    const callbackProps = await getLegacyCreateCallbackProps('PostViewTimes', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -51,7 +52,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostView
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdatePostViewTimeInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdatePostViewTimeInput, context) => {
     const { currentUser, PostViewTimes } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -61,7 +62,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostView
     const {
       documentSelector: postviewtimeSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('PostViewTimes', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('PostViewTimes', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -82,7 +83,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostView
   },
 });
 
-export const createPostViewTimeGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createPostViewTimeGqlMutation = makeGqlCreateMutation('PostViewTimes', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostViewTimes', rawResult, context)
 });

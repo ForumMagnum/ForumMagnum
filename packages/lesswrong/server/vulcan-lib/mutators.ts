@@ -59,8 +59,6 @@ interface CheckCreatePermissionsAndReturnArgumentsProps<N extends CollectionName
   context: ResolverContext;
   data: D;
   schema: S,
-  /** You probably shouldn't default to using this just because. */
-  skipValidation?: boolean,
 }
 
 interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends NewSchemaType<N>, D = UpdateInputsByCollectionName[N]['data']> {
@@ -68,8 +66,6 @@ interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionName
   context: ResolverContext;
   data: D;
   schema: S,
-  /** You probably shouldn't default to using this just because. */
-  skipValidation?: boolean,
 }
 
 /**
@@ -78,9 +74,9 @@ interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionName
  * a new collection with default mutations, just pass in whatever
  * arguments you need to functions you have before/after the db update.
  */
-export async function checkCreatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = CreateInputsByCollectionName[T]['data']>(
+export async function getLegacyCreateCallbackProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = CreateInputsByCollectionName[T]['data']>(
   collectionName: T,
-  { context, data, schema, skipValidation }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
+  { context, data, schema }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser } = context;
   const collection = context[collectionName] as CollectionBase<T>;
@@ -94,17 +90,14 @@ export async function checkCreatePermissionsAndReturnProps<const T extends Colle
     schema,
   };
 
-  if (!skipValidation) {
-    const validationErrors = validateDocument(data, collection, context);
-    if (validationErrors.length) {
-      throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
-    }
-  }
-
-  // assign userId
-  assignUserIdToData(data, currentUser, schema);
-
   return callbackProps;
+}
+
+export function getPreviewDocument<N extends CollectionNameString, D extends {} = UpdateInputsByCollectionName[N]['data']>(data: D, oldDocument: ObjectsByCollectionName[N]): ObjectsByCollectionName[N] {
+  return pickBy({
+    ...oldDocument,
+    ...data,
+  }, (value) => value !== null) as ObjectsByCollectionName[N];
 }
 
 /**
@@ -113,9 +106,9 @@ export async function checkCreatePermissionsAndReturnProps<const T extends Colle
  * a new collection with default mutations, just pass in whatever
  * arguments you need to functions you have before/after the db update.
  */
-export async function checkUpdatePermissionsAndReturnProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = UpdateInputsByCollectionName[T]['data']>(
+export async function getLegacyUpdateCallbackProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = UpdateInputsByCollectionName[T]['data']>(
   collectionName: T,
-  { selector, context, data, schema, skipValidation }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
+  { selector, context, data, schema }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser, loaders } = context;
   const collection = context[collectionName] as CollectionBase<T>;
@@ -132,18 +125,7 @@ export async function checkUpdatePermissionsAndReturnProps<const T extends Colle
     throwError({ id: 'app.document_not_found', data: { documentId: documentSelector._id } });
   }
 
-  let previewDocument: ObjectsByCollectionName[T] = { ...oldDocument, ...data };
-  // FIXME: Filtering out null-valued fields here is a very sketchy, probably
-  // wrong thing to do. This originates from Vulcan, and it's not clear why it's
-  // doing it. Explicit cast to make it type-check anyways.
-  previewDocument = pickBy(previewDocument, f => f !== null) as any;
-
-  if (!skipValidation) {
-    const validationErrors = validateData(data, previewDocument, collection, context);
-    if (validationErrors.length) {
-      throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
-    }
-  }
+  const previewDocument = getPreviewDocument(data, oldDocument);
 
   const updateCallbackProperties: UpdateCallbackProperties<T> = {
     data,
@@ -162,7 +144,7 @@ export async function checkUpdatePermissionsAndReturnProps<const T extends Colle
   };
 }
 
-function assignUserIdToData(data: unknown, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString>) {
+export function assignUserIdToData(data: unknown, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString>) {
   // You know, it occurs to me that this seems to allow users to insert arbitrary userIds
   // for documents they're creating if they have a userId field and canCreate: member.
   if (currentUser && schema.userId && !(data as HasUserIdType).userId) {

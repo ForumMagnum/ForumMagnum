@@ -113,7 +113,7 @@ export const elicitPredictionsGraphQLMutations = {
         sourceUrl: "",
         sourceId: "",
       },
-    }, userContext, true));
+    }, userContext));
 
     // Delete any predictions by this user other than this one
     await ElicitQuestionPredictions.rawUpdateMany({

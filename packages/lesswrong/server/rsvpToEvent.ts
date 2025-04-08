@@ -57,7 +57,7 @@ export const rsvpToEventsMutations = {
         rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0)
       },
       selector: { _id: postId }
-    }, createAnonymousContext(), true);
+    }, createAnonymousContext());
 
     await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id, context})
     return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
@@ -82,7 +82,7 @@ async CancelRSVPToEvent(root: void, {postId, name, userId}: {postId: string, nam
         rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0)
       },
       selector: { _id: postId }
-    }, createAnonymousContext(), true);
+    }, createAnonymousContext());
 
     await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id, context})
     return accessFilterSingle(currentUser, 'Posts', updatedPost, context);

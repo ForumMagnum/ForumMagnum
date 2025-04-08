@@ -116,7 +116,7 @@ export const metaToCommunityPosts = registerMigration({
           // Oh man, I refactored this migration to use this method, and it
           // changed my life. 10/10 would use again in future migrations.
           // bulkwrite is faster, but callbacks are often important
-          await createTagRel({ data: { tagId: communityTagId, postId: post._id, userId: post.reviewedByUserId || defaultAdminUserId }}, createAnonymousContext(), true);
+          await createTagRel({ data: { tagId: communityTagId, postId: post._id, userId: post.reviewedByUserId || defaultAdminUserId }}, createAnonymousContext());
         }
       }
     })

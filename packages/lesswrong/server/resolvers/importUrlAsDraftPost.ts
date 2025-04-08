@@ -86,7 +86,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       hasCoauthorPermission: true,
       draft: true,
     }
-  }, context, true);
+  }, context);
 
   if (!post) {
     throw new Error('Failed to create post');

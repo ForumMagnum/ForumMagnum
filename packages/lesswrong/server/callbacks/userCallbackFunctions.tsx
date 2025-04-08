@@ -85,7 +85,7 @@ async function sendWelcomeMessageTo(userId: string) {
   }
 
   const adminAccountContext = await computeContextFromUser({ user: adminsAccount, req: context.req, res: context.res, isSSR: context.isSSR });
-  const conversation = await createConversation({ data: conversationData }, adminAccountContext, true);
+  const conversation = await createConversation({ data: conversationData }, adminAccountContext);
   
   const messageDocument = {
     userId: adminsAccount._id,
@@ -99,7 +99,7 @@ async function sendWelcomeMessageTo(userId: string) {
     noEmail: true,
   };
 
-  await createMessage({ data: messageDocument }, adminAccountContext, true);
+  await createMessage({ data: messageDocument }, adminAccountContext);
   
   // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
   // so we're not sending the email notification for this welcome PM
@@ -179,7 +179,7 @@ const utils = {
         displayName: "AI Alignment Forum",
         email: "aialignmentforum@lesswrong.com",
       }
-      const response = await createUser({ data: userData }, context, true);
+      const response = await createUser({ data: userData }, context);
       account = response
     }
     return account;
@@ -389,7 +389,7 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
       void updatePost({
         data: {title: userShortformPostTitle(newDocument)},
         selector: { _id: data.shortformFeedId }
-      }, createAnonymousContext(), true);
+      }, createAnonymousContext());
     }
   }
   return data;
@@ -530,7 +530,7 @@ export async function approveUnreviewedSubmissions(newUser: DbUser, oldUser: DbU
           postedAt: new Date(),
         },
         selector: { _id: post._id }
-      }, context, true);
+      }, context);
     }
     
     // For each comment by this author which has the authorIsUnreviewed flag set, clear the authorIsUnreviewed flag.
@@ -541,7 +541,7 @@ export async function approveUnreviewedSubmissions(newUser: DbUser, oldUser: DbU
       await updateComment({
         data: { authorIsUnreviewed: false },
         selector: { _id: comment._id }
-      }, context, true);
+      }, context);
     }
   }
 }
@@ -570,7 +570,7 @@ export async function handleSetShortformPost(newUser: DbUser, oldUser: DbUser, c
     // So, don't bother checking for an old post in the shortformFeedId field.
     
     // Mark the post as shortform
-    await updatePost({ data: { shortform: true }, selector: { _id: post._id } }, createAnonymousContext(), true);
+    await updatePost({ data: { shortform: true }, selector: { _id: post._id } }, createAnonymousContext());
   }
 }
 
@@ -592,7 +592,7 @@ export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldU
   // we don't want this action to count toward their one username change
   const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset
   if (user.displayName !== oldUser.displayName && !isSettingUsername) {
-    await updateUser({ data: {previousDisplayName: oldUser.displayName}, selector: { _id: user._id } }, context, true);
+    await updateUser({ data: {previousDisplayName: oldUser.displayName}, selector: { _id: user._id } }, context);
   }
 }
 
@@ -620,7 +620,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
     }
 
     const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
-    const conversation = await createConversation({ data: conversationData }, lwAccountContext, true);
+    const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
     let firstMessageContent =
         `<div>
@@ -644,7 +644,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       conversationId: conversation._id
     };
 
-    void createMessage({ data: firstMessageData }, lwAccountContext, true);
+    void createMessage({ data: firstMessageData }, lwAccountContext);
   }
 }
 
@@ -654,7 +654,7 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
     if (newUser.shortformFeedId) {
       await updatePost({ data: {
                   af: true
-                }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext(), true)
+                }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext())
     }
   }
 }

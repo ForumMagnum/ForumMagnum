@@ -278,7 +278,7 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
           arbitalPageId: summary.pageId,
         },
       } as CreateMultiDocumentDataInput
-    }, resolverContext, true));
+    }, resolverContext));
 
     await Promise.all([
       backDateObj(MultiDocuments, summaryObj._id, liveRevision.createdAt),
@@ -790,7 +790,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
               ...(lwWikiPage ? {mergedLWTagId: lwWikiPage._id} : {}),
             },
           } as CreateTagDataInput, // cast needed tolet through `oldSlugs`, and so we also disable validation
-        }, resolverContext, true));
+        }, resolverContext));
         // Back-date it to when it was created on Arbital
         await Promise.all([
           backDateObj(Tags, wiki._id, pageInfo.createdAt),
@@ -905,7 +905,7 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             legacyData: {
             },
           } as CreateMultiDocumentDataInput
-        }, resolverContext, true));
+        }, resolverContext));
 
         // Backdate the lens and the automatically-created revision to the
         // timestamp of the earliest revision on the LW wiki page, minus one second (to avoid potential ordering issues with the copied-over revisions)
@@ -1032,7 +1032,7 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
           arbitalMarkdown: livePublicRev.text,
         },
       }
-    }, resolverContext, true));
+    }, resolverContext));
     lwCommentsById[commentId] = lwComment;
     commentIdsToReindexInElastic.push(lwComment._id);
 
@@ -1104,7 +1104,7 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
         isPlaceholderPage: true,
         wikiOnly: true,
       } as CreateTagDataInput, // cast needed tolet through `isPlaceholderPage`, and so we also disable validation
-    }, userContext, true);
+    }, userContext);
   }), conversionContext.options.parallelism ??1);
 }
 
@@ -1315,7 +1315,7 @@ async function importRevisions<N extends CollectionNameString>({
           "arbitalMarkdown": arbRevision.text,
         },
       }
-    }, userContext, true));
+    }, userContext));
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
   }
   
@@ -1339,11 +1339,11 @@ async function importRevisions<N extends CollectionNameString>({
   if (collection.collectionName === "Tags") {
     modifiedObj = await updateTag({
       data, selector,
-    }, resolverContext, true);
+    }, resolverContext);
   } else {
     modifiedObj = await updateMultiDocument({
       data, selector
-    }, resolverContext, true);
+    }, resolverContext);
   }
 
   if (collection.collectionName === "Tags") {
@@ -1622,7 +1622,7 @@ export const createImportAccounts = async (csvFilename: string) => {
               arbitalUserId,
             },
           }
-        }, userContext, true));
+        }, userContext));
         usersCreatedCount++;
         rewrittenCsvRows.push([
           arbitalUserId, arbitalEmail, arbitalName,
@@ -1862,7 +1862,7 @@ async function importPagePairs(
     for (let i = 0; i < arbitalTagContentRels.length; i += chunkSize) {
       const chunk = arbitalTagContentRels.slice(i, i + chunkSize);
       await Promise.all(chunk.map(rel => 
-        createArbitalTagContentRel({ data: rel }, resolverContext, true)
+        createArbitalTagContentRel({ data: rel }, resolverContext)
       ));
       console.log(`Imported chunk ${Math.floor(i/chunkSize) + 1}/${Math.ceil(arbitalTagContentRels.length/chunkSize)}`);
     }
@@ -2200,7 +2200,7 @@ async function importSingleLens({conversionContext, lens, parentTagId, resolverC
           arbitalLensId: lens.lensId,
         },
       } as CreateMultiDocumentDataInput
-    }, resolverContext, true));
+    }, resolverContext));
     await Promise.all([
       backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
       backDateAndAddLegacyDataToRevision(lensObj.contents_latest!, lensFirstRevision.createdAt, {

@@ -8,7 +8,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -19,15 +19,16 @@ function editCheck(user: DbUser | null) {
 // This has mutators because of a few mutable metadata fields (eg
 // skipAttributions), but most parts of revisions are create-only immutable.
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Revisions', {
-  createFunction: async ({ data }: { data: Partial<DbInsertion<DbRevision>> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbInsertion<DbRevision>> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Revisions', {
+    const callbackProps = await getLegacyCreateCallbackProps('Revisions', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -56,7 +57,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
 
     return documentWithId;
   },
-  updateFunction: async ({ selector, data }: UpdateRevisionInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateRevisionInput, context) => {
     const { currentUser, Revisions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -66,7 +67,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
     const {
       documentSelector: revisionSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Revisions', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Revisions', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -95,7 +96,6 @@ export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', upda
 });
 
 export { createFunction as createRevision, updateFunction as updateRevision };
-export { wrappedUpdateFunction as updateRevisionMutation };
 
 
 export const graphqlRevisionTypeDefs = gql`

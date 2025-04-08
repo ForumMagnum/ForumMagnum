@@ -313,7 +313,7 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
       },
       intercom: false,
     }
-  }, createAnonymousContext(), true)
+  }, createAnonymousContext())
 }
 
 // Returns a string explanation of why we can't send emails to a given user, or

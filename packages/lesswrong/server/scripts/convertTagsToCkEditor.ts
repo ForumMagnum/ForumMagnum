@@ -41,6 +41,6 @@ async function convertTagToCkEditor(tag: DbTag, conversionUser: DbUser) {
           commitMessage: "Convert editor type to CkEditor",
         },
       }, selector: { _id: tag._id }
-    }, userContext, true);
+    }, userContext);
   }
 }

@@ -206,7 +206,7 @@ export const createNotification = async ({
         emailed: false,
         waitingForBatch: onsite.batchingFrequency !== "realtime",
       }
-    }, context, true);
+    }, context);
 
     if (onsite.batchingFrequency !== "realtime") {
       await notificationDebouncers[notificationType]!.recordEvent({
@@ -224,7 +224,7 @@ export const createNotification = async ({
         emailed: true,
         waitingForBatch: true,
       }
-    }, context, true);
+    }, context);
 
     if (!notificationDebouncers[notificationType])
       throw new Error(`Invalid notification type: ${notificationType}`);

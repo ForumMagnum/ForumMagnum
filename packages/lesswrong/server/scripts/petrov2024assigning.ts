@@ -195,7 +195,7 @@ export const assignPetrov2024Roles = async () => {
             role: characterInfo[i].role,
           }
         }
-      }, userContext, true), 
+      }, userContext), 
       createPetrovDayAction({
         data: {
           userId: user._id,
@@ -204,7 +204,7 @@ export const assignPetrov2024Roles = async () => {
             side: characterInfo[i].side,
           }
         }
-      }, userContext, true)
+      }, userContext)
     ];
   })])
 
@@ -241,7 +241,7 @@ export const assignPetrov2024Roles = async () => {
         side: "east",
       }
     }
-  }, adminContext, true)))
+  }, adminContext)))
 
   await Promise.all(firstHalfOfCitizens.map((citizen, i) => createPetrovDayAction({
     data: {
@@ -251,7 +251,7 @@ export const assignPetrov2024Roles = async () => {
         role: "citizen",
       }
     }
-  }, adminContext, true)))
+  }, adminContext)))
   
   await Promise.all(secondHalfOfCitizens.map((citizen, i) => createPetrovDayAction({
     data: {
@@ -261,7 +261,7 @@ export const assignPetrov2024Roles = async () => {
         side: "west",
       }
     }
-  }, adminContext, true)))
+  }, adminContext)))
 
   await Promise.all(secondHalfOfCitizens.map((citizen, i) => createPetrovDayAction({
     data: {
@@ -271,7 +271,7 @@ export const assignPetrov2024Roles = async () => {
         role: "citizen",
       }
     }
-  }, adminContext, true)))
+  }, adminContext)))
 
   await Promise.all(userIdsOfEastLeaders.map((userId, i) => createPetrovDayAction({
     data: {
@@ -281,7 +281,7 @@ export const assignPetrov2024Roles = async () => {
         side: "east",
       }
     }
-  }, adminContext, true)))
+  }, adminContext)))
 
   await Promise.all(userIdsOfWestLeaders.map((userId, i) => createPetrovDayAction({
     data: {
@@ -291,7 +291,7 @@ export const assignPetrov2024Roles = async () => {
         side: "west",
       }
     }
-  }, adminContext, true)))
+  }, adminContext)))
 
   // const westGenerals = usersWithInfo.filter((user, i) => users[i].role === "westGeneral")
   // const eastGenerals = usersWithInfo.filter((user, i) => users[i].role === "eastGeneral")

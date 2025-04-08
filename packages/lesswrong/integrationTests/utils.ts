@@ -203,7 +203,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
   const userContext = await computeContextFromUser({user: user as DbUser, isSSR: false});
   const newPost = await createPost({
     data: postData as CreatePostDataInput
-  }, userContext, true);
+  }, userContext);
   return newPost
 }
 
@@ -220,7 +220,7 @@ export const createDummyUser = async (data?: any) => {
   const userData = {...defaultData, ...data};
   const newUser = await createUser({
     data: userData
-  }, createAnonymousContext(), true);
+  }, createAnonymousContext());
   return newUser;
 }
 
@@ -245,7 +245,7 @@ export const createDummyComment = async (user: any, data?: any) => {
   const userContext = await computeContextFromUser({user: user || defaultUser, isSSR: false});
   const newComment = await createComment({
     data: commentData
-  }, userContext, true);
+  }, userContext);
   return newComment
 }
 
@@ -259,7 +259,7 @@ export const createDummyConversation = async (user: any, data?: any) => {
   const userContext = await computeContextFromUser({user, isSSR: false});
   const newConversation = await createConversation({
     data: conversationData
-  }, userContext, true);
+  }, userContext);
   return newConversation
 }
 
@@ -273,7 +273,7 @@ export const createDummyMessage = async (user: any, data?: any) => {
   const userContext = await computeContextFromUser({user, isSSR: false});
   const newMessage = await createMessage({
     data: messageData
-  }, userContext, true);
+  }, userContext);
   return newMessage
 }
 
@@ -286,7 +286,7 @@ export const createDummyLocalgroup = async (data?: any) => {
   const groupData = {...defaultData, ...data};
   const newLocalgroup = await createLocalgroup({
     data: groupData
-  }, createAnonymousContext(), true);
+  }, createAnonymousContext());
   return newLocalgroup
 }
 
@@ -318,7 +318,7 @@ export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
   const userContext = await computeContextFromUser({user, isSSR: false});
   const newVote = await createVote({
     data: voteData
-  }, userContext, true);
+  }, userContext);
   return newVote;
 }
 
@@ -348,7 +348,7 @@ export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
   const userContext = await computeContextFromUser({user, isSSR: false});
   const newTag = await createTag({
     data: tagData
-  }, userContext, true);
+  }, userContext);
   return newTag;
 }
 
@@ -366,7 +366,7 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
   const userContext = await computeContextFromUser({user, isSSR: false});
   const newRevision = await createRevision({
     data: revisionData
-  }, userContext, true);
+  }, userContext);
   return newRevision;
 }
 
@@ -374,7 +374,7 @@ export const createDummyUserRateLimit = async (user: DbUser, data: CreateUserRat
   const userContext = await computeContextFromUser({user, isSSR: false});
   const userRateLimit = await createUserRateLimit({
     data
-  }, userContext, true);
+  }, userContext);
   return userRateLimit;
 }
 

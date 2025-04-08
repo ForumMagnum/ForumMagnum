@@ -8,7 +8,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -21,15 +21,16 @@ function editCheck(user: DbUser | null, document: DbCurationNotice | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('CurationNotices', {
-  createFunction: async ({ data }: CreateCurationNoticeInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateCurationNoticeInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('CurationNotices', {
+    const callbackProps = await getLegacyCreateCallbackProps('CurationNotices', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -69,7 +70,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateCurationNoticeInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateCurationNoticeInput, context) => {
     const { currentUser, CurationNotices } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -79,7 +80,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
     const {
       documentSelector: curationnoticeSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('CurationNotices', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('CurationNotices', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -115,7 +116,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
   },
 });
 
-export const createCurationNoticeGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createCurationNoticeGqlMutation = makeGqlCreateMutation('CurationNotices', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context)
 });

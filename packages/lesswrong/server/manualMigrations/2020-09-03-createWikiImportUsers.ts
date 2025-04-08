@@ -18,7 +18,7 @@ export default registerMigration({
           email: `${username}@example.com`,
           lwWikiImport: true
         } as CreateUserDataInput
-      }, createAnonymousContext(), true);
+      }, createAnonymousContext());
     }
   }
 })

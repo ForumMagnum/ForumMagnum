@@ -15,7 +15,7 @@ export async function createNextDigestOnPublish({newDocument, oldDocument, conte
       num: (newDocument.num ?? 0) + 1,
       startDate: newDocument.endDate ?? new Date()
     }
-  }, context, true);
+  }, context);
 }
 
 export async function backdatePreviousDigest({newDocument, oldDocument, context}: UpdateCallbackProperties<"Digests">) {

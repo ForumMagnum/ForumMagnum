@@ -2,19 +2,20 @@
 import schema from "@/lib/collections/petrovDayLaunchs/newSchema";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('PetrovDayLaunchs', {
-  createFunction: async ({ data }: { data: Partial<DbPetrovDayLaunch> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbPetrovDayLaunch> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('PetrovDayLaunchs', {
+    const callbackProps = await getLegacyCreateCallbackProps('PetrovDayLaunchs', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -33,13 +34,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PetrovDa
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbPetrovDayLaunch> }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbPetrovDayLaunch> }, context) => {
     const { currentUser, PetrovDayLaunchs } = context;
 
     const {
       documentSelector: petrovdaylaunchSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('PetrovDayLaunchs', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('PetrovDayLaunchs', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 

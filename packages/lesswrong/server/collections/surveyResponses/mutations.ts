@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 
@@ -22,15 +22,16 @@ function editCheck(user: DbUser | null, document: DbSurveyResponse | null, conte
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyResponses', {
-  createFunction: async ({ data }: CreateSurveyResponseInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateSurveyResponseInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('SurveyResponses', {
+    const callbackProps = await getLegacyCreateCallbackProps('SurveyResponses', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -49,13 +50,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyRe
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateSurveyResponseInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateSurveyResponseInput, context) => {
     const { currentUser, SurveyResponses } = context;
 
     const {
       documentSelector: surveyresponseSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('SurveyResponses', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('SurveyResponses', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -72,7 +73,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyRe
   },
 });
 
-export const createSurveyResponseGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createSurveyResponseGqlMutation = makeGqlCreateMutation('SurveyResponses', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveyResponses', rawResult, context)
 });

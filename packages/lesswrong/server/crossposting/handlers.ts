@@ -158,7 +158,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
           },
           ...postData,
         },
-      }, { ...context, isFMCrosspostRequest: true }, true);
+      }, { ...context, isFMCrosspostRequest: true });
 
       return {
         status: "posted" as const,

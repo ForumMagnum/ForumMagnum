@@ -299,11 +299,11 @@ const utils = {
         updateDialogueCheck({
           data: { checked: false, hideInRecommendations: false },
           selector: { _id: dialogueCheck._id }
-        }, adminContext, true),
+        }, adminContext),
         updateDialogueMatchPreference({
           data: { deleted: true },
           selector: { _id: matchForm._id }
-        }, adminContext, true)
+        }, adminContext)
       ]);
     }
   },
@@ -369,7 +369,7 @@ const utils = {
 
     const conversation = await createConversation({
       data: conversationData,
-    }, lwAccountContext, true);
+    }, lwAccountContext);
   
     const messageData = {
       userId: lwAccount._id,
@@ -385,7 +385,7 @@ const utils = {
   
     await createMessage({
       data: messageData,
-    }, lwAccountContext, true);
+    }, lwAccountContext);
   
     if (!isAnyTest) {
       // eslint-disable-next-line no-console
@@ -397,11 +397,10 @@ const utils = {
 
 
 /* CREATE VALIDATE */
-export async function postsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: post, currentUser, context }: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
+export async function postsNewRateLimit(post: CreatePostDataInput, currentUser: DbUser, context: ResolverContext): Promise<void> {
   if (!post.draft && !post.isEvent) {
     await utils.enforcePostRateLimit(currentUser!, context);
   }
-  return validationErrors;
 }
 
 /* CREATE BEFORE */
@@ -628,7 +627,7 @@ export function postsNewPostRelation(post: DbPost, { context }: AfterCreateCallb
         sourcePostId: post.originalPostRelationSourceId,
         targetPostId: post._id,
       }
-    }, context, true);
+    }, context);
   }
   return post
 }
@@ -698,12 +697,11 @@ export async function sendUsersSharedOnPostNotifications(post: DbPost) {
 }
 
 /* UPDATE VALIDATE */
-export async function postsUndraftRateLimit(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, currentUser, context }: UpdateCallbackProperties<'Posts'>) {
+export async function postsUndraftRateLimit(oldDocument: DbPost, newDocument: DbPost, currentUser: DbUser, context: ResolverContext) {
   // Only undrafting is rate limited, not other edits
   if (oldDocument.draft && !newDocument.draft && !newDocument.isEvent) {
     await utils.enforcePostRateLimit(currentUser!, context);
   }
-  return validationErrors;
 }
 
 /* UPDATE BEFORE */
@@ -1029,13 +1027,13 @@ export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | '
 
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
-    postNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context, true));
+    postNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context));
 
     // delete tagRel notifications (note this deletes them even if the TagRel itself has `deleted: true`)
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
     await asyncForeachSequential(tagRels, async (tagRel) => {
       const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()
-      tagRelNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context, true));
+      tagRelNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context));
     });
   }
 }

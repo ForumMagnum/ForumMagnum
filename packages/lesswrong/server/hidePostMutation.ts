@@ -37,7 +37,7 @@ export const hidePostGqlMutations = {
     await updateUser({
       data: {hiddenPostsMetadata: newHiddenList},
       selector: { _id: currentUser._id }
-    }, context, true);
+    }, context);
     
     const updatedUser = await Users.findOne(currentUser._id)!;
     return (await accessFilterSingle(currentUser, 'Users', updatedUser, context))!;

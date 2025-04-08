@@ -8,7 +8,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -25,15 +25,16 @@ function editCheck(user: DbUser | null, document: DbElectionCandidate | null, co
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElectionCandidates', {
-  createFunction: async ({ data }: CreateElectionCandidateInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateElectionCandidateInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('ElectionCandidates', {
+    const callbackProps = await getLegacyCreateCallbackProps('ElectionCandidates', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -54,7 +55,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateElectionCandidateInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateElectionCandidateInput, context) => {
     const { currentUser, ElectionCandidates } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -64,7 +65,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
     const {
       documentSelector: electioncandidateSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ElectionCandidates', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('ElectionCandidates', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -85,7 +86,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
   },
 });
 
-export const createElectionCandidateGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createElectionCandidateGqlMutation = makeGqlCreateMutation('ElectionCandidates', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context)
 });

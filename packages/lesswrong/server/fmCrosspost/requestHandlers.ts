@@ -80,7 +80,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
   };
 
   const userContext = await computeContextFromUser({ user, isSSR: false })
-  const post = await createPost({ data: document }, { ...userContext, isFMCrosspostRequest: true }, true);
+  const post = await createPost({ data: document }, { ...userContext, isFMCrosspostRequest: true });
 
   return {
     status: "posted",

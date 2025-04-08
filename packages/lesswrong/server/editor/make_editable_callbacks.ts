@@ -140,7 +140,7 @@ async function createInitialRevision<N extends CollectionNameString>(
       createdAt: editedAt,
     };
 
-    const firstRevision = await createRevision({ data: newRevision }, context, true);
+    const firstRevision = await createRevision({ data: newRevision }, context);
 
     return {
       ...doc,
@@ -229,7 +229,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
       skipAttributions: false,
     };
 
-    const newRevisionDoc = await createRevision({ data: newRevision }, context, true);
+    const newRevisionDoc = await createRevision({ data: newRevision }, context);
     const newRevisionId = newRevisionDoc._id;
 
     return {

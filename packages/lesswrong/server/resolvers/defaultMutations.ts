@@ -33,8 +33,8 @@ export interface CreateFunctionOptions {
   skipAccessFilter?: boolean;
 }
 
-export type CreateFunction<N extends CollectionNameString> = ({ data }: { data: Partial<Record<keyof ObjectsByCollectionName[N], unknown>> }, context: ResolverContext, skipValidation?: boolean) => Promise<ObjectsByCollectionName[N]>;
-export type UpdateFunction<N extends CollectionNameString> = ({ selector, data }: UpdateFunctionArgs<N>, context: ResolverContext, skipValidation?: boolean) => Promise<ObjectsByCollectionName[N]>;
+export type CreateFunction<N extends CollectionNameString> = ({ data }: { data: Partial<Record<keyof ObjectsByCollectionName[N], unknown>> }, context: ResolverContext) => Promise<ObjectsByCollectionName[N]>;
+export type UpdateFunction<N extends CollectionNameString> = ({ selector, data }: UpdateFunctionArgs<N>, context: ResolverContext) => Promise<ObjectsByCollectionName[N]>;
 
 interface DefaultMutationFunctionProps<N extends CollectionNameString> {
   createFunction?: CreateFunction<N>;

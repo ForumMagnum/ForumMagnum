@@ -41,7 +41,7 @@ const syncOAuthUser = async (user: DbUser, profile: Profile): Promise<DbUser> =>
           emails: [{address: profileEmails[0], verified: true}],
         } as UpdateUserDataInput,
         selector: { _id: user._id }
-      }, createAnonymousContext(), true);
+      }, createAnonymousContext());
       return updatedUserResponse;
     }
   }
@@ -81,7 +81,7 @@ export const getOrCreateForumUser = async <P extends Profile>(
         }
         const user = matchingUsers[0];
         if (user) {
-          const userUpdated = await updateUser({ data: {[profilePath]: profile}, selector: { _id: user._id } }, createAnonymousContext(), true);
+          const userUpdated = await updateUser({ data: {[profilePath]: profile}, selector: { _id: user._id } }, createAnonymousContext());
           if (user.banned && new Date(user.banned) > new Date()) {
             return callback(new Error("banned"));
           }
@@ -89,7 +89,7 @@ export const getOrCreateForumUser = async <P extends Profile>(
         }
       }
 
-      const userCreated = await createUser({ data: await getUserDataFromProfile(profile) }, createAnonymousContext(), true);
+      const userCreated = await createUser({ data: await getUserDataFromProfile(profile) }, createAnonymousContext());
       return callback(null, userCreated);
     }
     user = await syncOAuthUser(user, profile)

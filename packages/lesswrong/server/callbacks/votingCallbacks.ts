@@ -271,7 +271,7 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 //
 //     const newTag = await createTag({
 //       data: tagData
-//     }, context, true);
+//     }, context);
 //     
 //     if (!newTag) {
 //       //eslint-disable-next-line no-console

@@ -209,8 +209,8 @@ export const updateSpotlightUrlsAndPostCustomHighlights = async () => {
     const category = reviewWinner?.reviewWinner.category
     const year = reviewWinner?.reviewWinner.reviewYear
 
-    await updateSpotlight({ data: {subtitleUrl: `/bestoflesswrong?year=${year}&category=${category}`}, selector: { _id: spotlight._id } }, context, true)
+    await updateSpotlight({ data: {subtitleUrl: `/bestoflesswrong?year=${year}&category=${category}`}, selector: { _id: spotlight._id } }, context)
 
-    await updatePost({ data: {customHighlight: spotlight.description}, selector: { _id: spotlight.documentId } }, context, true)
+    await updatePost({ data: {customHighlight: spotlight.description}, selector: { _id: spotlight.documentId } }, context)
   }
 }

@@ -58,7 +58,7 @@ export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
 
     const conversation = await createConversation({
       data: conversationData
-    }, adminContext, true);
+    }, adminContext);
 
     const messageContents = `
       <p>There was recently a bug related to new post auto-saving functionality which caused some duplicate posts.  You were one of the users affected by this.</p>
@@ -80,6 +80,6 @@ export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
 
     await createMessage({
       data: messageData
-    }, adminContext, true);
+    }, adminContext);
   }
 };

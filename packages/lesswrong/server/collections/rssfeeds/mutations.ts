@@ -8,7 +8,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { populateRawFeed } from "@/server/rss-integration/callbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -25,15 +25,16 @@ function editCheck(user: DbUser | null, document: DbRSSFeed | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds', {
-  createFunction: async ({ data }: CreateRSSFeedInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateRSSFeedInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('RSSFeeds', {
+    const callbackProps = await getLegacyCreateCallbackProps('RSSFeeds', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -54,7 +55,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateRSSFeedInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateRSSFeedInput, context) => {
     const { currentUser, RSSFeeds } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -64,7 +65,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
     const {
       documentSelector: rssfeedSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('RSSFeeds', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('RSSFeeds', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -85,7 +86,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
   },
 });
 
-export const createRSSFeedGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createRSSFeedGqlMutation = makeGqlCreateMutation('RSSFeeds', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context)
 });

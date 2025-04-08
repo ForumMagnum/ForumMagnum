@@ -11,7 +11,7 @@ export default registerMigration({
     const afUsers = await Users.find({groups: "alignmentForum"}).fetch()
     const afUsersWithShortforms = afUsers.filter(user => !!user.shortformFeedId)
     for (const afUserWithShortforms of afUsersWithShortforms) {
-      await updatePost({ data: { af: true }, selector: { _id: afUserWithShortforms.shortformFeedId! } }, createAnonymousContext(), true);
+      await updatePost({ data: { af: true }, selector: { _id: afUserWithShortforms.shortformFeedId! } }, createAnonymousContext());
     }
   },
 });

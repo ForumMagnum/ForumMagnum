@@ -59,7 +59,7 @@ const pollGatherTownUsers = async () => {
         gatherTownUsers, checkFailed, failureReason
       }
     }
-  }, createAdminContext(), true);
+  }, createAdminContext());
 }
 
 type GatherTownPlayerInfo = any;

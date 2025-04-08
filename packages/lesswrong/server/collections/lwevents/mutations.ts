@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import { sendIntercomEvent, updatePartiallyReadSequences, updateReadStatus } from "./helpers";
 
@@ -21,15 +21,16 @@ function editCheck(user: DbUser | null, document: DbLWEvent | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents', {
-  createFunction: async ({ data }: CreateLWEventInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateLWEventInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('LWEvents', {
+    const callbackProps = await getLegacyCreateCallbackProps('LWEvents', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -60,13 +61,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateLWEventInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateLWEventInput, context) => {
     const { currentUser, LWEvents } = context;
 
     const {
       documentSelector: lweventSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('LWEvents', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('LWEvents', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -83,7 +84,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
   },
 });
 
-export const createLWEventGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createLWEventGqlMutation = makeGqlCreateMutation('LWEvents', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context)
 });

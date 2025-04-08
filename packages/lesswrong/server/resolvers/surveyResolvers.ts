@@ -68,7 +68,7 @@ export const surveyResolversGraphQLMutations = {
       throw new Error("Missing parameters");
     }
 
-    const survey = await updateSurvey({ data: {name}, selector: { _id: surveyId } }, context, true);
+    const survey = await updateSurvey({ data: {name}, selector: { _id: surveyId } }, context);
 
     const questionIds = filterNonnull(questions.map(({_id}) => _id));
     await context.repos.surveys.deleteOrphanedQuestions(surveyId, questionIds);
@@ -76,11 +76,11 @@ export const surveyResolversGraphQLMutations = {
     const questionPromises = questions.map(({_id, question, format}, order) => {
       const data = {surveyId, question, format, order};
       if (_id) {
-        return updateSurveyQuestion({ data: { ...data }, selector: { _id: _id } }, context, true);
+        return updateSurveyQuestion({ data: { ...data }, selector: { _id: _id } }, context);
       } else {
         return createSurveyQuestion({
           data
-        }, context, true);
+        }, context);
       }
     });
     await Promise.all(questionPromises);

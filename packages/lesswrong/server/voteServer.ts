@@ -53,7 +53,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   const { Posts } = context
   // create vote and insert it
   const partialVote = createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId });
-  const vote = await createVoteMutator({ data: partialVote }, context, true);
+  const vote = await createVoteMutator({ data: partialVote }, context);
 
   let newDocument = {
     ...document,
@@ -179,7 +179,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       votedAt: new Date(),
       silenceNotification,
     };
-    await createVoteMutator({ data: unvote }, context, true);
+    await createVoteMutator({ data: unvote }, context);
 
     await onVoteCancel(newDocument, vote, collection, user, context);
   }
@@ -293,7 +293,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
             userId: user._id,
             type: moderatorActionType,
           }
-        }, context, true);
+        }, context);
       }
     }
     

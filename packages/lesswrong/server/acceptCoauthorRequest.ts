@@ -50,7 +50,7 @@ export const acceptCoauthorRequestMutations = {
           postedAt,
         },
         selector: { _id: postId },
-      }, context, true)
+      }, context)
     );
 
     return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);

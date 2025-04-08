@@ -3,20 +3,21 @@ import schema from "@/lib/collections/elicitQuestionPredictions/newSchema";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQuestionPredictions', {
-  createFunction: async ({ data }: { data: Partial<DbElicitQuestionPrediction> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbElicitQuestionPrediction> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('ElicitQuestionPredictions', {
+    const callbackProps = await getLegacyCreateCallbackProps('ElicitQuestionPredictions', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -35,7 +36,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbElicitQuestionPrediction> }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbElicitQuestionPrediction> }, context) => {
     const { currentUser, ElicitQuestionPredictions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -45,7 +46,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
     const {
       documentSelector: elicitquestionpredictionSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ElicitQuestionPredictions', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('ElicitQuestionPredictions', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 

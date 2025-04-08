@@ -244,12 +244,12 @@ const bulkUpdateUsers = async (users: AnyBecauseObsolete, userMap: AnyBecauseObs
 const insertUser = async (user: DbUser) => {
   // console.log("insertUser", user);
   try {
-    await createUser({ data: user }, createAnonymousContext(), true);
+    await createUser({ data: user }, createAnonymousContext());
   } catch(err) {
     if (err.code === 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        await createUser({ data: newUser }, createAnonymousContext(), true);
+        await createUser({ data: newUser }, createAnonymousContext());
       } catch(err) {
         //eslint-disable-next-line no-console
         console.error("User Import failed", err, user);

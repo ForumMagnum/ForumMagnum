@@ -101,7 +101,7 @@ export const emailTokensGraphQLMutations = {
         await updateEmailToken({
           data: { usedAt: new Date() },
           selector: { _id: tokenObj._id }
-        }, context, true);
+        }, context);
         
         return resultProps;
       } catch(e) {
@@ -124,7 +124,7 @@ export const UnsubscribeAllToken = new EmailTokenType({
     await updateUser({
       data: { unsubscribeFromAll: true },
       selector: { _id: user._id }
-    }, createAnonymousContext(), true);
+    }, createAnonymousContext());
     return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get()}.` };
   },
   resultComponentName: "EmailTokenResult",

@@ -55,7 +55,7 @@ export default registerMigration({
           reviewedByUserId: "XtphY3uYHwruKqDyG",
           reviewedAt: new Date()
         };
-        const newUser = await createUser({ data: userDoc }, createAnonymousContext(), true);
+        const newUser = await createUser({ data: userDoc }, createAnonymousContext());
         eventOrganizer = newUser
       }
       // Call the what3words API to get the location
@@ -99,7 +99,7 @@ export default registerMigration({
             'SSC'
           ],
         };
-        const newPost = await createPost({ data: newPostData }, await computeContextFromUser({ user: eventOrganizer, isSSR: false }), true);
+        const newPost = await createPost({ data: newPostData }, await computeContextFromUser({ user: eventOrganizer, isSSR: false }));
         // eslint-disable-next-line no-console
         console.log("Created new ACX Meetup: ", newPost.title)
       } else {

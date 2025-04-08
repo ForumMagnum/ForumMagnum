@@ -30,7 +30,7 @@ const utils = {
 /* TAG CALLBACKS */
 
 /* CREATE VALIDATE */
-export async function validateTagCreate({ document: tag, context }: CreateCallbackProperties<'Tags'>): Promise<void> {
+export async function validateTagCreate(tag: CreateTagDataInput, context: ResolverContext): Promise<boolean> {
   const { Tags } = context;
 
   if (!tag.name || !tag.name.length)
@@ -51,10 +51,12 @@ export async function validateTagCreate({ document: tag, context }: CreateCallba
   const existing = await Tags.find({name: normalizedName, deleted:false}).fetch();
   if (existing.length > 0)
     throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
+
+  return true;
 }
 
 /* UPDATE VALIDATE */
-export async function validateTagUpdate({ oldDocument, newDocument, context }: UpdateCallbackProperties<'Tags'>): Promise<void> {
+export async function validateTagUpdate(oldDocument: DbTag, newDocument: DbTag, context: ResolverContext): Promise<boolean> {
   const { Tags } = context;
 
   if (!utils.isValidTagName(newDocument.name))
@@ -72,6 +74,8 @@ export async function validateTagUpdate({ oldDocument, newDocument, context }: U
       ...newDocument, name: newName
     }
   }
+
+  return true;
 }
 
 /* UPDATE AFTER */
@@ -98,7 +102,7 @@ export async function updateParentTagSubTagIds(newDoc: DbTag, { oldDocument, con
     await updateTag({
       data: {subTagIds: [...(oldParent?.subTagIds || []).filter((id: string) => id !== newDoc._id)]},
       selector: { _id: oldDocument.parentTagId }
-    }, context, true)
+    }, context)
   }
   // Add this tag to the subTagIds of the new parent
   if (newDoc.parentTagId) {
@@ -106,7 +110,7 @@ export async function updateParentTagSubTagIds(newDoc: DbTag, { oldDocument, con
     await updateTag({
       data: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
       selector: { _id: newDoc.parentTagId }
-    }, context, true)
+    }, context)
   }
   return newDoc;
 }

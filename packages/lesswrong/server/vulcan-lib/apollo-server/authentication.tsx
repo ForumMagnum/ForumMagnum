@@ -284,7 +284,7 @@ export const loginDataGraphQLMutations = {
         signUpReCaptchaRating: recaptchaScore,
         abTestKey,
       } as CreateUserDataInput // We need the cast because `services` isn't accepted in the create API.  That also means we need to skip validation.
-    }, context, true);
+    }, context);
 
     const token = await createAndSetToken(req, res, user)
     return { 
@@ -344,7 +344,7 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
     }
   }
   void computeContextFromUser({ user, isSSR: false }).then(userContext => {
-    void createLWEvent({ data: document }, userContext, true);
+    void createLWEvent({ data: document }, userContext);
   });
 }
 

@@ -306,7 +306,7 @@ export default registerMigration({
             curatedOrder: naiveCuratedOrder,
             isAI: naiveIsAI,
           }
-        }, adminContext, true).catch(e => {
+        }, adminContext).catch(e => {
           // eslint-disable-next-line no-console
           console.dir(e);
           throw new Error(`Failed to create ReviewWinner for postId ${reviewWinnerPostId}`)

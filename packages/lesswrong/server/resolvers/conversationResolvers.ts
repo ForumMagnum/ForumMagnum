@@ -3,7 +3,7 @@ import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { adminAccountSetting } from "@/lib/publicSettings";
-import { createConversation, createConversationMutation } from '../collections/conversations/mutations';
+import { createConversation, createConversationGqlMutation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { ACCESS_FILTERED, accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -97,7 +97,7 @@ export const conversationGqlMutations = {
 
     const conversation = await createConversation({
       data: conversationData
-    }, lwContext, true);
+    }, lwContext);
 
     const firstMessageData = {
       userId: lwAccount._id,
@@ -112,7 +112,7 @@ export const conversationGqlMutations = {
 
     void createMessage({
       data: firstMessageData
-    }, lwContext, true);
+    }, lwContext);
 
     return true;
   },
@@ -148,7 +148,7 @@ export const conversationGqlMutations = {
 
     // This matches the previous behavior of the `createIfMissing` implementation, which used
     // the fully put-together "mutation" function including the permission check and acccess filtering.
-    const createdConversationWrapper = await createConversationMutation(_, { data: conversationData }, context);
+    const createdConversationWrapper = await createConversationGqlMutation(_, { data: conversationData }, context);
     return createdConversationWrapper.data;
   }
 }

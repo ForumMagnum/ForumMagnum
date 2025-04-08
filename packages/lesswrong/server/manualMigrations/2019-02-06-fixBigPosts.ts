@@ -32,7 +32,7 @@ export default registerMigration({
             // I don't think htmlBody exists on posts anymore, if it ever did.
             data: { htmlBody: newHtml } as UpdatePostDataInput,
             selector: { _id: doc._id }
-          }, createAnonymousContext(), true);
+          }, createAnonymousContext());
         }
       }
     })  

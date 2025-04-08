@@ -53,7 +53,7 @@ export default registerMigration({
             reviewedByUserId: adminId,
             reviewedAt: new Date()
           };
-          const newUser = await createUser({ data: userDoc }, createAnonymousContext(), true);
+          const newUser = await createUser({ data: userDoc }, createAnonymousContext());
           eventOrganizer = newUser
         } catch (err) {
           // eslint-disable-next-line no-console
@@ -67,7 +67,7 @@ export default registerMigration({
             reviewedAt: new Date()
           };
 
-          const newUser = await createUser({ data: userDoc }, createAnonymousContext(), true);
+          const newUser = await createUser({ data: userDoc }, createAnonymousContext());
 
           eventOrganizer = newUser
         }
@@ -133,7 +133,7 @@ export default registerMigration({
             'SSC'
           ],
         };
-        const newPost = await createPost({ data: newPostData }, await computeContextFromUser({ user: eventOrganizer, isSSR: false }), true);
+        const newPost = await createPost({ data: newPostData }, await computeContextFromUser({ user: eventOrganizer, isSSR: false }));
         // eslint-disable-next-line no-console
         console.log("Created new ACX Meetup: ", newPost.title);
         const googleLocationInfo = newPost.googleLocation?.geometry?.location;

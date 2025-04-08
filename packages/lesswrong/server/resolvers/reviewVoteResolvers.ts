@@ -62,7 +62,7 @@ export const reviewVoteGraphQLMutations = {
       const finalQuadraticScore = (typeof newQuadraticScore !== 'undefined' ) ? newQuadraticScore : (quadraticChange || 0)
       await createReviewVote({
         data: { postId, qualitativeScore, quadraticScore: finalQuadraticScore, comment, year, dummy, reactions }
-      }, context, true);
+      }, context);
       const newPost = await Posts.findOne({_id:postId})
       if (!newPost) throw Error("Can't find post corresponding to Review Vote")
       return newPost
@@ -85,7 +85,7 @@ export const reviewVoteGraphQLMutations = {
           reactions,
           quadraticScore: finalQuadraticScore
         }, selector: { _id: existingVote._id }
-      }, context, true)
+      }, context)
       const newPost = await Posts.findOne({_id:postId})
       if (!newPost) throw Error("Can't find post corresponding to Review Vote")
       return newPost 

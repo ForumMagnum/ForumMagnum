@@ -1,8 +1,8 @@
 import { userCanCreateTags } from "@/lib/betas";
 import { tagUserHasSufficientKarma } from "@/lib/collections/tags/helpers";
 
-export function newCheck(user: DbUser | null, tag: CreateTagDataInput | null) {
-  if (!user) return false;
+export function newCheck(user: DbUser | null, tag: CreateTagDataInput | null): tag is CreateTagDataInput {
+  if (!user || !tag) return false;
   if (user.deleted) return false;
 
   if (!user.isAdmin) {  // skip further checks for admins
@@ -11,7 +11,7 @@ export function newCheck(user: DbUser | null, tag: CreateTagDataInput | null) {
   return userCanCreateTags(user);
 }
 
-export function editCheck(user: DbUser | null, tag: DbTag | null) {
+export function editCheck(user: DbUser | null, tag: DbTag) {
   if (!user) return false;
   if (user.deleted) return false;
 

@@ -8,7 +8,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -25,15 +25,16 @@ function editCheck(user: DbUser | null, document: DbModeratorAction | null, cont
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ModeratorActions', {
-  createFunction: async ({ data }: CreateModeratorActionInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateModeratorActionInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('ModeratorActions', {
+    const callbackProps = await getLegacyCreateCallbackProps('ModeratorActions', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -60,7 +61,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateModeratorActionInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateModeratorActionInput, context) => {
     const { currentUser, ModeratorActions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -70,7 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
     const {
       documentSelector: moderatoractionSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ModeratorActions', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('ModeratorActions', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -91,7 +92,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
   },
 });
 
-export const createModeratorActionGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createModeratorActionGqlMutation = makeGqlCreateMutation('ModeratorActions', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ModeratorActions', rawResult, context)
 });

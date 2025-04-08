@@ -2,6 +2,7 @@ import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
 import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/permissions';
 import * as _ from 'underscore';
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 
 interface SimpleSchemaValidationError {
   type: string;
@@ -28,13 +29,13 @@ export const modifierToData = (modifier: MongoModifier): any => ({
 */
 export const validateDocument = <N extends CollectionNameString, D extends {} = CreateInputsByCollectionName[N]['data']>(
   document: D,
-  collection: CollectionBase<N>,
+  collectionName: N,
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
   const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
 
-  const schema = getSchema(collection.collectionName);
+  const schema = getSchema(collectionName);
 
   let validationErrors: Array<any> = [];
 
@@ -52,7 +53,7 @@ export const validateDocument = <N extends CollectionNameString, D extends {} = 
   });
 
   // 5. run SS validation
-  const validationContext = getSimpleSchema(collection.collectionName).newContext();
+  const validationContext = getSimpleSchema(collectionName).newContext();
   validationContext.validate(document);
 
   if (!validationContext.isValid()) {
@@ -64,12 +65,14 @@ export const validateDocument = <N extends CollectionNameString, D extends {} = 
         const intlError = JSON.parse(error.type.replace('intlError|', ''));
         validationErrors = validationErrors.concat(intlError);
       } else {
+        const typeName = collectionNameToTypeName[collectionName];
+
         validationErrors.push({
           id: `errors.${error.type}`,
           path: error.name,
           properties: {
-            collectionName: collection.collectionName,
-            typeName: collection.typeName,
+            collectionName: collectionName,
+            typeName: typeName,
             ...error,
           },
         });
@@ -88,17 +91,17 @@ export const validateDocument = <N extends CollectionNameString, D extends {} = 
   2. Run SimpleSchema validation step
   
 */
-export const validateModifier = <N extends CollectionNameString>(
+const validateModifier = <N extends CollectionNameString>(
   modifier: MongoModifier,
   document: any,
-  collection: CollectionBase<N>,
+  collectionName: N,
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
 
   const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
 
-  const schema = getSchema(collection.collectionName);
+  const schema = getSchema(collectionName);
   const set = modifier.$set;
   const unset = modifier.$unset;
 
@@ -117,7 +120,7 @@ export const validateModifier = <N extends CollectionNameString>(
   });
 
   // 2. run SS validation
-  const validationContext = getSimpleSchema(collection.collectionName).newContext();
+  const validationContext = getSimpleSchema(collectionName).newContext();
   validationContext.validate({ $set: set, $unset: unset }, { modifier: true });
 
   if (!validationContext.isValid()) {
@@ -128,12 +131,14 @@ export const validateModifier = <N extends CollectionNameString>(
       if (error.type.includes('intlError')) {
         validationErrors = validationErrors.concat(JSON.parse(error.type.replace('intlError|', '')));
       } else {
+        const typeName = collectionNameToTypeName[collectionName];
+
         validationErrors.push({
           id: `errors.${error.type}`,
           path: error.name,
           properties: {
-            collectionName: collection.collectionName,
-            typeName: collection.typeName,
+            collectionName: collectionName,
+            typeName: typeName,
             ...error,
           },
         });
@@ -147,8 +152,8 @@ export const validateModifier = <N extends CollectionNameString>(
 export const validateData = <N extends CollectionNameString>(
   data: CreateInputsByCollectionName[N]['data'],
   document: ObjectsByCollectionName[N] | DbInsertion<ObjectsByCollectionName[N]>,
-  collection: CollectionBase<N>,
+  collectionName: N,
   context: ResolverContext,
 ) => {
-  return validateModifier(dataToModifier(data), document, collection, context);
+  return validateModifier(dataToModifier(data), document, collectionName, context);
 };

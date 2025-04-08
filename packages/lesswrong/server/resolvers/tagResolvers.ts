@@ -511,7 +511,7 @@ export const tagResolversGraphQLMutations = {
       const sourceSubTags = await Tags.find({ parentTagId: sourceTagId }).fetch()
 
       for (const subTag of sourceSubTags) {
-        await updateTag({ data: { parentTagId: targetTagId }, selector: { _id: subTag._id } }, context, true);
+        await updateTag({ data: { parentTagId: targetTagId }, selector: { _id: subTag._id } }, context);
       }
     }
 
@@ -535,7 +535,7 @@ export const tagResolversGraphQLMutations = {
       );
 
       // Soft delete the source tag, making sure to run the callbacks
-      await updateTag({ data: { deleted: true }, selector: { _id: sourceTagId } }, context, true);
+      await updateTag({ data: { deleted: true }, selector: { _id: sourceTagId } }, context);
     }
 
     return true;

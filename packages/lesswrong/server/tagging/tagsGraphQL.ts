@@ -25,7 +25,7 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
   // Check whether this document already has this tag applied
   const existingTagRel = await TagRels.findOne({ tagId, postId, deleted: false });
   if (!existingTagRel) {
-    const tagRel = await createTagRel({ data: { tagId, postId, userId: currentUser._id } }, context, true);
+    const tagRel = await createTagRel({ data: { tagId, postId, userId: currentUser._id } }, context);
     
     // If the tag has a parent which has not been applied to this post, apply it
     if (!ignoreParent && tag?.parentTagId && !await TagRels.findOne({ tagId: tag.parentTagId, postId })) {

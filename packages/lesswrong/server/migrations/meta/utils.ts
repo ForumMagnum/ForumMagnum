@@ -313,7 +313,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
               ...revisionData,
               userId,
             }
-          }, createAnonymousContext(), true);
+          }, createAnonymousContext());
     
           await collection.rawUpdateOne(
             {_id: document._id},

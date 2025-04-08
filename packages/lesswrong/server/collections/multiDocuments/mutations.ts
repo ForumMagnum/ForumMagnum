@@ -11,7 +11,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -38,15 +38,16 @@ export async function editCheck(user: DbUser | null, multiDocument: DbMultiDocum
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDocuments', {
-  createFunction: async ({ data }: CreateMultiDocumentInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateMultiDocumentInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('MultiDocuments', {
+    const callbackProps = await getLegacyCreateCallbackProps('MultiDocuments', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -90,7 +91,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateMultiDocumentInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateMultiDocumentInput, context) => {
     const { currentUser, MultiDocuments } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -100,7 +101,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
     const {
       documentSelector: multidocumentSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('MultiDocuments', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('MultiDocuments', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -140,7 +141,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
   },
 });
 
-export const createMultiDocumentGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createMultiDocumentGqlMutation = makeGqlCreateMutation('MultiDocuments', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context)
 });

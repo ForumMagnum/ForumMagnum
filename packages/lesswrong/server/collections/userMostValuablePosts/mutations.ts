@@ -7,7 +7,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -40,15 +40,16 @@ function editCheck(user: DbUser | null, document: DbUserMostValuablePost | null,
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMostValuablePosts', {
-  createFunction: async ({ data }: CreateUserMostValuablePostInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateUserMostValuablePostInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('UserMostValuablePosts', {
+    const callbackProps = await getLegacyCreateCallbackProps('UserMostValuablePosts', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -67,7 +68,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateUserMostValuablePostInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateUserMostValuablePostInput, context) => {
     const { currentUser, UserMostValuablePosts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -77,7 +78,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
     const {
       documentSelector: usermostvaluablepostSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('UserMostValuablePosts', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('UserMostValuablePosts', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -98,7 +99,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
   },
 });
 
-export const createUserMostValuablePostGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createUserMostValuablePostGqlMutation = makeGqlCreateMutation('UserMostValuablePosts', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserMostValuablePosts', rawResult, context)
 });

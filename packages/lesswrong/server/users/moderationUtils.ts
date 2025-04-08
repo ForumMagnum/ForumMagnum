@@ -48,7 +48,7 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
         ip: ip,
       }
       const userContext = await computeContextFromUser({ user, isSSR: false });
-      await createBan({ data: ban }, userContext, true);
+      await createBan({ data: ban }, userContext);
     })
   }
 
@@ -65,7 +65,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, co
   for (let tag of tags) {
     if (!tag.deleted) {
       try {
-        await updateTag({ data: {deleted: true}, selector: { _id: tag._id } }, context, true)
+        await updateTag({ data: {deleted: true}, selector: { _id: tag._id } }, context)
       } catch(err) {
         // eslint-disable-next-line no-console
         console.error("Failed to delete tag")
@@ -105,7 +105,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);
   for (let post of posts) {
-    await updatePost({ data: {status: postStatuses.STATUS_DELETED}, selector: { _id: post._id } }, context, true)
+    await updatePost({ data: {status: postStatuses.STATUS_DELETED}, selector: { _id: post._id } }, context)
 
     const notifications = await Notifications.find({documentId: post._id}).fetch();
     //eslint-disable-next-line no-console
@@ -118,7 +118,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for post ${post._id}: `, reports);
     for (let report of reports) {
-      await updateReport({ data: {closedAt: new Date()}, selector: { _id: report._id } }, context, true)
+      await updateReport({ data: {closedAt: new Date()}, selector: { _id: report._id } }, context)
     }
     
     await postReportPurgeAsSpam(post, context);
@@ -130,7 +130,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
   for (let comment of comments) {
     if (!comment.deleted) {
       try {
-        await updateComment({ data: {deleted: true, deletedDate: new Date()}, selector: { _id: comment._id } }, context, true)
+        await updateComment({ data: {deleted: true, deletedDate: new Date()}, selector: { _id: comment._id } }, context)
       } catch(err) {
         //eslint-disable-next-line no-console
         console.error("Failed to delete comment")
@@ -150,7 +150,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for comment ${comment._id}: `, reports);
     for (let report of reports) {
-      await updateReport({ data: {closedAt: new Date()}, selector: { _id: report._id } }, context, true)
+      await updateReport({ data: {closedAt: new Date()}, selector: { _id: report._id } }, context)
     }
 
     await commentReportPurgeAsSpam(comment, context);
@@ -160,7 +160,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
   //eslint-disable-next-line no-console
   console.info("Deleting sequences: ", sequences);
   for (let sequence of sequences) {
-    await updateSequence({ data: {isDeleted: true}, selector: { _id: sequence._id } }, context, true)
+    await updateSequence({ data: {isDeleted: true}, selector: { _id: sequence._id } }, context)
   }
   
   if (deleteTags) {

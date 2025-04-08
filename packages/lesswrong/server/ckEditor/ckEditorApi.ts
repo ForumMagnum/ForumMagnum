@@ -160,7 +160,7 @@ const documentHelpers = {
         changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
       };
       
-      await createRevision({ data: newRevision }, context, true);
+      await createRevision({ data: newRevision }, context);
     }
   },
 

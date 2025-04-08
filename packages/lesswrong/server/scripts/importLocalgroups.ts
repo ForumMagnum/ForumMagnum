@@ -60,13 +60,13 @@ export const importLocalgroups = wrapVulcanAsyncScript(
               types: ["LW"], // not used by EA Forum but still required
               organizerIds: ['kPucqpaq7QyPczK5W'] // Group Organizer account
             }
-          }, createAnonymousContext(), true);
+          }, createAnonymousContext());
           //eslint-disable-next-line no-console
           console.log(`${newGroup._id} - ${groupName} added`)
         }
         // replace any existing data with the imported data
         else {
-          void updateLocalgroup({ data: { ...dataToSet }, selector: { _id: data._id } }, createAnonymousContext(), true)
+          void updateLocalgroup({ data: { ...dataToSet }, selector: { _id: data._id } }, createAnonymousContext())
         }
       })
   }

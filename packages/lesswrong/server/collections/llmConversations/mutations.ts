@@ -6,8 +6,8 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -20,13 +20,14 @@ function editCheck(user: DbUser | null, document: DbLlmConversation | null, cont
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConversations', {
-  createFunction: async ({ data }: { data: Partial<DbLlmConversation> }, context, skipValidation?: boolean) => {
-    const callbackProps = await checkCreatePermissionsAndReturnProps('LlmConversations', {
+  createFunction: async ({ data }: { data: Partial<DbLlmConversation> }, context) => {
+    const callbackProps = await getLegacyCreateCallbackProps('LlmConversations', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, context.currentUser, schema);
 
     data = callbackProps.document;
 
@@ -45,7 +46,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConve
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateLlmConversationInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateLlmConversationInput, context) => {
     const { currentUser, LlmConversations } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -55,7 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConve
     const {
       documentSelector: llmconversationSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('LlmConversations', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('LlmConversations', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -83,7 +84,6 @@ export const updateLlmConversationGqlMutation = makeGqlUpdateMutation('LlmConver
 
 
 export { createFunction as createLlmConversation, updateFunction as updateLlmConversation };
-export { wrappedUpdateFunction as updateLlmConversationMutation };
 
 
 export const graphqlLlmConversationTypeDefs = gql`

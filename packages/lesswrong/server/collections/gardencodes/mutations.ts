@@ -9,7 +9,7 @@ import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -42,15 +42,16 @@ function editCheck(user: DbUser | null, document: DbGardenCode | null, context: 
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCodes', {
-  createFunction: async ({ data }: CreateGardenCodeInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateGardenCodeInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('GardenCodes', {
+    const callbackProps = await getLegacyCreateCallbackProps('GardenCodes', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -97,7 +98,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateGardenCodeInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateGardenCodeInput, context) => {
     const { currentUser, GardenCodes } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -107,7 +108,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
     const {
       documentSelector: gardencodeSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('GardenCodes', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('GardenCodes', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -145,7 +146,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCo
   },
 });
 
-export const createGardenCodeGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createGardenCodeGqlMutation = makeGqlCreateMutation('GardenCodes', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context)
 });

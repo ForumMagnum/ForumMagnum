@@ -37,7 +37,7 @@ async function checkAndSendUpcomingEventEmails() {
     await updatePost({
       data: { nextDayReminderSent: true },
       selector: { _id: upcomingEvent._id }
-    }, createAnonymousContext(), true);
+    }, createAnonymousContext());
     
     // skip to the next event if this one has no RSVPs
     if (!upcomingEvent.rsvps) {

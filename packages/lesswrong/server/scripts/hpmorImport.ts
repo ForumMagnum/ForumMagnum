@@ -46,7 +46,7 @@ if (hpmorImport) { void (async ()=>{
       const lwContext = await computeContextFromUser({ user: lwUser, isSSR: false });
       void createPost({
         data: post
-      }, lwContext, true);
+      }, lwContext);
     } else {
       //eslint-disable-next-line no-console
       console.log("Post already imported: ", oldPost);

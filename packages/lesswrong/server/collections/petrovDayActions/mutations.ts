@@ -5,7 +5,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 async function newCheck(user: DbUser | null, document: CreatePetrovDayActionDataInput | null, context: ResolverContext) {
@@ -39,15 +39,16 @@ async function newCheck(user: DbUser | null, document: CreatePetrovDayActionData
 }
 
 const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
-  createFunction: async ({ data }: CreatePetrovDayActionInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreatePetrovDayActionInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('PetrovDayActions', {
+    const callbackProps = await getLegacyCreateCallbackProps('PetrovDayActions', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -67,7 +68,7 @@ const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
   },
 });
 
-export const createPetrovDayActionGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createPetrovDayActionGqlMutation = makeGqlCreateMutation('PetrovDayActions', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PetrovDayActions', rawResult, context)
 });

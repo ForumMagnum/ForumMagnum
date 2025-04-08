@@ -157,7 +157,7 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
         modGPTRecommendation: rec
       },
       selector: { _id: comment._id }
-    }, context, true)
+    }, context)
     captureEvent("modGPTResponse", {
       ...analyticsData,
       comment: commentText,
@@ -231,7 +231,7 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
         error: error.message
       })
       // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
-      await updateComment({ data: { modGPTAnalysis: null, modGPTRecommendation: null }, selector: { _id: comment._id } }, context, true)
+      await updateComment({ data: { modGPTAnalysis: null, modGPTRecommendation: null }, selector: { _id: comment._id } }, context)
     } else {
       //eslint-disable-next-line no-console
       console.error(error)

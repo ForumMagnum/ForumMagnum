@@ -6,7 +6,7 @@ import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenc
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null, document: DbGoogleServiceAccountSession | null) {
@@ -20,15 +20,16 @@ function editCheck(user: DbUser | null, document: DbGoogleServiceAccountSession 
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleServiceAccountSessions', {
-  createFunction: async ({ data }: CreateGoogleServiceAccountSessionInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateGoogleServiceAccountSessionInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('GoogleServiceAccountSessions', {
+    const callbackProps = await getLegacyCreateCallbackProps('GoogleServiceAccountSessions', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -47,13 +48,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleSe
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateGoogleServiceAccountSessionInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateGoogleServiceAccountSessionInput, context) => {
     const { currentUser, GoogleServiceAccountSessions } = context;
 
     const {
       documentSelector: googleserviceaccountsessionSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('GoogleServiceAccountSessions', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('GoogleServiceAccountSessions', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -70,7 +71,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleSe
   },
 });
 
-export const createGoogleServiceAccountSessionGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createGoogleServiceAccountSessionGqlMutation = makeGqlCreateMutation('GoogleServiceAccountSessions', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GoogleServiceAccountSessions', rawResult, context)
 });

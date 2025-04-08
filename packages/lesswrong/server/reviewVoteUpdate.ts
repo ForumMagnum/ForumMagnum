@@ -356,7 +356,7 @@ const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWin
       reviewRanking: idx,
       category,
     },
-  }, adminContext, true);
+  }, adminContext);
 }
 
 // This is for manually checking what the default assignments for post categories are, 

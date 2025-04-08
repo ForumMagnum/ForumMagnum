@@ -63,7 +63,7 @@ export const graphqlMutations = {
       const updatedComment = await updateComment({
         data: set,
         selector: { _id: commentId },
-      }, context, true);
+      }, context);
       return await accessFilterSingle(context.currentUser, 'Comments', updatedComment, context);
     } else {
       throw new Error(encodeIntlError({id: `app.user_cannot_moderate_post`}));

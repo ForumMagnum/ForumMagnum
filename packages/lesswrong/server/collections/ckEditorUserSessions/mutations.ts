@@ -3,20 +3,21 @@ import schema from "@/lib/collections/ckEditorUserSessions/newSchema";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('CkEditorUserSessions', {
-  createFunction: async ({ data }: { data: Partial<DbCkEditorUserSession> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbCkEditorUserSession> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('CkEditorUserSessions', {
+    const callbackProps = await getLegacyCreateCallbackProps('CkEditorUserSessions', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -35,7 +36,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('CkEditor
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbCkEditorUserSession> }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbCkEditorUserSession> }, context) => {
     const { currentUser, CkEditorUserSessions } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -45,7 +46,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('CkEditor
     const {
       documentSelector: ckeditorusersessionSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('CkEditorUserSessions', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('CkEditorUserSessions', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 

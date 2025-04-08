@@ -12,7 +12,7 @@ import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
@@ -35,15 +35,16 @@ function editCheck(user: DbUser | null, document: DbUser) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', {
-  createFunction: async ({ data }: CreateUserInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateUserInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Users', {
+    const callbackProps = await getLegacyCreateCallbackProps('Users', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -97,7 +98,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { data: UpdateUserDataInput | Partial<DbUser>, selector: SelectorInput }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: UpdateUserDataInput | Partial<DbUser>, selector: SelectorInput }, context) => {
     const { currentUser, Users } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -107,13 +108,11 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
     const {
       documentSelector: userSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Users', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Users', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
-    if (!skipValidation) {
-      await changeDisplayNameRateLimit(updateCallbackProperties);
-    }
+    await changeDisplayNameRateLimit(updateCallbackProperties);
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -178,7 +177,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Users', 
   },
 });
 
-export const createUserGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createUserGqlMutation = makeGqlCreateMutation('Users', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Users', rawResult, context)
 });

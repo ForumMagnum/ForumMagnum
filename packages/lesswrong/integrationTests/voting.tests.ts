@@ -237,7 +237,7 @@ describe('Voting', function() {
           coauthorStatuses: [ { userId: coauthor._id, confirmed: true, requested: true } ]
         },
         selector: { _id: post._id }
-      }, createAnonymousContext(), true);
+      }, createAnonymousContext());
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilCallbacksFinished();

@@ -3,7 +3,7 @@ import schema from "@/lib/collections/votes/newSchema";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 
 
 function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbVote>> | null, context: ResolverContext) {
@@ -17,15 +17,16 @@ function editCheck(user: DbUser | null, document: DbVote | null, context: Resolv
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Votes', {
-  createFunction: async ({ data }: { data: Partial<DbInsertion<DbVote>> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbInsertion<DbVote>> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Votes', {
+    const callbackProps = await getLegacyCreateCallbackProps('Votes', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -44,13 +45,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Votes', 
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbInsertion<DbVote>> }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbInsertion<DbVote>> }, context) => {
     const { currentUser, Votes } = context;
 
     const {
       documentSelector: voteSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Votes', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Votes', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 

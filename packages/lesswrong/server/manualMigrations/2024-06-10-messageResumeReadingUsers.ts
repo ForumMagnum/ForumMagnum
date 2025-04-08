@@ -33,7 +33,7 @@ const messageResumeReadingUsers = async (user: DbUser) => {
   
   const lwAccountContext = await computeContextFromUser({ user: lwAccount, isSSR: false });
 
-  const conversation = await createConversation({ data: conversationData }, lwAccountContext, true);
+  const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
   const firstMessageData = {
     userId: lwAccount._id,
@@ -46,7 +46,7 @@ const messageResumeReadingUsers = async (user: DbUser) => {
     conversationId: conversation._id
   }
 
-  void createMessage({ data: firstMessageData }, lwAccountContext, true);
+  void createMessage({ data: firstMessageData }, lwAccountContext);
 }
 
 

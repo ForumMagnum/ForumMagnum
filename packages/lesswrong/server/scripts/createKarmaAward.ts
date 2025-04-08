@@ -35,7 +35,7 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
 
   const post = await createPost({
     data: { userId: user._id, draft: true, deletedDraft: true, title: postInfo, contents } as CreatePostDataInput // deletedDraft isn't allowed through the create API, so we need validation disabled and a type cast
-  }, userContext, true);
+  }, userContext);
 
   void performVoteServer({documentId: post._id, voteType: "bigUpvote", user: karmaAwardGivingUser, collection: Posts, skipRateLimits: true});
 }

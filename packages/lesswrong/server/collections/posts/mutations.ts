@@ -20,19 +20,25 @@ import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, getPreviewDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
 
 async function newCheck(user: DbUser | null, document: CreatePostDataInput | null, context: ResolverContext) {
-  if (!user) return false;
+  if (!user || !document) return false;
+
+  await postsNewRateLimit(document, user, context);
+
   return userCanPost(user)
 };
 
-async function editCheck(user: DbUser|null, document: DbPost|null, context: ResolverContext) {
+async function editCheck(user: DbUser|null, document: DbPost|null, context: ResolverContext, previewDocument: DbPost) {
   if (!user || !document) return false;
+
+  await postsUndraftRateLimit(document, previewDocument, user, context);
+
   if (userCanDo(user, 'posts.alignment.move.all') ||
       userCanDo(user, 'posts.alignment.suggest') ||
       userIsMemberOf(user, 'canSuggestCuration')) {
@@ -44,22 +50,18 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', {
-  createFunction: async ({ data }: CreatePostInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreatePostInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Posts', {
+    const callbackProps = await getLegacyCreateCallbackProps('Posts', {
       context,
       data,
       schema,
-      skipValidation,
     });
 
-    data = callbackProps.document;
+    assignUserIdToData(data, currentUser, schema);
 
-    // former createValidate callbacks
-    if (!skipValidation) {
-      await postsNewRateLimit([], callbackProps);
-    }
+    data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
@@ -153,7 +155,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context) => {
     const { currentUser, Posts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -163,14 +165,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
     const {
       documentSelector: postSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Posts', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Posts', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
-
-    // former updateValidate callbacks
-    if (!skipValidation) {
-      await postsUndraftRateLimit([], updateCallbackProperties);
-    }
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -269,7 +266,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', 
   },
 });
 
-export const createPostGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createPostGqlMutation = makeGqlCreateMutation('Posts', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Posts', rawResult, context)
 });

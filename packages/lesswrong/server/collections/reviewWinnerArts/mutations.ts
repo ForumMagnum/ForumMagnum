@@ -3,20 +3,21 @@ import schema from "@/lib/collections/reviewWinnerArts/newSchema";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWinnerArts', {
-  createFunction: async ({ data }: { data: Partial<DbReviewWinnerArt> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbReviewWinnerArt> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('ReviewWinnerArts', {
+    const callbackProps = await getLegacyCreateCallbackProps('ReviewWinnerArts', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -35,7 +36,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbReviewWinnerArt> }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbReviewWinnerArt> }, context) => {
     const { currentUser, ReviewWinnerArts } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -45,7 +46,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
     const {
       documentSelector: reviewwinnerartSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('ReviewWinnerArts', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('ReviewWinnerArts', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 

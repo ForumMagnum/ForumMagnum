@@ -68,7 +68,7 @@ export async function flagOrBlockUserOnManyDMs({
         userId: currentUser._id,
         type: FLAGGED_FOR_N_DMS,
       },
-    }, context, true);
+    }, context);
   }
   
   // Always update the numUsersContacted field, for denormalization
@@ -77,7 +77,7 @@ export async function flagOrBlockUserOnManyDMs({
       usersContactedBeforeReview: allUsersEverContacted,
     },
     selector: { _id: currentUser._id }
-  }, createAnonymousContext(), true);
+  }, createAnonymousContext());
   
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
     logger('Blocking user')
@@ -116,7 +116,7 @@ export async function sendUserLeavingConversationNotication({newDocument, oldDoc
         conversationId: newDocument._id,
         noEmail: true,
       }
-    }, adminAccountContext, true);
+    }, adminAccountContext);
   }
 }
 

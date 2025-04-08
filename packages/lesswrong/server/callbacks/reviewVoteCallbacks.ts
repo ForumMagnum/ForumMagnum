@@ -1,8 +1,8 @@
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '@/lib/reviewUtils';
-import { AfterCreateCallbackProperties, CreateCallbackProperties } from '../mutationCallbacks';
+import { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { createNotifications } from '../notificationCallbacksHelpers';
 
-export async function ensureUniqueVotes({newDocument: newVote, context}: CreateCallbackProperties<"ReviewVotes", Partial<DbReviewVote>>) {
+export async function ensureUniqueVotes(newVote: Partial<DbReviewVote>, context: ResolverContext) {
   const { ReviewVotes } = context;
   const {userId, postId} = newVote
   const oldVote = await ReviewVotes.findOne({postId, userId})

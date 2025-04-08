@@ -408,7 +408,7 @@ export const postGqlMutations = {
         googleDocMetadata: docMetadata
       };
 
-      await createRevision({ data: newRevision }, context, true);
+      await createRevision({ data: newRevision }, context);
 
       return await Posts.findOne({_id: postId})
     } else {
@@ -437,7 +437,7 @@ export const postGqlMutations = {
           draft: true,
           ...afField,
         }
-      }, context, true);
+      }, context);
 
       return post;
     }

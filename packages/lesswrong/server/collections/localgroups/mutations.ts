@@ -9,7 +9,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -28,21 +28,20 @@ function editCheck(user: DbUser | null, document: DbLocalgroup | null) {
 }
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgroups', {
-  createFunction: async ({ data }: CreateLocalgroupInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateLocalgroupInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Localgroups', {
+    const callbackProps = await getLegacyCreateCallbackProps('Localgroups', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
-    if (!skipValidation) {
-      validateGroupIsOnlineOrHasLocation(data);
-    }
+    validateGroupIsOnlineOrHasLocation(data);
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
@@ -82,7 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateLocalgroupInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateLocalgroupInput, context) => {
     const { currentUser, Localgroups } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -92,13 +91,11 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
     const {
       documentSelector: localgroupSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Localgroups', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Localgroups', { selector, context, data, schema });
 
     const { oldDocument, newDocument } = updateCallbackProperties;
 
-    if (!skipValidation) {
-      validateGroupIsOnlineOrHasLocation(newDocument);
-    }
+    validateGroupIsOnlineOrHasLocation(newDocument);
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -134,7 +131,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
   },
 });
 
-export const createLocalgroupGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createLocalgroupGqlMutation = makeGqlCreateMutation('Localgroups', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context)
 });

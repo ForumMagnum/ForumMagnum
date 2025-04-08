@@ -97,7 +97,7 @@ export const setUserPartiallyReadSequences = async (userId: string, newPartially
   await updateUser({
     data: { partiallyReadSequences: newPartiallyReadSequences },
     selector: { _id: userId }
-  }, createAnonymousContext(), true);
+  }, createAnonymousContext());
 }
 
 const getReadPostIds = async (user: DbUser, postIDs: Array<string>): Promise<string[]> => {

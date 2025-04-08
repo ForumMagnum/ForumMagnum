@@ -10,27 +10,24 @@ import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { newCheck, editCheck } from "./helpers";
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
-  createFunction: async ({ data }: CreateTagInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateTagInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Tags', {
+    const callbackProps = await getLegacyCreateCallbackProps('Tags', {
       context,
       data,
       schema,
-      skipValidation,
     });
 
-    data = callbackProps.document;
+    assignUserIdToData(data, currentUser, schema);
 
-    if (!skipValidation) {
-      await validateTagCreate(callbackProps);
-    }
+    data = callbackProps.document;
 
     data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
@@ -79,7 +76,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateTagInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateTagInput, context) => {
     const { currentUser, Tags } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -89,13 +86,9 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
     const {
       documentSelector: tagSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Tags', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Tags', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
-
-    if (!skipValidation) {
-      await validateTagUpdate(updateCallbackProperties);
-    }
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -139,13 +132,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
   },
 });
 
-export const createTagGqlMutation = makeGqlCreateMutation(createFunction, {
-  newCheck,
+export const createTagGqlMutation = makeGqlCreateMutation('Tags', createFunction, {
+  newCheck: async (user, tag: CreateTagDataInput | null, context) => newCheck(user, tag) && await validateTagCreate(tag, context),
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 
 export const updateTagGqlMutation = makeGqlUpdateMutation('Tags', updateFunction, {
-  editCheck,
+  editCheck: async (user, tag: DbTag, context, previewTag) => editCheck(user, tag) && await validateTagUpdate(tag, previewTag, context),
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 

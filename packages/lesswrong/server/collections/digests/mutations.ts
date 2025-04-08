@@ -8,7 +8,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -25,15 +25,16 @@ function editCheck(user: DbUser | null, document: DbDigest | null, context: Reso
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests', {
-  createFunction: async ({ data }: CreateDigestInput, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: CreateDigestInput, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('Digests', {
+    const callbackProps = await getLegacyCreateCallbackProps('Digests', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -52,7 +53,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: UpdateDigestInput, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: UpdateDigestInput, context) => {
     const { currentUser, Digests } = context;
 
     // Save the original mutation (before callbacks add more changes to it) for
@@ -62,7 +63,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
     const {
       documentSelector: digestSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('Digests', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('Digests', { selector, context, data, schema });
 
     const { oldDocument } = updateCallbackProperties;
 
@@ -86,7 +87,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
   },
 });
 
-export const createDigestGqlMutation = makeGqlCreateMutation(createFunction, {
+export const createDigestGqlMutation = makeGqlCreateMutation('Digests', createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context)
 });

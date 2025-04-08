@@ -135,7 +135,7 @@ export const graphqlMutations = {
         subscribedToDigest: subscribeToDigest,
         acceptedTos,
       }, selector: { _id: currentUser._id }
-    }, context, true);
+    }, context);
     // Don't want to return the whole object without more permission checking
     return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
   },
@@ -166,7 +166,7 @@ export const graphqlMutations = {
       data: {
         profileTagIds: newProfileTagIds
       }, selector: { _id: currentUser._id }
-    }, context, true)
+    }, context)
     
     return updatedUser
   },

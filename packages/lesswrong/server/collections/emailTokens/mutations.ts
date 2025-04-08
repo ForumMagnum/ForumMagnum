@@ -2,19 +2,20 @@
 import schema from "@/lib/collections/emailTokens/newSchema";
 import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('EmailTokens', {
-  createFunction: async ({ data }: { data: Partial<DbEmailTokens> }, context, skipValidation?: boolean) => {
+  createFunction: async ({ data }: { data: Partial<DbEmailTokens> }, context) => {
     const { currentUser } = context;
 
-    const callbackProps = await checkCreatePermissionsAndReturnProps('EmailTokens', {
+    const callbackProps = await getLegacyCreateCallbackProps('EmailTokens', {
       context,
       data,
       schema,
-      skipValidation,
     });
+
+    assignUserIdToData(data, currentUser, schema);
 
     data = callbackProps.document;
 
@@ -33,13 +34,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('EmailTok
     return documentWithId;
   },
 
-  updateFunction: async ({ selector, data }: { data: Partial<DbEmailTokens>, selector: SelectorInput }, context, skipValidation?: boolean) => {
+  updateFunction: async ({ selector, data }: { data: Partial<DbEmailTokens>, selector: SelectorInput }, context) => {
     const { currentUser, EmailTokens } = context;
 
     const {
       documentSelector: emailtokensSelector,
       updateCallbackProperties,
-    } = await checkUpdatePermissionsAndReturnProps('EmailTokens', { selector, context, data, schema, skipValidation });
+    } = await getLegacyUpdateCallbackProps('EmailTokens', { selector, context, data, schema });
 
     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 

@@ -45,7 +45,7 @@ export const petrovDayLaunchGraphQLMutations = {
           // hashedLaunchCode: hashPetrovCode(launchCode),
           // userId: currentUser._id
         },
-      }, context, true);
+      }, context);
       // await updateMutator({
       //   collection: Users,
       //   documentId: currentUser._id,
