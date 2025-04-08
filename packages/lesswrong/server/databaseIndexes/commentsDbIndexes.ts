@@ -118,7 +118,6 @@ export function getDbIndexesOnComments() {
   
   // Added to optimize the UltraFeed comment query by filtering on universal status checks
   void indexSet.addCustomPgIndex(`
-    DROP INDEX CONCURRENTLY IF EXISTS "idx_comments_ultrafeed_universal_filter";
     CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_comments_ultrafeed_universal_filter"
     ON "Comments" ()
     WHERE "postId" IS NOT NULL

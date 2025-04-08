@@ -105,7 +105,7 @@ const CommentUserName = ({
         <UserTooltip user={author}>
           <Link
             to={userGetProfileUrl(author)}
-            className={classNames(classes.mainWrapper, classes.fullWrapper, className, fontSize === 'large' && classes.largeFont)}
+            className={classNames(classes.mainWrapper, classes.fullWrapper, className, {[classes.largeFont]: fontSize === 'large'})}
           >
             {children}
           </Link>

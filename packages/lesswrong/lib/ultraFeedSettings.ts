@@ -20,7 +20,6 @@ export const DEFAULT_SETTINGS: UltraFeedSettings = {
 const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings';
 export const SETTINGS_CHANGE_EVENT = 'ultraFeedSettingsChanged';
 
-// Function to get settings from localStorage (for direct access outside the hook)
 export const getUltraFeedSettings = (): UltraFeedSettings => {
   if (!isClient) return DEFAULT_SETTINGS;
   
