@@ -9,7 +9,6 @@ import type { ObservableQuery } from '@apollo/client';
 import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
-import { Link } from '@/lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 
@@ -295,7 +294,6 @@ const UltraFeedContent = () => {
                       fragmentName: 'FeedCommentThreadFragment',
                       render: (item: FeedCommentThreadFragment) => {
                         if (!item) {
-                          console.log("Missing feed item data:", item);
                           return null;
                         }
                         
@@ -310,7 +308,6 @@ const UltraFeedContent = () => {
                       fragmentName: 'FeedPostFragment',
                       render: (item: FeedPostFragment) => {
                         if (!item) {
-                          console.log("Missing feed item data:", item);
                           return null;
                         }
                         
@@ -325,7 +322,6 @@ const UltraFeedContent = () => {
                       fragmentName: 'FeedSpotlightFragment',
                       render: (item: {_id: string, spotlight: FeedSpotlightFragment['spotlight']}) => {
                         if (!item || !item.spotlight) {
-                          console.log("Missing spotlight data from UltraFeed render function:", item);
                           return null;
                         }
 
@@ -343,24 +339,6 @@ const UltraFeedContent = () => {
                 }
               />
             </div>
-            {/* {newContentButton} */}
-            {/* History Feed Section
-            <div className={classes.historyContainer}>
-              <MixedTypeFeed
-                resolverName="UltraFeedHistory"
-                sortKeyType="Date"
-                firstPageSize={20}
-                pageSize={10}
-                renderers={ultraFeedRenderer}
-                resolverArgsValues={{ sessionId }}
-                onReachedEnd={onReachedEnd}
-              />
-            </div>
-            {reachedEndOfHistory && <div className={classes.endOfFeedContainer}>
-              {newContentButton}
-              <Divider />
-              <Link className={classes.endOfFeedButtonPostScriptText} to={'/posts/7ZqGiPHTpiDMwqMN2'}>{postScriptText}</Link>
-            </div>} */}
           </SingleColumnSection>
         </UltraFeedObserverProvider>
       </>}

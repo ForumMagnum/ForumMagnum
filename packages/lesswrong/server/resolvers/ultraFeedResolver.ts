@@ -216,25 +216,19 @@ export const ultraFeedGraphQLQueries = {
   UltraFeed: async (_root: void, args: any, context: ResolverContext) => {
     const {limit = 20, cutoff, offset, sessionId} = args;
     
-    console.log("UltraFeed resolver called with:", {
-      limit,
-      cutoff: cutoff ? cutoff.toISOString() : null,
-      offset,
-      hasCurrentUser: !!context.currentUser,
-      sessionIdProvided: !!sessionId
-    });
+    console.log("UltraFeed resolver called with:", { limit, });
 
     const profiling = {
       startTime: Date.now(),
+      servedIdFetch: { time: 0 },
       sources: {
         postThreads: { count: 0, time: 0 },
         commentThreads: { count: 0, time: 0, totalComments: 0 },
         spotlights: { count: 0, time: 0 },
       },
-      sampling: { time: 0 },
       transformation: { time: 0 },
       dbLoading: { time: 0 },
-      sampledItems: { 
+      sampledItems: {
         feedPost: 0,
         feedCommentThread: 0,
         feedSpotlight: 0
@@ -247,6 +241,22 @@ export const ultraFeedGraphQLQueries = {
       }
     };
 
+      // Helper to time an individual promise
+      async function timePromise<T>(
+        promiseFn: () => Promise<T>,
+        timingTarget: { time: number }
+      ): Promise<T> {
+        const start = Date.now();
+        try {
+          const result = await promiseFn();
+          timingTarget.time = Date.now() - start;
+          return result;
+        } catch (error) {
+          timingTarget.time = Date.now() - start; // Record time even on error
+          throw error; // Re-throw error
+        }
+      }
+
     const { currentUser } = context;
     if (!currentUser) {
       throw new Error("Must be logged in to fetch UltraFeed.");
@@ -254,6 +264,22 @@ export const ultraFeedGraphQLQueries = {
 
     try {
       const ultraFeedRepo = new UltraFeedRepo();
+
+      // --- Calculate Dynamic Fetch Limits ---
+      const totalWeight = Object.values(SOURCE_WEIGHTS).reduce((sum, weight) => sum + weight, 0);
+      const bufferMultiplier = 2.5; // Fetch 2.5x the expected need as buffer
+      const minPosts = 8;
+      const minComments = 8;
+      const minSpotlights = 5;
+
+      const postFetchLimit = Math.max(minPosts, Math.ceil(limit * (SOURCE_WEIGHTS.postThreads / totalWeight) * bufferMultiplier));
+      const commentBufferLimit = Math.max(minComments, Math.ceil(limit * (SOURCE_WEIGHTS.commentThreads / totalWeight) * bufferMultiplier));
+      // Keep spotlights simpler, ensure a minimum
+      const spotlightFetchLimit = Math.max(minSpotlights, Math.ceil(limit / 3)); // Slightly increased from /4
+
+      console.log("UltraFeed Dynamic Limits:", { limit, postFetchLimit, commentBufferLimit, spotlightFetchLimit });
+      // --- End Calculate Dynamic Fetch Limits ---
+
 
       // --- Fetch Previously Served Item IDs ---
       let servedPostIds = new Set<string>();
@@ -278,28 +304,34 @@ export const ultraFeedGraphQLQueries = {
         });
       }
 
-      // POSTS
-      const startPostThreads = Date.now();
-      const postThreadsItems = await ultraFeedRepo.getUltraFeedPostThreads(context, limit, servedPostIds);
-      profiling.sources.postThreads.time = Date.now() - startPostThreads;
-      profiling.sources.postThreads.count = postThreadsItems.length;
+      // ---> PARALLELIZE SOURCE FETCHING WITH DYNAMIC LIMITS & INDIVIDUAL TIMING <---
+      const startSourceFetch = Date.now();
 
-      // COMMENTS
-      const startCommentThreads = Date.now();
-      let commentThreadsItems = await ultraFeedRepo.getUltraFeedCommentThreads(context, limit);
-      profiling.sources.commentThreads.time = Date.now() - startCommentThreads;
+      const [postThreadsItems, commentThreadsItems, spotlightItems] = await Promise.all([
+        timePromise(
+          () => ultraFeedRepo.getUltraFeedPostThreads(context, postFetchLimit, servedPostIds),
+          profiling.sources.postThreads
+        ),
+        timePromise(
+          () => ultraFeedRepo.getUltraFeedCommentThreads(context, commentBufferLimit),
+          profiling.sources.commentThreads
+        ),
+        timePromise(
+          () => ultraFeedRepo.getUltraFeedSpotlights(context, spotlightFetchLimit, servedSpotlightIds),
+          profiling.sources.spotlights
+        )
+      ]);
+
+      const sourceFetchTime = Date.now() - startSourceFetch;
+      // --- END PARALLELIZED FETCHING ---
+
+      // Update Profiling (Individual counts are now set)
+      profiling.sources.postThreads.count = postThreadsItems.length;
       profiling.sources.commentThreads.count = commentThreadsItems.length;
       commentThreadsItems.forEach(thread => {
-        profiling.sources.commentThreads.totalComments += (thread.comments.length || 0);
+        profiling.sources.commentThreads.totalComments += (thread.comments?.length || 0);
       });
-
-      // SPOTLIGHTS
-      const startSpotlights = Date.now();
-      // This returns FeedSpotlight[]
-      const spotlightItems = await ultraFeedRepo.getUltraFeedSpotlights(context, Math.ceil(limit / 4), servedSpotlightIds);
-      profiling.sources.spotlights.time = Date.now() - startSpotlights;
       profiling.sources.spotlights.count = spotlightItems.length;
-      
 
       const sources: Record<UsedFeedItemSourceType, WeightedSource> = {
         postThreads: {
@@ -319,9 +351,15 @@ export const ultraFeedGraphQLQueries = {
         }
       };
 
-      console.log("Performing weighted sampling with:", { postThreadsCount: sources.postThreads.items.length, commentThreadsCount: sources.commentThreads.items.length, spotlightsCount: sources.spotlights.items.length, requestedLimit: limit });
-      
-      // Profile the sampling process
+      // Log input counts before sampling (to be moved to final profiling log)
+      const samplingInputCounts = {
+        postThreadsCount: sources.postThreads.items.length,
+        commentThreadsCount: sources.commentThreads.items.length,
+        spotlightsCount: sources.spotlights.items.length,
+        requestedLimit: limit
+      };
+
+      // Profile the sampling process - REMOVED TIMING
       const sampledItems = weightedSample(sources, limit);
       sampledItems.forEach(item => {
         if (item.renderAsType === "feedPost") profiling.sampledItems.feedPost++;
@@ -486,31 +524,44 @@ export const ultraFeedGraphQLQueries = {
 
       const totalTime = Date.now() - profiling.startTime;
       
-      const sourceTime = profiling.sources.postThreads.time + profiling.sources.commentThreads.time + profiling.sources.spotlights.time;
-      const trackedPhaseTime = sourceTime + profiling.sampling.time + profiling.transformation.time;
+      // Recalculate breakdown using wall-clock source fetch time
+      const trackedPhaseTime = profiling.servedIdFetch.time + sourceFetchTime + profiling.transformation.time;
       const otherTime = totalTime - trackedPhaseTime;
       
-      // Generate comprehensive profiling log
-      console.log(`✨ UltraFeed PROFILING (${totalTime}ms) ✨ [${results.length} items]`, {
+      // Generate comprehensive profiling log object
+      const profilingData = {
+        sourceWeights: SOURCE_WEIGHTS,
+        samplingInputs: samplingInputCounts,
         breakdown: {
-          sourceRetrieval: { // Fetching initial candidates
-            time: `${sourceTime}ms (${Math.round(sourceTime / totalTime * 100)}%)`,
-            postThreads: `${profiling.sources.postThreads.count} items in ${profiling.sources.postThreads.time}ms`,
-            commentThreads: `${profiling.sources.commentThreads.count} items with ${profiling.sources.commentThreads.totalComments} comments in ${profiling.sources.commentThreads.time}ms`,
-            spotlights: `${profiling.sources.spotlights.count} items in ${profiling.sources.spotlights.time}ms`,
+          servedIdFetch: `${profiling.servedIdFetch.time}ms (${Math.round(profiling.servedIdFetch.time / totalTime * 100)}%)`,
+          numPreviouslyServedIds: {servedPostIds: servedPostIds.size, servedSpotlightIds: servedSpotlightIds.size},
+          sourceRetrieval: { // Fetching initial candidates (parallel)
+            wallClockTime: `${sourceFetchTime}ms (${Math.round(sourceFetchTime / totalTime * 100)}%)`, // Total time for Promise.all
+            individualFetches: { // Individual execution times
+              postThreads: `${profiling.sources.postThreads.count} items (${profiling.sources.postThreads.time}ms)`,
+              commentThreads: `${profiling.sources.commentThreads.count} items, ${profiling.sources.commentThreads.totalComments} comments (${profiling.sources.commentThreads.time}ms)`,
+              spotlights: `${profiling.sources.spotlights.count} items (${profiling.sources.spotlights.time}ms)`,
+            },
           },
-          sampling: `${profiling.sampling.time}ms (${Math.round(profiling.sampling.time / totalTime * 100)}%)`, // Added sampling time breakdown
-          transformation: `${profiling.transformation.time}ms (${Math.round(profiling.transformation.time / totalTime * 100)}%)`, // Structuring final results (excluding DB wait)
-          dbLoadingWait: `${profiling.dbLoading.time}ms (${Math.round(profiling.dbLoading.time / totalTime * 100)}%)`, // Cumulative DB wait time (overlaps with other phases)
-          other: `${otherTime}ms (${Math.round(otherTime / totalTime * 100)}%)`, // Time for untimed operations (event creation, overhead)
+          transformation: `${profiling.transformation.time}ms (${Math.round(profiling.transformation.time / totalTime * 100)}%)`,
+          dbLoadingWait: `${profiling.dbLoading.time}ms (${Math.round(profiling.dbLoading.time / totalTime * 100)}%)`,
+          other: `${otherTime}ms (${Math.round(otherTime / totalTime * 100)}%)`,
         },
-        results: {
+        sampledCounts: { // Renamed from 'results' in profiling object for clarity
+            feedPost: profiling.sampledItems.feedPost,
+            feedCommentThread: profiling.sampledItems.feedCommentThread,
+            feedSpotlight: profiling.sampledItems.feedSpotlight
+        },
+        finalResults: { // Renamed from 'results' in profiling object for clarity
           feedPost: profiling.results.feedPost,
           feedCommentThread: profiling.results.feedCommentThread,
           feedSpotlight: profiling.results.feedSpotlight,
           totalComments: profiling.results.totalComments,
         }
-      });
+      };
+
+      // Log the title and the stringified, pretty-printed data object
+      console.log(`✨ UltraFeed PROFILING (${totalTime}ms) ✨ [${results.length} items]`, JSON.stringify(profilingData, null, 2));
       
       return response;
     } catch (error) {

@@ -1,10 +1,3 @@
-/**
- * Repository for UltraFeed operations
- * 
- * Contains methods for retrieving, filtering, and organizing comment threads 
- * for the UltraFeed system.
- */
-
 import { FeedCommentFromDb, FeedItemSourceType, FeedSpotlight, PreDisplayFeedComment, PreDisplayFeedCommentThread, FeedItemDisplayStatus, FeedFullPost, FeedPostMetaInfo, FeedCommentsThread } from '../../components/ultraFeed/ultraFeedTypes';
 import Comments from '../../server/collections/comments/collection';
 import AbstractRepo from '../../server/repos/AbstractRepo';
@@ -16,9 +9,6 @@ import { prioritizeThreads, prepareCommentThreadForResolver  } from './ultraFeed
 import { recombeeApi, recombeeRequestHelpers } from '../../server/recombee/client';
 import { HybridRecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 
-/**
- * Statistics to help prioritize which threads to display
- */
 export interface ThreadStatistics {
   commentCount: number;
   maxKarma: number;
@@ -38,13 +28,13 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     limit = 20,
     servedPostIds: Set<string> = new Set()
   ): Promise<FeedFullPost[]> {
-    console.log(`UltraFeedRepo: getUltraFeedPostThreads called. Limit: ${limit}. Already served post IDs:`, Array.from(servedPostIds));
 
     const { currentUser } = context;
     const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
     let displayPosts: FeedFullPost[] = [];
 
     if (!recombeeUser) {
+      // eslint-disable-next-line no-console
       console.warn("UltraFeedRepo: No Recombee user found (likely logged out). Cannot fetch hybrid recommendations.");
     } else {
       const settings: HybridRecombeeConfiguration = {
@@ -89,131 +79,140 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   }
 
   //TODO: add comments on threads you've partificipated in/interacted with, especially replies to you
-  //TODO: filter based on previous interactions with comments?
   //TODO: figure out exact threshold / date window (make parameter?), perhaps make a window that's adjusted based on user's visit frequency
 
 
-  async getCommentsForFeed(context: ResolverContext, limit = 200): Promise<FeedCommentFromDb[]> {
+  async getCommentsForFeed(context: ResolverContext, maxTotalComments = 1000): Promise<FeedCommentFromDb[]> {
     const db = this.getRawDb();
-    // Get current user ID for filtering events
     const userId = context.userId;
+    const initialCandidateLimit = 100; // Limit for the first pass
 
-    console.log(`UltraFeedRepo.getCommentsForFeed called with limit=${limit}, userId=${userId}`);
-
-    // Factor out the filter clause for more clarity
-    const FEED_COMMENT_FILTER_CLAUSE = `
-      c."postedAt" > NOW() - INTERVAL '180 days'
-      AND c.deleted IS NOT TRUE
+    // Universal status filter applied to ALL comments considered
+    const UNIVERSAL_COMMENT_FILTER_CLAUSE = `
+      c.deleted IS NOT TRUE
       AND c.retracted IS NOT TRUE
       AND c."authorIsUnreviewed" IS NOT TRUE
-      AND "postId" IS NOT NULL
+      AND c."postId" IS NOT NULL
     `;
 
-    // Query needs to join with UltraFeedEvents and aggregate timestamps
+    // Specific date filter ONLY for initial candidates
+    const CANDIDATE_DATE_FILTER_CLAUSE = `
+      c."postedAt" > NOW() - INTERVAL '90 days'
+    `;
+
     const suggestedComments: FeedCommentFromDb[] = await db.manyOrNone(`
-      -- UltraFeedRepo.getCommentsForFeed
+      -- UltraFeedRepo.getCommentsForFeed (New Logic: Filter Candidates Early)
       WITH
       "CommentEvents" AS (
+        -- Fetch event timestamps for the user (can potentially be limited later if needed)
         SELECT
           "documentId",
           MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) AS "lastServed",
           MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" END) AS "lastViewed",
-          MAX(CASE WHEN "eventType" = 'expanded' THEN "createdAt" END) AS "lastInteracted" -- Treat 'expanded' as interacted for now
+          MAX(CASE WHEN "eventType" = 'expanded' THEN "createdAt" END) AS "lastInteracted"
         FROM "UltraFeedEvents"
-        -- Filter for relevant events for the current user and comments
         WHERE "userId" = $(userId)
-          AND "collectionName" = 'Comments' -- Only consider events for comments
+          AND "collectionName" = 'Comments'
           AND "eventType" IN ('served', 'viewed', 'expanded')
         GROUP BY "documentId"
       ),
-      "PopularCommentsBase" AS (
+      "InitialCandidates" AS (
+        -- Find initial popular/quicktake comments using UNIVERSAL + DATE filters
+        -- Apply initial limit here
         SELECT
           c._id AS "commentId",
-          c."topLevelCommentId",
+          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
           c."postId",
-          c."parentCommentId",
-          c."baseScore",
-          c."postedAt",
-          'topComments' AS source
+          -- Keep sources simple for now, can add later if needed for filtering
+          CASE WHEN c."baseScore" > 20 THEN ARRAY['topComments'] ELSE ARRAY['quickTake'] END AS sources
         FROM "Comments" c
-        WHERE ${FEED_COMMENT_FILTER_CLAUSE}
-          AND c."baseScore" > 20
-        ORDER BY c."baseScore" DESC
-        LIMIT $(limit)
+        WHERE (c."baseScore" > 20 OR c.shortform IS TRUE) -- Potential candidates
+          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}       -- Apply universal status filter
+          AND ${CANDIDATE_DATE_FILTER_CLAUSE}          -- Apply specific date filter
+        -- ORDER BY relevance? postedAt? baseScore? Needed for deterministic LIMIT
+        ORDER BY c."postedAt" DESC -- Order by recency for the limit
+        LIMIT $(initialCandidateLimit)
       ),
-      "QuickTakesBase" AS (
+      "CandidatesWithEvents" AS (
+        -- Join initial candidates with their events
         SELECT
-          c._id AS "commentId",
-          c."topLevelCommentId",
-          c."postId",
-          c."parentCommentId",
-          c."baseScore",
-          c."postedAt",
-          'quickTake' AS source
+          ic."commentId",
+          ic."threadTopLevelId",
+          ic."postId",
+          ic.sources,
+          ce."lastServed",
+          ce."lastViewed",
+          ce."lastInteracted"
+        FROM "InitialCandidates" ic
+        LEFT JOIN "CommentEvents" ce ON ic."commentId" = ce."documentId"
+      ),
+      "FilteredUnseenCandidates" AS (
+        -- Filter candidates: Keep only those NOT viewed or interacted with
+        SELECT
+          "commentId",
+          "threadTopLevelId",
+          "postId",
+          sources
+        FROM "CandidatesWithEvents"
+        WHERE "lastViewed" IS NULL AND "lastInteracted" IS NULL -- Filter condition
+      ),
+      "RelevantThreads" AS (
+        -- Get the distinct top-level IDs from the FILTERED candidates
+        SELECT DISTINCT "threadTopLevelId" FROM "FilteredUnseenCandidates"
+      ),
+      "ValidTopLevelComments" AS (
+        -- Check validity of top-level comments for relevant threads (Universal filter only)
+        SELECT
+          c._id AS "topLevelCommentId"
         FROM "Comments" c
-        WHERE ${FEED_COMMENT_FILTER_CLAUSE}
-          AND c.shortform IS TRUE
-        ORDER BY c."postedAt" DESC
-        LIMIT $(limit)
+        WHERE c._id IN (SELECT "threadTopLevelId" FROM "RelevantThreads")
+          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
       ),
-      "AllSuggestedCommentsBase" AS (
-        SELECT
-          sub."commentId",
-          sub."topLevelCommentId",
-          sub."parentCommentId",
-          sub."baseScore",
-          sub."postId",
-          sub."postedAt",
-          ARRAY_AGG(sub.source) AS sources
-        FROM (
-          SELECT * FROM "PopularCommentsBase"
-          UNION
-          SELECT * FROM "QuickTakesBase"
-        ) sub
-        GROUP BY sub."commentId", sub."topLevelCommentId", sub."postId", sub."parentCommentId", sub."baseScore", sub."postedAt"
-      ),
-      "OtherCommentsBase" AS (
+      "AllCommentsForValidThreads" AS (
+        -- Fetch ALL valid comments (universal filter) belonging to threads
+        -- whose top-level comment is valid
         SELECT
           c._id AS "commentId",
-          c."topLevelCommentId",
+          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
           c."parentCommentId",
-          c."baseScore",
           c."postId",
-          c."postedAt",
-          ARRAY[]::TEXT[] AS sources
+          c."baseScore",
+          c."postedAt"
         FROM "Comments" c
         WHERE (
-          c."topLevelCommentId" IN (SELECT "topLevelCommentId" FROM "AllSuggestedCommentsBase")
-          OR c._id IN (SELECT "topLevelCommentId" FROM "AllSuggestedCommentsBase")
-        )
-          AND ${FEED_COMMENT_FILTER_CLAUSE}
-          AND c."_id" NOT IN (SELECT "commentId" FROM "AllSuggestedCommentsBase")
+                c."topLevelCommentId" IN (SELECT "topLevelCommentId" FROM "ValidTopLevelComments")
+                OR (c."topLevelCommentId" IS NULL AND c._id IN (SELECT "topLevelCommentId" FROM "ValidTopLevelComments"))
+              )
+          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
       ),
-      -- Combine all potential comments
-      "CombinedComments" AS (
-        SELECT "commentId", "topLevelCommentId", "parentCommentId", "postId", "baseScore", "postedAt", "sources" FROM "AllSuggestedCommentsBase"
-        UNION
-        SELECT "commentId", "topLevelCommentId", "parentCommentId", "postId", "baseScore", "postedAt", "sources" FROM "OtherCommentsBase"
+       "CandidateSourcesMap" AS (
+         -- Map sources back, using original InitialCandidates before filtering
+         -- We might want to show source even if it wasn't the trigger for thread inclusion
+         SELECT
+           "commentId",
+           sources
+         FROM "InitialCandidates"
       )
-      -- Final SELECT: Join comments with their event timestamps
+      -- Final SELECT: Join all valid comments with events and sources
       SELECT
-        cc."commentId",
-        cc."topLevelCommentId",
-        cc."parentCommentId",
-        cc."postId",
-        cc."baseScore",
-        cc."postedAt",
-        cc."sources",
+        ac."commentId",
+        ac."threadTopLevelId" AS "topLevelCommentId",
+        ac."parentCommentId",
+        ac."postId",
+        ac."baseScore",
+        ac."postedAt",
+        COALESCE(csm.sources, ARRAY[]::TEXT[]) AS "sources", -- Map sources
         ce."lastServed",
         ce."lastViewed",
         ce."lastInteracted"
-      FROM "CombinedComments" cc
-      LEFT JOIN "CommentEvents" ce ON cc."commentId" = ce."documentId"
-    `, { limit, userId }); // Pass userId to the query
+      FROM "AllCommentsForValidThreads" ac
+      LEFT JOIN "CommentEvents" ce ON ac."commentId" = ce."documentId" -- Need events for prioritization
+      LEFT JOIN "CandidateSourcesMap" csm ON ac."commentId" = csm."commentId" -- Map sources
+      ORDER BY ac."threadTopLevelId", ac."postedAt"
+      LIMIT $(maxTotalComments) -- Apply high limit to the final result set
+    `, { userId, initialCandidateLimit, maxTotalComments }); // Pass parameters
 
-    const firstFewIds = suggestedComments.slice(0, 5).map(c => c.commentId);
-    console.log(`UltraFeedRepo: SQL query returned ${suggestedComments?.length || 0} suggested comments`);
-    console.log(`UltraFeedRepo: First few comment IDs and timestamps:`, suggestedComments.slice(0, 5).map(c => ({ id: c.commentId, viewed: c.lastViewed, interacted: c.lastInteracted })));
+    console.log(`UltraFeedRepo: Filtered candidate query returned ${suggestedComments?.length || 0} comments (max ${maxTotalComments})`);
 
     return suggestedComments;
   }
@@ -221,14 +220,6 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
   public async getAllCommentThreads(candidates: FeedCommentFromDb[]): Promise<PreDisplayFeedComment[][]> {
     console.log(`UltraFeedRepo.getAllCommentThreads called with ${candidates.length} candidates`);
 
-    // Get unique postIds from all comments
-    const uniquePostIds = [...new Set(candidates.map(candidate => candidate.postId))].filter(Boolean);
-    //log comments missing postId, give their postIds
-    const commentsMissingPostId = candidates.filter(candidate => !candidate.postId);
-    console.log(`UltraFeedRepo: ${commentsMissingPostId.length} comments missing postId, their postIds:`, commentsMissingPostId.map(c => c.postId));
-
-
-    // Group by topLevelCommentId
     const groups: Record<string, FeedCommentFromDb[]> = {};
     for (const candidate of candidates) {
       // Fall back to the comment's own _id if topLevelCommentId is missing
@@ -239,7 +230,6 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       groups[topId].push(candidate);
     }
 
-    // Build a result array of all threads
     const allThreads: PreDisplayFeedComment[][] = [];
 
     // For each top-level group, compute all linear threads
@@ -248,36 +238,6 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
       allThreads.push(...threads);
 
-      // // Convert each linear path of candidates into a FeedCommentThread
-      // for (const path of threads) {
-      //   // Get the post for this thread
-      //   const postId = path[0].postId;
-        
-      //   if (!postId) {
-      //     // eslint-disable-next-line no-console
-      //     console.error("UltraFeedRepo.getAllCommentThreads: No post found for thread with topLevelId", { topLevelId, postId });
-      //     continue;
-      //   }
-
-      //   // Create the FeedCommentThread
-      //   allThreads.push({
-      //     postId,
-      //     commentIds: path.map(c => c.commentId),
-      //     topLevelCommentId: topLevelId,
-      //   });
-      // }
-    }
-
-    console.log(`UltraFeedRepo: Generated ${allThreads.length} distinct threads`);
-    if (allThreads.length > 0) {
-      console.log(`UltraFeedRepo: Sample thread structure:`, 
-        JSON.stringify({
-          topLevelCommentId: allThreads[0][0].commentId,
-          postId: allThreads[0][0].postId,
-          commentCount: allThreads[0].length
-        }, null, 2));
-    } else {
-      console.log(`UltraFeedRepo: WARNING - No threads were generated!`);
     }
 
     return allThreads;
@@ -372,26 +332,16 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     const candidates = await this.getCommentsForFeed(context, 500);
     const threads = await this.getAllCommentThreads(candidates);
     const prioritizedThreadInfos = prioritizeThreads(threads);
-    
-    if (prioritizedThreadInfos.length > 0) {
-      console.log(`UltraFeedRepo: Top 5 reasons:`, prioritizedThreadInfos.slice(0, 5).map(t => t.reason));
-    }
-
     const displayThreads = prioritizedThreadInfos
       .slice(0, limit * 2)
       .map(info => prepareCommentThreadForResolver(info))
       .filter(thread => thread.comments.length > 0);
-
-    console.log(`UltraFeedRepo: Generated ${displayThreads.length} display threads`);
 
     const finalResult = displayThreads.slice(0, limit);
     
     return finalResult;
   }
 
-  /**
-   * Fetches random spotlight items for UltraFeed
-   */
   public async getUltraFeedSpotlights(
     context: ResolverContext, 
     limit = 5, 
@@ -400,9 +350,8 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     console.log(`UltraFeedRepo.getUltraFeedSpotlights called with limit=${limit}`);
 
     const db = this.getRawDb();
-    const servedSpotlightIdsArray = Array.from(servedSpotlightIds); // Convert set to array once
+    const servedSpotlightIdsArray = Array.from(servedSpotlightIds);
     
-    // Query for random spotlight IDs, excluding those already served
     const spotlightRows = await db.manyOrNone(`
       -- UltraFeedRepo.getUltraFeedSpotlights
       SELECT _id 
@@ -415,27 +364,22 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       LIMIT $(limit)
     `, { limit, servedSpotlightIdsArray });
     
-    // If no results, return empty array
     if (!spotlightRows || !spotlightRows.length) {
       return [];
     }
     
-    // Extract IDs
     const spotlightItems = spotlightRows.map(row => {
       return {
         spotlightId: row._id,
       }
     });
 
-    console.log("spotlightIds", spotlightItems, Array.isArray(spotlightItems));
-    
     if (!spotlightItems.length) {
+      // eslint-disable-next-line no-console
       console.log(`UltraFeedRepo: No spotlight IDs to query`);
       return [];
     }
     
-    console.log(`UltraFeedRepo: Fetched ${spotlightItems.length} spotlight items`);
-
     return spotlightItems;
   }
 }

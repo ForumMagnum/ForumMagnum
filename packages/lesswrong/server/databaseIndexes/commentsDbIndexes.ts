@@ -116,6 +116,17 @@ export function getDbIndexesOnComments() {
     WHERE ("baseScore" >= 15)
   `);
   
+  // Added to optimize the UltraFeed comment query by filtering on universal status checks
+  void indexSet.addCustomPgIndex(`
+    DROP INDEX CONCURRENTLY IF EXISTS "idx_comments_ultrafeed_universal_filter";
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_comments_ultrafeed_universal_filter"
+    ON "Comments" ()
+    WHERE "postId" IS NOT NULL
+      AND deleted IS NOT TRUE
+      AND retracted IS NOT TRUE
+      AND "authorIsUnreviewed" IS NOT TRUE;
+  `);
+
   indexSet.addIndex("Comments",
     augmentForDefaultView({ reviewForAlignmentUserId:1, af:1, suggestForAlignmentUserIds:1, postedAt:1, }),
     {

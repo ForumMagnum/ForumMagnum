@@ -18,6 +18,7 @@ const mutationOptions = {
     // Generally, events shouldn't be removed
     return false;
   },
+  update: false,
 };
 
 export const UltraFeedEvents: UltraFeedEventsCollection = createCollection({
