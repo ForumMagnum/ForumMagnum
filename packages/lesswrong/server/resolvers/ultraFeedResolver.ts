@@ -54,20 +54,13 @@ export const ultraFeedGraphQLTypeDefs = gql`
     ): UltraFeedQueryResults!
   }
 `
-
-// Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
   postThreads: 20,
   commentThreads: 40,
   spotlights: 1,
-  // popularComments: 5,
-  // quickTakes: 5,
-  // subscribed: 0
 };
 
-// Define the subset of FeedItemSourceType that we actually use
 type UsedFeedItemSourceType = Extract<FeedItemSourceType, "postThreads" | "commentThreads" | "spotlights">;
-
 interface WeightedSource {
   weight: number;
   items: FeedItem[];
@@ -78,7 +71,6 @@ type SampledItem = { renderAsType: "feedCommentThread", feedCommentThread: FeedC
                  | { renderAsType: "feedPost", feedPost: FeedFullPost }
                  | { renderAsType: "feedSpotlight", feedSpotlight: FeedSpotlight };
 
-// Helper function to perform weighted sampling
 function weightedSample(
   inputs: Record<UsedFeedItemSourceType, WeightedSource>, 
   totalItems: number
@@ -99,17 +91,14 @@ function weightedSample(
   );
 
   for (let i = 0; i < totalItems; i++) {
-    // If no items remain in any source, break
     if (totalWeight <= 0) break;
 
-    // Pick a random float in [0, totalWeight)
     const pick = Math.random() * totalWeight;
 
     let cumulative = 0;
     let chosenSourceKey: UsedFeedItemSourceType | null = null;
 
     for (const [key, src] of Object.entries(sourcesWithCopiedItems)) {
-      // Skip sources that have run out of items
       if (src.items.length === 0) continue;
 
       cumulative += src.weight;
@@ -119,15 +108,12 @@ function weightedSample(
       }
     }
 
-    // We found a source to sample from
     if (chosenSourceKey) {
       const sourceItems = sourcesWithCopiedItems[chosenSourceKey];
-      const item = sourceItems.items.shift(); // This modifies our copy, not the original
+      const item = sourceItems.items.shift();
 
-      // Skip if item is undefined
       if (!item) continue;
 
-      // Create object based on renderAsType to avoid type errors
       if (sourceItems.renderAsType === "feedCommentThread") {
         finalFeed.push({
           renderAsType: "feedCommentThread",
@@ -145,7 +131,6 @@ function weightedSample(
         });
       }
 
-      // If that source is now empty, effectively set its weight to 0
       if (sourceItems.items.length === 0) {
         totalWeight -= sourceItems.weight;
       }
@@ -155,69 +140,14 @@ function weightedSample(
   return finalFeed;
 }
 
-/**
- * COMMENTED OUT: Fetches subscribed content for the feed
- */
-/*
-async function fetchSubscribedContent({
-  context,
-  currentUser,
-  servedPostIds,
-  servedPostCommentCombos
-}: {
-  context: ResolverContext;
-  currentUser: DbUser;
-  servedPostIds: Set<string>;
-  servedPostCommentCombos: Set<string>;
-}): Promise<FeedPostItem[]> {
-  console.log("Fetching subscribed content...");
-  
-  // Get posts and comments from subscriptions
-  const postsAndCommentsAll = await context.repos.posts.getPostsAndCommentsFromSubscriptions(
-    currentUser._id, 
-    50 + 90
-  );
-  
-  console.log(`Found ${postsAndCommentsAll.length} subscribed items before filtering`);
-  
-  // Filter out subscribed items based on our custom rule:
-  // Exclude if both the postId and first two commentIds are identical to a previously served item
-  const filteredPostsAndComments = postsAndCommentsAll.filter(item => {
-    // If no commentIds, just check if the post has been served before
-    if (!item.commentIds || item.commentIds.length === 0) {
-      return !servedPostIds.has(item.postId);
-    }
-
-    // Get the first two comment IDs (or fewer if not enough exist)
-    const firstComments = item.commentIds.slice(0, 2);
-    
-    // Create a combo key with the post ID and first two comment IDs
-    const comboKey = `${item.postId}:${firstComments.sort().join(':')}`;
-    
-    // Only filter out if this exact combination has been served before
-    return !servedPostCommentCombos.has(comboKey);
-  });
-  
-  console.log(`${postsAndCommentsAll.length - filteredPostsAndComments.length} subscribed items filtered out as already served`);
-  
-  if (!filteredPostsAndComments.length) {
-    return [];
-  }
-  
-*/
 
 /**
  * UltraFeed resolver
- * 
- * Uses a weighted sampling approach to mix different content types
- * while providing fragment names so GraphQL can load the full content.
  */
 export const ultraFeedGraphQLQueries = {
   UltraFeed: async (_root: void, args: any, context: ResolverContext) => {
     const {limit = 20, cutoff, offset, sessionId} = args;
     
-    console.log("UltraFeed resolver called with:", { limit, });
-
     const profiling = {
       startTime: Date.now(),
       servedIdFetch: { time: 0 },
@@ -252,7 +182,7 @@ export const ultraFeedGraphQLQueries = {
           timingTarget.time = Date.now() - start;
           return result;
         } catch (error) {
-          timingTarget.time = Date.now() - start; // Record time even on error
+          timingTarget.time = Date.now() - start; 
           throw error; // Re-throw error
         }
       }
@@ -277,7 +207,6 @@ export const ultraFeedGraphQLQueries = {
       // Keep spotlights simpler, ensure a minimum
       const spotlightFetchLimit = Math.max(minSpotlights, Math.ceil(limit / 3)); // Slightly increased from /4
 
-      console.log("UltraFeed Dynamic Limits:", { limit, postFetchLimit, commentBufferLimit, spotlightFetchLimit });
       // --- End Calculate Dynamic Fetch Limits ---
 
 
@@ -418,8 +347,13 @@ export const ultraFeedGraphQLQueries = {
               });
             }
 
+            // Generate a stable ID based on post and first comment ID
+            const firstCommentId = loadedComments?.[0]?._id;
+            const postId = loadedComments?.[0]?.postId;
+            const stableThreadId = postId && firstCommentId ? `${postId}:${firstCommentId}` : `feed-comment-thread-${index}`;
+
             const resultData: FeedCommentsThreadResolverType = {
-              _id: `feed-item-${item.renderAsType}-${index}`,
+              _id: stableThreadId, // Use stable ID
               comments: loadedComments,
               commentMetaInfos
             };
@@ -438,8 +372,11 @@ export const ultraFeedGraphQLQueries = {
 
             profiling.results.feedPost++;
 
+            // Use the actual post._id as the stable ID for the wrapper
+            const stablePostId = post?._id ? post._id : `feed-post-${index}`; // Fallback added
+
             const resultData: FeedPostResolverType = {
-              _id: `feed-item-${item.renderAsType}-${index}`,
+              _id: stablePostId, // Use stable ID
               post,
               postMetaInfo
             };
@@ -565,6 +502,7 @@ export const ultraFeedGraphQLQueries = {
       
       return response;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error in UltraFeed resolver:", error);
       throw error;
     }
