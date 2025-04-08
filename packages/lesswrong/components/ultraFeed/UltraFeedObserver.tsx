@@ -9,8 +9,6 @@ import React, {
 import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from "../common/withUser";
 
-// --- Types ---
-
 type DocumentType = 'post' | 'comment' | 'spotlight';
 
 interface ObserveData {
@@ -21,7 +19,7 @@ interface ObserveData {
 
 interface TrackExpansionData {
   documentId: string;
-  documentType: 'post' | 'comment'; // Spotlights don't expand
+  documentType: 'post' | 'comment';
   postId?: string;
   level: number;
   maxLevelReached: boolean;
@@ -36,12 +34,9 @@ interface UltraFeedObserverContextType {
 
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
 
-// --- Provider Component ---
-
 const VIEW_THRESHOLD_MS = 500;
 const INTERSECTION_THRESHOLD = 0.5; // 50% visible
 
-// Updated helper to map frontend type to collection name with correct literal types
 const mapDocumentTypeToCollectionName = (documentType: DocumentType): "Posts" | "Comments" | "Spotlights" => {
   const mapping: Record<DocumentType, "Posts" | "Comments" | "Spotlights"> = {
     'post': "Posts",
@@ -52,7 +47,6 @@ const mapDocumentTypeToCollectionName = (documentType: DocumentType): "Posts" | 
 };
 
 export const UltraFeedObserverProvider = ({ children }: { children: ReactNode }) => {
-  // Add useCurrentUser hook to get current user
   const currentUser = useCurrentUser();
   
   const { create: createUltraFeedEvent } = useCreate({
@@ -62,13 +56,11 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
   
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  // Store timer refs and observed element data in refs to avoid re-renders
   const timerMapRef = useRef<Map<Element, NodeJS.Timeout>>(new Map());
   const elementDataMapRef = useRef<Map<Element, ObserveData>>(new Map());
-  const viewedItemsRef = useRef<Set<string>>(new Set()); // Track sent viewed events by documentId
+  const viewedItemsRef = useRef<Set<string>>(new Set());
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-    // Exit early if no user is logged in
     if (!currentUser) return;
     
     entries.forEach((entry) => {
@@ -76,7 +68,7 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
       const elementData = elementDataMapRef.current.get(element);
 
       if (!elementData || viewedItemsRef.current.has(elementData.documentId)) {
-        return; // Already viewed or no data
+        return;
       }
 
       if (entry.isIntersecting && entry.intersectionRatio >= INTERSECTION_THRESHOLD) {
@@ -97,6 +89,7 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
               createUltraFeedEvent({
                 data: eventData
               }).catch(err => {
+                // eslint-disable-next-line no-console
                 console.error("Failed to log UltraFeed 'viewed' event:", err);
               });
 
@@ -127,11 +120,15 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
       threshold: INTERSECTION_THRESHOLD, // Trigger when 50% visible/hidden
     });
 
+    // Capture the ref's current value for the cleanup function
+    const currentTimerMap = timerMapRef.current;
+
     // Cleanup observer on unmount
     return () => {
       observerRef.current?.disconnect();
-      // Clear any pending timers
-      timerMapRef.current.forEach(clearTimeout);
+      // Clear any pending timers using the captured map
+      currentTimerMap.forEach(clearTimeout);
+      // Clear the maps/sets in the ref directly (this is fine)
       timerMapRef.current.clear();
       elementDataMapRef.current.clear();
       viewedItemsRef.current.clear();

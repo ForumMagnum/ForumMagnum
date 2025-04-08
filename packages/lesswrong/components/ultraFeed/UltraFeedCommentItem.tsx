@@ -1,18 +1,12 @@
 import React, { useCallback, useState, useMemo, useEffect, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from "classnames";
-import { DisplayFeedComment } from "./ultraFeedTypes";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { useVote } from "../votes/withVote";
-import { getVotingSystemByName } from "@/lib/voting/votingSystems";
-import { Link } from "@/lib/reactRouterWrapper";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 
 
-// Styles for the UltraFeedCommentItem component
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
     paddingTop: 16,
@@ -30,31 +24,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     borderBottom: theme.palette.border.itemSeparatorBottom,
     // paddingBottom: 16,
   },
-  collapsedFooter: {
-    paddingBottom: 16,
-  },
-  hidden: {
-    display: 'none',
-  },
   commentHeader: {
     marginBottom: 8,
   },
   contentWrapper: {
     // cursor: "pointer",
-  },
-  replyButton: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    marginRight: 6,
-    display: "inline",
-    fontWeight: theme.typography.body1.fontWeight,
-    color: theme.palette.link.dim,
-    cursor: "pointer",
-  },
-  commentBottom: {
-    marginTop: 12,
-  },
-  voteContainer: {
-    marginLeft: 10,
   },
   numComments: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -84,21 +58,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     "-webkit-line-clamp": 2,
     fontStyle: 'italic',
   },
-  inlineCommentThreadTitleAbove: {
-    marginTop: 0,
-    marginBottom: 12,
-    marginRight: 12,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.3rem',
-    fontWeight: theme.typography.body1.fontWeight,
-    color: theme.palette.link.dim,
-    width: '100%',
-    overflow: "hidden",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
-    fontStyle: 'italic',
-  },
   inlineCommentThreadTitleLink: {
     background: 'none',
     border: 'none',
@@ -113,9 +72,14 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     fontStyle: 'italic',
     textAlign: 'left',
     width: '100%',
+
     '& span': {
       color: theme.palette.primary.main,
     },
+    '-webkit-line-clamp': 2,
+  },
+  inlineCommentThreadTitleLinkSpan: {
+    '-webkit-line-clamp': 2,
   },
   verticalLineContainer: {
     width: 0,
@@ -211,7 +175,6 @@ const UltraFeedCommentItem = ({
   const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
   const { settings } = useUltraFeedSettings();
 
-  // Get functions from the context
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { post } = comment;
@@ -228,7 +191,6 @@ const UltraFeedCommentItem = ({
   }, [observe, comment._id, comment.postId]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
-    // Log the expansion event
     trackExpansion({
       documentId: comment._id,
       documentType: 'comment',
@@ -248,32 +210,27 @@ const UltraFeedCommentItem = ({
 
   const expanded = displayStatus === "expanded";
 
-  // Determine breakpoints based on expansion status
   const truncationBreakpoints = useMemo(() => {
-    const fullBreakpoints = settings.commentTruncationBreakpoints || []; // Default to empty array if undefined
+    const fullBreakpoints = settings.commentTruncationBreakpoints || [];
     const collapsedLimit = settings.collapsedCommentTruncation;
 
   if (!post) {
+    // eslint-disable-next-line no-console
     console.log("Missing post data:", comment._id);
     return null;
   }
 
     if (expanded) {
-      // If the item is already expanded, use the standard breakpoints
       return fullBreakpoints;
     } else {
       // If collapsed, use the collapsed limit as the first breakpoint,
       // followed by the rest of the standard breakpoints (skipping the first standard one).
-      // Ensure fullBreakpoints has elements before slicing.
       const subsequentBreakpoints = fullBreakpoints.length > 1 ? fullBreakpoints.slice(1) : [];
       return [collapsedLimit, ...subsequentBreakpoints];
     }
-  }, [expanded, settings.commentTruncationBreakpoints, settings.collapsedCommentTruncation]);
+  }, [expanded, settings.commentTruncationBreakpoints, settings.collapsedCommentTruncation, post, comment._id]);
 
   const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
-
-  const shouldShowInlineTitle = showInLineCommentThreadTitle && (settings.commentTitleStyle === "commentReplyStyleBeneathMetaInfo" || settings.commentTitleStyle === "commentReplyStyleAboveMetaInfo");
-  const titleAboveMetaInfo = shouldShowInlineTitle && (settings.commentTitleStyle === "commentReplyStyleAboveMetaInfo");
 
   return (
     <div ref={elementRef} className={classNames(classes.root)} >
@@ -289,25 +246,15 @@ const UltraFeedCommentItem = ({
       </div>
       
       <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-        {titleAboveMetaInfo && post && (
-          <div className={classes.inlineCommentThreadTitleAbove}>
-            <button 
-              className={classes.inlineCommentThreadTitleLink}
-              onClick={onPostTitleClick}
-            >
-              Replying to <span>{post.title}</span>
-            </button>
-          </div>
-        )}
         <div className={classes.commentHeader}>
           <UltraFeedCommentsItemMeta comment={comment} />
-          {shouldShowInlineTitle && !titleAboveMetaInfo && !comment.shortform && post && (
+          {showInLineCommentThreadTitle && !comment.shortform && post && (
             <div className={classes.inlineCommentThreadTitle}>
               <button 
                 className={classes.inlineCommentThreadTitleLink}
                 onClick={onPostTitleClick}
               >
-                Replying to <span>{post.title}</span>
+                Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
               </button>
             </div>
           )}

@@ -121,15 +121,11 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   metaDateContainer: {
     marginRight: 8,
   },
-  content: {
-    marginTop: 8,
-  },
   footer: {
     // paddingBottom: 24,
   },
 }));
 
-// Main component definition
 const UltraFeedPostItem = ({
   post,
   postMetaInfo,

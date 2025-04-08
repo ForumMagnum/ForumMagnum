@@ -50,10 +50,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   commentCountText: {
     marginLeft: 4,
   },
-  voteButtons: {
-    marginLeft: 2,
-    paddingTop: 2
-  },
   addReactionButton: {
     display: 'flex',
     margin: '0 6px',
@@ -72,9 +68,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   reactionCount: {
     marginTop: -2
-  },
-  addReactionButtonPlaceholder: {
-    width: 28,
   },
   bookmarkButton: {
     marginBottom: -2,
@@ -107,7 +100,6 @@ const UltraFeedItemFooter = ({
 
   // TODO: Implement this
   const onClickComments = () => {
-    console.log("clicked comments");
   };
 
   const commentCountIcon = (
@@ -124,11 +116,8 @@ const UltraFeedItemFooter = ({
     </div>
   );
 
-  // Determine the voting system based on the actual document type
   const votingSystemName = isComment ? parentPost?.votingSystem : (document as PostsListWithVotes)?.votingSystem;
   const votingSystem = getVotingSystemByName(votingSystemName || "default");
-
-  // Show vote buttons only if the voting system matches and it's not a comment with hidden karma (or adjust logic as needed)
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !(isComment && parentPost?.hideCommentKarma);
   
   const voteProps = useVote(document, collectionName, votingSystem);

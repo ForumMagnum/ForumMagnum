@@ -104,10 +104,6 @@ const useSpotlightFeedItemStyles = defineStyles(
       zIndex: 3,
     },
     title: {
-      // ...theme.typography.postStyle,
-
-      // TOOD: make reusable styles to share with UltraFeedPostItem
-      // fontVariant: "small-caps",
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: "1.6rem",
       opacity: 0.8,
@@ -230,36 +226,6 @@ const useSpotlightFeedItemStyles = defineStyles(
     reverseIcon: {
       transform: "rotate(180deg)",
     },
-    reviews: {
-      width: "100%",
-      maxWidth: SECTION_WIDTH,
-      borderTop: theme.palette.border.extraFaint,
-      background: theme.palette.panelBackground.default,
-      [theme.breakpoints.down('xs')]: {
-        display: "none",
-      }
-    },
-    review: {
-      '&& .CommentFrame-node': {
-        border: "none",
-        margin: 0,
-      },
-      '& .SingleLineComment-commentInfo': {
-        paddingLeft: 13,
-        backgroundColor: theme.palette.background.translucentBackgroundHeavy,
-        borderRadius: 0
-      },
-      '& .CommentsItem-root': {
-        borderBottom: theme.palette.border.extraFaint,
-        backgroundColor: theme.palette.background.pageActiveAreaBackground,
-        '&:last-child': {
-          borderTop: theme.palette.border.extraFaint,
-        }
-      },
-      '& .comments-node-root': {
-        backgroundColor: 'unset',
-      },
-    },
     imageContainerWithAuthor: {
       marginTop: -30,
     },
@@ -277,13 +243,6 @@ function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
 
   // We should never reach this
   return "";
-}
-
-function getSpotlightDisplayReviews(spotlight: SpotlightDisplay) {
-  if (spotlight.post) {
-    return spotlight.post.reviews;
-  }
-  return [];
 }
 
 const SpotlightFeedItem = ({
@@ -319,17 +278,13 @@ const SpotlightFeedItem = ({
     "--spotlight-fade": spotlight.imageFadeColor,
   } as CSSProperties;
 
-  const {
-    AnalyticsTracker, ContentItemBody, CloudinaryImage2,
-    Typography, LWTooltip, ForumIcon, CommentsNode
-  } = Components
+  const { ContentItemBody, CloudinaryImage2, Typography } = Components
 
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
 
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
-  const spotlightReviews = [];//getSpotlightDisplayReviews(spotlight);
 
-  return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
+  return (
     <div
       ref={elementRef}
       id={spotlight._id}
@@ -395,15 +350,9 @@ const SpotlightFeedItem = ({
             </div>
           </div>
         </div>
-        <div className={classes.reviews}>
-          {/* {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
-            <CommentsNode comment={review} treeOptions={{singleLineCollapse: true, forceSingleLine: true, hideSingleLineMeta: true}} nestingLevel={1}/>
-          </div>)} */}
-        </div>
       </div>
     </div>
-  </AnalyticsTracker>
-}
+  )}
 
 const SpotlightFeedItemComponent = registerComponent('SpotlightFeedItem', SpotlightFeedItem)
 

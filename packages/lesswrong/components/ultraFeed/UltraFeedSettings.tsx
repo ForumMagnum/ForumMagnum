@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useUltraFeedSettings, DEFAULT_SETTINGS, CommentTitleStyle } from '../../lib/ultraFeedSettings';
+import { useUltraFeedSettings, DEFAULT_SETTINGS } from '../../lib/ultraFeedSettings';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 
@@ -112,31 +112,15 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
 }));
 
-// Helper to get human-readable option labels
-const getTitleStyleLabel = (style: CommentTitleStyle): string => {
-  switch (style) {
-    case "postStyleHeading":
-      return "Post-style heading";
-    case "commentReplyStyleBeneathMetaInfo":
-      return "Comment reply style (beneath meta info)";
-    case "commentReplyStyleAboveMetaInfo":
-      return "Comment reply style (above meta info)";
-    default:
-      return style;
-  }
-};
-
 const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
   const classes = useStyles(styles);
   const { settings, updateSetting, resetSettings } = useUltraFeedSettings();
   
   // Local state for form values
   const [formValues, setFormValues] = useState({
-    commentTitleStyle: settings.commentTitleStyle,
     postTruncationBreakpoints: [...settings.postTruncationBreakpoints],
     commentTruncationBreakpoints: [...settings.commentTruncationBreakpoints],
     collapsedCommentTruncation: settings.collapsedCommentTruncation,
-    showVerticalLine: settings.showVerticalLine,
     lineClampNumberOfLines: settings.lineClampNumberOfLines,
   });
   
@@ -147,14 +131,6 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
     collapsedCommentTruncation: false,
     lineClampNumberOfLines: false,
   });
-  
-  // Handle select change
-  const handleSelectChange = useCallback((key: 'commentTitleStyle', value: CommentTitleStyle) => {
-    setFormValues(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  }, []);
   
   // Update array of numbers at specific index
   const handleArrayChange = useCallback((
@@ -307,55 +283,19 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
     <div className={classes.root}>
       <div className={classes.settingGroup}>
         <h3 className={classes.groupTitle}>Display Options</h3>
-        <div className={classes.inputContainer}>
-          <label className={classes.inputLabel}>Comment title style:</label>
-          <select
-            className={classes.selectInput}
-            value={formValues.commentTitleStyle}
-            onChange={(e) => handleSelectChange('commentTitleStyle', e.target.value as CommentTitleStyle)}
-          >
-            <option value="postStyleHeading">{getTitleStyleLabel("postStyleHeading")}</option>
-            <option value="commentReplyStyleBeneathMetaInfo">{getTitleStyleLabel("commentReplyStyleBeneathMetaInfo")}</option>
-            <option value="commentReplyStyleAboveMetaInfo">{getTitleStyleLabel("commentReplyStyleAboveMetaInfo")}</option>
-          </select>
-          <p className={classes.inputDescription}>
-            Controls how the post title appears in comment threads
-          </p>
-        </div>
         
         <div className={classes.inputContainer}>
-          <label className={classes.inputLabel}>Show vertical line:</label>
+          <label className={classes.inputLabel}>Line Clamp Lines:</label>
           <input
-            type="checkbox"
-            checked={formValues.showVerticalLine}
-            onChange={(e) => setFormValues(prev => ({
-              ...prev,
-              showVerticalLine: e.target.checked
-            }))}
+            type="number"
+            className={classNames(classes.numberInput, {
+              [classes.invalidInput]: errors.lineClampNumberOfLines
+            })}
+            value={formValues.lineClampNumberOfLines}
+            onChange={(e) => handleNumberChange('lineClampNumberOfLines', e.target.value)}
+            min={0}
+            max={10}
           />
-          <p className={classes.inputDescription}>
-            Display a vertical line connecting comments in a thread
-          </p>
-        </div>
-      </div>
-      
-      <div className={classes.settingGroup}>
-        <h3 className={classes.groupTitle}>Content Truncation</h3>
-        
-        <div className={classes.inputContainer}>
-          <label className={classes.inputLabel}>Line clamp:</label>
-          <div className={classes.arrayInput}>
-            <input
-              type="number"
-              className={classNames(classes.numberInput, {
-                [classes.invalidInput]: errors.lineClampNumberOfLines
-              })}
-              value={formValues.lineClampNumberOfLines}
-              onChange={(e) => handleNumberChange('lineClampNumberOfLines', e.target.value)}
-              min={0}
-              max={10}
-            />
-          </div>
           <p className={classes.inputDescription}>
             Number of lines to show in collapsed comments (0 disables line clamp, 2-10 lines recommended)
           </p>
@@ -363,6 +303,13 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
             <p className={classes.errorMessage}>Field must contain a valid number between 0 and 10</p>
           )}
         </div>
+      </div>
+      
+      <div className={classes.settingGroup}>
+        <h3 className={classes.groupTitle}>Truncation</h3>
+        <p className={classes.groupDescription}>
+          Word count limits for expanding content. Lower values show less initially.
+        </p>
         
         <div className={classes.inputContainer}>
           <label className={classes.inputLabel}>Post truncation levels:</label>

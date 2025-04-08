@@ -42,17 +42,14 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     cursor: 'pointer',
   },
   maxHeight: {
-    // // maxHeight: 600,
-    // overflow: 'hidden',
   },
   lineClamp: {
     display: '-webkit-box !important',
     '-webkit-box-orient': 'vertical !important',
     overflow: 'hidden !important',
-    // textOverflow: 'ellipsis !important',
+    // textOverflow: 'ellipsis !important', // might want to reenable
     maxHeight: 'none !important',
-    // TOOD: remove for now to avoid weird sudden clipping of text (I believe this was to give room for danglers?)
-    // paddingBottom: '0.25em !important',
+    // paddingBottom: '0.25em !important', // might want to reenable
   },
   lineClamp1: {
     WebkitLineClamp: '1 !important',
@@ -80,39 +77,28 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
 }));
 
-// Define the three possible entity configurations
+// Define the three possible configurations
 type PostProps = { post: PostsList; comment?: never; tag?: never };
 type CommentProps = { post?: never; comment: CommentsList; tag?: never };
 type TagProps = { post?: never; comment?: never; tag: TagBasicInfo };
 
-// Union type to ensure exactly one entity is provided
 type DocumentProps = PostProps | CommentProps | TagProps;
 
 // Main component props
 interface BaseFeedContentBodyProps {
-  /** HTML content */
   html: string;
-  /** Word count breakpoints for expansion levels */
   breakpoints: number[];
-  /** Initial expansion level index */
   initialExpansionLevel?: number;
-  /** Link to entity page on final expand */
   linkToDocumentOnFinalExpand?: boolean;
-  /** Total word count */
   wordCount: number;
-  /** Expansion callback */
   onExpand?: (level: number, maxLevelReached: boolean, wordCount: number) => void;
-  /** Description for ContentItemBody */
   description?: string;
-  /** Add nofollow to links */
   nofollow?: boolean;
-  /** Additional styling */
   className?: string;
   /** Override word truncation with line clamping (number of lines) */
   clampOverride?: number;
 }
 
-// Combined props type
 type FeedContentBodyProps = BaseFeedContentBodyProps & DocumentProps;
 
 const FeedContentBody = ({
@@ -138,18 +124,6 @@ const FeedContentBody = ({
   const currentWordLimit = breakpoints[expansionLevel];
   const isFirstLevel = expansionLevel === 0;
   
-  // Add logging at the start of render
-  // console.log('[FeedContentBody Render]', {
-  //   documentId: post?._id || comment?._id || tag?._id,
-  //   expansionLevel,
-  //   currentWordLimit,
-  //   isMaxLevel,
-  //   isFirstLevel,
-  //   wordCount,
-  //   breakpoints
-  // });
-  
-  // Determine entity type and ID
   const documentType = post ? 'post' : comment ? 'comment' : 'tag';
   const documentId = post?._id || comment?._id || tag?._id;
   
@@ -164,11 +138,7 @@ const FeedContentBody = ({
   };
   
   const handleExpand = useCallback(() => {
-    const docId = post?._id || comment?._id || tag?._id;
-    console.log('[FeedContentBody handleExpand Start]', { docId, currentExpansionLevel: expansionLevel, isMaxLevel });
-
     if (isMaxLevel && linkToDocumentOnFinalExpand) {
-        console.log('[FeedContentBody handleExpand] At max level and linking out, returning.');
         return;
     }
 
@@ -176,7 +146,6 @@ const FeedContentBody = ({
     const newMaxReached = newLevel >= breakpoints.length - 1;
     setExpansionLevel(newLevel);
     onExpand?.(newLevel, newMaxReached, wordCount);
-    console.log('[FeedContentBody handleExpand End]', { docId, newLevel });
 
   }, [
     expansionLevel,
@@ -185,38 +154,22 @@ const FeedContentBody = ({
     isMaxLevel,
     linkToDocumentOnFinalExpand,
     wordCount,
-    post, comment, tag
   ]);
   
   // Handle clicks on the content area
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
 
-    // Check 1: Is it the explicit "read-more-button"? Expand and stop.
-    if (target.classList.contains('read-more-button') || target.closest('.read-more-button')) {
-      // console.log("in FeedContentBody handleContentClick, if read more button, stage 1");
-      e.stopPropagation(); // Prevent link navigation if button is inside a link
-      handleExpand();
-      return;
-    }
-
-    // Check 2: Is the click target itself or its immediate parent an anchor tag?
-    // If so, do nothing and let the browser handle the link navigation.
+    // If the user clicking on a link, allow default navigation and don't expand.
     if (target.tagName === 'A' || target.parentElement?.tagName === 'A') {
-      // console.log("Clicked on a link, allowing default navigation.");
-      // Do not call e.stopPropagation()
-      // Do not call handleExpand()
       return;
     }
 
-    // Check 3: Otherwise, it's a click on general content. Trigger expansion.
-    // console.log("in FeedContentBody handleContentClick, general click");
-    // No need to check isFirstLevel anymore
+    // Otherwise, it's a click on general content. Trigger expansion.
     handleExpand();
 
   }, [handleExpand]); // Remove isFirstLevel from dependency array
   
-  // Using line clamp or word truncation based on the clampOverride prop
   const usingLineClamp = clampOverride !== undefined && clampOverride > 0;
   
   // Process the HTML content only if not using line clamp
@@ -225,17 +178,13 @@ const FeedContentBody = ({
   let wordsLeft = 0;
   
   if (!usingLineClamp) {
-    // Add read-more button directly to the HTML for non-max levels
     const createReadMoreSuffix = () => {
       if (isMaxLevel && linkToDocumentOnFinalExpand) {
-        // Don't add inline suffix if we're showing an external link button
         return '...';
       }
-      // Use a placeholder that will be replaced after we know wordsLeft
       return `...<span class="read-more-button" data-expansion-level="${expansionLevel}">(read more)</span>`;
     };
     
-    // Process the HTML content
     const result = truncateWithGrace(
       html,
       currentWordLimit,
@@ -261,11 +210,9 @@ const FeedContentBody = ({
     wordsLeft = wordCount - currentWordLimit;
   }
   
-  // Get the appropriate line clamp class based on the clampOverride value
   const getLineClampClass = () => {
     if (!usingLineClamp || !clampOverride) return "";
     
-    // Map the clamp override to predefined classes
     switch (clampOverride) {
       case 1: return classes.lineClamp1;
       case 2: return classes.lineClamp2;
@@ -276,16 +223,12 @@ const FeedContentBody = ({
       case 8: return classes.lineClamp8;
       case 10: return classes.lineClamp10;
       default: 
-        // For values we don't have specific classes for, use lineClamp4 as a default
+        // eslint-disable-next-line no-console
         console.warn(`No specific class for line clamp value: ${clampOverride}, using default`);
         return classes.lineClamp4;
     }
   };
   
-  // Only show external link button if:
-  // - We're at max level 
-  // - There's more content to show
-  // - We're configured to link to full content
   const showContinueReadingLink = isMaxLevel && wasTruncated && linkToDocumentOnFinalExpand;
 
   return (
@@ -319,19 +262,6 @@ const FeedContentBody = ({
           </Link>
       </div>}
       </Components.ContentStyles>
-      
-      {/* {usingLineClamp && wasTruncated && !isMaxLevel && (
-        <span 
-          className={classes.readMoreButton}
-          onClick={(e) => {
-            console.log("in FeedContentBody read more, stage 1");
-            e.stopPropagation();
-            handleExpand();
-          }}
-        >
-          Read more 77
-        </span>
-      )} */}
     </div>
   );
 };

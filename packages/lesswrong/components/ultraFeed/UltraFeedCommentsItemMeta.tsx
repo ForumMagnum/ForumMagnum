@@ -4,9 +4,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { DisplayFeedComment } from "./ultraFeedTypes";
-import { commentGetKarma } from "@/lib/collections/comments/helpers";
-import classNames from "classnames";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -40,14 +37,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     color: theme.palette.text.dim3,
     marginRight: 2,
     marginBottom: -6
-  },
-  karma: {
-    display:"inline-block",
-    textAlign: "center",
-    flexGrow: 0,
-    flexShrink: 0,
-    // paddingTop: 5,
-    paddingRight: 8,
   },
   username: {
     marginRight: 8,

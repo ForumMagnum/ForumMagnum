@@ -11,8 +11,7 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-// Define the two separate style sets (still requires duplicating common styles)
-const smallStylesDefinition = defineStyles('OverallVoteAxisSmall', theme => ({
+const getCommonStyles = (theme: ThemeType) => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
@@ -31,11 +30,16 @@ const smallStylesDefinition = defineStyles('OverallVoteAxisSmall', theme => ({
     whiteSpace: "nowrap",
     display: "inline-block",
   },
-  voteScore: { fontSize: '1.1rem', margin: '0 4px', lineHeight: 1, /* + other styles */ },
+  voteScore: { 
+    lineHeight: 1
+  },
   secondarySymbol: {
     fontFamily: theme.typography.body1.fontFamily,
   },
-  secondaryScore: { fontSize: '1.1rem', marginLeft: 2, marginRight: 14, /* + other styles */ },
+  secondaryScore: {
+    marginLeft: 2,
+    marginRight: 14
+  },
   secondaryScoreNumber: {
     marginLeft: 3,
   },
@@ -55,53 +59,33 @@ const smallStylesDefinition = defineStyles('OverallVoteAxisSmall', theme => ({
     "& $voteScore": {
       display: "block",
     },
+  },
+});
+
+const smallStylesDefinition = defineStyles('OverallVoteAxisSmall', theme => ({
+  ...getCommonStyles(theme),
+  voteScore: { 
+    ...getCommonStyles(theme).voteScore,
+    fontSize: '1.1rem',
+    margin: '0 4px', 
+  },
+  secondaryScore: {
+    ...getCommonStyles(theme).secondaryScore,
+    fontSize: '1.1rem',
   },
 }));
 
 const largeStylesDefinition = defineStyles('OverallVoteAxisLarge', theme => ({
-  overallSection: {
-    display: 'inline-block',
-    height: 24,
-    paddingTop: isFriendlyUI ? 2.5 : 0
+  ...getCommonStyles(theme),
+  voteScore: { 
+    ...getCommonStyles(theme).voteScore,
+    fontSize: '1.3rem', 
+    margin: '0 7px', 
   },
-  overallSectionBox: {
-    marginLeft: 8,
-    outline: theme.palette.border.commentBorder,
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
-    textAlign: 'center',
-    minWidth: 60
-  },
-  vote: {
-    fontSize: 25,
-    lineHeight: 0.6,
-    whiteSpace: "nowrap",
-    display: "inline-block",
-  },
-  voteScore: { fontSize: '1.3rem', margin: '0 7px', lineHeight: 1, /* + other styles */ },
-  secondarySymbol: {
-    fontFamily: theme.typography.body1.fontFamily,
-  },
-  secondaryScore: { fontSize: '1.3rem', marginLeft: 2, marginRight: 14, /* + other styles */ },
-  secondaryScoreNumber: {
-    marginLeft: 3,
-  },
-  tooltipHelp: {
-    fontSize: '1rem',
-    fontStyle: "italic"
-  },
-  tooltip: {
-    transform: "translateY(-10px)",
-  },
-  lwTooltip: {
-    transform: "translateY(-3px)",
-  },
-  verticalArrows: {
-    "& .LWTooltip-root": {
-    },
-    "& $voteScore": {
-      display: "block",
-    },
-  },
+  secondaryScore: { 
+    ...getCommonStyles(theme).secondaryScore,
+    fontSize: '1.3rem', 
+  }
 }));
 
 const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'

@@ -5,13 +5,10 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import { userHasUltraFeed } from '../../lib/betas';
 import type { ObservableQuery } from '@apollo/client';
-import classNames from 'classnames';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
-
-// Add this at the top level of your file
 
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
@@ -26,13 +23,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     marginBottom: 8,
-  },
-  settingsButton: {
-    cursor: 'pointer',
-    color: theme.palette.primary.main,
-    '&:hover': {
-      opacity: 0.8
-    }
   },
   feedComementItem: {
     marginBottom: 16
@@ -71,14 +61,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
       display: 'inline',
     },
   },
-  refreshText: {
-    color: theme.palette.primary.dark,
-    fontSize: '1.3rem',
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    pointerEvents: 'none',
-    marginRight: -60,
-    whiteSpace: 'nowrap', // Prevent text from wrapping
-  },
   settingsButtonContainer: {
     flex: '1 1 0',
     display: 'flex',
@@ -97,7 +79,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
 }));
 
-// Define the main component implementation
 const UltraFeedContent = () => {
   const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, UltraFeedPostItem,
@@ -109,13 +90,8 @@ const UltraFeedContent = () => {
   const ultraFeedEnabled = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
   
   const [settingsVisible, setSettingsVisible] = useState(false);
-  // Generate a new session ID for each component mount
   const [sessionId] = useState(() => randomId());
   
-  // Ref for the top section to scroll to
-  const topSectionRef = useRef<HTMLDivElement>(null);
-
-  // Setup refetch for subscribed content
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
   if (!userHasUltraFeed(currentUser)) {
@@ -161,17 +137,13 @@ const UltraFeedContent = () => {
         <UltraFeedObserverProvider>
           <SingleColumnSection>
             {/* place this higher than top feed so it properly scrolls into view */}
-            <div ref={topSectionRef} />
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
-            
-            {/* Settings Drawer */}
             {settingsVisible && (
               <div className={classes.settingsContainer}>
                 <UltraFeedSettings onClose={() => setSettingsVisible(false)} />
               </div>
             )}
             
-            {/* New Content Section */}
             <div className={classes.ultraFeedNewContentContainer}>
               <MixedTypeFeed
                 resolverName="UltraFeed"
@@ -180,6 +152,7 @@ const UltraFeedContent = () => {
                 pageSize={15}
                 refetchRef={refetchSubscriptionContentRef}
                 resolverArgsValues={{ sessionId }}
+                loadMoreDistanceProp={1000}
                 renderers={{
                     feedCommentThread: {
                       fragmentName: 'FeedCommentThreadFragment',
@@ -189,7 +162,7 @@ const UltraFeedContent = () => {
                         }
                         
                         return (
-                          <FeedItemWrapper sources={['commentThreads']}>
+                          <FeedItemWrapper>
                             <UltraFeedThreadItem thread={item} />
                           </FeedItemWrapper>
                         );
@@ -203,7 +176,7 @@ const UltraFeedContent = () => {
                         }
                         
                         return (
-                          <FeedItemWrapper sources={['postThreads']}>
+                          <FeedItemWrapper>
                             <UltraFeedPostItem post={item.post} postMetaInfo={item.postMetaInfo} />
                           </FeedItemWrapper>
                         );
@@ -217,7 +190,7 @@ const UltraFeedContent = () => {
                         }
 
                         return (
-                          <FeedItemWrapper sources={['spotlights']}>
+                          <FeedItemWrapper>
                             <SpotlightFeedItem 
                               spotlight={item.spotlight}
                               showSubtitle={true}
@@ -237,7 +210,6 @@ const UltraFeedContent = () => {
   );
 };
 
-// Create the wrapper component that uses DeferRender
 const UltraFeed = () => {
   return (
     // TODO: possibly defer render shouldn't apply to the section title?

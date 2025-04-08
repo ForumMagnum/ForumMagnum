@@ -1,12 +1,3 @@
-/**
- * Fragment for UltraFeed items.
- */
-
-/**
- * Fragment for both feedPost and feedCommentThread items
- * This includes both metadata fields and content fields loaded via IDs
- */
-
 export const FeedPostFragment = `
   fragment FeedPostFragment on FeedPost {
     _id
@@ -27,10 +18,6 @@ export const FeedCommentThreadFragment = `
   }
 `;
 
-/**
- * Fragment for feedSpotlight items in UltraFeed
- * This matches the structure returned by the UltraFeed resolver
- */
 export const FeedSpotlightFragment = `
   fragment FeedSpotlightFragment on FeedSpotlightItem {
     _id

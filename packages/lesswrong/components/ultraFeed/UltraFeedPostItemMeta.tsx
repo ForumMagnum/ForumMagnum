@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { postGetKarma } from "../../lib/collections/posts/helpers";
 import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
@@ -30,12 +29,6 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
     flexWrap: "wrap",
     // rowGap: "0px",
   },
-  rightSection: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto",
-    marginRight: 0,
-  },
   karma: {
     display: "inline-block",
     textAlign: "center",
@@ -64,11 +57,6 @@ const styles = defineStyles("UltraFeedPostItemMeta", (theme: ThemeType) => ({
   dateContainer: {
     marginRight: 8,
   },
-  voteButtons: {
-    marginLeft: 0,
-    marginRight: 0,
-    paddingTop: 2,
-  },
 }));
 
 const UltraFeedPostItemMeta = ({
@@ -81,17 +69,16 @@ const UltraFeedPostItemMeta = ({
   hideVoteButtons?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { FormatDate, UsersName } = Components;
+  const { FormatDate, UsersName, UserNameDeleted } = Components;
   const authorExpandContainer = useRef(null);
   
   const { isAnon, authors } = usePostsUserAndCoauthors(post);
 
   const showKarma = hideVoteButtons && !post.rejected;
 
-  // Simplified author display logic
   const renderAuthors = () => {
     if (isAnon || authors.length === 0) {
-      return <Components.UserNameDeleted />;
+      return <UserNameDeleted />;
     }
     
     const mainAuthor = authors[0];

@@ -55,4 +55,4 @@ export function useUltraFeedSetting<K extends keyof UltraFeedSettings>(key: K): 
   }, [key]);
   
   return value;
-} 
+}
