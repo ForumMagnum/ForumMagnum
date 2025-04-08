@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
-import Typography from '@/lib/vendor/@material-ui/core/src/Typography';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Components } from '@/lib/vulcan-lib/components';
 
 export const styles = defineStyles("DialogTitle", theme => ({
   /* Styles applied to the root element. */
@@ -19,6 +19,7 @@ export function DialogTitle(props: {
 }) {
   const { children, className, disableTypography=false } = props;
   const classes = useStyles(styles);
+  const { Typography } = Components;
 
   return (
     <div className={classNames(classes.root, className)}>
