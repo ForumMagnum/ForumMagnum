@@ -109,13 +109,14 @@ export function generateTypes(repoRoot?: string) {
   try {
     writeIfChanged(generateDefaultFragmentsFile(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
-    writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateCollectionTypeNames(), "/packages/lesswrong/lib/generated/collectionTypeNames.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
-    writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
+    //writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
+    //writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
+    writeIfChanged(generateGraphQLAndFragmentsSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchemaAndFragments.gql");
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error(e);
@@ -135,4 +136,8 @@ function generateGraphQLSchemaFile(): string {
   const {typeDefs: schema} = getGraphQLTypeDefs();
   sb.push(print(schema));
   return sb.join("");
+}
+
+function generateGraphQLAndFragmentsSchemaFile(): string {
+  return generateGraphQLSchemaFile() + generateFragmentsGqlFile();
 }
