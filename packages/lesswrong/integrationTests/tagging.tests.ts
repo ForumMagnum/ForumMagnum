@@ -20,7 +20,8 @@ describe('Tagging', function() {
           added: 10,
         },
       });
-      await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user, skipRateLimits: false });
+      // This is performing an unvote, which causes the test to fail because it has the wrong contribution stats.  Not sure why it was ever working.
+      // await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user, skipRateLimits: false });
       await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user: voter, skipRateLimits: false });
       await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description', context: createAdminContext() });
       await waitUntilCallbacksFinished();
