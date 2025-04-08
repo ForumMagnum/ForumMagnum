@@ -847,7 +847,7 @@ export const NewMentionNotification = createServerNotificationType({
   },
 });
 
-const serverNotificationTypes: Record<string,ServerNotificationType> = {
+const serverNotificationTypesArray: ServerNotificationType[] = [
   NewPostNotification,
   PostApprovedNotification,
   NewEventNotification,
@@ -883,7 +883,9 @@ const serverNotificationTypes: Record<string,ServerNotificationType> = {
   PostCoauthorAcceptNotification,
   NewSubforumMemberNotification,
   NewMentionNotification,
-};
+];
+const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
+
 
 export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
   if (name in serverNotificationTypes)

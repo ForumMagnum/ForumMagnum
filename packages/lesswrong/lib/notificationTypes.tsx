@@ -23,6 +23,7 @@ import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { NotificationChannel } from './collections/users/newSchema';
+import keyBy from 'lodash/keyBy';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -934,7 +935,7 @@ export const NewMentionNotification = createNotificationType({
   },
 })
 
-const notificationTypes: Record<string,NotificationType> = {
+const notificationTypesArray: NotificationType[] = [
   NewPostNotification,
   NewUserCommentNotification,
   PostApprovedNotification,
@@ -974,7 +975,8 @@ const notificationTypes: Record<string,NotificationType> = {
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
   NewMentionNotification,
-};
+];
+const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
 
 function groupNotificationTypesByUserSetting(notificationTypes: Record<string,NotificationType>) {
   const result: Partial<Record<keyof DbUser, NotificationType>> = {};
