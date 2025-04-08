@@ -108,34 +108,15 @@ const UltraFeedContent = () => {
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   const ultraFeedEnabled = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
   
-  // State for settings drawer visibility
   const [settingsVisible, setSettingsVisible] = useState(false);
-
   // Generate a new session ID for each component mount
   const [sessionId] = useState(() => randomId());
-  
-  // State to track if the history feed has reached the end
-  const [reachedEndOfHistory, setReachedEndOfHistory] = useState(false);
   
   // Ref for the top section to scroll to
   const topSectionRef = useRef<HTMLDivElement>(null);
 
   // Setup refetch for subscribed content
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
-  const refetchSubscriptionContent = useCallback(() => {
-    if (refetchSubscriptionContentRef.current) {
-      void refetchSubscriptionContentRef.current();
-    }
-  }, [refetchSubscriptionContentRef]);
-
-  // Ref for the loadMoreAtTop function
-  const loadMoreAtTopRef = useRef<null | (() => void)>(null);
-  const loadMoreAtTop = useCallback(() => {
-    // if (loadMoreAtTopRef.current) {
-    //   loadMoreAtTopRef.current();
-    // }
-  }, [loadMoreAtTopRef]);
-
 
   if (!userHasUltraFeed(currentUser)) {
     return null;
@@ -151,7 +132,7 @@ const UltraFeedContent = () => {
   };
   
   const customTitle = <>
-    <div className={classes.titleContainer} onClick={loadMoreAtTop}>
+    <div className={classes.titleContainer}>
       <span className={classes.titleText}>
         <span className={classes.titleTextDesktop}>Update Feed</span>
         <span className={classes.titleTextMobile}>The Feed</span>
@@ -198,8 +179,6 @@ const UltraFeedContent = () => {
                 firstPageSize={15}
                 pageSize={15}
                 refetchRef={refetchSubscriptionContentRef}
-                loadMoreRef={loadMoreAtTopRef}
-                prependedLoadMore={false}
                 resolverArgsValues={{ sessionId }}
                 renderers={{
                     feedCommentThread: {

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useQuery, gql, ObservableQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
@@ -26,21 +26,11 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   renderers: any,
 }) => {
   const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
-  
-  const queryArgsList=[
-    "$limit: Int", 
-    `$cutoff: ${sortKeyType}`, 
-    "$offset: Int", 
-    "$sessionId: String", // Optional sessionId parameter
+  const queryArgsList=[ "$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int", "$sessionId: String",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
   ];
-  
-  const resolverArgsList=[
-    "limit: $limit", 
-    "cutoff: $cutoff", 
-    "offset: $offset", 
-    "sessionId: $sessionId", // Will be null if not provided
+  const resolverArgsList=[ "limit: $limit", "cutoff: $cutoff", "offset: $offset", "sessionId: $sessionId",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `${k}: $${k}`) : []),
   ];
 
@@ -116,9 +106,6 @@ const MixedTypeFeed = (args: {
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
   refetchRef?: {current: null|ObservableQuery['refetch']},
-  
-  // Ref that will be populated with the loadMoreAtTop function
-  loadMoreRef?: {current: null|(() => void)},
 
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
@@ -128,13 +115,7 @@ const MixedTypeFeed = (args: {
 
   // Disable automatically loading more - only show the initially fetched documents
   disableLoadMore?: boolean,
-  
-  // Load more content at the top instead of bottom (with a button instead of infinite scroll)
-  prependedLoadMore?: boolean,
-  
-  // Callback when the feed has reached the end of results
-  onReachedEnd?: (isAtEnd: boolean) => void,
-  
+
   className?: string,
 }) => {
   const {
@@ -148,12 +129,9 @@ const MixedTypeFeed = (args: {
     firstPageSize=20,
     pageSize=20,
     refetchRef,
-    loadMoreRef,
     reorderOnRefetch=false,
     hideLoading,
     disableLoadMore,
-    prependedLoadMore=false,
-    onReachedEnd,
     className,
   } = args;
 
@@ -164,9 +142,6 @@ const MixedTypeFeed = (args: {
   // because it's accessed from inside callbacks, where the timing of state
   // updates would be a problem.
   const queryIsPending = useRef(false);
-  
-  // State to track if more content is being loaded for the prepended case
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   
   const {Loading} = Components;
   
@@ -190,110 +165,9 @@ const MixedTypeFeed = (args: {
   
   // Whether we've reached the end. The end-marker is when a query returns null
   // for the cutoff.
-  const hasResults = data && data[resolverName]?.results?.length > 0;
-  const reachedEnd = prependedLoadMore 
-    ? (data && data[resolverName] && !hasResults) // For prepended mode, we've reached the end if there are no results
-    : (data && data[resolverName] && !data[resolverName].cutoff); // Standard end detection
+  const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
   
-  console.log("MixedTypeFeed render state", {
-    resolverName,
-    dataExists: !!data,
-    resolverData: data?.[resolverName],
-    cutoff: data?.[resolverName]?.cutoff,
-    reachedEnd,
-    hasResults,
-    resultsCount: data?.[resolverName]?.results?.length || 0,
-    sessionId: resolverArgsValues?.sessionId 
-  });
-  
-  const keyFunc = useCallback((result: any) => `${result.type}_${result[result.type]?._id}`, []); // Get a unique key for each result. Used for sorting and deduplication.
-
-  // Function to load more content at the top
-  const loadMoreAtTop = useCallback(() => {
-    console.log("loadMoreAtTop called", { 
-      dataExists: !!data, 
-      reachedEnd, 
-      isPending: queryIsPending.current,
-      cutoff: data?.[resolverName]?.cutoff,
-      endOffset: data?.[resolverName]?.endOffset,
-      sessionId: resolverArgsValues?.sessionId
-    });
-    
-    if (!data || queryIsPending.current) return;
-    
-    setIsLoadingMore(true);
-    queryIsPending.current = true;
-    
-    console.log("Calling fetchMore with variables", {
-      cutoff: data[resolverName].cutoff,
-      offset: data[resolverName].endOffset,
-      limit: pageSize,
-      sessionId: resolverArgsValues?.sessionId // Only log the prop
-    });
-    
-    void fetchMore({
-      variables: {
-        ...resolverArgsValues,
-        ...fragmentArgsValues,
-        cutoff: data[resolverName].cutoff,
-        offset: data[resolverName].endOffset,
-        limit: pageSize,
-        sessionId: resolverArgsValues?.sessionId || null,
-      },
-      updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
-        console.log("fetchMore updateQuery callback", { 
-          hasResult: !!fetchMoreResult,
-          prevResultsCount: prev[resolverName].results.length,
-          newResultsCount: fetchMoreResult?.[resolverName]?.results?.length || 0,
-          newCutoff: fetchMoreResult?.[resolverName]?.cutoff
-        });
-        
-        queryIsPending.current = false;
-        setIsLoadingMore(false);
-        
-        if (!fetchMoreResult || !fetchMoreResult[resolverName]?.results?.length) {
-          // If we got no results, treat it as reaching the end
-          return {
-            ...prev,
-            [resolverName]: {
-              ...prev[resolverName],
-              // Mark as having reached the end to prevent more requests
-              cutoff: null
-            }
-          };
-        }
-
-        // Deduplicate by removing repeated results from the newly fetched page
-        const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
-        const newResults = fetchMoreResult[resolverName].results;
-        const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
-        
-        console.log("After deduplication", {
-          originalNewResults: newResults.length,
-          deduplicatedResults: deduplicatedResults.length
-        });
-        
-        return {
-          [resolverName]: {
-            __typename: fetchMoreResult[resolverName].__typename,
-            cutoff: fetchMoreResult[resolverName].cutoff,
-            endOffset: fetchMoreResult[resolverName].endOffset,
-            sessionId: fetchMoreResult[resolverName]?.sessionId, // Keep sessionId from response
-            results: [...deduplicatedResults, ...prev[resolverName].results],
-          }
-        };
-      }
-    }).catch(error => {
-      console.error("Error in fetchMore:", error);
-      queryIsPending.current = false;
-      setIsLoadingMore(false);
-    });
-  }, [data, reachedEnd, queryIsPending, resolverName, pageSize, resolverArgsValues, fragmentArgsValues, fetchMore, keyFunc]);
-  
-  // Assign loadMoreAtTop to the ref
-  if (loadMoreRef) {
-    loadMoreRef.current = loadMoreAtTop;
-  }
+  const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
 
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
   // the bottom that we should start loading the next page, and if so, start loading it.
@@ -333,7 +207,6 @@ const MixedTypeFeed = (args: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
                 endOffset: fetchMoreResult[resolverName].endOffset,
-                sessionId: fetchMoreResult[resolverName]?.sessionId, // Keep sessionId from response
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };
@@ -346,48 +219,22 @@ const MixedTypeFeed = (args: {
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results
   // have been attached to the DOM, so we can''t test whether they reach the bottom.
-  useEffect(() => {
-    // Only set up infinite scroll if not using prepended load more
-    if (!prependedLoadMore) {
-      maybeStartLoadingMore();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prependedLoadMore]);
-  
-  useOnPageScroll(() => {
-    // Only monitor scroll if not using prepended load more
-    if (!prependedLoadMore) {
-      maybeStartLoadingMore();
-    }
-  });
+  useEffect(maybeStartLoadingMore);
+  useOnPageScroll(maybeStartLoadingMore);
   
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
-  
-  useEffect(() => {
-    if (onReachedEnd) {
-      onReachedEnd(reachedEnd);
-    }
-  }, [onReachedEnd, reachedEnd]);
-  
   return <div className={className}>
-    {/* Loading indicator at the top when loading more in prepended mode */}
-    {prependedLoadMore && isLoadingMore && (
-      <div style={{ textAlign: 'center', margin: '10px 0' }}>
-        <Loading />
-      </div>
-    )}
-    
     {orderedResults.map((result) =>
       <div key={keyFunc(result)}>
         <RenderFeedItem renderers={renderers} item={result}/>
       </div>
     )}
 
-    {!disableLoadMore && !prependedLoadMore && <div ref={bottomRef}/>}
+    {!disableLoadMore && <div ref={bottomRef}/>}
     {error && <div>{error.toString()}</div>}
-    {!hideLoading && !prependedLoadMore && !reachedEnd && <Loading/>}
+    {!hideLoading && !reachedEnd && <Loading/>}
   </div>
 }
 
