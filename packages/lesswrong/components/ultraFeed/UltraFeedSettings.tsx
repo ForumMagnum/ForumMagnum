@@ -251,7 +251,7 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
     
     // Check collapsedCommentTruncation
     const collapseValue = formValues.collapsedCommentTruncation;
-    if (typeof collapseValue === 'string' && collapseValue === '' || 
+    if ((typeof collapseValue === 'string' && collapseValue === '') || 
         collapseValue === null || 
         collapseValue === undefined) {
       hasEmptyFields = true;
