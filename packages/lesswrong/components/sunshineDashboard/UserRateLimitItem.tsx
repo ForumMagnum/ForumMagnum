@@ -112,7 +112,7 @@ const getIntervalDescription = (rateLimit: UserRateLimitDisplay) => {
 };
 
 const getRemainingIntervalDescription = (rateLimit: UserRateLimitDisplay) => {
-  return moment(rateLimit.endedAt).fromNow();
+  return moment(rateLimit.endedAt ?? undefined).fromNow();
 };
 
 const getRateLimitDescription = (rateLimit: UserRateLimitDisplay) => {

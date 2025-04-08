@@ -101,7 +101,7 @@ const schema: SchemaType<"GardenCodes"> = {
     nullable: false,
     order: 25,
     onCreate: ({document: gardenCode}) => {
-      return moment(gardenCode.startTime).add(12, 'hours').toDate()
+      return moment(gardenCode.startTime ?? undefined).add(12, 'hours').toDate()
     }
   },
   fbLink: {

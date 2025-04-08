@@ -52,7 +52,7 @@ async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticip
     return await sendSingleDialogueMessageNotification(props)
   }
 
-  const isLastNotificationUnread = moment(mostRecentNotification.createdAt).isAfter(lastNotificationCheckedAt)
+  const isLastNotificationUnread = moment(mostRecentNotification.createdAt).isAfter(lastNotificationCheckedAt ?? undefined)
 
   //most recent notification is a batch notifcation
   if (mostRecentNotification.type === 'newDialogueBatchMessages') {

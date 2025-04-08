@@ -46,6 +46,9 @@
 // file before uncommenting it.
 //
 
+// @ts-nocheck
+
+
 function identity<T>(x: T): T { return x; }
 function returnFalse(x: any) { return false; }
 

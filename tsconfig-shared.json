@@ -34,7 +34,9 @@
     "node_modules",
     "packages/lesswrong/viteClient",
     "build",
-    "packages/lesswrong/lib/vendor/@material-ui"
+    "packages/lesswrong/lib/vendor/@material-ui",
+    "**/*.js",
+    "**/*.jsx"
   ],
   "ts-node": {
     "files": true

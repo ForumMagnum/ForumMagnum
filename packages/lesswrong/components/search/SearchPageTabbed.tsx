@@ -377,8 +377,8 @@ const SearchPageTabbed = ({classes}: {
           <div className={classes.searchInputArea}>
             <ForumIcon icon="Search" className={classes.searchIcon}/>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-              * null is the only option that actually suppresses the extra X button.
-            // @ts-ignore */}
+            null is the only option that actually suppresses the extra X button. */}
+            {/* @ts-ignore */}
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
             <div onClick={() => setModalOpen(true)}>
               <IconButton className={classes.funnelIconButton}>

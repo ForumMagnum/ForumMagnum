@@ -794,8 +794,8 @@ function reviewRecentDiscussionThreadsList2019(terms: PostsViewTerms) {
 
 function globalEvents(terms: PostsViewTerms) {
   const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer ?? undefined).toDate()}},
+    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer ?? undefined).toDate()}}
   ]}
   
   let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
@@ -832,8 +832,8 @@ function globalEvents(terms: PostsViewTerms) {
 
 function nearbyEvents(terms: PostsViewTerms) {
   const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer ?? undefined).toDate()}},
+    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer ?? undefined).toDate()}}
   ]}
   
   let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
@@ -892,8 +892,8 @@ function nearbyEvents(terms: PostsViewTerms) {
 function events(terms: PostsViewTerms) {
   const timeSelector = {
     $or: [
-      { startTime: { $gt: moment().subtract(eventBuffer.startBuffer, 'hours').toDate() } },
-      { endTime: { $gt: moment().subtract(eventBuffer.endBuffer, 'hours').toDate() } },
+      { startTime: { $gt: moment().subtract(eventBuffer.startBuffer ?? undefined, 'hours').toDate() } },
+      { endTime: { $gt: moment().subtract(eventBuffer.endBuffer ?? undefined, 'hours').toDate() } },
     ],
   };
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();

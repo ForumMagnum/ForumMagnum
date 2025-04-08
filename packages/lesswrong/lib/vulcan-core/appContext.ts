@@ -92,7 +92,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   }
   
   const params = currentRoute ? matchPath(location.pathname, { path: currentRoute.path, exact: true, strict: false })!.params : {}
-  const RouteComponent = currentRoute?.componentName ? Components[currentRoute.componentName] : Components.Error404;
+  const RouteComponent = currentRoute?.componentName ? (Components as any)[currentRoute.componentName] : Components.Error404;
   const result: RouterLocation = {
     currentRoute: currentRoute!, //TODO: Better null handling than this
     RouteComponent, location, params,

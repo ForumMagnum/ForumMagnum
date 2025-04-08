@@ -190,7 +190,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins"],
       onCreate: ({ document: gardenCode }) => {
-        return moment(gardenCode.startTime).add(12, "hours").toDate();
+        return moment(gardenCode.startTime ?? undefined).add(12, "hours").toDate();
       },
       validation: {
         optional: true,

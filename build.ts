@@ -3,6 +3,7 @@ import process from 'process';
 import { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir, logWithTimestamp } from "./scripts/startup/buildUtil";
 import { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, lintAndCheckTypes, waitForServerReady } from "./scripts/startup/autoRefreshServer";
 import { spawn, ChildProcess } from 'child_process';
+// @ts-ignore
 import { createServer as createViteServer, type ViteDevServer} from "vite";
 import viteReact from "@vitejs/plugin-react";
 import fs from 'fs';

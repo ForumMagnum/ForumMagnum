@@ -154,8 +154,8 @@ const AddPostsToTag = ({classes, tag}: {
         <div className={classes.searchHeader}>
           <div className={classes.searchBar}>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-              * null is the only option that actually suppresses the extra X button.
-            // @ts-ignore */}
+              * null is the only option that actually suppresses the extra X button. */}
+            {/* @ts-ignore */}
             <SearchBox focusShortcuts={[]} autoFocus={true} reset={null} className={classes.searchBox} />
             <CloseIcon className={classes.closeIcon} onClick={() => setSearchOpen(false)}/>
           </div>

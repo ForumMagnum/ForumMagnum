@@ -91,6 +91,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
       const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
 
       if (parsedUrl.currentRoute) {
+        // @ts-ignore
         const PreviewComponent: any = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
 
         if (PreviewComponent) {

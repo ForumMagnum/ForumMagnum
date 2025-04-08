@@ -1,4 +1,4 @@
-import type { MessageEvent, OpenEvent, CloseEvent } from 'ws';
+import type { MessageEvent, CloseEvent } from 'ws';
 import { getCommandLineArguments } from '@/server/commandLine';
 
 // In development, make a websocket connection (on a different port) to get
@@ -33,7 +33,7 @@ function connectWebsocket() {
       console.log(e);
     }
   });
-  connectedWebsocket.addEventListener("open", (event: OpenEvent) => {
+  connectedWebsocket.addEventListener("open", (event: AnyBecauseObsolete) => {
   });
   connectedWebsocket.addEventListener("error", (event: CloseEvent) => {
     disconnectWebsocket();

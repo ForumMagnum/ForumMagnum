@@ -172,7 +172,7 @@ const documentHelpers = {
     // Time relative to which to compute the max autosave interval, in ms since
     // epoch.
     const lastEditedAt = previousRev
-      ? moment(previousRev.autosaveTimeoutStart || previousRev.editedAt).toDate().getTime()
+      ? moment(previousRev.autosaveTimeoutStart ?? previousRev.editedAt ?? undefined).toDate().getTime()
       : 0;
     const timeSinceLastEdit = new Date().getTime() - lastEditedAt; //In ms
     

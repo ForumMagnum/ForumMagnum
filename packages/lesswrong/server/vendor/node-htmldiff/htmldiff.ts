@@ -28,6 +28,8 @@
  *   htmldiff('<p>this is some text</p>', '<p>this is some more text</p>', 'diff-class')
  *   == '<p>this is some <ins class="diff-class">more </ins>text</p>'
  */
+
+// @ts-nocheck
 function isEndOfTag(char: string){
     return char === '>';
 }

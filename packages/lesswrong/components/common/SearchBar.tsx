@@ -194,7 +194,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
              // @ts-ignore */}
-            {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
+            {inputOpen && <SearchBox reset={undefined} focusShortcuts={[]} autoFocus={true} />}
           </div>
           { inputOpen && <div className={classes.searchBarClose} onClick={closeSearch}>
             <CloseIcon className={classes.closeSearchIcon}/>

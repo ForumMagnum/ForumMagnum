@@ -8,6 +8,8 @@
  * https://github.com/timgilbert/js-weighted-list is its home.
  */
 
+// @ts-nocheck
+
 export class WeightedList
 {
   weights: any

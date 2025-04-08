@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import { universalFields } from "../../collectionUtils";
+import { editableFields } from '@/lib/editor/make_editable';
 
 const schema: SchemaType<"Bans"> = {
   ...universalFields({}),
@@ -62,6 +63,19 @@ const schema: SchemaType<"Bans"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
   },
+  ...editableFields("Bans", {
+    fieldName: "moderationGuidelines",
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: () => formGroups.moderationGroup,
+    hidden: !hasAuthorModeration,
+    order: 50,
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins']
+    }
+  }),
 };
 
 export default schema;

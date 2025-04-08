@@ -39,8 +39,8 @@ export const PrettyEventDateTime = ({
     tz = ` ${start.format("z")}`;
   } else if (useLocalTimes) {
     // see postResolvers.ts for more on how local times work
-    start = moment(post.localStartTime).utc();
-    end = post.localEndTime && moment(post.localEndTime).utc();
+    start = moment(post.localStartTime ?? undefined).utc();
+    end = post.localEndTime && moment(post.localEndTime ?? undefined).utc();
     tz = "";
   }
 

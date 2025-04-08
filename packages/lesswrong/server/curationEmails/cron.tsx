@@ -87,7 +87,7 @@ export async function hydrateCurationEmailsQueue(postId: string) {
 
 function isWithinSanityCheckPeriod(post: DbPost) {
   const twentyMinutesAgo = moment().subtract(20, 'minutes');
-  return moment(post.curatedDate).isAfter(twentyMinutesAgo);
+  return moment(post.curatedDate ?? undefined).isAfter(twentyMinutesAgo);
 }
 
 async function sendCurationEmails() {

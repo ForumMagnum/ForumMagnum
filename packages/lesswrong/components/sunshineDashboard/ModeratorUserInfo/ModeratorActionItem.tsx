@@ -60,7 +60,7 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
 
   const { MetaInfo, LWTooltip } = Components
 
-  const endedAtDate = moment(moderatorAction.endedAt)
+  const endedAtDate = moment(moderatorAction.endedAt ?? undefined)
   const today = moment(new Date())
   const existingEndedAtDays = endedAtDate.diff(today, "days")
 

@@ -11,10 +11,12 @@ import type { EditableFieldCallbackOptions, EditableFieldClientOptions, Editable
 declare global {
 
 type PermissionGroups = typeof permissionGroups[number];
+type NonGuestsPermissionGroups = Exclude<PermissionGroups, 'guests'>;
 
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null) => boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any) => boolean)
+type NonNullableSingleFieldPermissions = NonGuestsPermissionGroups | ((user: DbUser|UsersCurrent|null, object: any) => boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
 interface CollectionFieldPermissions {
@@ -22,6 +24,14 @@ interface CollectionFieldPermissions {
   canUpdate?: FieldPermissions,
   canCreate?: FieldCreatePermissions,
 }
+
+
+type NullableFieldPermissions = 'guests' | 
+  ['guests', ...SingleFieldPermissions[]] | 
+  [SingleFieldPermissions, 'guests', ...SingleFieldPermissions[]] |
+  [SingleFieldPermissions, SingleFieldPermissions, 'guests', ...SingleFieldPermissions[]]
+
+type NonNullableFieldPermissions = NonNullableSingleFieldPermissions | Array<NonNullableSingleFieldPermissions>
 
 type FormInputBuiltinName = 'text' | 'number' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date';
 type FormInputType = FormInputBuiltinName | keyof ComponentTypes;
@@ -264,10 +274,44 @@ interface FormFieldSpecification<N extends CollectionNameString> {
   canCreate?: FieldCreatePermissions,
 }
 
-interface NewCollectionFieldSpecification<N extends CollectionNameString> {
-  database?: DatabaseFieldSpecification<N>,
-  graphql?: GraphQLFieldSpecification<N>,
+type NewCollectionFieldSpecification<N extends CollectionNameString> = {
+  database?: DatabaseFieldSpecificationNonNullable<N>,
+  graphql?: GraphQLFieldSpecificationNonNullable<N> | GraphQLFieldSpecificationNullable<N>,
   form?: FormFieldSpecification<N>,
+} | {
+  database?: DatabaseFieldSpecificationNullable<N>,
+  graphql?: GraphQLFieldSpecificationNullableBecauseDatabaseFieldIsNullable<N>,
+  form?: FormFieldSpecification<N>,
+}
+
+type GraphQLFieldSpecificationNullable<N extends CollectionNameString> = GraphQLFieldSpecification<N> & {
+  outputType: string | GraphQLScalarType,
+  canRead: NullableFieldPermissions,
+}
+
+type GraphQLFieldSpecificationNonNullable<N extends CollectionNameString> = GraphQLFieldSpecification<N> & {
+  outputType: stringThatEndsWithExclamationPoint | GraphQLScalarType,
+  canRead: NonNullableFieldPermissions,
+}
+
+interface NewCollectionFieldSpecificationNullableDatabase<N extends CollectionNameString> {
+  database?: DatabaseFieldSpecificationNullable<N>,
+  graphql?: GraphQLFieldSpecificationNullable<N>,
+  form?: FormFieldSpecification<N>,
+}
+
+interface DatabaseFieldSpecificationNullable<N extends CollectionNameString> extends DatabaseFieldSpecification<N> {
+  nullable: true,
+}
+
+interface DatabaseFieldSpecificationNonNullable<N extends CollectionNameString> extends DatabaseFieldSpecification<N> {
+  nullable?: false,
+}
+
+type stringThatEndsWithExclamationPoint = `${string}!`
+
+type GraphQLFieldSpecificationNullableBecauseDatabaseFieldIsNullable<N extends CollectionNameString> = GraphQLFieldSpecification<N> & {
+  outputType: string | GraphQLScalarType,
 }
 
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {

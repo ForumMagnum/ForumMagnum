@@ -1,3 +1,4 @@
+// @ts-ignore
 import type { ChatModel as OpenAIModel, ChatCompletionSystemMessageParam as OpenAISystemMessage } from 'openai/resources/chat';
 import type { ChatCompletionCreateParamsBase as OpenAISendMessagesParams } from 'openai/resources/chat/completions';
 import type { Model as AnthropicModel } from '@anthropic-ai/sdk/resources/messages';

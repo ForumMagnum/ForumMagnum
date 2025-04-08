@@ -145,8 +145,8 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
       onSearchStateChange={searchStateChanged}
     >
       {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-        * null is the only option that actually suppresses the extra X button.
-       // @ts-ignore */}
+      null is the only option that actually suppresses the extra X button. */}
+      {/* @ts-ignore */}
       <SearchBox reset={null} focusShortcuts={[]}/>
       <Configure
         hitsPerPage={searchOpen ? 12 : 6}
