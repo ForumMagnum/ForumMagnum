@@ -1,17 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import groupBy from 'lodash/groupBy';
-import './EmailFormatDate';
-import './EmailPostAuthors';
-import './EmailContentItemBody';
 import filter from 'lodash/filter';
 import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { EmailFormatDate } from './EmailFormatDate';
+import { EmailUsername } from './EmailUsername';
+import { EmailContentItemBody } from './EmailContentItemBody';
 
 const styles = defineStyles("EmailComment", (theme: ThemeType) => ({
   headingLink: {
@@ -32,11 +31,10 @@ const styles = defineStyles("EmailComment", (theme: ThemeType) => ({
   },
 }));
 
-const EmailCommentBatch = ({comments}: {
+export const EmailCommentBatch = ({comments}: {
   comments: Partial<DbComment>[],
 }) => {
   const classes = useStyles(styles);
-  const { EmailComment } = Components;
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment: DbComment)=>comment.postId);
   const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
@@ -80,8 +78,6 @@ const EmailCommentBatch = ({comments}: {
   </div>;
 }
 
-const EmailCommentBatchComponent = registerComponent("EmailCommentBatch", EmailCommentBatch);
-
 const HeadingLink = ({ text, href }: { text: string; href: string; }) => {
   const classes = useStyles(styles);
   return (
@@ -121,11 +117,10 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforu
   return <HeadingLink {...props}/>
 }
 
-const EmailComment = ({commentId, hideTitle}: {
+export const EmailComment = ({commentId, hideTitle}: {
   commentId: string,
   hideTitle?: boolean,
 }) => {
-  const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
   const { document: comment, loading, error } = useSingle({
     documentId: commentId,
     collectionName: "Comments",
@@ -153,13 +148,4 @@ const EmailComment = ({commentId, hideTitle}: {
     </div>
     <EmailContentItemBody dangerouslySetInnerHTML={{ __html: comment.contents?.html }}/>
   </div>;
-}
-
-const EmailCommentComponent = registerComponent("EmailComment", EmailComment);
-
-declare global {
-  interface ComponentTypes {
-    EmailCommentBatch: typeof EmailCommentBatchComponent,
-    EmailComment: typeof EmailCommentComponent,
-  }
 }

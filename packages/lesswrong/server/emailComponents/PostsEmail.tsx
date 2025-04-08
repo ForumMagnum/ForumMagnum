@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
@@ -7,6 +7,10 @@ import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
 import { LocationContext, NavigationContext } from '@/lib/vulcan-core/appContext';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { EmailPostAuthors } from './EmailPostAuthors';
+import { EmailContentItemBody } from './EmailContentItemBody';
+import { EmailFooterRecommendations } from './EmailFooterRecommendations';
+import { EmailPostDate } from './EmailPostDate';
 
 const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -123,7 +127,7 @@ function PostsEmailInner({
     terms: { postIds },
   });
 
-  const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, ContentStyles, EmailFooterRecommendations } = Components;
+  const { ContentStyles } = Components;
 
   if (!posts || posts.length === 0) {
     return null;
@@ -214,7 +218,7 @@ function PostsEmailInner({
   );
 }
 
-const PostsEmail = ({ postIds, reason, hideRecommendations}: {
+export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
   postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
@@ -261,13 +265,3 @@ const PostsEmail = ({ postIds, reason, hideRecommendations}: {
     </LocationContext.Provider>
   );
 };
-
-const PostsEmailComponent = registerComponent("PostsEmail", PostsEmail);
-
-declare global {
-  interface ComponentTypes {
-    PostsEmail: typeof PostsEmailComponent;
-  }
-}
-
-export default PostsEmailComponent;

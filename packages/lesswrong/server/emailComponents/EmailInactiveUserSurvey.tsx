@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
 const styles = defineStyles("EmailInactiveUserSurvey", (theme: ThemeType) => ({
@@ -16,7 +15,7 @@ const styles = defineStyles("EmailInactiveUserSurvey", (theme: ThemeType) => ({
   }
 }));
 
-const EmailInactiveUserSurvey = ({ user }: {
+export const EmailInactiveUserSurvey = ({ user }: {
   user: DbUser;
 }) => {
   const classes = useStyles(styles);
@@ -48,10 +47,3 @@ const EmailInactiveUserSurvey = ({ user }: {
   );
 };
 
-const EmailInactiveUserSurveyComponent = registerComponent("EmailInactiveUserSurvey", EmailInactiveUserSurvey);
-
-declare global {
-  interface ComponentTypes {
-    EmailInactiveUserSurvey: typeof EmailInactiveUserSurveyComponent;
-  }
-}

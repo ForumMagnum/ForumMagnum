@@ -154,8 +154,6 @@ export function generateEmailStylesheet({muiSheetsRegistry, stylesContext, theme
   const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition)
   const usedStylesByName = keyBy(usedStyleDefinitions, s=>s.name);
   const css = stylesToStylesheet(usedStylesByName, theme, themeOptions);
-  //console.log(css);
-  console.log(`Email used styles: ${Object.keys(mountedStyles).join(",")}`);
 
   return muiSheet + css;
 }

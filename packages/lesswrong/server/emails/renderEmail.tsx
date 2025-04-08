@@ -15,7 +15,7 @@ import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/u
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
+import { EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
@@ -28,6 +28,7 @@ import { createStylesContext } from '@/components/hooks/useStyles';
 import { generateEmailStylesheet } from '../styleGeneration';
 import { ThemeContextProvider } from '@/components/themes/useTheme';
 import { ThemeOptions } from '@/themes/themeNames';
+import { EmailWrapper } from '../emailComponents/EmailWrapper';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -238,11 +239,11 @@ export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user:
     to,
     from,
     subject: subject,
-    bodyComponent: <Components.EmailWrapper
+    bodyComponent: <EmailWrapper
       unsubscribeAllLink={unsubscribeAllLink}
     >
       {body}
-    </Components.EmailWrapper>
+    </EmailWrapper>
   });
 }
 

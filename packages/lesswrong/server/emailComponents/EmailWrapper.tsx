@@ -1,6 +1,5 @@
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -17,7 +16,7 @@ const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-const EmailWrapper = ({unsubscribeAllLink, children}: {
+export const EmailWrapper = ({unsubscribeAllLink, children}: {
   unsubscribeAllLink: string | null,
   children: React.ReactNode,
 }) => {
@@ -100,10 +99,3 @@ const EmailWrapper = ({unsubscribeAllLink, children}: {
   );
 }
 
-const EmailWrapperComponent = registerComponent("EmailWrapper", EmailWrapper);
-
-declare global {
-  interface ComponentTypes {
-    EmailWrapper: typeof EmailWrapperComponent
-  }
-}

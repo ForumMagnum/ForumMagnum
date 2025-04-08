@@ -1,10 +1,5 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import './EmailFormatDate';
-import './EmailPostAuthors';
-import './EmailContentItemBody';
-import './EmailPostDate';
 import { useRecommendations } from '../../components/recommendations/withRecommendations';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -15,7 +10,7 @@ const styles = defineStyles("EmailFooterRecommendations", (theme: ThemeType) => 
   }
 }));
 
-const EmailFooterRecommendations = () => {
+export const EmailFooterRecommendations = () => {
   const classes = useStyles(styles);
   const algorithm: RecommendationsAlgorithm = {
     method: "sample",
@@ -40,10 +35,3 @@ const EmailFooterRecommendations = () => {
   </>
 }
 
-const EmailFooterRecommendationsComponent = registerComponent("EmailFooterRecommendations", EmailFooterRecommendations);
-
-declare global {
-  interface ComponentTypes {
-    EmailFooterRecommendations: typeof EmailFooterRecommendationsComponent
-  }
-}

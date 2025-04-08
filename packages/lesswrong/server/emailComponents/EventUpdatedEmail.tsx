@@ -2,7 +2,7 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { Components } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -40,7 +40,7 @@ const styles = defineStyles("EventUpdatedEmail", (theme: ThemeType) => ({
   onlineEventLocation: {},
 }));
 
-const EventUpdatedEmail = ({postId}: {
+export const EventUpdatedEmail = ({postId}: {
   postId: string,
 }) => {
   const classes = useStyles(styles);
@@ -86,12 +86,4 @@ const EventUpdatedEmail = ({postId}: {
       <div className={classes.data}>{eventLocation}</div>
     </p>
   </div>
-}
-
-const EventUpdatedEmailComponent = registerComponent("EventUpdatedEmail", EventUpdatedEmail);
-
-declare global {
-  interface ComponentTypes {
-    EventUpdatedEmail: typeof EventUpdatedEmailComponent
-  }
 }

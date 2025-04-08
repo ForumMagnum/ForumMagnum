@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JOB_AD_DATA } from "../../components/ea-forum/TargetedJobAd";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
@@ -20,7 +19,7 @@ const styles = defineStyles("EmailJobAdReminder", (theme: ThemeType) => ({
   }
 }));
 
-const EmailJobAdReminder = ({ jobName }: {
+export const EmailJobAdReminder = ({ jobName }: {
   jobName: string;
 }) => {
   const classes = useStyles(styles);
@@ -37,10 +36,3 @@ const EmailJobAdReminder = ({ jobName }: {
   );
 };
 
-const EmailJobAdReminderComponent = registerComponent("EmailJobAdReminder", EmailJobAdReminder);
-
-declare global {
-  interface ComponentTypes {
-    EmailJobAdReminder: typeof EmailJobAdReminderComponent;
-  }
-}

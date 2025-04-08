@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
@@ -17,7 +16,7 @@ const styles = defineStyles("EmailCuratedAuthors", (theme: ThemeType) => ({
   }
 }));
 
-const EmailCuratedAuthors = ({ user, post }: {
+export const EmailCuratedAuthors = ({ user, post }: {
   user: DbUser;
   post: DbPost;
 }) => {
@@ -51,11 +50,3 @@ const EmailCuratedAuthors = ({ user, post }: {
     </div>
   );
 };
-
-const EmailCuratedAuthorsComponent = registerComponent("EmailCuratedAuthors", EmailCuratedAuthors);
-
-declare global {
-  interface ComponentTypes {
-    EmailCuratedAuthors: typeof EmailCuratedAuthorsComponent;
-  }
-}

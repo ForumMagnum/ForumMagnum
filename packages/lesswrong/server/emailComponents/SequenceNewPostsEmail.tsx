@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { makeCloudinaryImageUrl } from '../../components/common/CloudinaryImage2';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
@@ -19,7 +18,7 @@ const styles = defineStyles("SequenceNewPostsEmail", (theme: ThemeType) => ({
   },
 }));
 
-const SequenceNewPostsEmail = ({sequence, posts}: {
+export const SequenceNewPostsEmail = ({sequence, posts}: {
   sequence: DbSequence,
   posts: DbPost[],
 }) => {
@@ -48,10 +47,3 @@ const SequenceNewPostsEmail = ({sequence, posts}: {
   </div>
 }
 
-const SequenceNewPostsEmailComponent = registerComponent("SequenceNewPostsEmail", SequenceNewPostsEmail);
-
-declare global {
-  interface ComponentTypes {
-    SequenceNewPostsEmail: typeof SequenceNewPostsEmailComponent
-  }
-}
