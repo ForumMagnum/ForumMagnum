@@ -1,6 +1,8 @@
 /**
  * Helpers for UltraFeed thread prioritization and preparation.
  * 
+ * Of all files, this is the most vibe-coded and most-placeholder-y
+ * 
  * Contains logic for:
  * - Calculating thread health scores
  * - Determining user state relative to threads
@@ -10,7 +12,7 @@
 
 import { PreDisplayFeedComment, PreDisplayFeedCommentThread, FeedCommentsThread } from '../../components/ultraFeed/ultraFeedTypes';
 
-// Define local parameters for UltraFeed time decay - allows independent tuning
+// Define local parameters for UltraFeed time decay which is same formula as HN to down-weight older threads
 const ULTRAFEED_SCORE_BIAS = 3; // Similar to SCORE_BIAS elsewhere, adjusts starting decay
 const ULTRAFEED_TIME_DECAY_FACTOR = 2.00; // Controls the rate of decay, higher means faster decay
 
@@ -23,22 +25,18 @@ const MULTIPLIER_STALE = 0.1;
 const MULTIPLIER_NOVELTY_BOOST = 1.2; // Extra boost if content is unserved
 
 // Define weights for base score components in health calculation, these are summed up to form the "baseScore" for the thread
-const WEIGHT_SUM_KARMA = 1.0; // Weight for total karma
-const WEIGHT_MAX_KARMA = 0.5; // Weight for the single highest karma comment
-const WEIGHT_AVG_TOP3 = 2.0;  // Weight for the average karma of top comments
+const WEIGHT_SUM_KARMA = 1.0;
+const WEIGHT_MAX_KARMA = 0.5;
+const WEIGHT_AVG_TOP3 = 2.0; 
 
 // Define the different reasons a thread might be prioritized
 export type PrioritizationReason =
   | 'EngagedUpdate'       // New comments since user last interacted
-  | 'UnawareHealthy'      // High "health", user never served thread
-  | 'AwareHealthy'        // High "health", user served but never viewed/interacted
-  | 'ViewedUpdate'        // New comments since user last viewed
+  | 'UnviewedHealthy'     // High "health", user never viewed/interacted (served or unserved)
+  | 'ViewedUpdate'        // New comments since user last viewed this thread
   | 'EngagedStale'        // User engaged, nothing new, but resurfacing
   | 'Fallback';           // Default reason if none of the above apply strongly
 
-/**
- * Statistics about a thread used for prioritization.
- */
 export interface ThreadStatistics {
   commentCount: number;
   maxKarma: number;
@@ -56,22 +54,15 @@ export interface PrioritizedThreadInfo {
   stats: ThreadStatistics;
   priorityScore: number;
   reason: PrioritizationReason;
-  // Store key timestamps calculated during prioritization
   latestUserInteractionTs: Date | null; // Max lastInteracted for the user in this thread
   latestUserViewTs: Date | null;        // Max lastViewed for the user in this thread
   newestCommentTs: Date | null;         // Max postedAt within the thread
 }
 
-/**
- * User's relationship with a thread based on interaction history.
- */
+// User's relationship with a thread based on interaction history.
 type UserState = 'Unaware' | 'Aware' | 'Viewed' | 'Engaged' | 'Stale';
 
-/**
- * Calculate basic statistics for a thread.
- */
 export function getThreadStatistics(thread: PreDisplayFeedCommentThread): ThreadStatistics {
-  // Handle edge case of empty threads
   if (!thread || thread.length === 0) {
     return {
       commentCount: 0, maxKarma: 0, sumKarma: 0, sumKarmaSquared: 0, averageKarma: 0, averageTop3Comments: 0
@@ -81,14 +72,12 @@ export function getThreadStatistics(thread: PreDisplayFeedCommentThread): Thread
   const commentCount = thread.length;
   const karmaValues = thread.map((comment: PreDisplayFeedComment) => comment.baseScore || 0);
 
-  // Handle potential empty karmaValues array (though covered by thread check)
   const maxKarma = karmaValues.length > 0 ? Math.max(...karmaValues) : 0;
   const sumKarma = karmaValues.reduce((sum: number, score: number) => sum + score, 0);
   const sumKarmaSquared = karmaValues.reduce((sum: number, score: number) => sum + (score * score), 0);
 
   const numTopComments = Math.min(3, karmaValues.length);
   const sumTop3Comments = karmaValues.slice(0, numTopComments).reduce((sum: number, score: number) => sum + score, 0);
-  // Fix: Ensure divisor is not zero
   const averageTop3Comments = numTopComments > 0 ? sumTop3Comments / numTopComments : 0;
 
   const averageKarma = commentCount > 0 ? sumKarma / commentCount : 0;
@@ -111,16 +100,13 @@ function calculateThreadHealthScore(thread: PreDisplayFeedCommentThread, stats: 
     }
   });
 
-  // If no valid timestamp, the thread has effectively zero health/recency
   if (!newestCommentTs) {
     return 0;
   }
 
-  // Calculate age in hours using type assertion after the null check
   const ageMillis = new Date().getTime() - (newestCommentTs as Date).getTime();
   let ageInHours = ageMillis / (1000 * 60 * 60);
 
-  // Ensure age is non-negative (e.g., handle clock skew)
   ageInHours = Math.max(0, ageInHours);
 
   // --- Calculate a composite base score incorporating different stats ---
@@ -183,12 +169,10 @@ function determineUserState(
     }
   });
 
-  // Convert timestamps to numbers for comparison
   const newestCommentTime = newestCommentTs ? (newestCommentTs as Date).getTime() : 0;
   const interactionTime = latestUserInteractionTs ? (latestUserInteractionTs as Date).getTime() : 0;
   const viewTime = latestUserViewTs ? (latestUserViewTs as Date).getTime() : 0;
 
-  // Determine user state based on interaction history
   let state: UserState;
   
   if (!latestUserServedTs) {
@@ -200,7 +184,7 @@ function determineUserState(
   } else if (latestUserViewTs) {
     state = (newestCommentTime > viewTime) ? 'Viewed' : 'Stale';
   } else {
-    state = 'Aware'; // Fallback
+    state = 'Aware';
   }
 
   return {
@@ -221,13 +205,11 @@ function determineUserState(
 export function prioritizeThreads(threads: PreDisplayFeedCommentThread[]): PrioritizedThreadInfo[] {
   const allPrioritizedInfos: PrioritizedThreadInfo[] = [];
 
-  // 1. Calculate priority info for ALL linear threads initially
   for (const thread of threads) {
     if (!thread || thread.length === 0) continue;
 
     const stats = getThreadStatistics(thread);
 
-    // --- Find newest comment timestamp ---
     let newestCommentTs: Date | null = null;
     thread.forEach((comment: PreDisplayFeedComment) => {
       const postedAt = comment.metaInfo?.postedAt;
@@ -236,10 +218,8 @@ export function prioritizeThreads(threads: PreDisplayFeedCommentThread[]): Prior
       }
     });
 
-    // --- Calculate thread health score ---
     const threadHealthScore = calculateThreadHealthScore(thread, stats);
 
-    // --- Determine user state and key timestamps ---
     const {
       state: userState,
       latestUserInteractionTs,
@@ -265,7 +245,7 @@ export function prioritizeThreads(threads: PreDisplayFeedCommentThread[]): Prior
       reason = 'EngagedUpdate';
       priorityScore *= MULTIPLIER_ENGAGED_UPDATE;
     } else if (userState === 'Unaware' || userState === 'Aware') {
-      reason = userState === 'Unaware' ? 'UnawareHealthy' : 'AwareHealthy';
+      reason = 'UnviewedHealthy';
       priorityScore *= (MULTIPLIER_UNAWARE_HEALTHY * noveltyBoostMultiplier);
     } else if (userState === 'Viewed' && hasNewSinceView) {
       reason = 'ViewedUpdate';
@@ -290,13 +270,10 @@ export function prioritizeThreads(threads: PreDisplayFeedCommentThread[]): Prior
     });
   }
 
-  // 2. Group by topLevelCommentId
   const groupedByTopLevel: Record<string, PrioritizedThreadInfo[]> = {};
   for (const info of allPrioritizedInfos) {
-    // Use the first comment's topLevelCommentId (or its own ID if null) as the key
     const firstComment = info.thread[0];
-    if (!firstComment) continue; // Should not happen, but safeguard
-    // TODO: Confirm this key logic is correct based on how threads are built
+    if (!firstComment) continue;
     const topLevelId = firstComment.topLevelCommentId ?? firstComment.commentId;
     if (!groupedByTopLevel[topLevelId]) {
       groupedByTopLevel[topLevelId] = [];
@@ -304,7 +281,7 @@ export function prioritizeThreads(threads: PreDisplayFeedCommentThread[]): Prior
     groupedByTopLevel[topLevelId].push(info);
   }
 
-  // 3. Select the best thread from each group
+  // Select the best thread from each group
   const representativeThreads: PrioritizedThreadInfo[] = [];
   for (const topLevelId in groupedByTopLevel) {
     const group = groupedByTopLevel[topLevelId];
@@ -317,13 +294,9 @@ export function prioritizeThreads(threads: PreDisplayFeedCommentThread[]): Prior
     representativeThreads.push(bestInGroup);
   }
 
-  // 4. Sort the representative threads by priority score
   return representativeThreads.sort((a, b) => b.priorityScore - a.priorityScore);
 }
 
-/**
- * Find the first comment in a thread with a posted date newer than a reference date.
- */
 function findFirstCommentNewerThan(thread: PreDisplayFeedCommentThread, referenceDate: Date | null): PreDisplayFeedComment | null {
   if (!referenceDate) return null;
   
@@ -333,9 +306,6 @@ function findFirstCommentNewerThan(thread: PreDisplayFeedCommentThread, referenc
   }) || null;
 }
 
-/**
- * Find the comment a user last interacted with in a thread.
- */
 function findLastInteractedComment(thread: PreDisplayFeedCommentThread): PreDisplayFeedComment | null {
   return thread.reduce((latest: PreDisplayFeedComment | null, current: PreDisplayFeedComment) => {
     const currentTs = current.metaInfo?.lastInteracted;
@@ -347,9 +317,6 @@ function findLastInteractedComment(thread: PreDisplayFeedCommentThread): PreDisp
   }, null);
 }
 
-/**
- * Find the newest comment in a thread based on posted date.
- */
 function findNewestComment(thread: PreDisplayFeedCommentThread): PreDisplayFeedComment | null {
   return thread.reduce((latest: PreDisplayFeedComment | null, current: PreDisplayFeedComment) => {
     const currentTs = current.metaInfo?.postedAt;
@@ -371,7 +338,6 @@ export function prepareCommentThreadForResolver(
   const numComments = thread.length;
   
   if (numComments === 0) {
-    // Should not happen if filtered earlier, but handle defensively
     return { 
       comments: [],
     };
@@ -400,8 +366,7 @@ export function prepareCommentThreadForResolver(
         }
         break;
       }
-      case 'UnawareHealthy':
-      case 'AwareHealthy': {
+      case 'UnviewedHealthy': {
         // Find newest comment
         const newest = findNewestComment(thread);
         primaryCandidateId = newest?.commentId ?? null;

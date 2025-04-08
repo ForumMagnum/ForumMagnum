@@ -3693,6 +3693,14 @@ CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId"
 WHERE
   ("baseScore" >= 15);
 
+-- CustomIndex "idx_comments_ultrafeed_universal_filter"
+CREATE INDEX IF NOT EXISTS "idx_comments_ultrafeed_universal_filter" ON "Comments" ()
+WHERE
+  "postId" IS NOT NULL AND
+  deleted IS NOT TRUE AND
+  retracted IS NOT TRUE AND
+  "authorIsUnreviewed" IS NOT TRUE;
+
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
 

@@ -946,42 +946,6 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly expiresAt: Date | null,
 }
 
-interface FeedCommentItemFragment { // fragment on Comments
-  readonly _id: string,
-  readonly postId: string,
-  readonly topLevelCommentId: string,
-  readonly parentCommentId: string,
-  readonly parentAnswerId: string,
-  readonly postedAt: Date,
-  readonly baseScore: number,
-  readonly deleted: boolean,
-  readonly deletedPublic: boolean,
-  readonly retracted: boolean,
-  readonly hideAuthor: boolean,
-  readonly authorIsUnreviewed: boolean,
-  readonly currentUserVote: string|null,
-  readonly currentUserExtendedVote: any,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly score: number,
-  readonly voteCount: number,
-  readonly emojiReactors: any,
-  readonly af: boolean,
-  readonly afDate: Date,
-  readonly moveToAlignmentUserId: string,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly contents: FeedCommentItemFragment_contents|null,
-  readonly post: PostsMinimumInfo|null,
-  readonly user: UsersMinimumInfo|null,
-}
-
-interface FeedCommentItemFragment_contents { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
-  readonly plaintextMainText: string,
-  readonly wordCount: number,
-}
-
 interface FeedCommentThreadFragment { // fragment on non-collection type
   readonly _id: any,
   readonly commentMetaInfos: any,
@@ -5644,7 +5608,6 @@ interface FragmentTypes {
   ExplorePageTagFragment: ExplorePageTagFragment
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
-  FeedCommentItemFragment: FeedCommentItemFragment
   FeedCommentThreadFragment: FeedCommentThreadFragment
   FeedPostFragment: FeedPostFragment
   FeedSpotlightFragment: FeedSpotlightFragment
@@ -5926,7 +5889,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"FeedCommentItemFragment"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -6080,7 +6043,6 @@ interface CollectionNamesByFragmentName {
   ExplorePageTagFragment: "Tags"
   FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
-  FeedCommentItemFragment: "Comments"
   FeedCommentThreadFragment: never
   FeedPostFragment: never
   FeedSpotlightFragment: never
