@@ -6,7 +6,7 @@ import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-const loadMoreDistance = 500;
+const defaultLoadMoreDistance = 500;
 
 export interface FeedRequest<CutoffType> {
   cutoff: CutoffType|null,
@@ -117,6 +117,9 @@ const MixedTypeFeed = (args: {
   disableLoadMore?: boolean,
 
   className?: string,
+
+  // Distance from bottom of viewport to trigger loading more items
+  loadMoreDistanceProp?: number,
 }) => {
   const {
     resolverName,
@@ -133,6 +136,7 @@ const MixedTypeFeed = (args: {
     hideLoading,
     disableLoadMore,
     className,
+    loadMoreDistanceProp = defaultLoadMoreDistance,
   } = args;
 
   // Reference to a bottom-marker used for checking scroll position.
@@ -175,7 +179,7 @@ const MixedTypeFeed = (args: {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (isClient
       && bottomRef?.current
-      && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
+      && elementIsNearVisible(bottomRef?.current, loadMoreDistanceProp)
       && !reachedEnd
       && data)
     {
@@ -190,27 +194,6 @@ const MixedTypeFeed = (args: {
             limit: pageSize,
             sessionId: resolverArgsValues?.sessionId || null,
           },
-          updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
-            queryIsPending.current = false;
-            if (!fetchMoreResult) {
-              return prev;
-            }
-
-            // Deduplicate by removing repeated results from the newly fetched page. Ideally we
-            // would use cursor-based pagination to avoid this
-            const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
-            const newResults = fetchMoreResult[resolverName].results;
-            const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
-            
-            return {
-              [resolverName]: {
-                __typename: fetchMoreResult[resolverName].__typename,
-                cutoff: fetchMoreResult[resolverName].cutoff,
-                endOffset: fetchMoreResult[resolverName].endOffset,
-                results: [...prev[resolverName].results, ...deduplicatedResults],
-              }
-            };
-          }
         });
       }
     }
@@ -225,6 +208,7 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
+ 
   return <div className={className}>
     {orderedResults.map((result) =>
       <div key={keyFunc(result)}>
