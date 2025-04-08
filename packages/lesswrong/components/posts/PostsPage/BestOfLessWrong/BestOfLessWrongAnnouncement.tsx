@@ -42,33 +42,33 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     justifyContent: "space-between",
     flexWrap: "wrap",
     '&:hover $categoryTitle': {
-      [theme.breakpoints.up('xs')]: {
+      [theme.breakpoints.up('md')]: {
         opacity: 0,
       },
     },
     '&:hover $categoryImage': {
-      [theme.breakpoints.up('xs')]: {
+      [theme.breakpoints.up('md')]: {
         filter: "brightness(0.5) saturate(.5)",
       },
     },
     '&:hover $winnerItem': {
-      [theme.breakpoints.up('xs')]: {
+      [theme.breakpoints.up('md')]: {
         opacity: 1,
         borderBottom: theme.palette.border.grey200,
       },
     },
     '&:hover $winnerItem:last-child': {
-      [theme.breakpoints.up('xs')]: {
+      [theme.breakpoints.up('md')]: {
         borderBottom: 'none',
       },
     },
     '&:hover $winnerTitle': {
-      [theme.breakpoints.up('xs')]: {
+      [theme.breakpoints.up('md')]: {
         opacity: 1,
       },
     },
     '&:hover $winnerCategoryRank': {
-      [theme.breakpoints.up('xs')]: {
+      [theme.breakpoints.up('md')]: {
         opacity: 1,
       },
     },
@@ -219,6 +219,17 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     opacity: 0,
     zIndex: 1,
   },
+  mobileLink: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: 1,
+    [theme.breakpoints.up('md')]: {
+      display: "none"
+    }
+  },
 }));
 
 const BestOfLessWrongAnnouncement = () => {
@@ -280,6 +291,7 @@ const BestOfLessWrongAnnouncement = () => {
             const section = sections[category as keyof typeof sections];
             return <div className={classes.category} key={category}>
               <div className={classes.categoryImageContainer}>
+                <Link to={`/bestoflesswrong?category=${category}`} className={classes.mobileLink}/>
                 <img src={section.img} className={classes.categoryImage}/>
                 <div className={classes.winnersContainer}> 
                   {section.topThree?.map(({post, _id}, index) => {
