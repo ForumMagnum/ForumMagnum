@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/subscriptions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { deleteOldSubscriptions } from "@/server/callbacks/subscriptionCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -38,12 +38,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Subscrip
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Subscriptions', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Subscriptions',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Subscriptions', documentWithId);
 
     return documentWithId;
   },
@@ -60,12 +55,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Subscrip
 
     let updatedDocument = await updateAndReturnDocument(data, Subscriptions, subscriptionSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Spotlights',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Subscriptions', updatedDocument, updateCallbackProperties.oldDocument);
 
     return updatedDocument;
   },

@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/bans/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -41,12 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Bans', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Bans',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Bans', documentWithId);
 
     return documentWithId;
   },
@@ -69,12 +64,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
 
     let updatedDocument = await updateAndReturnDocument(data, Bans, banSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Bans',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Bans', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: Bans, oldDocument, data: origData });
 

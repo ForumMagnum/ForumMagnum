@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/digests/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { backdatePreviousDigest, createNextDigestOnPublish } from "@/server/callbacks/digestCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -41,12 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Digests', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Digests',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Digests', documentWithId);
 
     return documentWithId;
   },
@@ -69,12 +64,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
 
     let updatedDocument = await updateAndReturnDocument(data, Digests, digestSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Digests',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Digests', updatedDocument, oldDocument);
 
     await createNextDigestOnPublish(updateCallbackProperties);
     await backdatePreviousDigest(updateCallbackProperties);

@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/petrovDayLaunchs/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 
@@ -24,12 +24,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PetrovDa
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PetrovDayLaunchs', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'PetrovDayLaunchs',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('PetrovDayLaunchs', documentWithId);
 
     return documentWithId;
   },
@@ -46,12 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PetrovDa
 
     let updatedDocument = await updateAndReturnDocument(data, PetrovDayLaunchs, petrovdaylaunchSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'PetrovDayLaunchs',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PetrovDayLaunchs', updatedDocument, updateCallbackProperties.oldDocument);
 
     return updatedDocument;
   },

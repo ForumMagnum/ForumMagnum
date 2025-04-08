@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/postViewTimes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -40,12 +40,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostView
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostViewTimes', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'PostViewTimes',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostViewTimes', documentWithId);
 
     return documentWithId;
   },
@@ -68,12 +63,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostView
 
     let updatedDocument = await updateAndReturnDocument(data, PostViewTimes, postviewtimeSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'PostViewTimes',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostViewTimes', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: PostViewTimes, oldDocument, data: origData });
 

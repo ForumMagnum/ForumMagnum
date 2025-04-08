@@ -1,9 +1,9 @@
 
 import schema from "@/lib/collections/postRelations/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 
@@ -24,12 +24,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostRela
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostRelations', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'PostRelations',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostRelations', documentWithId);
 
     return documentWithId;
   },
@@ -52,12 +47,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostRela
 
     let updatedDocument = await updateAndReturnDocument(data, PostRelations, postrelationSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'PostRelations',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostRelations', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: PostRelations, oldDocument, data: origData });
 

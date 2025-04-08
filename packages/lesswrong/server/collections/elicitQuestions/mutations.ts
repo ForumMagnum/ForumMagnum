@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/elicitQuestions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -38,12 +38,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ElicitQuestions', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ElicitQuestions',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ElicitQuestions', documentWithId);
 
     return documentWithId;
   },
@@ -66,12 +61,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
 
     let updatedDocument = await updateAndReturnDocument(data, ElicitQuestions, elicitquestionSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ElicitQuestions',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ElicitQuestions', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: ElicitQuestions, oldDocument, data: origData });
 

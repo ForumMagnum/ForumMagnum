@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/lwevents/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { OwnableDocument, userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -41,12 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'LWEvents', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'LWEvents',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('LWEvents', documentWithId);
 
     const asyncProperties = {
       ...afterCreateProperties,
@@ -73,12 +68,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
 
     let updatedDocument = await updateAndReturnDocument(data, LWEvents, lweventSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'LWEvents',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('LWEvents', updatedDocument, updateCallbackProperties.oldDocument);
 
     return updatedDocument;
   },

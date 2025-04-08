@@ -3,7 +3,7 @@ import schema from "@/lib/collections/chapters/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { canonizeChapterPostInfo, notifyUsersOfNewPosts, updateSequenceLastUpdated } from "@/server/callbacks/chapterCallbacks";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -56,12 +56,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
       props: afterCreateProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Chapters',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Chapters', documentWithId);
 
     const asyncProperties = {
       ...afterCreateProperties,
@@ -107,12 +102,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
       props: updateCallbackProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Chapters',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Chapters', updatedDocument, oldDocument);
 
     await updateSequenceLastUpdated(updateCallbackProperties);
     await notifyUsersOfNewPosts(updateCallbackProperties);

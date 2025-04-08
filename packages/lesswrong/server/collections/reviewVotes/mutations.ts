@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/reviewVotes/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { ensureUniqueVotes, positiveReviewVoteNotifications } from "@/server/callbacks/reviewVoteCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -29,12 +29,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ReviewVotes', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ReviewVotes',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ReviewVotes', documentWithId);
 
     await positiveReviewVoteNotifications(documentWithId, currentUser, ReviewVotes, afterCreateProperties);
 
@@ -53,12 +48,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewVo
 
     let updatedDocument = await updateAndReturnDocument(data, ReviewVotes, reviewvoteSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ReviewVotes',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ReviewVotes', updatedDocument, updateCallbackProperties.oldDocument);
 
     return updatedDocument;
   },

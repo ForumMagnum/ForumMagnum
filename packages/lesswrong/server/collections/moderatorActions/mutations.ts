@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/moderatorActions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { triggerReviewAfterModeration } from "@/server/callbacks/moderatorActionCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -43,12 +43,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ModeratorActions', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ModeratorActions',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ModeratorActions', documentWithId);
 
     const asyncProperties = {
       ...afterCreateProperties,
@@ -79,12 +74,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
 
     let updatedDocument = await updateAndReturnDocument(data, ModeratorActions, moderatoractionSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ModeratorActions',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ModeratorActions', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: ModeratorActions, oldDocument, data: origData });
 

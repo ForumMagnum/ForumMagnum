@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/moderationTemplates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -51,12 +51,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
       props: afterCreateProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ModerationTemplates',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ModerationTemplates', documentWithId);
 
     const asyncProperties = {
       ...afterCreateProperties,
@@ -100,12 +95,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderati
       props: updateCallbackProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ModerationTemplates',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ModerationTemplates', updatedDocument, oldDocument);
 
     await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,

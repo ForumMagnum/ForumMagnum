@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/spotlights/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -49,12 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
       props: afterCreateProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Spotlights',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Spotlights', documentWithId);
 
     const asyncProperties = {
       ...afterCreateProperties,
@@ -92,12 +87,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
       props: updateCallbackProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Spotlights',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Spotlights', updatedDocument, updateCallbackProperties.oldDocument);
 
     await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,

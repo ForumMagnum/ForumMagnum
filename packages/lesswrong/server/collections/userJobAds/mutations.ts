@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/userJobAds/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -58,12 +58,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobA
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserJobAds', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserJobAds',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserJobAds', documentWithId);
 
     return documentWithId;
   },
@@ -86,12 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobA
 
     let updatedDocument = await updateAndReturnDocument(data, UserJobAds, userjobadSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserJobAds',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserJobAds', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: UserJobAds, oldDocument, data: origData });
 

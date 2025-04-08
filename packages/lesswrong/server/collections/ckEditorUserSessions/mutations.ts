@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/ckEditorUserSessions/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -26,12 +26,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('CkEditor
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'CkEditorUserSessions', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'CkEditorUserSessions',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('CkEditorUserSessions', documentWithId);
 
     return documentWithId;
   },
@@ -54,12 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('CkEditor
 
     let updatedDocument = await updateAndReturnDocument(data, CkEditorUserSessions, ckeditorusersessionSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'CkEditorUserSessions',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('CkEditorUserSessions', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: CkEditorUserSessions, oldDocument, data: origData });
 

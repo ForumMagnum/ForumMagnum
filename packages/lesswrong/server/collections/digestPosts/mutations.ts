@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/digestPosts/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -40,12 +40,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPo
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DigestPosts', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'DigestPosts',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('DigestPosts', documentWithId);
 
     return documentWithId;
   },
@@ -68,12 +63,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPo
 
     let updatedDocument = await updateAndReturnDocument(data, DigestPosts, digestpostSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'DigestPosts',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DigestPosts', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: DigestPosts, oldDocument, data: origData });
 

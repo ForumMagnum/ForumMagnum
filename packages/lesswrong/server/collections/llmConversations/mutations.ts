@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/llmConversations/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -36,12 +36,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConve
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'LlmConversations', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'LlmConversations',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('LlmConversations', documentWithId);
 
     return documentWithId;
   },
@@ -64,12 +59,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConve
 
     let updatedDocument = await updateAndReturnDocument(data, LlmConversations, llmconversationSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'LlmConversations',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('LlmConversations', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: LlmConversations, oldDocument, data: origData });
 

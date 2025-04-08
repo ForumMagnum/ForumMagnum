@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/llmMessages/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -26,12 +26,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmMessa
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'LlmMessages', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'LlmMessages',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('LlmMessages', documentWithId);
 
     return documentWithId;
   },
@@ -54,12 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmMessa
 
     let updatedDocument = await updateAndReturnDocument(data, LlmMessages, llmmessageSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'LlmMessages',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('LlmMessages', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: LlmMessages, oldDocument, data: origData });
 

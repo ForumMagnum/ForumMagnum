@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/messages/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { addParticipantIfNew, checkIfNewMessageIsEmpty, sendMessageNotifications, unArchiveConversations, updateConversationActivity, updateUserNotesOnModMessage } from "@/server/callbacks/messageCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -60,12 +60,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
       props: afterCreateProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Messages',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Messages', documentWithId);
 
     const asyncProperties = {
       ...afterCreateProperties,
@@ -110,12 +105,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages
       props: updateCallbackProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Messages',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Messages', updatedDocument, updateCallbackProperties.oldDocument);
 
     await reuploadImagesIfEditableFieldsChanged({
       newDoc: updatedDocument,

@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/userMostValuablePosts/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -58,12 +58,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserMostValuablePosts', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserMostValuablePosts',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserMostValuablePosts', documentWithId);
 
     return documentWithId;
   },
@@ -86,12 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
 
     let updatedDocument = await updateAndReturnDocument(data, UserMostValuablePosts, usermostvaluablepostSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserMostValuablePosts',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserMostValuablePosts', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: UserMostValuablePosts, oldDocument, data: origData });
 

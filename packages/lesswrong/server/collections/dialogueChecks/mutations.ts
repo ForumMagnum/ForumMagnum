@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/dialogueChecks/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -26,12 +26,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Dialogue
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DialogueChecks', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'DialogueChecks',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('DialogueChecks', documentWithId);
 
     return documentWithId;
   },
@@ -54,12 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Dialogue
 
     let updatedDocument = await updateAndReturnDocument(data, DialogueChecks, dialoguecheckSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'DialogueChecks',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DialogueChecks', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: DialogueChecks, oldDocument, data: origData });
 

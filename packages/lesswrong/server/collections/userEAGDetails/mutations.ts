@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/userEAGDetails/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -58,12 +58,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGD
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserEAGDetails', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserEAGDetails',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserEAGDetails', documentWithId);
 
     return documentWithId;
   },
@@ -86,12 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGD
 
     let updatedDocument = await updateAndReturnDocument(data, UserEAGDetails, usereagdetailSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserEAGDetails',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserEAGDetails', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: UserEAGDetails, oldDocument, data: origData });
 

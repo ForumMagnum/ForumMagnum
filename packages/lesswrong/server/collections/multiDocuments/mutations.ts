@@ -3,7 +3,7 @@ import { canMutateParentDocument } from "@/lib/collections/multiDocuments/helper
 import schema from "@/lib/collections/multiDocuments/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { reindexParentTagIfNeeded } from "@/server/callbacks/multiDocumentCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
@@ -68,12 +68,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       props: afterCreateProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'MultiDocuments',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('MultiDocuments', documentWithId);
 
     const asyncProperties = {
       ...afterCreateProperties,
@@ -121,12 +116,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
       props: updateCallbackProperties,
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'MultiDocuments',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('MultiDocuments', updatedDocument, oldDocument);
 
     reindexParentTagIfNeeded(updatedDocument);
 

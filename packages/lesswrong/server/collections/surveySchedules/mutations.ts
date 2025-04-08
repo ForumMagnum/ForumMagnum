@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/surveySchedules/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -40,12 +40,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'SurveySchedules', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'SurveySchedules',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('SurveySchedules', documentWithId);
 
     return documentWithId;
   },
@@ -68,12 +63,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveySc
 
     let updatedDocument = await updateAndReturnDocument(data, SurveySchedules, surveyscheduleSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'SurveySchedules',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('SurveySchedules', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: SurveySchedules, oldDocument, data: origData });
 

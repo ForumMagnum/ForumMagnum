@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/emailTokens/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 
@@ -24,12 +24,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('EmailTok
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'EmailTokens', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'EmailTokens',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('EmailTokens', documentWithId);
 
     return documentWithId;
   },
@@ -46,12 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('EmailTok
 
     let updatedDocument = await updateAndReturnDocument(data, EmailTokens, emailtokensSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'EmailTokens',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('EmailTokens', updatedDocument, updateCallbackProperties.oldDocument);
 
     return updatedDocument;
   },

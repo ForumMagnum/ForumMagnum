@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/elicitQuestionPredictions/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -26,12 +26,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ElicitQuestionPredictions', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ElicitQuestionPredictions',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ElicitQuestionPredictions', documentWithId);
 
     return documentWithId;
   },
@@ -54,12 +49,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
 
     let updatedDocument = await updateAndReturnDocument(data, ElicitQuestionPredictions, elicitquestionpredictionSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ElicitQuestionPredictions',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ElicitQuestionPredictions', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: ElicitQuestionPredictions, oldDocument, data: origData });
 

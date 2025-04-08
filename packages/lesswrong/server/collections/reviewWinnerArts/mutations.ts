@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/reviewWinnerArts/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -24,12 +24,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ReviewWinnerArts', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ReviewWinnerArts',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ReviewWinnerArts', documentWithId);
 
     return documentWithId;
   },
@@ -52,12 +47,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
 
     let updatedDocument = await updateAndReturnDocument(data, ReviewWinnerArts, reviewwinnerartSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ReviewWinnerArts',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ReviewWinnerArts', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: ReviewWinnerArts, oldDocument, data: origData });
 

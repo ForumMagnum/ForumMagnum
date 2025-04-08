@@ -4,7 +4,7 @@ import schema from "@/lib/collections/conversations/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { conversationEditNotification, flagOrBlockUserOnManyDMs, sendUserLeavingConversationNotication } from "@/server/callbacks/conversationCallbacks";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -44,12 +44,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Conversations', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Conversations',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Conversations', documentWithId);
 
     return documentWithId;
   },
@@ -70,12 +65,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversa
 
     let updatedDocument = await updateAndReturnDocument(data, Conversations, conversationSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Conversations',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Conversations', updatedDocument, oldDocument);
 
     await sendUserLeavingConversationNotication(updateCallbackProperties);
 

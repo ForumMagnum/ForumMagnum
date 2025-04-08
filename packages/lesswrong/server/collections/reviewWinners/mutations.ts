@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/reviewWinners/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -38,12 +38,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ReviewWinners', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ReviewWinners',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ReviewWinners', documentWithId);
 
     return documentWithId;
   },
@@ -66,12 +61,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ReviewWi
 
     let updatedDocument = await updateAndReturnDocument(data, ReviewWinners, reviewwinnerSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ReviewWinners',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ReviewWinners', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: ReviewWinners, oldDocument, data: origData });
 

@@ -3,7 +3,7 @@ import schema from "@/lib/collections/reports/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { maybeSendAkismetReport } from "@/server/akismet";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -59,12 +59,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Reports'
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Reports', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Reports',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Reports', documentWithId);
 
     return documentWithId;
   },
@@ -87,12 +82,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Reports'
 
     let updatedDocument = await updateAndReturnDocument(data, Reports, reportSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Reports',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Reports', updatedDocument, oldDocument);
 
     await maybeSendAkismetReport(updatedDocument, oldDocument, context);
 

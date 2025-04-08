@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/revisions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from "@/server/callbacks/revisionCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -48,12 +48,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
       context
     });
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Revisions',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
     return documentWithId;
   },
@@ -75,12 +70,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
 
     let updatedDocument = await updateAndReturnDocument(data, Revisions, revisionSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Revisions',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Revisions', updatedDocument, oldDocument);
 
     await recomputeWhenSkipAttributionChanged(updateCallbackProperties);
 

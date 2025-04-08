@@ -2,7 +2,7 @@
 import { userCanUseTags } from "@/lib/betas";
 import schema from "@/lib/collections/userTagRels/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -38,12 +38,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagR
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserTagRels', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserTagRels',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserTagRels', documentWithId);
 
     return documentWithId;
   },
@@ -66,12 +61,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagR
 
     let updatedDocument = await updateAndReturnDocument(data, UserTagRels, usertagrelSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserTagRels',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserTagRels', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: UserTagRels, oldDocument, data: origData });
 

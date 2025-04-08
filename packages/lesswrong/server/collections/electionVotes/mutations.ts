@@ -3,7 +3,7 @@ import { isPastVotingDeadline, userCanVoteInDonationElection } from "@/lib/colle
 import schema from "@/lib/collections/electionVotes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { isAdmin, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -60,12 +60,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ElectionVotes', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ElectionVotes',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ElectionVotes', documentWithId);
 
     return documentWithId;
   },
@@ -88,12 +83,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
 
     let updatedDocument = await updateAndReturnDocument(data, ElectionVotes, electionvoteSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ElectionVotes',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ElectionVotes', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: ElectionVotes, oldDocument, data: origData });
 

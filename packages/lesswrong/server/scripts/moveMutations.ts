@@ -77,7 +77,7 @@ const sharedImportsSection = (
   return `
 import schema from "@/lib/collections/${collectionPathPart}/newSchema";${isElasticEnableLine}
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";${permissionsImportLine}
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";${hasEditableFieldsLine}${logChangesLine}
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";${hasEditableFieldsLine}${logChangesLine}
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";${elasticSyncLine}${slugLine}${graphqlFieldsLine}
 import { checkCreatePermissionsAndReturnProps, checkUpdatePermissionsAndReturnProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { dataToModifier } from "@/server/vulcan-lib/validation";${gqlTagLine}

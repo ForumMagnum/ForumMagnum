@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/commentModeratorActions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -40,12 +40,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('CommentM
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'CommentModeratorActions', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'CommentModeratorActions',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('CommentModeratorActions', documentWithId);
 
     return documentWithId;
   },
@@ -68,12 +63,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('CommentM
 
     let updatedDocument = await updateAndReturnDocument(data, CommentModeratorActions, commentmoderatoractionSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'CommentModeratorActions',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('CommentModeratorActions', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: CommentModeratorActions, oldDocument, data: origData });
 

@@ -2,7 +2,7 @@
 import { userCanUseTags } from "@/lib/betas";
 import schema from "@/lib/collections/tagRels/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { taggedPostNewNotifications, validateTagRelCreate, voteForTagWhenCreated } from "@/server/callbacks/tagCallbackFunctions";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -39,12 +39,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'TagRels', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'TagRels',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('TagRels', documentWithId);
 
     documentWithId = await voteForTagWhenCreated(documentWithId, afterCreateProperties);
 
@@ -65,12 +60,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagRels'
 
     let updatedDocument = await updateAndReturnDocument(data, TagRels, tagrelSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'TagRels',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('TagRels', updatedDocument, updateCallbackProperties.oldDocument);
 
     return updatedDocument;
   },

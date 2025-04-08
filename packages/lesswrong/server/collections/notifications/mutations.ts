@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/notifications/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -43,12 +43,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Notifications', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Notifications',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Notifications', documentWithId);
 
     return documentWithId;
   },
@@ -65,12 +60,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
 
     let updatedDocument = await updateAndReturnDocument(data, Notifications, notificationSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Notifications',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Notifications', updatedDocument, updateCallbackProperties.oldDocument);
 
     return updatedDocument;
   },

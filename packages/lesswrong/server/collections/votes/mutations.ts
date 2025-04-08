@@ -1,19 +1,8 @@
 
 import schema from "@/lib/collections/votes/newSchema";
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-
-
-function newCheck(user: DbUser | null, document: Partial<DbInsertion<DbVote>> | null, context: ResolverContext) {
-  return userIsAdmin(user);
-}
-
-function editCheck(user: DbUser | null, document: DbVote | null, context: ResolverContext) {
-  if (!user || !document) return false;
-  return userIsAdmin(user);
-}
 
 
 const { createFunction, updateFunction } = getDefaultMutationFunctions('Votes', {
@@ -35,12 +24,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Votes', 
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Votes', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Votes',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Votes', documentWithId);
 
     return documentWithId;
   },
@@ -57,12 +41,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Votes', 
 
     let updatedDocument = await updateAndReturnDocument(data, Votes, voteSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Votes',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Votes', updatedDocument, updateCallbackProperties.oldDocument);
 
     return updatedDocument;
   },

@@ -1,6 +1,6 @@
 
 import schema from "@/lib/collections/tweets/newSchema";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -24,12 +24,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tweets',
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Tweets', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Tweets',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Tweets', documentWithId);
 
     return documentWithId;
   },
@@ -52,12 +47,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Tweets',
 
     let updatedDocument = await updateAndReturnDocument(data, Tweets, tweetSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'Tweets',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Tweets', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: Tweets, oldDocument, data: origData });
 

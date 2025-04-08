@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/electionCandidates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { setDefaultVotingFields } from "@/server/callbacks/electionCandidateCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
@@ -45,12 +45,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ElectionCandidates', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ElectionCandidates',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ElectionCandidates', documentWithId);
 
     return documentWithId;
   },
@@ -73,12 +68,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
 
     let updatedDocument = await updateAndReturnDocument(data, ElectionCandidates, electioncandidateSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'ElectionCandidates',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ElectionCandidates', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: ElectionCandidates, oldDocument, data: origData });
 

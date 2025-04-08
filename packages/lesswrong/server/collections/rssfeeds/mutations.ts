@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/rssfeeds/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { populateRawFeed } from "@/server/rss-integration/callbacks";
@@ -45,12 +45,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'RSSFeeds', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'RSSFeeds',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('RSSFeeds', documentWithId);
 
     return documentWithId;
   },
@@ -73,12 +68,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
 
     let updatedDocument = await updateAndReturnDocument(data, RSSFeeds, rssfeedSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'RSSFeeds',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('RSSFeeds', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: RSSFeeds, oldDocument, data: origData });
 

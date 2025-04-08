@@ -2,7 +2,7 @@
 import schema from "@/lib/collections/userRateLimits/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { runCountOfReferenceCallbacks } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -58,12 +58,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRate
     const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserRateLimits', callbackProps);
     let documentWithId = afterCreateProperties.document;
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserRateLimits',
-      newDocument: documentWithId,
-      callbackStage: 'createAfter',
-      afterCreateProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserRateLimits', documentWithId);
 
     return documentWithId;
   },
@@ -86,12 +81,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRate
 
     let updatedDocument = await updateAndReturnDocument(data, UserRateLimits, userratelimitSelector, context);
 
-    await runCountOfReferenceCallbacks({
-      collectionName: 'UserRateLimits',
-      newDocument: updatedDocument,
-      callbackStage: "updateAfter",
-      updateAfterProperties: updateCallbackProperties,
-    });
+    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserRateLimits', updatedDocument, oldDocument);
 
     void logFieldChanges({ currentUser, collection: UserRateLimits, oldDocument, data: origData });
 
