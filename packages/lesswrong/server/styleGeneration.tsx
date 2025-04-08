@@ -47,7 +47,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   const theme = getForumTheme(themeOptions);
   const cssVars = requestedCssVarsToString(theme);
-  const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions);
+  const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions, true);
   
   const mergedCSS = [
     draftjsStyles(),
@@ -83,14 +83,14 @@ function getAllStylesByName() {
   };
 }
 
-function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType, themeOptions: ThemeOptions): string {
+function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType, themeOptions: ThemeOptions, addPotentiallUnusedMuiStyles: boolean): string {
   const context: any = {};
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);
   const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
-    {Object.keys(usedMuiStyles).map((componentName: string) => {
+    {addPotentiallUnusedMuiStyles && Object.keys(usedMuiStyles).map((componentName: string) => {
       const StyledComponent = withStyles(usedMuiStyles[componentName], {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
     })}
@@ -153,7 +153,7 @@ export function generateEmailStylesheet({muiSheetsRegistry, stylesContext, theme
   const mountedStyles = stylesContext.mountedStyles;
   const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition)
   const usedStylesByName = keyBy(usedStyleDefinitions, s=>s.name);
-  const css = stylesToStylesheet(usedStylesByName, theme, themeOptions);
+  const css = stylesToStylesheet(usedStylesByName, theme, themeOptions, false);
 
   return muiSheet + css;
 }
