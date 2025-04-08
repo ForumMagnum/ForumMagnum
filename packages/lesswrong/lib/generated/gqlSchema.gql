@@ -10793,35 +10793,6 @@ extend type Query {
   ArbitalPageData(pageAlias: String): ArbitalPageData
 }
 
-type CoronaVirusDataRow {
-  accepted: String
-  imp: String
-  link: String
-  shortDescription: String
-  url: String
-  description: String
-  domain: String
-  type: String
-  reviewerThoughts: String
-  foundVia: String
-  sourceLink: String
-  sourceLinkDomain: String
-  lastUpdated: String
-  title: String
-  dateAdded: String
-  category: String
-}
-
-type CoronaVirusDataSchema {
-  range: String
-  majorDimension: String
-  values: [CoronaVirusDataRow!]
-}
-
-extend type Query {
-  CoronaVirusData: CoronaVirusDataSchema
-}
-
 type ElicitUser {
   isQuestionCreator: Boolean
   displayName: String

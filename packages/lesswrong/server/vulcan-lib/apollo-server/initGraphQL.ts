@@ -49,7 +49,6 @@ import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutation
 import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
 import { analyticsGraphQLQueries, analyticsGraphQLTypeDefs } from '@/server/resolvers/analyticsResolvers';
 import { arbitalGraphQLTypeDefs, arbitalGraphQLQueries } from '@/server/resolvers/arbitalPageData';
-import { coronaLinkDatabaseGraphQLTypeDefs, coronaLinkDatabaseGraphQLQueries } from '@/server/resolvers/coronaLinkDatabase';
 import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elicitPredictionsGraphQLFieldResolvers, elicitPredictionsGraphQLMutations } from '@/server/resolvers/elicitPredictions';
 import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
 import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
@@ -128,7 +127,6 @@ export const typeDefs = gql`
   ${karmaChangesTypeDefs}
   ${analyticsGraphQLTypeDefs}
   ${arbitalGraphQLTypeDefs}
-  ${coronaLinkDatabaseGraphQLTypeDefs}
   ${elicitPredictionsGraphQLTypeDefs}
   ${notificationResolversGqlTypeDefs}
   ${lightcone2024FundraiserGraphQLTypeDefs}
@@ -192,7 +190,6 @@ export const resolvers = {
     ...commentQueries,
     ...analyticsGraphQLQueries,
     ...arbitalGraphQLQueries,
-    ...coronaLinkDatabaseGraphQLQueries,
     ...elicitPredictionsGraphQLQueries,
     ...notificationResolversGqlQueries,
     ...elicitPredictionsGraphQLQueries,
