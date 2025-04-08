@@ -202,10 +202,11 @@ const FriendlyInbox = ({
 
   const openNewConversationDialog = useCallback(() => {
     openDialog({
-      componentName: "NewConversationDialog",
-      componentProps: {
-        isModInbox,
-      },
+      name: "NewConversationDialog",
+      contents: ({onClose}) => <Components.NewConversationDialog
+        onClose={onClose}
+        isModInbox={isModInbox}
+      />
     });
   }, [isModInbox, openDialog]);
 
@@ -251,10 +252,11 @@ const FriendlyInbox = ({
     if (!conversationId) return;
 
     openDialog({
-      componentName: "ConversationTitleEditForm",
-      componentProps: {
-        documentId: conversationId,
-      },
+      name: "ConversationTitleEditForm",
+      contents: ({onClose}) => <Components.ConversationTitleEditForm
+        onClose={onClose}
+        documentId={conversationId}
+      />
     });
   };
 

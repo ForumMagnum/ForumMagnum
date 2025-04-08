@@ -1,0 +1,8661 @@
+# Generated file - run 'yarn generate' to update.
+
+scalar JSON
+
+scalar Date
+
+type AdvisorRequest {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  interestedInMetaculus: Boolean
+  jobAds: JSON
+}
+
+input SingleAdvisorRequestInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiAdvisorRequestInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleAdvisorRequestOutput {
+  result: AdvisorRequest
+}
+
+type MultiAdvisorRequestOutput {
+  results: [AdvisorRequest]
+  totalCount: Int
+}
+
+type ArbitalCaches {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleArbitalCachesInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiArbitalCachesInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleArbitalCachesOutput {
+  result: ArbitalCaches
+}
+
+type MultiArbitalCachesOutput {
+  results: [ArbitalCaches]
+  totalCount: Int
+}
+
+type ArbitalTagContentRel {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  parentDocumentId: String
+  childDocumentId: String
+  parentCollectionName: String
+  childCollectionName: String
+  type: String
+  level: Float
+  isStrong: Boolean
+}
+
+input SingleArbitalTagContentRelInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiArbitalTagContentRelInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleArbitalTagContentRelOutput {
+  result: ArbitalTagContentRel
+}
+
+type MultiArbitalTagContentRelOutput {
+  results: [ArbitalTagContentRel]
+  totalCount: Int
+}
+
+type Ban {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  expirationDate: Date
+  userId: String
+  user: User
+  ip: String
+  reason: String
+  comment: String
+  properties: JSON
+}
+
+input SingleBanInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiBanInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleBanOutput {
+  result: Ban
+}
+
+type MultiBanOutput {
+  results: [Ban]
+  totalCount: Int
+}
+
+type Book {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  postedAt: Date
+  title: String
+  subtitle: String
+  tocTitle: String
+  collectionId: String
+  number: Float
+  postIds: [String]
+  posts: [Post!]!
+  sequenceIds: [String]
+  sequences: [Sequence!]!
+  displaySequencesAsGrid: Boolean
+  hideProgressBar: Boolean
+  showChapters: Boolean
+}
+
+input SingleBookInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiBookInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleBookOutput {
+  result: Book
+}
+
+type MultiBookOutput {
+  results: [Book]
+  totalCount: Int
+}
+
+type Chapter {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  title: String
+  subtitle: String
+  number: Float
+  sequenceId: String
+  sequence: Sequence
+  postIds: [String]
+  posts: [Post!]!
+}
+
+input SingleChapterInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiChapterInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleChapterOutput {
+  result: Chapter
+}
+
+type MultiChapterOutput {
+  results: [Chapter]
+  totalCount: Int
+}
+
+type CkEditorUserSession {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  documentId: String
+  userId: String
+  endedAt: Date
+  endedBy: String
+}
+
+input SingleCkEditorUserSessionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiCkEditorUserSessionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleCkEditorUserSessionOutput {
+  result: CkEditorUserSession
+}
+
+type MultiCkEditorUserSessionOutput {
+  results: [CkEditorUserSession]
+  totalCount: Int
+}
+
+type ClientId {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  clientId: String
+  firstSeenReferrer: String
+  firstSeenLandingPage: String
+  userIds: [String]
+  users: [User!]
+  invalidated: Boolean
+  lastSeenAt: Date
+  timesSeen: Float
+}
+
+input SingleClientIdInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiClientIdInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleClientIdOutput {
+  result: ClientId
+}
+
+type MultiClientIdOutput {
+  results: [ClientId]
+  totalCount: Int
+}
+
+type Collection {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  userId: String
+  user: User
+  title: String
+  slug: String
+  books: [Book]
+  postsCount: Int!
+  readPostsCount: Int!
+  gridImageId: String
+  firstPageLink: String
+  hideStartReadingButton: Boolean
+  noindex: Boolean
+}
+
+input SingleCollectionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiCollectionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleCollectionOutput {
+  result: Collection
+}
+
+type MultiCollectionOutput {
+  results: [Collection]
+  totalCount: Int
+}
+
+type CommentModeratorAction {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  commentId: String
+  comment: Comment
+  type: String
+  endedAt: Date
+  active: Boolean
+}
+
+input SingleCommentModeratorActionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiCommentModeratorActionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleCommentModeratorActionOutput {
+  result: CommentModeratorAction
+}
+
+type MultiCommentModeratorActionOutput {
+  results: [CommentModeratorAction]
+  totalCount: Int
+}
+
+type Comment {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  pingbacks: JSON
+  parentCommentId: String
+  parentComment: Comment
+  topLevelCommentId: String
+  topLevelComment: Comment
+  postedAt: Date
+  lastEditedAt: Date
+  author: String
+  postId: String
+  post: Post
+  tagId: String
+  tag: Tag
+  forumEventId: String
+  forumEvent: ForumEvent
+  forumEventMetadata: JSON
+  tagCommentType: String
+  subforumStickyPriority: Float
+  userId: String
+  user: User
+  userIP: String
+  userAgent: String
+  referrer: String
+  authorIsUnreviewed: Boolean
+  pageUrl: String
+  pageUrlRelative: String
+  answer: Boolean
+  parentAnswerId: String
+  parentAnswer: Comment
+  directChildrenCount: Float
+  descendentCount: Float
+  latestChildren: [Comment]
+  shortform: Boolean
+  shortformFrontpage: Boolean
+  nominatedForReview: String
+  reviewingForReview: String
+  lastSubthreadActivity: Date
+  postVersion: String
+  promoted: Boolean
+  promotedByUserId: String
+  promotedByUser: User
+  promotedAt: Date
+  hideKarma: Boolean
+  wordCount: Int
+  htmlBody: String
+  votingSystem: String!
+  legacy: Boolean
+  legacyId: String
+  legacyPoll: Boolean
+  legacyParentId: String
+  retracted: Boolean
+  deleted: Boolean
+  deletedPublic: Boolean
+  deletedReason: String
+  deletedDate: Date
+  deletedByUserId: String
+  deletedByUser: User
+  spam: Boolean
+  repliesBlockedUntil: Date
+  needsReview: Boolean
+  reviewedByUserId: String
+  reviewedByUser: User
+  hideAuthor: Boolean
+  moderatorHat: Boolean
+  hideModeratorHat: Boolean
+  isPinnedOnProfile: Boolean
+  title: String
+  relevantTagIds: [String]
+  relevantTags: [Tag!]!
+  debateResponse: Boolean
+  rejected: Boolean
+  modGPTAnalysis: String
+  modGPTRecommendation: String
+  rejectedReason: String
+  rejectedByUserId: String
+  rejectedByUser: User
+  emojiReactors: JSON
+  af: Boolean
+  suggestForAlignmentUserIds: [String]
+  suggestForAlignmentUsers: [User!]!
+  reviewForAlignmentUserId: String
+  afDate: Date
+  moveToAlignmentUserId: String
+  moveToAlignmentUser: User
+  agentFoundationsId: String
+  originalDialogueId: String
+  originalDialogue: Post
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  allVotes: [Vote]
+  voteCount: Float
+  baseScore: Float
+  extendedScore: JSON
+  score: Float
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
+}
+
+input SingleCommentInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiCommentInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleCommentOutput {
+  result: Comment
+}
+
+type MultiCommentOutput {
+  results: [Comment]
+  totalCount: Int
+}
+
+type Conversation {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  title: String
+  participantIds: [String]
+  participants: [User!]
+  latestActivity: Date
+  af: Boolean
+  messageCount: Float
+  moderator: Boolean
+  archivedByIds: [String]
+  archivedBy: [User!]!
+  latestMessage: Message
+  hasUnreadMessages: Boolean
+}
+
+input SingleConversationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiConversationInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleConversationOutput {
+  result: Conversation
+}
+
+type MultiConversationOutput {
+  results: [Conversation]
+  totalCount: Int
+}
+
+type CronHistory {
+  _id: String
+  intendedAt: Date
+  name: String
+  startedAt: Date
+  finishedAt: Date
+  result: JSON
+}
+
+input SingleCronHistoryInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiCronHistoryInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleCronHistoryOutput {
+  result: CronHistory
+}
+
+type MultiCronHistoryOutput {
+  results: [CronHistory]
+  totalCount: Int
+}
+
+type CurationEmail {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  postId: String
+}
+
+input SingleCurationEmailInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiCurationEmailInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleCurationEmailOutput {
+  result: CurationEmail
+}
+
+type MultiCurationEmailOutput {
+  results: [CurationEmail]
+  totalCount: Int
+}
+
+type CurationNotice {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  userId: String
+  user: User
+  commentId: String
+  comment: Comment
+  postId: String
+  post: Post
+  deleted: Boolean
+}
+
+input SingleCurationNoticeInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiCurationNoticeInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleCurationNoticeOutput {
+  result: CurationNotice
+}
+
+type MultiCurationNoticeOutput {
+  results: [CurationNotice]
+  totalCount: Int
+}
+
+type DatabaseMetadata {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleDatabaseMetadataInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiDatabaseMetadataInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleDatabaseMetadataOutput {
+  result: DatabaseMetadata
+}
+
+type MultiDatabaseMetadataOutput {
+  results: [DatabaseMetadata]
+  totalCount: Int
+}
+
+type DebouncerEvents {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleDebouncerEventsInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiDebouncerEventsInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleDebouncerEventsOutput {
+  result: DebouncerEvents
+}
+
+type MultiDebouncerEventsOutput {
+  results: [DebouncerEvents]
+  totalCount: Int
+}
+
+type DialogueCheck {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  targetUserId: String
+  checked: Boolean
+  checkedAt: Date
+  hideInRecommendations: Boolean
+  matchPreference: DialogueMatchPreference
+  reciprocalMatchPreference: DialogueMatchPreference
+}
+
+input SingleDialogueCheckInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiDialogueCheckInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleDialogueCheckOutput {
+  result: DialogueCheck
+}
+
+type MultiDialogueCheckOutput {
+  results: [DialogueCheck]
+  totalCount: Int
+}
+
+type DialogueMatchPreference {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  dialogueCheckId: String
+  dialogueCheck: DialogueCheck
+  topicPreferences: [JSON]
+  topicNotes: String
+  syncPreference: String
+  asyncPreference: String
+  formatNotes: String
+  calendlyLink: String
+  generatedDialogueId: String
+  deleted: Boolean
+}
+
+input SingleDialogueMatchPreferenceInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiDialogueMatchPreferenceInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleDialogueMatchPreferenceOutput {
+  result: DialogueMatchPreference
+}
+
+type MultiDialogueMatchPreferenceOutput {
+  results: [DialogueMatchPreference]
+  totalCount: Int
+}
+
+type DigestPost {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  digestId: String
+  digest: Digest!
+  postId: String
+  post: Post
+  emailDigestStatus: String
+  onsiteDigestStatus: String
+}
+
+input SingleDigestPostInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiDigestPostInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleDigestPostOutput {
+  result: DigestPost
+}
+
+type MultiDigestPostOutput {
+  results: [DigestPost]
+  totalCount: Int
+}
+
+type Digest {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  num: Float
+  startDate: Date
+  endDate: Date
+  publishedDate: Date
+  onsiteImageId: String
+  onsitePrimaryColor: String
+}
+
+input SingleDigestInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiDigestInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleDigestOutput {
+  result: Digest
+}
+
+type MultiDigestOutput {
+  results: [Digest]
+  totalCount: Int
+}
+
+type ElectionCandidate {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  electionName: String
+  name: String
+  logoSrc: String
+  href: String
+  fundraiserLink: String
+  gwwcLink: String
+  gwwcId: String
+  description: String
+  userId: String
+  user: User
+  postCount: Float
+  tagId: String
+  tag: Tag
+  isElectionFundraiser: Boolean
+  amountRaised: Float
+  targetAmount: Float
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float
+  baseScore: Float
+  extendedScore: JSON
+  score: Float
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
+}
+
+input SingleElectionCandidateInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiElectionCandidateInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleElectionCandidateOutput {
+  result: ElectionCandidate
+}
+
+type MultiElectionCandidateOutput {
+  results: [ElectionCandidate]
+  totalCount: Int
+}
+
+type ElectionVote {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  electionName: String
+  userId: String
+  user: User
+  compareState: JSON
+  vote: JSON
+  submittedAt: Date
+  submissionComments: JSON
+  userExplanation: String
+  userOtherComments: String
+}
+
+input SingleElectionVoteInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiElectionVoteInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleElectionVoteOutput {
+  result: ElectionVote
+}
+
+type MultiElectionVoteOutput {
+  results: [ElectionVote]
+  totalCount: Int
+}
+
+type ElicitQuestionPrediction {
+  _id: String
+  predictionId: String
+  prediction: Float
+  createdAt: Date
+  notes: String
+  creator: JSON
+  userId: String
+  user: User
+  sourceUrl: String
+  sourceId: String
+  binaryQuestionId: String
+  question: ElicitQuestion!
+  isDeleted: Boolean
+}
+
+input SingleElicitQuestionPredictionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiElicitQuestionPredictionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleElicitQuestionPredictionOutput {
+  result: ElicitQuestionPrediction
+}
+
+type MultiElicitQuestionPredictionOutput {
+  results: [ElicitQuestionPrediction]
+  totalCount: Int
+}
+
+type ElicitQuestion {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  title: String
+  notes: String
+  resolution: String
+  resolvesBy: Date
+}
+
+input SingleElicitQuestionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiElicitQuestionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleElicitQuestionOutput {
+  result: ElicitQuestion
+}
+
+type MultiElicitQuestionOutput {
+  results: [ElicitQuestion]
+  totalCount: Int
+}
+
+type EmailTokens {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleEmailTokensInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiEmailTokensInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleEmailTokensOutput {
+  result: EmailTokens
+}
+
+type MultiEmailTokensOutput {
+  results: [EmailTokens]
+  totalCount: Int
+}
+
+type FeaturedResource {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  title: String
+  body: String
+  ctaText: String
+  ctaUrl: String
+  expiresAt: Date
+}
+
+input SingleFeaturedResourceInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiFeaturedResourceInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleFeaturedResourceOutput {
+  result: FeaturedResource
+}
+
+type MultiFeaturedResourceOutput {
+  results: [FeaturedResource]
+  totalCount: Int
+}
+
+type FieldChange {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  changeGroup: String
+  documentId: String
+  fieldName: String
+  oldValue: JSON
+  newValue: JSON
+}
+
+input SingleFieldChangeInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiFieldChangeInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleFieldChangeOutput {
+  result: FieldChange
+}
+
+type MultiFieldChangeOutput {
+  results: [FieldChange]
+  totalCount: Int
+}
+
+type ForumEvent {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  frontpageDescription(version: String): Revision
+  frontpageDescription_latest: String
+  frontpageDescriptionMobile(version: String): Revision
+  frontpageDescriptionMobile_latest: String
+  postPageDescription(version: String): Revision
+  postPageDescription_latest: String
+  title: String
+  startDate: Date
+  endDate: Date
+  darkColor: String
+  lightColor: String
+  bannerTextColor: String
+  contrastColor: String
+  tagId: String
+  tag: Tag
+  postId: String
+  post: Post
+  bannerImageId: String
+  includesPoll: Boolean
+  eventFormat: String
+  pollQuestion(version: String): Revision
+  pollQuestion_latest: String
+  pollAgreeWording: String
+  pollDisagreeWording: String
+  maxStickersPerUser: Float
+  customComponent: String
+  commentPrompt: String
+  publicData: JSON
+  voteCount: Int!
+}
+
+input SingleForumEventInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiForumEventInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleForumEventOutput {
+  result: ForumEvent
+}
+
+type MultiForumEventOutput {
+  results: [ForumEvent]
+  totalCount: Int
+}
+
+type GardenCode {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  pingbacks: JSON
+  slug: String
+  code: String
+  title: String
+  userId: String
+  user: User
+  startTime: Date
+  endTime: Date
+  fbLink: String
+  type: String
+  hidden: Boolean
+  deleted: Boolean
+  afOnly: Boolean
+}
+
+input SingleGardenCodeInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiGardenCodeInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleGardenCodeOutput {
+  result: GardenCode
+}
+
+type MultiGardenCodeOutput {
+  results: [GardenCode]
+  totalCount: Int
+}
+
+type GoogleServiceAccountSession {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  email: String
+  refreshToken: String
+  estimatedExpiry: Date
+  active: Boolean
+  revoked: Boolean
+}
+
+input SingleGoogleServiceAccountSessionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiGoogleServiceAccountSessionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleGoogleServiceAccountSessionOutput {
+  result: GoogleServiceAccountSession
+}
+
+type MultiGoogleServiceAccountSessionOutput {
+  results: [GoogleServiceAccountSession]
+  totalCount: Int
+}
+
+type Images {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleImagesInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiImagesInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleImagesOutput {
+  result: Images
+}
+
+type MultiImagesOutput {
+  results: [Images]
+  totalCount: Int
+}
+
+type JargonTerm {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  postId: String
+  post: Post
+  term: String
+  humansAndOrAIEdited: String
+  approved: Boolean
+  deleted: Boolean
+  altTerms: [String]
+}
+
+input SingleJargonTermInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiJargonTermInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleJargonTermOutput {
+  result: JargonTerm
+}
+
+type MultiJargonTermOutput {
+  results: [JargonTerm]
+  totalCount: Int
+}
+
+type LWEvent {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  name: String
+  documentId: String
+  important: Boolean
+  properties: JSON
+  intercom: Boolean
+}
+
+input SingleLWEventInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiLWEventInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleLWEventOutput {
+  result: LWEvent
+}
+
+type MultiLWEventOutput {
+  results: [LWEvent]
+  totalCount: Int
+}
+
+type LegacyData {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleLegacyDataInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiLegacyDataInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleLegacyDataOutput {
+  result: LegacyData
+}
+
+type MultiLegacyDataOutput {
+  results: [LegacyData]
+  totalCount: Int
+}
+
+type LlmConversation {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  title: String
+  model: String
+  systemPrompt: String
+  lastUpdatedAt: Date
+  messages: [LlmMessage]
+  deleted: Boolean
+  totalCharacterCount: Int
+}
+
+input SingleLlmConversationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiLlmConversationInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleLlmConversationOutput {
+  result: LlmConversation
+}
+
+type MultiLlmConversationOutput {
+  results: [LlmConversation]
+  totalCount: Int
+}
+
+type LlmMessage {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  conversationId: String
+  role: String
+  content: String
+}
+
+input SingleLlmMessageInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiLlmMessageInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleLlmMessageOutput {
+  result: LlmMessage
+}
+
+type MultiLlmMessageOutput {
+  results: [LlmMessage]
+  totalCount: Int
+}
+
+type Localgroup {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  name: String
+  nameInAnotherLanguage: String
+  organizerIds: [String]
+  organizers: [User!]!
+  lastActivity: Date
+  types: [String]
+  categories: [String]
+  isOnline: Boolean
+  mongoLocation: JSON
+  googleLocation: JSON
+  location: String
+  contactInfo: String
+  facebookLink: String
+  facebookPageLink: String
+  meetupLink: String
+  slackLink: String
+  website: String
+  bannerImageId: String
+  inactive: Boolean
+  deleted: Boolean
+}
+
+input SingleLocalgroupInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiLocalgroupInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleLocalgroupOutput {
+  result: Localgroup
+}
+
+type MultiLocalgroupOutput {
+  results: [Localgroup]
+  totalCount: Int
+}
+
+type ManifoldProbabilitiesCache {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  marketId: String
+  probability: Float
+  isResolved: Boolean
+  year: Float
+  lastUpdated: Date
+  url: String
+}
+
+input SingleManifoldProbabilitiesCacheInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiManifoldProbabilitiesCacheInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleManifoldProbabilitiesCacheOutput {
+  result: ManifoldProbabilitiesCache
+}
+
+type MultiManifoldProbabilitiesCacheOutput {
+  results: [ManifoldProbabilitiesCache]
+  totalCount: Int
+}
+
+type Message {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  userId: String
+  user: User
+  conversationId: String
+  conversation: Conversation
+  noEmail: Boolean
+}
+
+input SingleMessageInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiMessageInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleMessageOutput {
+  result: Message
+}
+
+type MultiMessageOutput {
+  results: [Message]
+  totalCount: Int
+}
+
+type Migration {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleMigrationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiMigrationInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleMigrationOutput {
+  result: Migration
+}
+
+type MultiMigrationOutput {
+  results: [Migration]
+  totalCount: Int
+}
+
+type ModerationTemplate {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  name: String
+  collectionName: String
+  order: Float
+  deleted: Boolean
+}
+
+input SingleModerationTemplateInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiModerationTemplateInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleModerationTemplateOutput {
+  result: ModerationTemplate
+}
+
+type MultiModerationTemplateOutput {
+  results: [ModerationTemplate]
+  totalCount: Int
+}
+
+type ModeratorAction {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  type: String
+  endedAt: Date
+  active: Boolean!
+}
+
+input SingleModeratorActionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiModeratorActionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleModeratorActionOutput {
+  result: ModeratorAction
+}
+
+type MultiModeratorActionOutput {
+  results: [ModeratorAction]
+  totalCount: Int
+}
+
+type MultiDocument {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  pingbacks: JSON
+  slug: String
+  oldSlugs: [String]
+  title: String
+  preview: String
+  tabTitle: String
+  tabSubtitle: String
+  userId: String
+  user: User
+  parentDocumentId: String
+  parentTag: Tag
+  parentLens: MultiDocument
+  collectionName: String
+  fieldName: String
+  index: Float
+  tableOfContents(version: String): JSON
+  contributors(limit: Int, version: String): TagContributorsList
+  contributionStats: JSON
+  arbitalLinkedPages: ArbitalLinkedPages
+  htmlWithContributorAnnotations: String
+  summaries: [MultiDocument!]!
+  textLastUpdatedAt: Date
+  deleted: Boolean
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float
+  baseScore: Float
+  extendedScore: JSON
+  score: Float
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
+}
+
+input SingleMultiDocumentInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiMultiDocumentInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleMultiDocumentOutput {
+  result: MultiDocument
+}
+
+type MultiMultiDocumentOutput {
+  results: [MultiDocument]
+  totalCount: Int
+}
+
+type Notification {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  documentId: String
+  documentType: String
+  extraData: JSON
+  link: String
+  title: String
+  message: String
+  type: String
+  deleted: Boolean
+  viewed: Boolean
+  emailed: Boolean
+  waitingForBatch: Boolean
+}
+
+input SingleNotificationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiNotificationInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleNotificationOutput {
+  result: Notification
+}
+
+type MultiNotificationOutput {
+  results: [Notification]
+  totalCount: Int
+}
+
+type PageCacheEntry {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SinglePageCacheEntryInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPageCacheEntryInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePageCacheEntryOutput {
+  result: PageCacheEntry
+}
+
+type MultiPageCacheEntryOutput {
+  results: [PageCacheEntry]
+  totalCount: Int
+}
+
+type PetrovDayAction {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  actionType: String
+  data: JSON
+  userId: String
+}
+
+input SinglePetrovDayActionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPetrovDayActionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePetrovDayActionOutput {
+  result: PetrovDayAction
+}
+
+type MultiPetrovDayActionOutput {
+  results: [PetrovDayAction]
+  totalCount: Int
+}
+
+type PetrovDayLaunch {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  launchCode: String
+  hashedLaunchCode: String
+  userId: String
+}
+
+input SinglePetrovDayLaunchInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPetrovDayLaunchInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePetrovDayLaunchOutput {
+  result: PetrovDayLaunch
+}
+
+type MultiPetrovDayLaunchOutput {
+  results: [PetrovDayLaunch]
+  totalCount: Int
+}
+
+type PodcastEpisode {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  podcastId: String
+  podcast: Podcast!
+  title: String
+  episodeLink: String
+  externalEpisodeId: String
+}
+
+input SinglePodcastEpisodeInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPodcastEpisodeInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePodcastEpisodeOutput {
+  result: PodcastEpisode
+}
+
+type MultiPodcastEpisodeOutput {
+  results: [PodcastEpisode]
+  totalCount: Int
+}
+
+type Podcast {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  title: String
+  applePodcastLink: String
+  spotifyPodcastLink: String
+}
+
+input SinglePodcastInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPodcastInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePodcastOutput {
+  result: Podcast
+}
+
+type MultiPodcastOutput {
+  results: [Podcast]
+  totalCount: Int
+}
+
+type PostEmbedding {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  postId: String
+  post: Post
+  postHash: String
+  lastGeneratedAt: Date
+  model: String
+  embeddings: [Float]
+}
+
+input SinglePostEmbeddingInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPostEmbeddingInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePostEmbeddingOutput {
+  result: PostEmbedding
+}
+
+type MultiPostEmbeddingOutput {
+  results: [PostEmbedding]
+  totalCount: Int
+}
+
+type PostRecommendation {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  clientId: String
+  postId: String
+  post: Post
+  strategyName: String
+  strategySettings: JSON
+  recommendationCount: Int
+  lastRecommendedAt: Date
+  clickedAt: Date
+}
+
+input SinglePostRecommendationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPostRecommendationInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePostRecommendationOutput {
+  result: PostRecommendation
+}
+
+type MultiPostRecommendationOutput {
+  results: [PostRecommendation]
+  totalCount: Int
+}
+
+type PostRelation {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  type: String
+  sourcePostId: String
+  sourcePost: Post
+  targetPostId: String
+  targetPost: Post
+  order: Float
+}
+
+input SinglePostRelationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPostRelationInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePostRelationOutput {
+  result: PostRelation
+}
+
+type MultiPostRelationOutput {
+  results: [PostRelation]
+  totalCount: Int
+}
+
+type PostViewTime {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SinglePostViewTimeInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPostViewTimeInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePostViewTimeOutput {
+  result: PostViewTime
+}
+
+type MultiPostViewTimeOutput {
+  results: [PostViewTime]
+  totalCount: Int
+}
+
+type PostViews {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SinglePostViewsInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPostViewsInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePostViewsOutput {
+  result: PostViews
+}
+
+type MultiPostViewsOutput {
+  results: [PostViews]
+  totalCount: Int
+}
+
+type Post {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  revisions(limit: Int = 5): [Revision]
+  version: String
+  pingbacks: JSON
+  moderationGuidelines(version: String): Revision
+  moderationGuidelines_latest: String
+  customHighlight(version: String): Revision
+  customHighlight_latest: String
+  slug: String
+  postedAt: Date
+  modifiedAt: Date
+  url: String
+  postCategory: String
+  title: String
+  viewCount: Float
+  lastCommentedAt: Date
+  clickCount: Float
+  deletedDraft: Boolean
+  status: Float
+  isFuture: Boolean
+  sticky: Boolean
+  stickyPriority: Int
+  userIP: String
+  userAgent: String
+  referrer: String
+  author: String
+  userId: String
+  user: User
+  domain: String
+  pageUrl: String!
+  pageUrlRelative: String
+  linkUrl: String
+  postedAtFormatted: String
+  emailShareUrl: String
+  twitterShareUrl: String
+  facebookShareUrl: String
+  socialPreviewImageUrl: String
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  readTimeMinutesOverride: Float
+  readTimeMinutes: Int!
+  wordCount: Int
+  htmlBody: String
+  submitToFrontpage: Boolean
+  hiddenRelatedQuestion: Boolean
+  originalPostRelationSourceId: String
+  sourcePostRelations: [PostRelation!]!
+  targetPostRelations: [PostRelation!]!
+  shortform: Boolean
+  canonicalSource: String
+  nominationCount2018: Float
+  nominationCount2019: Float
+  reviewCount2018: Float
+  reviewCount2019: Float
+  reviewCount: Float
+  reviewVoteCount: Float
+  positiveReviewVoteCount: Float
+  manifoldReviewMarketId: String
+  annualReviewMarketProbability: Float
+  annualReviewMarketIsResolved: Boolean
+  annualReviewMarketYear: Int
+  annualReviewMarketUrl: String
+  glossary: [JargonTerm!]!
+  reviewVoteScoreAF: Float
+  reviewVotesAF: [Float]
+  reviewVoteScoreHighKarma: Float
+  reviewVotesHighKarma: [Float]
+  reviewVoteScoreAllKarma: Float
+  reviewVotesAllKarma: [Float]
+  finalReviewVoteScoreHighKarma: Float
+  finalReviewVotesHighKarma: [Float]
+  finalReviewVoteScoreAllKarma: Float
+  finalReviewVotesAllKarma: [Float]
+  finalReviewVoteScoreAF: Float
+  finalReviewVotesAF: [Float]
+  lastCommentPromotedAt: Date
+  tagRel(tagId: String): TagRel
+  tags: [Tag]
+  tagRelevance: JSON
+  lastPromotedComment: Comment
+  bestAnswer: Comment
+  noIndex: Boolean
+  rsvps: [JSON]
+  rsvpCounts: JSON!
+  activateRSVPs: Boolean
+  nextDayReminderSent: Boolean
+  onlyVisibleToLoggedIn: Boolean
+  onlyVisibleToEstablishedAccounts: Boolean
+  hideFromRecentDiscussions: Boolean
+  currentUserReviewVote: ReviewVote
+  reviewWinner: ReviewWinner
+  spotlight: Spotlight
+  votingSystem: String
+  myEditorAccess: String!
+  podcastEpisodeId: String
+  podcastEpisode: PodcastEpisode
+  forceAllowType3Audio: Boolean
+  legacy: Boolean
+  legacyId: String
+  legacySpam: Boolean
+  feedId: String
+  feed: RSSFeed
+  feedLink: String
+  lastVisitedAt: Date
+  isRead: Boolean
+  curatedDate: Date
+  metaDate: Date
+  suggestForCuratedUserIds: [String]
+  suggestForCuratedUsernames: String
+  frontpageDate: Date
+  autoFrontpage: String
+  collectionTitle: String
+  coauthorStatuses: [JSON]
+  coauthors: [User!]
+  hasCoauthorPermission: Boolean
+  socialPreviewImageId: String
+  socialPreviewImageAutoUrl: String
+  socialPreview: JSON
+  socialPreviewData: SocialPreviewType
+  fmCrosspost: JSON
+  canonicalSequenceId: String
+  canonicalSequence: Sequence
+  canonicalCollectionSlug: String
+  canonicalCollection: Collection
+  canonicalBookId: String
+  canonicalBook: Book
+  canonicalNextPostSlug: String
+  canonicalPrevPostSlug: String
+  nextPost(sequenceId: String): Post
+  prevPost(sequenceId: String): Post
+  sequence(sequenceId: String, prevOrNext: String): Sequence
+  unlisted: Boolean
+  disableRecommendation: Boolean
+  defaultRecommendation: Boolean
+  hideFromPopularComments: Boolean
+  draft: Boolean
+  wasEverUndrafted: Boolean
+  meta: Boolean
+  hideFrontpageComments: Boolean
+  maxBaseScore: Float
+  scoreExceeded2Date: Date
+  scoreExceeded30Date: Date
+  scoreExceeded45Date: Date
+  scoreExceeded75Date: Date
+  scoreExceeded125Date: Date
+  scoreExceeded200Date: Date
+  bannedUserIds: [String]
+  commentsLocked: Boolean
+  commentsLockedToAccountsCreatedAfter: Date
+  organizerIds: [String]
+  organizers: [User!]
+  groupId: String
+  group: Localgroup
+  eventType: String
+  isEvent: Boolean
+  reviewedByUserId: String
+  reviewedByUser: User
+  reviewForCuratedUserId: String
+  startTime: Date
+  localStartTime: Date
+  endTime: Date
+  localEndTime: Date
+  eventRegistrationLink: String
+  joinEventLink: String
+  onlineEvent: Boolean
+  globalEvent: Boolean
+  mongoLocation: JSON
+  googleLocation: JSON
+  location: String
+  contactInfo: String
+  facebookLink: String
+  meetupLink: String
+  website: String
+  eventImageId: String
+  types: [String]
+  metaSticky: Boolean
+  sharingSettings: JSON
+  shareWithUsers: [String]
+  usersSharedWith: [User!]
+  linkSharingKey: String
+  linkSharingKeyUsedBy: [String]
+  commentSortOrder: String
+  hideAuthor: Boolean
+  tableOfContents: JSON
+  tableOfContentsRevision(version: String): JSON
+  sideComments: JSON
+  sideCommentsCache: SideCommentCache
+  sideCommentVisibility: String
+  disableSidenotes: Boolean
+  moderationStyle: String
+  ignoreRateLimits: Boolean
+  hideCommentKarma: Boolean
+  commentCount: Float
+  topLevelCommentCount: Float
+  recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment]
+  languageModelSummary: String
+  debate: Boolean
+  collabEditorDialogue: Boolean
+  totalDialogueResponseCount: Int!
+  mostRecentPublishedDialogueResponseDate: Date
+  unreadDebateResponseCount: Int!
+  emojiReactors: JSON
+  commentEmojiReactors: JSON
+  rejected: Boolean
+  rejectedReason: String
+  rejectedByUserId: String
+  rejectedByUser: User
+  dialogTooltipPreview: String
+  dialogueMessageContents(dialogueMessageId: String): String
+  firstVideoAttribsForPreview: JSON
+  subforumTagId: String
+  subforumTag: Tag
+  af: Boolean
+  afDate: Date
+  afCommentCount: Float
+  afLastCommentedAt: Date
+  afSticky: Boolean
+  suggestForAlignmentUserIds: [String]
+  suggestForAlignmentUsers: [User!]!
+  reviewForAlignmentUserId: String
+  agentFoundationsId: String
+  swrCachingEnabled: Boolean
+  generateDraftJargon: Boolean
+  curationNotices: [CurationNotice]
+  reviews: [Comment]
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float
+  baseScore: Float
+  extendedScore: JSON
+  score: Float
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
+}
+
+input SinglePostInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiPostInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SinglePostOutput {
+  result: Post
+}
+
+type MultiPostOutput {
+  results: [Post]
+  totalCount: Int
+}
+
+type RSSFeed {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  ownedByUser: Boolean
+  displayFullContent: Boolean
+  nickname: String
+  url: String
+  status: String
+  rawFeed: JSON
+  setCanonicalUrl: Boolean
+  importAsDraft: Boolean
+}
+
+input SingleRSSFeedInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiRSSFeedInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleRSSFeedOutput {
+  result: RSSFeed
+}
+
+type MultiRSSFeedOutput {
+  results: [RSSFeed]
+  totalCount: Int
+}
+
+type ReadStatus {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleReadStatusInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiReadStatusInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleReadStatusOutput {
+  result: ReadStatus
+}
+
+type MultiReadStatusOutput {
+  results: [ReadStatus]
+  totalCount: Int
+}
+
+type RecommendationsCache {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  postId: String
+  source: String
+  scenario: String
+  attributionId: String
+  ttlMs: Float
+}
+
+input SingleRecommendationsCacheInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiRecommendationsCacheInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleRecommendationsCacheOutput {
+  result: RecommendationsCache
+}
+
+type MultiRecommendationsCacheOutput {
+  results: [RecommendationsCache]
+  totalCount: Int
+}
+
+type Report {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  reportedUserId: String
+  reportedUser: User
+  commentId: String
+  comment: Comment
+  postId: String
+  post: Post
+  link: String
+  claimedUserId: String
+  claimedUser: User
+  description: String
+  closedAt: Date
+  markedAsSpam: Boolean
+  reportedAsSpam: Boolean
+}
+
+input SingleReportInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiReportInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleReportOutput {
+  result: Report
+}
+
+type MultiReportOutput {
+  results: [Report]
+  totalCount: Int
+}
+
+type ReviewVote {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  postId: String
+  post: Post
+  qualitativeScore: Int
+  quadraticScore: Int
+  comment: String
+  year: String
+  dummy: Boolean
+  reactions: [String]
+}
+
+input SingleReviewVoteInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiReviewVoteInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleReviewVoteOutput {
+  result: ReviewVote
+}
+
+type MultiReviewVoteOutput {
+  results: [ReviewVote]
+  totalCount: Int
+}
+
+type ReviewWinnerArt {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  postId: String
+  splashArtImagePrompt: String
+  splashArtImageUrl: String
+  activeSplashArtCoordinates: SplashArtCoordinate
+}
+
+input SingleReviewWinnerArtInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiReviewWinnerArtInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleReviewWinnerArtOutput {
+  result: ReviewWinnerArt
+}
+
+type MultiReviewWinnerArtOutput {
+  results: [ReviewWinnerArt]
+  totalCount: Int
+}
+
+type ReviewWinner {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  postId: String
+  post: Post
+  reviewWinnerArt: ReviewWinnerArt
+  competitorCount: Int
+  reviewYear: Float
+  category: String
+  curatedOrder: Float
+  reviewRanking: Float
+  isAI: Boolean
+}
+
+input SingleReviewWinnerInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiReviewWinnerInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleReviewWinnerOutput {
+  result: ReviewWinner
+}
+
+type MultiReviewWinnerOutput {
+  results: [ReviewWinner]
+  totalCount: Int
+}
+
+type Revision {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  documentId: String
+  collectionName: String
+  fieldName: String
+  editedAt: Date
+  updateType: String
+  version: String
+  commitMessage: String
+  userId: String
+  user: User
+  draft: Boolean
+  originalContents: ContentType
+  html: String
+  markdown: String
+  draftJS: JSON
+  ckEditorMarkup: String
+  wordCount: Float
+  htmlHighlight: String!
+  htmlHighlightStartingAtHash(hash: String): String!
+  plaintextDescription: String!
+  plaintextMainText: String!
+  hasFootnotes: Boolean
+  changeMetrics: JSON
+  googleDocMetadata: JSON
+  skipAttributions: Boolean
+  tag: Tag
+  post: Post
+  lens: MultiDocument
+  summary: MultiDocument
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float
+  baseScore: Float
+  extendedScore: JSON
+  score: Float
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
+}
+
+input SingleRevisionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiRevisionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleRevisionOutput {
+  result: Revision
+}
+
+type MultiRevisionOutput {
+  results: [Revision]
+  totalCount: Int
+}
+
+type Sequence {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  lastUpdated: Date
+  userId: String
+  user: User
+  title: String
+  bannerImageId: String
+  gridImageId: String
+  hideFromAuthorPage: Boolean
+  draft: Boolean
+  isDeleted: Boolean
+  curatedOrder: Float
+  userProfileOrder: Float
+  canonicalCollectionSlug: String
+  canonicalCollection: Collection
+  hidden: Boolean
+  noindex: Boolean
+  postsCount: Int!
+  readPostsCount: Int!
+  chapters: [Chapter]
+  af: Boolean
+}
+
+input SingleSequenceInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSequenceInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSequenceOutput {
+  result: Sequence
+}
+
+type MultiSequenceOutput {
+  results: [Sequence]
+  totalCount: Int
+}
+
+type Session {
+  _id: String
+  session: JSON
+  expires: Date
+  lastModified: Date
+}
+
+input SingleSessionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSessionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSessionOutput {
+  result: Session
+}
+
+type MultiSessionOutput {
+  results: [Session]
+  totalCount: Int
+}
+
+type SideCommentCache {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  postId: String
+  annotatedHtml: String
+  commentsByBlock: JSON
+  version: Float
+}
+
+input SingleSideCommentCacheInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSideCommentCacheInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSideCommentCacheOutput {
+  result: SideCommentCache
+}
+
+type MultiSideCommentCacheOutput {
+  results: [SideCommentCache]
+  totalCount: Int
+}
+
+type SplashArtCoordinate {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  reviewWinnerArtId: String
+  reviewWinnerArt: ReviewWinnerArt
+  leftXPct: Float
+  leftYPct: Float
+  leftHeightPct: Float
+  leftWidthPct: Float
+  leftFlipped: Boolean
+  middleXPct: Float
+  middleYPct: Float
+  middleHeightPct: Float
+  middleWidthPct: Float
+  middleFlipped: Boolean
+  rightXPct: Float
+  rightYPct: Float
+  rightHeightPct: Float
+  rightWidthPct: Float
+  rightFlipped: Boolean
+}
+
+input SingleSplashArtCoordinateInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSplashArtCoordinateInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSplashArtCoordinateOutput {
+  result: SplashArtCoordinate
+}
+
+type MultiSplashArtCoordinateOutput {
+  results: [SplashArtCoordinate]
+  totalCount: Int
+}
+
+type Spotlight {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  description(version: String): Revision
+  description_latest: String
+  documentId: String
+  document: Post
+  post: Post
+  sequence: Sequence
+  tag: Tag
+  documentType: String
+  position: Float
+  duration: Float
+  customTitle: String
+  customSubtitle: String
+  subtitleUrl: String
+  headerTitle: String
+  headerTitleLeftColor: String
+  headerTitleRightColor: String
+  lastPromotedAt: Date
+  spotlightSplashImageUrl: String
+  draft: Boolean
+  deletedDraft: Boolean
+  showAuthor: Boolean
+  imageFade: Boolean
+  imageFadeColor: String
+  spotlightImageId: String
+  spotlightDarkImageId: String
+  sequenceChapters: [Chapter]
+}
+
+input SingleSpotlightInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSpotlightInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSpotlightOutput {
+  result: Spotlight
+}
+
+type MultiSpotlightOutput {
+  results: [Spotlight]
+  totalCount: Int
+}
+
+type Subscription {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  state: String
+  documentId: String
+  collectionName: String
+  deleted: Boolean
+  type: String
+}
+
+input SingleSubscriptionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSubscriptionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSubscriptionOutput {
+  result: Subscription
+}
+
+type MultiSubscriptionOutput {
+  results: [Subscription]
+  totalCount: Int
+}
+
+type SurveyQuestion {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  surveyId: String
+  survey: Survey!
+  question: String
+  format: String
+  order: Float
+}
+
+input SingleSurveyQuestionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSurveyQuestionInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSurveyQuestionOutput {
+  result: SurveyQuestion
+}
+
+type MultiSurveyQuestionOutput {
+  results: [SurveyQuestion]
+  totalCount: Int
+}
+
+type SurveyResponse {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  surveyId: String
+  survey: Survey
+  surveyScheduleId: String
+  surveySchedule: SurveySchedule
+  userId: String
+  user: User
+  clientId: String
+  client: ClientId
+  response: JSON
+}
+
+input SingleSurveyResponseInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSurveyResponseInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSurveyResponseOutput {
+  result: SurveyResponse
+}
+
+type MultiSurveyResponseOutput {
+  results: [SurveyResponse]
+  totalCount: Int
+}
+
+type SurveySchedule {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  surveyId: String
+  survey: Survey!
+  name: String
+  impressionsLimit: Float
+  maxVisitorPercentage: Float
+  minKarma: Float
+  maxKarma: Float
+  target: String
+  startDate: Date
+  endDate: Date
+  deactivated: Boolean
+  clientIds: [String]
+  clients: [ClientId!]
+}
+
+input SingleSurveyScheduleInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSurveyScheduleInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSurveyScheduleOutput {
+  result: SurveySchedule
+}
+
+type MultiSurveyScheduleOutput {
+  results: [SurveySchedule]
+  totalCount: Int
+}
+
+type Survey {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  name: String
+  questions: [SurveyQuestion!]!
+}
+
+input SingleSurveyInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiSurveyInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleSurveyOutput {
+  result: Survey
+}
+
+type MultiSurveyOutput {
+  results: [Survey]
+  totalCount: Int
+}
+
+type TagFlag {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  contents(version: String): Revision
+  contents_latest: String
+  slug: String
+  name: String
+  deleted: Boolean
+  order: Float
+}
+
+input SingleTagFlagInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiTagFlagInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleTagFlagOutput {
+  result: TagFlag
+}
+
+type MultiTagFlagOutput {
+  results: [TagFlag]
+  totalCount: Int
+}
+
+type TagRel {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  tagId: String
+  tag: Tag
+  postId: String
+  post: Post
+  deleted: Boolean
+  userId: String
+  user: User
+  currentUserCanVote: Boolean!
+  autoApplied: Boolean!
+  backfilled: Boolean
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float
+  baseScore: Float
+  extendedScore: JSON
+  score: Float
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
+}
+
+input SingleTagRelInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiTagRelInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleTagRelOutput {
+  result: TagRel
+}
+
+type MultiTagRelOutput {
+  results: [TagRel]
+  totalCount: Int
+}
+
+type Tag {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  description(version: String): Revision
+  description_latest: String
+  pingbacks: JSON
+  subforumWelcomeText(version: String): Revision
+  subforumWelcomeText_latest: String
+  moderationGuidelines(version: String): Revision
+  moderationGuidelines_latest: String
+  slug: String
+  oldSlugs: [String]
+  name: String
+  shortName: String
+  subtitle: String
+  core: Boolean
+  isPostType: Boolean
+  suggestedAsFilter: Boolean
+  defaultOrder: Float
+  descriptionTruncationCount: Float
+  postCount: Float
+  userId: String
+  user: User
+  adminOnly: Boolean
+  canEditUserIds: [String]
+  charsAdded: Float
+  charsRemoved: Float
+  deleted: Boolean
+  lastCommentedAt: Date
+  lastSubforumCommentAt: Date
+  needsReview: Boolean
+  reviewedByUserId: String
+  reviewedByUser: User
+  wikiGrade: Int
+  recentComments(tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String): [Comment]
+  wikiOnly: Boolean
+  bannerImageId: String
+  squareImageId: String
+  tagFlagsIds: [String]
+  tagFlags: [TagFlag!]!
+  lesswrongWikiImportRevision: String
+  lesswrongWikiImportSlug: String
+  lesswrongWikiImportCompleted: Boolean
+  lastVisitedAt: Date
+  isRead: Boolean
+  tableOfContents(version: String): JSON
+  htmlWithContributorAnnotations: String
+  contributors(limit: Int, version: String): TagContributorsList
+  contributionStats: JSON
+  introSequenceId: String
+  sequence: Sequence
+  postsDefaultSortOrder: String
+  canVoteOnRels: [String]
+  isSubforum: Boolean
+  subforumUnreadMessagesCount: Int
+  subforumModeratorIds: [String]
+  subforumModerators: [User!]!
+  subforumIntroPostId: String
+  subforumIntroPost: Post
+  parentTagId: String
+  parentTag: Tag
+  subTagIds: [String]
+  subTags: [Tag!]!
+  autoTagModel: String
+  autoTagPrompt: String
+  noindex: Boolean
+  lenses(lensSlug: String, version: String): [MultiDocument!]!
+  lensesIncludingDeleted(lensSlug: String, version: String): [MultiDocument!]!
+  isPlaceholderPage: Boolean
+  summaries: [MultiDocument!]!
+  textLastUpdatedAt: Date
+  isArbitalImport: Boolean
+  arbitalLinkedPages: ArbitalLinkedPages
+  coreTagId: String
+  maxScore: Int
+  usersWhoLiked: [UserLikingTag!]!
+  forceAllowType3Audio: Boolean
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float
+  baseScore: Float
+  extendedScore: JSON
+  score: Float
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
+}
+
+input SingleTagInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiTagInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleTagOutput {
+  result: Tag
+}
+
+type MultiTagOutput {
+  results: [Tag]
+  totalCount: Int
+}
+
+type Tweet {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleTweetInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiTweetInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleTweetOutput {
+  result: Tweet
+}
+
+type MultiTweetOutput {
+  results: [Tweet]
+  totalCount: Int
+}
+
+type TypingIndicator {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  documentId: String
+  lastUpdated: Date
+}
+
+input SingleTypingIndicatorInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiTypingIndicatorInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleTypingIndicatorOutput {
+  result: TypingIndicator
+}
+
+type MultiTypingIndicatorOutput {
+  results: [TypingIndicator]
+  totalCount: Int
+}
+
+type UserActivity {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+}
+
+input SingleUserActivityInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiUserActivityInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleUserActivityOutput {
+  result: UserActivity
+}
+
+type MultiUserActivityOutput {
+  results: [UserActivity]
+  totalCount: Int
+}
+
+type UserEAGDetail {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  careerStage: [String]
+  countryOrRegion: String
+  nearestCity: String
+  willingnessToRelocate: JSON
+  experiencedIn: [String]
+  interestedIn: [String]
+  lastUpdated: Date
+}
+
+input SingleUserEAGDetailInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiUserEAGDetailInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleUserEAGDetailOutput {
+  result: UserEAGDetail
+}
+
+type MultiUserEAGDetailOutput {
+  results: [UserEAGDetail]
+  totalCount: Int
+}
+
+type UserJobAd {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  jobName: String
+  adState: String
+  reminderSetAt: Date
+  lastUpdated: Date
+}
+
+input SingleUserJobAdInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiUserJobAdInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleUserJobAdOutput {
+  result: UserJobAd
+}
+
+type MultiUserJobAdOutput {
+  results: [UserJobAd]
+  totalCount: Int
+}
+
+type UserMostValuablePost {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  postId: String
+  post: Post
+  deleted: Boolean
+}
+
+input SingleUserMostValuablePostInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiUserMostValuablePostInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleUserMostValuablePostOutput {
+  result: UserMostValuablePost
+}
+
+type MultiUserMostValuablePostOutput {
+  results: [UserMostValuablePost]
+  totalCount: Int
+}
+
+type UserRateLimit {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  userId: String
+  user: User
+  type: String
+  intervalUnit: String
+  intervalLength: Float
+  actionsPerInterval: Float
+  endedAt: Date
+}
+
+input SingleUserRateLimitInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiUserRateLimitInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleUserRateLimitOutput {
+  result: UserRateLimit
+}
+
+type MultiUserRateLimitOutput {
+  results: [UserRateLimit]
+  totalCount: Int
+}
+
+type UserTagRel {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  tagId: String
+  tag: Tag
+  userId: String
+  user: User
+  subforumShowUnreadInSidebar: Boolean
+  subforumEmailNotifications: Boolean
+  subforumHideIntroPost: Boolean
+}
+
+input SingleUserTagRelInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiUserTagRelInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleUserTagRelOutput {
+  result: UserTagRel
+}
+
+type MultiUserTagRelOutput {
+  results: [UserTagRel]
+  totalCount: Int
+}
+
+type User {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  moderationGuidelines(version: String): Revision
+  moderationGuidelines_latest: String
+  howOthersCanHelpMe(version: String): Revision
+  howOthersCanHelpMe_latest: String
+  howICanHelpOthers(version: String): Revision
+  howICanHelpOthers_latest: String
+  slug: String
+  oldSlugs: [String]
+  biography(version: String): Revision
+  biography_latest: String
+  username: String
+  emails: [JSON]
+  isAdmin: Boolean
+  services: JSON
+  hasAuth0Id: Boolean
+  displayName: String
+  previousDisplayName: String
+  email: String
+  noindex: Boolean
+  groups: [String]
+  pageUrl: String
+  pagePath: String
+  editUrl: String
+  lwWikiImport: Boolean
+  theme: JSON
+  lastUsedTimezone: String
+  whenConfirmationEmailSent: Date
+  legacy: Boolean
+  commentSorting: String
+  sortDraftsBy: String
+  reactPaletteStyle: String
+  noKibitz: Boolean
+  showHideKarmaOption: Boolean
+  showPostAuthorCard: Boolean
+  hideIntercom: Boolean
+  markDownPostEditor: Boolean
+  hideElicitPredictions: Boolean
+  hideAFNonMemberInitialWarning: Boolean
+  noSingleLineComments: Boolean
+  noCollapseCommentsPosts: Boolean
+  noCollapseCommentsFrontpage: Boolean
+  hideCommunitySection: Boolean
+  expandedFrontpageSections: JSON
+  showCommunityInRecentDiscussion: Boolean
+  hidePostsRecommendations: Boolean
+  petrovOptOut: Boolean
+  optedOutOfSurveys: Boolean
+  postGlossariesPinned: Boolean
+  generateJargonForDrafts: Boolean
+  generateJargonForPublishedPosts: Boolean
+  acceptedTos: Boolean
+  hideNavigationSidebar: Boolean
+  currentFrontpageFilter: String
+  frontpageSelectedTab: String
+  frontpageFilterSettings: JSON
+  hideFrontpageFilterSettingsDesktop: Boolean
+  allPostsTimeframe: String
+  allPostsFilter: String
+  allPostsSorting: String
+  allPostsShowLowKarma: Boolean
+  allPostsIncludeEvents: Boolean
+  allPostsHideCommunity: Boolean
+  allPostsOpenSettings: Boolean
+  draftsListSorting: String
+  draftsListShowArchived: Boolean
+  draftsListShowShared: Boolean
+  lastNotificationsCheck: Date
+  karma: Float
+  goodHeartTokens: Float
+  moderationStyle: String
+  moderatorAssistance: Boolean
+  collapseModerationGuidelines: Boolean
+  bannedUserIds: [String]
+  bannedPersonalUserIds: [String]
+  bookmarkedPostsMetadata: [JSON]
+  bookmarkedPosts: [Post!]
+  hiddenPostsMetadata: [JSON]
+  hiddenPosts: [Post!]
+  legacyId: String
+  deleted: Boolean
+  permanentDeletionRequestedAt: Date
+  voteBanned: Boolean
+  nullifyVotes: Boolean
+  deleteContent: Boolean
+  banned: Date
+  IPs: [String!]
+  auto_subscribe_to_my_posts: Boolean
+  auto_subscribe_to_my_comments: Boolean
+  autoSubscribeAsOrganizer: Boolean
+  notificationCommentsOnSubscribedPost: JSON
+  notificationShortformContent: JSON
+  notificationRepliesToMyComments: JSON
+  notificationRepliesToSubscribedComments: JSON
+  notificationSubscribedUserPost: JSON
+  notificationSubscribedUserComment: JSON
+  notificationPostsInGroups: JSON
+  notificationSubscribedTagPost: JSON
+  notificationSubscribedSequencePost: JSON
+  notificationPrivateMessage: JSON
+  notificationSharedWithMe: JSON
+  notificationAlignmentSubmissionApproved: JSON
+  notificationEventInRadius: JSON
+  notificationKarmaPowersGained: JSON
+  notificationRSVPs: JSON
+  notificationGroupAdministration: JSON
+  notificationCommentsOnDraft: JSON
+  notificationPostsNominatedReview: JSON
+  notificationSubforumUnread: JSON
+  notificationNewMention: JSON
+  notificationDialogueMessages: JSON
+  notificationPublishedDialogueMessages: JSON
+  notificationAddedAsCoauthor: JSON
+  notificationDebateCommentsOnSubscribedPost: JSON
+  notificationDebateReplies: JSON
+  notificationDialogueMatch: JSON
+  notificationNewDialogueChecks: JSON
+  notificationYourTurnMatchForm: JSON
+  hideDialogueFacilitation: Boolean
+  revealChecksToAdmins: Boolean
+  optedInToDialogueFacilitation: Boolean
+  showDialoguesList: Boolean
+  showMyDialogues: Boolean
+  showMatches: Boolean
+  showRecommendedPartners: Boolean
+  hideActiveDialogueUsers: Boolean
+  karmaChangeNotifierSettings: JSON
+  karmaChangeLastOpened: Date
+  karmaChangeBatchStart: Date
+  emailSubscribedToCurated: Boolean
+  subscribedToDigest: Boolean
+  unsubscribeFromAll: Boolean
+  hideSubscribePoke: Boolean
+  hideMeetupsPoke: Boolean
+  hideHomeRHS: Boolean
+  frontpagePostCount: Float
+  sequenceCount: Float
+  sequenceDraftCount: Float
+  mongoLocation: JSON
+  googleLocation: JSON
+  location: String
+  mapLocation: JSON
+  mapLocationLatLng: LatLng
+  mapLocationSet: Boolean
+  mapMarkerText: String
+  htmlMapMarkerText: String
+  nearbyEventsNotifications: Boolean
+  nearbyEventsNotificationsLocation: JSON
+  nearbyEventsNotificationsMongoLocation: JSON
+  nearbyEventsNotificationsRadius: Float
+  nearbyPeopleNotificationThreshold: Float
+  hideFrontpageMap: Boolean
+  hideTaggingProgressBar: Boolean
+  hideFrontpageBookAd: Boolean
+  hideFrontpageBook2019Ad: Boolean
+  hideFrontpageBook2020Ad: Boolean
+  sunshineNotes: String
+  sunshineFlagged: Boolean
+  needsReview: Boolean
+  sunshineSnoozed: Boolean
+  snoozedUntilContentCount: Float
+  reviewedByUserId: String
+  reviewedByUser: User
+  isReviewed: Boolean
+  reviewedAt: Date
+  spamRiskScore: Float!
+  afKarma: Float
+  voteCount: Float
+  smallUpvoteCount: Float
+  smallDownvoteCount: Float
+  bigUpvoteCount: Float
+  bigDownvoteCount: Float
+  voteReceivedCount: Float
+  smallUpvoteReceivedCount: Float
+  smallDownvoteReceivedCount: Float
+  bigUpvoteReceivedCount: Float
+  bigDownvoteReceivedCount: Float
+  usersContactedBeforeReview: [String]
+  fullName: String
+  shortformFeedId: String
+  shortformFeed: Post
+  viewUnreviewedComments: Boolean
+  partiallyReadSequences: [JSON]
+  beta: Boolean
+  reviewVotesQuadratic: Boolean
+  reviewVotesQuadratic2019: Boolean
+  reviewVoteCount: Int
+  reviewVotesQuadratic2020: Boolean
+  petrovPressedButtonDate: Date
+  petrovLaunchCodeDate: Date
+  defaultToCKEditor: Boolean
+  signUpReCaptchaRating: Float
+  noExpandUnreadCommentsReview: Boolean
+  postCount: Float
+  maxPostCount: Float
+  posts(limit: Int = 5): [Post]
+  commentCount: Float
+  maxCommentCount: Float
+  tagRevisionCount: Float
+  abTestKey: String
+  abTestOverrides: JSON
+  reenableDraftJs: Boolean
+  walledGardenInvite: Boolean
+  hideWalledGardenUI: Boolean
+  walledGardenPortalOnboarded: Boolean
+  taggingDashboardCollapsed: Boolean
+  usernameUnset: Boolean
+  paymentEmail: String
+  paymentInfo: String
+  profileUpdatedAt: Date
+  profileImageId: String
+  jobTitle: String
+  organization: String
+  careerStage: [String]
+  website: String
+  bio: String
+  htmlBio: String!
+  fmCrosspostUserId: String
+  linkedinProfileURL: String
+  facebookProfileURL: String
+  blueskyProfileURL: String
+  twitterProfileURL: String
+  twitterProfileURLAdmin: String
+  githubProfileURL: String
+  profileTagIds: [String]
+  profileTags: [Tag!]!
+  organizerOfGroupIds: [String]
+  organizerOfGroups: [Localgroup!]!
+  programParticipation: [String]
+  postingDisabled: Boolean
+  allCommentingDisabled: Boolean
+  commentingOnOtherUsersDisabled: Boolean
+  conversationsDisabled: Boolean
+  associatedClientId: ClientId
+  associatedClientIds: [ClientId!]
+  altAccountsDetected: Boolean
+  acknowledgedNewUserGuidelines: Boolean
+  moderatorActions: [ModeratorAction]
+  subforumPreferredLayout: String
+  hideJobAdUntil: Date
+  criticismTipsDismissed: Boolean
+  hideFromPeopleDirectory: Boolean
+  allowDatadogSessionReplay: Boolean
+  afPostCount: Float
+  afCommentCount: Float
+  afSequenceCount: Float
+  afSequenceDraftCount: Float
+  reviewForAlignmentForumUserId: String
+  afApplicationText: String
+  afSubmittedApplication: Boolean
+  rateLimitNextAbleToComment(postId: String): JSON
+  rateLimitNextAbleToPost(eventForm: Boolean): JSON
+  recentKarmaInfo: JSON
+  hideSunshineSidebar: Boolean
+  inactiveSurveyEmailSentAt: Date
+  userSurveyEmailSentAt: Date
+  karmaChanges(startDate: Date, endDate: Date): KarmaChanges
+  recommendationSettings: JSON
+}
+
+input SingleUserInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiUserInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleUserOutput {
+  result: User
+}
+
+type MultiUserOutput {
+  results: [User]
+  totalCount: Int
+}
+
+type Vote {
+  _id: String
+  schemaVersion: Float
+  createdAt: Date
+  legacyData: JSON
+  documentId: String
+  collectionName: String
+  userId: String
+  authorIds: [String]
+  authorId: String
+  voteType: String
+  extendedVoteType: JSON
+  power: Float
+  afPower: Float
+  cancelled: Boolean
+  isUnvote: Boolean
+  votedAt: Date
+  tagRel: TagRel
+  comment: Comment
+  post: Post
+  documentIsAf: Boolean
+  silenceNotification: Boolean
+}
+
+input SingleVoteInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiVoteInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  where: SelectorInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleVoteOutput {
+  result: Vote
+}
+
+type MultiVoteOutput {
+  results: [Vote]
+  totalCount: Int
+}
+
+type Query {
+  advisorRequest(input: SingleAdvisorRequestInput): SingleAdvisorRequestOutput
+  advisorRequests(input: MultiAdvisorRequestInput): MultiAdvisorRequestOutput
+  arbitalTagContentRel(input: SingleArbitalTagContentRelInput): SingleArbitalTagContentRelOutput
+  arbitalTagContentRels(input: MultiArbitalTagContentRelInput): MultiArbitalTagContentRelOutput
+  ban(input: SingleBanInput): SingleBanOutput
+  bans(input: MultiBanInput): MultiBanOutput
+  book(input: SingleBookInput): SingleBookOutput
+  books(input: MultiBookInput): MultiBookOutput
+  chapter(input: SingleChapterInput): SingleChapterOutput
+  chapters(input: MultiChapterInput): MultiChapterOutput
+  ckEditorUserSession(input: SingleCkEditorUserSessionInput): SingleCkEditorUserSessionOutput
+  ckEditorUserSessions(input: MultiCkEditorUserSessionInput): MultiCkEditorUserSessionOutput
+  clientId(input: SingleClientIdInput): SingleClientIdOutput
+  clientIds(input: MultiClientIdInput): MultiClientIdOutput
+  collection(input: SingleCollectionInput): SingleCollectionOutput
+  collections(input: MultiCollectionInput): MultiCollectionOutput
+  commentModeratorAction(input: SingleCommentModeratorActionInput): SingleCommentModeratorActionOutput
+  commentModeratorActions(input: MultiCommentModeratorActionInput): MultiCommentModeratorActionOutput
+  comment(input: SingleCommentInput): SingleCommentOutput
+  comments(input: MultiCommentInput): MultiCommentOutput
+  conversation(input: SingleConversationInput): SingleConversationOutput
+  conversations(input: MultiConversationInput): MultiConversationOutput
+  curationNotice(input: SingleCurationNoticeInput): SingleCurationNoticeOutput
+  curationNotices(input: MultiCurationNoticeInput): MultiCurationNoticeOutput
+  dialogueCheck(input: SingleDialogueCheckInput): SingleDialogueCheckOutput
+  dialogueChecks(input: MultiDialogueCheckInput): MultiDialogueCheckOutput
+  dialogueMatchPreference(input: SingleDialogueMatchPreferenceInput): SingleDialogueMatchPreferenceOutput
+  dialogueMatchPreferences(input: MultiDialogueMatchPreferenceInput): MultiDialogueMatchPreferenceOutput
+  digestPost(input: SingleDigestPostInput): SingleDigestPostOutput
+  digestPosts(input: MultiDigestPostInput): MultiDigestPostOutput
+  digest(input: SingleDigestInput): SingleDigestOutput
+  digests(input: MultiDigestInput): MultiDigestOutput
+  electionCandidate(input: SingleElectionCandidateInput): SingleElectionCandidateOutput
+  electionCandidates(input: MultiElectionCandidateInput): MultiElectionCandidateOutput
+  electionVote(input: SingleElectionVoteInput): SingleElectionVoteOutput
+  electionVotes(input: MultiElectionVoteInput): MultiElectionVoteOutput
+  elicitQuestionPrediction(input: SingleElicitQuestionPredictionInput): SingleElicitQuestionPredictionOutput
+  elicitQuestionPredictions(input: MultiElicitQuestionPredictionInput): MultiElicitQuestionPredictionOutput
+  elicitQuestion(input: SingleElicitQuestionInput): SingleElicitQuestionOutput
+  elicitQuestions(input: MultiElicitQuestionInput): MultiElicitQuestionOutput
+  featuredResource(input: SingleFeaturedResourceInput): SingleFeaturedResourceOutput
+  featuredResources(input: MultiFeaturedResourceInput): MultiFeaturedResourceOutput
+  forumEvent(input: SingleForumEventInput): SingleForumEventOutput
+  forumEvents(input: MultiForumEventInput): MultiForumEventOutput
+  gardenCode(input: SingleGardenCodeInput): SingleGardenCodeOutput
+  gardenCodes(input: MultiGardenCodeInput): MultiGardenCodeOutput
+  googleServiceAccountSession(input: SingleGoogleServiceAccountSessionInput): SingleGoogleServiceAccountSessionOutput
+  googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput): MultiGoogleServiceAccountSessionOutput
+  jargonTerm(input: SingleJargonTermInput): SingleJargonTermOutput
+  jargonTerms(input: MultiJargonTermInput): MultiJargonTermOutput
+  lWEvent(input: SingleLWEventInput): SingleLWEventOutput
+  lWEvents(input: MultiLWEventInput): MultiLWEventOutput
+  llmConversation(input: SingleLlmConversationInput): SingleLlmConversationOutput
+  llmConversations(input: MultiLlmConversationInput): MultiLlmConversationOutput
+  localgroup(input: SingleLocalgroupInput): SingleLocalgroupOutput
+  localgroups(input: MultiLocalgroupInput): MultiLocalgroupOutput
+  message(input: SingleMessageInput): SingleMessageOutput
+  messages(input: MultiMessageInput): MultiMessageOutput
+  moderationTemplate(input: SingleModerationTemplateInput): SingleModerationTemplateOutput
+  moderationTemplates(input: MultiModerationTemplateInput): MultiModerationTemplateOutput
+  moderatorAction(input: SingleModeratorActionInput): SingleModeratorActionOutput
+  moderatorActions(input: MultiModeratorActionInput): MultiModeratorActionOutput
+  multiDocument(input: SingleMultiDocumentInput): SingleMultiDocumentOutput
+  multiDocuments(input: MultiMultiDocumentInput): MultiMultiDocumentOutput
+  notification(input: SingleNotificationInput): SingleNotificationOutput
+  notifications(input: MultiNotificationInput): MultiNotificationOutput
+  petrovDayAction(input: SinglePetrovDayActionInput): SinglePetrovDayActionOutput
+  petrovDayActions(input: MultiPetrovDayActionInput): MultiPetrovDayActionOutput
+  podcastEpisode(input: SinglePodcastEpisodeInput): SinglePodcastEpisodeOutput
+  podcastEpisodes(input: MultiPodcastEpisodeInput): MultiPodcastEpisodeOutput
+  podcast(input: SinglePodcastInput): SinglePodcastOutput
+  podcasts(input: MultiPodcastInput): MultiPodcastOutput
+  postEmbedding(input: SinglePostEmbeddingInput): SinglePostEmbeddingOutput
+  postEmbeddings(input: MultiPostEmbeddingInput): MultiPostEmbeddingOutput
+  postRelation(input: SinglePostRelationInput): SinglePostRelationOutput
+  postRelations(input: MultiPostRelationInput): MultiPostRelationOutput
+  postViewTime(input: SinglePostViewTimeInput): SinglePostViewTimeOutput
+  postViewTimes(input: MultiPostViewTimeInput): MultiPostViewTimeOutput
+  postViews(input: SinglePostViewsInput): SinglePostViewsOutput
+  postViewses(input: MultiPostViewsInput): MultiPostViewsOutput
+  post(input: SinglePostInput): SinglePostOutput
+  posts(input: MultiPostInput): MultiPostOutput
+  rSSFeed(input: SingleRSSFeedInput): SingleRSSFeedOutput
+  rSSFeeds(input: MultiRSSFeedInput): MultiRSSFeedOutput
+  report(input: SingleReportInput): SingleReportOutput
+  reports(input: MultiReportInput): MultiReportOutput
+  reviewVote(input: SingleReviewVoteInput): SingleReviewVoteOutput
+  reviewVotes(input: MultiReviewVoteInput): MultiReviewVoteOutput
+  reviewWinnerArt(input: SingleReviewWinnerArtInput): SingleReviewWinnerArtOutput
+  reviewWinnerArts(input: MultiReviewWinnerArtInput): MultiReviewWinnerArtOutput
+  reviewWinner(input: SingleReviewWinnerInput): SingleReviewWinnerOutput
+  reviewWinners(input: MultiReviewWinnerInput): MultiReviewWinnerOutput
+  revision(input: SingleRevisionInput): SingleRevisionOutput
+  revisions(input: MultiRevisionInput): MultiRevisionOutput
+  sequence(input: SingleSequenceInput): SingleSequenceOutput
+  sequences(input: MultiSequenceInput): MultiSequenceOutput
+  splashArtCoordinate(input: SingleSplashArtCoordinateInput): SingleSplashArtCoordinateOutput
+  splashArtCoordinates(input: MultiSplashArtCoordinateInput): MultiSplashArtCoordinateOutput
+  spotlight(input: SingleSpotlightInput): SingleSpotlightOutput
+  spotlights(input: MultiSpotlightInput): MultiSpotlightOutput
+  subscription(input: SingleSubscriptionInput): SingleSubscriptionOutput
+  subscriptions(input: MultiSubscriptionInput): MultiSubscriptionOutput
+  surveyQuestion(input: SingleSurveyQuestionInput): SingleSurveyQuestionOutput
+  surveyQuestions(input: MultiSurveyQuestionInput): MultiSurveyQuestionOutput
+  surveyResponse(input: SingleSurveyResponseInput): SingleSurveyResponseOutput
+  surveyResponses(input: MultiSurveyResponseInput): MultiSurveyResponseOutput
+  surveySchedule(input: SingleSurveyScheduleInput): SingleSurveyScheduleOutput
+  surveySchedules(input: MultiSurveyScheduleInput): MultiSurveyScheduleOutput
+  survey(input: SingleSurveyInput): SingleSurveyOutput
+  surveys(input: MultiSurveyInput): MultiSurveyOutput
+  tagFlag(input: SingleTagFlagInput): SingleTagFlagOutput
+  tagFlags(input: MultiTagFlagInput): MultiTagFlagOutput
+  tagRel(input: SingleTagRelInput): SingleTagRelOutput
+  tagRels(input: MultiTagRelInput): MultiTagRelOutput
+  tag(input: SingleTagInput): SingleTagOutput
+  tags(input: MultiTagInput): MultiTagOutput
+  typingIndicator(input: SingleTypingIndicatorInput): SingleTypingIndicatorOutput
+  typingIndicators(input: MultiTypingIndicatorInput): MultiTypingIndicatorOutput
+  userEAGDetail(input: SingleUserEAGDetailInput): SingleUserEAGDetailOutput
+  userEAGDetails(input: MultiUserEAGDetailInput): MultiUserEAGDetailOutput
+  userJobAd(input: SingleUserJobAdInput): SingleUserJobAdOutput
+  userJobAds(input: MultiUserJobAdInput): MultiUserJobAdOutput
+  userMostValuablePost(input: SingleUserMostValuablePostInput): SingleUserMostValuablePostOutput
+  userMostValuablePosts(input: MultiUserMostValuablePostInput): MultiUserMostValuablePostOutput
+  userRateLimit(input: SingleUserRateLimitInput): SingleUserRateLimitOutput
+  userRateLimits(input: MultiUserRateLimitInput): MultiUserRateLimitOutput
+  userTagRel(input: SingleUserTagRelInput): SingleUserTagRelOutput
+  userTagRels(input: MultiUserTagRelInput): MultiUserTagRelOutput
+  user(input: SingleUserInput): SingleUserOutput
+  users(input: MultiUserInput): MultiUserOutput
+  vote(input: SingleVoteInput): SingleVoteOutput
+  votes(input: MultiVoteInput): MultiVoteOutput
+}
+
+type Mutation
+
+input SelectorInput {
+  _id: String
+  documentId: String
+}
+
+type EmailPreview {
+  to: String
+  subject: String
+  html: String
+  text: String
+}
+
+extend type Query {
+  EmailPreview(notificationIds: [String], postId: String): [EmailPreview]
+}
+
+type ArbitalLinkedPage {
+  _id: String!
+  name: String!
+  slug: String!
+}
+
+type ArbitalLinkedPages {
+  faster: [ArbitalLinkedPage]
+  slower: [ArbitalLinkedPage]
+  moreTechnical: [ArbitalLinkedPage]
+  lessTechnical: [ArbitalLinkedPage]
+  requirements: [ArbitalLinkedPage]
+  teaches: [ArbitalLinkedPage]
+  parents: [ArbitalLinkedPage]
+  children: [ArbitalLinkedPage]
+}
+
+type SocialPreviewType {
+  _id: String
+  imageId: String
+  imageUrl: String
+  text: String
+}
+
+scalar ContentTypeData
+
+type ContentType {
+  type: String
+  data: ContentTypeData
+}
+
+type TagContributor {
+  user: User
+  contributionScore: Int!
+  currentAttributionCharCount: Int
+  numCommits: Int!
+  voteCount: Int!
+}
+
+type TagContributorsList {
+  contributors: [TagContributor!]
+  totalCount: Int!
+}
+
+type UserLikingTag {
+  _id: String!
+  displayName: String!
+}
+
+type LatLng {
+  lat: Float!
+  lng: Float!
+}
+
+type RecommendResumeSequence {
+  sequence: Sequence
+  collection: Collection
+  nextPost: Post!
+  numRead: Int
+  numTotal: Int
+  lastReadTime: Date
+}
+
+extend type Query {
+  ContinueReading: [RecommendResumeSequence!]
+  Recommendations(count: Int, algorithm: JSON): [Post!]
+}
+
+extend type Mutation {
+  dismissRecommendation(postId: String): Boolean
+}
+
+type CommentCountTag {
+  name: String!
+  comment_count: Int!
+}
+
+type TopCommentedTagUser {
+  _id: ID!
+  username: String!
+  displayName: String!
+  total_power: Float!
+  tag_comment_counts: [CommentCountTag!]!
+}
+
+type UpvotedUser {
+  _id: ID!
+  username: String!
+  displayName: String!
+  total_power: Float!
+  power_values: String!
+  vote_counts: Int!
+  total_agreement: Float!
+  agreement_values: String!
+  recently_active_matchmaking: Boolean!
+}
+
+type UserDialogueUsefulData {
+  dialogueUsers: [User]
+  topUsers: [UpvotedUser]
+  activeDialogueMatchSeekers: [User]
+}
+
+type NewUserCompletedProfile {
+  username: String
+  slug: String
+  displayName: String
+  subscribedToDigest: Boolean
+  usernameUnset: Boolean
+}
+
+type UserCoreTagReads {
+  tagId: String
+  userReadCount: Int
+}
+
+extend type Mutation {
+  NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
+  UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean
+  UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
+}
+
+extend type Query {
+  UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]
+  GetRandomUser(userIsAuthor: String!): User
+  IsDisplayNameTaken(displayName: String!): Boolean!
+  GetUserBySlug(slug: String!): User
+}
+
+type SuggestedFeedSubscriptionUsersResult {
+  results: [User!]!
+}
+
+extend type Query {
+  SuggestedFeedSubscriptionUsers(limit: Int): SuggestedFeedSubscriptionUsersResult
+}
+
+type VoteResultPost {
+  document: Post!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVotePost(documentId: String, voteType: String, extendedVote: JSON): Post
+  performVotePost(documentId: String, voteType: String, extendedVote: JSON): VoteResultPost
+}
+
+type VoteResultComment {
+  document: Comment!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteComment(documentId: String, voteType: String, extendedVote: JSON): Comment
+  performVoteComment(documentId: String, voteType: String, extendedVote: JSON): VoteResultComment
+}
+
+type VoteResultTagRel {
+  document: TagRel!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteTagRel(documentId: String, voteType: String, extendedVote: JSON): TagRel
+  performVoteTagRel(documentId: String, voteType: String, extendedVote: JSON): VoteResultTagRel
+}
+
+type VoteResultRevision {
+  document: Revision!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteRevision(documentId: String, voteType: String, extendedVote: JSON): Revision
+  performVoteRevision(documentId: String, voteType: String, extendedVote: JSON): VoteResultRevision
+}
+
+type VoteResultElectionCandidate {
+  document: ElectionCandidate!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteElectionCandidate(documentId: String, voteType: String, extendedVote: JSON): ElectionCandidate
+  performVoteElectionCandidate(documentId: String, voteType: String, extendedVote: JSON): VoteResultElectionCandidate
+}
+
+type VoteResultTag {
+  document: Tag!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteTag(documentId: String, voteType: String, extendedVote: JSON): Tag
+  performVoteTag(documentId: String, voteType: String, extendedVote: JSON): VoteResultTag
+}
+
+type VoteResultMultiDocument {
+  document: MultiDocument!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): MultiDocument
+  performVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): VoteResultMultiDocument
+}
+
+extend type Mutation {
+  moderateComment(commentId: String, deleted: Boolean, deletedPublic: Boolean, deletedReason: String): Comment
+}
+
+type CommentsWithReactsResult {
+  results: [Comment!]!
+}
+
+extend type Query {
+  CommentsWithReacts(limit: Int): CommentsWithReactsResult
+}
+
+type PopularCommentsResult {
+  results: [Comment!]!
+}
+
+extend type Query {
+  PopularComments(limit: Int): PopularCommentsResult
+}
+
+type PostKarmaChange {
+  _id: String
+  scoreChange: Int
+  postId: String
+  title: String
+  slug: String
+  addedReacts: [ReactionChange!]
+  eaAddedReacts: JSON
+}
+
+type CommentKarmaChange {
+  _id: String
+  scoreChange: Int
+  commentId: String
+  description: String
+  postId: String
+  postTitle: String
+  postSlug: String
+  tagSlug: String
+  tagName: String
+  tagCommentType: String
+  addedReacts: [ReactionChange!]
+  eaAddedReacts: JSON
+}
+
+type RevisionsKarmaChange {
+  _id: String
+  scoreChange: Int
+  tagId: String
+  tagSlug: String
+  tagName: String
+  addedReacts: [ReactionChange!]
+  eaAddedReacts: JSON
+}
+
+type ReactionChange {
+  reactionType: String!
+  userId: String
+}
+
+type KarmaChangesSimple {
+  posts: [PostKarmaChange]
+  comments: [CommentKarmaChange]
+  tagRevisions: [RevisionsKarmaChange]
+}
+
+type KarmaChanges {
+  totalChange: Int
+  startDate: Date
+  endDate: Date
+  nextBatchDate: Date
+  updateFrequency: String
+  posts: [PostKarmaChange]
+  comments: [CommentKarmaChange]
+  tagRevisions: [RevisionsKarmaChange]
+  todaysKarmaChanges: KarmaChangesSimple
+  thisWeeksKarmaChanges: KarmaChangesSimple
+}
+
+type UniqueClientViewsSeries {
+  uniqueClientViews: Int
+  date: Date
+}
+
+type PostAnalyticsResult {
+  allViews: Int
+  uniqueClientViews: Int
+  uniqueClientViews10Sec: Int
+  medianReadingTime: Int
+  uniqueClientViews5Min: Int
+  uniqueClientViewsSeries: [UniqueClientViewsSeries]
+}
+
+type PostAnalytics2Result {
+  _id: String
+  title: String
+  slug: String
+  postedAt: Date
+  views: Int
+  uniqueViews: Int
+  reads: Int
+  meanReadingTime: Float
+  karma: Int
+  comments: Int
+}
+
+type MultiPostAnalyticsResult {
+  posts: [PostAnalytics2Result]
+  totalCount: Int!
+}
+
+type AnalyticsSeriesValue {
+  date: Date
+  views: Int
+  reads: Int
+  karma: Int
+  comments: Int
+}
+
+extend type Query {
+  PostAnalytics(postId: String!): PostAnalyticsResult!
+  MultiPostAnalytics(userId: String, postIds: [String], sortBy: String, desc: Boolean, limit: Int): MultiPostAnalyticsResult!
+  AnalyticsSeries(userId: String, postIds: [String], startDate: Date, endDate: Date): [AnalyticsSeriesValue]
+}
+
+type ArbitalPageData {
+  html: String
+  title: String
+}
+
+extend type Query {
+  ArbitalPageData(pageAlias: String): ArbitalPageData
+}
+
+type ElicitUser {
+  isQuestionCreator: Boolean
+  displayName: String
+  _id: String
+  sourceUserId: String
+  lwUser: User
+}
+
+type ElicitPrediction {
+  _id: String
+  predictionId: String
+  prediction: Float
+  createdAt: Date
+  notes: String
+  creator: ElicitUser
+  sourceUrl: String
+  sourceId: String
+  binaryQuestionId: String
+}
+
+type ElicitBlockData {
+  _id: String
+  title: String
+  notes: String
+  resolvesBy: Date
+  resolution: Boolean
+  predictions: [ElicitPrediction]
+}
+
+extend type Query {
+  ElicitBlockData(questionId: String): ElicitBlockData
+}
+
+extend type Mutation {
+  MakeElicitPrediction(questionId: String, prediction: Int): ElicitBlockData
+}
+
+type NotificationCounts {
+  checkedAt: Date!
+  unreadNotifications: Int!
+  unreadPrivateMessages: Int!
+  faviconBadgeNumber: Int!
+}
+
+extend type Query {
+  unreadNotificationCounts: NotificationCounts!
+}
+
+extend type Mutation {
+  MarkAllNotificationsAsRead: Boolean
+  sendNewDialogueMessageNotification(postId: String!, dialogueHtml: String!): Boolean!
+}
+
+type NotificationDisplaysResult {
+  results: [JSON!]!
+}
+
+extend type Query {
+  NotificationDisplays(type: String, limit: Int): NotificationDisplaysResult
+}
+
+extend type Query {
+  Lightcone2024FundraiserStripeAmounts: [Int!]
+}
+
+type PetrovDay2024CheckNumberOfIncomingData {
+  count: Int
+}
+
+extend type Query {
+  PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData
+  petrov2024checkIfNuked: Boolean
+}
+
+type PetrovDayCheckIfIncomingData {
+  launched: Boolean
+  createdAt: Date
+}
+
+type PetrovDayLaunchMissileData {
+  launchCode: String
+  createdAt: Date
+}
+
+extend type Query {
+  PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData
+}
+
+extend type Mutation {
+  PetrovDayLaunchMissile(launchCode: String): PetrovDayLaunchMissileData
+}
+
+type GivingSeasonHeart {
+  userId: String!
+  displayName: String!
+  x: Float!
+  y: Float!
+  theta: Float!
+}
+
+extend type Mutation {
+  submitReviewVote(postId: String, qualitativeScore: Int, quadraticChange: Int, newQuadraticScore: Int, comment: String, year: String, dummy: Boolean, reactions: [String]): Post
+  AddGivingSeasonHeart(electionName: String!, x: Float!, y: Float!, theta: Float!): [GivingSeasonHeart!]!
+  RemoveGivingSeasonHeart(electionName: String!): [GivingSeasonHeart!]!
+}
+
+extend type Query {
+  GivingSeasonHearts(electionName: String!): [GivingSeasonHeart!]!
+}
+
+extend type Query {
+  UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]
+  UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
+  PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
+  PostIsCriticism(args: JSON): Boolean
+  DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]
+  DigestPosts(num: Int): [Post]
+  CanAccessGoogleDoc(fileUrl: String!): Boolean
+}
+
+extend type Mutation {
+  ImportGoogleDoc(fileUrl: String!, postId: String): Post
+}
+
+type UserReadHistoryResult {
+  posts: [Post!]
+}
+
+type PostsUserCommentedOnResult {
+  posts: [Post!]
+}
+
+input PostReviewFilter {
+  startDate: Date
+  endDate: Date
+  minKarma: Int
+  showEvents: Boolean
+}
+
+input PostReviewSort {
+  karma: Boolean
+}
+
+type DigestPlannerPost {
+  post: Post
+  digestPost: DigestPost
+  rating: Int
+}
+
+type RecombeeRecommendedPost {
+  post: Post!
+  scenario: String
+  recommId: String
+  generatedAt: Date
+  curated: Boolean
+  stickied: Boolean
+}
+
+type VertexRecommendedPost {
+  post: Post!
+  attributionId: String
+}
+
+type PostWithApprovedJargon {
+  post: Post!
+  jargonTerms: [JargonTerm!]
+}
+
+type DigestHighlightsResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  DigestHighlights(limit: Int): DigestHighlightsResult
+}
+
+type DigestPostsThisWeekResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  DigestPostsThisWeek(limit: Int): DigestPostsThisWeekResult
+}
+
+type CuratedAndPopularThisWeekResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  CuratedAndPopularThisWeek(limit: Int): CuratedAndPopularThisWeekResult
+}
+
+type RecentlyActiveDialoguesResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  RecentlyActiveDialogues(limit: Int): RecentlyActiveDialoguesResult
+}
+
+type MyDialoguesResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  MyDialogues(limit: Int): MyDialoguesResult
+}
+
+type GoogleVertexPostsResult {
+  results: [VertexRecommendedPost!]!
+}
+
+extend type Query {
+  GoogleVertexPosts(settings: JSON, limit: Int): GoogleVertexPostsResult
+}
+
+type CrossedKarmaThresholdResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  CrossedKarmaThreshold(limit: Int): CrossedKarmaThresholdResult
+}
+
+type RecombeeLatestPostsResult {
+  results: [RecombeeRecommendedPost!]!
+}
+
+extend type Query {
+  RecombeeLatestPosts(settings: JSON, limit: Int): RecombeeLatestPostsResult
+}
+
+type RecombeeHybridPostsResult {
+  results: [RecombeeRecommendedPost!]!
+}
+
+extend type Query {
+  RecombeeHybridPosts(settings: JSON, limit: Int): RecombeeHybridPostsResult
+}
+
+type PostsWithActiveDiscussionResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  PostsWithActiveDiscussion(limit: Int): PostsWithActiveDiscussionResult
+}
+
+type PostsBySubscribedAuthorsResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  PostsBySubscribedAuthors(limit: Int): PostsBySubscribedAuthorsResult
+}
+
+type PostsWithApprovedJargonResult {
+  results: [PostWithApprovedJargon!]!
+}
+
+extend type Query {
+  PostsWithApprovedJargon(limit: Int): PostsWithApprovedJargonResult
+}
+
+extend type Mutation {
+  revokeGoogleServiceAccountTokens: Boolean!
+}
+
+extend type Mutation {
+  alignmentComment(commentId: String, af: Boolean): Comment
+  alignmentPost(postId: String, af: Boolean): Post
+}
+
+type AllTagsActivityFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [AllTagsActivityFeedEntryType!]
+}
+
+type AllTagsActivityFeedEntryType {
+  type: String!
+  tagCreated: Tag
+  tagRevision: Revision
+  tagDiscussionComment: Comment
+}
+
+extend type Query {
+  AllTagsActivityFeed(limit: Int, cutoff: Date, offset: Int): AllTagsActivityFeedQueryResults!
+}
+
+type RecentDiscussionFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [RecentDiscussionFeedEntryType!]
+}
+
+type RecentDiscussionFeedEntryType {
+  type: String!
+  postCommented: Post
+  shortformCommented: Post
+  tagDiscussed: Tag
+  tagRevised: Revision
+}
+
+extend type Query {
+  RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): RecentDiscussionFeedQueryResults!
+}
+
+type SubscribedPostAndComments {
+  _id: String!
+  post: Post!
+  comments: [Comment!]
+  expandCommentIds: [String!]
+  postIsFromSubscribedUser: Boolean!
+}
+
+type SubscribedFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [SubscribedFeedEntryType!]
+}
+
+type SubscribedFeedEntryType {
+  type: String!
+  postCommented: SubscribedPostAndComments
+}
+
+extend type Query {
+  SubscribedFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): SubscribedFeedQueryResults!
+}
+
+type TagHistoryFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [TagHistoryFeedEntryType!]
+}
+
+type TagHistoryFeedEntryType {
+  type: String!
+  tagCreated: Tag
+  tagApplied: TagRel
+  tagRevision: Revision
+  tagDiscussionComment: Comment
+  lensRevision: Revision
+  summaryRevision: Revision
+  wikiMetadataChanged: FieldChange
+  lensOrSummaryMetadataChanged: FieldChange
+}
+
+extend type Query {
+  TagHistoryFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, options: JSON): TagHistoryFeedQueryResults!
+}
+
+type SubforumMagicFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [SubforumMagicFeedEntryType!]
+}
+
+type SubforumMagicFeedEntryType {
+  type: String!
+  tagSubforumPosts: Post
+  tagSubforumComments: Comment
+  tagSubforumStickyComments: Comment
+}
+
+extend type Query {
+  SubforumMagicFeed(limit: Int, cutoff: Float, offset: Int, tagId: String!, af: Boolean): SubforumMagicFeedQueryResults!
+}
+
+type SubforumTopFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [SubforumTopFeedEntryType!]
+}
+
+type SubforumTopFeedEntryType {
+  type: String!
+  tagSubforumPosts: Post
+  tagSubforumComments: Comment
+  tagSubforumStickyComments: Comment
+}
+
+extend type Query {
+  SubforumTopFeed(limit: Int, cutoff: Int, offset: Int, tagId: String!, af: Boolean): SubforumTopFeedQueryResults!
+}
+
+type SubforumRecentCommentsFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [SubforumRecentCommentsFeedEntryType!]
+}
+
+type SubforumRecentCommentsFeedEntryType {
+  type: String!
+  tagSubforumPosts: Post
+  tagSubforumComments: Comment
+  tagSubforumStickyComments: Comment
+}
+
+extend type Query {
+  SubforumRecentCommentsFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumRecentCommentsFeedQueryResults!
+}
+
+type SubforumNewFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [SubforumNewFeedEntryType!]
+}
+
+type SubforumNewFeedEntryType {
+  type: String!
+  tagSubforumPosts: Post
+  tagSubforumComments: Comment
+  tagSubforumStickyComments: Comment
+}
+
+extend type Query {
+  SubforumNewFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumNewFeedQueryResults!
+}
+
+type SubforumOldFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [SubforumOldFeedEntryType!]
+}
+
+type SubforumOldFeedEntryType {
+  type: String!
+  tagSubforumPosts: Post
+  tagSubforumComments: Comment
+  tagSubforumStickyComments: Comment
+}
+
+extend type Query {
+  SubforumOldFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumOldFeedQueryResults!
+}
+
+extend type Mutation {
+  markConversationRead(conversationId: String!): Boolean!
+  sendEventTriggeredDM(eventType: String!): Boolean!
+  initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
+}
+
+input SurveyQuestionInfo {
+  _id: String
+  question: String!
+  format: String!
+}
+
+extend type Query {
+  CurrentFrontpageSurvey: SurveySchedule
+}
+
+extend type Mutation {
+  editSurvey(surveyId: String!, name: String!, questions: [SurveyQuestionInfo!]!): Survey
+}
+
+type DocumentDeletion {
+  userId: String
+  documentId: String!
+  netChange: String!
+  type: String
+  docFields: MultiDocument
+  createdAt: Date!
+}
+
+type TagUpdates {
+  tag: Tag!
+  revisionIds: [String!]
+  commentCount: Int
+  commentIds: [String!]
+  lastRevisedAt: Date
+  lastCommentedAt: Date
+  added: Int
+  removed: Int
+  users: [User!]
+  documentDeletions: [DocumentDeletion!]
+}
+
+type TagPreviewWithSummaries {
+  tag: Tag!
+  lens: MultiDocument
+  summaries: [MultiDocument!]!
+}
+
+type TagWithTotalCount {
+  tags: [Tag!]!
+  totalCount: Int!
+}
+
+extend type Mutation {
+  mergeTags(sourceTagId: String!, targetTagId: String!, transferSubtags: Boolean!, redirectSource: Boolean!): Boolean
+  promoteLensToMain(lensId: String!): Boolean
+}
+
+extend type Query {
+  TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]
+  TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]
+  RandomTag: Tag!
+  ActiveTagCount: Int!
+  TagPreview(slug: String!, hash: String): TagPreviewWithSummaries
+  TagsByCoreTagId(coreTagId: String, limit: Int, searchTagIds: [String]): TagWithTotalCount!
+}
+
+type MostReadTopic {
+  slug: String
+  name: String
+  shortName: String
+  count: Int
+}
+
+type TagReadLikelihoodRatio {
+  tagId: String
+  tagName: String
+  tagShortName: String
+  userReadCount: Int
+  readLikelihoodRatio: Float
+}
+
+type MostReadAuthor {
+  _id: String
+  slug: String
+  displayName: String
+  profileImageId: String
+  count: Int
+  engagementPercentile: Float
+}
+
+type TopCommentContents {
+  html: String
+}
+
+type TopComment {
+  _id: String
+  postedAt: Date
+  postId: String
+  postTitle: String
+  postSlug: String
+  baseScore: Int
+  extendedScore: JSON
+  contents: TopCommentContents
+}
+
+type MostReceivedReact {
+  name: String
+  count: Int
+}
+
+type CombinedKarmaVals {
+  date: Date!
+  postKarma: Int!
+  commentKarma: Int!
+}
+
+type WrappedDataByYear {
+  engagementPercentile: Float
+  postsReadCount: Int
+  totalSeconds: Int
+  daysVisited: [String]
+  mostReadTopics: [MostReadTopic]
+  relativeMostReadCoreTopics: [TagReadLikelihoodRatio]
+  mostReadAuthors: [MostReadAuthor]
+  topPosts: [Post]
+  postCount: Int
+  authorPercentile: Float
+  topComment: TopComment
+  commentCount: Int
+  commenterPercentile: Float
+  topShortform: Comment
+  shortformCount: Int
+  shortformPercentile: Float
+  karmaChange: Int
+  combinedKarmaVals: [CombinedKarmaVals]
+  mostReceivedReacts: [MostReceivedReact]
+  personality: String!
+}
+
+extend type Query {
+  UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear
+}
+
+extend type Mutation {
+  RefreshDbSettings: Boolean
+}
+
+type Site {
+  title: String
+  url: String
+  logoUrl: String
+}
+
+extend type Query {
+  SiteData: Site
+}
+
+type LoginReturnData {
+  token: String
+}
+
+extend type Mutation {
+  login(username: String, password: String): LoginReturnData
+  signup(username: String, email: String, password: String, subscribeToCurated: Boolean, reCaptchaToken: String, abTestKey: String): LoginReturnData
+  logout: LoginReturnData
+  resetPassword(email: String): String
+}
+
+extend type Query {
+  latestDialogueMessages(dialogueId: String!, numMessages: Int!): [String!]
+}
+
+extend type Mutation {
+  AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean
+  RemoveForumEventVote(forumEventId: String!): Boolean
+  RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
+}
+
+extend type Query {
+  getLinkSharedPost(postId: String!, linkSharingKey: String!): Post
+}
+
+extend type Mutation {
+  unlockPost(postId: String!, linkSharingKey: String!): Post
+  revertPostToRevision(postId: String!, revisionId: String!): Post
+}
+
+type MigrationsDashboardData {
+  migrations: [MigrationStatus!]
+}
+
+type MigrationStatus {
+  name: String!
+  dateWritten: String
+  runs: [MigrationRun!]
+  lastRun: String
+}
+
+type MigrationRun {
+  name: String!
+  started: Date!
+  finished: Date
+  succeeded: Boolean
+}
+
+extend type Query {
+  MigrationsDashboard: MigrationsDashboardData
+}
+
+extend type Query {
+  GetAllReviewWinners: [Post!]!
+}
+
+extend type Mutation {
+  sendVertexViewItemEvent(postId: String!, attributionId: String): Boolean!
+  sendVertexMediaCompleteEvent(postId: String!, attributionId: String): Boolean!
+  sendVertexViewHomePageEvent: Boolean!
+}
+
+type CoauthorStatus {
+  userId: String
+  confirmed: Boolean
+  requested: Boolean
+}
+
+type ExternalPost {
+  _id: String!
+  slug: String
+  title: String
+  url: String
+  postedAt: Date
+  createdAt: Date
+  userId: String
+  modifiedAt: Date
+  draft: Boolean
+  content: String
+  coauthorStatuses: [CoauthorStatus]
+}
+
+type ExternalPostImportData {
+  alreadyExists: Boolean
+  post: ExternalPost
+}
+
+extend type Mutation {
+  importUrlAsDraftPost(url: String!): ExternalPostImportData!
+}
+
+input AutosaveContentType {
+  type: String
+  value: ContentTypeData
+}
+
+extend type Query {
+  convertDocument(document: JSON, targetFormat: String): JSON
+  latestGoogleDocMetadata(postId: String!, version: String): JSON
+}
+
+extend type Mutation {
+  revertTagToRevision(tagId: String!, revertToRevisionId: String!): Tag
+  autosaveRevision(postId: String!, contents: AutosaveContentType!): Revision
+}
+
+type ModeratorIPAddressInfo {
+  ip: String!
+  userIds: [String!]!
+}
+
+extend type Query {
+  moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+}
+
+extend type Mutation {
+  lockThread(commentId: String!, until: String): Boolean!
+  unlockThread(commentId: String!): Boolean!
+}
+
+extend type Mutation {
+  reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
+}
+
+extend type Mutation {
+  publishAndDeDuplicateSpotlight(spotlightId: String): Spotlight
+}
+
+extend type Mutation {
+  upsertUserTypingIndicator(documentId: String!): TypingIndicator
+}
+
+extend type Mutation {
+  acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post
+}
+
+extend type Mutation {
+  setIsBookmarked(postId: String!, isBookmarked: Boolean!): User!
+}
+
+extend type Mutation {
+  setIsHidden(postId: String!, isHidden: Boolean!): User!
+}
+
+extend type Mutation {
+  markAsReadOrUnread(postId: String, isRead: Boolean): Boolean
+  markPostCommentsRead(postId: String!): Boolean
+}
+
+type RssPostChangeInfo {
+  isChanged: Boolean!
+  newHtml: String!
+  htmlDiff: String!
+}
+
+extend type Mutation {
+  resyncRssFeed(feedId: String!): Boolean!
+}
+
+extend type Query {
+  RssPostChanges(postId: String!): RssPostChangeInfo!
+}
+
+extend type Mutation {
+  updateContinueReading(sequenceId: String!, postId: String!): Boolean
+}
+
+extend type Mutation {
+  getNewJargonTerms(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String): [JargonTerm]
+}
+
+extend type Mutation {
+  RSVPToEvent(postId: String, name: String, email: String, private: Boolean, response: String): Post
+  CancelRSVPToEvent(postId: String, name: String, userId: String): Post
+}
+
+extend type Query {
+  AdminMetadata: String
+}
+
+extend type Mutation {
+  addOrUpvoteTag(tagId: String, postId: String): TagRel
+  addTags(postId: String, tagIds: [String]): Boolean
+}
+
+extend type Mutation {
+  analyticsEvent(events: [JSON!], now: Date): Boolean
+}
+
+extend type Query {
+  currentUser: User
+}
+
+extend type Query {
+  SearchSynonyms: [String!]!
+}
+
+extend type Mutation {
+  UpdateSearchSynonyms(synonyms: [String!]!): [String!]!
+}
+
+extend type Mutation {
+  useEmailToken(token: String, args: JSON): JSON
+}
+
+extend type Mutation {
+  connectCrossposter(token: String): String
+  unlinkCrossposter: String
+}
+
+extend type Query {
+  getCrosspost(args: JSON): JSON
+}
+
+extend type Query {
+  RevisionsDiff(collectionName: String!, fieldName: String!, id: String, beforeRev: String, afterRev: String!, trim: Boolean): String
+}
+
+extend type Mutation {
+  observeRecommendation(postId: String!): Boolean
+  clickRecommendation(postId: String!): Boolean
+}
+
+extend type Mutation {
+  increasePostViewCount(postId: String): Float
+}
+
+extend type Mutation {
+  generateCoverImagesForPost(postId: String!, prompt: String): [ReviewWinnerArt]
+}
+
+extend type Mutation {
+  flipSplashArtImage(reviewWinnerArtId: String!): Boolean
+}
+
+input CreateAdvisorRequestDataInput {
+  legacyData: JSON
+  userId: String!
+  interestedInMetaculus: Boolean
+  jobAds: JSON
+}
+
+input CreateAdvisorRequestInput {
+  data: CreateAdvisorRequestDataInput!
+}
+
+input UpdateAdvisorRequestDataInput {
+  legacyData: JSON
+  userId: String
+  interestedInMetaculus: Boolean
+  jobAds: JSON
+}
+
+input UpdateAdvisorRequestInput {
+  selector: SelectorInput!
+  data: UpdateAdvisorRequestDataInput!
+}
+
+type AdvisorRequestOutput {
+  data: AdvisorRequest
+}
+
+extend type Mutation {
+  createAdvisorRequest(data: CreateAdvisorRequestDataInput!): AdvisorRequestOutput
+  updateAdvisorRequest(selector: SelectorInput!, data: UpdateAdvisorRequestDataInput!): AdvisorRequestOutput
+}
+
+input CreateArbitalTagContentRelDataInput {
+  legacyData: JSON
+  parentDocumentId: String!
+  childDocumentId: String!
+  parentCollectionName: String!
+  childCollectionName: String!
+  type: String!
+  level: Float!
+  isStrong: Boolean!
+}
+
+input CreateArbitalTagContentRelInput {
+  data: CreateArbitalTagContentRelDataInput!
+}
+
+input UpdateArbitalTagContentRelDataInput {
+  legacyData: JSON
+}
+
+input UpdateArbitalTagContentRelInput {
+  selector: SelectorInput!
+  data: UpdateArbitalTagContentRelDataInput!
+}
+
+type ArbitalTagContentRelOutput {
+  data: ArbitalTagContentRel
+}
+
+extend type Mutation {
+  createArbitalTagContentRel(data: CreateArbitalTagContentRelDataInput!): ArbitalTagContentRelOutput
+  updateArbitalTagContentRel(selector: SelectorInput!, data: UpdateArbitalTagContentRelDataInput!): ArbitalTagContentRelOutput
+}
+
+input CreateBanDataInput {
+  legacyData: JSON
+  expirationDate: Date!
+  userId: String
+  ip: String
+  reason: String
+  comment: String
+  properties: JSON
+}
+
+input CreateBanInput {
+  data: CreateBanDataInput!
+}
+
+input UpdateBanDataInput {
+  legacyData: JSON
+  expirationDate: Date
+  userId: String
+  ip: String
+  reason: String
+  comment: String
+  properties: JSON
+}
+
+input UpdateBanInput {
+  selector: SelectorInput!
+  data: UpdateBanDataInput!
+}
+
+type BanOutput {
+  data: Ban
+}
+
+extend type Mutation {
+  createBan(data: CreateBanDataInput!): BanOutput
+  updateBan(selector: SelectorInput!, data: UpdateBanDataInput!): BanOutput
+}
+
+input CreateBookDataInput {
+  legacyData: JSON
+  contents: JSON
+  title: String
+  subtitle: String
+  tocTitle: String
+  collectionId: String!
+  number: Float
+  postIds: [String]
+  sequenceIds: [String]
+  displaySequencesAsGrid: Boolean
+  hideProgressBar: Boolean
+  showChapters: Boolean
+}
+
+input CreateBookInput {
+  data: CreateBookDataInput!
+}
+
+input UpdateBookDataInput {
+  legacyData: JSON
+  contents: JSON
+  title: String
+  subtitle: String
+  tocTitle: String
+  collectionId: String
+  number: Float
+  postIds: [String]
+  sequenceIds: [String]
+  displaySequencesAsGrid: Boolean
+  hideProgressBar: Boolean
+  showChapters: Boolean
+}
+
+input UpdateBookInput {
+  selector: SelectorInput!
+  data: UpdateBookDataInput!
+}
+
+type BookOutput {
+  data: Book
+}
+
+extend type Mutation {
+  createBook(data: CreateBookDataInput!): BookOutput
+  updateBook(selector: SelectorInput!, data: UpdateBookDataInput!): BookOutput
+}
+
+input CreateChapterDataInput {
+  legacyData: JSON
+  contents: JSON
+  title: String
+  subtitle: String
+  number: Float
+  sequenceId: String
+  postIds: [String]!
+}
+
+input CreateChapterInput {
+  data: CreateChapterDataInput!
+}
+
+input UpdateChapterDataInput {
+  legacyData: JSON
+  contents: JSON
+  title: String
+  subtitle: String
+  number: Float
+  sequenceId: String
+  postIds: [String]
+}
+
+input UpdateChapterInput {
+  selector: SelectorInput!
+  data: UpdateChapterDataInput!
+}
+
+type ChapterOutput {
+  data: Chapter
+}
+
+extend type Mutation {
+  createChapter(data: CreateChapterDataInput!): ChapterOutput
+  updateChapter(selector: SelectorInput!, data: UpdateChapterDataInput!): ChapterOutput
+}
+
+input CreateCollectionDataInput {
+  createdAt: Date
+  legacyData: JSON
+  contents: JSON
+  title: String!
+  slug: String!
+  gridImageId: String
+  firstPageLink: String
+  hideStartReadingButton: Boolean
+  noindex: Boolean
+}
+
+input CreateCollectionInput {
+  data: CreateCollectionDataInput!
+}
+
+input UpdateCollectionDataInput {
+  createdAt: Date
+  legacyData: JSON
+  contents: JSON
+  title: String
+  slug: String
+  gridImageId: String
+  firstPageLink: String
+  hideStartReadingButton: Boolean
+  noindex: Boolean
+}
+
+input UpdateCollectionInput {
+  selector: SelectorInput!
+  data: UpdateCollectionDataInput!
+}
+
+type CollectionOutput {
+  data: Collection
+}
+
+extend type Mutation {
+  createCollection(data: CreateCollectionDataInput!): CollectionOutput
+  updateCollection(selector: SelectorInput!, data: UpdateCollectionDataInput!): CollectionOutput
+}
+
+input CreateCommentModeratorActionDataInput {
+  legacyData: JSON
+  commentId: String
+  type: String!
+  endedAt: Date
+}
+
+input CreateCommentModeratorActionInput {
+  data: CreateCommentModeratorActionDataInput!
+}
+
+input UpdateCommentModeratorActionDataInput {
+  legacyData: JSON
+  commentId: String
+  type: String
+  endedAt: Date
+}
+
+input UpdateCommentModeratorActionInput {
+  selector: SelectorInput!
+  data: UpdateCommentModeratorActionDataInput!
+}
+
+type CommentModeratorActionOutput {
+  data: CommentModeratorAction
+}
+
+extend type Mutation {
+  createCommentModeratorAction(data: CreateCommentModeratorActionDataInput!): CommentModeratorActionOutput
+  updateCommentModeratorAction(selector: SelectorInput!, data: UpdateCommentModeratorActionDataInput!): CommentModeratorActionOutput
+}
+
+input CreateCommentDataInput {
+  legacyData: JSON
+  contents: JSON
+  parentCommentId: String
+  topLevelCommentId: String
+  postId: String
+  tagId: String
+  forumEventId: String
+  forumEventMetadata: JSON
+  tagCommentType: String
+  subforumStickyPriority: Float
+  userId: String
+  authorIsUnreviewed: Boolean
+  answer: Boolean
+  parentAnswerId: String
+  shortform: Boolean
+  shortformFrontpage: Boolean
+  nominatedForReview: String
+  reviewingForReview: String
+  promotedByUserId: String
+  hideKarma: Boolean
+  legacy: Boolean
+  legacyId: String
+  legacyPoll: Boolean
+  legacyParentId: String
+  retracted: Boolean
+  deleted: Boolean
+  deletedPublic: Boolean
+  deletedReason: String
+  deletedDate: Date
+  deletedByUserId: String
+  spam: Boolean
+  needsReview: Boolean
+  reviewedByUserId: String
+  moderatorHat: Boolean
+  hideModeratorHat: Boolean
+  isPinnedOnProfile: Boolean
+  title: String
+  relevantTagIds: [String]
+  debateResponse: Boolean
+  rejected: Boolean
+  modGPTAnalysis: String
+  modGPTRecommendation: String
+  rejectedReason: String
+  rejectedByUserId: String
+  af: Boolean
+  afDate: Date
+  agentFoundationsId: String
+  originalDialogueId: String
+}
+
+input CreateCommentInput {
+  data: CreateCommentDataInput!
+}
+
+input UpdateCommentDataInput {
+  legacyData: JSON
+  contents: JSON
+  subforumStickyPriority: Float
+  authorIsUnreviewed: Boolean
+  answer: Boolean
+  shortform: Boolean
+  shortformFrontpage: Boolean
+  nominatedForReview: String
+  reviewingForReview: String
+  promoted: Boolean
+  promotedByUserId: String
+  hideKarma: Boolean
+  legacy: Boolean
+  legacyId: String
+  legacyPoll: Boolean
+  legacyParentId: String
+  retracted: Boolean
+  deleted: Boolean
+  deletedPublic: Boolean
+  deletedReason: String
+  deletedDate: Date
+  deletedByUserId: String
+  spam: Boolean
+  repliesBlockedUntil: Date
+  needsReview: Boolean
+  reviewedByUserId: String
+  hideAuthor: Boolean
+  moderatorHat: Boolean
+  hideModeratorHat: Boolean
+  isPinnedOnProfile: Boolean
+  title: String
+  relevantTagIds: [String]
+  debateResponse: Boolean
+  rejected: Boolean
+  modGPTAnalysis: String
+  modGPTRecommendation: String
+  rejectedReason: String
+  rejectedByUserId: String
+  af: Boolean
+  suggestForAlignmentUserIds: [String]
+  reviewForAlignmentUserId: String
+  afDate: Date
+  moveToAlignmentUserId: String
+  agentFoundationsId: String
+  originalDialogueId: String
+}
+
+input UpdateCommentInput {
+  selector: SelectorInput!
+  data: UpdateCommentDataInput!
+}
+
+type CommentOutput {
+  data: Comment
+}
+
+extend type Mutation {
+  createComment(data: CreateCommentDataInput!): CommentOutput
+  updateComment(selector: SelectorInput!, data: UpdateCommentDataInput!): CommentOutput
+}
+
+input CreateConversationDataInput {
+  legacyData: JSON
+  title: String
+  participantIds: [String]
+  af: Boolean
+  moderator: Boolean
+  archivedByIds: [String]
+}
+
+input CreateConversationInput {
+  data: CreateConversationDataInput!
+}
+
+input UpdateConversationDataInput {
+  legacyData: JSON
+  title: String
+  participantIds: [String]
+  af: Boolean
+  moderator: Boolean
+  archivedByIds: [String]
+}
+
+input UpdateConversationInput {
+  selector: SelectorInput!
+  data: UpdateConversationDataInput!
+}
+
+type ConversationOutput {
+  data: Conversation
+}
+
+extend type Mutation {
+  createConversation(data: CreateConversationDataInput!): ConversationOutput
+  updateConversation(selector: SelectorInput!, data: UpdateConversationDataInput!): ConversationOutput
+}
+
+input CreateCurationNoticeDataInput {
+  legacyData: JSON
+  contents: JSON
+  userId: String!
+  commentId: String
+  postId: String!
+}
+
+input CreateCurationNoticeInput {
+  data: CreateCurationNoticeDataInput!
+}
+
+input UpdateCurationNoticeDataInput {
+  legacyData: JSON
+  contents: JSON
+  commentId: String
+  deleted: Boolean
+}
+
+input UpdateCurationNoticeInput {
+  selector: SelectorInput!
+  data: UpdateCurationNoticeDataInput!
+}
+
+type CurationNoticeOutput {
+  data: CurationNotice
+}
+
+extend type Mutation {
+  createCurationNotice(data: CreateCurationNoticeDataInput!): CurationNoticeOutput
+  updateCurationNotice(selector: SelectorInput!, data: UpdateCurationNoticeDataInput!): CurationNoticeOutput
+}
+
+input CreateDialogueMatchPreferenceDataInput {
+  legacyData: JSON
+  dialogueCheckId: String!
+  topicPreferences: [JSON]!
+  topicNotes: String!
+  syncPreference: String!
+  asyncPreference: String!
+  formatNotes: String!
+  calendlyLink: String
+  generatedDialogueId: String
+  deleted: Boolean
+}
+
+input CreateDialogueMatchPreferenceInput {
+  data: CreateDialogueMatchPreferenceDataInput!
+}
+
+input UpdateDialogueMatchPreferenceDataInput {
+  legacyData: JSON
+  dialogueCheckId: String
+  topicPreferences: [JSON]
+  topicNotes: String
+  syncPreference: String
+  asyncPreference: String
+  formatNotes: String
+  calendlyLink: String
+  generatedDialogueId: String
+  deleted: Boolean
+}
+
+input UpdateDialogueMatchPreferenceInput {
+  selector: SelectorInput!
+  data: UpdateDialogueMatchPreferenceDataInput!
+}
+
+type DialogueMatchPreferenceOutput {
+  data: DialogueMatchPreference
+}
+
+extend type Mutation {
+  createDialogueMatchPreference(data: CreateDialogueMatchPreferenceDataInput!): DialogueMatchPreferenceOutput
+  updateDialogueMatchPreference(selector: SelectorInput!, data: UpdateDialogueMatchPreferenceDataInput!): DialogueMatchPreferenceOutput
+}
+
+input CreateDigestPostDataInput {
+  legacyData: JSON
+  digestId: String!
+  postId: String!
+  emailDigestStatus: String
+  onsiteDigestStatus: String
+}
+
+input CreateDigestPostInput {
+  data: CreateDigestPostDataInput!
+}
+
+input UpdateDigestPostDataInput {
+  legacyData: JSON
+  digestId: String
+  postId: String
+  emailDigestStatus: String
+  onsiteDigestStatus: String
+}
+
+input UpdateDigestPostInput {
+  selector: SelectorInput!
+  data: UpdateDigestPostDataInput!
+}
+
+type DigestPostOutput {
+  data: DigestPost
+}
+
+extend type Mutation {
+  createDigestPost(data: CreateDigestPostDataInput!): DigestPostOutput
+  updateDigestPost(selector: SelectorInput!, data: UpdateDigestPostDataInput!): DigestPostOutput
+}
+
+input CreateDigestDataInput {
+  legacyData: JSON
+  num: Float!
+  startDate: Date!
+  endDate: Date
+  publishedDate: Date
+  onsiteImageId: String
+  onsitePrimaryColor: String
+}
+
+input CreateDigestInput {
+  data: CreateDigestDataInput!
+}
+
+input UpdateDigestDataInput {
+  legacyData: JSON
+  num: Float
+  startDate: Date
+  endDate: Date
+  publishedDate: Date
+  onsiteImageId: String
+  onsitePrimaryColor: String
+}
+
+input UpdateDigestInput {
+  selector: SelectorInput!
+  data: UpdateDigestDataInput!
+}
+
+type DigestOutput {
+  data: Digest
+}
+
+extend type Mutation {
+  createDigest(data: CreateDigestDataInput!): DigestOutput
+  updateDigest(selector: SelectorInput!, data: UpdateDigestDataInput!): DigestOutput
+}
+
+input CreateElectionCandidateDataInput {
+  legacyData: JSON
+  electionName: String!
+  name: String!
+  logoSrc: String!
+  href: String!
+  fundraiserLink: String
+  gwwcLink: String
+  gwwcId: String
+  description: String!
+  userId: String
+  tagId: String!
+  isElectionFundraiser: Boolean
+  amountRaised: Float
+  targetAmount: Float
+}
+
+input CreateElectionCandidateInput {
+  data: CreateElectionCandidateDataInput!
+}
+
+input UpdateElectionCandidateDataInput {
+  legacyData: JSON
+  electionName: String
+  name: String
+  logoSrc: String
+  href: String
+  fundraiserLink: String
+  gwwcLink: String
+  gwwcId: String
+  description: String
+  userId: String
+  tagId: String
+  isElectionFundraiser: Boolean
+  amountRaised: Float
+  targetAmount: Float
+}
+
+input UpdateElectionCandidateInput {
+  selector: SelectorInput!
+  data: UpdateElectionCandidateDataInput!
+}
+
+type ElectionCandidateOutput {
+  data: ElectionCandidate
+}
+
+extend type Mutation {
+  createElectionCandidate(data: CreateElectionCandidateDataInput!): ElectionCandidateOutput
+  updateElectionCandidate(selector: SelectorInput!, data: UpdateElectionCandidateDataInput!): ElectionCandidateOutput
+}
+
+input CreateElectionVoteDataInput {
+  legacyData: JSON
+  electionName: String!
+  userId: String!
+  compareState: JSON
+  vote: JSON
+  submittedAt: Date
+  submissionComments: JSON
+  userExplanation: String
+  userOtherComments: String
+}
+
+input CreateElectionVoteInput {
+  data: CreateElectionVoteDataInput!
+}
+
+input UpdateElectionVoteDataInput {
+  legacyData: JSON
+  electionName: String
+  userId: String
+  compareState: JSON
+  vote: JSON
+  submittedAt: Date
+  submissionComments: JSON
+  userExplanation: String
+  userOtherComments: String
+}
+
+input UpdateElectionVoteInput {
+  selector: SelectorInput!
+  data: UpdateElectionVoteDataInput!
+}
+
+type ElectionVoteOutput {
+  data: ElectionVote
+}
+
+extend type Mutation {
+  createElectionVote(data: CreateElectionVoteDataInput!): ElectionVoteOutput
+  updateElectionVote(selector: SelectorInput!, data: UpdateElectionVoteDataInput!): ElectionVoteOutput
+}
+
+input CreateElicitQuestionDataInput {
+  legacyData: JSON
+  title: String!
+  notes: String
+  resolution: String
+  resolvesBy: Date
+}
+
+input CreateElicitQuestionInput {
+  data: CreateElicitQuestionDataInput!
+}
+
+input UpdateElicitQuestionDataInput {
+  legacyData: JSON
+  title: String
+  notes: String
+  resolution: String
+  resolvesBy: Date
+}
+
+input UpdateElicitQuestionInput {
+  selector: SelectorInput!
+  data: UpdateElicitQuestionDataInput!
+}
+
+type ElicitQuestionOutput {
+  data: ElicitQuestion
+}
+
+extend type Mutation {
+  createElicitQuestion(data: CreateElicitQuestionDataInput!): ElicitQuestionOutput
+  updateElicitQuestion(selector: SelectorInput!, data: UpdateElicitQuestionDataInput!): ElicitQuestionOutput
+}
+
+input CreateForumEventDataInput {
+  legacyData: JSON
+  frontpageDescription: JSON
+  frontpageDescriptionMobile: JSON
+  postPageDescription: JSON
+  title: String!
+  startDate: Date!
+  endDate: Date!
+  darkColor: String!
+  lightColor: String!
+  bannerTextColor: String!
+  contrastColor: String
+  tagId: String
+  postId: String
+  bannerImageId: String
+  includesPoll: Boolean
+  eventFormat: String
+  pollQuestion: JSON
+  pollAgreeWording: String
+  pollDisagreeWording: String
+  maxStickersPerUser: Float
+  customComponent: String
+  commentPrompt: String
+  publicData: JSON
+}
+
+input CreateForumEventInput {
+  data: CreateForumEventDataInput!
+}
+
+input UpdateForumEventDataInput {
+  legacyData: JSON
+  frontpageDescription: JSON
+  frontpageDescriptionMobile: JSON
+  postPageDescription: JSON
+  title: String
+  startDate: Date
+  endDate: Date
+  darkColor: String
+  lightColor: String
+  bannerTextColor: String
+  contrastColor: String
+  tagId: String
+  postId: String
+  bannerImageId: String
+  includesPoll: Boolean
+  eventFormat: String
+  pollQuestion: JSON
+  pollAgreeWording: String
+  pollDisagreeWording: String
+  maxStickersPerUser: Float
+  customComponent: String
+  commentPrompt: String
+}
+
+input UpdateForumEventInput {
+  selector: SelectorInput!
+  data: UpdateForumEventDataInput!
+}
+
+type ForumEventOutput {
+  data: ForumEvent
+}
+
+extend type Mutation {
+  createForumEvent(data: CreateForumEventDataInput!): ForumEventOutput
+  updateForumEvent(selector: SelectorInput!, data: UpdateForumEventDataInput!): ForumEventOutput
+}
+
+input CreateGardenCodeDataInput {
+  legacyData: JSON
+  contents: JSON
+  slug: String
+  title: String!
+  startTime: Date
+  fbLink: String
+  type: String
+  afOnly: Boolean
+}
+
+input CreateGardenCodeInput {
+  data: CreateGardenCodeDataInput!
+}
+
+input UpdateGardenCodeDataInput {
+  legacyData: JSON
+  contents: JSON
+  slug: String
+  title: String
+  startTime: Date
+  endTime: Date
+  fbLink: String
+  type: String
+  hidden: Boolean
+  deleted: Boolean
+  afOnly: Boolean
+}
+
+input UpdateGardenCodeInput {
+  selector: SelectorInput!
+  data: UpdateGardenCodeDataInput!
+}
+
+type GardenCodeOutput {
+  data: GardenCode
+}
+
+extend type Mutation {
+  createGardenCode(data: CreateGardenCodeDataInput!): GardenCodeOutput
+  updateGardenCode(selector: SelectorInput!, data: UpdateGardenCodeDataInput!): GardenCodeOutput
+}
+
+input CreateGoogleServiceAccountSessionDataInput {
+  legacyData: JSON
+  email: String!
+  refreshToken: String!
+  estimatedExpiry: Date!
+  active: Boolean!
+  revoked: Boolean!
+}
+
+input CreateGoogleServiceAccountSessionInput {
+  data: CreateGoogleServiceAccountSessionDataInput!
+}
+
+input UpdateGoogleServiceAccountSessionDataInput {
+  legacyData: JSON
+  email: String
+  refreshToken: String
+  estimatedExpiry: Date
+  active: Boolean
+  revoked: Boolean
+}
+
+input UpdateGoogleServiceAccountSessionInput {
+  selector: SelectorInput!
+  data: UpdateGoogleServiceAccountSessionDataInput!
+}
+
+type GoogleServiceAccountSessionOutput {
+  data: GoogleServiceAccountSession
+}
+
+extend type Mutation {
+  createGoogleServiceAccountSession(data: CreateGoogleServiceAccountSessionDataInput!): GoogleServiceAccountSessionOutput
+  updateGoogleServiceAccountSession(selector: SelectorInput!, data: UpdateGoogleServiceAccountSessionDataInput!): GoogleServiceAccountSessionOutput
+}
+
+input CreateJargonTermDataInput {
+  legacyData: JSON
+  contents: JSON
+  postId: String!
+  term: String!
+  approved: Boolean
+  deleted: Boolean
+  altTerms: [String]!
+}
+
+input CreateJargonTermInput {
+  data: CreateJargonTermDataInput!
+}
+
+input UpdateJargonTermDataInput {
+  legacyData: JSON
+  contents: JSON
+  term: String
+  approved: Boolean
+  deleted: Boolean
+  altTerms: [String]
+}
+
+input UpdateJargonTermInput {
+  selector: SelectorInput!
+  data: UpdateJargonTermDataInput!
+}
+
+type JargonTermOutput {
+  data: JargonTerm
+}
+
+extend type Mutation {
+  createJargonTerm(data: CreateJargonTermDataInput!): JargonTermOutput
+  updateJargonTerm(selector: SelectorInput!, data: UpdateJargonTermDataInput!): JargonTermOutput
+}
+
+input CreateLWEventDataInput {
+  legacyData: JSON
+  userId: String
+  name: String!
+  documentId: String
+  important: Boolean
+  properties: JSON
+  intercom: Boolean
+}
+
+input CreateLWEventInput {
+  data: CreateLWEventDataInput!
+}
+
+input UpdateLWEventDataInput {
+  legacyData: JSON
+  important: Boolean
+}
+
+input UpdateLWEventInput {
+  selector: SelectorInput!
+  data: UpdateLWEventDataInput!
+}
+
+type LWEventOutput {
+  data: LWEvent
+}
+
+extend type Mutation {
+  createLWEvent(data: CreateLWEventDataInput!): LWEventOutput
+  updateLWEvent(selector: SelectorInput!, data: UpdateLWEventDataInput!): LWEventOutput
+}
+
+input UpdateLlmConversationDataInput {
+  legacyData: JSON
+  userId: String
+  title: String
+  model: String
+  systemPrompt: String
+  deleted: Boolean
+}
+
+input UpdateLlmConversationInput {
+  selector: SelectorInput!
+  data: UpdateLlmConversationDataInput!
+}
+
+type LlmConversationOutput {
+  data: LlmConversation
+}
+
+extend type Mutation {
+  updateLlmConversation(selector: SelectorInput!, data: UpdateLlmConversationDataInput!): LlmConversationOutput
+}
+
+input CreateLocalgroupDataInput {
+  legacyData: JSON
+  contents: JSON
+  name: String!
+  nameInAnotherLanguage: String
+  organizerIds: [String]!
+  lastActivity: Date
+  types: [String]!
+  categories: [String]
+  isOnline: Boolean
+  googleLocation: JSON
+  location: String
+  contactInfo: String
+  facebookLink: String
+  facebookPageLink: String
+  meetupLink: String
+  slackLink: String
+  website: String
+  bannerImageId: String
+  inactive: Boolean
+  deleted: Boolean
+}
+
+input CreateLocalgroupInput {
+  data: CreateLocalgroupDataInput!
+}
+
+input UpdateLocalgroupDataInput {
+  legacyData: JSON
+  contents: JSON
+  name: String
+  nameInAnotherLanguage: String
+  organizerIds: [String]
+  lastActivity: Date
+  types: [String]
+  categories: [String]
+  isOnline: Boolean
+  googleLocation: JSON
+  location: String
+  contactInfo: String
+  facebookLink: String
+  facebookPageLink: String
+  meetupLink: String
+  slackLink: String
+  website: String
+  bannerImageId: String
+  inactive: Boolean
+  deleted: Boolean
+}
+
+input UpdateLocalgroupInput {
+  selector: SelectorInput!
+  data: UpdateLocalgroupDataInput!
+}
+
+type LocalgroupOutput {
+  data: Localgroup
+}
+
+extend type Mutation {
+  createLocalgroup(data: CreateLocalgroupDataInput!): LocalgroupOutput
+  updateLocalgroup(selector: SelectorInput!, data: UpdateLocalgroupDataInput!): LocalgroupOutput
+}
+
+input CreateMessageDataInput {
+  legacyData: JSON
+  contents: JSON
+  userId: String
+  conversationId: String!
+  noEmail: Boolean
+}
+
+input CreateMessageInput {
+  data: CreateMessageDataInput!
+}
+
+input UpdateMessageDataInput {
+  legacyData: JSON
+  contents: JSON
+}
+
+input UpdateMessageInput {
+  selector: SelectorInput!
+  data: UpdateMessageDataInput!
+}
+
+type MessageOutput {
+  data: Message
+}
+
+extend type Mutation {
+  createMessage(data: CreateMessageDataInput!): MessageOutput
+  updateMessage(selector: SelectorInput!, data: UpdateMessageDataInput!): MessageOutput
+}
+
+input CreateModerationTemplateDataInput {
+  legacyData: JSON
+  contents: JSON
+  name: String!
+  collectionName: String!
+  order: Float
+}
+
+input CreateModerationTemplateInput {
+  data: CreateModerationTemplateDataInput!
+}
+
+input UpdateModerationTemplateDataInput {
+  legacyData: JSON
+  contents: JSON
+  name: String
+  collectionName: String
+  order: Float
+  deleted: Boolean
+}
+
+input UpdateModerationTemplateInput {
+  selector: SelectorInput!
+  data: UpdateModerationTemplateDataInput!
+}
+
+type ModerationTemplateOutput {
+  data: ModerationTemplate
+}
+
+extend type Mutation {
+  createModerationTemplate(data: CreateModerationTemplateDataInput!): ModerationTemplateOutput
+  updateModerationTemplate(selector: SelectorInput!, data: UpdateModerationTemplateDataInput!): ModerationTemplateOutput
+}
+
+input CreateModeratorActionDataInput {
+  legacyData: JSON
+  userId: String
+  type: String!
+  endedAt: Date
+}
+
+input CreateModeratorActionInput {
+  data: CreateModeratorActionDataInput!
+}
+
+input UpdateModeratorActionDataInput {
+  legacyData: JSON
+  userId: String
+  type: String
+  endedAt: Date
+}
+
+input UpdateModeratorActionInput {
+  selector: SelectorInput!
+  data: UpdateModeratorActionDataInput!
+}
+
+type ModeratorActionOutput {
+  data: ModeratorAction
+}
+
+extend type Mutation {
+  createModeratorAction(data: CreateModeratorActionDataInput!): ModeratorActionOutput
+  updateModeratorAction(selector: SelectorInput!, data: UpdateModeratorActionDataInput!): ModeratorActionOutput
+}
+
+input CreateMultiDocumentDataInput {
+  legacyData: JSON
+  contents: JSON
+  slug: String
+  title: String
+  tabTitle: String!
+  tabSubtitle: String
+  userId: String
+  parentDocumentId: String!
+  collectionName: String!
+  fieldName: String!
+}
+
+input CreateMultiDocumentInput {
+  data: CreateMultiDocumentDataInput!
+}
+
+input UpdateMultiDocumentDataInput {
+  legacyData: JSON
+  contents: JSON
+  slug: String
+  title: String
+  tabTitle: String
+  tabSubtitle: String
+  index: Float
+  deleted: Boolean
+}
+
+input UpdateMultiDocumentInput {
+  selector: SelectorInput!
+  data: UpdateMultiDocumentDataInput!
+}
+
+type MultiDocumentOutput {
+  data: MultiDocument
+}
+
+extend type Mutation {
+  createMultiDocument(data: CreateMultiDocumentDataInput!): MultiDocumentOutput
+  updateMultiDocument(selector: SelectorInput!, data: UpdateMultiDocumentDataInput!): MultiDocumentOutput
+}
+
+input CreateNotificationDataInput {
+  legacyData: JSON
+  viewed: Boolean
+}
+
+input CreateNotificationInput {
+  data: CreateNotificationDataInput!
+}
+
+input UpdateNotificationDataInput {
+  legacyData: JSON
+  viewed: Boolean
+}
+
+input UpdateNotificationInput {
+  selector: SelectorInput!
+  data: UpdateNotificationDataInput!
+}
+
+type NotificationOutput {
+  data: Notification
+}
+
+extend type Mutation {
+  createNotification(data: CreateNotificationDataInput!): NotificationOutput
+  updateNotification(selector: SelectorInput!, data: UpdateNotificationDataInput!): NotificationOutput
+}
+
+input CreatePetrovDayActionDataInput {
+  legacyData: JSON
+  actionType: String!
+  data: JSON
+  userId: String!
+}
+
+input CreatePetrovDayActionInput {
+  data: CreatePetrovDayActionDataInput!
+}
+
+type PetrovDayActionOutput {
+  data: PetrovDayAction
+}
+
+extend type Mutation {
+  createPetrovDayAction(data: CreatePetrovDayActionDataInput!): PetrovDayActionOutput
+}
+
+input CreatePodcastEpisodeDataInput {
+  legacyData: JSON
+  podcastId: String
+  title: String!
+  episodeLink: String!
+  externalEpisodeId: String!
+}
+
+input CreatePodcastEpisodeInput {
+  data: CreatePodcastEpisodeDataInput!
+}
+
+input UpdatePodcastEpisodeDataInput {
+  legacyData: JSON
+}
+
+input UpdatePodcastEpisodeInput {
+  selector: SelectorInput!
+  data: UpdatePodcastEpisodeDataInput!
+}
+
+type PodcastEpisodeOutput {
+  data: PodcastEpisode
+}
+
+extend type Mutation {
+  createPodcastEpisode(data: CreatePodcastEpisodeDataInput!): PodcastEpisodeOutput
+  updatePodcastEpisode(selector: SelectorInput!, data: UpdatePodcastEpisodeDataInput!): PodcastEpisodeOutput
+}
+
+input CreatePostEmbeddingDataInput {
+  legacyData: JSON
+  postId: String!
+  postHash: String!
+  lastGeneratedAt: Date!
+  model: String!
+  embeddings: [Float]!
+}
+
+input CreatePostEmbeddingInput {
+  data: CreatePostEmbeddingDataInput!
+}
+
+input UpdatePostEmbeddingDataInput {
+  legacyData: JSON
+  postId: String
+  postHash: String
+  lastGeneratedAt: Date
+  model: String
+  embeddings: [Float]
+}
+
+input UpdatePostEmbeddingInput {
+  selector: SelectorInput!
+  data: UpdatePostEmbeddingDataInput!
+}
+
+type PostEmbeddingOutput {
+  data: PostEmbedding
+}
+
+extend type Mutation {
+  createPostEmbedding(data: CreatePostEmbeddingDataInput!): PostEmbeddingOutput
+  updatePostEmbedding(selector: SelectorInput!, data: UpdatePostEmbeddingDataInput!): PostEmbeddingOutput
+}
+
+input CreatePostViewTimeDataInput {
+  legacyData: JSON
+}
+
+input CreatePostViewTimeInput {
+  data: CreatePostViewTimeDataInput!
+}
+
+input UpdatePostViewTimeDataInput {
+  legacyData: JSON
+}
+
+input UpdatePostViewTimeInput {
+  selector: SelectorInput!
+  data: UpdatePostViewTimeDataInput!
+}
+
+type PostViewTimeOutput {
+  data: PostViewTime
+}
+
+extend type Mutation {
+  createPostViewTime(data: CreatePostViewTimeDataInput!): PostViewTimeOutput
+  updatePostViewTime(selector: SelectorInput!, data: UpdatePostViewTimeDataInput!): PostViewTimeOutput
+}
+
+input CreatePostViewsDataInput {
+  legacyData: JSON
+}
+
+input CreatePostViewsInput {
+  data: CreatePostViewsDataInput!
+}
+
+input UpdatePostViewsDataInput {
+  legacyData: JSON
+}
+
+input UpdatePostViewsInput {
+  selector: SelectorInput!
+  data: UpdatePostViewsDataInput!
+}
+
+type PostViewsOutput {
+  data: PostViews
+}
+
+extend type Mutation {
+  createPostViews(data: CreatePostViewsDataInput!): PostViewsOutput
+  updatePostViews(selector: SelectorInput!, data: UpdatePostViewsDataInput!): PostViewsOutput
+}
+
+input CreatePostDataInput {
+  legacyData: JSON
+  contents: JSON
+  moderationGuidelines: JSON
+  customHighlight: JSON
+  slug: String
+  postedAt: Date
+  url: String
+  postCategory: String
+  title: String!
+  status: Float
+  sticky: Boolean
+  stickyPriority: Int
+  userId: String
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  readTimeMinutesOverride: Float
+  submitToFrontpage: Boolean
+  hiddenRelatedQuestion: Boolean
+  originalPostRelationSourceId: String
+  shortform: Boolean
+  canonicalSource: String
+  manifoldReviewMarketId: String
+  tagRelevance: JSON
+  noIndex: Boolean
+  activateRSVPs: Boolean
+  nextDayReminderSent: Boolean
+  onlyVisibleToLoggedIn: Boolean
+  onlyVisibleToEstablishedAccounts: Boolean
+  hideFromRecentDiscussions: Boolean
+  podcastEpisodeId: String
+  forceAllowType3Audio: Boolean
+  legacy: Boolean
+  legacyId: String
+  legacySpam: Boolean
+  feedId: String
+  feedLink: String
+  curatedDate: Date
+  metaDate: Date
+  suggestForCuratedUserIds: [String]
+  frontpageDate: Date
+  autoFrontpage: String
+  collectionTitle: String
+  coauthorStatuses: [JSON]
+  hasCoauthorPermission: Boolean
+  socialPreviewImageId: String
+  socialPreviewImageAutoUrl: String
+  socialPreview: JSON
+  fmCrosspost: JSON
+  canonicalSequenceId: String
+  canonicalCollectionSlug: String
+  canonicalBookId: String
+  canonicalNextPostSlug: String
+  canonicalPrevPostSlug: String
+  unlisted: Boolean
+  disableRecommendation: Boolean
+  defaultRecommendation: Boolean
+  hideFromPopularComments: Boolean
+  draft: Boolean
+  wasEverUndrafted: Boolean
+  meta: Boolean
+  hideFrontpageComments: Boolean
+  bannedUserIds: [String]
+  commentsLocked: Boolean
+  commentsLockedToAccountsCreatedAfter: Date
+  organizerIds: [String]
+  groupId: String
+  eventType: String
+  isEvent: Boolean
+  reviewedByUserId: String
+  reviewForCuratedUserId: String
+  startTime: Date
+  endTime: Date
+  eventRegistrationLink: String
+  joinEventLink: String
+  onlineEvent: Boolean
+  globalEvent: Boolean
+  googleLocation: JSON
+  location: String
+  contactInfo: String
+  facebookLink: String
+  meetupLink: String
+  website: String
+  eventImageId: String
+  types: [String]
+  metaSticky: Boolean
+  sharingSettings: JSON
+  shareWithUsers: [String]
+  commentSortOrder: String
+  hideAuthor: Boolean
+  sideCommentVisibility: String
+  disableSidenotes: Boolean
+  moderationStyle: String
+  ignoreRateLimits: Boolean
+  hideCommentKarma: Boolean
+  collabEditorDialogue: Boolean
+  rejected: Boolean
+  rejectedReason: String
+  rejectedByUserId: String
+  subforumTagId: String
+  af: Boolean
+  afDate: Date
+  afSticky: Boolean
+  suggestForAlignmentUserIds: [String]
+  reviewForAlignmentUserId: String
+  agentFoundationsId: String
+  swrCachingEnabled: Boolean
+  generateDraftJargon: Boolean
+}
+
+input CreatePostInput {
+  data: CreatePostDataInput!
+}
+
+input UpdatePostDataInput {
+  legacyData: JSON
+  contents: JSON
+  moderationGuidelines: JSON
+  customHighlight: JSON
+  slug: String
+  postedAt: Date
+  url: String
+  postCategory: String
+  title: String
+  deletedDraft: Boolean
+  status: Float
+  sticky: Boolean
+  stickyPriority: Int
+  userId: String
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  readTimeMinutesOverride: Float
+  submitToFrontpage: Boolean
+  hiddenRelatedQuestion: Boolean
+  shortform: Boolean
+  canonicalSource: String
+  manifoldReviewMarketId: String
+  tagRelevance: JSON
+  noIndex: Boolean
+  activateRSVPs: Boolean
+  nextDayReminderSent: Boolean
+  onlyVisibleToLoggedIn: Boolean
+  onlyVisibleToEstablishedAccounts: Boolean
+  hideFromRecentDiscussions: Boolean
+  votingSystem: String
+  podcastEpisodeId: String
+  forceAllowType3Audio: Boolean
+  legacy: Boolean
+  legacyId: String
+  legacySpam: Boolean
+  feedId: String
+  feedLink: String
+  curatedDate: Date
+  metaDate: Date
+  suggestForCuratedUserIds: [String]
+  frontpageDate: Date
+  autoFrontpage: String
+  collectionTitle: String
+  coauthorStatuses: [JSON]
+  hasCoauthorPermission: Boolean
+  socialPreviewImageId: String
+  socialPreviewImageAutoUrl: String
+  socialPreview: JSON
+  fmCrosspost: JSON
+  canonicalSequenceId: String
+  canonicalCollectionSlug: String
+  canonicalBookId: String
+  canonicalNextPostSlug: String
+  canonicalPrevPostSlug: String
+  unlisted: Boolean
+  disableRecommendation: Boolean
+  defaultRecommendation: Boolean
+  hideFromPopularComments: Boolean
+  draft: Boolean
+  wasEverUndrafted: Boolean
+  meta: Boolean
+  hideFrontpageComments: Boolean
+  bannedUserIds: [String]
+  commentsLocked: Boolean
+  commentsLockedToAccountsCreatedAfter: Date
+  organizerIds: [String]
+  groupId: String
+  eventType: String
+  isEvent: Boolean
+  reviewedByUserId: String
+  reviewForCuratedUserId: String
+  startTime: Date
+  endTime: Date
+  eventRegistrationLink: String
+  joinEventLink: String
+  onlineEvent: Boolean
+  globalEvent: Boolean
+  googleLocation: JSON
+  location: String
+  contactInfo: String
+  facebookLink: String
+  meetupLink: String
+  website: String
+  eventImageId: String
+  types: [String]
+  metaSticky: Boolean
+  sharingSettings: JSON
+  shareWithUsers: [String]
+  linkSharingKey: String
+  commentSortOrder: String
+  hideAuthor: Boolean
+  sideCommentVisibility: String
+  disableSidenotes: Boolean
+  moderationStyle: String
+  ignoreRateLimits: Boolean
+  hideCommentKarma: Boolean
+  collabEditorDialogue: Boolean
+  rejected: Boolean
+  rejectedReason: String
+  rejectedByUserId: String
+  subforumTagId: String
+  af: Boolean
+  afDate: Date
+  afSticky: Boolean
+  suggestForAlignmentUserIds: [String]
+  reviewForAlignmentUserId: String
+  agentFoundationsId: String
+  swrCachingEnabled: Boolean
+  generateDraftJargon: Boolean
+}
+
+input UpdatePostInput {
+  selector: SelectorInput!
+  data: UpdatePostDataInput!
+}
+
+type PostOutput {
+  data: Post
+}
+
+extend type Mutation {
+  createPost(data: CreatePostDataInput!): PostOutput
+  updatePost(selector: SelectorInput!, data: UpdatePostDataInput!): PostOutput
+}
+
+input CreateRSSFeedDataInput {
+  legacyData: JSON
+  userId: String
+  ownedByUser: Boolean
+  displayFullContent: Boolean
+  nickname: String
+  url: String
+  rawFeed: JSON
+  setCanonicalUrl: Boolean
+  importAsDraft: Boolean
+}
+
+input CreateRSSFeedInput {
+  data: CreateRSSFeedDataInput!
+}
+
+input UpdateRSSFeedDataInput {
+  legacyData: JSON
+  userId: String
+  ownedByUser: Boolean
+  displayFullContent: Boolean
+  nickname: String
+  url: String
+  status: String
+  rawFeed: JSON
+  setCanonicalUrl: Boolean
+  importAsDraft: Boolean
+}
+
+input UpdateRSSFeedInput {
+  selector: SelectorInput!
+  data: UpdateRSSFeedDataInput!
+}
+
+type RSSFeedOutput {
+  data: RSSFeed
+}
+
+extend type Mutation {
+  createRSSFeed(data: CreateRSSFeedDataInput!): RSSFeedOutput
+  updateRSSFeed(selector: SelectorInput!, data: UpdateRSSFeedDataInput!): RSSFeedOutput
+}
+
+input CreateReportDataInput {
+  legacyData: JSON
+  userId: String
+  reportedUserId: String
+  commentId: String
+  postId: String
+  link: String!
+  claimedUserId: String
+  description: String
+  reportedAsSpam: Boolean
+}
+
+input CreateReportInput {
+  data: CreateReportDataInput!
+}
+
+input UpdateReportDataInput {
+  createdAt: Date
+  legacyData: JSON
+  claimedUserId: String
+  description: String
+  closedAt: Date
+  markedAsSpam: Boolean
+  reportedAsSpam: Boolean
+}
+
+input UpdateReportInput {
+  selector: SelectorInput!
+  data: UpdateReportDataInput!
+}
+
+type ReportOutput {
+  data: Report
+}
+
+extend type Mutation {
+  createReport(data: CreateReportDataInput!): ReportOutput
+  updateReport(selector: SelectorInput!, data: UpdateReportDataInput!): ReportOutput
+}
+
+input UpdateRevisionDataInput {
+  legacyData: JSON
+  skipAttributions: Boolean
+}
+
+input UpdateRevisionInput {
+  selector: SelectorInput!
+  data: UpdateRevisionDataInput!
+}
+
+type RevisionOutput {
+  data: Revision
+}
+
+extend type Mutation {
+  updateRevision(selector: SelectorInput!, data: UpdateRevisionDataInput!): RevisionOutput
+}
+
+input CreateSequenceDataInput {
+  legacyData: JSON
+  contents: JSON
+  lastUpdated: Date
+  userId: String
+  title: String!
+  bannerImageId: String
+  gridImageId: String
+  hideFromAuthorPage: Boolean
+  draft: Boolean
+  isDeleted: Boolean
+  curatedOrder: Float
+  userProfileOrder: Float
+  canonicalCollectionSlug: String
+  hidden: Boolean
+  noindex: Boolean
+  af: Boolean
+}
+
+input CreateSequenceInput {
+  data: CreateSequenceDataInput!
+}
+
+input UpdateSequenceDataInput {
+  legacyData: JSON
+  contents: JSON
+  lastUpdated: Date
+  userId: String
+  title: String
+  bannerImageId: String
+  gridImageId: String
+  hideFromAuthorPage: Boolean
+  draft: Boolean
+  isDeleted: Boolean
+  curatedOrder: Float
+  userProfileOrder: Float
+  canonicalCollectionSlug: String
+  hidden: Boolean
+  noindex: Boolean
+  af: Boolean
+}
+
+input UpdateSequenceInput {
+  selector: SelectorInput!
+  data: UpdateSequenceDataInput!
+}
+
+type SequenceOutput {
+  data: Sequence
+}
+
+extend type Mutation {
+  createSequence(data: CreateSequenceDataInput!): SequenceOutput
+  updateSequence(selector: SelectorInput!, data: UpdateSequenceDataInput!): SequenceOutput
+}
+
+input CreateSplashArtCoordinateDataInput {
+  legacyData: JSON
+  reviewWinnerArtId: String!
+  leftXPct: Float!
+  leftYPct: Float!
+  leftHeightPct: Float!
+  leftWidthPct: Float!
+  leftFlipped: Boolean
+  middleXPct: Float!
+  middleYPct: Float!
+  middleHeightPct: Float!
+  middleWidthPct: Float!
+  middleFlipped: Boolean
+  rightXPct: Float!
+  rightYPct: Float!
+  rightHeightPct: Float!
+  rightWidthPct: Float!
+  rightFlipped: Boolean!
+}
+
+input CreateSplashArtCoordinateInput {
+  data: CreateSplashArtCoordinateDataInput!
+}
+
+input UpdateSplashArtCoordinateDataInput {
+  legacyData: JSON
+  reviewWinnerArtId: String
+  leftXPct: Float
+  leftYPct: Float
+  leftHeightPct: Float
+  leftWidthPct: Float
+  leftFlipped: Boolean
+  middleXPct: Float
+  middleYPct: Float
+  middleHeightPct: Float
+  middleWidthPct: Float
+  middleFlipped: Boolean
+  rightXPct: Float
+  rightYPct: Float
+  rightHeightPct: Float
+  rightWidthPct: Float
+  rightFlipped: Boolean
+}
+
+input UpdateSplashArtCoordinateInput {
+  selector: SelectorInput!
+  data: UpdateSplashArtCoordinateDataInput!
+}
+
+type SplashArtCoordinateOutput {
+  data: SplashArtCoordinate
+}
+
+extend type Mutation {
+  createSplashArtCoordinate(data: CreateSplashArtCoordinateDataInput!): SplashArtCoordinateOutput
+  updateSplashArtCoordinate(selector: SelectorInput!, data: UpdateSplashArtCoordinateDataInput!): SplashArtCoordinateOutput
+}
+
+input CreateSpotlightDataInput {
+  legacyData: JSON
+  description: JSON
+  documentId: String!
+  documentType: String!
+  position: Float
+  duration: Float!
+  customTitle: String
+  customSubtitle: String
+  subtitleUrl: String
+  headerTitle: String
+  headerTitleLeftColor: String
+  headerTitleRightColor: String
+  lastPromotedAt: Date!
+  spotlightSplashImageUrl: String
+  draft: Boolean!
+  showAuthor: Boolean
+  imageFade: Boolean
+  imageFadeColor: String
+  spotlightImageId: String
+  spotlightDarkImageId: String
+}
+
+input CreateSpotlightInput {
+  data: CreateSpotlightDataInput!
+}
+
+input UpdateSpotlightDataInput {
+  legacyData: JSON
+  description: JSON
+  documentId: String
+  documentType: String
+  position: Float
+  duration: Float
+  customTitle: String
+  customSubtitle: String
+  subtitleUrl: String
+  headerTitle: String
+  headerTitleLeftColor: String
+  headerTitleRightColor: String
+  lastPromotedAt: Date
+  spotlightSplashImageUrl: String
+  draft: Boolean
+  deletedDraft: Boolean
+  showAuthor: Boolean
+  imageFade: Boolean
+  imageFadeColor: String
+  spotlightImageId: String
+  spotlightDarkImageId: String
+}
+
+input UpdateSpotlightInput {
+  selector: SelectorInput!
+  data: UpdateSpotlightDataInput!
+}
+
+type SpotlightOutput {
+  data: Spotlight
+}
+
+extend type Mutation {
+  createSpotlight(data: CreateSpotlightDataInput!): SpotlightOutput
+  updateSpotlight(selector: SelectorInput!, data: UpdateSpotlightDataInput!): SpotlightOutput
+}
+
+input CreateSubscriptionDataInput {
+  legacyData: JSON
+  state: String!
+  documentId: String!
+  collectionName: String!
+  type: String!
+}
+
+input CreateSubscriptionInput {
+  data: CreateSubscriptionDataInput!
+}
+
+type SubscriptionOutput {
+  data: Subscription
+}
+
+extend type Mutation {
+  createSubscription(data: CreateSubscriptionDataInput!): SubscriptionOutput
+}
+
+input CreateSurveyQuestionDataInput {
+  legacyData: JSON
+  surveyId: String!
+  question: String!
+  format: String!
+  order: Float!
+}
+
+input CreateSurveyQuestionInput {
+  data: CreateSurveyQuestionDataInput!
+}
+
+input UpdateSurveyQuestionDataInput {
+  legacyData: JSON
+  surveyId: String
+  question: String
+  format: String
+  order: Float
+}
+
+input UpdateSurveyQuestionInput {
+  selector: SelectorInput!
+  data: UpdateSurveyQuestionDataInput!
+}
+
+type SurveyQuestionOutput {
+  data: SurveyQuestion
+}
+
+extend type Mutation {
+  createSurveyQuestion(data: CreateSurveyQuestionDataInput!): SurveyQuestionOutput
+  updateSurveyQuestion(selector: SelectorInput!, data: UpdateSurveyQuestionDataInput!): SurveyQuestionOutput
+}
+
+input CreateSurveyResponseDataInput {
+  legacyData: JSON
+  surveyId: String!
+  surveyScheduleId: String!
+  userId: String!
+  clientId: String!
+  response: JSON!
+}
+
+input CreateSurveyResponseInput {
+  data: CreateSurveyResponseDataInput!
+}
+
+input UpdateSurveyResponseDataInput {
+  legacyData: JSON
+  surveyId: String
+  surveyScheduleId: String
+  userId: String
+  clientId: String
+  response: JSON
+}
+
+input UpdateSurveyResponseInput {
+  selector: SelectorInput!
+  data: UpdateSurveyResponseDataInput!
+}
+
+type SurveyResponseOutput {
+  data: SurveyResponse
+}
+
+extend type Mutation {
+  createSurveyResponse(data: CreateSurveyResponseDataInput!): SurveyResponseOutput
+  updateSurveyResponse(selector: SelectorInput!, data: UpdateSurveyResponseDataInput!): SurveyResponseOutput
+}
+
+input CreateSurveyScheduleDataInput {
+  legacyData: JSON
+  surveyId: String!
+  name: String!
+  impressionsLimit: Float
+  maxVisitorPercentage: Float
+  minKarma: Float
+  maxKarma: Float
+  target: String!
+  startDate: Date
+  endDate: Date
+  deactivated: Boolean
+  clientIds: [String]!
+}
+
+input CreateSurveyScheduleInput {
+  data: CreateSurveyScheduleDataInput!
+}
+
+input UpdateSurveyScheduleDataInput {
+  legacyData: JSON
+  surveyId: String
+  name: String
+  impressionsLimit: Float
+  maxVisitorPercentage: Float
+  minKarma: Float
+  maxKarma: Float
+  target: String
+  startDate: Date
+  endDate: Date
+  deactivated: Boolean
+  clientIds: [String]
+}
+
+input UpdateSurveyScheduleInput {
+  selector: SelectorInput!
+  data: UpdateSurveyScheduleDataInput!
+}
+
+type SurveyScheduleOutput {
+  data: SurveySchedule
+}
+
+extend type Mutation {
+  createSurveySchedule(data: CreateSurveyScheduleDataInput!): SurveyScheduleOutput
+  updateSurveySchedule(selector: SelectorInput!, data: UpdateSurveyScheduleDataInput!): SurveyScheduleOutput
+}
+
+input CreateSurveyDataInput {
+  legacyData: JSON
+  name: String!
+}
+
+input CreateSurveyInput {
+  data: CreateSurveyDataInput!
+}
+
+input UpdateSurveyDataInput {
+  legacyData: JSON
+  name: String
+}
+
+input UpdateSurveyInput {
+  selector: SelectorInput!
+  data: UpdateSurveyDataInput!
+}
+
+type SurveyOutput {
+  data: Survey
+}
+
+extend type Mutation {
+  createSurvey(data: CreateSurveyDataInput!): SurveyOutput
+  updateSurvey(selector: SelectorInput!, data: UpdateSurveyDataInput!): SurveyOutput
+}
+
+input CreateTagFlagDataInput {
+  legacyData: JSON
+  contents: JSON
+  slug: String
+  name: String!
+  deleted: Boolean
+  order: Float
+}
+
+input CreateTagFlagInput {
+  data: CreateTagFlagDataInput!
+}
+
+input UpdateTagFlagDataInput {
+  legacyData: JSON
+  contents: JSON
+  slug: String
+  name: String
+  deleted: Boolean
+  order: Float
+}
+
+input UpdateTagFlagInput {
+  selector: SelectorInput!
+  data: UpdateTagFlagDataInput!
+}
+
+type TagFlagOutput {
+  data: TagFlag
+}
+
+extend type Mutation {
+  createTagFlag(data: CreateTagFlagDataInput!): TagFlagOutput
+  updateTagFlag(selector: SelectorInput!, data: UpdateTagFlagDataInput!): TagFlagOutput
+}
+
+input CreateTagRelDataInput {
+  legacyData: JSON
+  tagId: String!
+  postId: String!
+  userId: String!
+}
+
+input CreateTagRelInput {
+  data: CreateTagRelDataInput!
+}
+
+input UpdateTagRelDataInput {
+  legacyData: JSON
+  deleted: Boolean
+}
+
+input UpdateTagRelInput {
+  selector: SelectorInput!
+  data: UpdateTagRelDataInput!
+}
+
+type TagRelOutput {
+  data: TagRel
+}
+
+extend type Mutation {
+  createTagRel(data: CreateTagRelDataInput!): TagRelOutput
+  updateTagRel(selector: SelectorInput!, data: UpdateTagRelDataInput!): TagRelOutput
+}
+
+input CreateTagDataInput {
+  legacyData: JSON
+  description: JSON
+  subforumWelcomeText: JSON
+  moderationGuidelines: JSON
+  slug: String
+  name: String!
+  shortName: String
+  subtitle: String
+  core: Boolean
+  isPostType: Boolean
+  suggestedAsFilter: Boolean
+  defaultOrder: Float
+  descriptionTruncationCount: Float
+  adminOnly: Boolean
+  canEditUserIds: [String]
+  reviewedByUserId: String
+  wikiGrade: Int
+  wikiOnly: Boolean
+  bannerImageId: String
+  squareImageId: String
+  tagFlagsIds: [String]
+  introSequenceId: String
+  postsDefaultSortOrder: String
+  canVoteOnRels: [String]
+  isSubforum: Boolean
+  subforumModeratorIds: [String]
+  subforumIntroPostId: String
+  parentTagId: String
+  subTagIds: [String]
+  autoTagModel: String
+  autoTagPrompt: String
+  coreTagId: String
+  forceAllowType3Audio: Boolean
+}
+
+input CreateTagInput {
+  data: CreateTagDataInput!
+}
+
+input UpdateTagDataInput {
+  legacyData: JSON
+  description: JSON
+  subforumWelcomeText: JSON
+  moderationGuidelines: JSON
+  slug: String
+  name: String
+  shortName: String
+  subtitle: String
+  core: Boolean
+  isPostType: Boolean
+  suggestedAsFilter: Boolean
+  defaultOrder: Float
+  descriptionTruncationCount: Float
+  adminOnly: Boolean
+  canEditUserIds: [String]
+  deleted: Boolean
+  needsReview: Boolean
+  reviewedByUserId: String
+  wikiGrade: Int
+  wikiOnly: Boolean
+  bannerImageId: String
+  squareImageId: String
+  tagFlagsIds: [String]
+  introSequenceId: String
+  postsDefaultSortOrder: String
+  canVoteOnRels: [String]
+  isSubforum: Boolean
+  subforumModeratorIds: [String]
+  subforumIntroPostId: String
+  parentTagId: String
+  subTagIds: [String]
+  autoTagModel: String
+  autoTagPrompt: String
+  noindex: Boolean
+  isPlaceholderPage: Boolean
+  coreTagId: String
+  forceAllowType3Audio: Boolean
+}
+
+input UpdateTagInput {
+  selector: SelectorInput!
+  data: UpdateTagDataInput!
+}
+
+type TagOutput {
+  data: Tag
+}
+
+extend type Mutation {
+  createTag(data: CreateTagDataInput!): TagOutput
+  updateTag(selector: SelectorInput!, data: UpdateTagDataInput!): TagOutput
+}
+
+input CreateUserEAGDetailDataInput {
+  legacyData: JSON
+  lastUpdated: Date
+}
+
+input CreateUserEAGDetailInput {
+  data: CreateUserEAGDetailDataInput!
+}
+
+input UpdateUserEAGDetailDataInput {
+  legacyData: JSON
+  careerStage: [String]
+  countryOrRegion: String
+  nearestCity: String
+  willingnessToRelocate: JSON
+  experiencedIn: [String]
+  interestedIn: [String]
+  lastUpdated: Date
+}
+
+input UpdateUserEAGDetailInput {
+  selector: SelectorInput!
+  data: UpdateUserEAGDetailDataInput!
+}
+
+type UserEAGDetailOutput {
+  data: UserEAGDetail
+}
+
+extend type Mutation {
+  createUserEAGDetail(data: CreateUserEAGDetailDataInput!): UserEAGDetailOutput
+  updateUserEAGDetail(selector: SelectorInput!, data: UpdateUserEAGDetailDataInput!): UserEAGDetailOutput
+}
+
+input CreateUserJobAdDataInput {
+  legacyData: JSON
+  userId: String!
+  jobName: String!
+  adState: String!
+  reminderSetAt: Date
+  lastUpdated: Date
+}
+
+input CreateUserJobAdInput {
+  data: CreateUserJobAdDataInput!
+}
+
+input UpdateUserJobAdDataInput {
+  legacyData: JSON
+  adState: String
+  reminderSetAt: Date
+  lastUpdated: Date
+}
+
+input UpdateUserJobAdInput {
+  selector: SelectorInput!
+  data: UpdateUserJobAdDataInput!
+}
+
+type UserJobAdOutput {
+  data: UserJobAd
+}
+
+extend type Mutation {
+  createUserJobAd(data: CreateUserJobAdDataInput!): UserJobAdOutput
+  updateUserJobAd(selector: SelectorInput!, data: UpdateUserJobAdDataInput!): UserJobAdOutput
+}
+
+input CreateUserMostValuablePostDataInput {
+  legacyData: JSON
+  userId: String!
+  postId: String!
+  deleted: Boolean
+}
+
+input CreateUserMostValuablePostInput {
+  data: CreateUserMostValuablePostDataInput!
+}
+
+input UpdateUserMostValuablePostDataInput {
+  legacyData: JSON
+  userId: String
+  postId: String
+  deleted: Boolean
+}
+
+input UpdateUserMostValuablePostInput {
+  selector: SelectorInput!
+  data: UpdateUserMostValuablePostDataInput!
+}
+
+type UserMostValuablePostOutput {
+  data: UserMostValuablePost
+}
+
+extend type Mutation {
+  createUserMostValuablePost(data: CreateUserMostValuablePostDataInput!): UserMostValuablePostOutput
+  updateUserMostValuablePost(selector: SelectorInput!, data: UpdateUserMostValuablePostDataInput!): UserMostValuablePostOutput
+}
+
+input CreateUserRateLimitDataInput {
+  legacyData: JSON
+  userId: String!
+  type: String!
+  intervalUnit: String!
+  intervalLength: Float!
+  actionsPerInterval: Float!
+  endedAt: Date
+}
+
+input CreateUserRateLimitInput {
+  data: CreateUserRateLimitDataInput!
+}
+
+input UpdateUserRateLimitDataInput {
+  legacyData: JSON
+  userId: String
+  type: String
+  intervalUnit: String
+  intervalLength: Float
+  actionsPerInterval: Float
+  endedAt: Date
+}
+
+input UpdateUserRateLimitInput {
+  selector: SelectorInput!
+  data: UpdateUserRateLimitDataInput!
+}
+
+type UserRateLimitOutput {
+  data: UserRateLimit
+}
+
+extend type Mutation {
+  createUserRateLimit(data: CreateUserRateLimitDataInput!): UserRateLimitOutput
+  updateUserRateLimit(selector: SelectorInput!, data: UpdateUserRateLimitDataInput!): UserRateLimitOutput
+}
+
+input CreateUserTagRelDataInput {
+  legacyData: JSON
+  tagId: String!
+  userId: String!
+  subforumShowUnreadInSidebar: Boolean
+  subforumEmailNotifications: Boolean
+  subforumHideIntroPost: Boolean
+}
+
+input CreateUserTagRelInput {
+  data: CreateUserTagRelDataInput!
+}
+
+input UpdateUserTagRelDataInput {
+  legacyData: JSON
+  subforumShowUnreadInSidebar: Boolean
+  subforumEmailNotifications: Boolean
+  subforumHideIntroPost: Boolean
+}
+
+input UpdateUserTagRelInput {
+  selector: SelectorInput!
+  data: UpdateUserTagRelDataInput!
+}
+
+type UserTagRelOutput {
+  data: UserTagRel
+}
+
+extend type Mutation {
+  createUserTagRel(data: CreateUserTagRelDataInput!): UserTagRelOutput
+  updateUserTagRel(selector: SelectorInput!, data: UpdateUserTagRelDataInput!): UserTagRelOutput
+}
+
+input CreateUserDataInput {
+  legacyData: JSON
+  moderationGuidelines: JSON
+  howOthersCanHelpMe: JSON
+  howICanHelpOthers: JSON
+  slug: String
+  biography: JSON
+  username: String
+  isAdmin: Boolean
+  displayName: String
+  previousDisplayName: String
+  email: String
+  groups: [String]
+  theme: JSON
+  lastUsedTimezone: String
+  whenConfirmationEmailSent: Date
+  legacy: Boolean
+  commentSorting: String
+  noKibitz: Boolean
+  showHideKarmaOption: Boolean
+  showPostAuthorCard: Boolean
+  hideIntercom: Boolean
+  noSingleLineComments: Boolean
+  noCollapseCommentsPosts: Boolean
+  noCollapseCommentsFrontpage: Boolean
+  hideCommunitySection: Boolean
+  expandedFrontpageSections: JSON
+  showCommunityInRecentDiscussion: Boolean
+  hidePostsRecommendations: Boolean
+  petrovOptOut: Boolean
+  optedOutOfSurveys: Boolean
+  postGlossariesPinned: Boolean
+  acceptedTos: Boolean
+  hideNavigationSidebar: Boolean
+  currentFrontpageFilter: String
+  frontpageSelectedTab: String
+  frontpageFilterSettings: JSON
+  hideFrontpageFilterSettingsDesktop: Boolean
+  allPostsTimeframe: String
+  allPostsFilter: String
+  allPostsSorting: String
+  allPostsShowLowKarma: Boolean
+  allPostsIncludeEvents: Boolean
+  allPostsHideCommunity: Boolean
+  allPostsOpenSettings: Boolean
+  draftsListSorting: String
+  draftsListShowArchived: Boolean
+  draftsListShowShared: Boolean
+  lastNotificationsCheck: Date
+  moderationStyle: String
+  moderatorAssistance: Boolean
+  collapseModerationGuidelines: Boolean
+  bannedUserIds: [String]
+  bannedPersonalUserIds: [String]
+  legacyId: String
+  voteBanned: Boolean
+  nullifyVotes: Boolean
+  deleteContent: Boolean
+  banned: Date
+  auto_subscribe_to_my_posts: Boolean
+  auto_subscribe_to_my_comments: Boolean
+  autoSubscribeAsOrganizer: Boolean
+  notificationCommentsOnSubscribedPost: JSON
+  notificationShortformContent: JSON
+  notificationRepliesToMyComments: JSON
+  notificationRepliesToSubscribedComments: JSON
+  notificationSubscribedUserPost: JSON
+  notificationSubscribedUserComment: JSON
+  notificationPostsInGroups: JSON
+  notificationSubscribedTagPost: JSON
+  notificationSubscribedSequencePost: JSON
+  notificationPrivateMessage: JSON
+  notificationSharedWithMe: JSON
+  notificationAlignmentSubmissionApproved: JSON
+  notificationEventInRadius: JSON
+  notificationKarmaPowersGained: JSON
+  notificationRSVPs: JSON
+  notificationGroupAdministration: JSON
+  notificationCommentsOnDraft: JSON
+  notificationPostsNominatedReview: JSON
+  notificationSubforumUnread: JSON
+  notificationNewMention: JSON
+  notificationDialogueMessages: JSON
+  notificationPublishedDialogueMessages: JSON
+  notificationAddedAsCoauthor: JSON
+  notificationDebateCommentsOnSubscribedPost: JSON
+  notificationDebateReplies: JSON
+  notificationDialogueMatch: JSON
+  notificationNewDialogueChecks: JSON
+  notificationYourTurnMatchForm: JSON
+  hideDialogueFacilitation: Boolean
+  revealChecksToAdmins: Boolean
+  optedInToDialogueFacilitation: Boolean
+  showDialoguesList: Boolean
+  showMyDialogues: Boolean
+  showMatches: Boolean
+  showRecommendedPartners: Boolean
+  hideActiveDialogueUsers: Boolean
+  karmaChangeNotifierSettings: JSON
+  karmaChangeLastOpened: Date
+  karmaChangeBatchStart: Date
+  emailSubscribedToCurated: Boolean
+  subscribedToDigest: Boolean
+  unsubscribeFromAll: Boolean
+  hideSubscribePoke: Boolean
+  hideMeetupsPoke: Boolean
+  hideHomeRHS: Boolean
+  googleLocation: JSON
+  location: String
+  mapLocation: JSON
+  mapMarkerText: String
+  nearbyEventsNotifications: Boolean
+  nearbyEventsNotificationsLocation: JSON
+  nearbyEventsNotificationsRadius: Float
+  nearbyPeopleNotificationThreshold: Float
+  hideFrontpageMap: Boolean
+  hideTaggingProgressBar: Boolean
+  hideFrontpageBookAd: Boolean
+  hideFrontpageBook2019Ad: Boolean
+  hideFrontpageBook2020Ad: Boolean
+  reviewedByUserId: String
+  shortformFeedId: String
+  viewUnreviewedComments: Boolean
+  noExpandUnreadCommentsReview: Boolean
+  profileUpdatedAt: Date
+  jobTitle: String
+  organization: String
+  careerStage: [String]
+  website: String
+  fmCrosspostUserId: String
+  linkedinProfileURL: String
+  facebookProfileURL: String
+  blueskyProfileURL: String
+  twitterProfileURL: String
+  twitterProfileURLAdmin: String
+  githubProfileURL: String
+  profileTagIds: [String]
+  organizerOfGroupIds: [String]
+  programParticipation: [String]
+  postingDisabled: Boolean
+  allCommentingDisabled: Boolean
+  commentingOnOtherUsersDisabled: Boolean
+  conversationsDisabled: Boolean
+  acknowledgedNewUserGuidelines: Boolean
+  subforumPreferredLayout: String
+  hideJobAdUntil: Date
+  criticismTipsDismissed: Boolean
+  hideFromPeopleDirectory: Boolean
+  allowDatadogSessionReplay: Boolean
+  reviewForAlignmentForumUserId: String
+  afSubmittedApplication: Boolean
+  hideSunshineSidebar: Boolean
+  inactiveSurveyEmailSentAt: Date
+  userSurveyEmailSentAt: Date
+}
+
+input CreateUserInput {
+  data: CreateUserDataInput!
+}
+
+input UpdateUserDataInput {
+  legacyData: JSON
+  moderationGuidelines: JSON
+  howOthersCanHelpMe: JSON
+  howICanHelpOthers: JSON
+  slug: String
+  biography: JSON
+  username: String
+  isAdmin: Boolean
+  displayName: String
+  previousDisplayName: String
+  email: String
+  noindex: Boolean
+  groups: [String]
+  theme: JSON
+  lastUsedTimezone: String
+  whenConfirmationEmailSent: Date
+  legacy: Boolean
+  commentSorting: String
+  sortDraftsBy: String
+  reactPaletteStyle: String
+  noKibitz: Boolean
+  showHideKarmaOption: Boolean
+  showPostAuthorCard: Boolean
+  hideIntercom: Boolean
+  markDownPostEditor: Boolean
+  hideElicitPredictions: Boolean
+  hideAFNonMemberInitialWarning: Boolean
+  noSingleLineComments: Boolean
+  noCollapseCommentsPosts: Boolean
+  noCollapseCommentsFrontpage: Boolean
+  hideCommunitySection: Boolean
+  expandedFrontpageSections: JSON
+  showCommunityInRecentDiscussion: Boolean
+  hidePostsRecommendations: Boolean
+  petrovOptOut: Boolean
+  optedOutOfSurveys: Boolean
+  postGlossariesPinned: Boolean
+  generateJargonForDrafts: Boolean
+  generateJargonForPublishedPosts: Boolean
+  acceptedTos: Boolean
+  hideNavigationSidebar: Boolean
+  currentFrontpageFilter: String
+  frontpageSelectedTab: String
+  frontpageFilterSettings: JSON
+  hideFrontpageFilterSettingsDesktop: Boolean
+  allPostsTimeframe: String
+  allPostsFilter: String
+  allPostsSorting: String
+  allPostsShowLowKarma: Boolean
+  allPostsIncludeEvents: Boolean
+  allPostsHideCommunity: Boolean
+  allPostsOpenSettings: Boolean
+  draftsListSorting: String
+  draftsListShowArchived: Boolean
+  draftsListShowShared: Boolean
+  lastNotificationsCheck: Date
+  moderationStyle: String
+  moderatorAssistance: Boolean
+  collapseModerationGuidelines: Boolean
+  bannedUserIds: [String]
+  bannedPersonalUserIds: [String]
+  bookmarkedPostsMetadata: [JSON]
+  hiddenPostsMetadata: [JSON]
+  legacyId: String
+  deleted: Boolean
+  permanentDeletionRequestedAt: Date
+  voteBanned: Boolean
+  nullifyVotes: Boolean
+  deleteContent: Boolean
+  banned: Date
+  auto_subscribe_to_my_posts: Boolean
+  auto_subscribe_to_my_comments: Boolean
+  autoSubscribeAsOrganizer: Boolean
+  notificationCommentsOnSubscribedPost: JSON
+  notificationShortformContent: JSON
+  notificationRepliesToMyComments: JSON
+  notificationRepliesToSubscribedComments: JSON
+  notificationSubscribedUserPost: JSON
+  notificationSubscribedUserComment: JSON
+  notificationPostsInGroups: JSON
+  notificationSubscribedTagPost: JSON
+  notificationSubscribedSequencePost: JSON
+  notificationPrivateMessage: JSON
+  notificationSharedWithMe: JSON
+  notificationAlignmentSubmissionApproved: JSON
+  notificationEventInRadius: JSON
+  notificationKarmaPowersGained: JSON
+  notificationRSVPs: JSON
+  notificationGroupAdministration: JSON
+  notificationCommentsOnDraft: JSON
+  notificationPostsNominatedReview: JSON
+  notificationSubforumUnread: JSON
+  notificationNewMention: JSON
+  notificationDialogueMessages: JSON
+  notificationPublishedDialogueMessages: JSON
+  notificationAddedAsCoauthor: JSON
+  notificationDebateCommentsOnSubscribedPost: JSON
+  notificationDebateReplies: JSON
+  notificationDialogueMatch: JSON
+  notificationNewDialogueChecks: JSON
+  notificationYourTurnMatchForm: JSON
+  hideDialogueFacilitation: Boolean
+  revealChecksToAdmins: Boolean
+  optedInToDialogueFacilitation: Boolean
+  showDialoguesList: Boolean
+  showMyDialogues: Boolean
+  showMatches: Boolean
+  showRecommendedPartners: Boolean
+  hideActiveDialogueUsers: Boolean
+  karmaChangeNotifierSettings: JSON
+  karmaChangeLastOpened: Date
+  karmaChangeBatchStart: Date
+  emailSubscribedToCurated: Boolean
+  subscribedToDigest: Boolean
+  unsubscribeFromAll: Boolean
+  hideSubscribePoke: Boolean
+  hideMeetupsPoke: Boolean
+  hideHomeRHS: Boolean
+  googleLocation: JSON
+  location: String
+  mapLocation: JSON
+  mapMarkerText: String
+  nearbyEventsNotifications: Boolean
+  nearbyEventsNotificationsLocation: JSON
+  nearbyEventsNotificationsRadius: Float
+  nearbyPeopleNotificationThreshold: Float
+  hideFrontpageMap: Boolean
+  hideTaggingProgressBar: Boolean
+  hideFrontpageBook2019Ad: Boolean
+  hideFrontpageBook2020Ad: Boolean
+  sunshineNotes: String
+  sunshineFlagged: Boolean
+  needsReview: Boolean
+  sunshineSnoozed: Boolean
+  snoozedUntilContentCount: Float
+  reviewedByUserId: String
+  reviewedAt: Date
+  fullName: String
+  shortformFeedId: String
+  viewUnreviewedComments: Boolean
+  partiallyReadSequences: [JSON]
+  beta: Boolean
+  reviewVotesQuadratic: Boolean
+  reviewVotesQuadratic2019: Boolean
+  reviewVotesQuadratic2020: Boolean
+  petrovPressedButtonDate: Date
+  petrovLaunchCodeDate: Date
+  defaultToCKEditor: Boolean
+  signUpReCaptchaRating: Float
+  noExpandUnreadCommentsReview: Boolean
+  abTestKey: String
+  abTestOverrides: JSON
+  walledGardenInvite: Boolean
+  walledGardenPortalOnboarded: Boolean
+  taggingDashboardCollapsed: Boolean
+  usernameUnset: Boolean
+  paymentEmail: String
+  paymentInfo: String
+  profileUpdatedAt: Date
+  profileImageId: String
+  jobTitle: String
+  organization: String
+  careerStage: [String]
+  website: String
+  fmCrosspostUserId: String
+  linkedinProfileURL: String
+  facebookProfileURL: String
+  blueskyProfileURL: String
+  twitterProfileURL: String
+  twitterProfileURLAdmin: String
+  githubProfileURL: String
+  profileTagIds: [String]
+  organizerOfGroupIds: [String]
+  programParticipation: [String]
+  postingDisabled: Boolean
+  allCommentingDisabled: Boolean
+  commentingOnOtherUsersDisabled: Boolean
+  conversationsDisabled: Boolean
+  acknowledgedNewUserGuidelines: Boolean
+  subforumPreferredLayout: String
+  hideJobAdUntil: Date
+  criticismTipsDismissed: Boolean
+  hideFromPeopleDirectory: Boolean
+  allowDatadogSessionReplay: Boolean
+  reviewForAlignmentForumUserId: String
+  afApplicationText: String
+  afSubmittedApplication: Boolean
+  hideSunshineSidebar: Boolean
+  inactiveSurveyEmailSentAt: Date
+  userSurveyEmailSentAt: Date
+  recommendationSettings: JSON
+}
+
+input UpdateUserInput {
+  selector: SelectorInput!
+  data: UpdateUserDataInput!
+}
+
+type UserOutput {
+  data: User
+}
+
+extend type Mutation {
+  createUser(data: CreateUserDataInput!): UserOutput
+  updateUser(selector: SelectorInput!, data: UpdateUserDataInput!): UserOutput
+}

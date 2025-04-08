@@ -27,7 +27,7 @@ import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
-import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
+import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
@@ -35,6 +35,8 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+
+import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -379,11 +381,12 @@ const Layout = ({currentUser, children, classes}: {
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
-      <CurrentForumEventProvider>
+      <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
         )} id="wrapper">
+          {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -489,7 +492,7 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
-      </CurrentForumEventProvider>
+      </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>

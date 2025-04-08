@@ -11,7 +11,7 @@ import {
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from "./helpers";
-import { getVotingSystemNameForDocument } from "../../voting/votingSystems";
+import { getVotingSystemNameForDocument } from "../../voting/getVotingSystem";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { quickTakesTagsEnabledSetting } from "../../publicSettings";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";

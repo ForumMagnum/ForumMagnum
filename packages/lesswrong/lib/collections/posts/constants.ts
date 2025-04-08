@@ -42,7 +42,7 @@ export const postStatusLabels = [
 ];
 
 const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
-const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
+export const openThreadTagIdSetting = new DatabasePublicSetting<string>('openThreadTagId', 'eTLv8KzwBGcDip9Wi')
 export const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
 
 // Cute hack

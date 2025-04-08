@@ -89,7 +89,10 @@ const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         By clicking "Accept all" you agree to their use. Customise your{" "}
         <a
           onClick={() => {
-            openDialog({ componentName: "CookieDialog", componentProps: {} });
+            openDialog({
+              name: "CookieDialog",
+              contents: ({onClose}) => <Components.CookieDialog onClose={onClose} />
+            });
           }}
         >
           cookie settings

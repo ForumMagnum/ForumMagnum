@@ -30,8 +30,6 @@ import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/sch
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import gql from 'graphql-tag'; 
 import * as _ from 'underscore';
-import { pluralize } from "../../../lib/vulcan-lib/pluralize";
-import { camelCaseify, camelToSpaces } from "../../../lib/vulcan-lib/utils";
 import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
@@ -39,7 +37,7 @@ import { graphqlTypeDefs as additionalPostsTypeDefs } from '@/lib/collections/po
 import { graphqlTypeDefs as additionalRevisionsTypeDefs } from '@/lib/collections/revisions/newSchema';
 import { graphqlTypeDefs as additionalTagsTypeDefs } from '@/lib/collections/tags/newSchema';
 import { graphqlTypeDefs as additionalUsersTypeDefs } from '@/lib/collections/users/newSchema';
-import { graphqlTypeDefs as additionalRecommendationsTypeDefs } from '@/server/recommendations';
+import { graphqlTypeDefs as recommendationsTypeDefs, graphqlQueries as recommendationsQueries } from '@/server/recommendations';
 import { graphqlTypeDefs as userResolversTypeDefs, graphqlMutations as userResolversMutations, graphqlQueries as userResolversQueries } from '@/server/resolvers/userResolvers';
 import { graphqlVoteTypeDefs as postVoteTypeDefs, graphqlVoteMutations as postVoteMutations } from '@/server/collections/posts/collection';
 import { graphqlVoteTypeDefs as commentVoteTypeDefs, graphqlVoteMutations as commentVoteMutations } from '@/server/collections/comments/collection';
@@ -52,7 +50,6 @@ import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutation
 import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
 import { analyticsGraphQLQueries, analyticsGraphQLTypeDefs } from '@/server/resolvers/analyticsResolvers';
 import { arbitalGraphQLTypeDefs, arbitalGraphQLQueries } from '@/server/resolvers/arbitalPageData';
-import { coronaLinkDatabaseGraphQLTypeDefs, coronaLinkDatabaseGraphQLQueries } from '@/server/resolvers/coronaLinkDatabase';
 import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elicitPredictionsGraphQLFieldResolvers, elicitPredictionsGraphQLMutations } from '@/server/resolvers/elicitPredictions';
 import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
 import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
@@ -158,6 +155,8 @@ import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphql
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
 import { getSchema } from '@/lib/schema/allSchemas';
+import { getMultiResolverName, getSingleResolverName } from '@/lib/crud/utils';
+import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 
 const selectorInput = gql`
   input SelectorInput {
@@ -176,7 +175,7 @@ export const typeDefs = gql`
   ${additionalRevisionsTypeDefs}
   ${additionalTagsTypeDefs}
   ${additionalUsersTypeDefs}
-  ${additionalRecommendationsTypeDefs}
+  ${recommendationsTypeDefs}
   ${userResolversTypeDefs}
   # # Vote typedefs
   ${postVoteTypeDefs}
@@ -191,7 +190,6 @@ export const typeDefs = gql`
   ${karmaChangesTypeDefs}
   ${analyticsGraphQLTypeDefs}
   ${arbitalGraphQLTypeDefs}
-  ${coronaLinkDatabaseGraphQLTypeDefs}
   ${elicitPredictionsGraphQLTypeDefs}
   ${notificationResolversGqlTypeDefs}
   ${lightcone2024FundraiserGraphQLTypeDefs}
@@ -243,6 +241,8 @@ export const typeDefs = gql`
   ${diffGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
+  ${generateCoverImagesForPostGraphQLTypeDefs}
+  ${flipSplashArtImageGraphQLTypeDefs}
   ## Mutation and input typedefs
   ${graphqlAdvisorRequestTypeDefs}
   ${graphqlArbitalTagContentRelTypeDefs}
@@ -304,11 +304,11 @@ export const typeDefs = gql`
 export const resolvers = {
   Query: {
     ...userResolversQueries,
+    ...recommendationsQueries,
     ...notificationQueries,
     ...commentQueries,
     ...analyticsGraphQLQueries,
     ...arbitalGraphQLQueries,
-    ...coronaLinkDatabaseGraphQLQueries,
     ...elicitPredictionsGraphQLQueries,
     ...notificationResolversGqlQueries,
     ...elicitPredictionsGraphQLQueries,
@@ -376,6 +376,8 @@ export const resolvers = {
     ...cronGraphQLMutations,
     ...partiallyReadSequencesMutations,
     ...jargonTermsGraphQLMutations,
+    ...generateCoverImagesForPostGraphQLMutations,
+    ...flipSplashArtImageGraphQLMutations,
     ...rsvpToEventsMutations,
     ...tagsGqlMutations,
     ...analyticsEventGraphQLMutations,
@@ -557,8 +559,6 @@ type SchemaGraphQLFields = {
   mainType: SchemaGraphQLFieldDescription[],
   create: SchemaGraphQLFieldDescription[],
   update: SchemaGraphQLFieldDescription[],
-  selector: SchemaGraphQLFieldDescription[],
-  selectorUnique: SchemaGraphQLFieldDescription[],
 }
 
 // for a given schema, return main type fields, selector fields,
@@ -571,8 +571,6 @@ export const getFields = <N extends CollectionNameString>(schema: NewSchemaType<
     mainType: [],
     create: [],
     update: [],
-    selector: [],
-    selectorUnique: [],
   };
   const addedResolvers: Array<any> = [];
 
@@ -699,9 +697,10 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
 
   const collectionName = collection.collectionName;
 
-  const typeName = collection.typeName
-    ? collection.typeName
-    : camelToSpaces(_.initial(collectionName).join('')); // default to posts -> Post
+  if (!collection.typeName) {
+    throw new Error("Collection is missing typeName");
+  }
+  const typeName = collection.typeName;
 
   const schema = getSchema(collectionName);
 
@@ -713,7 +712,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
     ? collection.options.description
     : `Type for ${collectionName}`;
 
-  const { mainType, create, update, selector, selectorUnique } = fields;
+  const { mainType, create, update } = fields;
 
   let addedQueries: Array<any> = [];
   let addedResolvers: Array<any> = [...fieldResolvers];
@@ -735,7 +734,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
       // single
       if (resolvers.single) {
         addedQueries.push({query: singleQueryTemplate({ typeName }), description: resolvers.single.description});
-        queryResolvers[camelCaseify(typeName)] = resolvers.single.resolver.bind(
+        queryResolvers[getSingleResolverName(typeName)] = resolvers.single.resolver.bind(
           resolvers.single
         );
       }
@@ -744,7 +743,7 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
       if (resolvers.multi) {
         addedQueries.push({query: multiQueryTemplate({ typeName }), description: resolvers.multi.description});
         queryResolvers[
-          camelCaseify(pluralize(typeName))
+          getMultiResolverName(typeName)
         ] = resolvers.multi.resolver.bind(resolvers.multi);
       }
       addedResolvers.push({ Query: { ...queryResolvers } });

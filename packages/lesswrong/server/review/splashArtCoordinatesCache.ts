@@ -11,13 +11,10 @@ export const splashArtCoordinateCache = new SwrCache<{
       coordinatesByReviewWinnerArtId: keyBy(activeSplashArtCoordinates, (sac) => sac.reviewWinnerArtId)
     };
   },
-  expiryMs: 60*60*1000, //1 hour
+  expiryMs: 60*60*1000
 });
 
 export async function getReviewWinnerArtCoordinates(reviewWinnerArtId: string, context: ResolverContext): Promise<DbSplashArtCoordinate | null> {
   const { coordinatesByReviewWinnerArtId } = await splashArtCoordinateCache.get(context);
-  return (
-    coordinatesByReviewWinnerArtId[reviewWinnerArtId]
-      ?? await context.SplashArtCoordinates.findOne({ reviewWinnerArtId }, { sort: { createdAt: -1 } })
-  );
+  return coordinatesByReviewWinnerArtId[reviewWinnerArtId];
 }

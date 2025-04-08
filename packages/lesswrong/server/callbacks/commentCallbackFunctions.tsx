@@ -184,14 +184,15 @@ const utils = {
       });
   
       let newReplyUserIds: string[] = [];
-      let newReplyToYouUserIds: string[] = [];
+      let newReplyToYouDirectUserIds: string[] = [];
+      let newReplyToYouIndirectUserIds: string[] = [];
   
-      for (const {commentId, userId} of parentComments) {
+      for (const {commentId: currentParentCommentId, userId: currentParentCommentAuthorId} of parentComments) {
         const subscribedUsers = await getSubscribedUsers({
-          documentId: commentId,
+          documentId: currentParentCommentId,
           collectionName: "Comments",
           type: subscriptionTypes.newReplies,
-          potentiallyDefaultSubscribedUserIds: [userId],
+          potentiallyDefaultSubscribedUserIds: [currentParentCommentAuthorId],
           userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
         })
         const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
@@ -199,24 +200,30 @@ const utils = {
         // Don't notify the author of their own comment, and filter out the author
         // of the parent-comment to be treated specially (with a newReplyToYou
         // notification instead of a newReply notification).
-        newReplyUserIds = [...newReplyUserIds, ..._.difference(subscribedUserIds, [comment.userId, commentId])]
+        newReplyUserIds = [...newReplyUserIds, ..._.difference(subscribedUserIds, [comment.userId, currentParentCommentAuthorId])]
   
         // Separately notify authors of replies to their own comments
-        if (subscribedUserIds.includes(userId) && userId !== comment.userId) {
-          newReplyToYouUserIds = [...newReplyToYouUserIds, ...subscribedUserIds]
+        if (subscribedUserIds.includes(currentParentCommentAuthorId) && currentParentCommentAuthorId !== comment.userId) {
+          if (currentParentCommentId === comment.parentCommentId) {
+            newReplyToYouDirectUserIds = [...newReplyToYouDirectUserIds, currentParentCommentAuthorId]
+          } else {
+            newReplyToYouIndirectUserIds = [...newReplyToYouIndirectUserIds, currentParentCommentAuthorId]
+          }
         }
       }
-  
-      // Take the difference as a precaution to prevent double-notifying
-      newReplyUserIds = uniq(_.difference(newReplyUserIds, newReplyToYouUserIds));
-      newReplyToYouUserIds = uniq(newReplyToYouUserIds);
+
+      // Take the difference to prevent double-notifying
+      newReplyUserIds = uniq(_.difference(newReplyUserIds, [...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds]));
+      newReplyToYouIndirectUserIds = uniq(_.difference(newReplyToYouIndirectUserIds, newReplyToYouDirectUserIds)); // Direct replies take precedence over indirect replies
+      newReplyToYouDirectUserIds = uniq(newReplyToYouDirectUserIds);
   
       await Promise.all([
         createNotifications({userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
-        createNotifications({userIds: newReplyToYouUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id})
+        createNotifications({userIds: newReplyToYouDirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: true}}),
+        createNotifications({userIds: newReplyToYouIndirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: false}})
       ]);
   
-      notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouUserIds];
+      notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouDirectUserIds];
     }
   
     // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)

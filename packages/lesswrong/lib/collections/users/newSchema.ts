@@ -2153,7 +2153,7 @@ const schema = {
   },
   bookmarkedPosts: {
     graphql: {
-      outputType: "[Post!]!",
+      outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: generateIdResolverMulti({
         foreignCollectionName: "Posts",
@@ -2197,7 +2197,7 @@ const schema = {
   },
   hiddenPosts: {
     graphql: {
-      outputType: "[Post!]!",
+      outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Posts", fieldName: "hiddenPostsMetadata" }),
     },
@@ -4163,7 +4163,7 @@ const schema = {
   },
   reviewVoteCount: {
     graphql: {
-      outputType: "Int!",
+      outputType: "Int",
       canRead: ["admins", "sunshineRegiment"],
       resolver: async (document, args, context) => {
         const { ReviewVotes } = context;

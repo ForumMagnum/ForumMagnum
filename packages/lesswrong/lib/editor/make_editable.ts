@@ -215,10 +215,11 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
       documentId: doc._id,
       collectionName,
       editedAt: new Date(docField?.editedAt ?? Date.now()),
-      originalContents: getOriginalContents(
+      originalContents: await getOriginalContents(
         context.currentUser,
         doc,
         docField.originalContents,
+        context,
       ),
     } as DbRevision;
     // HACK: Pretend that this denormalized field is a DbRevision (even though

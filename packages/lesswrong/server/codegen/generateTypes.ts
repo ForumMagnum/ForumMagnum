@@ -1,12 +1,14 @@
-import { generateFragmentTypes } from './generateFragmentTypes';
+import { generateFragmentTypes, generateFragmentsGqlFile } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
 import { generateSQLSchema } from '../scripts/generateSQLSchema';
 import fs from 'fs';
 import path from 'path';
 import { generateCollectionTypeNames } from './generateCollectionTypeNames';
-import { generateDefaultFragments } from './generateDefaultFragments';
 import { generateInputTypes } from './generateInputTypes';
+import { generateDefaultFragmentsFile } from './generateDefaultFragments';
+import { getGraphQLTypeDefs } from '../vulcan-lib/apollo-server/getTypeDefs';
+import { print } from 'graphql';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -106,14 +108,16 @@ export function generateTypes(repoRoot?: string) {
   }
   
   try {
-    writeIfChanged(generateDefaultFragments(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
+    writeIfChanged(generateDefaultFragmentsFile(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateInputTypes(), "/packages/lesswrong/lib/generated/inputTypes.d.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
+    writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateCollectionTypeNames(), "/packages/lesswrong/lib/generated/collectionTypeNames.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
+    writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error(e);
@@ -125,4 +129,12 @@ export function generateTypes(repoRoot?: string) {
 export const generateTypesAndSQLSchema = (rootDir?: string) => {
   generateSQLSchema(rootDir);
   generateTypes(rootDir);
+}
+
+function generateGraphQLSchemaFile(): string {
+  const sb: string[] = [];
+  sb.push("# Generated file - run 'yarn generate' to update.\n\n");
+  const {typeDefs: schema} = getGraphQLTypeDefs();
+  sb.push(print(schema));
+  return sb.join("");
 }

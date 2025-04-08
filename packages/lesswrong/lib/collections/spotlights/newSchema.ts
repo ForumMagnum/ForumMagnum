@@ -113,7 +113,7 @@ const schema = {
   // Has been replaced by the post, sequence, and tag fields
   document: {
     graphql: {
-      outputType: "Post!",
+      outputType: "Post",
       canRead: ["guests"],
       resolver: async (spotlight, args, context) => {
         switch (spotlight.documentType) {

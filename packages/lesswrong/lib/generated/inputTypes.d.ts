@@ -12,7 +12,6 @@ interface MultiAdvisorRequestInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -28,10 +27,6 @@ interface SingleAdvisorRequestOutput {
 interface MultiAdvisorRequestOutput {
   results?: Array<UpdateAdvisorRequestDataInput | null> | null;
   totalCount?: number | null;
-}
-
-interface AdvisorRequestOutput {
-  data?: UpdateAdvisorRequestDataInput | null;
 }
 
 interface ArbitalCaches {
@@ -55,7 +50,6 @@ interface MultiArbitalCachesInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -73,10 +67,6 @@ interface MultiArbitalCachesOutput {
   totalCount?: number | null;
 }
 
-interface ArbitalCachesOutput {
-  data?: ArbitalCaches | null;
-}
-
 interface SingleArbitalTagContentRelInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -91,7 +81,6 @@ interface MultiArbitalTagContentRelInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -109,10 +98,6 @@ interface MultiArbitalTagContentRelOutput {
   totalCount?: number | null;
 }
 
-interface ArbitalTagContentRelOutput {
-  data?: UpdateArbitalTagContentRelDataInput | null;
-}
-
 interface SingleBanInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -127,7 +112,6 @@ interface MultiBanInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -145,10 +129,6 @@ interface MultiBanOutput {
   totalCount?: number | null;
 }
 
-interface BanOutput {
-  data?: UpdateBanDataInput | null;
-}
-
 interface SingleBookInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -163,7 +143,6 @@ interface MultiBookInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -181,10 +160,6 @@ interface MultiBookOutput {
   totalCount?: number | null;
 }
 
-interface BookOutput {
-  data?: UpdateBookDataInput | null;
-}
-
 interface SingleChapterInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -199,7 +174,6 @@ interface MultiChapterInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -217,10 +191,6 @@ interface MultiChapterOutput {
   totalCount?: number | null;
 }
 
-interface ChapterOutput {
-  data?: UpdateChapterDataInput | null;
-}
-
 interface SingleCkEditorUserSessionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -235,7 +205,6 @@ interface MultiCkEditorUserSessionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -253,10 +222,6 @@ interface MultiCkEditorUserSessionOutput {
   totalCount?: number | null;
 }
 
-interface CkEditorUserSessionOutput {
-  data?: UpdateCkEditorUserSessionDataInput | null;
-}
-
 interface SingleClientIdInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -271,7 +236,6 @@ interface MultiClientIdInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -289,10 +253,6 @@ interface MultiClientIdOutput {
   totalCount?: number | null;
 }
 
-interface ClientIdOutput {
-  data?: UpdateClientIdDataInput | null;
-}
-
 interface SingleCollectionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -307,7 +267,6 @@ interface MultiCollectionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -325,10 +284,6 @@ interface MultiCollectionOutput {
   totalCount?: number | null;
 }
 
-interface CollectionOutput {
-  data?: UpdateCollectionDataInput | null;
-}
-
 interface SingleCommentModeratorActionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -343,7 +298,6 @@ interface MultiCommentModeratorActionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -361,10 +315,6 @@ interface MultiCommentModeratorActionOutput {
   totalCount?: number | null;
 }
 
-interface CommentModeratorActionOutput {
-  data?: UpdateCommentModeratorActionDataInput | null;
-}
-
 interface SingleCommentInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -379,7 +329,6 @@ interface MultiCommentInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -397,10 +346,6 @@ interface MultiCommentOutput {
   totalCount?: number | null;
 }
 
-interface CommentOutput {
-  data?: UpdateCommentDataInput | null;
-}
-
 interface SingleConversationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -415,7 +360,6 @@ interface MultiConversationInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -433,10 +377,6 @@ interface MultiConversationOutput {
   totalCount?: number | null;
 }
 
-interface ConversationOutput {
-  data?: UpdateConversationDataInput | null;
-}
-
 interface SingleCronHistoryInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -451,7 +391,6 @@ interface MultiCronHistoryInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -469,10 +408,6 @@ interface MultiCronHistoryOutput {
   totalCount?: number | null;
 }
 
-interface CronHistoryOutput {
-  data?: UpdateCronHistoryDataInput | null;
-}
-
 interface SingleCurationEmailInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -487,7 +422,6 @@ interface MultiCurationEmailInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -505,10 +439,6 @@ interface MultiCurationEmailOutput {
   totalCount?: number | null;
 }
 
-interface CurationEmailOutput {
-  data?: UpdateCurationEmailDataInput | null;
-}
-
 interface SingleCurationNoticeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -523,7 +453,6 @@ interface MultiCurationNoticeInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -539,10 +468,6 @@ interface SingleCurationNoticeOutput {
 interface MultiCurationNoticeOutput {
   results?: Array<UpdateCurationNoticeDataInput | null> | null;
   totalCount?: number | null;
-}
-
-interface CurationNoticeOutput {
-  data?: UpdateCurationNoticeDataInput | null;
 }
 
 interface DatabaseMetadata {
@@ -566,7 +491,6 @@ interface MultiDatabaseMetadataInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -582,10 +506,6 @@ interface SingleDatabaseMetadataOutput {
 interface MultiDatabaseMetadataOutput {
   results?: Array<DatabaseMetadata | null> | null;
   totalCount?: number | null;
-}
-
-interface DatabaseMetadataOutput {
-  data?: DatabaseMetadata | null;
 }
 
 interface DebouncerEvents {
@@ -609,7 +529,6 @@ interface MultiDebouncerEventsInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -627,10 +546,6 @@ interface MultiDebouncerEventsOutput {
   totalCount?: number | null;
 }
 
-interface DebouncerEventsOutput {
-  data?: DebouncerEvents | null;
-}
-
 interface SingleDialogueCheckInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -645,7 +560,6 @@ interface MultiDialogueCheckInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -663,10 +577,6 @@ interface MultiDialogueCheckOutput {
   totalCount?: number | null;
 }
 
-interface DialogueCheckOutput {
-  data?: UpdateDialogueCheckDataInput | null;
-}
-
 interface SingleDialogueMatchPreferenceInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -681,7 +591,6 @@ interface MultiDialogueMatchPreferenceInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -699,10 +608,6 @@ interface MultiDialogueMatchPreferenceOutput {
   totalCount?: number | null;
 }
 
-interface DialogueMatchPreferenceOutput {
-  data?: UpdateDialogueMatchPreferenceDataInput | null;
-}
-
 interface SingleDigestPostInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -717,7 +622,6 @@ interface MultiDigestPostInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -735,10 +639,6 @@ interface MultiDigestPostOutput {
   totalCount?: number | null;
 }
 
-interface DigestPostOutput {
-  data?: UpdateDigestPostDataInput | null;
-}
-
 interface SingleDigestInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -753,7 +653,6 @@ interface MultiDigestInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -771,10 +670,6 @@ interface MultiDigestOutput {
   totalCount?: number | null;
 }
 
-interface DigestOutput {
-  data?: UpdateDigestDataInput | null;
-}
-
 interface SingleElectionCandidateInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -789,7 +684,6 @@ interface MultiElectionCandidateInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -807,10 +701,6 @@ interface MultiElectionCandidateOutput {
   totalCount?: number | null;
 }
 
-interface ElectionCandidateOutput {
-  data?: UpdateElectionCandidateDataInput | null;
-}
-
 interface SingleElectionVoteInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -825,7 +715,6 @@ interface MultiElectionVoteInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -843,10 +732,6 @@ interface MultiElectionVoteOutput {
   totalCount?: number | null;
 }
 
-interface ElectionVoteOutput {
-  data?: UpdateElectionVoteDataInput | null;
-}
-
 interface SingleElicitQuestionPredictionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -861,7 +746,6 @@ interface MultiElicitQuestionPredictionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -879,10 +763,6 @@ interface MultiElicitQuestionPredictionOutput {
   totalCount?: number | null;
 }
 
-interface ElicitQuestionPredictionOutput {
-  data?: UpdateElicitQuestionPredictionDataInput | null;
-}
-
 interface SingleElicitQuestionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -897,7 +777,6 @@ interface MultiElicitQuestionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -913,10 +792,6 @@ interface SingleElicitQuestionOutput {
 interface MultiElicitQuestionOutput {
   results?: Array<UpdateElicitQuestionDataInput | null> | null;
   totalCount?: number | null;
-}
-
-interface ElicitQuestionOutput {
-  data?: UpdateElicitQuestionDataInput | null;
 }
 
 interface EmailTokens {
@@ -940,7 +815,6 @@ interface MultiEmailTokensInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -958,10 +832,6 @@ interface MultiEmailTokensOutput {
   totalCount?: number | null;
 }
 
-interface EmailTokensOutput {
-  data?: EmailTokens | null;
-}
-
 interface SingleFeaturedResourceInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -976,7 +846,6 @@ interface MultiFeaturedResourceInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -994,10 +863,6 @@ interface MultiFeaturedResourceOutput {
   totalCount?: number | null;
 }
 
-interface FeaturedResourceOutput {
-  data?: UpdateFeaturedResourceDataInput | null;
-}
-
 interface SingleFieldChangeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1012,7 +877,6 @@ interface MultiFieldChangeInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1030,10 +894,6 @@ interface MultiFieldChangeOutput {
   totalCount?: number | null;
 }
 
-interface FieldChangeOutput {
-  data?: UpdateFieldChangeDataInput | null;
-}
-
 interface SingleForumEventInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1048,7 +908,6 @@ interface MultiForumEventInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1066,10 +925,6 @@ interface MultiForumEventOutput {
   totalCount?: number | null;
 }
 
-interface ForumEventOutput {
-  data?: UpdateForumEventDataInput | null;
-}
-
 interface SingleGardenCodeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1084,7 +939,6 @@ interface MultiGardenCodeInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1102,10 +956,6 @@ interface MultiGardenCodeOutput {
   totalCount?: number | null;
 }
 
-interface GardenCodeOutput {
-  data?: UpdateGardenCodeDataInput | null;
-}
-
 interface SingleGoogleServiceAccountSessionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1120,7 +970,6 @@ interface MultiGoogleServiceAccountSessionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1136,10 +985,6 @@ interface SingleGoogleServiceAccountSessionOutput {
 interface MultiGoogleServiceAccountSessionOutput {
   results?: Array<UpdateGoogleServiceAccountSessionDataInput | null> | null;
   totalCount?: number | null;
-}
-
-interface GoogleServiceAccountSessionOutput {
-  data?: UpdateGoogleServiceAccountSessionDataInput | null;
 }
 
 interface Images {
@@ -1163,7 +1008,6 @@ interface MultiImagesInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1181,10 +1025,6 @@ interface MultiImagesOutput {
   totalCount?: number | null;
 }
 
-interface ImagesOutput {
-  data?: Images | null;
-}
-
 interface SingleJargonTermInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1199,7 +1039,6 @@ interface MultiJargonTermInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1217,10 +1056,6 @@ interface MultiJargonTermOutput {
   totalCount?: number | null;
 }
 
-interface JargonTermOutput {
-  data?: UpdateJargonTermDataInput | null;
-}
-
 interface SingleLWEventInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1235,7 +1070,6 @@ interface MultiLWEventInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1251,10 +1085,6 @@ interface SingleLWEventOutput {
 interface MultiLWEventOutput {
   results?: Array<UpdateLWEventDataInput | null> | null;
   totalCount?: number | null;
-}
-
-interface LWEventOutput {
-  data?: UpdateLWEventDataInput | null;
 }
 
 interface LegacyData {
@@ -1278,7 +1108,6 @@ interface MultiLegacyDataInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1296,10 +1125,6 @@ interface MultiLegacyDataOutput {
   totalCount?: number | null;
 }
 
-interface LegacyDataOutput {
-  data?: LegacyData | null;
-}
-
 interface SingleLlmConversationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1314,7 +1139,6 @@ interface MultiLlmConversationInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1332,10 +1156,6 @@ interface MultiLlmConversationOutput {
   totalCount?: number | null;
 }
 
-interface LlmConversationOutput {
-  data?: UpdateLlmConversationDataInput | null;
-}
-
 interface SingleLlmMessageInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1350,7 +1170,6 @@ interface MultiLlmMessageInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1368,10 +1187,6 @@ interface MultiLlmMessageOutput {
   totalCount?: number | null;
 }
 
-interface LlmMessageOutput {
-  data?: UpdateLlmMessageDataInput | null;
-}
-
 interface SingleLocalgroupInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1386,7 +1201,6 @@ interface MultiLocalgroupInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1404,10 +1218,6 @@ interface MultiLocalgroupOutput {
   totalCount?: number | null;
 }
 
-interface LocalgroupOutput {
-  data?: UpdateLocalgroupDataInput | null;
-}
-
 interface SingleManifoldProbabilitiesCacheInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1422,7 +1232,6 @@ interface MultiManifoldProbabilitiesCacheInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1440,10 +1249,6 @@ interface MultiManifoldProbabilitiesCacheOutput {
   totalCount?: number | null;
 }
 
-interface ManifoldProbabilitiesCacheOutput {
-  data?: UpdateManifoldProbabilitiesCacheDataInput | null;
-}
-
 interface SingleMessageInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1458,7 +1263,6 @@ interface MultiMessageInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1476,10 +1280,6 @@ interface MultiMessageOutput {
   totalCount?: number | null;
 }
 
-interface MessageOutput {
-  data?: UpdateMessageDataInput | null;
-}
-
 interface SingleMigrationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1494,7 +1294,6 @@ interface MultiMigrationInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1512,10 +1311,6 @@ interface MultiMigrationOutput {
   totalCount?: number | null;
 }
 
-interface MigrationOutput {
-  data?: UpdateMigrationDataInput | null;
-}
-
 interface SingleModerationTemplateInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1530,7 +1325,6 @@ interface MultiModerationTemplateInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1548,10 +1342,6 @@ interface MultiModerationTemplateOutput {
   totalCount?: number | null;
 }
 
-interface ModerationTemplateOutput {
-  data?: UpdateModerationTemplateDataInput | null;
-}
-
 interface SingleModeratorActionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1566,7 +1356,6 @@ interface MultiModeratorActionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1584,10 +1373,6 @@ interface MultiModeratorActionOutput {
   totalCount?: number | null;
 }
 
-interface ModeratorActionOutput {
-  data?: UpdateModeratorActionDataInput | null;
-}
-
 interface SingleMultiDocumentInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1602,7 +1387,6 @@ interface MultiMultiDocumentInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1620,10 +1404,6 @@ interface MultiMultiDocumentOutput {
   totalCount?: number | null;
 }
 
-interface MultiDocumentOutput {
-  data?: UpdateMultiDocumentDataInput | null;
-}
-
 interface SingleNotificationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1638,7 +1418,6 @@ interface MultiNotificationInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1654,10 +1433,6 @@ interface SingleNotificationOutput {
 interface MultiNotificationOutput {
   results?: Array<UpdateNotificationDataInput | null> | null;
   totalCount?: number | null;
-}
-
-interface NotificationOutput {
-  data?: UpdateNotificationDataInput | null;
 }
 
 interface PageCacheEntry {
@@ -1681,7 +1456,6 @@ interface MultiPageCacheEntryInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1699,10 +1473,6 @@ interface MultiPageCacheEntryOutput {
   totalCount?: number | null;
 }
 
-interface PageCacheEntryOutput {
-  data?: PageCacheEntry | null;
-}
-
 interface SinglePetrovDayActionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1717,7 +1487,6 @@ interface MultiPetrovDayActionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1735,10 +1504,6 @@ interface MultiPetrovDayActionOutput {
   totalCount?: number | null;
 }
 
-interface PetrovDayActionOutput {
-  data?: UpdatePetrovDayActionDataInput | null;
-}
-
 interface SinglePetrovDayLaunchInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1753,7 +1518,6 @@ interface MultiPetrovDayLaunchInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1771,10 +1535,6 @@ interface MultiPetrovDayLaunchOutput {
   totalCount?: number | null;
 }
 
-interface PetrovDayLaunchOutput {
-  data?: UpdatePetrovDayLaunchDataInput | null;
-}
-
 interface SinglePodcastEpisodeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1789,7 +1549,6 @@ interface MultiPodcastEpisodeInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1807,10 +1566,6 @@ interface MultiPodcastEpisodeOutput {
   totalCount?: number | null;
 }
 
-interface PodcastEpisodeOutput {
-  data?: UpdatePodcastEpisodeDataInput | null;
-}
-
 interface SinglePodcastInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1825,7 +1580,6 @@ interface MultiPodcastInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1843,10 +1597,6 @@ interface MultiPodcastOutput {
   totalCount?: number | null;
 }
 
-interface PodcastOutput {
-  data?: UpdatePodcastDataInput | null;
-}
-
 interface SinglePostEmbeddingInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1861,7 +1611,6 @@ interface MultiPostEmbeddingInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1879,10 +1628,6 @@ interface MultiPostEmbeddingOutput {
   totalCount?: number | null;
 }
 
-interface PostEmbeddingOutput {
-  data?: UpdatePostEmbeddingDataInput | null;
-}
-
 interface SinglePostRecommendationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1897,7 +1642,6 @@ interface MultiPostRecommendationInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1915,10 +1659,6 @@ interface MultiPostRecommendationOutput {
   totalCount?: number | null;
 }
 
-interface PostRecommendationOutput {
-  data?: UpdatePostRecommendationDataInput | null;
-}
-
 interface SinglePostRelationInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1933,7 +1673,6 @@ interface MultiPostRelationInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1951,10 +1690,6 @@ interface MultiPostRelationOutput {
   totalCount?: number | null;
 }
 
-interface PostRelationOutput {
-  data?: UpdatePostRelationDataInput | null;
-}
-
 interface SinglePostViewTimeInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -1969,7 +1704,6 @@ interface MultiPostViewTimeInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -1985,10 +1719,6 @@ interface SinglePostViewTimeOutput {
 interface MultiPostViewTimeOutput {
   results?: Array<UpdatePostViewTimeDataInput | null> | null;
   totalCount?: number | null;
-}
-
-interface PostViewTimeOutput {
-  data?: UpdatePostViewTimeDataInput | null;
 }
 
 interface PostViews {
@@ -2012,7 +1742,6 @@ interface MultiPostViewsInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2030,10 +1759,6 @@ interface MultiPostViewsOutput {
   totalCount?: number | null;
 }
 
-interface PostViewsOutput {
-  data?: PostViews | null;
-}
-
 interface SinglePostInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2048,7 +1773,6 @@ interface MultiPostInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2066,10 +1790,6 @@ interface MultiPostOutput {
   totalCount?: number | null;
 }
 
-interface PostOutput {
-  data?: UpdatePostDataInput | null;
-}
-
 interface SingleRSSFeedInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2084,7 +1804,6 @@ interface MultiRSSFeedInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2102,10 +1821,6 @@ interface MultiRSSFeedOutput {
   totalCount?: number | null;
 }
 
-interface RSSFeedOutput {
-  data?: UpdateRSSFeedDataInput | null;
-}
-
 interface SingleReadStatusInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2120,7 +1835,6 @@ interface MultiReadStatusInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2138,10 +1852,6 @@ interface MultiReadStatusOutput {
   totalCount?: number | null;
 }
 
-interface ReadStatusOutput {
-  data?: UpdateReadStatusDataInput | null;
-}
-
 interface SingleRecommendationsCacheInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2156,7 +1866,6 @@ interface MultiRecommendationsCacheInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2174,10 +1883,6 @@ interface MultiRecommendationsCacheOutput {
   totalCount?: number | null;
 }
 
-interface RecommendationsCacheOutput {
-  data?: UpdateRecommendationsCacheDataInput | null;
-}
-
 interface SingleReportInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2192,7 +1897,6 @@ interface MultiReportInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2210,10 +1914,6 @@ interface MultiReportOutput {
   totalCount?: number | null;
 }
 
-interface ReportOutput {
-  data?: UpdateReportDataInput | null;
-}
-
 interface SingleReviewVoteInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2228,7 +1928,6 @@ interface MultiReviewVoteInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2246,10 +1945,6 @@ interface MultiReviewVoteOutput {
   totalCount?: number | null;
 }
 
-interface ReviewVoteOutput {
-  data?: UpdateReviewVoteDataInput | null;
-}
-
 interface SingleReviewWinnerArtInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2264,7 +1959,6 @@ interface MultiReviewWinnerArtInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2282,10 +1976,6 @@ interface MultiReviewWinnerArtOutput {
   totalCount?: number | null;
 }
 
-interface ReviewWinnerArtOutput {
-  data?: UpdateReviewWinnerArtDataInput | null;
-}
-
 interface SingleReviewWinnerInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2300,7 +1990,6 @@ interface MultiReviewWinnerInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2318,10 +2007,6 @@ interface MultiReviewWinnerOutput {
   totalCount?: number | null;
 }
 
-interface ReviewWinnerOutput {
-  data?: UpdateReviewWinnerDataInput | null;
-}
-
 interface SingleRevisionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2336,7 +2021,6 @@ interface MultiRevisionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2354,10 +2038,6 @@ interface MultiRevisionOutput {
   totalCount?: number | null;
 }
 
-interface RevisionOutput {
-  data?: UpdateRevisionDataInput | null;
-}
-
 interface SingleSequenceInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2372,7 +2052,6 @@ interface MultiSequenceInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2390,10 +2069,6 @@ interface MultiSequenceOutput {
   totalCount?: number | null;
 }
 
-interface SequenceOutput {
-  data?: UpdateSequenceDataInput | null;
-}
-
 interface SingleSessionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2408,7 +2083,6 @@ interface MultiSessionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2426,10 +2100,6 @@ interface MultiSessionOutput {
   totalCount?: number | null;
 }
 
-interface SessionOutput {
-  data?: UpdateSessionDataInput | null;
-}
-
 interface SingleSideCommentCacheInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2444,7 +2114,6 @@ interface MultiSideCommentCacheInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2462,10 +2131,6 @@ interface MultiSideCommentCacheOutput {
   totalCount?: number | null;
 }
 
-interface SideCommentCacheOutput {
-  data?: UpdateSideCommentCacheDataInput | null;
-}
-
 interface SingleSplashArtCoordinateInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2480,7 +2145,6 @@ interface MultiSplashArtCoordinateInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2498,10 +2162,6 @@ interface MultiSplashArtCoordinateOutput {
   totalCount?: number | null;
 }
 
-interface SplashArtCoordinateOutput {
-  data?: UpdateSplashArtCoordinateDataInput | null;
-}
-
 interface SingleSpotlightInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2516,7 +2176,6 @@ interface MultiSpotlightInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2534,10 +2193,6 @@ interface MultiSpotlightOutput {
   totalCount?: number | null;
 }
 
-interface SpotlightOutput {
-  data?: UpdateSpotlightDataInput | null;
-}
-
 interface SingleSubscriptionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2552,7 +2207,6 @@ interface MultiSubscriptionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2570,10 +2224,6 @@ interface MultiSubscriptionOutput {
   totalCount?: number | null;
 }
 
-interface SubscriptionOutput {
-  data?: UpdateSubscriptionDataInput | null;
-}
-
 interface SingleSurveyQuestionInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2588,7 +2238,6 @@ interface MultiSurveyQuestionInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2606,10 +2255,6 @@ interface MultiSurveyQuestionOutput {
   totalCount?: number | null;
 }
 
-interface SurveyQuestionOutput {
-  data?: UpdateSurveyQuestionDataInput | null;
-}
-
 interface SingleSurveyResponseInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2624,7 +2269,6 @@ interface MultiSurveyResponseInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2642,10 +2286,6 @@ interface MultiSurveyResponseOutput {
   totalCount?: number | null;
 }
 
-interface SurveyResponseOutput {
-  data?: UpdateSurveyResponseDataInput | null;
-}
-
 interface SingleSurveyScheduleInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2660,7 +2300,6 @@ interface MultiSurveyScheduleInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2678,10 +2317,6 @@ interface MultiSurveyScheduleOutput {
   totalCount?: number | null;
 }
 
-interface SurveyScheduleOutput {
-  data?: UpdateSurveyScheduleDataInput | null;
-}
-
 interface SingleSurveyInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2696,7 +2331,6 @@ interface MultiSurveyInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2714,10 +2348,6 @@ interface MultiSurveyOutput {
   totalCount?: number | null;
 }
 
-interface SurveyOutput {
-  data?: UpdateSurveyDataInput | null;
-}
-
 interface SingleTagFlagInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2732,7 +2362,6 @@ interface MultiTagFlagInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2750,10 +2379,6 @@ interface MultiTagFlagOutput {
   totalCount?: number | null;
 }
 
-interface TagFlagOutput {
-  data?: UpdateTagFlagDataInput | null;
-}
-
 interface SingleTagRelInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2768,7 +2393,6 @@ interface MultiTagRelInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2786,10 +2410,6 @@ interface MultiTagRelOutput {
   totalCount?: number | null;
 }
 
-interface TagRelOutput {
-  data?: UpdateTagRelDataInput | null;
-}
-
 interface SingleTagInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2804,7 +2424,6 @@ interface MultiTagInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2822,10 +2441,6 @@ interface MultiTagOutput {
   totalCount?: number | null;
 }
 
-interface TagOutput {
-  data?: UpdateTagDataInput | null;
-}
-
 interface SingleTweetInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2840,7 +2455,6 @@ interface MultiTweetInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2858,10 +2472,6 @@ interface MultiTweetOutput {
   totalCount?: number | null;
 }
 
-interface TweetOutput {
-  data?: UpdateTweetDataInput | null;
-}
-
 interface SingleTypingIndicatorInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2876,7 +2486,6 @@ interface MultiTypingIndicatorInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2894,10 +2503,6 @@ interface MultiTypingIndicatorOutput {
   totalCount?: number | null;
 }
 
-interface TypingIndicatorOutput {
-  data?: UpdateTypingIndicatorDataInput | null;
-}
-
 interface SingleUserActivityInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2912,7 +2517,6 @@ interface MultiUserActivityInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2930,10 +2534,6 @@ interface MultiUserActivityOutput {
   totalCount?: number | null;
 }
 
-interface UserActivityOutput {
-  data?: UpdateUserActivityDataInput | null;
-}
-
 interface SingleUserEAGDetailInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2948,7 +2548,6 @@ interface MultiUserEAGDetailInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -2966,10 +2565,6 @@ interface MultiUserEAGDetailOutput {
   totalCount?: number | null;
 }
 
-interface UserEAGDetailOutput {
-  data?: UpdateUserEAGDetailDataInput | null;
-}
-
 interface SingleUserJobAdInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -2984,7 +2579,6 @@ interface MultiUserJobAdInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -3002,10 +2596,6 @@ interface MultiUserJobAdOutput {
   totalCount?: number | null;
 }
 
-interface UserJobAdOutput {
-  data?: UpdateUserJobAdDataInput | null;
-}
-
 interface SingleUserMostValuablePostInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -3020,7 +2610,6 @@ interface MultiUserMostValuablePostInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -3038,10 +2627,6 @@ interface MultiUserMostValuablePostOutput {
   totalCount?: number | null;
 }
 
-interface UserMostValuablePostOutput {
-  data?: UpdateUserMostValuablePostDataInput | null;
-}
-
 interface SingleUserRateLimitInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -3056,7 +2641,6 @@ interface MultiUserRateLimitInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -3074,10 +2658,6 @@ interface MultiUserRateLimitOutput {
   totalCount?: number | null;
 }
 
-interface UserRateLimitOutput {
-  data?: UpdateUserRateLimitDataInput | null;
-}
-
 interface SingleUserTagRelInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -3092,7 +2672,6 @@ interface MultiUserTagRelInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -3110,10 +2689,6 @@ interface MultiUserTagRelOutput {
   totalCount?: number | null;
 }
 
-interface UserTagRelOutput {
-  data?: UpdateUserTagRelDataInput | null;
-}
-
 interface SingleUserInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -3128,7 +2703,6 @@ interface MultiUserInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -3146,10 +2720,6 @@ interface MultiUserOutput {
   totalCount?: number | null;
 }
 
-interface UserOutput {
-  data?: UpdateUserDataInput | null;
-}
-
 interface SingleVoteInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -3164,7 +2734,6 @@ interface MultiVoteInput {
   limit?: number | null;
   enableCache?: boolean | null;
   enableTotal?: boolean | null;
-  createIfMissing?: any;
   where?: SelectorInput | null;
   skip?: number | null;
   after?: string | null;
@@ -3180,10 +2749,6 @@ interface SingleVoteOutput {
 interface MultiVoteOutput {
   results?: Array<UpdateVoteDataInput | null> | null;
   totalCount?: number | null;
-}
-
-interface VoteOutput {
-  data?: UpdateVoteDataInput | null;
 }
 
 interface Query {
@@ -3589,31 +3154,6 @@ interface AnalyticsSeriesValue {
 interface ArbitalPageData {
   html?: string | null;
   title?: string | null;
-}
-
-interface CoronaVirusDataRow {
-  accepted?: string | null;
-  imp?: string | null;
-  link?: string | null;
-  shortDescription?: string | null;
-  url?: string | null;
-  description?: string | null;
-  domain?: string | null;
-  type?: string | null;
-  reviewerThoughts?: string | null;
-  foundVia?: string | null;
-  sourceLink?: string | null;
-  sourceLinkDomain?: string | null;
-  lastUpdated?: string | null;
-  title?: string | null;
-  dateAdded?: string | null;
-  category?: string | null;
-}
-
-interface CoronaVirusDataSchema {
-  range?: string | null;
-  majorDimension?: string | null;
-  values?: Array<CoronaVirusDataRow> | null;
 }
 
 interface ElicitUser {
@@ -4103,6 +3643,10 @@ interface UpdateAdvisorRequestInput {
   data: UpdateAdvisorRequestDataInput;
 }
 
+interface AdvisorRequestOutput {
+  data?: UpdateAdvisorRequestDataInput | null;
+}
+
 interface CreateArbitalTagContentRelDataInput {
   legacyData?: any;
   parentDocumentId: string;
@@ -4125,6 +3669,10 @@ interface UpdateArbitalTagContentRelDataInput {
 interface UpdateArbitalTagContentRelInput {
   selector: SelectorInput;
   data: UpdateArbitalTagContentRelDataInput;
+}
+
+interface ArbitalTagContentRelOutput {
+  data?: UpdateArbitalTagContentRelDataInput | null;
 }
 
 interface CreateBanDataInput {
@@ -4154,6 +3702,10 @@ interface UpdateBanDataInput {
 interface UpdateBanInput {
   selector: SelectorInput;
   data: UpdateBanDataInput;
+}
+
+interface BanOutput {
+  data?: UpdateBanDataInput | null;
 }
 
 interface CreateBookDataInput {
@@ -4195,6 +3747,10 @@ interface UpdateBookInput {
   data: UpdateBookDataInput;
 }
 
+interface BookOutput {
+  data?: UpdateBookDataInput | null;
+}
+
 interface CreateChapterDataInput {
   legacyData?: any;
   contents?: any;
@@ -4222,6 +3778,10 @@ interface UpdateChapterDataInput {
 interface UpdateChapterInput {
   selector: SelectorInput;
   data: UpdateChapterDataInput;
+}
+
+interface ChapterOutput {
+  data?: UpdateChapterDataInput | null;
 }
 
 interface CreateCollectionDataInput {
@@ -4257,6 +3817,10 @@ interface UpdateCollectionInput {
   data: UpdateCollectionDataInput;
 }
 
+interface CollectionOutput {
+  data?: UpdateCollectionDataInput | null;
+}
+
 interface CreateCommentModeratorActionDataInput {
   legacyData?: any;
   commentId?: string | null;
@@ -4278,6 +3842,10 @@ interface UpdateCommentModeratorActionDataInput {
 interface UpdateCommentModeratorActionInput {
   selector: SelectorInput;
   data: UpdateCommentModeratorActionDataInput;
+}
+
+interface CommentModeratorActionOutput {
+  data?: UpdateCommentModeratorActionDataInput | null;
 }
 
 interface CreateCommentDataInput {
@@ -4388,6 +3956,10 @@ interface UpdateCommentInput {
   data: UpdateCommentDataInput;
 }
 
+interface CommentOutput {
+  data?: UpdateCommentDataInput | null;
+}
+
 interface CreateConversationDataInput {
   legacyData?: any;
   title?: string | null;
@@ -4415,6 +3987,10 @@ interface UpdateConversationInput {
   data: UpdateConversationDataInput;
 }
 
+interface ConversationOutput {
+  data?: UpdateConversationDataInput | null;
+}
+
 interface CreateCurationNoticeDataInput {
   legacyData?: any;
   contents?: any;
@@ -4437,6 +4013,10 @@ interface UpdateCurationNoticeDataInput {
 interface UpdateCurationNoticeInput {
   selector: SelectorInput;
   data: UpdateCurationNoticeDataInput;
+}
+
+interface CurationNoticeOutput {
+  data?: UpdateCurationNoticeDataInput | null;
 }
 
 interface CreateDialogueMatchPreferenceDataInput {
@@ -4474,6 +4054,10 @@ interface UpdateDialogueMatchPreferenceInput {
   data: UpdateDialogueMatchPreferenceDataInput;
 }
 
+interface DialogueMatchPreferenceOutput {
+  data?: UpdateDialogueMatchPreferenceDataInput | null;
+}
+
 interface CreateDigestPostDataInput {
   legacyData?: any;
   digestId: string;
@@ -4497,6 +4081,10 @@ interface UpdateDigestPostDataInput {
 interface UpdateDigestPostInput {
   selector: SelectorInput;
   data: UpdateDigestPostDataInput;
+}
+
+interface DigestPostOutput {
+  data?: UpdateDigestPostDataInput | null;
 }
 
 interface CreateDigestDataInput {
@@ -4526,6 +4114,10 @@ interface UpdateDigestDataInput {
 interface UpdateDigestInput {
   selector: SelectorInput;
   data: UpdateDigestDataInput;
+}
+
+interface DigestOutput {
+  data?: UpdateDigestDataInput | null;
 }
 
 interface CreateElectionCandidateDataInput {
@@ -4571,6 +4163,10 @@ interface UpdateElectionCandidateInput {
   data: UpdateElectionCandidateDataInput;
 }
 
+interface ElectionCandidateOutput {
+  data?: UpdateElectionCandidateDataInput | null;
+}
+
 interface CreateElectionVoteDataInput {
   legacyData?: any;
   electionName: string;
@@ -4604,6 +4200,10 @@ interface UpdateElectionVoteInput {
   data: UpdateElectionVoteDataInput;
 }
 
+interface ElectionVoteOutput {
+  data?: UpdateElectionVoteDataInput | null;
+}
+
 interface CreateElicitQuestionDataInput {
   legacyData?: any;
   title: string;
@@ -4627,6 +4227,10 @@ interface UpdateElicitQuestionDataInput {
 interface UpdateElicitQuestionInput {
   selector: SelectorInput;
   data: UpdateElicitQuestionDataInput;
+}
+
+interface ElicitQuestionOutput {
+  data?: UpdateElicitQuestionDataInput | null;
 }
 
 interface CreateForumEventDataInput {
@@ -4689,6 +4293,10 @@ interface UpdateForumEventInput {
   data: UpdateForumEventDataInput;
 }
 
+interface ForumEventOutput {
+  data?: UpdateForumEventDataInput | null;
+}
+
 interface CreateGardenCodeDataInput {
   legacyData?: any;
   contents?: any;
@@ -4723,6 +4331,10 @@ interface UpdateGardenCodeInput {
   data: UpdateGardenCodeDataInput;
 }
 
+interface GardenCodeOutput {
+  data?: UpdateGardenCodeDataInput | null;
+}
+
 interface CreateGoogleServiceAccountSessionDataInput {
   legacyData?: any;
   email: string;
@@ -4748,6 +4360,10 @@ interface UpdateGoogleServiceAccountSessionDataInput {
 interface UpdateGoogleServiceAccountSessionInput {
   selector: SelectorInput;
   data: UpdateGoogleServiceAccountSessionDataInput;
+}
+
+interface GoogleServiceAccountSessionOutput {
+  data?: UpdateGoogleServiceAccountSessionDataInput | null;
 }
 
 interface CreateJargonTermDataInput {
@@ -4778,6 +4394,10 @@ interface UpdateJargonTermInput {
   data: UpdateJargonTermDataInput;
 }
 
+interface JargonTermOutput {
+  data?: UpdateJargonTermDataInput | null;
+}
+
 interface CreateLWEventDataInput {
   legacyData?: any;
   userId?: string | null;
@@ -4802,6 +4422,10 @@ interface UpdateLWEventInput {
   data: UpdateLWEventDataInput;
 }
 
+interface LWEventOutput {
+  data?: UpdateLWEventDataInput | null;
+}
+
 interface UpdateLlmConversationDataInput {
   legacyData?: any;
   userId?: string | null;
@@ -4814,6 +4438,10 @@ interface UpdateLlmConversationDataInput {
 interface UpdateLlmConversationInput {
   selector: SelectorInput;
   data: UpdateLlmConversationDataInput;
+}
+
+interface LlmConversationOutput {
+  data?: UpdateLlmConversationDataInput | null;
 }
 
 interface CreateLocalgroupDataInput {
@@ -4871,6 +4499,10 @@ interface UpdateLocalgroupInput {
   data: UpdateLocalgroupDataInput;
 }
 
+interface LocalgroupOutput {
+  data?: UpdateLocalgroupDataInput | null;
+}
+
 interface CreateMessageDataInput {
   legacyData?: any;
   contents?: any;
@@ -4891,6 +4523,10 @@ interface UpdateMessageDataInput {
 interface UpdateMessageInput {
   selector: SelectorInput;
   data: UpdateMessageDataInput;
+}
+
+interface MessageOutput {
+  data?: UpdateMessageDataInput | null;
 }
 
 interface CreateModerationTemplateDataInput {
@@ -4919,6 +4555,10 @@ interface UpdateModerationTemplateInput {
   data: UpdateModerationTemplateDataInput;
 }
 
+interface ModerationTemplateOutput {
+  data?: UpdateModerationTemplateDataInput | null;
+}
+
 interface CreateModeratorActionDataInput {
   legacyData?: any;
   userId?: string | null;
@@ -4940,6 +4580,10 @@ interface UpdateModeratorActionDataInput {
 interface UpdateModeratorActionInput {
   selector: SelectorInput;
   data: UpdateModeratorActionDataInput;
+}
+
+interface ModeratorActionOutput {
+  data?: UpdateModeratorActionDataInput | null;
 }
 
 interface CreateMultiDocumentDataInput {
@@ -4975,6 +4619,10 @@ interface UpdateMultiDocumentInput {
   data: UpdateMultiDocumentDataInput;
 }
 
+interface MultiDocumentOutput {
+  data?: UpdateMultiDocumentDataInput | null;
+}
+
 interface CreateNotificationDataInput {
   legacyData?: any;
   viewed?: boolean | null;
@@ -4994,6 +4642,10 @@ interface UpdateNotificationInput {
   data: UpdateNotificationDataInput;
 }
 
+interface NotificationOutput {
+  data?: UpdateNotificationDataInput | null;
+}
+
 interface CreatePetrovDayActionDataInput {
   legacyData?: any;
   actionType: string;
@@ -5003,6 +4655,10 @@ interface CreatePetrovDayActionDataInput {
 
 interface CreatePetrovDayActionInput {
   data: CreatePetrovDayActionDataInput;
+}
+
+interface PetrovDayActionOutput {
+  data?: UpdatePetrovDayActionDataInput | null;
 }
 
 interface CreatePodcastEpisodeDataInput {
@@ -5024,6 +4680,10 @@ interface UpdatePodcastEpisodeDataInput {
 interface UpdatePodcastEpisodeInput {
   selector: SelectorInput;
   data: UpdatePodcastEpisodeDataInput;
+}
+
+interface PodcastEpisodeOutput {
+  data?: UpdatePodcastEpisodeDataInput | null;
 }
 
 interface CreatePostEmbeddingDataInput {
@@ -5053,6 +4713,10 @@ interface UpdatePostEmbeddingInput {
   data: UpdatePostEmbeddingDataInput;
 }
 
+interface PostEmbeddingOutput {
+  data?: UpdatePostEmbeddingDataInput | null;
+}
+
 interface CreatePostViewTimeDataInput {
   legacyData?: any;
 }
@@ -5070,6 +4734,10 @@ interface UpdatePostViewTimeInput {
   data: UpdatePostViewTimeDataInput;
 }
 
+interface PostViewTimeOutput {
+  data?: UpdatePostViewTimeDataInput | null;
+}
+
 interface CreatePostViewsDataInput {
   legacyData?: any;
 }
@@ -5085,6 +4753,10 @@ interface UpdatePostViewsDataInput {
 interface UpdatePostViewsInput {
   selector: SelectorInput;
   data: UpdatePostViewsDataInput;
+}
+
+interface PostViewsOutput {
+  data?: PostViews | null;
 }
 
 interface CreatePostDataInput {
@@ -5318,6 +4990,10 @@ interface UpdatePostInput {
   data: UpdatePostDataInput;
 }
 
+interface PostOutput {
+  data?: UpdatePostDataInput | null;
+}
+
 interface CreateRSSFeedDataInput {
   legacyData?: any;
   userId?: string | null;
@@ -5352,6 +5028,10 @@ interface UpdateRSSFeedInput {
   data: UpdateRSSFeedDataInput;
 }
 
+interface RSSFeedOutput {
+  data?: UpdateRSSFeedDataInput | null;
+}
+
 interface CreateReportDataInput {
   legacyData?: any;
   userId?: string | null;
@@ -5383,6 +5063,10 @@ interface UpdateReportInput {
   data: UpdateReportDataInput;
 }
 
+interface ReportOutput {
+  data?: UpdateReportDataInput | null;
+}
+
 interface UpdateRevisionDataInput {
   legacyData?: any;
   skipAttributions?: boolean | null;
@@ -5391,6 +5075,10 @@ interface UpdateRevisionDataInput {
 interface UpdateRevisionInput {
   selector: SelectorInput;
   data: UpdateRevisionDataInput;
+}
+
+interface RevisionOutput {
+  data?: UpdateRevisionDataInput | null;
 }
 
 interface CreateSequenceDataInput {
@@ -5440,6 +5128,10 @@ interface UpdateSequenceInput {
   data: UpdateSequenceDataInput;
 }
 
+interface SequenceOutput {
+  data?: UpdateSequenceDataInput | null;
+}
+
 interface CreateSplashArtCoordinateDataInput {
   legacyData?: any;
   reviewWinnerArtId: string;
@@ -5487,6 +5179,10 @@ interface UpdateSplashArtCoordinateDataInput {
 interface UpdateSplashArtCoordinateInput {
   selector: SelectorInput;
   data: UpdateSplashArtCoordinateDataInput;
+}
+
+interface SplashArtCoordinateOutput {
+  data?: UpdateSplashArtCoordinateDataInput | null;
 }
 
 interface CreateSpotlightDataInput {
@@ -5545,6 +5241,10 @@ interface UpdateSpotlightInput {
   data: UpdateSpotlightDataInput;
 }
 
+interface SpotlightOutput {
+  data?: UpdateSpotlightDataInput | null;
+}
+
 interface CreateSubscriptionDataInput {
   legacyData?: any;
   state: string;
@@ -5555,6 +5255,10 @@ interface CreateSubscriptionDataInput {
 
 interface CreateSubscriptionInput {
   data: CreateSubscriptionDataInput;
+}
+
+interface SubscriptionOutput {
+  data?: UpdateSubscriptionDataInput | null;
 }
 
 interface CreateSurveyQuestionDataInput {
@@ -5582,6 +5286,10 @@ interface UpdateSurveyQuestionInput {
   data: UpdateSurveyQuestionDataInput;
 }
 
+interface SurveyQuestionOutput {
+  data?: UpdateSurveyQuestionDataInput | null;
+}
+
 interface CreateSurveyResponseDataInput {
   legacyData?: any;
   surveyId: string;
@@ -5607,6 +5315,10 @@ interface UpdateSurveyResponseDataInput {
 interface UpdateSurveyResponseInput {
   selector: SelectorInput;
   data: UpdateSurveyResponseDataInput;
+}
+
+interface SurveyResponseOutput {
+  data?: UpdateSurveyResponseDataInput | null;
 }
 
 interface CreateSurveyScheduleDataInput {
@@ -5648,6 +5360,10 @@ interface UpdateSurveyScheduleInput {
   data: UpdateSurveyScheduleDataInput;
 }
 
+interface SurveyScheduleOutput {
+  data?: UpdateSurveyScheduleDataInput | null;
+}
+
 interface CreateSurveyDataInput {
   legacyData?: any;
   name: string;
@@ -5665,6 +5381,10 @@ interface UpdateSurveyDataInput {
 interface UpdateSurveyInput {
   selector: SelectorInput;
   data: UpdateSurveyDataInput;
+}
+
+interface SurveyOutput {
+  data?: UpdateSurveyDataInput | null;
 }
 
 interface CreateTagFlagDataInput {
@@ -5694,6 +5414,10 @@ interface UpdateTagFlagInput {
   data: UpdateTagFlagDataInput;
 }
 
+interface TagFlagOutput {
+  data?: UpdateTagFlagDataInput | null;
+}
+
 interface CreateTagRelDataInput {
   legacyData?: any;
   tagId: string;
@@ -5713,6 +5437,10 @@ interface UpdateTagRelDataInput {
 interface UpdateTagRelInput {
   selector: SelectorInput;
   data: UpdateTagRelDataInput;
+}
+
+interface TagRelOutput {
+  data?: UpdateTagRelDataInput | null;
 }
 
 interface CreateTagDataInput {
@@ -5800,6 +5528,10 @@ interface UpdateTagInput {
   data: UpdateTagDataInput;
 }
 
+interface TagOutput {
+  data?: UpdateTagDataInput | null;
+}
+
 interface CreateUserEAGDetailDataInput {
   legacyData?: any;
   lastUpdated?: Date | null;
@@ -5823,6 +5555,10 @@ interface UpdateUserEAGDetailDataInput {
 interface UpdateUserEAGDetailInput {
   selector: SelectorInput;
   data: UpdateUserEAGDetailDataInput;
+}
+
+interface UserEAGDetailOutput {
+  data?: UpdateUserEAGDetailDataInput | null;
 }
 
 interface CreateUserJobAdDataInput {
@@ -5850,6 +5586,10 @@ interface UpdateUserJobAdInput {
   data: UpdateUserJobAdDataInput;
 }
 
+interface UserJobAdOutput {
+  data?: UpdateUserJobAdDataInput | null;
+}
+
 interface CreateUserMostValuablePostDataInput {
   legacyData?: any;
   userId: string;
@@ -5871,6 +5611,10 @@ interface UpdateUserMostValuablePostDataInput {
 interface UpdateUserMostValuablePostInput {
   selector: SelectorInput;
   data: UpdateUserMostValuablePostDataInput;
+}
+
+interface UserMostValuablePostOutput {
+  data?: UpdateUserMostValuablePostDataInput | null;
 }
 
 interface CreateUserRateLimitDataInput {
@@ -5902,6 +5646,10 @@ interface UpdateUserRateLimitInput {
   data: UpdateUserRateLimitDataInput;
 }
 
+interface UserRateLimitOutput {
+  data?: UpdateUserRateLimitDataInput | null;
+}
+
 interface CreateUserTagRelDataInput {
   legacyData?: any;
   tagId: string;
@@ -5925,6 +5673,10 @@ interface UpdateUserTagRelDataInput {
 interface UpdateUserTagRelInput {
   selector: SelectorInput;
   data: UpdateUserTagRelDataInput;
+}
+
+interface UserTagRelOutput {
+  data?: UpdateUserTagRelDataInput | null;
 }
 
 interface CreateUserDataInput {
@@ -6286,450 +6038,367 @@ interface UpdateUserInput {
   data: UpdateUserDataInput;
 }
 
+interface UserOutput {
+  data?: UpdateUserDataInput | null;
+}
+
 interface GraphQLTypeMap {
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   MultiAdvisorRequestInput: MultiAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
   MultiAdvisorRequestOutput: MultiAdvisorRequestOutput;
-  AdvisorRequestOutput: AdvisorRequestOutput;
   ArbitalCaches: ArbitalCaches;
   SingleArbitalCachesInput: SingleArbitalCachesInput;
   MultiArbitalCachesInput: MultiArbitalCachesInput;
   SingleArbitalCachesOutput: SingleArbitalCachesOutput;
   MultiArbitalCachesOutput: MultiArbitalCachesOutput;
-  ArbitalCachesOutput: ArbitalCachesOutput;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
   MultiArbitalTagContentRelInput: MultiArbitalTagContentRelInput;
   SingleArbitalTagContentRelOutput: SingleArbitalTagContentRelOutput;
   MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
-  ArbitalTagContentRelOutput: ArbitalTagContentRelOutput;
   SingleBanInput: SingleBanInput;
   MultiBanInput: MultiBanInput;
   SingleBanOutput: SingleBanOutput;
   MultiBanOutput: MultiBanOutput;
-  BanOutput: BanOutput;
   SingleBookInput: SingleBookInput;
   MultiBookInput: MultiBookInput;
   SingleBookOutput: SingleBookOutput;
   MultiBookOutput: MultiBookOutput;
-  BookOutput: BookOutput;
   SingleChapterInput: SingleChapterInput;
   MultiChapterInput: MultiChapterInput;
   SingleChapterOutput: SingleChapterOutput;
   MultiChapterOutput: MultiChapterOutput;
-  ChapterOutput: ChapterOutput;
   SingleCkEditorUserSessionInput: SingleCkEditorUserSessionInput;
   MultiCkEditorUserSessionInput: MultiCkEditorUserSessionInput;
   SingleCkEditorUserSessionOutput: SingleCkEditorUserSessionOutput;
   MultiCkEditorUserSessionOutput: MultiCkEditorUserSessionOutput;
-  CkEditorUserSessionOutput: CkEditorUserSessionOutput;
   SingleClientIdInput: SingleClientIdInput;
   MultiClientIdInput: MultiClientIdInput;
   SingleClientIdOutput: SingleClientIdOutput;
   MultiClientIdOutput: MultiClientIdOutput;
-  ClientIdOutput: ClientIdOutput;
   SingleCollectionInput: SingleCollectionInput;
   MultiCollectionInput: MultiCollectionInput;
   SingleCollectionOutput: SingleCollectionOutput;
   MultiCollectionOutput: MultiCollectionOutput;
-  CollectionOutput: CollectionOutput;
   SingleCommentModeratorActionInput: SingleCommentModeratorActionInput;
   MultiCommentModeratorActionInput: MultiCommentModeratorActionInput;
   SingleCommentModeratorActionOutput: SingleCommentModeratorActionOutput;
   MultiCommentModeratorActionOutput: MultiCommentModeratorActionOutput;
-  CommentModeratorActionOutput: CommentModeratorActionOutput;
   SingleCommentInput: SingleCommentInput;
   MultiCommentInput: MultiCommentInput;
   SingleCommentOutput: SingleCommentOutput;
   MultiCommentOutput: MultiCommentOutput;
-  CommentOutput: CommentOutput;
   SingleConversationInput: SingleConversationInput;
   MultiConversationInput: MultiConversationInput;
   SingleConversationOutput: SingleConversationOutput;
   MultiConversationOutput: MultiConversationOutput;
-  ConversationOutput: ConversationOutput;
   SingleCronHistoryInput: SingleCronHistoryInput;
   MultiCronHistoryInput: MultiCronHistoryInput;
   SingleCronHistoryOutput: SingleCronHistoryOutput;
   MultiCronHistoryOutput: MultiCronHistoryOutput;
-  CronHistoryOutput: CronHistoryOutput;
   SingleCurationEmailInput: SingleCurationEmailInput;
   MultiCurationEmailInput: MultiCurationEmailInput;
   SingleCurationEmailOutput: SingleCurationEmailOutput;
   MultiCurationEmailOutput: MultiCurationEmailOutput;
-  CurationEmailOutput: CurationEmailOutput;
   SingleCurationNoticeInput: SingleCurationNoticeInput;
   MultiCurationNoticeInput: MultiCurationNoticeInput;
   SingleCurationNoticeOutput: SingleCurationNoticeOutput;
   MultiCurationNoticeOutput: MultiCurationNoticeOutput;
-  CurationNoticeOutput: CurationNoticeOutput;
   DatabaseMetadata: DatabaseMetadata;
   SingleDatabaseMetadataInput: SingleDatabaseMetadataInput;
   MultiDatabaseMetadataInput: MultiDatabaseMetadataInput;
   SingleDatabaseMetadataOutput: SingleDatabaseMetadataOutput;
   MultiDatabaseMetadataOutput: MultiDatabaseMetadataOutput;
-  DatabaseMetadataOutput: DatabaseMetadataOutput;
   DebouncerEvents: DebouncerEvents;
   SingleDebouncerEventsInput: SingleDebouncerEventsInput;
   MultiDebouncerEventsInput: MultiDebouncerEventsInput;
   SingleDebouncerEventsOutput: SingleDebouncerEventsOutput;
   MultiDebouncerEventsOutput: MultiDebouncerEventsOutput;
-  DebouncerEventsOutput: DebouncerEventsOutput;
   SingleDialogueCheckInput: SingleDialogueCheckInput;
   MultiDialogueCheckInput: MultiDialogueCheckInput;
   SingleDialogueCheckOutput: SingleDialogueCheckOutput;
   MultiDialogueCheckOutput: MultiDialogueCheckOutput;
-  DialogueCheckOutput: DialogueCheckOutput;
   SingleDialogueMatchPreferenceInput: SingleDialogueMatchPreferenceInput;
   MultiDialogueMatchPreferenceInput: MultiDialogueMatchPreferenceInput;
   SingleDialogueMatchPreferenceOutput: SingleDialogueMatchPreferenceOutput;
   MultiDialogueMatchPreferenceOutput: MultiDialogueMatchPreferenceOutput;
-  DialogueMatchPreferenceOutput: DialogueMatchPreferenceOutput;
   SingleDigestPostInput: SingleDigestPostInput;
   MultiDigestPostInput: MultiDigestPostInput;
   SingleDigestPostOutput: SingleDigestPostOutput;
   MultiDigestPostOutput: MultiDigestPostOutput;
-  DigestPostOutput: DigestPostOutput;
   SingleDigestInput: SingleDigestInput;
   MultiDigestInput: MultiDigestInput;
   SingleDigestOutput: SingleDigestOutput;
   MultiDigestOutput: MultiDigestOutput;
-  DigestOutput: DigestOutput;
   SingleElectionCandidateInput: SingleElectionCandidateInput;
   MultiElectionCandidateInput: MultiElectionCandidateInput;
   SingleElectionCandidateOutput: SingleElectionCandidateOutput;
   MultiElectionCandidateOutput: MultiElectionCandidateOutput;
-  ElectionCandidateOutput: ElectionCandidateOutput;
   SingleElectionVoteInput: SingleElectionVoteInput;
   MultiElectionVoteInput: MultiElectionVoteInput;
   SingleElectionVoteOutput: SingleElectionVoteOutput;
   MultiElectionVoteOutput: MultiElectionVoteOutput;
-  ElectionVoteOutput: ElectionVoteOutput;
   SingleElicitQuestionPredictionInput: SingleElicitQuestionPredictionInput;
   MultiElicitQuestionPredictionInput: MultiElicitQuestionPredictionInput;
   SingleElicitQuestionPredictionOutput: SingleElicitQuestionPredictionOutput;
   MultiElicitQuestionPredictionOutput: MultiElicitQuestionPredictionOutput;
-  ElicitQuestionPredictionOutput: ElicitQuestionPredictionOutput;
   SingleElicitQuestionInput: SingleElicitQuestionInput;
   MultiElicitQuestionInput: MultiElicitQuestionInput;
   SingleElicitQuestionOutput: SingleElicitQuestionOutput;
   MultiElicitQuestionOutput: MultiElicitQuestionOutput;
-  ElicitQuestionOutput: ElicitQuestionOutput;
   EmailTokens: EmailTokens;
   SingleEmailTokensInput: SingleEmailTokensInput;
   MultiEmailTokensInput: MultiEmailTokensInput;
   SingleEmailTokensOutput: SingleEmailTokensOutput;
   MultiEmailTokensOutput: MultiEmailTokensOutput;
-  EmailTokensOutput: EmailTokensOutput;
   SingleFeaturedResourceInput: SingleFeaturedResourceInput;
   MultiFeaturedResourceInput: MultiFeaturedResourceInput;
   SingleFeaturedResourceOutput: SingleFeaturedResourceOutput;
   MultiFeaturedResourceOutput: MultiFeaturedResourceOutput;
-  FeaturedResourceOutput: FeaturedResourceOutput;
   SingleFieldChangeInput: SingleFieldChangeInput;
   MultiFieldChangeInput: MultiFieldChangeInput;
   SingleFieldChangeOutput: SingleFieldChangeOutput;
   MultiFieldChangeOutput: MultiFieldChangeOutput;
-  FieldChangeOutput: FieldChangeOutput;
   SingleForumEventInput: SingleForumEventInput;
   MultiForumEventInput: MultiForumEventInput;
   SingleForumEventOutput: SingleForumEventOutput;
   MultiForumEventOutput: MultiForumEventOutput;
-  ForumEventOutput: ForumEventOutput;
   SingleGardenCodeInput: SingleGardenCodeInput;
   MultiGardenCodeInput: MultiGardenCodeInput;
   SingleGardenCodeOutput: SingleGardenCodeOutput;
   MultiGardenCodeOutput: MultiGardenCodeOutput;
-  GardenCodeOutput: GardenCodeOutput;
   SingleGoogleServiceAccountSessionInput: SingleGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   SingleGoogleServiceAccountSessionOutput: SingleGoogleServiceAccountSessionOutput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
-  GoogleServiceAccountSessionOutput: GoogleServiceAccountSessionOutput;
   Images: Images;
   SingleImagesInput: SingleImagesInput;
   MultiImagesInput: MultiImagesInput;
   SingleImagesOutput: SingleImagesOutput;
   MultiImagesOutput: MultiImagesOutput;
-  ImagesOutput: ImagesOutput;
   SingleJargonTermInput: SingleJargonTermInput;
   MultiJargonTermInput: MultiJargonTermInput;
   SingleJargonTermOutput: SingleJargonTermOutput;
   MultiJargonTermOutput: MultiJargonTermOutput;
-  JargonTermOutput: JargonTermOutput;
   SingleLWEventInput: SingleLWEventInput;
   MultiLWEventInput: MultiLWEventInput;
   SingleLWEventOutput: SingleLWEventOutput;
   MultiLWEventOutput: MultiLWEventOutput;
-  LWEventOutput: LWEventOutput;
   LegacyData: LegacyData;
   SingleLegacyDataInput: SingleLegacyDataInput;
   MultiLegacyDataInput: MultiLegacyDataInput;
   SingleLegacyDataOutput: SingleLegacyDataOutput;
   MultiLegacyDataOutput: MultiLegacyDataOutput;
-  LegacyDataOutput: LegacyDataOutput;
   SingleLlmConversationInput: SingleLlmConversationInput;
   MultiLlmConversationInput: MultiLlmConversationInput;
   SingleLlmConversationOutput: SingleLlmConversationOutput;
   MultiLlmConversationOutput: MultiLlmConversationOutput;
-  LlmConversationOutput: LlmConversationOutput;
   SingleLlmMessageInput: SingleLlmMessageInput;
   MultiLlmMessageInput: MultiLlmMessageInput;
   SingleLlmMessageOutput: SingleLlmMessageOutput;
   MultiLlmMessageOutput: MultiLlmMessageOutput;
-  LlmMessageOutput: LlmMessageOutput;
   SingleLocalgroupInput: SingleLocalgroupInput;
   MultiLocalgroupInput: MultiLocalgroupInput;
   SingleLocalgroupOutput: SingleLocalgroupOutput;
   MultiLocalgroupOutput: MultiLocalgroupOutput;
-  LocalgroupOutput: LocalgroupOutput;
   SingleManifoldProbabilitiesCacheInput: SingleManifoldProbabilitiesCacheInput;
   MultiManifoldProbabilitiesCacheInput: MultiManifoldProbabilitiesCacheInput;
   SingleManifoldProbabilitiesCacheOutput: SingleManifoldProbabilitiesCacheOutput;
   MultiManifoldProbabilitiesCacheOutput: MultiManifoldProbabilitiesCacheOutput;
-  ManifoldProbabilitiesCacheOutput: ManifoldProbabilitiesCacheOutput;
   SingleMessageInput: SingleMessageInput;
   MultiMessageInput: MultiMessageInput;
   SingleMessageOutput: SingleMessageOutput;
   MultiMessageOutput: MultiMessageOutput;
-  MessageOutput: MessageOutput;
   SingleMigrationInput: SingleMigrationInput;
   MultiMigrationInput: MultiMigrationInput;
   SingleMigrationOutput: SingleMigrationOutput;
   MultiMigrationOutput: MultiMigrationOutput;
-  MigrationOutput: MigrationOutput;
   SingleModerationTemplateInput: SingleModerationTemplateInput;
   MultiModerationTemplateInput: MultiModerationTemplateInput;
   SingleModerationTemplateOutput: SingleModerationTemplateOutput;
   MultiModerationTemplateOutput: MultiModerationTemplateOutput;
-  ModerationTemplateOutput: ModerationTemplateOutput;
   SingleModeratorActionInput: SingleModeratorActionInput;
   MultiModeratorActionInput: MultiModeratorActionInput;
   SingleModeratorActionOutput: SingleModeratorActionOutput;
   MultiModeratorActionOutput: MultiModeratorActionOutput;
-  ModeratorActionOutput: ModeratorActionOutput;
   SingleMultiDocumentInput: SingleMultiDocumentInput;
   MultiMultiDocumentInput: MultiMultiDocumentInput;
   SingleMultiDocumentOutput: SingleMultiDocumentOutput;
   MultiMultiDocumentOutput: MultiMultiDocumentOutput;
-  MultiDocumentOutput: MultiDocumentOutput;
   SingleNotificationInput: SingleNotificationInput;
   MultiNotificationInput: MultiNotificationInput;
   SingleNotificationOutput: SingleNotificationOutput;
   MultiNotificationOutput: MultiNotificationOutput;
-  NotificationOutput: NotificationOutput;
   PageCacheEntry: PageCacheEntry;
   SinglePageCacheEntryInput: SinglePageCacheEntryInput;
   MultiPageCacheEntryInput: MultiPageCacheEntryInput;
   SinglePageCacheEntryOutput: SinglePageCacheEntryOutput;
   MultiPageCacheEntryOutput: MultiPageCacheEntryOutput;
-  PageCacheEntryOutput: PageCacheEntryOutput;
   SinglePetrovDayActionInput: SinglePetrovDayActionInput;
   MultiPetrovDayActionInput: MultiPetrovDayActionInput;
   SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
   MultiPetrovDayActionOutput: MultiPetrovDayActionOutput;
-  PetrovDayActionOutput: PetrovDayActionOutput;
   SinglePetrovDayLaunchInput: SinglePetrovDayLaunchInput;
   MultiPetrovDayLaunchInput: MultiPetrovDayLaunchInput;
   SinglePetrovDayLaunchOutput: SinglePetrovDayLaunchOutput;
   MultiPetrovDayLaunchOutput: MultiPetrovDayLaunchOutput;
-  PetrovDayLaunchOutput: PetrovDayLaunchOutput;
   SinglePodcastEpisodeInput: SinglePodcastEpisodeInput;
   MultiPodcastEpisodeInput: MultiPodcastEpisodeInput;
   SinglePodcastEpisodeOutput: SinglePodcastEpisodeOutput;
   MultiPodcastEpisodeOutput: MultiPodcastEpisodeOutput;
-  PodcastEpisodeOutput: PodcastEpisodeOutput;
   SinglePodcastInput: SinglePodcastInput;
   MultiPodcastInput: MultiPodcastInput;
   SinglePodcastOutput: SinglePodcastOutput;
   MultiPodcastOutput: MultiPodcastOutput;
-  PodcastOutput: PodcastOutput;
   SinglePostEmbeddingInput: SinglePostEmbeddingInput;
   MultiPostEmbeddingInput: MultiPostEmbeddingInput;
   SinglePostEmbeddingOutput: SinglePostEmbeddingOutput;
   MultiPostEmbeddingOutput: MultiPostEmbeddingOutput;
-  PostEmbeddingOutput: PostEmbeddingOutput;
   SinglePostRecommendationInput: SinglePostRecommendationInput;
   MultiPostRecommendationInput: MultiPostRecommendationInput;
   SinglePostRecommendationOutput: SinglePostRecommendationOutput;
   MultiPostRecommendationOutput: MultiPostRecommendationOutput;
-  PostRecommendationOutput: PostRecommendationOutput;
   SinglePostRelationInput: SinglePostRelationInput;
   MultiPostRelationInput: MultiPostRelationInput;
   SinglePostRelationOutput: SinglePostRelationOutput;
   MultiPostRelationOutput: MultiPostRelationOutput;
-  PostRelationOutput: PostRelationOutput;
   SinglePostViewTimeInput: SinglePostViewTimeInput;
   MultiPostViewTimeInput: MultiPostViewTimeInput;
   SinglePostViewTimeOutput: SinglePostViewTimeOutput;
   MultiPostViewTimeOutput: MultiPostViewTimeOutput;
-  PostViewTimeOutput: PostViewTimeOutput;
   PostViews: PostViews;
   SinglePostViewsInput: SinglePostViewsInput;
   MultiPostViewsInput: MultiPostViewsInput;
   SinglePostViewsOutput: SinglePostViewsOutput;
   MultiPostViewsOutput: MultiPostViewsOutput;
-  PostViewsOutput: PostViewsOutput;
   SinglePostInput: SinglePostInput;
   MultiPostInput: MultiPostInput;
   SinglePostOutput: SinglePostOutput;
   MultiPostOutput: MultiPostOutput;
-  PostOutput: PostOutput;
   SingleRSSFeedInput: SingleRSSFeedInput;
   MultiRSSFeedInput: MultiRSSFeedInput;
   SingleRSSFeedOutput: SingleRSSFeedOutput;
   MultiRSSFeedOutput: MultiRSSFeedOutput;
-  RSSFeedOutput: RSSFeedOutput;
   SingleReadStatusInput: SingleReadStatusInput;
   MultiReadStatusInput: MultiReadStatusInput;
   SingleReadStatusOutput: SingleReadStatusOutput;
   MultiReadStatusOutput: MultiReadStatusOutput;
-  ReadStatusOutput: ReadStatusOutput;
   SingleRecommendationsCacheInput: SingleRecommendationsCacheInput;
   MultiRecommendationsCacheInput: MultiRecommendationsCacheInput;
   SingleRecommendationsCacheOutput: SingleRecommendationsCacheOutput;
   MultiRecommendationsCacheOutput: MultiRecommendationsCacheOutput;
-  RecommendationsCacheOutput: RecommendationsCacheOutput;
   SingleReportInput: SingleReportInput;
   MultiReportInput: MultiReportInput;
   SingleReportOutput: SingleReportOutput;
   MultiReportOutput: MultiReportOutput;
-  ReportOutput: ReportOutput;
   SingleReviewVoteInput: SingleReviewVoteInput;
   MultiReviewVoteInput: MultiReviewVoteInput;
   SingleReviewVoteOutput: SingleReviewVoteOutput;
   MultiReviewVoteOutput: MultiReviewVoteOutput;
-  ReviewVoteOutput: ReviewVoteOutput;
   SingleReviewWinnerArtInput: SingleReviewWinnerArtInput;
   MultiReviewWinnerArtInput: MultiReviewWinnerArtInput;
   SingleReviewWinnerArtOutput: SingleReviewWinnerArtOutput;
   MultiReviewWinnerArtOutput: MultiReviewWinnerArtOutput;
-  ReviewWinnerArtOutput: ReviewWinnerArtOutput;
   SingleReviewWinnerInput: SingleReviewWinnerInput;
   MultiReviewWinnerInput: MultiReviewWinnerInput;
   SingleReviewWinnerOutput: SingleReviewWinnerOutput;
   MultiReviewWinnerOutput: MultiReviewWinnerOutput;
-  ReviewWinnerOutput: ReviewWinnerOutput;
   SingleRevisionInput: SingleRevisionInput;
   MultiRevisionInput: MultiRevisionInput;
   SingleRevisionOutput: SingleRevisionOutput;
   MultiRevisionOutput: MultiRevisionOutput;
-  RevisionOutput: RevisionOutput;
   SingleSequenceInput: SingleSequenceInput;
   MultiSequenceInput: MultiSequenceInput;
   SingleSequenceOutput: SingleSequenceOutput;
   MultiSequenceOutput: MultiSequenceOutput;
-  SequenceOutput: SequenceOutput;
   SingleSessionInput: SingleSessionInput;
   MultiSessionInput: MultiSessionInput;
   SingleSessionOutput: SingleSessionOutput;
   MultiSessionOutput: MultiSessionOutput;
-  SessionOutput: SessionOutput;
   SingleSideCommentCacheInput: SingleSideCommentCacheInput;
   MultiSideCommentCacheInput: MultiSideCommentCacheInput;
   SingleSideCommentCacheOutput: SingleSideCommentCacheOutput;
   MultiSideCommentCacheOutput: MultiSideCommentCacheOutput;
-  SideCommentCacheOutput: SideCommentCacheOutput;
   SingleSplashArtCoordinateInput: SingleSplashArtCoordinateInput;
   MultiSplashArtCoordinateInput: MultiSplashArtCoordinateInput;
   SingleSplashArtCoordinateOutput: SingleSplashArtCoordinateOutput;
   MultiSplashArtCoordinateOutput: MultiSplashArtCoordinateOutput;
-  SplashArtCoordinateOutput: SplashArtCoordinateOutput;
   SingleSpotlightInput: SingleSpotlightInput;
   MultiSpotlightInput: MultiSpotlightInput;
   SingleSpotlightOutput: SingleSpotlightOutput;
   MultiSpotlightOutput: MultiSpotlightOutput;
-  SpotlightOutput: SpotlightOutput;
   SingleSubscriptionInput: SingleSubscriptionInput;
   MultiSubscriptionInput: MultiSubscriptionInput;
   SingleSubscriptionOutput: SingleSubscriptionOutput;
   MultiSubscriptionOutput: MultiSubscriptionOutput;
-  SubscriptionOutput: SubscriptionOutput;
   SingleSurveyQuestionInput: SingleSurveyQuestionInput;
   MultiSurveyQuestionInput: MultiSurveyQuestionInput;
   SingleSurveyQuestionOutput: SingleSurveyQuestionOutput;
   MultiSurveyQuestionOutput: MultiSurveyQuestionOutput;
-  SurveyQuestionOutput: SurveyQuestionOutput;
   SingleSurveyResponseInput: SingleSurveyResponseInput;
   MultiSurveyResponseInput: MultiSurveyResponseInput;
   SingleSurveyResponseOutput: SingleSurveyResponseOutput;
   MultiSurveyResponseOutput: MultiSurveyResponseOutput;
-  SurveyResponseOutput: SurveyResponseOutput;
   SingleSurveyScheduleInput: SingleSurveyScheduleInput;
   MultiSurveyScheduleInput: MultiSurveyScheduleInput;
   SingleSurveyScheduleOutput: SingleSurveyScheduleOutput;
   MultiSurveyScheduleOutput: MultiSurveyScheduleOutput;
-  SurveyScheduleOutput: SurveyScheduleOutput;
   SingleSurveyInput: SingleSurveyInput;
   MultiSurveyInput: MultiSurveyInput;
   SingleSurveyOutput: SingleSurveyOutput;
   MultiSurveyOutput: MultiSurveyOutput;
-  SurveyOutput: SurveyOutput;
   SingleTagFlagInput: SingleTagFlagInput;
   MultiTagFlagInput: MultiTagFlagInput;
   SingleTagFlagOutput: SingleTagFlagOutput;
   MultiTagFlagOutput: MultiTagFlagOutput;
-  TagFlagOutput: TagFlagOutput;
   SingleTagRelInput: SingleTagRelInput;
   MultiTagRelInput: MultiTagRelInput;
   SingleTagRelOutput: SingleTagRelOutput;
   MultiTagRelOutput: MultiTagRelOutput;
-  TagRelOutput: TagRelOutput;
   SingleTagInput: SingleTagInput;
   MultiTagInput: MultiTagInput;
   SingleTagOutput: SingleTagOutput;
   MultiTagOutput: MultiTagOutput;
-  TagOutput: TagOutput;
   SingleTweetInput: SingleTweetInput;
   MultiTweetInput: MultiTweetInput;
   SingleTweetOutput: SingleTweetOutput;
   MultiTweetOutput: MultiTweetOutput;
-  TweetOutput: TweetOutput;
   SingleTypingIndicatorInput: SingleTypingIndicatorInput;
   MultiTypingIndicatorInput: MultiTypingIndicatorInput;
   SingleTypingIndicatorOutput: SingleTypingIndicatorOutput;
   MultiTypingIndicatorOutput: MultiTypingIndicatorOutput;
-  TypingIndicatorOutput: TypingIndicatorOutput;
   SingleUserActivityInput: SingleUserActivityInput;
   MultiUserActivityInput: MultiUserActivityInput;
   SingleUserActivityOutput: SingleUserActivityOutput;
   MultiUserActivityOutput: MultiUserActivityOutput;
-  UserActivityOutput: UserActivityOutput;
   SingleUserEAGDetailInput: SingleUserEAGDetailInput;
   MultiUserEAGDetailInput: MultiUserEAGDetailInput;
   SingleUserEAGDetailOutput: SingleUserEAGDetailOutput;
   MultiUserEAGDetailOutput: MultiUserEAGDetailOutput;
-  UserEAGDetailOutput: UserEAGDetailOutput;
   SingleUserJobAdInput: SingleUserJobAdInput;
   MultiUserJobAdInput: MultiUserJobAdInput;
   SingleUserJobAdOutput: SingleUserJobAdOutput;
   MultiUserJobAdOutput: MultiUserJobAdOutput;
-  UserJobAdOutput: UserJobAdOutput;
   SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
   MultiUserMostValuablePostInput: MultiUserMostValuablePostInput;
   SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
   MultiUserMostValuablePostOutput: MultiUserMostValuablePostOutput;
-  UserMostValuablePostOutput: UserMostValuablePostOutput;
   SingleUserRateLimitInput: SingleUserRateLimitInput;
   MultiUserRateLimitInput: MultiUserRateLimitInput;
   SingleUserRateLimitOutput: SingleUserRateLimitOutput;
   MultiUserRateLimitOutput: MultiUserRateLimitOutput;
-  UserRateLimitOutput: UserRateLimitOutput;
   SingleUserTagRelInput: SingleUserTagRelInput;
   MultiUserTagRelInput: MultiUserTagRelInput;
   SingleUserTagRelOutput: SingleUserTagRelOutput;
   MultiUserTagRelOutput: MultiUserTagRelOutput;
-  UserTagRelOutput: UserTagRelOutput;
   SingleUserInput: SingleUserInput;
   MultiUserInput: MultiUserInput;
   SingleUserOutput: SingleUserOutput;
   MultiUserOutput: MultiUserOutput;
-  UserOutput: UserOutput;
   SingleVoteInput: SingleVoteInput;
   MultiVoteInput: MultiVoteInput;
   SingleVoteOutput: SingleVoteOutput;
   MultiVoteOutput: MultiVoteOutput;
-  VoteOutput: VoteOutput;
   Query: Query;
   Mutation: Mutation;
   SelectorInput: SelectorInput;
@@ -6771,8 +6440,6 @@ interface GraphQLTypeMap {
   MultiPostAnalyticsResult: MultiPostAnalyticsResult;
   AnalyticsSeriesValue: AnalyticsSeriesValue;
   ArbitalPageData: ArbitalPageData;
-  CoronaVirusDataRow: CoronaVirusDataRow;
-  CoronaVirusDataSchema: CoronaVirusDataSchema;
   ElicitUser: ElicitUser;
   ElicitPrediction: ElicitPrediction;
   ElicitBlockData: ElicitBlockData;
@@ -6849,210 +6516,264 @@ interface GraphQLTypeMap {
   CreateAdvisorRequestInput: CreateAdvisorRequestInput;
   UpdateAdvisorRequestDataInput: UpdateAdvisorRequestDataInput;
   UpdateAdvisorRequestInput: UpdateAdvisorRequestInput;
+  AdvisorRequestOutput: AdvisorRequestOutput;
   CreateArbitalTagContentRelDataInput: CreateArbitalTagContentRelDataInput;
   CreateArbitalTagContentRelInput: CreateArbitalTagContentRelInput;
   UpdateArbitalTagContentRelDataInput: UpdateArbitalTagContentRelDataInput;
   UpdateArbitalTagContentRelInput: UpdateArbitalTagContentRelInput;
+  ArbitalTagContentRelOutput: ArbitalTagContentRelOutput;
   CreateBanDataInput: CreateBanDataInput;
   CreateBanInput: CreateBanInput;
   UpdateBanDataInput: UpdateBanDataInput;
   UpdateBanInput: UpdateBanInput;
+  BanOutput: BanOutput;
   CreateBookDataInput: CreateBookDataInput;
   CreateBookInput: CreateBookInput;
   UpdateBookDataInput: UpdateBookDataInput;
   UpdateBookInput: UpdateBookInput;
+  BookOutput: BookOutput;
   CreateChapterDataInput: CreateChapterDataInput;
   CreateChapterInput: CreateChapterInput;
   UpdateChapterDataInput: UpdateChapterDataInput;
   UpdateChapterInput: UpdateChapterInput;
+  ChapterOutput: ChapterOutput;
   CreateCollectionDataInput: CreateCollectionDataInput;
   CreateCollectionInput: CreateCollectionInput;
   UpdateCollectionDataInput: UpdateCollectionDataInput;
   UpdateCollectionInput: UpdateCollectionInput;
+  CollectionOutput: CollectionOutput;
   CreateCommentModeratorActionDataInput: CreateCommentModeratorActionDataInput;
   CreateCommentModeratorActionInput: CreateCommentModeratorActionInput;
   UpdateCommentModeratorActionDataInput: UpdateCommentModeratorActionDataInput;
   UpdateCommentModeratorActionInput: UpdateCommentModeratorActionInput;
+  CommentModeratorActionOutput: CommentModeratorActionOutput;
   CreateCommentDataInput: CreateCommentDataInput;
   CreateCommentInput: CreateCommentInput;
   UpdateCommentDataInput: UpdateCommentDataInput;
   UpdateCommentInput: UpdateCommentInput;
+  CommentOutput: CommentOutput;
   CreateConversationDataInput: CreateConversationDataInput;
   CreateConversationInput: CreateConversationInput;
   UpdateConversationDataInput: UpdateConversationDataInput;
   UpdateConversationInput: UpdateConversationInput;
+  ConversationOutput: ConversationOutput;
   CreateCurationNoticeDataInput: CreateCurationNoticeDataInput;
   CreateCurationNoticeInput: CreateCurationNoticeInput;
   UpdateCurationNoticeDataInput: UpdateCurationNoticeDataInput;
   UpdateCurationNoticeInput: UpdateCurationNoticeInput;
+  CurationNoticeOutput: CurationNoticeOutput;
   CreateDialogueMatchPreferenceDataInput: CreateDialogueMatchPreferenceDataInput;
   CreateDialogueMatchPreferenceInput: CreateDialogueMatchPreferenceInput;
   UpdateDialogueMatchPreferenceDataInput: UpdateDialogueMatchPreferenceDataInput;
   UpdateDialogueMatchPreferenceInput: UpdateDialogueMatchPreferenceInput;
+  DialogueMatchPreferenceOutput: DialogueMatchPreferenceOutput;
   CreateDigestPostDataInput: CreateDigestPostDataInput;
   CreateDigestPostInput: CreateDigestPostInput;
   UpdateDigestPostDataInput: UpdateDigestPostDataInput;
   UpdateDigestPostInput: UpdateDigestPostInput;
+  DigestPostOutput: DigestPostOutput;
   CreateDigestDataInput: CreateDigestDataInput;
   CreateDigestInput: CreateDigestInput;
   UpdateDigestDataInput: UpdateDigestDataInput;
   UpdateDigestInput: UpdateDigestInput;
+  DigestOutput: DigestOutput;
   CreateElectionCandidateDataInput: CreateElectionCandidateDataInput;
   CreateElectionCandidateInput: CreateElectionCandidateInput;
   UpdateElectionCandidateDataInput: UpdateElectionCandidateDataInput;
   UpdateElectionCandidateInput: UpdateElectionCandidateInput;
+  ElectionCandidateOutput: ElectionCandidateOutput;
   CreateElectionVoteDataInput: CreateElectionVoteDataInput;
   CreateElectionVoteInput: CreateElectionVoteInput;
   UpdateElectionVoteDataInput: UpdateElectionVoteDataInput;
   UpdateElectionVoteInput: UpdateElectionVoteInput;
+  ElectionVoteOutput: ElectionVoteOutput;
   CreateElicitQuestionDataInput: CreateElicitQuestionDataInput;
   CreateElicitQuestionInput: CreateElicitQuestionInput;
   UpdateElicitQuestionDataInput: UpdateElicitQuestionDataInput;
   UpdateElicitQuestionInput: UpdateElicitQuestionInput;
+  ElicitQuestionOutput: ElicitQuestionOutput;
   CreateForumEventDataInput: CreateForumEventDataInput;
   CreateForumEventInput: CreateForumEventInput;
   UpdateForumEventDataInput: UpdateForumEventDataInput;
   UpdateForumEventInput: UpdateForumEventInput;
+  ForumEventOutput: ForumEventOutput;
   CreateGardenCodeDataInput: CreateGardenCodeDataInput;
   CreateGardenCodeInput: CreateGardenCodeInput;
   UpdateGardenCodeDataInput: UpdateGardenCodeDataInput;
   UpdateGardenCodeInput: UpdateGardenCodeInput;
+  GardenCodeOutput: GardenCodeOutput;
   CreateGoogleServiceAccountSessionDataInput: CreateGoogleServiceAccountSessionDataInput;
   CreateGoogleServiceAccountSessionInput: CreateGoogleServiceAccountSessionInput;
   UpdateGoogleServiceAccountSessionDataInput: UpdateGoogleServiceAccountSessionDataInput;
   UpdateGoogleServiceAccountSessionInput: UpdateGoogleServiceAccountSessionInput;
+  GoogleServiceAccountSessionOutput: GoogleServiceAccountSessionOutput;
   CreateJargonTermDataInput: CreateJargonTermDataInput;
   CreateJargonTermInput: CreateJargonTermInput;
   UpdateJargonTermDataInput: UpdateJargonTermDataInput;
   UpdateJargonTermInput: UpdateJargonTermInput;
+  JargonTermOutput: JargonTermOutput;
   CreateLWEventDataInput: CreateLWEventDataInput;
   CreateLWEventInput: CreateLWEventInput;
   UpdateLWEventDataInput: UpdateLWEventDataInput;
   UpdateLWEventInput: UpdateLWEventInput;
+  LWEventOutput: LWEventOutput;
   UpdateLlmConversationDataInput: UpdateLlmConversationDataInput;
   UpdateLlmConversationInput: UpdateLlmConversationInput;
+  LlmConversationOutput: LlmConversationOutput;
   CreateLocalgroupDataInput: CreateLocalgroupDataInput;
   CreateLocalgroupInput: CreateLocalgroupInput;
   UpdateLocalgroupDataInput: UpdateLocalgroupDataInput;
   UpdateLocalgroupInput: UpdateLocalgroupInput;
+  LocalgroupOutput: LocalgroupOutput;
   CreateMessageDataInput: CreateMessageDataInput;
   CreateMessageInput: CreateMessageInput;
   UpdateMessageDataInput: UpdateMessageDataInput;
   UpdateMessageInput: UpdateMessageInput;
+  MessageOutput: MessageOutput;
   CreateModerationTemplateDataInput: CreateModerationTemplateDataInput;
   CreateModerationTemplateInput: CreateModerationTemplateInput;
   UpdateModerationTemplateDataInput: UpdateModerationTemplateDataInput;
   UpdateModerationTemplateInput: UpdateModerationTemplateInput;
+  ModerationTemplateOutput: ModerationTemplateOutput;
   CreateModeratorActionDataInput: CreateModeratorActionDataInput;
   CreateModeratorActionInput: CreateModeratorActionInput;
   UpdateModeratorActionDataInput: UpdateModeratorActionDataInput;
   UpdateModeratorActionInput: UpdateModeratorActionInput;
+  ModeratorActionOutput: ModeratorActionOutput;
   CreateMultiDocumentDataInput: CreateMultiDocumentDataInput;
   CreateMultiDocumentInput: CreateMultiDocumentInput;
   UpdateMultiDocumentDataInput: UpdateMultiDocumentDataInput;
   UpdateMultiDocumentInput: UpdateMultiDocumentInput;
+  MultiDocumentOutput: MultiDocumentOutput;
   CreateNotificationDataInput: CreateNotificationDataInput;
   CreateNotificationInput: CreateNotificationInput;
   UpdateNotificationDataInput: UpdateNotificationDataInput;
   UpdateNotificationInput: UpdateNotificationInput;
+  NotificationOutput: NotificationOutput;
   CreatePetrovDayActionDataInput: CreatePetrovDayActionDataInput;
   CreatePetrovDayActionInput: CreatePetrovDayActionInput;
+  PetrovDayActionOutput: PetrovDayActionOutput;
   CreatePodcastEpisodeDataInput: CreatePodcastEpisodeDataInput;
   CreatePodcastEpisodeInput: CreatePodcastEpisodeInput;
   UpdatePodcastEpisodeDataInput: UpdatePodcastEpisodeDataInput;
   UpdatePodcastEpisodeInput: UpdatePodcastEpisodeInput;
+  PodcastEpisodeOutput: PodcastEpisodeOutput;
   CreatePostEmbeddingDataInput: CreatePostEmbeddingDataInput;
   CreatePostEmbeddingInput: CreatePostEmbeddingInput;
   UpdatePostEmbeddingDataInput: UpdatePostEmbeddingDataInput;
   UpdatePostEmbeddingInput: UpdatePostEmbeddingInput;
+  PostEmbeddingOutput: PostEmbeddingOutput;
   CreatePostViewTimeDataInput: CreatePostViewTimeDataInput;
   CreatePostViewTimeInput: CreatePostViewTimeInput;
   UpdatePostViewTimeDataInput: UpdatePostViewTimeDataInput;
   UpdatePostViewTimeInput: UpdatePostViewTimeInput;
+  PostViewTimeOutput: PostViewTimeOutput;
   CreatePostViewsDataInput: CreatePostViewsDataInput;
   CreatePostViewsInput: CreatePostViewsInput;
   UpdatePostViewsDataInput: UpdatePostViewsDataInput;
   UpdatePostViewsInput: UpdatePostViewsInput;
+  PostViewsOutput: PostViewsOutput;
   CreatePostDataInput: CreatePostDataInput;
   CreatePostInput: CreatePostInput;
   UpdatePostDataInput: UpdatePostDataInput;
   UpdatePostInput: UpdatePostInput;
+  PostOutput: PostOutput;
   CreateRSSFeedDataInput: CreateRSSFeedDataInput;
   CreateRSSFeedInput: CreateRSSFeedInput;
   UpdateRSSFeedDataInput: UpdateRSSFeedDataInput;
   UpdateRSSFeedInput: UpdateRSSFeedInput;
+  RSSFeedOutput: RSSFeedOutput;
   CreateReportDataInput: CreateReportDataInput;
   CreateReportInput: CreateReportInput;
   UpdateReportDataInput: UpdateReportDataInput;
   UpdateReportInput: UpdateReportInput;
+  ReportOutput: ReportOutput;
   UpdateRevisionDataInput: UpdateRevisionDataInput;
   UpdateRevisionInput: UpdateRevisionInput;
+  RevisionOutput: RevisionOutput;
   CreateSequenceDataInput: CreateSequenceDataInput;
   CreateSequenceInput: CreateSequenceInput;
   UpdateSequenceDataInput: UpdateSequenceDataInput;
   UpdateSequenceInput: UpdateSequenceInput;
+  SequenceOutput: SequenceOutput;
   CreateSplashArtCoordinateDataInput: CreateSplashArtCoordinateDataInput;
   CreateSplashArtCoordinateInput: CreateSplashArtCoordinateInput;
   UpdateSplashArtCoordinateDataInput: UpdateSplashArtCoordinateDataInput;
   UpdateSplashArtCoordinateInput: UpdateSplashArtCoordinateInput;
+  SplashArtCoordinateOutput: SplashArtCoordinateOutput;
   CreateSpotlightDataInput: CreateSpotlightDataInput;
   CreateSpotlightInput: CreateSpotlightInput;
   UpdateSpotlightDataInput: UpdateSpotlightDataInput;
   UpdateSpotlightInput: UpdateSpotlightInput;
+  SpotlightOutput: SpotlightOutput;
   CreateSubscriptionDataInput: CreateSubscriptionDataInput;
   CreateSubscriptionInput: CreateSubscriptionInput;
+  SubscriptionOutput: SubscriptionOutput;
   CreateSurveyQuestionDataInput: CreateSurveyQuestionDataInput;
   CreateSurveyQuestionInput: CreateSurveyQuestionInput;
   UpdateSurveyQuestionDataInput: UpdateSurveyQuestionDataInput;
   UpdateSurveyQuestionInput: UpdateSurveyQuestionInput;
+  SurveyQuestionOutput: SurveyQuestionOutput;
   CreateSurveyResponseDataInput: CreateSurveyResponseDataInput;
   CreateSurveyResponseInput: CreateSurveyResponseInput;
   UpdateSurveyResponseDataInput: UpdateSurveyResponseDataInput;
   UpdateSurveyResponseInput: UpdateSurveyResponseInput;
+  SurveyResponseOutput: SurveyResponseOutput;
   CreateSurveyScheduleDataInput: CreateSurveyScheduleDataInput;
   CreateSurveyScheduleInput: CreateSurveyScheduleInput;
   UpdateSurveyScheduleDataInput: UpdateSurveyScheduleDataInput;
   UpdateSurveyScheduleInput: UpdateSurveyScheduleInput;
+  SurveyScheduleOutput: SurveyScheduleOutput;
   CreateSurveyDataInput: CreateSurveyDataInput;
   CreateSurveyInput: CreateSurveyInput;
   UpdateSurveyDataInput: UpdateSurveyDataInput;
   UpdateSurveyInput: UpdateSurveyInput;
+  SurveyOutput: SurveyOutput;
   CreateTagFlagDataInput: CreateTagFlagDataInput;
   CreateTagFlagInput: CreateTagFlagInput;
   UpdateTagFlagDataInput: UpdateTagFlagDataInput;
   UpdateTagFlagInput: UpdateTagFlagInput;
+  TagFlagOutput: TagFlagOutput;
   CreateTagRelDataInput: CreateTagRelDataInput;
   CreateTagRelInput: CreateTagRelInput;
   UpdateTagRelDataInput: UpdateTagRelDataInput;
   UpdateTagRelInput: UpdateTagRelInput;
+  TagRelOutput: TagRelOutput;
   CreateTagDataInput: CreateTagDataInput;
   CreateTagInput: CreateTagInput;
   UpdateTagDataInput: UpdateTagDataInput;
   UpdateTagInput: UpdateTagInput;
+  TagOutput: TagOutput;
   CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
   CreateUserEAGDetailInput: CreateUserEAGDetailInput;
   UpdateUserEAGDetailDataInput: UpdateUserEAGDetailDataInput;
   UpdateUserEAGDetailInput: UpdateUserEAGDetailInput;
+  UserEAGDetailOutput: UserEAGDetailOutput;
   CreateUserJobAdDataInput: CreateUserJobAdDataInput;
   CreateUserJobAdInput: CreateUserJobAdInput;
   UpdateUserJobAdDataInput: UpdateUserJobAdDataInput;
   UpdateUserJobAdInput: UpdateUserJobAdInput;
+  UserJobAdOutput: UserJobAdOutput;
   CreateUserMostValuablePostDataInput: CreateUserMostValuablePostDataInput;
   CreateUserMostValuablePostInput: CreateUserMostValuablePostInput;
   UpdateUserMostValuablePostDataInput: UpdateUserMostValuablePostDataInput;
   UpdateUserMostValuablePostInput: UpdateUserMostValuablePostInput;
+  UserMostValuablePostOutput: UserMostValuablePostOutput;
   CreateUserRateLimitDataInput: CreateUserRateLimitDataInput;
   CreateUserRateLimitInput: CreateUserRateLimitInput;
   UpdateUserRateLimitDataInput: UpdateUserRateLimitDataInput;
   UpdateUserRateLimitInput: UpdateUserRateLimitInput;
+  UserRateLimitOutput: UserRateLimitOutput;
   CreateUserTagRelDataInput: CreateUserTagRelDataInput;
   CreateUserTagRelInput: CreateUserTagRelInput;
   UpdateUserTagRelDataInput: UpdateUserTagRelDataInput;
   UpdateUserTagRelInput: UpdateUserTagRelInput;
+  UserTagRelOutput: UserTagRelOutput;
   CreateUserDataInput: CreateUserDataInput;
   CreateUserInput: CreateUserInput;
   UpdateUserDataInput: UpdateUserDataInput;
   UpdateUserInput: UpdateUserInput;
+  UserOutput: UserOutput;
 }
 
 interface CreateInputsByCollectionName {

@@ -4,7 +4,7 @@ import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentUser } from "../common/withUser";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -59,7 +59,7 @@ const ForumEventStickers: FC<{
 }> = ({ classes }) => {
   const { ForumEventCommentForm, ForumEventSticker } = Components;
 
-  const { currentForumEvent, refetch } = useCurrentForumEvent();
+  const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();

@@ -1,4 +1,6 @@
-export const ReviewWinnerEditDisplay = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const ReviewWinnerEditDisplay = () => frag`
   fragment ReviewWinnerEditDisplay on ReviewWinner {
     _id
     postId
@@ -8,7 +10,7 @@ export const ReviewWinnerEditDisplay = `
   }
 `
 
-export const ReviewWinnerTopPostsDisplay = `
+export const ReviewWinnerTopPostsDisplay = () => frag`
   fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
     _id
     postId
@@ -21,7 +23,7 @@ export const ReviewWinnerTopPostsDisplay = `
   }
 `
 
-export const ReviewWinnerAll = `
+export const ReviewWinnerAll = () => frag`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     category
@@ -36,7 +38,7 @@ export const ReviewWinnerAll = `
   }
 `
 
-export const ReviewWinnerTopPostsPage = `
+export const ReviewWinnerTopPostsPage = () => frag`
   fragment ReviewWinnerTopPostsPage on ReviewWinner {
     _id
     category
@@ -46,8 +48,25 @@ export const ReviewWinnerTopPostsPage = `
     reviewWinnerArt {
       splashArtImageUrl
       activeSplashArtCoordinates {
-        ...SplashArtCoordinates
+        ...SplashArtCoordinatesEdit
       }
+    }
+  }
+`
+
+export const ReviewWinnerAnnouncement = () => frag`
+  fragment ReviewWinnerAnnouncement on ReviewWinner {
+    _id
+    category
+    curatedOrder
+    reviewYear
+    reviewRanking
+    competitorCount
+    postId
+    post {
+      _id
+      title
+      slug
     }
   }
 `

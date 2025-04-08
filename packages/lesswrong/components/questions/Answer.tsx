@@ -10,7 +10,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { ContentItemBody } from '../common/ContentItemBody';
 import { useVote } from '../votes/withVote';
-import { getVotingSystemByName } from '../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 

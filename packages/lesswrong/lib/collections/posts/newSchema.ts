@@ -31,7 +31,7 @@ import { formGroups } from "./formGroups";
 import SimpleSchema from "simpl-schema";
 import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/schema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { getVotingSystems } from "../../voting/votingSystems";
+import { getVotingSystems } from '../../voting/getVotingSystem';
 import {
   eaFrontpageDateDefault, fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum,
   isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting
@@ -384,7 +384,7 @@ const schema = {
       outputType: "Revision",
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
-      canCreate: [userHasModerationGuidelines],
+      canCreate: ['members', 'sunshineRegiment', 'admins'],
       editableFieldOptions: { pingbacks: false, normalized: true },
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("moderationGuidelines"),
@@ -3349,7 +3349,7 @@ const schema = {
   },
   organizers: {
     graphql: {
-      outputType: "[User!]!",
+      outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "organizerIds" }),
     },
@@ -3913,7 +3913,7 @@ const schema = {
   },
   usersSharedWith: {
     graphql: {
-      outputType: "[User!]!",
+      outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "shareWithUsers" }),
     },
@@ -4448,7 +4448,7 @@ const schema = {
   },
   languageModelSummary: {
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["admins"],
       resolver: async (post, _args, context) => {
         if (!post.contents_latest) {
@@ -4890,7 +4890,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String]",
-      canRead: ["members"],
+      canRead: ["guests"],
       canUpdate: ["members", "alignmentForum", "alignmentForumAdmins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -4908,7 +4908,7 @@ const schema = {
   suggestForAlignmentUsers: {
     graphql: {
       outputType: "[User!]!",
-      canRead: ["members"],
+      canRead: ["guests"],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "suggestForAlignmentUserIds" }),
     },
   },

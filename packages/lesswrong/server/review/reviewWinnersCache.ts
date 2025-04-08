@@ -25,6 +25,5 @@ export const reviewWinnerCache = new SwrCache<{
 
 export async function getPostReviewWinnerInfo(postId: string, context: ResolverContext): Promise<DbReviewWinner | null> {
   const { reviewWinnersByPostId } = await reviewWinnerCache.get(context);
-  return reviewWinnersByPostId[postId]
-    ?? await context.ReviewWinners.findOne({ postId, reviewYear: {$lte: BEST_OF_LESSWRONG_PUBLISH_YEAR} });
+  return reviewWinnersByPostId[postId];
 }

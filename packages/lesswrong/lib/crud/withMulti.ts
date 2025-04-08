@@ -8,48 +8,19 @@ import { getMultiResolverName } from './utils';
 import type { PrimitiveGraphQLType } from './types';
 import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
 import { getFragment } from "../vulcan-lib/fragments";
-import { pluralize } from "../vulcan-lib/pluralize";
-import { camelCaseify } from "../vulcan-lib/utils";
 import { collectionNameToTypeName } from "../generated/collectionTypeNames";
 import { useLocation, useNavigate } from "../routeUtil";
-
-// Template of a GraphQL query for useMulti. A sample query might look
-// like:
-//
-// mutation multiMovieQuery($input: MultiMovieInput) {
-//   movies(input: $input) {
-//     results {
-//       _id
-//       name
-//       __typename
-//     }
-//     totalCount
-//     __typename
-//   }
-// }
-const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: FragmentName,
-  extraVariablesString: string,
-}) => `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
-  ${camelCaseify(pluralize(typeName))}(input: $input) {
-    results {
-      ...${fragmentName}
-    }
-    totalCount
-    __typename
-  }
-}`;
 
 interface GetGraphQLMultiQueryFromOptionsArgs {
   collectionName: CollectionNameString,
   typeName: string,
   fragmentName: FragmentName,
   fragment: any,
+  resolverName: string,
   extraVariables?: Record<string, PrimitiveGraphQLType>,
 }
 
-export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragmentName, fragment, extraVariables}: GetGraphQLMultiQueryFromOptionsArgs) {
+export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragmentName, fragment, resolverName, extraVariables}: GetGraphQLMultiQueryFromOptionsArgs) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   let extraVariablesString = ''
@@ -58,7 +29,15 @@ export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragm
   }
   // build graphql query from options
   return gql`
-    ${multiClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
+      ${resolverName}(input: $input) {
+        results {
+          ...${fragmentName}
+        }
+        totalCount
+        __typename
+      }
+    }
     ${fragment}
   `;
 }
@@ -159,8 +138,8 @@ export function useMulti<
   const typeName = collectionNameToTypeName[collectionName];
   const fragment = getFragment(fragmentName);
   
-  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment, extraVariables });
   const resolverName = getMultiResolverName(typeName);
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment, resolverName, extraVariables });
 
   const graphQLVariables = useMemo(() => ({
     input: {

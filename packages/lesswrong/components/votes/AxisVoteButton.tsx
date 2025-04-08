@@ -20,8 +20,8 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
       });
     } else {
       vote({

@@ -17,6 +17,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import escape from 'lodash/escape';
+import { markdownCollapsibleSections } from './markdownCollapsibleSections';
 
 export const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -62,12 +63,22 @@ turndownService.addRule('latex-spans', {
   }
 })
 
+turndownService.addRule('collapsible-section-start', {
+  filter: (node, options) => node.classList?.contains('detailsBlockTitle'),
+  replacement: (content) => `+++ ${content.trim()}\n`
+});
+turndownService.addRule('collapsible-section-end', {
+  filter: (node, options) => node.classList?.contains('detailsBlock'),
+  replacement: (content) => `${content}\n+++`
+});
+
 const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
-mdi.use(markdownItContainer, 'spoiler')
+mdi.use(markdownItContainer as AnyBecauseHard, 'spoiler')
 mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
 mdi.use(markdownItSup)
+mdi.use(markdownCollapsibleSections);
 
 export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string) => any): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
