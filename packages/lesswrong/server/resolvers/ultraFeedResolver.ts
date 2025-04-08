@@ -58,8 +58,8 @@ export const ultraFeedGraphQLTypeDefs = gql`
 // Define source weights for weighted sampling
 const SOURCE_WEIGHTS = {
   postThreads: 20,
-  commentThreads: 20,
-  spotlights: 3,
+  commentThreads: 40,
+  spotlights: 1,
   // popularComments: 5,
   // quickTakes: 5,
   // subscribed: 0
