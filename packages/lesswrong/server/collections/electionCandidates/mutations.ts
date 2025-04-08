@@ -85,19 +85,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Election
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createElectionCandidateGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('ElectionCandidates', updateFunction, {
+export const updateElectionCandidateGqlMutation = makeGqlUpdateMutation('ElectionCandidates', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context)
 });
 
 
 export { createFunction as createElectionCandidate, updateFunction as updateElectionCandidate };
-export { wrappedCreateFunction as createElectionCandidateMutation, wrappedUpdateFunction as updateElectionCandidateMutation };
 
 
 export const graphqlElectionCandidateTypeDefs = gql`

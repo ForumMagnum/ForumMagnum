@@ -68,19 +68,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PodcastE
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createPodcastEpisodeGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('PodcastEpisodes', updateFunction, {
+export const updatePodcastEpisodeGqlMutation = makeGqlUpdateMutation('PodcastEpisodes', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context)
 });
 
 
 export { createFunction as createPodcastEpisode, updateFunction as updatePodcastEpisode };
-export { wrappedCreateFunction as createPodcastEpisodeMutation, wrappedUpdateFunction as updatePodcastEpisodeMutation };
 
 
 export const graphqlPodcastEpisodeTypeDefs = gql`

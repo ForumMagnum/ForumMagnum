@@ -89,7 +89,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Revision
   },
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('Revisions', updateFunction, {
+export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Revisions', rawResult, context)
 });

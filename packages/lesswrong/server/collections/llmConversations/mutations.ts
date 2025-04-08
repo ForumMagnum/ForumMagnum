@@ -76,7 +76,7 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LlmConve
   },
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('LlmConversations', updateFunction, {
+export const updateLlmConversationGqlMutation = makeGqlUpdateMutation('LlmConversations', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'LlmConversations', rawResult, context)
 });

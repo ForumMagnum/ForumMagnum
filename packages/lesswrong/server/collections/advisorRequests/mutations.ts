@@ -98,19 +98,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorR
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createAdvisorRequestGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('AdvisorRequests', updateFunction, {
+export const updateAdvisorRequestGqlMutation = makeGqlUpdateMutation('AdvisorRequests', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context)
 });
 
 
 export { createFunction as createAdvisorRequest, updateFunction as updateAdvisorRequest };
-export { wrappedCreateFunction as createAdvisorRequestMutation, wrappedUpdateFunction as updateAdvisorRequestMutation };
 
 export const graphqlAdvisorRequestTypeDefs = gql`
   input CreateAdvisorRequestDataInput {

@@ -82,19 +82,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('CommentM
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createCommentModeratorActionGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CommentModeratorActions', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('CommentModeratorActions', updateFunction, {
+export const updateCommentModeratorActionGqlMutation = makeGqlUpdateMutation('CommentModeratorActions', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CommentModeratorActions', rawResult, context)
 });
 
 
 export { createFunction as createCommentModeratorAction, updateFunction as updateCommentModeratorAction };
-export { wrappedCreateFunction as createCommentModeratorActionMutation, wrappedUpdateFunction as updateCommentModeratorActionMutation };
 
 
 export const graphqlCommentModeratorActionTypeDefs = gql`

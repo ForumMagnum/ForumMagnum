@@ -72,19 +72,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostEmbe
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createPostEmbeddingGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostEmbeddings', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('PostEmbeddings', updateFunction, {
+export const updatePostEmbeddingGqlMutation = makeGqlUpdateMutation('PostEmbeddings', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostEmbeddings', rawResult, context)
 });
 
 
 export { createFunction as createPostEmbedding, updateFunction as updatePostEmbedding };
-export { wrappedCreateFunction as createPostEmbeddingMutation, wrappedUpdateFunction as updatePostEmbeddingMutation };
 
 
 export const graphqlPostEmbeddingTypeDefs = gql`

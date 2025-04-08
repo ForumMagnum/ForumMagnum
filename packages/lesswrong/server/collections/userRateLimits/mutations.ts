@@ -98,19 +98,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRate
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createUserRateLimitGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('UserRateLimits', updateFunction, {
+export const updateUserRateLimitGqlMutation = makeGqlUpdateMutation('UserRateLimits', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context)
 });
 
 
 export { createFunction as createUserRateLimit, updateFunction as updateUserRateLimit };
-export { wrappedCreateFunction as createUserRateLimitMutation, wrappedUpdateFunction as updateUserRateLimitMutation };
 
 
 export const graphqlUserRateLimitTypeDefs = gql`

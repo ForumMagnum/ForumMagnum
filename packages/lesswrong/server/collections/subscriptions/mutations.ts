@@ -70,14 +70,13 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Subscrip
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createSubscriptionGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Subscriptions', rawResult, context)
 });
 
 
 export { createFunction as createSubscription, updateFunction as updateSubscription };
-export { wrappedCreateFunction as createSubscriptionMutation };
 
 
 export const graphqlSubscriptionTypeDefs = gql`

@@ -199,19 +199,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createCommentGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('Comments', updateFunction, {
+export const updateCommentGqlMutation = makeGqlUpdateMutation('Comments', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context)
 });
 
 
 export { createFunction as createComment, updateFunction as updateComment };
-export { wrappedCreateFunction as createCommentMutation, wrappedUpdateFunction as updateCommentMutation };
 
 
 export const graphqlCommentTypeDefs = gql`

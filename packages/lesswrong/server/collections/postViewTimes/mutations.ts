@@ -82,19 +82,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('PostView
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createPostViewTimeGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostViewTimes', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('PostViewTimes', updateFunction, {
+export const updatePostViewTimeGqlMutation = makeGqlUpdateMutation('PostViewTimes', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostViewTimes', rawResult, context)
 });
 
 
 export { createFunction as createPostViewTime, updateFunction as updatePostViewTime };
-export { wrappedCreateFunction as createPostViewTimeMutation, wrappedUpdateFunction as updatePostViewTimeMutation };
 
 
 export const graphqlPostViewTimeTypeDefs = gql`

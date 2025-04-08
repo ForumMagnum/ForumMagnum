@@ -82,19 +82,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SurveyQu
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createSurveyQuestionGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveyQuestions', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('SurveyQuestions', updateFunction, {
+export const updateSurveyQuestionGqlMutation = makeGqlUpdateMutation('SurveyQuestions', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveyQuestions', rawResult, context)
 });
 
 
 export { createFunction as createSurveyQuestion, updateFunction as updateSurveyQuestion };
-export { wrappedCreateFunction as createSurveyQuestionMutation, wrappedUpdateFunction as updateSurveyQuestionMutation };
 
 
 export const graphqlSurveyQuestionTypeDefs = gql`

@@ -80,19 +80,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ElicitQu
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createElicitQuestionGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('ElicitQuestions', updateFunction, {
+export const updateElicitQuestionGqlMutation = makeGqlUpdateMutation('ElicitQuestions', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context)
 });
 
 
 export { createFunction as createElicitQuestion, updateFunction as updateElicitQuestion };
-export { wrappedCreateFunction as createElicitQuestionMutation, wrappedUpdateFunction as updateElicitQuestionMutation };
 
 
 export const graphqlElicitQuestionTypeDefs = gql`

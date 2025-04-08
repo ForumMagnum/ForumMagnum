@@ -140,19 +140,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDoc
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createMultiDocumentGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('MultiDocuments', updateFunction, {
+export const updateMultiDocumentGqlMutation = makeGqlUpdateMutation('MultiDocuments', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context)
 });
 
 
 export { createFunction as createMultiDocument, updateFunction as updateMultiDocument };
-export { wrappedCreateFunction as createMultiDocumentMutation, wrappedUpdateFunction as updateMultiDocumentMutation };
 
 
 export const graphqlMultiDocumentTypeDefs = gql`

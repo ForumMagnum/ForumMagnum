@@ -122,19 +122,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('TagFlags
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createTagFlagGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'TagFlags', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('TagFlags', updateFunction, {
+export const updateTagFlagGqlMutation = makeGqlUpdateMutation('TagFlags', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'TagFlags', rawResult, context)
 });
 
 
 export { createFunction as createTagFlag, updateFunction as updateTagFlag };
-export { wrappedCreateFunction as createTagFlagMutation, wrappedUpdateFunction as updateTagFlagMutation };
 
 
 export const graphqlTagFlagTypeDefs = gql`

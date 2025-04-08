@@ -146,19 +146,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTe
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createJargonTermGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('JargonTerms', updateFunction, {
+export const updateJargonTermGqlMutation = makeGqlUpdateMutation('JargonTerms', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context)
 });
 
 
 export { createFunction as createJargonTerm, updateFunction as updateJargonTerm };
-export { wrappedCreateFunction as createJargonTermMutation, wrappedUpdateFunction as updateJargonTermMutation };
 
 
 export const graphqlJargonTermTypeDefs = gql`

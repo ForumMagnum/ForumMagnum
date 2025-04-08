@@ -68,19 +68,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashAr
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createSplashArtCoordinateGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SplashArtCoordinates', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('SplashArtCoordinates', updateFunction, {
+export const updateSplashArtCoordinateGqlMutation = makeGqlUpdateMutation('SplashArtCoordinates', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SplashArtCoordinates', rawResult, context)
 });
 
 
 export { createFunction as createSplashArtCoordinate, updateFunction as updateSplashArtCoordinate };
-export { wrappedCreateFunction as createSplashArtCoordinateMutation, wrappedUpdateFunction as updateSplashArtCoordinateMutation };
 
 
 export const graphqlSplashArtCoordinateTypeDefs = gql`

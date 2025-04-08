@@ -86,19 +86,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests'
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createDigestGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('Digests', updateFunction, {
+export const updateDigestGqlMutation = makeGqlUpdateMutation('Digests', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context)
 });
 
 
 export { createFunction as createDigest, updateFunction as updateDigest };
-export { wrappedCreateFunction as createDigestMutation, wrappedUpdateFunction as updateDigestMutation };
 
 
 export const graphqlDigestTypeDefs = gql`

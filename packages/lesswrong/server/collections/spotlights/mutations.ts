@@ -109,19 +109,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Spotligh
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createSpotlightGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Spotlights', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('Spotlights', updateFunction, {
+export const updateSpotlightGqlMutation = makeGqlUpdateMutation('Spotlights', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Spotlights', rawResult, context)
 });
 
 
 export { createFunction as createSpotlight, updateFunction as updateSpotlight };
-export { wrappedCreateFunction as createSpotlightMutation, wrappedUpdateFunction as updateSpotlightMutation };
 
 
 export const graphqlSpotlightTypeDefs = gql`

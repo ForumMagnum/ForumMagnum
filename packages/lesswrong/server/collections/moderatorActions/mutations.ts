@@ -91,19 +91,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Moderato
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createModeratorActionGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ModeratorActions', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('ModeratorActions', updateFunction, {
+export const updateModeratorActionGqlMutation = makeGqlUpdateMutation('ModeratorActions', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ModeratorActions', rawResult, context)
 });
 
 
 export { createFunction as createModeratorAction, updateFunction as updateModeratorAction };
-export { wrappedCreateFunction as createModeratorActionMutation, wrappedUpdateFunction as updateModeratorActionMutation };
 
 
 export const graphqlModeratorActionTypeDefs = gql`

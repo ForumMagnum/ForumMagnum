@@ -119,19 +119,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ForumEve
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createForumEventGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ForumEvents', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('ForumEvents', updateFunction, {
+export const updateForumEventGqlMutation = makeGqlUpdateMutation('ForumEvents', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ForumEvents', rawResult, context)
 });
 
 
 export { createFunction as createForumEvent, updateFunction as updateForumEvent };
-export { wrappedCreateFunction as createForumEventMutation, wrappedUpdateFunction as updateForumEventMutation };
 
 
 export const graphqlForumEventTypeDefs = gql`

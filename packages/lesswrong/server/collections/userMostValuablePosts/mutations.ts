@@ -98,19 +98,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMost
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createUserMostValuablePostGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserMostValuablePosts', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('UserMostValuablePosts', updateFunction, {
+export const updateUserMostValuablePostGqlMutation = makeGqlUpdateMutation('UserMostValuablePosts', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserMostValuablePosts', rawResult, context)
 });
 
 
 export { createFunction as createUserMostValuablePost, updateFunction as updateUserMostValuablePost };
-export { wrappedCreateFunction as createUserMostValuablePostMutation, wrappedUpdateFunction as updateUserMostValuablePostMutation };
 
 
 export const graphqlUserMostValuablePostTypeDefs = gql`

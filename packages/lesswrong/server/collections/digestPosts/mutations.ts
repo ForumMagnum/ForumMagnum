@@ -82,19 +82,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPo
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createDigestPostGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'DigestPosts', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('DigestPosts', updateFunction, {
+export const updateDigestPostGqlMutation = makeGqlUpdateMutation('DigestPosts', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'DigestPosts', rawResult, context)
 });
 
 
 export { createFunction as createDigestPost, updateFunction as updateDigestPost };
-export { wrappedCreateFunction as createDigestPostMutation, wrappedUpdateFunction as updateDigestPostMutation };
 
 
 export const graphqlDigestPostTypeDefs = gql`

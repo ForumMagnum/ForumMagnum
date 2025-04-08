@@ -85,19 +85,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createRSSFeedGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('RSSFeeds', updateFunction, {
+export const updateRSSFeedGqlMutation = makeGqlUpdateMutation('RSSFeeds', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context)
 });
 
 
 export { createFunction as createRSSFeed, updateFunction as updateRSSFeed };
-export { wrappedCreateFunction as createRSSFeedMutation, wrappedUpdateFunction as updateRSSFeedMutation };
 
 
 export const graphqlRSSFeedTypeDefs = gql`

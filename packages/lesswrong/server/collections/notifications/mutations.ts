@@ -75,19 +75,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Notifica
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createNotificationGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('Notifications', updateFunction, {
+export const updateNotificationGqlMutation = makeGqlUpdateMutation('Notifications', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context)
 });
 
 
 export { createFunction as createNotification, updateFunction as updateNotification };
-export { wrappedCreateFunction as createNotificationMutation, wrappedUpdateFunction as updateNotificationMutation };
 
 export const graphqlNotificationTypeDefs = gql`
   input CreateNotificationDataInput {

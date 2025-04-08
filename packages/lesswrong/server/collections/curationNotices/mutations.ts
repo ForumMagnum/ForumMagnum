@@ -115,19 +115,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Curation
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createCurationNoticeGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('CurationNotices', updateFunction, {
+export const updateCurationNoticeGqlMutation = makeGqlUpdateMutation('CurationNotices', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context)
 });
 
 
 export { createFunction as createCurationNotice, updateFunction as updateCurationNotice };
-export { wrappedCreateFunction as createCurationNoticeMutation, wrappedUpdateFunction as updateCurationNoticeMutation };
 
 
 export const graphqlCurationNoticeTypeDefs = gql`

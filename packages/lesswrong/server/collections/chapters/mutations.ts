@@ -131,19 +131,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createChapterGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Chapters', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('Chapters', updateFunction, {
+export const updateChapterGqlMutation = makeGqlUpdateMutation('Chapters', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Chapters', rawResult, context)
 });
 
 
 export { createFunction as createChapter, updateFunction as updateChapter };
-export { wrappedCreateFunction as createChapterMutation, wrappedUpdateFunction as updateChapterMutation };
 
 
 export const graphqlChapterTypeDefs = gql`

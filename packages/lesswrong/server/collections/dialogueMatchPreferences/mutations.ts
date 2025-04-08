@@ -88,19 +88,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Dialogue
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createDialogueMatchPreferenceGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'DialogueMatchPreferences', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('DialogueMatchPreferences', updateFunction, {
+export const updateDialogueMatchPreferenceGqlMutation = makeGqlUpdateMutation('DialogueMatchPreferences', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'DialogueMatchPreferences', rawResult, context)
 });
 
 
 export { createFunction as createDialogueMatchPreference, updateFunction as updateDialogueMatchPreference };
-export { wrappedCreateFunction as createDialogueMatchPreferenceMutation, wrappedUpdateFunction as updateDialogueMatchPreferenceMutation };
 
 
 export const graphqlDialogueMatchPreferenceTypeDefs = gql`

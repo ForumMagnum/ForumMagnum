@@ -67,14 +67,13 @@ const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createPetrovDayActionGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PetrovDayActions', rawResult, context)
 });
 
 
 export { createFunction as createPetrovDayAction };
-export { wrappedCreateFunction as createPetrovDayActionMutation };
 
 export const graphqlPetrovDayActionTypeDefs = gql`
   input CreatePetrovDayActionDataInput {

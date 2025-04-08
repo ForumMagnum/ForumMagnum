@@ -70,19 +70,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleSe
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createGoogleServiceAccountSessionGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GoogleServiceAccountSessions', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('GoogleServiceAccountSessions', updateFunction, {
+export const updateGoogleServiceAccountSessionGqlMutation = makeGqlUpdateMutation('GoogleServiceAccountSessions', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GoogleServiceAccountSessions', rawResult, context)
 });
 
 
 export { createFunction as createGoogleServiceAccountSession, updateFunction as updateGoogleServiceAccountSession };
-export { wrappedCreateFunction as createGoogleServiceAccountSessionMutation, wrappedUpdateFunction as updateGoogleServiceAccountSessionMutation };
 
 
 export const graphqlGoogleServiceAccountSessionTypeDefs = gql`

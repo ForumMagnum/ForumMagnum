@@ -101,19 +101,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Reports'
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createReportGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Reports', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('Reports', updateFunction, {
+export const updateReportGqlMutation = makeGqlUpdateMutation('Reports', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Reports', rawResult, context)
 });
 
 
 export { createFunction as createReport, updateFunction as updateReport };
-export { wrappedCreateFunction as createReportMutation, wrappedUpdateFunction as updateReportMutation };
 
 
 export const graphqlReportTypeDefs = gql`

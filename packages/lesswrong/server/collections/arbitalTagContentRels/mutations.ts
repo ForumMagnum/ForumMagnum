@@ -72,19 +72,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('ArbitalT
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createArbitalTagContentRelGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ArbitalTagContentRels', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('ArbitalTagContentRels', updateFunction, {
+export const updateArbitalTagContentRelGqlMutation = makeGqlUpdateMutation('ArbitalTagContentRels', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ArbitalTagContentRels', rawResult, context)
 });
 
 
 export { createFunction as createArbitalTagContentRel, updateFunction as updateArbitalTagContentRel };
-export { wrappedCreateFunction as createArbitalTagContentRelMutation, wrappedUpdateFunction as updateArbitalTagContentRelMutation };
 
 
 export const graphqlArbitalTagContentRelTypeDefs = gql`

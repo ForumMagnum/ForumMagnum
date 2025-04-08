@@ -134,19 +134,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('Localgro
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createLocalgroupGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('Localgroups', updateFunction, {
+export const updateLocalgroupGqlMutation = makeGqlUpdateMutation('Localgroups', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Localgroups', rawResult, context)
 });
 
 
 export { createFunction as createLocalgroup, updateFunction as updateLocalgroup };
-export { wrappedCreateFunction as createLocalgroupMutation, wrappedUpdateFunction as updateLocalgroupMutation };
 
 
 export const graphqlLocalgroupTypeDefs = gql`

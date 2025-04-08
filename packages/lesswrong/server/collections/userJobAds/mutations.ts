@@ -98,19 +98,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobA
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createUserJobAdGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserJobAds', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('UserJobAds', updateFunction, {
+export const updateUserJobAdGqlMutation = makeGqlUpdateMutation('UserJobAds', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserJobAds', rawResult, context)
 });
 
 
 export { createFunction as createUserJobAd, updateFunction as updateUserJobAd };
-export { wrappedCreateFunction as createUserJobAdMutation, wrappedUpdateFunction as updateUserJobAdMutation };
 
 
 export const graphqlUserJobAdTypeDefs = gql`

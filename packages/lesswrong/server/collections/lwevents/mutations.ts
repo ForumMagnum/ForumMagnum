@@ -83,19 +83,18 @@ const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents
   },
 });
 
-const wrappedCreateFunction = makeGqlCreateMutation(createFunction, {
+export const createLWEventGqlMutation = makeGqlCreateMutation(createFunction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context)
 });
 
-const wrappedUpdateFunction = makeGqlUpdateMutation('LWEvents', updateFunction, {
+export const updateLWEventGqlMutation = makeGqlUpdateMutation('LWEvents', updateFunction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context)
 });
 
 
 export { createFunction as createLWEvent, updateFunction as updateLWEvent };
-export { wrappedCreateFunction as createLWEventMutation, wrappedUpdateFunction as updateLWEventMutation };
 
 
 export const graphqlLWEventTypeDefs = gql`
