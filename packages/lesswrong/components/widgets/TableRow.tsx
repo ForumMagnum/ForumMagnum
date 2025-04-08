@@ -16,14 +16,14 @@ export const styles = defineStyles("TableRow", theme => ({
     '&$selected': {
       backgroundColor:
         theme.palette.type === 'light'
-          ? 'rgba(0, 0, 0, 0.04)' // grey[100]
-          : 'rgba(255, 255, 255, 0.08)',
+          ? theme.palette.greyAlpha(0.04)
+          : theme.palette.greyAlpha(0.08),
     },
     '&$hover:hover': {
       backgroundColor:
         theme.palette.type === 'light'
-          ? 'rgba(0, 0, 0, 0.07)' // grey[200]
-          : 'rgba(255, 255, 255, 0.14)',
+          ? theme.palette.greyAlpha(0.07)
+          : theme.palette.greyAlpha(0.14),
     },
   },
   /* Styles applied to the root element if `selected={true}`. */

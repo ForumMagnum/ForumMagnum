@@ -15,7 +15,7 @@ export const styles = defineStyles("Chip", theme => {
     /* Styles applied to the root element. */
     root: {
       fontFamily: theme.typography.fontFamily,
-      fontSize: theme.typography.pxToRem(13),
+      fontSize: '0.8125rem',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -23,7 +23,7 @@ export const styles = defineStyles("Chip", theme => {
       backgroundColor,
       borderRadius: height / 2,
       whiteSpace: 'nowrap',
-      transition: theme.transitions.create(['background-color', 'box-shadow']),
+      transition: 'background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
       // label will inherit this from root, then `clickable` class overrides this for both
       cursor: 'default',
       // We disable the focus ring for mouse, touch and keyboard users.
@@ -67,11 +67,9 @@ export const styles = defineStyles("Chip", theme => {
     /* Styles applied to the root element if `variant="outlined"`. */
     outlined: {
       backgroundColor: 'transparent',
-      border: `1px solid ${
-        theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'
-      }`,
+      border: `1px solid ${theme.palette.greyAlpha(0.23)}`,
       '$clickable&:hover, $clickable&:focus, $deletable&:focus': {
-        backgroundColor: fade(theme.palette.text.primary, theme.palette.action.hoverOpacity),
+        backgroundColor: fade(theme.palette.text.primary, 0.08),
       },
     },
     /* Styles applied to the root element if `variant="outlined"` and `color="primary"`. */
@@ -79,7 +77,7 @@ export const styles = defineStyles("Chip", theme => {
       color: theme.palette.primary.main,
       border: `1px solid ${theme.palette.primary.main}`,
       '$clickable&:hover, $clickable&:focus, $deletable&:focus': {
-        backgroundColor: fade(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+        backgroundColor: fade(theme.palette.primary.main, 0.08),
       },
     },
     /* Styles applied to the root element if `variant="outlined"` and `color="secondary"`. */
@@ -87,7 +85,7 @@ export const styles = defineStyles("Chip", theme => {
       color: theme.palette.secondary.main,
       border: `1px solid ${theme.palette.secondary.main}`,
       '$clickable&:hover, $clickable&:focus, $deletable&:focus': {
-        backgroundColor: fade(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
+        backgroundColor: fade(theme.palette.secondary.main, 0.08),
       },
     },
     /* Styles applied to the `icon` element. */
@@ -155,7 +153,7 @@ export function Chip(props: {
       return;
     }
 
-    const key = keycode(event);
+    const key = keycode(event as any);
     if (key === 'space' || key === 'enter' || key === 'backspace' || key === 'esc') {
       event.preventDefault();
     }
@@ -173,10 +171,10 @@ export function Chip(props: {
       return;
     }
 
-    const key = keycode(event);
+    const key = keycode(event as any);
 
     if (onClick && (key === 'space' || key === 'enter')) {
-      onClick(event);
+      onClick(event as any);
     } else if (onDelete && key === 'backspace') {
       onDelete(event);
     } else if (key === 'esc' && chipRef.current) {
