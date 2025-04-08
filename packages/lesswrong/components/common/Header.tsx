@@ -10,7 +10,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
+import { PublicInstanceSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
@@ -169,7 +169,11 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: isFriendlyUI ? 400 : undefined,
-    height: isFriendlyUI ? undefined : '19px'
+    height: isFriendlyUI ? undefined : '19px',
+    
+    ...(isAF && {
+      top: 0,
+    }),
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,

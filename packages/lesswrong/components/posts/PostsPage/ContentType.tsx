@@ -21,6 +21,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim2,
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
+    ...(isFriendlyUI && {
+      color: theme.palette.grey[800],
+      fontWeight: 600
+    }),
   },
   icon: {
     fontSize: "1.3rem",
@@ -28,6 +32,9 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 3,
     marginRight: 4,
+    ...(isFriendlyUI && {
+      color: theme.palette.grey[800]
+    }),
   },
   tooltipTitle: {
     marginBottom: 8,

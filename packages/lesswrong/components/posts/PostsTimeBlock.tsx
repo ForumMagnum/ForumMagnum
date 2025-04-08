@@ -69,7 +69,11 @@ const styles = (theme: ThemeType) => ({
     marginTop: isFriendlyUI ? 0 : 6,
     marginBottom: 6
   },
-  divider: {/* Exists only to get overriden by the eaTheme */}
+  divider: {
+    ...(isFriendlyUI && {
+      display: 'none'
+    }),
+  }
 })
 
 interface PostTypeOptions {

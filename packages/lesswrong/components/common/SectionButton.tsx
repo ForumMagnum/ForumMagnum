@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { isAF } from '@/lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,6 +14,11 @@ const styles = (theme: ThemeType) => ({
     '& svg': {
       marginRight: theme.spacing.unit
     },
+    
+    ...(isAF && {
+      marginTop: 4,
+      fontWeight: 500,
+    }),
   }
 })
 

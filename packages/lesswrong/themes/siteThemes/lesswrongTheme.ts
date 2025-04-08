@@ -110,11 +110,6 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      PostsVoteDefault: {
-        voteScores: {
-          margin: "25% 15% 15% 15%"
-        }
-      },
       MuiTooltip: {
         tooltip: {
           fontSize: 13,

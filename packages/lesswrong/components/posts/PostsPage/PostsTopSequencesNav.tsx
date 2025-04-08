@@ -8,6 +8,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
 import classNames from 'classnames';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 export const darkGreyAlpha = .7
 
@@ -26,9 +27,23 @@ const styles = (theme: ThemeType) => ({
     marginLeft:-20,
     display: "flex",
     alignItems: "center",
+    
+    ...(isFriendlyUI && {
+      marginBottom: -8,
+    }),
   },
-  title: {  
-    ...titleStyles(theme)
+  title: {
+    ...titleStyles(theme),
+    
+    ...(isFriendlyUI && {
+      textTransform: 'uppercase',
+      fontSize: 18,
+      color: theme.palette.greyAlpha(0.7),
+      fontWeight: 500,
+    }),
+    ...(isFriendlyUI && theme.themeOptions.name === 'dark' && {
+      color: theme.palette.icon.dim,
+    }),
   },
   blackText: {
     '&&': {

@@ -19,7 +19,11 @@ const styles = (theme: ThemeType) => ({
       color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[900],
       fontWeight: 600,
     },
-    backgroundColor: theme.palette.grey[400]
+    backgroundColor: theme.palette.grey[400],
+    
+    ...(isFriendlyUI && {
+      backgroundColor: theme.palette.secondary.main
+    }),
   },
   navButton: {
     paddingTop: theme.spacing.unit,

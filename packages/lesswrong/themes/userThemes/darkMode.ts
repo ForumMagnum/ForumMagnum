@@ -177,11 +177,6 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
 const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
   forumSelect({
     EAForum: {
-      PostsTopSequencesNav: {
-        title: {
-          color: palette.icon.dim,
-        },
-      },
       MuiPaper: {
         elevation1: {boxShadow: "none"},
         elevation2: {boxShadow: "none"},

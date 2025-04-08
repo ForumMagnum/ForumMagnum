@@ -39,7 +39,12 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: isFriendlyUI ? 1 : 0.6,
       color: isFriendlyUI ? theme.palette.grey[800] : undefined,
-      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
+      
+      ...(isFriendlyUI && {
+        paddingTop: 10,
+        paddingBottom: 10,
+      }),
     },
     color: theme.palette.grey[isFriendlyUI ? 600 : 800],
     ...(theme.forumType === "LessWrong"
@@ -78,6 +83,9 @@ const styles = (theme: ThemeType) => ({
       color: isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
       transform: iconTransform,
     },
+    ...(isFriendlyUI && {
+      opacity: 1,
+    }),
   },
   selectedIcon: {
     "& svg": {
