@@ -6,9 +6,6 @@ import {
   FeedCommentsThread,
   FeedCommentsThreadResolverType,
   FeedPostResolverType,
-  FeedPostSourceType,
-  FeedCommentSourceType,
-  FeedSpotlightSourceType,
   feedPostSourceTypesArray,
   feedCommentSourceTypesArray,
   feedSpotlightSourceTypesArray
@@ -173,17 +170,31 @@ export const ultraFeedGraphQLQueries = {
       const ultraFeedRepo = new UltraFeedRepo();
 
       const totalWeight = Object.values(SOURCE_WEIGHTS).reduce((sum, weight) => sum + weight, 0);
-      const bufferMultiplier = 2; // Fetch 2x the expected need as buffer
+
+      if (totalWeight <= 0) {
+        // eslint-disable-next-line no-console
+        console.warn("UltraFeedResolver: Total source weight is zero. No items can be fetched or sampled. Returning empty results.");
+        return {
+          __typename: "UltraFeedQueryResults",
+          cutoff: null, // No more results possible if weights are zero
+          endOffset: offset || 0,
+          results: [],
+          sessionId
+        };
+      }
+
+      const bufferMultiplier = 5; // Fetch 3x the expected need as buffer
 
       // --- Calculate weights per category using imported arrays directly ---
       const totalPostWeight = feedPostSourceTypesArray.reduce((sum, type) => sum + (SOURCE_WEIGHTS[type] || 0), 0);
       const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum, type) => sum + (SOURCE_WEIGHTS[type] || 0), 0);
       const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum, type) => sum + (SOURCE_WEIGHTS[type] || 0), 0);
 
-      // --- Calculate fetch limits based on summed weights ---
-      const postFetchLimit = totalWeight > 0 ? Math.ceil(limit * (totalPostWeight / totalWeight) * bufferMultiplier) : limit * bufferMultiplier;
-      const commentBufferLimit = totalWeight > 0 ? Math.ceil(limit * (totalCommentWeight / totalWeight) * bufferMultiplier) : limit * bufferMultiplier;
-      const spotlightFetchLimit = totalWeight > 0 ? Math.ceil(limit * (totalSpotlightWeight / totalWeight) * bufferMultiplier) : limit; // Spotlights might not need as large a buffer
+      // --- Calculate fetch limits based on summed weights (simplified) ---
+      // We know totalWeight > 0 here because of the earlier check.
+      const postFetchLimit = Math.ceil(limit * (totalPostWeight / totalWeight) * bufferMultiplier);
+      const commentBufferLimit = Math.ceil(limit * (totalCommentWeight / totalWeight) * bufferMultiplier);
+      const spotlightFetchLimit = Math.ceil(limit * (totalSpotlightWeight / totalWeight) * bufferMultiplier);
 
 
       let servedPostIds = new Set<string>();
