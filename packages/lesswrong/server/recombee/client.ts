@@ -612,7 +612,8 @@ const recombeeApi = {
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
-    const excludeFromLatestPostIds = [...includedAboutPagePostId, ...includedCuratedPostIds, ...includedStickiedPostIds];
+    const manualExcludedPostIds = lwAlgoSettings.excludedPostIds ?? [];
+    const excludeFromLatestPostIds = [...includedAboutPagePostId, ...includedCuratedPostIds, ...includedStickiedPostIds, ...manualExcludedPostIds];
     // We only want to fetch the about, curated, and stickied posts if this is the first load, not on any load more
     const includedTopOfListPostIds = reqIsLoadMore
       ? []
