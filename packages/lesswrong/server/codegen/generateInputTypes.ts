@@ -89,7 +89,7 @@ export function generateInputTypes() {
 
   const nonCollectionTypes = inputTypes.filter(t => !isValidCollectionName(graphqlTypeToCollectionName(t.astNode.name.value)));
   const inputTypeDefinitions = nonCollectionTypes.map(t => generateInputType(t.astNode));
-  const inputTypesString = inputTypeDefinitions.map(t => t.interfaceString).join('\n\n');
+  const inputTypesString = inputTypeDefinitions.filter(t => t.interfaceString !== 'never').map(t => t.interfaceString).join('\n\n');
   const typeNames = inputTypeDefinitions.map(t => t.typeName);
 
   const allCollectionNames = getAllCollections().map(c => c.collectionName);

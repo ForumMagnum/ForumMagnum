@@ -1,2893 +1,3 @@
-interface SingleAdvisorRequestInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiAdvisorRequestInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleAdvisorRequestOutput {
-  result?: UpdateAdvisorRequestDataInput | null;
-}
-
-interface MultiAdvisorRequestOutput {
-  results?: Array<UpdateAdvisorRequestDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface ArbitalCaches {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
-  legacyData?: any;
-}
-
-interface SingleArbitalCachesInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiArbitalCachesInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleArbitalCachesOutput {
-  result?: ArbitalCaches | null;
-}
-
-interface MultiArbitalCachesOutput {
-  results?: Array<ArbitalCaches | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleArbitalTagContentRelInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiArbitalTagContentRelInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleArbitalTagContentRelOutput {
-  result?: UpdateArbitalTagContentRelDataInput | null;
-}
-
-interface MultiArbitalTagContentRelOutput {
-  results?: Array<UpdateArbitalTagContentRelDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleBanInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiBanInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleBanOutput {
-  result?: UpdateBanDataInput | null;
-}
-
-interface MultiBanOutput {
-  results?: Array<UpdateBanDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleBookInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiBookInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleBookOutput {
-  result?: UpdateBookDataInput | null;
-}
-
-interface MultiBookOutput {
-  results?: Array<UpdateBookDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleChapterInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiChapterInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleChapterOutput {
-  result?: UpdateChapterDataInput | null;
-}
-
-interface MultiChapterOutput {
-  results?: Array<UpdateChapterDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleCkEditorUserSessionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiCkEditorUserSessionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleCkEditorUserSessionOutput {
-  result?: UpdateCkEditorUserSessionDataInput | null;
-}
-
-interface MultiCkEditorUserSessionOutput {
-  results?: Array<UpdateCkEditorUserSessionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleClientIdInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiClientIdInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleClientIdOutput {
-  result?: UpdateClientIdDataInput | null;
-}
-
-interface MultiClientIdOutput {
-  results?: Array<UpdateClientIdDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleCollectionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiCollectionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleCollectionOutput {
-  result?: UpdateCollectionDataInput | null;
-}
-
-interface MultiCollectionOutput {
-  results?: Array<UpdateCollectionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleCommentModeratorActionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiCommentModeratorActionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleCommentModeratorActionOutput {
-  result?: UpdateCommentModeratorActionDataInput | null;
-}
-
-interface MultiCommentModeratorActionOutput {
-  results?: Array<UpdateCommentModeratorActionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleCommentInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiCommentInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleCommentOutput {
-  result?: UpdateCommentDataInput | null;
-}
-
-interface MultiCommentOutput {
-  results?: Array<UpdateCommentDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleConversationInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiConversationInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleConversationOutput {
-  result?: UpdateConversationDataInput | null;
-}
-
-interface MultiConversationOutput {
-  results?: Array<UpdateConversationDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleCronHistoryInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiCronHistoryInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleCronHistoryOutput {
-  result?: UpdateCronHistoryDataInput | null;
-}
-
-interface MultiCronHistoryOutput {
-  results?: Array<UpdateCronHistoryDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleCurationEmailInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiCurationEmailInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleCurationEmailOutput {
-  result?: UpdateCurationEmailDataInput | null;
-}
-
-interface MultiCurationEmailOutput {
-  results?: Array<UpdateCurationEmailDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleCurationNoticeInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiCurationNoticeInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleCurationNoticeOutput {
-  result?: UpdateCurationNoticeDataInput | null;
-}
-
-interface MultiCurationNoticeOutput {
-  results?: Array<UpdateCurationNoticeDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface DatabaseMetadata {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
-  legacyData?: any;
-}
-
-interface SingleDatabaseMetadataInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiDatabaseMetadataInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleDatabaseMetadataOutput {
-  result?: DatabaseMetadata | null;
-}
-
-interface MultiDatabaseMetadataOutput {
-  results?: Array<DatabaseMetadata | null> | null;
-  totalCount?: number | null;
-}
-
-interface DebouncerEvents {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
-  legacyData?: any;
-}
-
-interface SingleDebouncerEventsInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiDebouncerEventsInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleDebouncerEventsOutput {
-  result?: DebouncerEvents | null;
-}
-
-interface MultiDebouncerEventsOutput {
-  results?: Array<DebouncerEvents | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleDialogueCheckInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiDialogueCheckInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleDialogueCheckOutput {
-  result?: UpdateDialogueCheckDataInput | null;
-}
-
-interface MultiDialogueCheckOutput {
-  results?: Array<UpdateDialogueCheckDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleDialogueMatchPreferenceInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiDialogueMatchPreferenceInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleDialogueMatchPreferenceOutput {
-  result?: UpdateDialogueMatchPreferenceDataInput | null;
-}
-
-interface MultiDialogueMatchPreferenceOutput {
-  results?: Array<UpdateDialogueMatchPreferenceDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleDigestPostInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiDigestPostInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleDigestPostOutput {
-  result?: UpdateDigestPostDataInput | null;
-}
-
-interface MultiDigestPostOutput {
-  results?: Array<UpdateDigestPostDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleDigestInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiDigestInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleDigestOutput {
-  result?: UpdateDigestDataInput | null;
-}
-
-interface MultiDigestOutput {
-  results?: Array<UpdateDigestDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleElectionCandidateInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiElectionCandidateInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleElectionCandidateOutput {
-  result?: UpdateElectionCandidateDataInput | null;
-}
-
-interface MultiElectionCandidateOutput {
-  results?: Array<UpdateElectionCandidateDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleElectionVoteInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiElectionVoteInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleElectionVoteOutput {
-  result?: UpdateElectionVoteDataInput | null;
-}
-
-interface MultiElectionVoteOutput {
-  results?: Array<UpdateElectionVoteDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleElicitQuestionPredictionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiElicitQuestionPredictionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleElicitQuestionPredictionOutput {
-  result?: UpdateElicitQuestionPredictionDataInput | null;
-}
-
-interface MultiElicitQuestionPredictionOutput {
-  results?: Array<UpdateElicitQuestionPredictionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleElicitQuestionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiElicitQuestionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleElicitQuestionOutput {
-  result?: UpdateElicitQuestionDataInput | null;
-}
-
-interface MultiElicitQuestionOutput {
-  results?: Array<UpdateElicitQuestionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface EmailTokens {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
-  legacyData?: any;
-}
-
-interface SingleEmailTokensInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiEmailTokensInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleEmailTokensOutput {
-  result?: EmailTokens | null;
-}
-
-interface MultiEmailTokensOutput {
-  results?: Array<EmailTokens | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleFeaturedResourceInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiFeaturedResourceInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleFeaturedResourceOutput {
-  result?: UpdateFeaturedResourceDataInput | null;
-}
-
-interface MultiFeaturedResourceOutput {
-  results?: Array<UpdateFeaturedResourceDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleFieldChangeInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiFieldChangeInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleFieldChangeOutput {
-  result?: UpdateFieldChangeDataInput | null;
-}
-
-interface MultiFieldChangeOutput {
-  results?: Array<UpdateFieldChangeDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleForumEventInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiForumEventInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleForumEventOutput {
-  result?: UpdateForumEventDataInput | null;
-}
-
-interface MultiForumEventOutput {
-  results?: Array<UpdateForumEventDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleGardenCodeInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiGardenCodeInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleGardenCodeOutput {
-  result?: UpdateGardenCodeDataInput | null;
-}
-
-interface MultiGardenCodeOutput {
-  results?: Array<UpdateGardenCodeDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleGoogleServiceAccountSessionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiGoogleServiceAccountSessionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleGoogleServiceAccountSessionOutput {
-  result?: UpdateGoogleServiceAccountSessionDataInput | null;
-}
-
-interface MultiGoogleServiceAccountSessionOutput {
-  results?: Array<UpdateGoogleServiceAccountSessionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface Images {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
-  legacyData?: any;
-}
-
-interface SingleImagesInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiImagesInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleImagesOutput {
-  result?: Images | null;
-}
-
-interface MultiImagesOutput {
-  results?: Array<Images | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleJargonTermInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiJargonTermInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleJargonTermOutput {
-  result?: UpdateJargonTermDataInput | null;
-}
-
-interface MultiJargonTermOutput {
-  results?: Array<UpdateJargonTermDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleLWEventInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiLWEventInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleLWEventOutput {
-  result?: UpdateLWEventDataInput | null;
-}
-
-interface MultiLWEventOutput {
-  results?: Array<UpdateLWEventDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface LegacyData {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
-  legacyData?: any;
-}
-
-interface SingleLegacyDataInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiLegacyDataInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleLegacyDataOutput {
-  result?: LegacyData | null;
-}
-
-interface MultiLegacyDataOutput {
-  results?: Array<LegacyData | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleLlmConversationInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiLlmConversationInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleLlmConversationOutput {
-  result?: UpdateLlmConversationDataInput | null;
-}
-
-interface MultiLlmConversationOutput {
-  results?: Array<UpdateLlmConversationDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleLlmMessageInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiLlmMessageInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleLlmMessageOutput {
-  result?: UpdateLlmMessageDataInput | null;
-}
-
-interface MultiLlmMessageOutput {
-  results?: Array<UpdateLlmMessageDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleLocalgroupInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiLocalgroupInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleLocalgroupOutput {
-  result?: UpdateLocalgroupDataInput | null;
-}
-
-interface MultiLocalgroupOutput {
-  results?: Array<UpdateLocalgroupDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleManifoldProbabilitiesCacheInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiManifoldProbabilitiesCacheInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleManifoldProbabilitiesCacheOutput {
-  result?: UpdateManifoldProbabilitiesCacheDataInput | null;
-}
-
-interface MultiManifoldProbabilitiesCacheOutput {
-  results?: Array<UpdateManifoldProbabilitiesCacheDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleMessageInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiMessageInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleMessageOutput {
-  result?: UpdateMessageDataInput | null;
-}
-
-interface MultiMessageOutput {
-  results?: Array<UpdateMessageDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleMigrationInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiMigrationInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleMigrationOutput {
-  result?: UpdateMigrationDataInput | null;
-}
-
-interface MultiMigrationOutput {
-  results?: Array<UpdateMigrationDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleModerationTemplateInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiModerationTemplateInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleModerationTemplateOutput {
-  result?: UpdateModerationTemplateDataInput | null;
-}
-
-interface MultiModerationTemplateOutput {
-  results?: Array<UpdateModerationTemplateDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleModeratorActionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiModeratorActionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleModeratorActionOutput {
-  result?: UpdateModeratorActionDataInput | null;
-}
-
-interface MultiModeratorActionOutput {
-  results?: Array<UpdateModeratorActionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleMultiDocumentInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiMultiDocumentInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleMultiDocumentOutput {
-  result?: UpdateMultiDocumentDataInput | null;
-}
-
-interface MultiMultiDocumentOutput {
-  results?: Array<UpdateMultiDocumentDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleNotificationInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiNotificationInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleNotificationOutput {
-  result?: UpdateNotificationDataInput | null;
-}
-
-interface MultiNotificationOutput {
-  results?: Array<UpdateNotificationDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface PageCacheEntry {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
-  legacyData?: any;
-}
-
-interface SinglePageCacheEntryInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPageCacheEntryInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePageCacheEntryOutput {
-  result?: PageCacheEntry | null;
-}
-
-interface MultiPageCacheEntryOutput {
-  results?: Array<PageCacheEntry | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePetrovDayActionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPetrovDayActionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePetrovDayActionOutput {
-  result?: UpdatePetrovDayActionDataInput | null;
-}
-
-interface MultiPetrovDayActionOutput {
-  results?: Array<UpdatePetrovDayActionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePetrovDayLaunchInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPetrovDayLaunchInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePetrovDayLaunchOutput {
-  result?: UpdatePetrovDayLaunchDataInput | null;
-}
-
-interface MultiPetrovDayLaunchOutput {
-  results?: Array<UpdatePetrovDayLaunchDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePodcastEpisodeInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPodcastEpisodeInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePodcastEpisodeOutput {
-  result?: UpdatePodcastEpisodeDataInput | null;
-}
-
-interface MultiPodcastEpisodeOutput {
-  results?: Array<UpdatePodcastEpisodeDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePodcastInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPodcastInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePodcastOutput {
-  result?: UpdatePodcastDataInput | null;
-}
-
-interface MultiPodcastOutput {
-  results?: Array<UpdatePodcastDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePostEmbeddingInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPostEmbeddingInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePostEmbeddingOutput {
-  result?: UpdatePostEmbeddingDataInput | null;
-}
-
-interface MultiPostEmbeddingOutput {
-  results?: Array<UpdatePostEmbeddingDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePostRecommendationInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPostRecommendationInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePostRecommendationOutput {
-  result?: UpdatePostRecommendationDataInput | null;
-}
-
-interface MultiPostRecommendationOutput {
-  results?: Array<UpdatePostRecommendationDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePostRelationInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPostRelationInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePostRelationOutput {
-  result?: UpdatePostRelationDataInput | null;
-}
-
-interface MultiPostRelationOutput {
-  results?: Array<UpdatePostRelationDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePostViewTimeInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPostViewTimeInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePostViewTimeOutput {
-  result?: UpdatePostViewTimeDataInput | null;
-}
-
-interface MultiPostViewTimeOutput {
-  results?: Array<UpdatePostViewTimeDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface PostViews {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
-  legacyData?: any;
-}
-
-interface SinglePostViewsInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPostViewsInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePostViewsOutput {
-  result?: PostViews | null;
-}
-
-interface MultiPostViewsOutput {
-  results?: Array<PostViews | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePostInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiPostInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SinglePostOutput {
-  result?: UpdatePostDataInput | null;
-}
-
-interface MultiPostOutput {
-  results?: Array<UpdatePostDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleRSSFeedInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiRSSFeedInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleRSSFeedOutput {
-  result?: UpdateRSSFeedDataInput | null;
-}
-
-interface MultiRSSFeedOutput {
-  results?: Array<UpdateRSSFeedDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleReadStatusInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiReadStatusInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleReadStatusOutput {
-  result?: UpdateReadStatusDataInput | null;
-}
-
-interface MultiReadStatusOutput {
-  results?: Array<UpdateReadStatusDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleRecommendationsCacheInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiRecommendationsCacheInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleRecommendationsCacheOutput {
-  result?: UpdateRecommendationsCacheDataInput | null;
-}
-
-interface MultiRecommendationsCacheOutput {
-  results?: Array<UpdateRecommendationsCacheDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleReportInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiReportInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleReportOutput {
-  result?: UpdateReportDataInput | null;
-}
-
-interface MultiReportOutput {
-  results?: Array<UpdateReportDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleReviewVoteInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiReviewVoteInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleReviewVoteOutput {
-  result?: UpdateReviewVoteDataInput | null;
-}
-
-interface MultiReviewVoteOutput {
-  results?: Array<UpdateReviewVoteDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleReviewWinnerArtInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiReviewWinnerArtInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleReviewWinnerArtOutput {
-  result?: UpdateReviewWinnerArtDataInput | null;
-}
-
-interface MultiReviewWinnerArtOutput {
-  results?: Array<UpdateReviewWinnerArtDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleReviewWinnerInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiReviewWinnerInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleReviewWinnerOutput {
-  result?: UpdateReviewWinnerDataInput | null;
-}
-
-interface MultiReviewWinnerOutput {
-  results?: Array<UpdateReviewWinnerDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleRevisionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiRevisionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleRevisionOutput {
-  result?: UpdateRevisionDataInput | null;
-}
-
-interface MultiRevisionOutput {
-  results?: Array<UpdateRevisionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSequenceInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSequenceInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSequenceOutput {
-  result?: UpdateSequenceDataInput | null;
-}
-
-interface MultiSequenceOutput {
-  results?: Array<UpdateSequenceDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSessionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSessionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSessionOutput {
-  result?: UpdateSessionDataInput | null;
-}
-
-interface MultiSessionOutput {
-  results?: Array<UpdateSessionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSideCommentCacheInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSideCommentCacheInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSideCommentCacheOutput {
-  result?: UpdateSideCommentCacheDataInput | null;
-}
-
-interface MultiSideCommentCacheOutput {
-  results?: Array<UpdateSideCommentCacheDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSplashArtCoordinateInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSplashArtCoordinateInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSplashArtCoordinateOutput {
-  result?: UpdateSplashArtCoordinateDataInput | null;
-}
-
-interface MultiSplashArtCoordinateOutput {
-  results?: Array<UpdateSplashArtCoordinateDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSpotlightInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSpotlightInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSpotlightOutput {
-  result?: UpdateSpotlightDataInput | null;
-}
-
-interface MultiSpotlightOutput {
-  results?: Array<UpdateSpotlightDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSubscriptionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSubscriptionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSubscriptionOutput {
-  result?: UpdateSubscriptionDataInput | null;
-}
-
-interface MultiSubscriptionOutput {
-  results?: Array<UpdateSubscriptionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSurveyQuestionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSurveyQuestionInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSurveyQuestionOutput {
-  result?: UpdateSurveyQuestionDataInput | null;
-}
-
-interface MultiSurveyQuestionOutput {
-  results?: Array<UpdateSurveyQuestionDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSurveyResponseInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSurveyResponseInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSurveyResponseOutput {
-  result?: UpdateSurveyResponseDataInput | null;
-}
-
-interface MultiSurveyResponseOutput {
-  results?: Array<UpdateSurveyResponseDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSurveyScheduleInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSurveyScheduleInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSurveyScheduleOutput {
-  result?: UpdateSurveyScheduleDataInput | null;
-}
-
-interface MultiSurveyScheduleOutput {
-  results?: Array<UpdateSurveyScheduleDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleSurveyInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiSurveyInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleSurveyOutput {
-  result?: UpdateSurveyDataInput | null;
-}
-
-interface MultiSurveyOutput {
-  results?: Array<UpdateSurveyDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleTagFlagInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiTagFlagInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleTagFlagOutput {
-  result?: UpdateTagFlagDataInput | null;
-}
-
-interface MultiTagFlagOutput {
-  results?: Array<UpdateTagFlagDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleTagRelInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiTagRelInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleTagRelOutput {
-  result?: UpdateTagRelDataInput | null;
-}
-
-interface MultiTagRelOutput {
-  results?: Array<UpdateTagRelDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleTagInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiTagInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleTagOutput {
-  result?: UpdateTagDataInput | null;
-}
-
-interface MultiTagOutput {
-  results?: Array<UpdateTagDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleTweetInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiTweetInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleTweetOutput {
-  result?: UpdateTweetDataInput | null;
-}
-
-interface MultiTweetOutput {
-  results?: Array<UpdateTweetDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleTypingIndicatorInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiTypingIndicatorInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleTypingIndicatorOutput {
-  result?: UpdateTypingIndicatorDataInput | null;
-}
-
-interface MultiTypingIndicatorOutput {
-  results?: Array<UpdateTypingIndicatorDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleUserActivityInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiUserActivityInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleUserActivityOutput {
-  result?: UpdateUserActivityDataInput | null;
-}
-
-interface MultiUserActivityOutput {
-  results?: Array<UpdateUserActivityDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleUserEAGDetailInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiUserEAGDetailInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleUserEAGDetailOutput {
-  result?: UpdateUserEAGDetailDataInput | null;
-}
-
-interface MultiUserEAGDetailOutput {
-  results?: Array<UpdateUserEAGDetailDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleUserJobAdInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiUserJobAdInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleUserJobAdOutput {
-  result?: UpdateUserJobAdDataInput | null;
-}
-
-interface MultiUserJobAdOutput {
-  results?: Array<UpdateUserJobAdDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleUserMostValuablePostInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiUserMostValuablePostInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleUserMostValuablePostOutput {
-  result?: UpdateUserMostValuablePostDataInput | null;
-}
-
-interface MultiUserMostValuablePostOutput {
-  results?: Array<UpdateUserMostValuablePostDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleUserRateLimitInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiUserRateLimitInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleUserRateLimitOutput {
-  result?: UpdateUserRateLimitDataInput | null;
-}
-
-interface MultiUserRateLimitOutput {
-  results?: Array<UpdateUserRateLimitDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleUserTagRelInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiUserTagRelInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleUserTagRelOutput {
-  result?: UpdateUserTagRelDataInput | null;
-}
-
-interface MultiUserTagRelOutput {
-  results?: Array<UpdateUserTagRelDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleUserInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiUserInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleUserOutput {
-  result?: UpdateUserDataInput | null;
-}
-
-interface MultiUserOutput {
-  results?: Array<UpdateUserDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SingleVoteInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  enableCache?: boolean | null;
-  allowNull?: boolean | null;
-}
-
-interface MultiVoteInput {
-  terms?: any;
-  resolverArgs?: any;
-  offset?: number | null;
-  limit?: number | null;
-  enableCache?: boolean | null;
-  enableTotal?: boolean | null;
-  where?: SelectorInput | null;
-  skip?: number | null;
-  after?: string | null;
-  before?: string | null;
-  first?: number | null;
-  last?: number | null;
-}
-
-interface SingleVoteOutput {
-  result?: UpdateVoteDataInput | null;
-}
-
-interface MultiVoteOutput {
-  results?: Array<UpdateVoteDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface Query {
-  advisorRequest?: SingleAdvisorRequestOutput | null;
-  advisorRequests?: MultiAdvisorRequestOutput | null;
-  arbitalTagContentRel?: SingleArbitalTagContentRelOutput | null;
-  arbitalTagContentRels?: MultiArbitalTagContentRelOutput | null;
-  ban?: SingleBanOutput | null;
-  bans?: MultiBanOutput | null;
-  book?: SingleBookOutput | null;
-  books?: MultiBookOutput | null;
-  chapter?: SingleChapterOutput | null;
-  chapters?: MultiChapterOutput | null;
-  ckEditorUserSession?: SingleCkEditorUserSessionOutput | null;
-  ckEditorUserSessions?: MultiCkEditorUserSessionOutput | null;
-  clientId?: SingleClientIdOutput | null;
-  clientIds?: MultiClientIdOutput | null;
-  collection?: SingleCollectionOutput | null;
-  collections?: MultiCollectionOutput | null;
-  commentModeratorAction?: SingleCommentModeratorActionOutput | null;
-  commentModeratorActions?: MultiCommentModeratorActionOutput | null;
-  comment?: SingleCommentOutput | null;
-  comments?: MultiCommentOutput | null;
-  conversation?: SingleConversationOutput | null;
-  conversations?: MultiConversationOutput | null;
-  curationNotice?: SingleCurationNoticeOutput | null;
-  curationNotices?: MultiCurationNoticeOutput | null;
-  dialogueCheck?: SingleDialogueCheckOutput | null;
-  dialogueChecks?: MultiDialogueCheckOutput | null;
-  dialogueMatchPreference?: SingleDialogueMatchPreferenceOutput | null;
-  dialogueMatchPreferences?: MultiDialogueMatchPreferenceOutput | null;
-  digestPost?: SingleDigestPostOutput | null;
-  digestPosts?: MultiDigestPostOutput | null;
-  digest?: SingleDigestOutput | null;
-  digests?: MultiDigestOutput | null;
-  electionCandidate?: SingleElectionCandidateOutput | null;
-  electionCandidates?: MultiElectionCandidateOutput | null;
-  electionVote?: SingleElectionVoteOutput | null;
-  electionVotes?: MultiElectionVoteOutput | null;
-  elicitQuestionPrediction?: SingleElicitQuestionPredictionOutput | null;
-  elicitQuestionPredictions?: MultiElicitQuestionPredictionOutput | null;
-  elicitQuestion?: SingleElicitQuestionOutput | null;
-  elicitQuestions?: MultiElicitQuestionOutput | null;
-  featuredResource?: SingleFeaturedResourceOutput | null;
-  featuredResources?: MultiFeaturedResourceOutput | null;
-  forumEvent?: SingleForumEventOutput | null;
-  forumEvents?: MultiForumEventOutput | null;
-  gardenCode?: SingleGardenCodeOutput | null;
-  gardenCodes?: MultiGardenCodeOutput | null;
-  googleServiceAccountSession?: SingleGoogleServiceAccountSessionOutput | null;
-  googleServiceAccountSessions?: MultiGoogleServiceAccountSessionOutput | null;
-  jargonTerm?: SingleJargonTermOutput | null;
-  jargonTerms?: MultiJargonTermOutput | null;
-  lWEvent?: SingleLWEventOutput | null;
-  lWEvents?: MultiLWEventOutput | null;
-  llmConversation?: SingleLlmConversationOutput | null;
-  llmConversations?: MultiLlmConversationOutput | null;
-  localgroup?: SingleLocalgroupOutput | null;
-  localgroups?: MultiLocalgroupOutput | null;
-  message?: SingleMessageOutput | null;
-  messages?: MultiMessageOutput | null;
-  moderationTemplate?: SingleModerationTemplateOutput | null;
-  moderationTemplates?: MultiModerationTemplateOutput | null;
-  moderatorAction?: SingleModeratorActionOutput | null;
-  moderatorActions?: MultiModeratorActionOutput | null;
-  multiDocument?: SingleMultiDocumentOutput | null;
-  multiDocuments?: MultiMultiDocumentOutput | null;
-  notification?: SingleNotificationOutput | null;
-  notifications?: MultiNotificationOutput | null;
-  petrovDayAction?: SinglePetrovDayActionOutput | null;
-  petrovDayActions?: MultiPetrovDayActionOutput | null;
-  podcastEpisode?: SinglePodcastEpisodeOutput | null;
-  podcastEpisodes?: MultiPodcastEpisodeOutput | null;
-  podcast?: SinglePodcastOutput | null;
-  podcasts?: MultiPodcastOutput | null;
-  postEmbedding?: SinglePostEmbeddingOutput | null;
-  postEmbeddings?: MultiPostEmbeddingOutput | null;
-  postRelation?: SinglePostRelationOutput | null;
-  postRelations?: MultiPostRelationOutput | null;
-  postViewTime?: SinglePostViewTimeOutput | null;
-  postViewTimes?: MultiPostViewTimeOutput | null;
-  postViews?: SinglePostViewsOutput | null;
-  postViewses?: MultiPostViewsOutput | null;
-  post?: SinglePostOutput | null;
-  posts?: MultiPostOutput | null;
-  rSSFeed?: SingleRSSFeedOutput | null;
-  rSSFeeds?: MultiRSSFeedOutput | null;
-  report?: SingleReportOutput | null;
-  reports?: MultiReportOutput | null;
-  reviewVote?: SingleReviewVoteOutput | null;
-  reviewVotes?: MultiReviewVoteOutput | null;
-  reviewWinnerArt?: SingleReviewWinnerArtOutput | null;
-  reviewWinnerArts?: MultiReviewWinnerArtOutput | null;
-  reviewWinner?: SingleReviewWinnerOutput | null;
-  reviewWinners?: MultiReviewWinnerOutput | null;
-  revision?: SingleRevisionOutput | null;
-  revisions?: MultiRevisionOutput | null;
-  sequence?: SingleSequenceOutput | null;
-  sequences?: MultiSequenceOutput | null;
-  splashArtCoordinate?: SingleSplashArtCoordinateOutput | null;
-  splashArtCoordinates?: MultiSplashArtCoordinateOutput | null;
-  spotlight?: SingleSpotlightOutput | null;
-  spotlights?: MultiSpotlightOutput | null;
-  subscription?: SingleSubscriptionOutput | null;
-  subscriptions?: MultiSubscriptionOutput | null;
-  surveyQuestion?: SingleSurveyQuestionOutput | null;
-  surveyQuestions?: MultiSurveyQuestionOutput | null;
-  surveyResponse?: SingleSurveyResponseOutput | null;
-  surveyResponses?: MultiSurveyResponseOutput | null;
-  surveySchedule?: SingleSurveyScheduleOutput | null;
-  surveySchedules?: MultiSurveyScheduleOutput | null;
-  survey?: SingleSurveyOutput | null;
-  surveys?: MultiSurveyOutput | null;
-  tagFlag?: SingleTagFlagOutput | null;
-  tagFlags?: MultiTagFlagOutput | null;
-  tagRel?: SingleTagRelOutput | null;
-  tagRels?: MultiTagRelOutput | null;
-  tag?: SingleTagOutput | null;
-  tags?: MultiTagOutput | null;
-  typingIndicator?: SingleTypingIndicatorOutput | null;
-  typingIndicators?: MultiTypingIndicatorOutput | null;
-  userEAGDetail?: SingleUserEAGDetailOutput | null;
-  userEAGDetails?: MultiUserEAGDetailOutput | null;
-  userJobAd?: SingleUserJobAdOutput | null;
-  userJobAds?: MultiUserJobAdOutput | null;
-  userMostValuablePost?: SingleUserMostValuablePostOutput | null;
-  userMostValuablePosts?: MultiUserMostValuablePostOutput | null;
-  userRateLimit?: SingleUserRateLimitOutput | null;
-  userRateLimits?: MultiUserRateLimitOutput | null;
-  userTagRel?: SingleUserTagRelOutput | null;
-  userTagRels?: MultiUserTagRelOutput | null;
-  user?: SingleUserOutput | null;
-  users?: MultiUserOutput | null;
-  vote?: SingleVoteOutput | null;
-  votes?: MultiVoteOutput | null;
-}
-
-never
-
 interface SelectorInput {
   _id?: string | null;
   documentId?: string | null;
@@ -3618,6 +728,1448 @@ interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
   htmlDiff: string;
+}
+
+interface SingleAdvisorRequestInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleAdvisorRequestOutput {
+  result?: UpdateAdvisorRequestDataInput | null;
+}
+
+interface MultiAdvisorRequestInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiAdvisorRequestOutput {
+  results?: Array<UpdateAdvisorRequestDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface ArbitalCaches {
+  _id?: string | null;
+  schemaVersion?: number | null;
+  createdAt?: Date | null;
+  legacyData?: any;
+}
+
+interface SingleArbitalTagContentRelInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleArbitalTagContentRelOutput {
+  result?: UpdateArbitalTagContentRelDataInput | null;
+}
+
+interface MultiArbitalTagContentRelInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiArbitalTagContentRelOutput {
+  results?: Array<UpdateArbitalTagContentRelDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleBanInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleBanOutput {
+  result?: UpdateBanDataInput | null;
+}
+
+interface MultiBanInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiBanOutput {
+  results?: Array<UpdateBanDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleBookInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleBookOutput {
+  result?: UpdateBookDataInput | null;
+}
+
+interface MultiBookInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiBookOutput {
+  results?: Array<UpdateBookDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleChapterInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleChapterOutput {
+  result?: UpdateChapterDataInput | null;
+}
+
+interface MultiChapterInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiChapterOutput {
+  results?: Array<UpdateChapterDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleCkEditorUserSessionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleCkEditorUserSessionOutput {
+  result?: UpdateCkEditorUserSessionDataInput | null;
+}
+
+interface MultiCkEditorUserSessionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiCkEditorUserSessionOutput {
+  results?: Array<UpdateCkEditorUserSessionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleClientIdInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleClientIdOutput {
+  result?: UpdateClientIdDataInput | null;
+}
+
+interface MultiClientIdInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiClientIdOutput {
+  results?: Array<UpdateClientIdDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleCollectionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleCollectionOutput {
+  result?: UpdateCollectionDataInput | null;
+}
+
+interface MultiCollectionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiCollectionOutput {
+  results?: Array<UpdateCollectionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleCommentModeratorActionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleCommentModeratorActionOutput {
+  result?: UpdateCommentModeratorActionDataInput | null;
+}
+
+interface MultiCommentModeratorActionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiCommentModeratorActionOutput {
+  results?: Array<UpdateCommentModeratorActionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleCommentInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleCommentOutput {
+  result?: UpdateCommentDataInput | null;
+}
+
+interface MultiCommentInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiCommentOutput {
+  results?: Array<UpdateCommentDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleConversationInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleConversationOutput {
+  result?: UpdateConversationDataInput | null;
+}
+
+interface MultiConversationInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiConversationOutput {
+  results?: Array<UpdateConversationDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleCurationNoticeInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleCurationNoticeOutput {
+  result?: UpdateCurationNoticeDataInput | null;
+}
+
+interface MultiCurationNoticeInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiCurationNoticeOutput {
+  results?: Array<UpdateCurationNoticeDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface DatabaseMetadata {
+  _id?: string | null;
+  schemaVersion?: number | null;
+  createdAt?: Date | null;
+  legacyData?: any;
+}
+
+interface DebouncerEvents {
+  _id?: string | null;
+  schemaVersion?: number | null;
+  createdAt?: Date | null;
+  legacyData?: any;
+}
+
+interface SingleDialogueCheckInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleDialogueCheckOutput {
+  result?: UpdateDialogueCheckDataInput | null;
+}
+
+interface MultiDialogueCheckInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiDialogueCheckOutput {
+  results?: Array<UpdateDialogueCheckDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleDialogueMatchPreferenceInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleDialogueMatchPreferenceOutput {
+  result?: UpdateDialogueMatchPreferenceDataInput | null;
+}
+
+interface MultiDialogueMatchPreferenceInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiDialogueMatchPreferenceOutput {
+  results?: Array<UpdateDialogueMatchPreferenceDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleDigestPostInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleDigestPostOutput {
+  result?: UpdateDigestPostDataInput | null;
+}
+
+interface MultiDigestPostInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiDigestPostOutput {
+  results?: Array<UpdateDigestPostDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleDigestInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleDigestOutput {
+  result?: UpdateDigestDataInput | null;
+}
+
+interface MultiDigestInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiDigestOutput {
+  results?: Array<UpdateDigestDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleElectionCandidateInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleElectionCandidateOutput {
+  result?: UpdateElectionCandidateDataInput | null;
+}
+
+interface MultiElectionCandidateInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiElectionCandidateOutput {
+  results?: Array<UpdateElectionCandidateDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleElectionVoteInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleElectionVoteOutput {
+  result?: UpdateElectionVoteDataInput | null;
+}
+
+interface MultiElectionVoteInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiElectionVoteOutput {
+  results?: Array<UpdateElectionVoteDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleElicitQuestionPredictionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleElicitQuestionPredictionOutput {
+  result?: UpdateElicitQuestionPredictionDataInput | null;
+}
+
+interface MultiElicitQuestionPredictionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiElicitQuestionPredictionOutput {
+  results?: Array<UpdateElicitQuestionPredictionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleElicitQuestionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleElicitQuestionOutput {
+  result?: UpdateElicitQuestionDataInput | null;
+}
+
+interface MultiElicitQuestionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiElicitQuestionOutput {
+  results?: Array<UpdateElicitQuestionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface EmailTokens {
+  _id?: string | null;
+  schemaVersion?: number | null;
+  createdAt?: Date | null;
+  legacyData?: any;
+}
+
+interface SingleFeaturedResourceInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleFeaturedResourceOutput {
+  result?: UpdateFeaturedResourceDataInput | null;
+}
+
+interface MultiFeaturedResourceInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiFeaturedResourceOutput {
+  results?: Array<UpdateFeaturedResourceDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleForumEventInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleForumEventOutput {
+  result?: UpdateForumEventDataInput | null;
+}
+
+interface MultiForumEventInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiForumEventOutput {
+  results?: Array<UpdateForumEventDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleGardenCodeInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleGardenCodeOutput {
+  result?: UpdateGardenCodeDataInput | null;
+}
+
+interface MultiGardenCodeInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiGardenCodeOutput {
+  results?: Array<UpdateGardenCodeDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleGoogleServiceAccountSessionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleGoogleServiceAccountSessionOutput {
+  result?: UpdateGoogleServiceAccountSessionDataInput | null;
+}
+
+interface MultiGoogleServiceAccountSessionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiGoogleServiceAccountSessionOutput {
+  results?: Array<UpdateGoogleServiceAccountSessionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface Images {
+  _id?: string | null;
+  schemaVersion?: number | null;
+  createdAt?: Date | null;
+  legacyData?: any;
+}
+
+interface SingleJargonTermInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleJargonTermOutput {
+  result?: UpdateJargonTermDataInput | null;
+}
+
+interface MultiJargonTermInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiJargonTermOutput {
+  results?: Array<UpdateJargonTermDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleLWEventInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleLWEventOutput {
+  result?: UpdateLWEventDataInput | null;
+}
+
+interface MultiLWEventInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiLWEventOutput {
+  results?: Array<UpdateLWEventDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface LegacyData {
+  _id?: string | null;
+  schemaVersion?: number | null;
+  createdAt?: Date | null;
+  legacyData?: any;
+}
+
+interface SingleLlmConversationInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleLlmConversationOutput {
+  result?: UpdateLlmConversationDataInput | null;
+}
+
+interface MultiLlmConversationInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiLlmConversationOutput {
+  results?: Array<UpdateLlmConversationDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleLocalgroupInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleLocalgroupOutput {
+  result?: UpdateLocalgroupDataInput | null;
+}
+
+interface MultiLocalgroupInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiLocalgroupOutput {
+  results?: Array<UpdateLocalgroupDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleMessageInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleMessageOutput {
+  result?: UpdateMessageDataInput | null;
+}
+
+interface MultiMessageInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiMessageOutput {
+  results?: Array<UpdateMessageDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleModerationTemplateInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleModerationTemplateOutput {
+  result?: UpdateModerationTemplateDataInput | null;
+}
+
+interface MultiModerationTemplateInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiModerationTemplateOutput {
+  results?: Array<UpdateModerationTemplateDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleModeratorActionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleModeratorActionOutput {
+  result?: UpdateModeratorActionDataInput | null;
+}
+
+interface MultiModeratorActionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiModeratorActionOutput {
+  results?: Array<UpdateModeratorActionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleMultiDocumentInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleMultiDocumentOutput {
+  result?: UpdateMultiDocumentDataInput | null;
+}
+
+interface MultiMultiDocumentInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiMultiDocumentOutput {
+  results?: Array<UpdateMultiDocumentDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleNotificationInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleNotificationOutput {
+  result?: UpdateNotificationDataInput | null;
+}
+
+interface MultiNotificationInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiNotificationOutput {
+  results?: Array<UpdateNotificationDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface PageCacheEntry {
+  _id?: string | null;
+  schemaVersion?: number | null;
+  createdAt?: Date | null;
+  legacyData?: any;
+}
+
+interface SinglePetrovDayActionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SinglePetrovDayActionOutput {
+  result?: UpdatePetrovDayActionDataInput | null;
+}
+
+interface MultiPetrovDayActionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiPetrovDayActionOutput {
+  results?: Array<UpdatePetrovDayActionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SinglePodcastEpisodeInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SinglePodcastEpisodeOutput {
+  result?: UpdatePodcastEpisodeDataInput | null;
+}
+
+interface MultiPodcastEpisodeInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiPodcastEpisodeOutput {
+  results?: Array<UpdatePodcastEpisodeDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SinglePodcastInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SinglePodcastOutput {
+  result?: UpdatePodcastDataInput | null;
+}
+
+interface MultiPodcastInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiPodcastOutput {
+  results?: Array<UpdatePodcastDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SinglePostEmbeddingInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SinglePostEmbeddingOutput {
+  result?: UpdatePostEmbeddingDataInput | null;
+}
+
+interface MultiPostEmbeddingInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiPostEmbeddingOutput {
+  results?: Array<UpdatePostEmbeddingDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SinglePostRelationInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SinglePostRelationOutput {
+  result?: UpdatePostRelationDataInput | null;
+}
+
+interface MultiPostRelationInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiPostRelationOutput {
+  results?: Array<UpdatePostRelationDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SinglePostViewTimeInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SinglePostViewTimeOutput {
+  result?: UpdatePostViewTimeDataInput | null;
+}
+
+interface MultiPostViewTimeInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiPostViewTimeOutput {
+  results?: Array<UpdatePostViewTimeDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface PostViews {
+  _id?: string | null;
+  schemaVersion?: number | null;
+  createdAt?: Date | null;
+  legacyData?: any;
+}
+
+interface SinglePostViewsInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SinglePostViewsOutput {
+  result?: PostViews | null;
+}
+
+interface MultiPostViewsInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiPostViewsOutput {
+  results?: Array<PostViews | null> | null;
+  totalCount?: number | null;
+}
+
+interface SinglePostInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SinglePostOutput {
+  result?: UpdatePostDataInput | null;
+}
+
+interface MultiPostInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiPostOutput {
+  results?: Array<UpdatePostDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleRSSFeedInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleRSSFeedOutput {
+  result?: UpdateRSSFeedDataInput | null;
+}
+
+interface MultiRSSFeedInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiRSSFeedOutput {
+  results?: Array<UpdateRSSFeedDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleReportInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleReportOutput {
+  result?: UpdateReportDataInput | null;
+}
+
+interface MultiReportInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiReportOutput {
+  results?: Array<UpdateReportDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleReviewVoteInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleReviewVoteOutput {
+  result?: UpdateReviewVoteDataInput | null;
+}
+
+interface MultiReviewVoteInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiReviewVoteOutput {
+  results?: Array<UpdateReviewVoteDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleReviewWinnerArtInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleReviewWinnerArtOutput {
+  result?: UpdateReviewWinnerArtDataInput | null;
+}
+
+interface MultiReviewWinnerArtInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiReviewWinnerArtOutput {
+  results?: Array<UpdateReviewWinnerArtDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleReviewWinnerInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleReviewWinnerOutput {
+  result?: UpdateReviewWinnerDataInput | null;
+}
+
+interface MultiReviewWinnerInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiReviewWinnerOutput {
+  results?: Array<UpdateReviewWinnerDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleRevisionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleRevisionOutput {
+  result?: UpdateRevisionDataInput | null;
+}
+
+interface MultiRevisionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiRevisionOutput {
+  results?: Array<UpdateRevisionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleSequenceInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleSequenceOutput {
+  result?: UpdateSequenceDataInput | null;
+}
+
+interface MultiSequenceInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiSequenceOutput {
+  results?: Array<UpdateSequenceDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleSplashArtCoordinateInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleSplashArtCoordinateOutput {
+  result?: UpdateSplashArtCoordinateDataInput | null;
+}
+
+interface MultiSplashArtCoordinateInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiSplashArtCoordinateOutput {
+  results?: Array<UpdateSplashArtCoordinateDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleSpotlightInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleSpotlightOutput {
+  result?: UpdateSpotlightDataInput | null;
+}
+
+interface MultiSpotlightInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiSpotlightOutput {
+  results?: Array<UpdateSpotlightDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleSubscriptionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleSubscriptionOutput {
+  result?: UpdateSubscriptionDataInput | null;
+}
+
+interface MultiSubscriptionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiSubscriptionOutput {
+  results?: Array<UpdateSubscriptionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleSurveyQuestionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleSurveyQuestionOutput {
+  result?: UpdateSurveyQuestionDataInput | null;
+}
+
+interface MultiSurveyQuestionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiSurveyQuestionOutput {
+  results?: Array<UpdateSurveyQuestionDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleSurveyResponseInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleSurveyResponseOutput {
+  result?: UpdateSurveyResponseDataInput | null;
+}
+
+interface MultiSurveyResponseInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiSurveyResponseOutput {
+  results?: Array<UpdateSurveyResponseDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleSurveyScheduleInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleSurveyScheduleOutput {
+  result?: UpdateSurveyScheduleDataInput | null;
+}
+
+interface MultiSurveyScheduleInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiSurveyScheduleOutput {
+  results?: Array<UpdateSurveyScheduleDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleSurveyInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleSurveyOutput {
+  result?: UpdateSurveyDataInput | null;
+}
+
+interface MultiSurveyInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiSurveyOutput {
+  results?: Array<UpdateSurveyDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleTagFlagInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleTagFlagOutput {
+  result?: UpdateTagFlagDataInput | null;
+}
+
+interface MultiTagFlagInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiTagFlagOutput {
+  results?: Array<UpdateTagFlagDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleTagRelInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleTagRelOutput {
+  result?: UpdateTagRelDataInput | null;
+}
+
+interface MultiTagRelInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiTagRelOutput {
+  results?: Array<UpdateTagRelDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleTagInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleTagOutput {
+  result?: UpdateTagDataInput | null;
+}
+
+interface MultiTagInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiTagOutput {
+  results?: Array<UpdateTagDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleTypingIndicatorInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleTypingIndicatorOutput {
+  result?: UpdateTypingIndicatorDataInput | null;
+}
+
+interface MultiTypingIndicatorInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiTypingIndicatorOutput {
+  results?: Array<UpdateTypingIndicatorDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleUserEAGDetailInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleUserEAGDetailOutput {
+  result?: UpdateUserEAGDetailDataInput | null;
+}
+
+interface MultiUserEAGDetailInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiUserEAGDetailOutput {
+  results?: Array<UpdateUserEAGDetailDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleUserJobAdInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleUserJobAdOutput {
+  result?: UpdateUserJobAdDataInput | null;
+}
+
+interface MultiUserJobAdInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiUserJobAdOutput {
+  results?: Array<UpdateUserJobAdDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleUserMostValuablePostInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleUserMostValuablePostOutput {
+  result?: UpdateUserMostValuablePostDataInput | null;
+}
+
+interface MultiUserMostValuablePostInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiUserMostValuablePostOutput {
+  results?: Array<UpdateUserMostValuablePostDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleUserRateLimitInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleUserRateLimitOutput {
+  result?: UpdateUserRateLimitDataInput | null;
+}
+
+interface MultiUserRateLimitInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiUserRateLimitOutput {
+  results?: Array<UpdateUserRateLimitDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleUserTagRelInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleUserTagRelOutput {
+  result?: UpdateUserTagRelDataInput | null;
+}
+
+interface MultiUserTagRelInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiUserTagRelOutput {
+  results?: Array<UpdateUserTagRelDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleUserInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleUserOutput {
+  result?: UpdateUserDataInput | null;
+}
+
+interface MultiUserInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiUserOutput {
+  results?: Array<UpdateUserDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface SingleVoteInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleVoteOutput {
+  result?: UpdateVoteDataInput | null;
+}
+
+interface MultiVoteInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+}
+
+interface MultiVoteOutput {
+  results?: Array<UpdateVoteDataInput | null> | null;
+  totalCount?: number | null;
 }
 
 interface CreateAdvisorRequestDataInput {
@@ -6043,362 +4595,6 @@ interface UserOutput {
 }
 
 interface GraphQLTypeMap {
-  SingleAdvisorRequestInput: SingleAdvisorRequestInput;
-  MultiAdvisorRequestInput: MultiAdvisorRequestInput;
-  SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
-  MultiAdvisorRequestOutput: MultiAdvisorRequestOutput;
-  ArbitalCaches: ArbitalCaches;
-  SingleArbitalCachesInput: SingleArbitalCachesInput;
-  MultiArbitalCachesInput: MultiArbitalCachesInput;
-  SingleArbitalCachesOutput: SingleArbitalCachesOutput;
-  MultiArbitalCachesOutput: MultiArbitalCachesOutput;
-  SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
-  MultiArbitalTagContentRelInput: MultiArbitalTagContentRelInput;
-  SingleArbitalTagContentRelOutput: SingleArbitalTagContentRelOutput;
-  MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
-  SingleBanInput: SingleBanInput;
-  MultiBanInput: MultiBanInput;
-  SingleBanOutput: SingleBanOutput;
-  MultiBanOutput: MultiBanOutput;
-  SingleBookInput: SingleBookInput;
-  MultiBookInput: MultiBookInput;
-  SingleBookOutput: SingleBookOutput;
-  MultiBookOutput: MultiBookOutput;
-  SingleChapterInput: SingleChapterInput;
-  MultiChapterInput: MultiChapterInput;
-  SingleChapterOutput: SingleChapterOutput;
-  MultiChapterOutput: MultiChapterOutput;
-  SingleCkEditorUserSessionInput: SingleCkEditorUserSessionInput;
-  MultiCkEditorUserSessionInput: MultiCkEditorUserSessionInput;
-  SingleCkEditorUserSessionOutput: SingleCkEditorUserSessionOutput;
-  MultiCkEditorUserSessionOutput: MultiCkEditorUserSessionOutput;
-  SingleClientIdInput: SingleClientIdInput;
-  MultiClientIdInput: MultiClientIdInput;
-  SingleClientIdOutput: SingleClientIdOutput;
-  MultiClientIdOutput: MultiClientIdOutput;
-  SingleCollectionInput: SingleCollectionInput;
-  MultiCollectionInput: MultiCollectionInput;
-  SingleCollectionOutput: SingleCollectionOutput;
-  MultiCollectionOutput: MultiCollectionOutput;
-  SingleCommentModeratorActionInput: SingleCommentModeratorActionInput;
-  MultiCommentModeratorActionInput: MultiCommentModeratorActionInput;
-  SingleCommentModeratorActionOutput: SingleCommentModeratorActionOutput;
-  MultiCommentModeratorActionOutput: MultiCommentModeratorActionOutput;
-  SingleCommentInput: SingleCommentInput;
-  MultiCommentInput: MultiCommentInput;
-  SingleCommentOutput: SingleCommentOutput;
-  MultiCommentOutput: MultiCommentOutput;
-  SingleConversationInput: SingleConversationInput;
-  MultiConversationInput: MultiConversationInput;
-  SingleConversationOutput: SingleConversationOutput;
-  MultiConversationOutput: MultiConversationOutput;
-  SingleCronHistoryInput: SingleCronHistoryInput;
-  MultiCronHistoryInput: MultiCronHistoryInput;
-  SingleCronHistoryOutput: SingleCronHistoryOutput;
-  MultiCronHistoryOutput: MultiCronHistoryOutput;
-  SingleCurationEmailInput: SingleCurationEmailInput;
-  MultiCurationEmailInput: MultiCurationEmailInput;
-  SingleCurationEmailOutput: SingleCurationEmailOutput;
-  MultiCurationEmailOutput: MultiCurationEmailOutput;
-  SingleCurationNoticeInput: SingleCurationNoticeInput;
-  MultiCurationNoticeInput: MultiCurationNoticeInput;
-  SingleCurationNoticeOutput: SingleCurationNoticeOutput;
-  MultiCurationNoticeOutput: MultiCurationNoticeOutput;
-  DatabaseMetadata: DatabaseMetadata;
-  SingleDatabaseMetadataInput: SingleDatabaseMetadataInput;
-  MultiDatabaseMetadataInput: MultiDatabaseMetadataInput;
-  SingleDatabaseMetadataOutput: SingleDatabaseMetadataOutput;
-  MultiDatabaseMetadataOutput: MultiDatabaseMetadataOutput;
-  DebouncerEvents: DebouncerEvents;
-  SingleDebouncerEventsInput: SingleDebouncerEventsInput;
-  MultiDebouncerEventsInput: MultiDebouncerEventsInput;
-  SingleDebouncerEventsOutput: SingleDebouncerEventsOutput;
-  MultiDebouncerEventsOutput: MultiDebouncerEventsOutput;
-  SingleDialogueCheckInput: SingleDialogueCheckInput;
-  MultiDialogueCheckInput: MultiDialogueCheckInput;
-  SingleDialogueCheckOutput: SingleDialogueCheckOutput;
-  MultiDialogueCheckOutput: MultiDialogueCheckOutput;
-  SingleDialogueMatchPreferenceInput: SingleDialogueMatchPreferenceInput;
-  MultiDialogueMatchPreferenceInput: MultiDialogueMatchPreferenceInput;
-  SingleDialogueMatchPreferenceOutput: SingleDialogueMatchPreferenceOutput;
-  MultiDialogueMatchPreferenceOutput: MultiDialogueMatchPreferenceOutput;
-  SingleDigestPostInput: SingleDigestPostInput;
-  MultiDigestPostInput: MultiDigestPostInput;
-  SingleDigestPostOutput: SingleDigestPostOutput;
-  MultiDigestPostOutput: MultiDigestPostOutput;
-  SingleDigestInput: SingleDigestInput;
-  MultiDigestInput: MultiDigestInput;
-  SingleDigestOutput: SingleDigestOutput;
-  MultiDigestOutput: MultiDigestOutput;
-  SingleElectionCandidateInput: SingleElectionCandidateInput;
-  MultiElectionCandidateInput: MultiElectionCandidateInput;
-  SingleElectionCandidateOutput: SingleElectionCandidateOutput;
-  MultiElectionCandidateOutput: MultiElectionCandidateOutput;
-  SingleElectionVoteInput: SingleElectionVoteInput;
-  MultiElectionVoteInput: MultiElectionVoteInput;
-  SingleElectionVoteOutput: SingleElectionVoteOutput;
-  MultiElectionVoteOutput: MultiElectionVoteOutput;
-  SingleElicitQuestionPredictionInput: SingleElicitQuestionPredictionInput;
-  MultiElicitQuestionPredictionInput: MultiElicitQuestionPredictionInput;
-  SingleElicitQuestionPredictionOutput: SingleElicitQuestionPredictionOutput;
-  MultiElicitQuestionPredictionOutput: MultiElicitQuestionPredictionOutput;
-  SingleElicitQuestionInput: SingleElicitQuestionInput;
-  MultiElicitQuestionInput: MultiElicitQuestionInput;
-  SingleElicitQuestionOutput: SingleElicitQuestionOutput;
-  MultiElicitQuestionOutput: MultiElicitQuestionOutput;
-  EmailTokens: EmailTokens;
-  SingleEmailTokensInput: SingleEmailTokensInput;
-  MultiEmailTokensInput: MultiEmailTokensInput;
-  SingleEmailTokensOutput: SingleEmailTokensOutput;
-  MultiEmailTokensOutput: MultiEmailTokensOutput;
-  SingleFeaturedResourceInput: SingleFeaturedResourceInput;
-  MultiFeaturedResourceInput: MultiFeaturedResourceInput;
-  SingleFeaturedResourceOutput: SingleFeaturedResourceOutput;
-  MultiFeaturedResourceOutput: MultiFeaturedResourceOutput;
-  SingleFieldChangeInput: SingleFieldChangeInput;
-  MultiFieldChangeInput: MultiFieldChangeInput;
-  SingleFieldChangeOutput: SingleFieldChangeOutput;
-  MultiFieldChangeOutput: MultiFieldChangeOutput;
-  SingleForumEventInput: SingleForumEventInput;
-  MultiForumEventInput: MultiForumEventInput;
-  SingleForumEventOutput: SingleForumEventOutput;
-  MultiForumEventOutput: MultiForumEventOutput;
-  SingleGardenCodeInput: SingleGardenCodeInput;
-  MultiGardenCodeInput: MultiGardenCodeInput;
-  SingleGardenCodeOutput: SingleGardenCodeOutput;
-  MultiGardenCodeOutput: MultiGardenCodeOutput;
-  SingleGoogleServiceAccountSessionInput: SingleGoogleServiceAccountSessionInput;
-  MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
-  SingleGoogleServiceAccountSessionOutput: SingleGoogleServiceAccountSessionOutput;
-  MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
-  Images: Images;
-  SingleImagesInput: SingleImagesInput;
-  MultiImagesInput: MultiImagesInput;
-  SingleImagesOutput: SingleImagesOutput;
-  MultiImagesOutput: MultiImagesOutput;
-  SingleJargonTermInput: SingleJargonTermInput;
-  MultiJargonTermInput: MultiJargonTermInput;
-  SingleJargonTermOutput: SingleJargonTermOutput;
-  MultiJargonTermOutput: MultiJargonTermOutput;
-  SingleLWEventInput: SingleLWEventInput;
-  MultiLWEventInput: MultiLWEventInput;
-  SingleLWEventOutput: SingleLWEventOutput;
-  MultiLWEventOutput: MultiLWEventOutput;
-  LegacyData: LegacyData;
-  SingleLegacyDataInput: SingleLegacyDataInput;
-  MultiLegacyDataInput: MultiLegacyDataInput;
-  SingleLegacyDataOutput: SingleLegacyDataOutput;
-  MultiLegacyDataOutput: MultiLegacyDataOutput;
-  SingleLlmConversationInput: SingleLlmConversationInput;
-  MultiLlmConversationInput: MultiLlmConversationInput;
-  SingleLlmConversationOutput: SingleLlmConversationOutput;
-  MultiLlmConversationOutput: MultiLlmConversationOutput;
-  SingleLlmMessageInput: SingleLlmMessageInput;
-  MultiLlmMessageInput: MultiLlmMessageInput;
-  SingleLlmMessageOutput: SingleLlmMessageOutput;
-  MultiLlmMessageOutput: MultiLlmMessageOutput;
-  SingleLocalgroupInput: SingleLocalgroupInput;
-  MultiLocalgroupInput: MultiLocalgroupInput;
-  SingleLocalgroupOutput: SingleLocalgroupOutput;
-  MultiLocalgroupOutput: MultiLocalgroupOutput;
-  SingleManifoldProbabilitiesCacheInput: SingleManifoldProbabilitiesCacheInput;
-  MultiManifoldProbabilitiesCacheInput: MultiManifoldProbabilitiesCacheInput;
-  SingleManifoldProbabilitiesCacheOutput: SingleManifoldProbabilitiesCacheOutput;
-  MultiManifoldProbabilitiesCacheOutput: MultiManifoldProbabilitiesCacheOutput;
-  SingleMessageInput: SingleMessageInput;
-  MultiMessageInput: MultiMessageInput;
-  SingleMessageOutput: SingleMessageOutput;
-  MultiMessageOutput: MultiMessageOutput;
-  SingleMigrationInput: SingleMigrationInput;
-  MultiMigrationInput: MultiMigrationInput;
-  SingleMigrationOutput: SingleMigrationOutput;
-  MultiMigrationOutput: MultiMigrationOutput;
-  SingleModerationTemplateInput: SingleModerationTemplateInput;
-  MultiModerationTemplateInput: MultiModerationTemplateInput;
-  SingleModerationTemplateOutput: SingleModerationTemplateOutput;
-  MultiModerationTemplateOutput: MultiModerationTemplateOutput;
-  SingleModeratorActionInput: SingleModeratorActionInput;
-  MultiModeratorActionInput: MultiModeratorActionInput;
-  SingleModeratorActionOutput: SingleModeratorActionOutput;
-  MultiModeratorActionOutput: MultiModeratorActionOutput;
-  SingleMultiDocumentInput: SingleMultiDocumentInput;
-  MultiMultiDocumentInput: MultiMultiDocumentInput;
-  SingleMultiDocumentOutput: SingleMultiDocumentOutput;
-  MultiMultiDocumentOutput: MultiMultiDocumentOutput;
-  SingleNotificationInput: SingleNotificationInput;
-  MultiNotificationInput: MultiNotificationInput;
-  SingleNotificationOutput: SingleNotificationOutput;
-  MultiNotificationOutput: MultiNotificationOutput;
-  PageCacheEntry: PageCacheEntry;
-  SinglePageCacheEntryInput: SinglePageCacheEntryInput;
-  MultiPageCacheEntryInput: MultiPageCacheEntryInput;
-  SinglePageCacheEntryOutput: SinglePageCacheEntryOutput;
-  MultiPageCacheEntryOutput: MultiPageCacheEntryOutput;
-  SinglePetrovDayActionInput: SinglePetrovDayActionInput;
-  MultiPetrovDayActionInput: MultiPetrovDayActionInput;
-  SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
-  MultiPetrovDayActionOutput: MultiPetrovDayActionOutput;
-  SinglePetrovDayLaunchInput: SinglePetrovDayLaunchInput;
-  MultiPetrovDayLaunchInput: MultiPetrovDayLaunchInput;
-  SinglePetrovDayLaunchOutput: SinglePetrovDayLaunchOutput;
-  MultiPetrovDayLaunchOutput: MultiPetrovDayLaunchOutput;
-  SinglePodcastEpisodeInput: SinglePodcastEpisodeInput;
-  MultiPodcastEpisodeInput: MultiPodcastEpisodeInput;
-  SinglePodcastEpisodeOutput: SinglePodcastEpisodeOutput;
-  MultiPodcastEpisodeOutput: MultiPodcastEpisodeOutput;
-  SinglePodcastInput: SinglePodcastInput;
-  MultiPodcastInput: MultiPodcastInput;
-  SinglePodcastOutput: SinglePodcastOutput;
-  MultiPodcastOutput: MultiPodcastOutput;
-  SinglePostEmbeddingInput: SinglePostEmbeddingInput;
-  MultiPostEmbeddingInput: MultiPostEmbeddingInput;
-  SinglePostEmbeddingOutput: SinglePostEmbeddingOutput;
-  MultiPostEmbeddingOutput: MultiPostEmbeddingOutput;
-  SinglePostRecommendationInput: SinglePostRecommendationInput;
-  MultiPostRecommendationInput: MultiPostRecommendationInput;
-  SinglePostRecommendationOutput: SinglePostRecommendationOutput;
-  MultiPostRecommendationOutput: MultiPostRecommendationOutput;
-  SinglePostRelationInput: SinglePostRelationInput;
-  MultiPostRelationInput: MultiPostRelationInput;
-  SinglePostRelationOutput: SinglePostRelationOutput;
-  MultiPostRelationOutput: MultiPostRelationOutput;
-  SinglePostViewTimeInput: SinglePostViewTimeInput;
-  MultiPostViewTimeInput: MultiPostViewTimeInput;
-  SinglePostViewTimeOutput: SinglePostViewTimeOutput;
-  MultiPostViewTimeOutput: MultiPostViewTimeOutput;
-  PostViews: PostViews;
-  SinglePostViewsInput: SinglePostViewsInput;
-  MultiPostViewsInput: MultiPostViewsInput;
-  SinglePostViewsOutput: SinglePostViewsOutput;
-  MultiPostViewsOutput: MultiPostViewsOutput;
-  SinglePostInput: SinglePostInput;
-  MultiPostInput: MultiPostInput;
-  SinglePostOutput: SinglePostOutput;
-  MultiPostOutput: MultiPostOutput;
-  SingleRSSFeedInput: SingleRSSFeedInput;
-  MultiRSSFeedInput: MultiRSSFeedInput;
-  SingleRSSFeedOutput: SingleRSSFeedOutput;
-  MultiRSSFeedOutput: MultiRSSFeedOutput;
-  SingleReadStatusInput: SingleReadStatusInput;
-  MultiReadStatusInput: MultiReadStatusInput;
-  SingleReadStatusOutput: SingleReadStatusOutput;
-  MultiReadStatusOutput: MultiReadStatusOutput;
-  SingleRecommendationsCacheInput: SingleRecommendationsCacheInput;
-  MultiRecommendationsCacheInput: MultiRecommendationsCacheInput;
-  SingleRecommendationsCacheOutput: SingleRecommendationsCacheOutput;
-  MultiRecommendationsCacheOutput: MultiRecommendationsCacheOutput;
-  SingleReportInput: SingleReportInput;
-  MultiReportInput: MultiReportInput;
-  SingleReportOutput: SingleReportOutput;
-  MultiReportOutput: MultiReportOutput;
-  SingleReviewVoteInput: SingleReviewVoteInput;
-  MultiReviewVoteInput: MultiReviewVoteInput;
-  SingleReviewVoteOutput: SingleReviewVoteOutput;
-  MultiReviewVoteOutput: MultiReviewVoteOutput;
-  SingleReviewWinnerArtInput: SingleReviewWinnerArtInput;
-  MultiReviewWinnerArtInput: MultiReviewWinnerArtInput;
-  SingleReviewWinnerArtOutput: SingleReviewWinnerArtOutput;
-  MultiReviewWinnerArtOutput: MultiReviewWinnerArtOutput;
-  SingleReviewWinnerInput: SingleReviewWinnerInput;
-  MultiReviewWinnerInput: MultiReviewWinnerInput;
-  SingleReviewWinnerOutput: SingleReviewWinnerOutput;
-  MultiReviewWinnerOutput: MultiReviewWinnerOutput;
-  SingleRevisionInput: SingleRevisionInput;
-  MultiRevisionInput: MultiRevisionInput;
-  SingleRevisionOutput: SingleRevisionOutput;
-  MultiRevisionOutput: MultiRevisionOutput;
-  SingleSequenceInput: SingleSequenceInput;
-  MultiSequenceInput: MultiSequenceInput;
-  SingleSequenceOutput: SingleSequenceOutput;
-  MultiSequenceOutput: MultiSequenceOutput;
-  SingleSessionInput: SingleSessionInput;
-  MultiSessionInput: MultiSessionInput;
-  SingleSessionOutput: SingleSessionOutput;
-  MultiSessionOutput: MultiSessionOutput;
-  SingleSideCommentCacheInput: SingleSideCommentCacheInput;
-  MultiSideCommentCacheInput: MultiSideCommentCacheInput;
-  SingleSideCommentCacheOutput: SingleSideCommentCacheOutput;
-  MultiSideCommentCacheOutput: MultiSideCommentCacheOutput;
-  SingleSplashArtCoordinateInput: SingleSplashArtCoordinateInput;
-  MultiSplashArtCoordinateInput: MultiSplashArtCoordinateInput;
-  SingleSplashArtCoordinateOutput: SingleSplashArtCoordinateOutput;
-  MultiSplashArtCoordinateOutput: MultiSplashArtCoordinateOutput;
-  SingleSpotlightInput: SingleSpotlightInput;
-  MultiSpotlightInput: MultiSpotlightInput;
-  SingleSpotlightOutput: SingleSpotlightOutput;
-  MultiSpotlightOutput: MultiSpotlightOutput;
-  SingleSubscriptionInput: SingleSubscriptionInput;
-  MultiSubscriptionInput: MultiSubscriptionInput;
-  SingleSubscriptionOutput: SingleSubscriptionOutput;
-  MultiSubscriptionOutput: MultiSubscriptionOutput;
-  SingleSurveyQuestionInput: SingleSurveyQuestionInput;
-  MultiSurveyQuestionInput: MultiSurveyQuestionInput;
-  SingleSurveyQuestionOutput: SingleSurveyQuestionOutput;
-  MultiSurveyQuestionOutput: MultiSurveyQuestionOutput;
-  SingleSurveyResponseInput: SingleSurveyResponseInput;
-  MultiSurveyResponseInput: MultiSurveyResponseInput;
-  SingleSurveyResponseOutput: SingleSurveyResponseOutput;
-  MultiSurveyResponseOutput: MultiSurveyResponseOutput;
-  SingleSurveyScheduleInput: SingleSurveyScheduleInput;
-  MultiSurveyScheduleInput: MultiSurveyScheduleInput;
-  SingleSurveyScheduleOutput: SingleSurveyScheduleOutput;
-  MultiSurveyScheduleOutput: MultiSurveyScheduleOutput;
-  SingleSurveyInput: SingleSurveyInput;
-  MultiSurveyInput: MultiSurveyInput;
-  SingleSurveyOutput: SingleSurveyOutput;
-  MultiSurveyOutput: MultiSurveyOutput;
-  SingleTagFlagInput: SingleTagFlagInput;
-  MultiTagFlagInput: MultiTagFlagInput;
-  SingleTagFlagOutput: SingleTagFlagOutput;
-  MultiTagFlagOutput: MultiTagFlagOutput;
-  SingleTagRelInput: SingleTagRelInput;
-  MultiTagRelInput: MultiTagRelInput;
-  SingleTagRelOutput: SingleTagRelOutput;
-  MultiTagRelOutput: MultiTagRelOutput;
-  SingleTagInput: SingleTagInput;
-  MultiTagInput: MultiTagInput;
-  SingleTagOutput: SingleTagOutput;
-  MultiTagOutput: MultiTagOutput;
-  SingleTweetInput: SingleTweetInput;
-  MultiTweetInput: MultiTweetInput;
-  SingleTweetOutput: SingleTweetOutput;
-  MultiTweetOutput: MultiTweetOutput;
-  SingleTypingIndicatorInput: SingleTypingIndicatorInput;
-  MultiTypingIndicatorInput: MultiTypingIndicatorInput;
-  SingleTypingIndicatorOutput: SingleTypingIndicatorOutput;
-  MultiTypingIndicatorOutput: MultiTypingIndicatorOutput;
-  SingleUserActivityInput: SingleUserActivityInput;
-  MultiUserActivityInput: MultiUserActivityInput;
-  SingleUserActivityOutput: SingleUserActivityOutput;
-  MultiUserActivityOutput: MultiUserActivityOutput;
-  SingleUserEAGDetailInput: SingleUserEAGDetailInput;
-  MultiUserEAGDetailInput: MultiUserEAGDetailInput;
-  SingleUserEAGDetailOutput: SingleUserEAGDetailOutput;
-  MultiUserEAGDetailOutput: MultiUserEAGDetailOutput;
-  SingleUserJobAdInput: SingleUserJobAdInput;
-  MultiUserJobAdInput: MultiUserJobAdInput;
-  SingleUserJobAdOutput: SingleUserJobAdOutput;
-  MultiUserJobAdOutput: MultiUserJobAdOutput;
-  SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
-  MultiUserMostValuablePostInput: MultiUserMostValuablePostInput;
-  SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
-  MultiUserMostValuablePostOutput: MultiUserMostValuablePostOutput;
-  SingleUserRateLimitInput: SingleUserRateLimitInput;
-  MultiUserRateLimitInput: MultiUserRateLimitInput;
-  SingleUserRateLimitOutput: SingleUserRateLimitOutput;
-  MultiUserRateLimitOutput: MultiUserRateLimitOutput;
-  SingleUserTagRelInput: SingleUserTagRelInput;
-  MultiUserTagRelInput: MultiUserTagRelInput;
-  SingleUserTagRelOutput: SingleUserTagRelOutput;
-  MultiUserTagRelOutput: MultiUserTagRelOutput;
-  SingleUserInput: SingleUserInput;
-  MultiUserInput: MultiUserInput;
-  SingleUserOutput: SingleUserOutput;
-  MultiUserOutput: MultiUserOutput;
-  SingleVoteInput: SingleVoteInput;
-  MultiVoteInput: MultiVoteInput;
-  SingleVoteOutput: SingleVoteOutput;
-  MultiVoteOutput: MultiVoteOutput;
   Query: Query;
   Mutation: Mutation;
   SelectorInput: SelectorInput;
@@ -6512,6 +4708,278 @@ interface GraphQLTypeMap {
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   RssPostChangeInfo: RssPostChangeInfo;
+  SingleAdvisorRequestInput: SingleAdvisorRequestInput;
+  SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
+  MultiAdvisorRequestInput: MultiAdvisorRequestInput;
+  MultiAdvisorRequestOutput: MultiAdvisorRequestOutput;
+  ArbitalCaches: ArbitalCaches;
+  SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
+  SingleArbitalTagContentRelOutput: SingleArbitalTagContentRelOutput;
+  MultiArbitalTagContentRelInput: MultiArbitalTagContentRelInput;
+  MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
+  SingleBanInput: SingleBanInput;
+  SingleBanOutput: SingleBanOutput;
+  MultiBanInput: MultiBanInput;
+  MultiBanOutput: MultiBanOutput;
+  SingleBookInput: SingleBookInput;
+  SingleBookOutput: SingleBookOutput;
+  MultiBookInput: MultiBookInput;
+  MultiBookOutput: MultiBookOutput;
+  SingleChapterInput: SingleChapterInput;
+  SingleChapterOutput: SingleChapterOutput;
+  MultiChapterInput: MultiChapterInput;
+  MultiChapterOutput: MultiChapterOutput;
+  SingleCkEditorUserSessionInput: SingleCkEditorUserSessionInput;
+  SingleCkEditorUserSessionOutput: SingleCkEditorUserSessionOutput;
+  MultiCkEditorUserSessionInput: MultiCkEditorUserSessionInput;
+  MultiCkEditorUserSessionOutput: MultiCkEditorUserSessionOutput;
+  SingleClientIdInput: SingleClientIdInput;
+  SingleClientIdOutput: SingleClientIdOutput;
+  MultiClientIdInput: MultiClientIdInput;
+  MultiClientIdOutput: MultiClientIdOutput;
+  SingleCollectionInput: SingleCollectionInput;
+  SingleCollectionOutput: SingleCollectionOutput;
+  MultiCollectionInput: MultiCollectionInput;
+  MultiCollectionOutput: MultiCollectionOutput;
+  SingleCommentModeratorActionInput: SingleCommentModeratorActionInput;
+  SingleCommentModeratorActionOutput: SingleCommentModeratorActionOutput;
+  MultiCommentModeratorActionInput: MultiCommentModeratorActionInput;
+  MultiCommentModeratorActionOutput: MultiCommentModeratorActionOutput;
+  SingleCommentInput: SingleCommentInput;
+  SingleCommentOutput: SingleCommentOutput;
+  MultiCommentInput: MultiCommentInput;
+  MultiCommentOutput: MultiCommentOutput;
+  SingleConversationInput: SingleConversationInput;
+  SingleConversationOutput: SingleConversationOutput;
+  MultiConversationInput: MultiConversationInput;
+  MultiConversationOutput: MultiConversationOutput;
+  SingleCurationNoticeInput: SingleCurationNoticeInput;
+  SingleCurationNoticeOutput: SingleCurationNoticeOutput;
+  MultiCurationNoticeInput: MultiCurationNoticeInput;
+  MultiCurationNoticeOutput: MultiCurationNoticeOutput;
+  DatabaseMetadata: DatabaseMetadata;
+  DebouncerEvents: DebouncerEvents;
+  SingleDialogueCheckInput: SingleDialogueCheckInput;
+  SingleDialogueCheckOutput: SingleDialogueCheckOutput;
+  MultiDialogueCheckInput: MultiDialogueCheckInput;
+  MultiDialogueCheckOutput: MultiDialogueCheckOutput;
+  SingleDialogueMatchPreferenceInput: SingleDialogueMatchPreferenceInput;
+  SingleDialogueMatchPreferenceOutput: SingleDialogueMatchPreferenceOutput;
+  MultiDialogueMatchPreferenceInput: MultiDialogueMatchPreferenceInput;
+  MultiDialogueMatchPreferenceOutput: MultiDialogueMatchPreferenceOutput;
+  SingleDigestPostInput: SingleDigestPostInput;
+  SingleDigestPostOutput: SingleDigestPostOutput;
+  MultiDigestPostInput: MultiDigestPostInput;
+  MultiDigestPostOutput: MultiDigestPostOutput;
+  SingleDigestInput: SingleDigestInput;
+  SingleDigestOutput: SingleDigestOutput;
+  MultiDigestInput: MultiDigestInput;
+  MultiDigestOutput: MultiDigestOutput;
+  SingleElectionCandidateInput: SingleElectionCandidateInput;
+  SingleElectionCandidateOutput: SingleElectionCandidateOutput;
+  MultiElectionCandidateInput: MultiElectionCandidateInput;
+  MultiElectionCandidateOutput: MultiElectionCandidateOutput;
+  SingleElectionVoteInput: SingleElectionVoteInput;
+  SingleElectionVoteOutput: SingleElectionVoteOutput;
+  MultiElectionVoteInput: MultiElectionVoteInput;
+  MultiElectionVoteOutput: MultiElectionVoteOutput;
+  SingleElicitQuestionPredictionInput: SingleElicitQuestionPredictionInput;
+  SingleElicitQuestionPredictionOutput: SingleElicitQuestionPredictionOutput;
+  MultiElicitQuestionPredictionInput: MultiElicitQuestionPredictionInput;
+  MultiElicitQuestionPredictionOutput: MultiElicitQuestionPredictionOutput;
+  SingleElicitQuestionInput: SingleElicitQuestionInput;
+  SingleElicitQuestionOutput: SingleElicitQuestionOutput;
+  MultiElicitQuestionInput: MultiElicitQuestionInput;
+  MultiElicitQuestionOutput: MultiElicitQuestionOutput;
+  EmailTokens: EmailTokens;
+  SingleFeaturedResourceInput: SingleFeaturedResourceInput;
+  SingleFeaturedResourceOutput: SingleFeaturedResourceOutput;
+  MultiFeaturedResourceInput: MultiFeaturedResourceInput;
+  MultiFeaturedResourceOutput: MultiFeaturedResourceOutput;
+  SingleForumEventInput: SingleForumEventInput;
+  SingleForumEventOutput: SingleForumEventOutput;
+  MultiForumEventInput: MultiForumEventInput;
+  MultiForumEventOutput: MultiForumEventOutput;
+  SingleGardenCodeInput: SingleGardenCodeInput;
+  SingleGardenCodeOutput: SingleGardenCodeOutput;
+  MultiGardenCodeInput: MultiGardenCodeInput;
+  MultiGardenCodeOutput: MultiGardenCodeOutput;
+  SingleGoogleServiceAccountSessionInput: SingleGoogleServiceAccountSessionInput;
+  SingleGoogleServiceAccountSessionOutput: SingleGoogleServiceAccountSessionOutput;
+  MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
+  MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
+  Images: Images;
+  SingleJargonTermInput: SingleJargonTermInput;
+  SingleJargonTermOutput: SingleJargonTermOutput;
+  MultiJargonTermInput: MultiJargonTermInput;
+  MultiJargonTermOutput: MultiJargonTermOutput;
+  SingleLWEventInput: SingleLWEventInput;
+  SingleLWEventOutput: SingleLWEventOutput;
+  MultiLWEventInput: MultiLWEventInput;
+  MultiLWEventOutput: MultiLWEventOutput;
+  LegacyData: LegacyData;
+  SingleLlmConversationInput: SingleLlmConversationInput;
+  SingleLlmConversationOutput: SingleLlmConversationOutput;
+  MultiLlmConversationInput: MultiLlmConversationInput;
+  MultiLlmConversationOutput: MultiLlmConversationOutput;
+  SingleLocalgroupInput: SingleLocalgroupInput;
+  SingleLocalgroupOutput: SingleLocalgroupOutput;
+  MultiLocalgroupInput: MultiLocalgroupInput;
+  MultiLocalgroupOutput: MultiLocalgroupOutput;
+  SingleMessageInput: SingleMessageInput;
+  SingleMessageOutput: SingleMessageOutput;
+  MultiMessageInput: MultiMessageInput;
+  MultiMessageOutput: MultiMessageOutput;
+  SingleModerationTemplateInput: SingleModerationTemplateInput;
+  SingleModerationTemplateOutput: SingleModerationTemplateOutput;
+  MultiModerationTemplateInput: MultiModerationTemplateInput;
+  MultiModerationTemplateOutput: MultiModerationTemplateOutput;
+  SingleModeratorActionInput: SingleModeratorActionInput;
+  SingleModeratorActionOutput: SingleModeratorActionOutput;
+  MultiModeratorActionInput: MultiModeratorActionInput;
+  MultiModeratorActionOutput: MultiModeratorActionOutput;
+  SingleMultiDocumentInput: SingleMultiDocumentInput;
+  SingleMultiDocumentOutput: SingleMultiDocumentOutput;
+  MultiMultiDocumentInput: MultiMultiDocumentInput;
+  MultiMultiDocumentOutput: MultiMultiDocumentOutput;
+  SingleNotificationInput: SingleNotificationInput;
+  SingleNotificationOutput: SingleNotificationOutput;
+  MultiNotificationInput: MultiNotificationInput;
+  MultiNotificationOutput: MultiNotificationOutput;
+  PageCacheEntry: PageCacheEntry;
+  SinglePetrovDayActionInput: SinglePetrovDayActionInput;
+  SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
+  MultiPetrovDayActionInput: MultiPetrovDayActionInput;
+  MultiPetrovDayActionOutput: MultiPetrovDayActionOutput;
+  SinglePodcastEpisodeInput: SinglePodcastEpisodeInput;
+  SinglePodcastEpisodeOutput: SinglePodcastEpisodeOutput;
+  MultiPodcastEpisodeInput: MultiPodcastEpisodeInput;
+  MultiPodcastEpisodeOutput: MultiPodcastEpisodeOutput;
+  SinglePodcastInput: SinglePodcastInput;
+  SinglePodcastOutput: SinglePodcastOutput;
+  MultiPodcastInput: MultiPodcastInput;
+  MultiPodcastOutput: MultiPodcastOutput;
+  SinglePostEmbeddingInput: SinglePostEmbeddingInput;
+  SinglePostEmbeddingOutput: SinglePostEmbeddingOutput;
+  MultiPostEmbeddingInput: MultiPostEmbeddingInput;
+  MultiPostEmbeddingOutput: MultiPostEmbeddingOutput;
+  SinglePostRelationInput: SinglePostRelationInput;
+  SinglePostRelationOutput: SinglePostRelationOutput;
+  MultiPostRelationInput: MultiPostRelationInput;
+  MultiPostRelationOutput: MultiPostRelationOutput;
+  SinglePostViewTimeInput: SinglePostViewTimeInput;
+  SinglePostViewTimeOutput: SinglePostViewTimeOutput;
+  MultiPostViewTimeInput: MultiPostViewTimeInput;
+  MultiPostViewTimeOutput: MultiPostViewTimeOutput;
+  PostViews: PostViews;
+  SinglePostViewsInput: SinglePostViewsInput;
+  SinglePostViewsOutput: SinglePostViewsOutput;
+  MultiPostViewsInput: MultiPostViewsInput;
+  MultiPostViewsOutput: MultiPostViewsOutput;
+  SinglePostInput: SinglePostInput;
+  SinglePostOutput: SinglePostOutput;
+  MultiPostInput: MultiPostInput;
+  MultiPostOutput: MultiPostOutput;
+  SingleRSSFeedInput: SingleRSSFeedInput;
+  SingleRSSFeedOutput: SingleRSSFeedOutput;
+  MultiRSSFeedInput: MultiRSSFeedInput;
+  MultiRSSFeedOutput: MultiRSSFeedOutput;
+  SingleReportInput: SingleReportInput;
+  SingleReportOutput: SingleReportOutput;
+  MultiReportInput: MultiReportInput;
+  MultiReportOutput: MultiReportOutput;
+  SingleReviewVoteInput: SingleReviewVoteInput;
+  SingleReviewVoteOutput: SingleReviewVoteOutput;
+  MultiReviewVoteInput: MultiReviewVoteInput;
+  MultiReviewVoteOutput: MultiReviewVoteOutput;
+  SingleReviewWinnerArtInput: SingleReviewWinnerArtInput;
+  SingleReviewWinnerArtOutput: SingleReviewWinnerArtOutput;
+  MultiReviewWinnerArtInput: MultiReviewWinnerArtInput;
+  MultiReviewWinnerArtOutput: MultiReviewWinnerArtOutput;
+  SingleReviewWinnerInput: SingleReviewWinnerInput;
+  SingleReviewWinnerOutput: SingleReviewWinnerOutput;
+  MultiReviewWinnerInput: MultiReviewWinnerInput;
+  MultiReviewWinnerOutput: MultiReviewWinnerOutput;
+  SingleRevisionInput: SingleRevisionInput;
+  SingleRevisionOutput: SingleRevisionOutput;
+  MultiRevisionInput: MultiRevisionInput;
+  MultiRevisionOutput: MultiRevisionOutput;
+  SingleSequenceInput: SingleSequenceInput;
+  SingleSequenceOutput: SingleSequenceOutput;
+  MultiSequenceInput: MultiSequenceInput;
+  MultiSequenceOutput: MultiSequenceOutput;
+  SingleSplashArtCoordinateInput: SingleSplashArtCoordinateInput;
+  SingleSplashArtCoordinateOutput: SingleSplashArtCoordinateOutput;
+  MultiSplashArtCoordinateInput: MultiSplashArtCoordinateInput;
+  MultiSplashArtCoordinateOutput: MultiSplashArtCoordinateOutput;
+  SingleSpotlightInput: SingleSpotlightInput;
+  SingleSpotlightOutput: SingleSpotlightOutput;
+  MultiSpotlightInput: MultiSpotlightInput;
+  MultiSpotlightOutput: MultiSpotlightOutput;
+  SingleSubscriptionInput: SingleSubscriptionInput;
+  SingleSubscriptionOutput: SingleSubscriptionOutput;
+  MultiSubscriptionInput: MultiSubscriptionInput;
+  MultiSubscriptionOutput: MultiSubscriptionOutput;
+  SingleSurveyQuestionInput: SingleSurveyQuestionInput;
+  SingleSurveyQuestionOutput: SingleSurveyQuestionOutput;
+  MultiSurveyQuestionInput: MultiSurveyQuestionInput;
+  MultiSurveyQuestionOutput: MultiSurveyQuestionOutput;
+  SingleSurveyResponseInput: SingleSurveyResponseInput;
+  SingleSurveyResponseOutput: SingleSurveyResponseOutput;
+  MultiSurveyResponseInput: MultiSurveyResponseInput;
+  MultiSurveyResponseOutput: MultiSurveyResponseOutput;
+  SingleSurveyScheduleInput: SingleSurveyScheduleInput;
+  SingleSurveyScheduleOutput: SingleSurveyScheduleOutput;
+  MultiSurveyScheduleInput: MultiSurveyScheduleInput;
+  MultiSurveyScheduleOutput: MultiSurveyScheduleOutput;
+  SingleSurveyInput: SingleSurveyInput;
+  SingleSurveyOutput: SingleSurveyOutput;
+  MultiSurveyInput: MultiSurveyInput;
+  MultiSurveyOutput: MultiSurveyOutput;
+  SingleTagFlagInput: SingleTagFlagInput;
+  SingleTagFlagOutput: SingleTagFlagOutput;
+  MultiTagFlagInput: MultiTagFlagInput;
+  MultiTagFlagOutput: MultiTagFlagOutput;
+  SingleTagRelInput: SingleTagRelInput;
+  SingleTagRelOutput: SingleTagRelOutput;
+  MultiTagRelInput: MultiTagRelInput;
+  MultiTagRelOutput: MultiTagRelOutput;
+  SingleTagInput: SingleTagInput;
+  SingleTagOutput: SingleTagOutput;
+  MultiTagInput: MultiTagInput;
+  MultiTagOutput: MultiTagOutput;
+  SingleTypingIndicatorInput: SingleTypingIndicatorInput;
+  SingleTypingIndicatorOutput: SingleTypingIndicatorOutput;
+  MultiTypingIndicatorInput: MultiTypingIndicatorInput;
+  MultiTypingIndicatorOutput: MultiTypingIndicatorOutput;
+  SingleUserEAGDetailInput: SingleUserEAGDetailInput;
+  SingleUserEAGDetailOutput: SingleUserEAGDetailOutput;
+  MultiUserEAGDetailInput: MultiUserEAGDetailInput;
+  MultiUserEAGDetailOutput: MultiUserEAGDetailOutput;
+  SingleUserJobAdInput: SingleUserJobAdInput;
+  SingleUserJobAdOutput: SingleUserJobAdOutput;
+  MultiUserJobAdInput: MultiUserJobAdInput;
+  MultiUserJobAdOutput: MultiUserJobAdOutput;
+  SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
+  SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
+  MultiUserMostValuablePostInput: MultiUserMostValuablePostInput;
+  MultiUserMostValuablePostOutput: MultiUserMostValuablePostOutput;
+  SingleUserRateLimitInput: SingleUserRateLimitInput;
+  SingleUserRateLimitOutput: SingleUserRateLimitOutput;
+  MultiUserRateLimitInput: MultiUserRateLimitInput;
+  MultiUserRateLimitOutput: MultiUserRateLimitOutput;
+  SingleUserTagRelInput: SingleUserTagRelInput;
+  SingleUserTagRelOutput: SingleUserTagRelOutput;
+  MultiUserTagRelInput: MultiUserTagRelInput;
+  MultiUserTagRelOutput: MultiUserTagRelOutput;
+  SingleUserInput: SingleUserInput;
+  SingleUserOutput: SingleUserOutput;
+  MultiUserInput: MultiUserInput;
+  MultiUserOutput: MultiUserOutput;
+  SingleVoteInput: SingleVoteInput;
+  SingleVoteOutput: SingleVoteOutput;
+  MultiVoteInput: MultiVoteInput;
+  MultiVoteOutput: MultiVoteOutput;
   CreateAdvisorRequestDataInput: CreateAdvisorRequestDataInput;
   CreateAdvisorRequestInput: CreateAdvisorRequestInput;
   UpdateAdvisorRequestDataInput: UpdateAdvisorRequestDataInput;

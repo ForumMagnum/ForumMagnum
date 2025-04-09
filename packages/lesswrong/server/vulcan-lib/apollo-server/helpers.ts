@@ -9,7 +9,6 @@ import { collectionNameToTypeName, typeNameToCollectionName } from "@/lib/genera
 import { GraphQLScalarType } from "graphql";
 import { userCanReadField } from '@/lib/vulcan-users/permissions';
 import { isGraphQLField } from "./graphqlTemplates";
-import schema from "@/lib/collections/comments/newSchema";
 
 interface CreateMutationOptions<D, T extends DbObject, R extends { [ACCESS_FILTERED]: true } | null = { [ACCESS_FILTERED]: true } | null> {
   newCheck: (user: DbUser | null, document: D | null, context: ResolverContext) => Promise<boolean> | boolean,
@@ -133,12 +132,6 @@ function getSqlResolverPermissionsData(type: string | GraphQLScalarType) {
 function isGraphQLResolverField<N extends CollectionNameString>(field: [string, GraphQLFieldSpecification<N> | undefined]): field is [string, GraphQLFieldSpecification<N> & { resolver: Exclude<GraphQLFieldSpecification<N>['resolver'], undefined> }] {
   return isGraphQLField(field) && !!field[1].resolver;
 }
-
-// type GqlFieldResolvers<Schema extends NewSchemaType<CollectionNameString>> = {
-//   [K in keyof Schema as Schema[K]['graphql'] extends { resolver: Function } ? K : never]: Function
-// };
-
-// type foobar = GqlFieldResolvers<typeof schema>;
 
 export function getFieldGqlResolvers<N extends CollectionNameString, S extends NewSchemaType<N>>(collectionName: N, schema: S) {
   const typeName = collectionNameToTypeName[collectionName];
