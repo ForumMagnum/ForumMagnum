@@ -1,4 +1,6 @@
-export const RevisionDisplay = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const RevisionDisplay = () => frag`
   fragment RevisionDisplay on Revision {
     _id
     version
@@ -13,14 +15,14 @@ export const RevisionDisplay = `
   }
 `
 
-export const RevisionHTML = `
+export const RevisionHTML = () => frag`
   fragment RevisionHTML on Revision {
     _id
     html
   }
 `
 
-export const RevisionEdit = `
+export const RevisionEdit = () => frag`
   fragment RevisionEdit on Revision {
     _id
     version
@@ -41,7 +43,7 @@ export const RevisionEdit = `
   }
 `
 
-export const RevisionMetadata = `
+export const RevisionMetadata = () => frag`
   fragment RevisionMetadata on Revision {
     _id
     version
@@ -58,7 +60,7 @@ export const RevisionMetadata = `
   }
 `
 
-export const RevisionMetadataWithChangeMetrics = `
+export const RevisionMetadataWithChangeMetrics = () => frag`
   fragment RevisionMetadataWithChangeMetrics on Revision {
     ...RevisionMetadata
     changeMetrics
@@ -68,7 +70,7 @@ export const RevisionMetadataWithChangeMetrics = `
   }
 `
 
-export const RevisionHistoryEntry = `
+export const RevisionHistoryEntry = () => frag`
   fragment RevisionHistoryEntry on Revision {
     ...RevisionMetadata
     documentId
@@ -82,7 +84,7 @@ export const RevisionHistoryEntry = `
   }
 `
 
-export const RevisionHistorySummaryEdit = `
+export const RevisionHistorySummaryEdit = () => frag`
   fragment RevisionHistorySummaryEdit on Revision {
     ...RevisionHistoryEntry
     summary {
@@ -101,7 +103,7 @@ export const RevisionHistorySummaryEdit = `
   }
 `
 
-export const RevisionTagFragment = `
+export const RevisionTagFragment = () => frag`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
@@ -113,7 +115,7 @@ export const RevisionTagFragment = `
   }
 `
 
-export const RecentDiscussionRevisionTagFragment = `
+export const RecentDiscussionRevisionTagFragment = () => frag`
   fragment RecentDiscussionRevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
@@ -122,7 +124,7 @@ export const RecentDiscussionRevisionTagFragment = `
   }
 `
 
-export const WithVoteRevision = `
+export const WithVoteRevision = () => frag`
   fragment WithVoteRevision on Revision {
     __typename
     _id

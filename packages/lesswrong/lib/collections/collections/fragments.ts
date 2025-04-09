@@ -1,4 +1,8 @@
-export const CollectionContinueReadingFragment = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+import { UsersMinimumInfo } from "../users/fragments"
+import { BookPageFragment } from "../books/fragments"
+
+export const CollectionContinueReadingFragment = () => frag`
   fragment CollectionContinueReadingFragment on Collection {
     _id
     title
@@ -7,14 +11,14 @@ export const CollectionContinueReadingFragment = `
   }
 `
 
-export const CollectionsPageFragment = `
+export const CollectionsPageFragment = () => frag`
   fragment CollectionsPageFragment on Collection {
     _id
     createdAt
     slug
     userId
     user {
-      ...UsersMinimumInfo
+      ${UsersMinimumInfo}
     }
     title
     contents {
@@ -23,30 +27,30 @@ export const CollectionsPageFragment = `
     firstPageLink
     gridImageId
     books {
-      ...BookPageFragment
+      ${BookPageFragment}
     }
     hideStartReadingButton
     noindex
   }
 `
 
-export const CollectionsEditFragment = `
+export const CollectionsEditFragment = () => frag`
   fragment CollectionsEditFragment on Collection {
-    ...CollectionsPageFragment
+    ${CollectionsPageFragment}
     contents {
       ...RevisionEdit
     }
   }
 `
 
-export const CollectionsBestOfFragment = `
+export const CollectionsBestOfFragment = () => frag`
   fragment CollectionsBestOfFragment on Collection {
     _id
     createdAt
     slug
     userId
     user {
-      ...UsersMinimumInfo
+      ${UsersMinimumInfo}
     }
     title
     gridImageId

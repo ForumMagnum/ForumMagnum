@@ -5,34 +5,7 @@ import { loggerConstructor } from '../utils/logging';
 import { useCallback, useMemo } from 'react';
 import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
 import { collectionNameToTypeName } from "../generated/collectionTypeNames";
-
-/**
- * Create mutation query used on the client. Eg:
- *
- * mutation createMovie($data: CreateMovieDataInput!) {
- *   createMovie(data: $data) {
- *     data {
- *       _id
- *       name
- *       __typename
- *     }
- *     __typename
- *   }
- * }
- */
-const createClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: string,
-  extraVariablesString?: string,
-}) => (
-`mutation create${typeName}($data: Create${typeName}DataInput!, ${extraVariablesString || ''}) {
-  create${typeName}(data: $data) {
-    data {
-      ...${fragmentName}
-    }
-  }
-}`
-);
+import { getCreateMutationName } from './utils';
 
 /**
  * Hook that returns a function for creating a new object in a collection, along
@@ -61,9 +34,16 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
   const typeName = collectionNameToTypeName[collectionName];
+  const mutationName = getCreateMutationName(typeName);
   
   const query = gql`
-    ${createClientTemplate({ typeName, fragmentName })}
+    mutation create${typeName}($data: Create${typeName}DataInput!) {
+      ${mutationName}(data: $data) {
+        data {
+          ...${fragmentName}
+        }
+      }
+    }
     ${fragment}
   `;
   

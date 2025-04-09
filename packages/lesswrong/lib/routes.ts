@@ -752,6 +752,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: "MyAnalyticsPage",
     },
     {
+      name: "openThread",
+      path:'/open-thread',
+      componentName: "CurrentOpenThreadPage",
+    },
+    {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },
@@ -1062,12 +1067,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: "All Comments with Reacts"
     },
     {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
-    },
-    {
       name: 'nominations2018-old',
       path: '/nominations2018',
       redirect: () => `/nominations/2018`,
@@ -1187,13 +1186,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Meta',
       path: '/meta',
       redirect: () => `/tag/site-meta`,
-    },
-    // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
-    {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
     },
     {
       name: 'nominations2018-old',

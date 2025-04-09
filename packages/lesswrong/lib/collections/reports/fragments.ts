@@ -1,4 +1,6 @@
-export const UnclaimedReportsList = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+
+export const UnclaimedReportsList = () => frag`
   fragment UnclaimedReportsList on Report {
     _id
     userId

@@ -43,6 +43,8 @@ import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
 import { getRejectionMessage } from "./commentCallbackFunctions";
+import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
+import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -893,7 +895,7 @@ export async function eventUpdatedNotifications({document: newPost, oldDocument:
         user: user,
         to: email,
         subject: `Event updated: ${newPost.title}`,
-        body: <Components.EventUpdatedEmail postId={newPost._id} />
+        body: <EventUpdatedEmail postId={newPost._id} />
       });
     }
     
@@ -1120,7 +1122,7 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
     void Promise.all(authors.map(author => wrapAndSendEmail({
         user: author,
         subject: "We’ve curated your post",
-        body: <Components.EmailCuratedAuthors user={author} post={post} />
+        body: <EmailCuratedAuthors user={author} post={post} />
       })
     ))
   }

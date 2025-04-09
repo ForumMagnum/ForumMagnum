@@ -1,4 +1,6 @@
-export const PetrovDayActionInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+
+export const PetrovDayActionInfo = () => frag`
   fragment PetrovDayActionInfo on PetrovDayAction {
     _id
     createdAt

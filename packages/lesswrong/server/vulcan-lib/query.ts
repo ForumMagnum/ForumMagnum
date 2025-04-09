@@ -4,9 +4,9 @@ Run a GraphQL request from the server with the proper context
 
 */
 import { PrimitiveGraphQLType } from '@/lib/crud/types';
-import { getMultiResolverName } from '@/lib/crud/utils';
+import { getMultiResolverName, getSingleResolverName } from '@/lib/crud/utils';
 import { getGraphQLMultiQueryFromOptions } from '@/lib/crud/withMulti';
-import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from '@/lib/crud/withSingle';
+import { getGraphQLSingleQueryFromOptions } from '@/lib/crud/withSingle';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { DocumentNode, ExecutionResult, graphql, GraphQLError, print } from 'graphql';
 import { makeExecutableSchema } from 'graphql-tools';
@@ -61,9 +61,10 @@ export const runFragmentSingleQuery = async <
   extraVariablesValues?: Record<string, unknown>,
   context?: ResolverContext,
 }) => {
-  const resolverName = getResolverNameFromOptions(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
+  const resolverName = getSingleResolverName(typeName);
 
-  const query = getGraphQLSingleQueryFromOptions({ collectionName, fragmentName, fragment: undefined, extraVariables });
+  const query = getGraphQLSingleQueryFromOptions({ collectionName, fragmentName, fragment: undefined, resolverName, extraVariables });
 
   const variables = {
     input: { selector: { documentId }, resolverArgs: extraVariablesValues },
@@ -89,7 +90,7 @@ export const runFragmentMultiQuery = async <
   const typeName = collectionNameToTypeName[collectionName];
   const resolverName = getMultiResolverName(typeName);
 
-  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, extraVariables });
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, resolverName, extraVariables });
 
   const variables = {
     input: { terms, resolverArgs: extraVariablesValues },

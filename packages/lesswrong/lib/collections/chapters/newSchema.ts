@@ -142,7 +142,7 @@ const schema = {
   },
   sequence: {
     graphql: {
-      outputType: "Sequence!",
+      outputType: "Sequence",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Sequences", fieldName: "sequenceId" }),
     },
