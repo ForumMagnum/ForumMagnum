@@ -355,7 +355,6 @@ export function prepareCommentThreadForResolver(
     };
   }
 
-  // --- Determine Comments to Expand based on new logic ---
   const expandedCommentIds = new Set<string>();
 
   // 1. Identify unviewed comments and sort by karma
@@ -380,7 +379,6 @@ export function prepareCommentThreadForResolver(
       expandedCommentIds.add(unviewedComments[1].commentId);
     }
   }
-  // --- End Determine Comments to Expand ---
 
 
   // --- Process Comments: Add highlight and displayStatus flags in one pass ---
