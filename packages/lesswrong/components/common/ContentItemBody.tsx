@@ -430,6 +430,8 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       })
     }
   }
+
+  // TODO add polls
   
   replaceSubstrings = (
     element: HTMLElement,

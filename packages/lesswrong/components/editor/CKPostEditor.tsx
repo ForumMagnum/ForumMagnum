@@ -340,7 +340,7 @@ const postEditorToolbarConfig = {
       'horizontalLine',
       'mathDisplay',
       'mediaEmbed',
-      ...(isEAForum ? ['ctaButtonToolbarItem'] : ['collapsibleSectionButton']),
+      ...(isEAForum ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
       //...(isLWorAF ? ['conditionallyVisibleSectionButton'] : []),
       'footnote',
       ...(isLWorAF ? ['insertClaimButton'] : []),

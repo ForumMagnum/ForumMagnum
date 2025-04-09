@@ -2,7 +2,7 @@ import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
 import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
 import Widget from "@ckeditor/ckeditor5-widget/src/widget";
-import CTAButtonForm from "./cta-button-form";
+import PollForm from "./cta-button-form";
 
 import buttonIcon from "./ckeditor5-cta-button.svg";
 
@@ -15,7 +15,7 @@ const CENTERED_CLASS = "ck-cta-button-centered";
  */
 export default class CTAButton extends Plugin {
   static get requires() {
-    return [Widget, CTAButtonForm];
+    return [Widget, PollForm];
   }
 
   init() {
@@ -127,7 +127,7 @@ export default class CTAButton extends Plugin {
     editor.conversion.for("upcast").elementToElement({
       view: {
         name: "a",
-        classes: "ck-cta-button",
+        classes: CTA_CLASS,
       },
       model: (viewElement, { writer: modelWriter }) => {
         const ctaButton = modelWriter.createElement("ctaButton");
