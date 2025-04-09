@@ -291,7 +291,7 @@ const BestOfLessWrongAnnouncement = () => {
             const section = sections[category as keyof typeof sections];
             return <div className={classes.category} key={category}>
               <div className={classes.categoryImageContainer}>
-                <Link to={`/bestoflesswrong?category=${category}`} className={classes.mobileLink}/>
+                <Link to={`/bestoflesswrong?category=${category.toLowerCase()}`} className={classes.mobileLink}/>
                 <img src={section.img} className={classes.categoryImage}/>
                 <div className={classes.winnersContainer}> 
                   {section.topThree?.map(({post, _id}, index) => {
