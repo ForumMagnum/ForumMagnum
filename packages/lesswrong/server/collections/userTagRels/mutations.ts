@@ -4,7 +4,6 @@ import schema from "@/lib/collections/userTagRels/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -19,68 +18,65 @@ function editCheck(user: DbUser | null, userTagRel: DbUserTagRel | null) {
   return userCanUseTags(user);
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('UserTagRels', {
-  createFunction: async ({ data }: CreateUserTagRelInput, context) => {
-    const { currentUser } = context;
+export async function createUserTagRel({ data }: CreateUserTagRelInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('UserTagRels', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('UserTagRels', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserTagRels', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserTagRels', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserTagRels', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserTagRels', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateUserTagRelInput, context) => {
-    const { currentUser, UserTagRels } = context;
+export async function updateUserTagRel({ selector, data }: UpdateUserTagRelInput, context: ResolverContext) {
+  const { currentUser, UserTagRels } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: usertagrelSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('UserTagRels', { selector, context, data, schema });
+  const {
+    documentSelector: usertagrelSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('UserTagRels', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, UserTagRels, usertagrelSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, UserTagRels, usertagrelSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserTagRels', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserTagRels', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: UserTagRels, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: UserTagRels, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createUserTagRelGqlMutation = makeGqlCreateMutation('UserTagRels', createFunction, {
+export const createUserTagRelGqlMutation = makeGqlCreateMutation('UserTagRels', createUserTagRel, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserTagRels', rawResult, context)
 });
 
-export const updateUserTagRelGqlMutation = makeGqlUpdateMutation('UserTagRels', updateFunction, {
+export const updateUserTagRelGqlMutation = makeGqlUpdateMutation('UserTagRels', updateUserTagRel, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserTagRels', rawResult, context)
 });
 
 
-export { createFunction as createUserTagRel, updateFunction as updateUserTagRel };
 
 
 export const graphqlUserTagRelTypeDefs = gql`

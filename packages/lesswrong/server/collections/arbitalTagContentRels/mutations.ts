@@ -3,7 +3,6 @@ import schema from "@/lib/collections/arbitalTagContentRels/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -21,58 +20,55 @@ function editCheck(user: DbUser | null, document: DbArbitalTagContentRel | null,
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('ArbitalTagContentRels', {
-  createFunction: async ({ data }: CreateArbitalTagContentRelInput, context) => {
-    const { currentUser } = context;
+export async function createArbitalTagContentRel({ data }: CreateArbitalTagContentRelInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('ArbitalTagContentRels', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('ArbitalTagContentRels', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ArbitalTagContentRels', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ArbitalTagContentRels', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ArbitalTagContentRels', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('ArbitalTagContentRels', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateArbitalTagContentRelInput, context) => {
-    const { currentUser, ArbitalTagContentRels } = context;
+export async function updateArbitalTagContentRel({ selector, data }: UpdateArbitalTagContentRelInput, context: ResolverContext) {
+  const { currentUser, ArbitalTagContentRels } = context;
 
-    const {
-      documentSelector: arbitaltagcontentrelSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('ArbitalTagContentRels', { selector, context, data, schema });
+  const {
+    documentSelector: arbitaltagcontentrelSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('ArbitalTagContentRels', { selector, context, data, schema });
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, ArbitalTagContentRels, arbitaltagcontentrelSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, ArbitalTagContentRels, arbitaltagcontentrelSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ArbitalTagContentRels', updatedDocument, updateCallbackProperties.oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ArbitalTagContentRels', updatedDocument, updateCallbackProperties.oldDocument);
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createArbitalTagContentRelGqlMutation = makeGqlCreateMutation('ArbitalTagContentRels', createFunction, {
+export const createArbitalTagContentRelGqlMutation = makeGqlCreateMutation('ArbitalTagContentRels', createArbitalTagContentRel, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ArbitalTagContentRels', rawResult, context)
 });
 
-export const updateArbitalTagContentRelGqlMutation = makeGqlUpdateMutation('ArbitalTagContentRels', updateFunction, {
+export const updateArbitalTagContentRelGqlMutation = makeGqlUpdateMutation('ArbitalTagContentRels', updateArbitalTagContentRel, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ArbitalTagContentRels', rawResult, context)
 });
 
 
-export { createFunction as createArbitalTagContentRel, updateFunction as updateArbitalTagContentRel };
 
 
 export const graphqlArbitalTagContentRelTypeDefs = gql`

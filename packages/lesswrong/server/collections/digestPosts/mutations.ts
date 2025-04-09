@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -23,66 +22,63 @@ function editCheck(user: DbUser | null, document: DbDigestPost | null, context: 
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('DigestPosts', {
-  createFunction: async ({ data }: CreateDigestPostInput, context) => {
-    const { currentUser } = context;
+export async function createDigestPost({ data }: CreateDigestPostInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('DigestPosts', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('DigestPosts', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DigestPosts', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DigestPosts', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('DigestPosts', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('DigestPosts', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateDigestPostInput, context) => {
-    const { currentUser, DigestPosts } = context;
+export async function updateDigestPost({ selector, data }: UpdateDigestPostInput, context: ResolverContext) {
+  const { currentUser, DigestPosts } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: digestpostSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('DigestPosts', { selector, context, data, schema });
+  const {
+    documentSelector: digestpostSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('DigestPosts', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, DigestPosts, digestpostSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, DigestPosts, digestpostSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DigestPosts', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DigestPosts', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: DigestPosts, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: DigestPosts, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createDigestPostGqlMutation = makeGqlCreateMutation('DigestPosts', createFunction, {
+export const createDigestPostGqlMutation = makeGqlCreateMutation('DigestPosts', createDigestPost, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'DigestPosts', rawResult, context)
 });
 
-export const updateDigestPostGqlMutation = makeGqlUpdateMutation('DigestPosts', updateFunction, {
+export const updateDigestPostGqlMutation = makeGqlUpdateMutation('DigestPosts', updateDigestPost, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'DigestPosts', rawResult, context)
 });
 
 
-export { createFunction as createDigestPost, updateFunction as updateDigestPost };
 
 
 export const graphqlDigestPostTypeDefs = gql`

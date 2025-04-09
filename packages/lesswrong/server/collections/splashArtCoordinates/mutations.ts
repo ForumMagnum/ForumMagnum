@@ -3,7 +3,6 @@ import schema from "@/lib/collections/splashArtCoordinates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -17,58 +16,55 @@ function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('SplashArtCoordinates', {
-  createFunction: async ({ data }: CreateSplashArtCoordinateInput, context) => {
-    const { currentUser } = context;
+export async function createSplashArtCoordinate({ data }: CreateSplashArtCoordinateInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('SplashArtCoordinates', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('SplashArtCoordinates', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'SplashArtCoordinates', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'SplashArtCoordinates', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('SplashArtCoordinates', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('SplashArtCoordinates', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateSplashArtCoordinateInput, context) => {
-    const { currentUser, SplashArtCoordinates } = context;
+export async function updateSplashArtCoordinate({ selector, data }: UpdateSplashArtCoordinateInput, context: ResolverContext) {
+  const { currentUser, SplashArtCoordinates } = context;
 
-    const {
-      documentSelector: splashartcoordinateSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('SplashArtCoordinates', { selector, context, data, schema });
+  const {
+    documentSelector: splashartcoordinateSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('SplashArtCoordinates', { selector, context, data, schema });
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, SplashArtCoordinates, splashartcoordinateSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, SplashArtCoordinates, splashartcoordinateSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('SplashArtCoordinates', updatedDocument, updateCallbackProperties.oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('SplashArtCoordinates', updatedDocument, updateCallbackProperties.oldDocument);
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createSplashArtCoordinateGqlMutation = makeGqlCreateMutation('SplashArtCoordinates', createFunction, {
+export const createSplashArtCoordinateGqlMutation = makeGqlCreateMutation('SplashArtCoordinates', createSplashArtCoordinate, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SplashArtCoordinates', rawResult, context)
 });
 
-export const updateSplashArtCoordinateGqlMutation = makeGqlUpdateMutation('SplashArtCoordinates', updateFunction, {
+export const updateSplashArtCoordinateGqlMutation = makeGqlUpdateMutation('SplashArtCoordinates', updateSplashArtCoordinate, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SplashArtCoordinates', rawResult, context)
 });
 
 
-export { createFunction as createSplashArtCoordinate, updateFunction as updateSplashArtCoordinate };
 
 
 export const graphqlSplashArtCoordinateTypeDefs = gql`

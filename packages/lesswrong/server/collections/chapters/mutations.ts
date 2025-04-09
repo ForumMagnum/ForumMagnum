@@ -6,7 +6,6 @@ import { canonizeChapterPostInfo, notifyUsersOfNewPosts, updateSequenceLastUpdat
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -29,109 +28,106 @@ async function editCheck(user: DbUser|null, document: DbChapter|null, context: R
   return userOwns(user, parentSequence) ? userCanDo(user, 'chapters.edit.own') : userCanDo(user, `chapters.edit.all`)
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Chapters', {
-  createFunction: async ({ data }: CreateChapterInput, context) => {
-    const { currentUser } = context;
+export async function createChapter({ data }: CreateChapterInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Chapters', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Chapters', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Chapters', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Chapters', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Chapters', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Chapters', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    await canonizeChapterPostInfo(documentWithId, context);
+  await canonizeChapterPostInfo(documentWithId, context);
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateChapterInput, context) => {
-    const { currentUser, Chapters } = context;
+export async function updateChapter({ selector, data }: UpdateChapterInput, context: ResolverContext) {
+  const { currentUser, Chapters } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: chapterSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Chapters', { selector, context, data, schema });
+  const {
+    documentSelector: chapterSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Chapters', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, Chapters, chapterSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Chapters, chapterSelector, context);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Chapters', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Chapters', updatedDocument, oldDocument);
 
-    await updateSequenceLastUpdated(updateCallbackProperties);
-    await notifyUsersOfNewPosts(updateCallbackProperties);
+  await updateSequenceLastUpdated(updateCallbackProperties);
+  await notifyUsersOfNewPosts(updateCallbackProperties);
 
-    await canonizeChapterPostInfo(updatedDocument, context);
+  await canonizeChapterPostInfo(updatedDocument, context);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    void logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createChapterGqlMutation = makeGqlCreateMutation('Chapters', createFunction, {
+export const createChapterGqlMutation = makeGqlCreateMutation('Chapters', createChapter, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Chapters', rawResult, context)
 });
 
-export const updateChapterGqlMutation = makeGqlUpdateMutation('Chapters', updateFunction, {
+export const updateChapterGqlMutation = makeGqlUpdateMutation('Chapters', updateChapter, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Chapters', rawResult, context)
 });
 
 
-export { createFunction as createChapter, updateFunction as updateChapter };
 
 
 export const graphqlChapterTypeDefs = gql`

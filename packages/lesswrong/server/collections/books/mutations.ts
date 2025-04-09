@@ -6,7 +6,6 @@ import { updateCollectionLinks } from "@/server/callbacks/bookCallbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -24,104 +23,101 @@ function editCheck(user: DbUser | null, document: DbBook | null, context: Resolv
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Books', {
-  createFunction: async ({ data }: CreateBookInput, context) => {
-    const { currentUser } = context;
+export async function createBook({ data }: CreateBookInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Books', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Books', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Books', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Books', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Books', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Books', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateBookInput, context) => {
-    const { currentUser, Books } = context;
+export async function updateBook({ selector, data }: UpdateBookInput, context: ResolverContext) {
+  const { currentUser, Books } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: bookSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Books', { selector, context, data, schema });
+  const {
+    documentSelector: bookSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Books', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, Books, bookSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Books, bookSelector, context);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Books', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Books', updatedDocument, oldDocument);
 
-    await updateCollectionLinks(updatedDocument);
+  await updateCollectionLinks(updatedDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    void logFieldChanges({ currentUser, collection: Books, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: Books, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createBookGqlMutation = makeGqlCreateMutation('Books', createFunction, {
+export const createBookGqlMutation = makeGqlCreateMutation('Books', createBook, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Books', rawResult, context)
 });
 
-export const updateBookGqlMutation = makeGqlUpdateMutation('Books', updateFunction, {
+export const updateBookGqlMutation = makeGqlUpdateMutation('Books', updateBook, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Books', rawResult, context)
 });
 
 
-export { createFunction as createBook, updateFunction as updateBook };
 
 
 export const graphqlBookTypeDefs = gql`

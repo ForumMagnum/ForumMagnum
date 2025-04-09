@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -39,68 +38,65 @@ function editCheck(user: DbUser | null, document: DbUserMostValuablePost | null,
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('UserMostValuablePosts', {
-  createFunction: async ({ data }: CreateUserMostValuablePostInput, context) => {
-    const { currentUser } = context;
+export async function createUserMostValuablePost({ data }: CreateUserMostValuablePostInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('UserMostValuablePosts', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('UserMostValuablePosts', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserMostValuablePosts', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserMostValuablePosts', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserMostValuablePosts', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserMostValuablePosts', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateUserMostValuablePostInput, context) => {
-    const { currentUser, UserMostValuablePosts } = context;
+export async function updateUserMostValuablePost({ selector, data }: UpdateUserMostValuablePostInput, context: ResolverContext) {
+  const { currentUser, UserMostValuablePosts } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: usermostvaluablepostSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('UserMostValuablePosts', { selector, context, data, schema });
+  const {
+    documentSelector: usermostvaluablepostSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('UserMostValuablePosts', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, UserMostValuablePosts, usermostvaluablepostSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, UserMostValuablePosts, usermostvaluablepostSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserMostValuablePosts', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserMostValuablePosts', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: UserMostValuablePosts, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: UserMostValuablePosts, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createUserMostValuablePostGqlMutation = makeGqlCreateMutation('UserMostValuablePosts', createFunction, {
+export const createUserMostValuablePostGqlMutation = makeGqlCreateMutation('UserMostValuablePosts', createUserMostValuablePost, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserMostValuablePosts', rawResult, context)
 });
 
-export const updateUserMostValuablePostGqlMutation = makeGqlUpdateMutation('UserMostValuablePosts', updateFunction, {
+export const updateUserMostValuablePostGqlMutation = makeGqlUpdateMutation('UserMostValuablePosts', updateUserMostValuablePost, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserMostValuablePosts', rawResult, context)
 });
 
 
-export { createFunction as createUserMostValuablePost, updateFunction as updateUserMostValuablePost };
 
 
 export const graphqlUserMostValuablePostTypeDefs = gql`

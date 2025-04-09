@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -39,68 +38,65 @@ function editCheck(user: DbUser | null, document: DbUserRateLimit | null, contex
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('UserRateLimits', {
-  createFunction: async ({ data }: CreateUserRateLimitInput, context) => {
-    const { currentUser } = context;
+export async function createUserRateLimit({ data }: CreateUserRateLimitInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('UserRateLimits', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('UserRateLimits', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserRateLimits', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserRateLimits', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserRateLimits', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserRateLimits', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateUserRateLimitInput, context) => {
-    const { currentUser, UserRateLimits } = context;
+export async function updateUserRateLimit({ selector, data }: UpdateUserRateLimitInput, context: ResolverContext) {
+  const { currentUser, UserRateLimits } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: userratelimitSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('UserRateLimits', { selector, context, data, schema });
+  const {
+    documentSelector: userratelimitSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('UserRateLimits', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, UserRateLimits, userratelimitSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, UserRateLimits, userratelimitSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserRateLimits', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserRateLimits', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: UserRateLimits, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: UserRateLimits, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createUserRateLimitGqlMutation = makeGqlCreateMutation('UserRateLimits', createFunction, {
+export const createUserRateLimitGqlMutation = makeGqlCreateMutation('UserRateLimits', createUserRateLimit, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context)
 });
 
-export const updateUserRateLimitGqlMutation = makeGqlUpdateMutation('UserRateLimits', updateFunction, {
+export const updateUserRateLimitGqlMutation = makeGqlUpdateMutation('UserRateLimits', updateUserRateLimit, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context)
 });
 
 
-export { createFunction as createUserRateLimit, updateFunction as updateUserRateLimit };
 
 
 export const graphqlUserRateLimitTypeDefs = gql`

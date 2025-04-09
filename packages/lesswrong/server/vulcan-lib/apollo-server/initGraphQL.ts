@@ -1,36 +1,10 @@
 // Generate GraphQL-syntax schemas from resolvers &c that were set up with
 // addGraphQLResolvers &c.
 
-import {
-  selectorInputTemplate,
-  mainTypeTemplate,
-  createInputTemplate,
-  createDataInputTemplate,
-  updateInputTemplate,
-  updateDataInputTemplate,
-  orderByInputTemplate,
-  selectorUniqueInputTemplate,
-  deleteInputTemplate,
-  upsertInputTemplate,
-  singleInputTemplate,
-  multiInputTemplate,
-  multiOutputTemplate,
-  singleOutputTemplate,
-  mutationOutputTemplate,
-  singleQueryTemplate,
-  multiQueryTemplate,
-  createMutationTemplate,
-  updateMutationTemplate,
-  upsertMutationTemplate,
-  deleteMutationTemplate,
-  convertToGraphQL,
-} from './graphqlTemplates';
-import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
-import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
-import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import gql from 'graphql-tag'; 
-import * as _ from 'underscore';
-import { typeNameToCollectionName } from '@/lib/generated/collectionTypeNames';
+import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
+import GraphQLJSON from 'graphql-type-json';
+import GraphQLDate from './graphql-date';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
 import { graphqlTypeDefs as additionalPostsTypeDefs } from '@/lib/collections/posts/newSchema';
@@ -241,9 +215,8 @@ import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMut
 import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
-import { getSchema } from '@/lib/schema/allSchemas';
-import { getMultiResolverName, getSingleResolverName } from '@/lib/crud/utils';
 import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
+
 
 const selectorInput = gql`
   input SelectorInput {
@@ -255,6 +228,8 @@ const selectorInput = gql`
 export const typeDefs = gql`
   type Query
   type Mutation
+  scalar JSON
+  scalar Date
   ${selectorInput}
   ${notificationTypeDefs}
   ${arbitalLinkedPagesTypeDefs}
@@ -477,6 +452,8 @@ export const typeDefs = gql`
 
 
 export const resolvers = {
+  JSON: GraphQLJSON,
+  Date: GraphQLDate,
   Query: {
     ...userResolversQueries,
     ...recommendationsQueries,
@@ -631,6 +608,8 @@ export const resolvers = {
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
+
+    // CRUD Mutation Handlers
     createAdvisorRequest: createAdvisorRequestGqlMutation,
     updateAdvisorRequest: updateAdvisorRequestGqlMutation,
     createArbitalTagContentRel: createArbitalTagContentRelGqlMutation,
@@ -827,54 +806,13 @@ export const resolvers = {
   ...userGqlFieldResolvers,
   ...voteGqlFieldResolvers,
 } satisfies {
+  JSON: typeof GraphQLJSON,
+  Date: typeof GraphQLDate,
   Query: Record<string, (root: void, args: any, context: ResolverContext, info: GraphQLResolveInfo) => any>,
   Mutation: Record<string, (root: void, args: any, context: ResolverContext) => any>,
   KarmaChanges: { updateFrequency: (root: void, args: any, context: ResolverContext) => any },
   ElicitUser: { lwUser: (root: void, args: any, context: ResolverContext) => any },
 };
-
-
-// get GraphQL type for a given schema and field name
-const getGraphQLType = <N extends CollectionNameString>(
-  graphql: GraphQLFieldSpecification<N>,
-  isInput = false,
-) => {
-  if (isInput && 'inputType' in graphql && graphql.inputType) {
-    return graphql.inputType;
-  }
-
-  return graphql.outputType;
-};
-
-/**
- * Get the data needed to apply an access filter based on a graphql resolver
- * return type.
- */
-const getSqlResolverPermissionsData = (type: string|GraphQLScalarType) => {
-  // We only have access filters for return types that correspond to a collection.
-  if (typeof type !== "string") {
-    return null;
-  }
-
-  // We need to use a multi access filter for arrays, or a single access filter
-  // otherwise. We only apply the automatic filter for single dimensional arrays.
-  const isArray = type.indexOf("[") === 0 && type.lastIndexOf("[") === 0;
-
-  // Remove all "!"s (denoting nullability) and any array brackets to leave behind
-  // a type name string.
-  const nullableScalarType = type.replace(/[![\]]+/g, "");
-
-  try {
-    // Get the collection corresponding to the type name string.
-    const collectionName = nullableScalarType in typeNameToCollectionName
-      ? typeNameToCollectionName[nullableScalarType as keyof typeof typeNameToCollectionName]
-      : null;
-
-    return collectionName ? {collectionName, isArray} : null;
-  } catch (_e) {
-    return null;
-  }
-}
 
 export type SchemaGraphQLFieldArgument = {name: string, type: string|GraphQLScalarType|null}
 export type SchemaGraphQLFieldDescription = {
@@ -886,156 +824,3 @@ export type SchemaGraphQLFieldDescription = {
   required?: boolean
 };
 
-type SchemaGraphQLFields = {
-  mainType: SchemaGraphQLFieldDescription[],
-  create: SchemaGraphQLFieldDescription[],
-  update: SchemaGraphQLFieldDescription[],
-}
-
-// for a given schema, return main type fields, selector fields,
-// unique selector fields, orderBy fields, creatable fields, and updatable fields
-export const getFields = <N extends CollectionNameString>(schema: NewSchemaType<N>, typeName: string): {
-  fields: SchemaGraphQLFields
-  resolvers: any
-}=> {
-  const fields: SchemaGraphQLFields = {
-    mainType: [],
-    create: [],
-    update: [],
-  };
-  const addedResolvers: Array<any> = [];
-
-  Object.keys(schema).forEach(fieldName => {
-    const field = schema[fieldName];
-    const { graphql } = field;
-    // only include fields that are viewable/insertable/editable
-    if (!graphql || (!(graphql.canRead.length || graphql.canCreate?.length || graphql.canUpdate?.length) && !graphql.forceIncludeInExecutableSchema)) {
-      return;
-    }
-
-    const fieldType = getGraphQLType(graphql);
-    const inputFieldType = getGraphQLType(graphql, true);
-
-    const fieldDirective = '';
-    const fieldArguments: Array<any> = [];
-
-    // if field has a resolveAs, push it to schema
-    if (graphql.resolver) {
-      const resolverName = fieldName;
-
-      // first push its type definition
-      // include arguments if there are any
-      fields.mainType.push({
-        description: '',
-        name: resolverName,
-        args: graphql.arguments,
-        type: fieldType,
-      });
-
-      const permissionData = getSqlResolverPermissionsData(fieldType);
-
-      // then build actual resolver object and pass it to addGraphQLResolvers
-      const resolver = {
-        [typeName]: {
-          [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext) => {
-            // Check that current user has permission to access the original
-            // non-resolved field.
-            if (!userCanReadField(context.currentUser, graphql.canRead, document)) {
-              return null;
-            }
-
-            // First, check if the value was already fetched by a SQL resolver.
-            // A field with a SQL resolver that returns no value (for instance,
-            // if it uses a LEFT JOIN and no matching object is found) can be
-            // distinguished from a field with no SQL resolver as the former
-            // will be `null` and the latter will be `undefined`.
-            if (graphql.sqlResolver) {
-              const typedName = resolverName as keyof ObjectsByCollectionName[N];
-              let existingValue = document[typedName];
-              if (existingValue !== undefined) {
-                const {sqlPostProcess} = graphql;
-                if (sqlPostProcess) {
-                  existingValue = sqlPostProcess(existingValue, document, context);
-                }
-                if (permissionData) {
-                  const filter = permissionData.isArray
-                    ? accessFilterMultiple
-                    : accessFilterSingle;
-                  return filter(
-                    context.currentUser,
-                    permissionData.collectionName,
-                    existingValue as AnyBecauseHard,
-                    context,
-                  );
-                }
-                return existingValue;
-              }
-            }
-
-            // If the value wasn't supplied by a SQL resolver then we need
-            // to run the code resolver instead.
-            return graphql.resolver!(document, args, context);
-          },
-        },
-      };
-
-      addedResolvers.push(resolver);
-    } else {
-      // try to guess GraphQL type
-      if (fieldType) {
-        fields.mainType.push({
-          description: '',
-          name: fieldName,
-          args: fieldArguments,
-          type: fieldType,
-          directive: fieldDirective,
-        });
-      }
-    }
-
-    const createFieldType = inputFieldType === 'Revision'
-      ? 'JSON'
-      : inputFieldType;
-
-    // Fields should not be required for updates
-    const updateFieldType = (typeof createFieldType === 'string' && createFieldType.endsWith('!'))
-      ? createFieldType.slice(0, -1)
-      : createFieldType;
-
-    // OpenCRUD backwards compatibility
-    if (graphql.canCreate?.length) {
-      fields.create.push({
-        name: fieldName,
-        type: createFieldType,
-      });
-    }
-    // OpenCRUD backwards compatibility
-    if (graphql.canUpdate?.length) {
-      fields.update.push({
-        name: fieldName,
-        type: updateFieldType,
-      });
-    }
-  });
-  return { fields, resolvers: addedResolvers };
-};
-
-// generate a GraphQL schema corresponding to a given collection
-export const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
-  const collectionName = collection.collectionName;
-
-  if (!collection.typeName) {
-    throw new Error("Collection is missing typeName");
-  }
-  const typeName = collection.typeName;
-
-  const schema = getSchema(collectionName);
-
-  const { resolvers: fieldResolvers } = getFields(schema, typeName);
-
-  let addedResolvers: Array<any> = [...fieldResolvers];
-
-  return {
-    addedResolvers,
-  };
-};

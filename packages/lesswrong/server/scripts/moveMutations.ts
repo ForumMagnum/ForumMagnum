@@ -1,6 +1,6 @@
 import { getAllCollections, getCollection } from "../collections/allCollections";
 import { join } from "path";
-import { writeFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { getSchema } from "@/lib/schema/allSchemas";
@@ -9,8 +9,8 @@ import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections";
 import { allUserGroups } from "@/lib/permissions";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "../vulcan-lib/apollo-server/graphqlTemplates";
-import { getDefaultResolvers } from "../resolvers/defaultResolvers";
 import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
+import { existsSync } from "fs";
 
 const getPermissionsImportLine = (collection: CollectionBase<CollectionNameString>) => {
   const createPermissionCheckSection = getCreatePermissionCheckSection(collection);
@@ -726,4 +726,81 @@ export async function movePodcastsQueries() {
   const { fileContents } = generateQueryResolvers('Podcasts');
 
   await writeFile(queryResolverFilePath, fileContents);
+}
+
+export async function unwrapInternalMutatorFunctions() {
+  const allCollections = getAllCollections();
+
+  for (const collection of allCollections) {
+    const collectionName = collection.collectionName;
+    const typeName = collectionNameToTypeName[collectionName];
+    const collectionPathPart = getCollectionPathPart(collectionName);
+    const mutatorFilePath = join(__dirname, `../collections/${collectionPathPart}/mutations.ts`);
+
+    if (!existsSync(mutatorFilePath)) {
+      continue;
+    }
+
+    const mutatorFileContents = await readFile(mutatorFilePath, 'utf8');
+    const mutatorFileLines = mutatorFileContents.split('\n');
+
+    let insideDefaultMutationBlock = false;
+    let renamedFunctions = false;
+
+    const newMutatorFileLines: string[] = [];
+
+    for (const line of mutatorFileLines) {
+      if (line.startsWith('import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";')) {
+        continue;
+      }
+
+      if (line.includes('getDefaultMutationFunctions')) {
+        insideDefaultMutationBlock = true;
+        continue;
+      }
+
+      if (insideDefaultMutationBlock) {
+        if (line.startsWith('  createFunction:')) {
+          const functionName = `create${typeName}`;
+          const openParenIndex = line.indexOf('(');
+          const closeParenIndex = line.lastIndexOf('t)');
+          const functionSignature = line.slice(openParenIndex, closeParenIndex + 1);
+          newMutatorFileLines.push(`export async function ${functionName}${functionSignature}: ResolverContext) {`);
+        } else if (line.startsWith('  updateFunction:')) {
+          const functionName = `update${typeName}`;
+          const openParenIndex = line.indexOf('(');
+          const closeParenIndex = line.lastIndexOf('t)');
+          const functionSignature = line.slice(openParenIndex, closeParenIndex + 1);
+          newMutatorFileLines.push(`export async function ${functionName}${functionSignature}: ResolverContext) {`);
+        } else if (line.startsWith('  },')) {
+          newMutatorFileLines.push('}');
+        } else if (line.startsWith('});')) {
+          insideDefaultMutationBlock = false;
+          renamedFunctions = true;
+        } else {
+          newMutatorFileLines.push(line.startsWith('  ') ? line.slice(2) : line);
+        }
+
+        continue;
+      } else if (renamedFunctions) {
+        if (line.includes('createFunction, {')) {
+          newMutatorFileLines.push(line.replace('createFunction', `create${typeName}`));
+          continue
+        } else if (line.includes('updateFunction, {')) {
+          newMutatorFileLines.push(line.replace('updateFunction', `update${typeName}`));
+          continue;
+        }
+      }
+
+      if (line.startsWith('export { createFunction as create') || line.startsWith('export { updateFunction as update')) {
+        continue;
+      }
+
+      newMutatorFileLines.push(line);
+    }
+
+    // console.log(newMutatorFileLines.join('\n'));
+
+    await writeFile(mutatorFilePath, newMutatorFileLines.join('\n'));
+  }
 }

@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -39,68 +38,65 @@ function editCheck(user: DbUser | null, document: DbUserEAGDetail | null, contex
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('UserEAGDetails', {
-  createFunction: async ({ data }: CreateUserEAGDetailInput, context) => {
-    const { currentUser } = context;
+export async function createUserEAGDetail({ data }: CreateUserEAGDetailInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('UserEAGDetails', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('UserEAGDetails', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserEAGDetails', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserEAGDetails', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserEAGDetails', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserEAGDetails', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateUserEAGDetailInput, context) => {
-    const { currentUser, UserEAGDetails } = context;
+export async function updateUserEAGDetail({ selector, data }: UpdateUserEAGDetailInput, context: ResolverContext) {
+  const { currentUser, UserEAGDetails } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: usereagdetailSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('UserEAGDetails', { selector, context, data, schema });
+  const {
+    documentSelector: usereagdetailSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('UserEAGDetails', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, UserEAGDetails, usereagdetailSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, UserEAGDetails, usereagdetailSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserEAGDetails', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserEAGDetails', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: UserEAGDetails, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: UserEAGDetails, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createUserEAGDetailGqlMutation = makeGqlCreateMutation('UserEAGDetails', createFunction, {
+export const createUserEAGDetailGqlMutation = makeGqlCreateMutation('UserEAGDetails', createUserEAGDetail, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserEAGDetails', rawResult, context)
 });
 
-export const updateUserEAGDetailGqlMutation = makeGqlUpdateMutation('UserEAGDetails', updateFunction, {
+export const updateUserEAGDetailGqlMutation = makeGqlUpdateMutation('UserEAGDetails', updateUserEAGDetail, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserEAGDetails', rawResult, context)
 });
 
 
-export { createFunction as createUserEAGDetail, updateFunction as updateUserEAGDetail };
 
 
 export const graphqlUserEAGDetailTypeDefs = gql`

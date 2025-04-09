@@ -3,7 +3,6 @@ import schema from "@/lib/collections/lwevents/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { OwnableDocument, userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -20,72 +19,69 @@ function editCheck(user: DbUser | null, document: DbLWEvent | null) {
   return userCanDo(user, `events.edit.all`)
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('LWEvents', {
-  createFunction: async ({ data }: CreateLWEventInput, context) => {
-    const { currentUser } = context;
+export async function createLWEvent({ data }: CreateLWEventInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('LWEvents', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('LWEvents', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    await updateReadStatus(data, context);
+  await updateReadStatus(data, context);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'LWEvents', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'LWEvents', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('LWEvents', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('LWEvents', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    await updatePartiallyReadSequences(asyncProperties);
-    
-    await sendIntercomEvent(documentWithId, currentUser);
+  await updatePartiallyReadSequences(asyncProperties);
+  
+  await sendIntercomEvent(documentWithId, currentUser);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateLWEventInput, context) => {
-    const { currentUser, LWEvents } = context;
+export async function updateLWEvent({ selector, data }: UpdateLWEventInput, context: ResolverContext) {
+  const { currentUser, LWEvents } = context;
 
-    const {
-      documentSelector: lweventSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('LWEvents', { selector, context, data, schema });
+  const {
+    documentSelector: lweventSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('LWEvents', { selector, context, data, schema });
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, LWEvents, lweventSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, LWEvents, lweventSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('LWEvents', updatedDocument, updateCallbackProperties.oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('LWEvents', updatedDocument, updateCallbackProperties.oldDocument);
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createLWEventGqlMutation = makeGqlCreateMutation('LWEvents', createFunction, {
+export const createLWEventGqlMutation = makeGqlCreateMutation('LWEvents', createLWEvent, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context)
 });
 
-export const updateLWEventGqlMutation = makeGqlUpdateMutation('LWEvents', updateFunction, {
+export const updateLWEventGqlMutation = makeGqlUpdateMutation('LWEvents', updateLWEvent, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'LWEvents', rawResult, context)
 });
 
 
-export { createFunction as createLWEvent, updateFunction as updateLWEvent };
 
 
 export const graphqlLWEventTypeDefs = gql`

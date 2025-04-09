@@ -2,58 +2,54 @@
 import schema from "@/lib/collections/postRelations/newSchema";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('PostRelations', {
-  createFunction: async ({ data }: { data: Partial<DbPostRelation> }, context) => {
-    const { currentUser } = context;
+export async function createPostRelation({ data }: { data: Partial<DbPostRelation> }, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('PostRelations', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('PostRelations', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostRelations', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostRelations', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostRelations', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostRelations', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: { selector: SelectorInput, data: Partial<DbPostRelation> }, context) => {
-    const { currentUser, PostRelations } = context;
+export async function updatePostRelation({ selector, data }: { selector: SelectorInput, data: Partial<DbPostRelation> }, context: ResolverContext) {
+  const { currentUser, PostRelations } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: postrelationSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('PostRelations', { selector, context, data, schema });
+  const {
+    documentSelector: postrelationSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('PostRelations', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, PostRelations, postrelationSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, PostRelations, postrelationSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostRelations', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostRelations', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: PostRelations, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: PostRelations, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
 
-export { createFunction as createPostRelation, updateFunction as updatePostRelation };

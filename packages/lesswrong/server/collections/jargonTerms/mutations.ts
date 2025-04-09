@@ -8,7 +8,6 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { sanitizeJargonTerm } from "@/server/callbacks/jargonTermCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -47,106 +46,103 @@ function editCheck(user: DbUser | null, jargonTerm: DbJargonTerm | null, context
   return userCanCreateJargonTermForPost(user, jargonTerm, context);
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('JargonTerms', {
-  createFunction: async ({ data }: CreateJargonTermInput, context) => {
-    const { currentUser } = context;
+export async function createJargonTerm({ data }: CreateJargonTermInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('JargonTerms', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('JargonTerms', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = sanitizeJargonTerm(data);
+  data = sanitizeJargonTerm(data);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'JargonTerms', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'JargonTerms', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('JargonTerms', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('JargonTerms', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateJargonTermInput, context) => {
-    const { currentUser, JargonTerms } = context;
+export async function updateJargonTerm({ selector, data }: UpdateJargonTermInput, context: ResolverContext) {
+  const { currentUser, JargonTerms } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: jargontermSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('JargonTerms', { selector, context, data, schema });
+  const {
+    documentSelector: jargontermSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('JargonTerms', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = sanitizeJargonTerm(data);
+  data = sanitizeJargonTerm(data);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, JargonTerms, jargontermSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, JargonTerms, jargontermSelector, context);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('JargonTerms', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('JargonTerms', updatedDocument, oldDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    void logFieldChanges({ currentUser, collection: JargonTerms, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: JargonTerms, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createJargonTermGqlMutation = makeGqlCreateMutation('JargonTerms', createFunction, {
+export const createJargonTermGqlMutation = makeGqlCreateMutation('JargonTerms', createJargonTerm, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context)
 });
 
-export const updateJargonTermGqlMutation = makeGqlUpdateMutation('JargonTerms', updateFunction, {
+export const updateJargonTermGqlMutation = makeGqlUpdateMutation('JargonTerms', updateJargonTerm, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'JargonTerms', rawResult, context)
 });
 
 
-export { createFunction as createJargonTerm, updateFunction as updateJargonTerm };
 
 
 export const graphqlJargonTermTypeDefs = gql`

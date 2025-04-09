@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -23,66 +22,63 @@ function editCheck(user: DbUser | null, document: DbSurvey | null, context: Reso
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Surveys', {
-  createFunction: async ({ data }: CreateSurveyInput, context) => {
-    const { currentUser } = context;
+export async function createSurvey({ data }: CreateSurveyInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Surveys', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Surveys', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Surveys', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Surveys', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Surveys', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Surveys', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateSurveyInput, context) => {
-    const { currentUser, Surveys } = context;
+export async function updateSurvey({ selector, data }: UpdateSurveyInput, context: ResolverContext) {
+  const { currentUser, Surveys } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: surveySelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Surveys', { selector, context, data, schema });
+  const {
+    documentSelector: surveySelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Surveys', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, Surveys, surveySelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Surveys, surveySelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Surveys', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Surveys', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: Surveys, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: Surveys, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createSurveyGqlMutation = makeGqlCreateMutation('Surveys', createFunction, {
+export const createSurveyGqlMutation = makeGqlCreateMutation('Surveys', createSurvey, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Surveys', rawResult, context)
 });
 
-export const updateSurveyGqlMutation = makeGqlUpdateMutation('Surveys', updateFunction, {
+export const updateSurveyGqlMutation = makeGqlUpdateMutation('Surveys', updateSurvey, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Surveys', rawResult, context)
 });
 
 
-export { createFunction as createSurvey, updateFunction as updateSurvey };
 
 
 export const graphqlSurveyTypeDefs = gql`

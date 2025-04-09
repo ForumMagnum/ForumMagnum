@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -39,68 +38,65 @@ function editCheck(user: DbUser | null, document: DbUserJobAd | null, context: R
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('UserJobAds', {
-  createFunction: async ({ data }: CreateUserJobAdInput, context) => {
-    const { currentUser } = context;
+export async function createUserJobAd({ data }: CreateUserJobAdInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('UserJobAds', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('UserJobAds', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserJobAds', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'UserJobAds', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserJobAds', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('UserJobAds', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateUserJobAdInput, context) => {
-    const { currentUser, UserJobAds } = context;
+export async function updateUserJobAd({ selector, data }: UpdateUserJobAdInput, context: ResolverContext) {
+  const { currentUser, UserJobAds } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: userjobadSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('UserJobAds', { selector, context, data, schema });
+  const {
+    documentSelector: userjobadSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('UserJobAds', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, UserJobAds, userjobadSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, UserJobAds, userjobadSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserJobAds', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('UserJobAds', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: UserJobAds, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: UserJobAds, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createUserJobAdGqlMutation = makeGqlCreateMutation('UserJobAds', createFunction, {
+export const createUserJobAdGqlMutation = makeGqlCreateMutation('UserJobAds', createUserJobAd, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserJobAds', rawResult, context)
 });
 
-export const updateUserJobAdGqlMutation = makeGqlUpdateMutation('UserJobAds', updateFunction, {
+export const updateUserJobAdGqlMutation = makeGqlUpdateMutation('UserJobAds', updateUserJobAd, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserJobAds', rawResult, context)
 });
 
 
-export { createFunction as createUserJobAd, updateFunction as updateUserJobAd };
 
 
 export const graphqlUserJobAdTypeDefs = gql`

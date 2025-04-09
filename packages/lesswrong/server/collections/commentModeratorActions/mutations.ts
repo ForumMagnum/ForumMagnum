@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -23,66 +22,63 @@ function editCheck(user: DbUser | null, document: DbCommentModeratorAction | nul
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('CommentModeratorActions', {
-  createFunction: async ({ data }: CreateCommentModeratorActionInput, context) => {
-    const { currentUser } = context;
+export async function createCommentModeratorAction({ data }: CreateCommentModeratorActionInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('CommentModeratorActions', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('CommentModeratorActions', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'CommentModeratorActions', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'CommentModeratorActions', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('CommentModeratorActions', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('CommentModeratorActions', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateCommentModeratorActionInput, context) => {
-    const { currentUser, CommentModeratorActions } = context;
+export async function updateCommentModeratorAction({ selector, data }: UpdateCommentModeratorActionInput, context: ResolverContext) {
+  const { currentUser, CommentModeratorActions } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: commentmoderatoractionSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('CommentModeratorActions', { selector, context, data, schema });
+  const {
+    documentSelector: commentmoderatoractionSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('CommentModeratorActions', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, CommentModeratorActions, commentmoderatoractionSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, CommentModeratorActions, commentmoderatoractionSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('CommentModeratorActions', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('CommentModeratorActions', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: CommentModeratorActions, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: CommentModeratorActions, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createCommentModeratorActionGqlMutation = makeGqlCreateMutation('CommentModeratorActions', createFunction, {
+export const createCommentModeratorActionGqlMutation = makeGqlCreateMutation('CommentModeratorActions', createCommentModeratorAction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CommentModeratorActions', rawResult, context)
 });
 
-export const updateCommentModeratorActionGqlMutation = makeGqlUpdateMutation('CommentModeratorActions', updateFunction, {
+export const updateCommentModeratorActionGqlMutation = makeGqlUpdateMutation('CommentModeratorActions', updateCommentModeratorAction, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CommentModeratorActions', rawResult, context)
 });
 
 
-export { createFunction as createCommentModeratorAction, updateFunction as updateCommentModeratorAction };
 
 
 export const graphqlCommentModeratorActionTypeDefs = gql`

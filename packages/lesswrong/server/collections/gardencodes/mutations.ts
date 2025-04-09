@@ -5,7 +5,6 @@ import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -41,113 +40,110 @@ function editCheck(user: DbUser | null, document: DbGardenCode | null, context: 
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('GardenCodes', {
-  createFunction: async ({ data }: CreateGardenCodeInput, context) => {
-    const { currentUser } = context;
+export async function createGardenCode({ data }: CreateGardenCodeInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('GardenCodes', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('GardenCodes', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await runSlugCreateBeforeCallback(callbackProps);
+  data = await runSlugCreateBeforeCallback(callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'GardenCodes', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'GardenCodes', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    documentWithId = await notifyUsersOfPingbackMentions({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await notifyUsersOfPingbackMentions({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('GardenCodes', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('GardenCodes', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateGardenCodeInput, context) => {
-    const { currentUser, GardenCodes } = context;
+export async function updateGardenCode({ selector, data }: UpdateGardenCodeInput, context: ResolverContext) {
+  const { currentUser, GardenCodes } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: gardencodeSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('GardenCodes', { selector, context, data, schema });
+  const {
+    documentSelector: gardencodeSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('GardenCodes', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
+  data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, GardenCodes, gardencodeSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, GardenCodes, gardencodeSelector, context);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('GardenCodes', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('GardenCodes', updatedDocument, oldDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    void logFieldChanges({ currentUser, collection: GardenCodes, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: GardenCodes, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createGardenCodeGqlMutation = makeGqlCreateMutation('GardenCodes', createFunction, {
+export const createGardenCodeGqlMutation = makeGqlCreateMutation('GardenCodes', createGardenCode, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context)
 });
 
-export const updateGardenCodeGqlMutation = makeGqlUpdateMutation('GardenCodes', updateFunction, {
+export const updateGardenCodeGqlMutation = makeGqlUpdateMutation('GardenCodes', updateGardenCode, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GardenCodes', rawResult, context)
 });
 
 
-export { createFunction as createGardenCode, updateFunction as updateGardenCode };
 
 
 export const graphqlGardenCodeTypeDefs = gql`

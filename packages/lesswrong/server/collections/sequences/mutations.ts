@@ -7,7 +7,6 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { createFirstChapter } from "@/server/callbacks/sequenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -31,114 +30,111 @@ function editCheck(user: DbUser | null, document: DbSequence | null) {
     : userCanDo(user, `sequences.edit.all`)
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Sequences', {
-  createFunction: async ({ data }: CreateSequenceInput, context) => {
-    const { currentUser } = context;
+export async function createSequence({ data }: CreateSequenceInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Sequences', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Sequences', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Sequences', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Sequences', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Sequences', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Sequences', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    if (isElasticEnabled) {
-      void elasticSyncDocument('Sequences', documentWithId._id);
-    }
+  if (isElasticEnabled) {
+    void elasticSyncDocument('Sequences', documentWithId._id);
+  }
 
-    createFirstChapter(documentWithId, context);
+  createFirstChapter(documentWithId, context);
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateSequenceInput, context) => {
-    const { currentUser, Sequences } = context;
+export async function updateSequence({ selector, data }: UpdateSequenceInput, context: ResolverContext) {
+  const { currentUser, Sequences } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: sequenceSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Sequences', { selector, context, data, schema });
+  const {
+    documentSelector: sequenceSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Sequences', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, Sequences, sequenceSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Sequences, sequenceSelector, context);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Sequences', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Sequences', updatedDocument, oldDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    if (isElasticEnabled) {
-      void elasticSyncDocument('Sequences', updatedDocument._id);
-    }
+  if (isElasticEnabled) {
+    void elasticSyncDocument('Sequences', updatedDocument._id);
+  }
 
-    void logFieldChanges({ currentUser, collection: Sequences, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: Sequences, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createSequenceGqlMutation = makeGqlCreateMutation('Sequences', createFunction, {
+export const createSequenceGqlMutation = makeGqlCreateMutation('Sequences', createSequence, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Sequences', rawResult, context)
 });
 
-export const updateSequenceGqlMutation = makeGqlUpdateMutation('Sequences', updateFunction, {
+export const updateSequenceGqlMutation = makeGqlUpdateMutation('Sequences', updateSequence, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Sequences', rawResult, context)
 });
 
 
-export { createFunction as createSequence, updateFunction as updateSequence };
 
 
 export const graphqlSequenceTypeDefs = gql`

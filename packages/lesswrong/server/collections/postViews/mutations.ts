@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
@@ -23,66 +22,63 @@ function editCheck(user: DbUser | null, document: DbPostViews | null, context: R
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('PostViews', {
-  createFunction: async ({ data }: CreatePostViewsInput, context) => {
-    const { currentUser } = context;
+export async function createPostViews({ data }: CreatePostViewsInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('PostViews', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('PostViews', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostViews', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostViews', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostViews', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostViews', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdatePostViewsInput, context) => {
-    const { currentUser, PostViews } = context;
+export async function updatePostViews({ selector, data }: UpdatePostViewsInput, context: ResolverContext) {
+  const { currentUser, PostViews } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: postviewsSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('PostViews', { selector, context, data, schema });
+  const {
+    documentSelector: postviewsSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('PostViews', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, PostViews, postviewsSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, PostViews, postviewsSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostViews', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostViews', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: PostViews, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: PostViews, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createPostViewsGqlMutation = makeGqlCreateMutation('PostViews', createFunction, {
+export const createPostViewsGqlMutation = makeGqlCreateMutation('PostViews', createPostViews, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostViews', rawResult, context)
 });
 
-export const updatePostViewsGqlMutation = makeGqlUpdateMutation('PostViews', updateFunction, {
+export const updatePostViewsGqlMutation = makeGqlUpdateMutation('PostViews', updatePostViews, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostViews', rawResult, context)
 });
 
 
-export { createFunction as createPostViews, updateFunction as updatePostViews };
 
 
 export const graphqlPostViewsTypeDefs = gql`

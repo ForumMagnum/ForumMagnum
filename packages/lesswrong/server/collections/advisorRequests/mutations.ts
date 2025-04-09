@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -39,68 +38,65 @@ function editCheck(user: DbUser | null, document: DbAdvisorRequest | null, conte
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('AdvisorRequests', {
-  createFunction: async ({ data }: CreateAdvisorRequestInput, context) => {
-    const { currentUser } = context;
+export async function createAdvisorRequest({ data }: CreateAdvisorRequestInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('AdvisorRequests', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('AdvisorRequests', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'AdvisorRequests', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'AdvisorRequests', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('AdvisorRequests', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('AdvisorRequests', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateAdvisorRequestInput, context) => {
-    const { currentUser, AdvisorRequests } = context;
+export async function updateAdvisorRequest({ selector, data }: UpdateAdvisorRequestInput, context: ResolverContext) {
+  const { currentUser, AdvisorRequests } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: advisorrequestSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('AdvisorRequests', { selector, context, data, schema });
+  const {
+    documentSelector: advisorrequestSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('AdvisorRequests', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, AdvisorRequests, advisorrequestSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, AdvisorRequests, advisorrequestSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('AdvisorRequests', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('AdvisorRequests', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: AdvisorRequests, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: AdvisorRequests, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createAdvisorRequestGqlMutation = makeGqlCreateMutation('AdvisorRequests', createFunction, {
+export const createAdvisorRequestGqlMutation = makeGqlCreateMutation('AdvisorRequests', createAdvisorRequest, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context)
 });
 
-export const updateAdvisorRequestGqlMutation = makeGqlUpdateMutation('AdvisorRequests', updateFunction, {
+export const updateAdvisorRequestGqlMutation = makeGqlUpdateMutation('AdvisorRequests', updateAdvisorRequest, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'AdvisorRequests', rawResult, context)
 });
 
 
-export { createFunction as createAdvisorRequest, updateFunction as updateAdvisorRequest };
 
 export const graphqlAdvisorRequestTypeDefs = gql`
   input CreateAdvisorRequestDataInput {

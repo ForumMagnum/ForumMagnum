@@ -7,7 +7,6 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { reindexParentTagIfNeeded } from "@/server/callbacks/multiDocumentCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -37,112 +36,109 @@ export async function editCheck(user: DbUser | null, multiDocument: DbMultiDocum
   return true;
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('MultiDocuments', {
-  createFunction: async ({ data }: CreateMultiDocumentInput, context) => {
-    const { currentUser } = context;
+export async function createMultiDocument({ data }: CreateMultiDocumentInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('MultiDocuments', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('MultiDocuments', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await runSlugCreateBeforeCallback(callbackProps);
+  data = await runSlugCreateBeforeCallback(callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'MultiDocuments', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'MultiDocuments', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('MultiDocuments', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('MultiDocuments', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    reindexParentTagIfNeeded(documentWithId);
+  reindexParentTagIfNeeded(documentWithId);
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateMultiDocumentInput, context) => {
-    const { currentUser, MultiDocuments } = context;
+export async function updateMultiDocument({ selector, data }: UpdateMultiDocumentInput, context: ResolverContext) {
+  const { currentUser, MultiDocuments } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: multidocumentSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('MultiDocuments', { selector, context, data, schema });
+  const {
+    documentSelector: multidocumentSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('MultiDocuments', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
+  data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, MultiDocuments, multidocumentSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, MultiDocuments, multidocumentSelector, context);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('MultiDocuments', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('MultiDocuments', updatedDocument, oldDocument);
 
-    reindexParentTagIfNeeded(updatedDocument);
+  reindexParentTagIfNeeded(updatedDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    void logFieldChanges({ currentUser, collection: MultiDocuments, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: MultiDocuments, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createMultiDocumentGqlMutation = makeGqlCreateMutation('MultiDocuments', createFunction, {
+export const createMultiDocumentGqlMutation = makeGqlCreateMutation('MultiDocuments', createMultiDocument, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context)
 });
 
-export const updateMultiDocumentGqlMutation = makeGqlUpdateMutation('MultiDocuments', updateFunction, {
+export const updateMultiDocumentGqlMutation = makeGqlUpdateMutation('MultiDocuments', updateMultiDocument, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context)
 });
 
 
-export { createFunction as createMultiDocument, updateFunction as updateMultiDocument };
 
 
 export const graphqlMultiDocumentTypeDefs = gql`

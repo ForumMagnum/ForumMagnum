@@ -5,7 +5,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { isAdmin, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -41,68 +40,65 @@ function editCheck(user: DbUser | null, document: DbElectionVote | null) {
   return false;
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('ElectionVotes', {
-  createFunction: async ({ data }: CreateElectionVoteInput, context) => {
-    const { currentUser } = context;
+export async function createElectionVote({ data }: CreateElectionVoteInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('ElectionVotes', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('ElectionVotes', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ElectionVotes', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ElectionVotes', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ElectionVotes', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('ElectionVotes', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateElectionVoteInput, context) => {
-    const { currentUser, ElectionVotes } = context;
+export async function updateElectionVote({ selector, data }: UpdateElectionVoteInput, context: ResolverContext) {
+  const { currentUser, ElectionVotes } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: electionvoteSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('ElectionVotes', { selector, context, data, schema });
+  const {
+    documentSelector: electionvoteSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('ElectionVotes', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, ElectionVotes, electionvoteSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, ElectionVotes, electionvoteSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ElectionVotes', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ElectionVotes', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: ElectionVotes, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: ElectionVotes, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createElectionVoteGqlMutation = makeGqlCreateMutation('ElectionVotes', createFunction, {
+export const createElectionVoteGqlMutation = makeGqlCreateMutation('ElectionVotes', createElectionVote, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionVotes', rawResult, context)
 });
 
-export const updateElectionVoteGqlMutation = makeGqlUpdateMutation('ElectionVotes', updateFunction, {
+export const updateElectionVoteGqlMutation = makeGqlUpdateMutation('ElectionVotes', updateElectionVote, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionVotes', rawResult, context)
 });
 
 
-export { createFunction as createElectionVote, updateFunction as updateElectionVote };
 
 
 export const graphqlElectionVoteTypeDefs = gql`

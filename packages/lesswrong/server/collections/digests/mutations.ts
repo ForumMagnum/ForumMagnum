@@ -5,7 +5,6 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { backdatePreviousDigest, createNextDigestOnPublish } from "@/server/callbacks/digestCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -24,69 +23,66 @@ function editCheck(user: DbUser | null, document: DbDigest | null, context: Reso
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Digests', {
-  createFunction: async ({ data }: CreateDigestInput, context) => {
-    const { currentUser } = context;
+export async function createDigest({ data }: CreateDigestInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Digests', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Digests', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Digests', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Digests', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Digests', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Digests', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateDigestInput, context) => {
-    const { currentUser, Digests } = context;
+export async function updateDigest({ selector, data }: UpdateDigestInput, context: ResolverContext) {
+  const { currentUser, Digests } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: digestSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Digests', { selector, context, data, schema });
+  const {
+    documentSelector: digestSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Digests', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, Digests, digestSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Digests, digestSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Digests', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Digests', updatedDocument, oldDocument);
 
-    await createNextDigestOnPublish(updateCallbackProperties);
-    await backdatePreviousDigest(updateCallbackProperties);
+  await createNextDigestOnPublish(updateCallbackProperties);
+  await backdatePreviousDigest(updateCallbackProperties);
 
-    void logFieldChanges({ currentUser, collection: Digests, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: Digests, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createDigestGqlMutation = makeGqlCreateMutation('Digests', createFunction, {
+export const createDigestGqlMutation = makeGqlCreateMutation('Digests', createDigest, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context)
 });
 
-export const updateDigestGqlMutation = makeGqlUpdateMutation('Digests', updateFunction, {
+export const updateDigestGqlMutation = makeGqlUpdateMutation('Digests', updateDigest, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context)
 });
 
 
-export { createFunction as createDigest, updateFunction as updateDigest };
 
 
 export const graphqlDigestTypeDefs = gql`

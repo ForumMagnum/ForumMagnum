@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { populateRawFeed } from "@/server/rss-integration/callbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -24,70 +23,67 @@ function editCheck(user: DbUser | null, document: DbRSSFeed | null) {
     : userCanDo(user, 'rssfeeds.edit.all')
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('RSSFeeds', {
-  createFunction: async ({ data }: CreateRSSFeedInput, context) => {
-    const { currentUser } = context;
+export async function createRSSFeed({ data }: CreateRSSFeedInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('RSSFeeds', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('RSSFeeds', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await populateRawFeed(data);
+  data = await populateRawFeed(data);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'RSSFeeds', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'RSSFeeds', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('RSSFeeds', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('RSSFeeds', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateRSSFeedInput, context) => {
-    const { currentUser, RSSFeeds } = context;
+export async function updateRSSFeed({ selector, data }: UpdateRSSFeedInput, context: ResolverContext) {
+  const { currentUser, RSSFeeds } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: rssfeedSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('RSSFeeds', { selector, context, data, schema });
+  const {
+    documentSelector: rssfeedSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('RSSFeeds', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, RSSFeeds, rssfeedSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, RSSFeeds, rssfeedSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('RSSFeeds', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('RSSFeeds', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: RSSFeeds, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: RSSFeeds, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createRSSFeedGqlMutation = makeGqlCreateMutation('RSSFeeds', createFunction, {
+export const createRSSFeedGqlMutation = makeGqlCreateMutation('RSSFeeds', createRSSFeed, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context)
 });
 
-export const updateRSSFeedGqlMutation = makeGqlUpdateMutation('RSSFeeds', updateFunction, {
+export const updateRSSFeedGqlMutation = makeGqlUpdateMutation('RSSFeeds', updateRSSFeed, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context)
 });
 
 
-export { createFunction as createRSSFeed, updateFunction as updateRSSFeed };
 
 
 export const graphqlRSSFeedTypeDefs = gql`

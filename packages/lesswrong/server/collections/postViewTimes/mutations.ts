@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -23,66 +22,63 @@ function editCheck(user: DbUser | null, document: DbPostViewTime | null, context
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('PostViewTimes', {
-  createFunction: async ({ data }: CreatePostViewTimeInput, context) => {
-    const { currentUser } = context;
+export async function createPostViewTime({ data }: CreatePostViewTimeInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('PostViewTimes', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('PostViewTimes', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostViewTimes', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostViewTimes', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostViewTimes', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostViewTimes', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdatePostViewTimeInput, context) => {
-    const { currentUser, PostViewTimes } = context;
+export async function updatePostViewTime({ selector, data }: UpdatePostViewTimeInput, context: ResolverContext) {
+  const { currentUser, PostViewTimes } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: postviewtimeSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('PostViewTimes', { selector, context, data, schema });
+  const {
+    documentSelector: postviewtimeSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('PostViewTimes', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, PostViewTimes, postviewtimeSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, PostViewTimes, postviewtimeSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostViewTimes', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostViewTimes', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: PostViewTimes, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: PostViewTimes, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createPostViewTimeGqlMutation = makeGqlCreateMutation('PostViewTimes', createFunction, {
+export const createPostViewTimeGqlMutation = makeGqlCreateMutation('PostViewTimes', createPostViewTime, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostViewTimes', rawResult, context)
 });
 
-export const updatePostViewTimeGqlMutation = makeGqlUpdateMutation('PostViewTimes', updateFunction, {
+export const updatePostViewTimeGqlMutation = makeGqlUpdateMutation('PostViewTimes', updatePostViewTime, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostViewTimes', rawResult, context)
 });
 
 
-export { createFunction as createPostViewTime, updateFunction as updatePostViewTime };
 
 
 export const graphqlPostViewTimeTypeDefs = gql`

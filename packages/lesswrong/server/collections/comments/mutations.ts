@@ -9,7 +9,6 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -46,161 +45,158 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
   return userOwns(user, document) ? userCanDo(user, 'comments.edit.own') : userCanDo(user, `comments.edit.all`)
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Comments', {
-  createFunction: async ({ data }: CreateCommentInput, context) => {
-    const { currentUser } = context;
+export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Comments', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Comments', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await assignPostVersion(data);
-    data = await createShortformPost(data, callbackProps);
-    data = addReferrerToComment(data, callbackProps) ?? data;
-    data = await handleReplyToAnswer(data, callbackProps);
-    data = await setTopLevelCommentId(data, callbackProps);  
+  data = await assignPostVersion(data);
+  data = await createShortformPost(data, callbackProps);
+  data = addReferrerToComment(data, callbackProps) ?? data;
+  data = await handleReplyToAnswer(data, callbackProps);
+  data = await setTopLevelCommentId(data, callbackProps);  
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    data = await commentsNewOperations(data, currentUser, context);
-    data = await commentsNewUserApprovedStatus(data, context);
-    data = await handleForumEventMetadataNew(data, context);
+  data = await commentsNewOperations(data, currentUser, context);
+  data = await commentsNewUserApprovedStatus(data, context);
+  data = await handleForumEventMetadataNew(data, context);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    invalidatePostOnCommentCreate(documentWithId);
-    documentWithId = await updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties);  
+  invalidatePostOnCommentCreate(documentWithId);
+  documentWithId = await updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties);  
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    documentWithId = await notifyUsersOfPingbackMentions({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await notifyUsersOfPingbackMentions({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Comments', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Comments', documentWithId);
 
-    documentWithId = await lwCommentsNewUpvoteOwnComment(documentWithId, currentUser, afterCreateProperties);
-    documentWithId = await checkCommentForSpamWithAkismet(documentWithId, currentUser, afterCreateProperties);
+  documentWithId = await lwCommentsNewUpvoteOwnComment(documentWithId, currentUser, afterCreateProperties);
+  documentWithId = await checkCommentForSpamWithAkismet(documentWithId, currentUser, afterCreateProperties);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    await newCommentTriggerReview(asyncProperties);
-    await trackCommentRateLimitHit(asyncProperties);
-    await checkModGPTOnCommentCreate(asyncProperties);
+  await newCommentTriggerReview(asyncProperties);
+  await trackCommentRateLimitHit(asyncProperties);
+  await checkModGPTOnCommentCreate(asyncProperties);
 
-    if (isElasticEnabled) {
-      void elasticSyncDocument('Comments', documentWithId._id);
-    }
+  if (isElasticEnabled) {
+    void elasticSyncDocument('Comments', documentWithId._id);
+  }
 
-    await commentsAlignmentNew(documentWithId, context);
-    await commentsNewNotifications(documentWithId, context);
+  await commentsAlignmentNew(documentWithId, context);
+  await commentsNewNotifications(documentWithId, context);
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateCommentInput, context) => {
-    const { currentUser, Comments } = context;
+export async function updateComment({ selector, data }: UpdateCommentInput, context: ResolverContext) {
+  const { currentUser, Comments } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: commentSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Comments', { selector, context, data, schema });
+  const {
+    documentSelector: commentSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Comments', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = updatePostLastCommentPromotedAt(data, updateCallbackProperties);
-    data = await validateDeleteOperations(data, updateCallbackProperties);  
+  data = updatePostLastCommentPromotedAt(data, updateCallbackProperties);
+  data = await validateDeleteOperations(data, updateCallbackProperties);  
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let modifier = dataToModifier(data);
-    modifier = await moveToAnswers(modifier, oldDocument, context);
-    modifier = await handleForumEventMetadataEdit(modifier, oldDocument, context);
+  let modifier = dataToModifier(data);
+  modifier = await moveToAnswers(modifier, oldDocument, context);
+  modifier = await handleForumEventMetadataEdit(modifier, oldDocument, context);
 
-    data = modifierToData(modifier);
-    let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
+  data = modifierToData(modifier);
+  let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
 
-    invalidatePostOnCommentUpdate(updatedDocument);
-    updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
+  invalidatePostOnCommentUpdate(updatedDocument);
+  updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Comments', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Comments', updatedDocument, oldDocument);
 
-    await updatedCommentMaybeTriggerReview(updateCallbackProperties);
-    await updateUserNotesOnCommentRejection(updateCallbackProperties);
-    await checkModGPTOnCommentUpdate(updateCallbackProperties);  
+  await updatedCommentMaybeTriggerReview(updateCallbackProperties);
+  await updateUserNotesOnCommentRejection(updateCallbackProperties);
+  await checkModGPTOnCommentUpdate(updateCallbackProperties);  
 
-    await commentsAlignmentEdit(updatedDocument, oldDocument, context);
-    // There really has to be a currentUser here.
-    await commentsEditSoftDeleteCallback(updatedDocument, oldDocument, currentUser!, context);
-    await commentsPublishedNotifications(updatedDocument, oldDocument, context);
-    await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
+  await commentsAlignmentEdit(updatedDocument, oldDocument, context);
+  // There really has to be a currentUser here.
+  await commentsEditSoftDeleteCallback(updatedDocument, oldDocument, currentUser!, context);
+  await commentsPublishedNotifications(updatedDocument, oldDocument, context);
+  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    if (isElasticEnabled) {
-      void elasticSyncDocument('Comments', updatedDocument._id);
-    }
+  if (isElasticEnabled) {
+    void elasticSyncDocument('Comments', updatedDocument._id);
+  }
 
-    void logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createCommentGqlMutation = makeGqlCreateMutation('Comments', createFunction, {
+export const createCommentGqlMutation = makeGqlCreateMutation('Comments', createComment, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context)
 });
 
-export const updateCommentGqlMutation = makeGqlUpdateMutation('Comments', updateFunction, {
+export const updateCommentGqlMutation = makeGqlUpdateMutation('Comments', updateComment, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context)
 });
 
 
-export { createFunction as createComment, updateFunction as updateComment };
 
 
 export const graphqlCommentTypeDefs = gql`

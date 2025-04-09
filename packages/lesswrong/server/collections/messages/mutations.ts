@@ -5,7 +5,6 @@ import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { addParticipantIfNew, checkIfNewMessageIsEmpty, sendMessageNotifications, unArchiveConversations, updateConversationActivity, updateUserNotesOnModMessage } from "@/server/callbacks/messageCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -29,105 +28,102 @@ async function editCheck(user: DbUser | null, document: DbMessage | null, contex
     : userCanDo(user, `messages.edit.all`)
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Messages', {
-  createFunction: async ({ data }: CreateMessageInput, context) => {
-    const { currentUser } = context;
+export async function createMessage({ data }: CreateMessageInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Messages', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Messages', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    checkIfNewMessageIsEmpty(data);
+  checkIfNewMessageIsEmpty(data);
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Messages', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Messages', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Messages', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Messages', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    unArchiveConversations(asyncProperties);
-    await updateUserNotesOnModMessage(asyncProperties);
-    await addParticipantIfNew(asyncProperties);  
+  unArchiveConversations(asyncProperties);
+  await updateUserNotesOnModMessage(asyncProperties);
+  await addParticipantIfNew(asyncProperties);  
 
-    await updateConversationActivity(documentWithId, context);
-    await sendMessageNotifications(documentWithId, context);
+  await updateConversationActivity(documentWithId, context);
+  await sendMessageNotifications(documentWithId, context);
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateMessageInput, context) => {
-    const { currentUser, Messages } = context;
+export async function updateMessage({ selector, data }: UpdateMessageInput, context: ResolverContext) {
+  const { currentUser, Messages } = context;
 
-    const {
-      documentSelector: messageSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Messages', { selector, context, data, schema });
+  const {
+    documentSelector: messageSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Messages', { selector, context, data, schema });
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, Messages, messageSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Messages, messageSelector, context);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Messages', updatedDocument, updateCallbackProperties.oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Messages', updatedDocument, updateCallbackProperties.oldDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createMessageGqlMutation = makeGqlCreateMutation('Messages', createFunction, {
+export const createMessageGqlMutation = makeGqlCreateMutation('Messages', createMessage, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Messages', rawResult, context)
 });
 
-export const updateMessageGqlMutation = makeGqlUpdateMutation('Messages', updateFunction, {
+export const updateMessageGqlMutation = makeGqlUpdateMutation('Messages', updateMessage, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Messages', rawResult, context)
 });
 
 
-export { createFunction as createMessage, updateFunction as updateMessage };
 
 
 export const graphqlMessageTypeDefs = gql`

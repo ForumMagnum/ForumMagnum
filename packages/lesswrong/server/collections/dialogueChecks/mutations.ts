@@ -2,60 +2,56 @@
 import schema from "@/lib/collections/dialogueChecks/newSchema";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('DialogueChecks', {
-  createFunction: async ({ data }: { data: Partial<DbDialogueCheck> }, context) => {
-    const { currentUser } = context;
+export async function createDialogueCheck({ data }: { data: Partial<DbDialogueCheck> }, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('DialogueChecks', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('DialogueChecks', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DialogueChecks', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DialogueChecks', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('DialogueChecks', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('DialogueChecks', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: { data: Partial<DbDialogueCheck>, selector: SelectorInput }, context) => {
-    const { currentUser, DialogueChecks } = context;
+export async function updateDialogueCheck({ selector, data }: { data: Partial<DbDialogueCheck>, selector: SelectorInput }, context: ResolverContext) {
+  const { currentUser, DialogueChecks } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: dialoguecheckSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('DialogueChecks', { selector, context, data, schema });
+  const {
+    documentSelector: dialoguecheckSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('DialogueChecks', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, DialogueChecks, dialoguecheckSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, DialogueChecks, dialoguecheckSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DialogueChecks', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DialogueChecks', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: DialogueChecks, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: DialogueChecks, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
 
-export { createFunction as createDialogueCheck, updateFunction as updateDialogueCheck };

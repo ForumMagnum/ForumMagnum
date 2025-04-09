@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -29,66 +28,63 @@ async function editCheck(user: DbUser | null, document: DbDialogueMatchPreferenc
   return userOwns(user, dialogueCheck) || userIsAdmin(user);
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('DialogueMatchPreferences', {
-  createFunction: async ({ data }: CreateDialogueMatchPreferenceInput, context) => {
-    const { currentUser } = context;
+export async function createDialogueMatchPreference({ data }: CreateDialogueMatchPreferenceInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('DialogueMatchPreferences', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('DialogueMatchPreferences', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DialogueMatchPreferences', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DialogueMatchPreferences', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('DialogueMatchPreferences', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('DialogueMatchPreferences', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateDialogueMatchPreferenceInput, context) => {
-    const { currentUser, DialogueMatchPreferences } = context;
+export async function updateDialogueMatchPreference({ selector, data }: UpdateDialogueMatchPreferenceInput, context: ResolverContext) {
+  const { currentUser, DialogueMatchPreferences } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: dialoguematchpreferenceSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('DialogueMatchPreferences', { selector, context, data, schema });
+  const {
+    documentSelector: dialoguematchpreferenceSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('DialogueMatchPreferences', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, DialogueMatchPreferences, dialoguematchpreferenceSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, DialogueMatchPreferences, dialoguematchpreferenceSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DialogueMatchPreferences', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DialogueMatchPreferences', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: DialogueMatchPreferences, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: DialogueMatchPreferences, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createDialogueMatchPreferenceGqlMutation = makeGqlCreateMutation('DialogueMatchPreferences', createFunction, {
+export const createDialogueMatchPreferenceGqlMutation = makeGqlCreateMutation('DialogueMatchPreferences', createDialogueMatchPreference, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'DialogueMatchPreferences', rawResult, context)
 });
 
-export const updateDialogueMatchPreferenceGqlMutation = makeGqlUpdateMutation('DialogueMatchPreferences', updateFunction, {
+export const updateDialogueMatchPreferenceGqlMutation = makeGqlUpdateMutation('DialogueMatchPreferences', updateDialogueMatchPreference, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'DialogueMatchPreferences', rawResult, context)
 });
 
 
-export { createFunction as createDialogueMatchPreference, updateFunction as updateDialogueMatchPreference };
 
 
 export const graphqlDialogueMatchPreferenceTypeDefs = gql`

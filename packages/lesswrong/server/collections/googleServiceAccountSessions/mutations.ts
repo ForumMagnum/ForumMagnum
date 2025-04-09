@@ -3,7 +3,6 @@ import schema from "@/lib/collections/googleServiceAccountSessions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -19,58 +18,55 @@ function editCheck(user: DbUser | null, document: DbGoogleServiceAccountSession 
   return userIsAdmin(user)
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('GoogleServiceAccountSessions', {
-  createFunction: async ({ data }: CreateGoogleServiceAccountSessionInput, context) => {
-    const { currentUser } = context;
+export async function createGoogleServiceAccountSession({ data }: CreateGoogleServiceAccountSessionInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('GoogleServiceAccountSessions', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('GoogleServiceAccountSessions', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'GoogleServiceAccountSessions', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'GoogleServiceAccountSessions', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('GoogleServiceAccountSessions', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('GoogleServiceAccountSessions', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateGoogleServiceAccountSessionInput, context) => {
-    const { currentUser, GoogleServiceAccountSessions } = context;
+export async function updateGoogleServiceAccountSession({ selector, data }: UpdateGoogleServiceAccountSessionInput, context: ResolverContext) {
+  const { currentUser, GoogleServiceAccountSessions } = context;
 
-    const {
-      documentSelector: googleserviceaccountsessionSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('GoogleServiceAccountSessions', { selector, context, data, schema });
+  const {
+    documentSelector: googleserviceaccountsessionSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('GoogleServiceAccountSessions', { selector, context, data, schema });
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, GoogleServiceAccountSessions, googleserviceaccountsessionSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, GoogleServiceAccountSessions, googleserviceaccountsessionSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('GoogleServiceAccountSessions', updatedDocument, updateCallbackProperties.oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('GoogleServiceAccountSessions', updatedDocument, updateCallbackProperties.oldDocument);
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createGoogleServiceAccountSessionGqlMutation = makeGqlCreateMutation('GoogleServiceAccountSessions', createFunction, {
+export const createGoogleServiceAccountSessionGqlMutation = makeGqlCreateMutation('GoogleServiceAccountSessions', createGoogleServiceAccountSession, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GoogleServiceAccountSessions', rawResult, context)
 });
 
-export const updateGoogleServiceAccountSessionGqlMutation = makeGqlUpdateMutation('GoogleServiceAccountSessions', updateFunction, {
+export const updateGoogleServiceAccountSessionGqlMutation = makeGqlUpdateMutation('GoogleServiceAccountSessions', updateGoogleServiceAccountSession, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'GoogleServiceAccountSessions', rawResult, context)
 });
 
 
-export { createFunction as createGoogleServiceAccountSession, updateFunction as updateGoogleServiceAccountSession };
 
 
 export const graphqlGoogleServiceAccountSessionTypeDefs = gql`

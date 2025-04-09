@@ -4,7 +4,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -22,68 +21,65 @@ function editCheck(user: DbUser | null, document: DbBan | null) {
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Bans', {
-  createFunction: async ({ data }: CreateBanInput, context) => {
-    const { currentUser } = context;
+export async function createBan({ data }: CreateBanInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Bans', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Bans', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Bans', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Bans', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Bans', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Bans', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateBanInput, context) => {
-    const { currentUser, Bans } = context;
+export async function updateBan({ selector, data }: UpdateBanInput, context: ResolverContext) {
+  const { currentUser, Bans } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: banSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Bans', { selector, context, data, schema });
+  const {
+    documentSelector: banSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Bans', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, Bans, banSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Bans, banSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Bans', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Bans', updatedDocument, oldDocument);
 
-    void logFieldChanges({ currentUser, collection: Bans, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: Bans, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createBanGqlMutation = makeGqlCreateMutation('Bans', createFunction, {
+export const createBanGqlMutation = makeGqlCreateMutation('Bans', createBan, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Bans', rawResult, context)
 });
 
-export const updateBanGqlMutation = makeGqlUpdateMutation('Bans', updateFunction, {
+export const updateBanGqlMutation = makeGqlUpdateMutation('Bans', updateBan, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Bans', rawResult, context)
 });
 
 
-export { createFunction as createBan, updateFunction as updateBan };
 
 
 export const graphqlBanTypeDefs = gql`

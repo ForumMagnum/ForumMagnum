@@ -14,7 +14,6 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from "@/server/embeddings";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { handleCrosspostUpdate, performCrosspost } from "@/server/fmCrosspost/crosspost";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
@@ -49,225 +48,222 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
   // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
 }
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Posts', {
-  createFunction: async ({ data }: CreatePostInput, context) => {
-    const { currentUser } = context;
+export async function createPost({ data }: CreatePostInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Posts', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Posts', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await runSlugCreateBeforeCallback(callbackProps);
+  data = await runSlugCreateBeforeCallback(callbackProps);
 
-    // former createBefore
-    data = addReferrerToPost(data, callbackProps);
+  // former createBefore
+  data = addReferrerToPost(data, callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    // former newSync callbacks
-    if (isEAForum) {
-      data = checkTosAccepted(currentUser, data);
-      assertPostTitleHasNoEmojis(data);
-    }
-  
-    data = await checkRecentRepost(data, currentUser, context);
-    data = await postsNewDefaultLocation(data, currentUser, context);
-    data = await postsNewDefaultTypes(data, currentUser, context);
-    data = await postsNewUserApprovedStatus(data, currentUser, context);
-    data = await fixEventStartAndEndTimes(data);
-    data = await scheduleCoauthoredPostWithUnconfirmedCoauthors(data);
-    data = await performCrosspost(data);
-    data = addLinkSharingKey(data);  
+  // former newSync callbacks
+  if (isEAForum) {
+    data = checkTosAccepted(currentUser, data);
+    assertPostTitleHasNoEmojis(data);
+  }
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Posts', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  data = await checkRecentRepost(data, currentUser, context);
+  data = await postsNewDefaultLocation(data, currentUser, context);
+  data = await postsNewDefaultTypes(data, currentUser, context);
+  data = await postsNewUserApprovedStatus(data, currentUser, context);
+  data = await fixEventStartAndEndTimes(data);
+  data = await scheduleCoauthoredPostWithUnconfirmedCoauthors(data);
+  data = await performCrosspost(data);
+  data = addLinkSharingKey(data);  
 
-    // former createAfter callbacks
-    await swrInvalidatePostRoute(documentWithId._id);
-    if (!documentWithId.authorIsUnreviewed && !documentWithId.draft) {
-      void onPostPublished(documentWithId, context);
-    }
-    documentWithId = await applyNewPostTags(documentWithId, afterCreateProperties);
-    documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Posts', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  // former createAfter callbacks
+  await swrInvalidatePostRoute(documentWithId._id);
+  if (!documentWithId.authorIsUnreviewed && !documentWithId.draft) {
+    void onPostPublished(documentWithId, context);
+  }
+  documentWithId = await applyNewPostTags(documentWithId, afterCreateProperties);
+  documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
 
-    documentWithId = await notifyUsersOfPingbackMentions({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Posts', documentWithId);
+  documentWithId = await notifyUsersOfPingbackMentions({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    // former newAfter callbacks
-    documentWithId = await sendCoauthorRequestNotifications(documentWithId, afterCreateProperties);
-    documentWithId = await lwPostsNewUpvoteOwnPost(documentWithId, afterCreateProperties);
-    documentWithId = postsNewPostRelation(documentWithId, afterCreateProperties);
-    documentWithId = await extractSocialPreviewImage(documentWithId, afterCreateProperties);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Posts', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  // former newAfter callbacks
+  documentWithId = await sendCoauthorRequestNotifications(documentWithId, afterCreateProperties);
+  documentWithId = await lwPostsNewUpvoteOwnPost(documentWithId, afterCreateProperties);
+  documentWithId = postsNewPostRelation(documentWithId, afterCreateProperties);
+  documentWithId = await extractSocialPreviewImage(documentWithId, afterCreateProperties);
 
-    // former createAsync callbacks
-    await notifyUsersAddedAsPostCoauthors(asyncProperties);
-    await triggerReviewForNewPostIfNeeded(asyncProperties);
-    await autoTagNewPost(asyncProperties);
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    if (isElasticEnabled) {
-      void elasticSyncDocument('Posts', documentWithId._id);
-    }
+  // former createAsync callbacks
+  await notifyUsersAddedAsPostCoauthors(asyncProperties);
+  await triggerReviewForNewPostIfNeeded(asyncProperties);
+  await autoTagNewPost(asyncProperties);
 
-    // former newAsync callbacks
-    await sendUsersSharedOnPostNotifications(documentWithId);
-    if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
-      await updatePostEmbeddingsOnChange(documentWithId, undefined);
-    }
-  
-    await rehostPostMetaImages(documentWithId);
+  if (isElasticEnabled) {
+    void elasticSyncDocument('Posts', documentWithId._id);
+  }
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  // former newAsync callbacks
+  await sendUsersSharedOnPostNotifications(documentWithId);
+  if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
+    await updatePostEmbeddingsOnChange(documentWithId, undefined);
+  }
 
-    return documentWithId;
-  },
+  await rehostPostMetaImages(documentWithId);
 
-  updateFunction: async ({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context) => {
-    const { currentUser, Posts } = context;
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  return documentWithId;
+}
 
-    const {
-      documentSelector: postSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Posts', { selector, context, data, schema });
+export async function updatePost({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context: ResolverContext) {
+  const { currentUser, Posts } = context;
 
-    const { oldDocument } = updateCallbackProperties;
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  const {
+    documentSelector: postSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Posts', { selector, context, data, schema });
 
-    data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
+  const { oldDocument } = updateCallbackProperties;
 
-    if (isEAForum) {
-      data = checkTosAccepted(currentUser, data);
-      assertPostTitleHasNoEmojis(data);
-    }
-  
-    // former updateBefore callbacks
-    await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
-    data = setPostUndraftedFields(data, updateCallbackProperties);
-    data = scheduleCoauthoredPostWhenUndrafted(data, updateCallbackProperties);
-    // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
-    // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
-    data = await handleCrosspostUpdate(data, updateCallbackProperties);
-    data = onEditAddLinkSharingKey(data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-    let modifier = dataToModifier(data);
-    modifier = clearCourseEndTime(modifier, oldDocument);
-    modifier = removeFrontpageDate(modifier, oldDocument);
-    modifier = resetPostApprovedDate(modifier, oldDocument);
+  if (isEAForum) {
+    data = checkTosAccepted(currentUser, data);
+    assertPostTitleHasNoEmojis(data);
+  }
 
-    data = modifierToData(modifier);
-    let updatedDocument = await updateAndReturnDocument(data, Posts, postSelector, context);
+  // former updateBefore callbacks
+  await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
+  data = setPostUndraftedFields(data, updateCallbackProperties);
+  data = scheduleCoauthoredPostWhenUndrafted(data, updateCallbackProperties);
+  // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
+  // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
+  data = await handleCrosspostUpdate(data, updateCallbackProperties);
+  data = onEditAddLinkSharingKey(data, updateCallbackProperties);
 
-    // former updateAfter callbacks
-    await swrInvalidatePostRoute(updatedDocument._id);
-    updatedDocument = await sendCoauthorRequestNotifications(updatedDocument, updateCallbackProperties);
-    updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
-    updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
-    updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  let modifier = dataToModifier(data);
+  modifier = clearCourseEndTime(modifier, oldDocument);
+  modifier = removeFrontpageDate(modifier, oldDocument);
+  modifier = resetPostApprovedDate(modifier, oldDocument);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
+  data = modifierToData(modifier);
+  let updatedDocument = await updateAndReturnDocument(data, Posts, postSelector, context);
 
-    // former updateAsync callbacks
-    await eventUpdatedNotifications(updateCallbackProperties);
-    await notifyUsersAddedAsCoauthors(updateCallbackProperties);
-    await updatePostEmbeddingsOnChange(updateCallbackProperties.newDocument, updateCallbackProperties.oldDocument);
-    await updatedPostMaybeTriggerReview(updateCallbackProperties);
-    await sendRejectionPM(updateCallbackProperties);
-    await updateUserNotesOnPostDraft(updateCallbackProperties);
-    await updateUserNotesOnPostRejection(updateCallbackProperties);
-    await updateRecombeePost(updateCallbackProperties);
-    await autoTagUndraftedPost(updateCallbackProperties);
+  // former updateAfter callbacks
+  await swrInvalidatePostRoute(updatedDocument._id);
+  updatedDocument = await sendCoauthorRequestNotifications(updatedDocument, updateCallbackProperties);
+  updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
+  updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
+  updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
 
-    // former editAsync callbacks
-    await moveToAFUpdatesUserAFKarma(updatedDocument, oldDocument);
-    sendPostApprovalNotifications(updatedDocument, oldDocument);
-    await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
-    await removeRedraftNotifications(updatedDocument, oldDocument, context);
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    if (isEAForum) {
-      await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
-    }
-  
-    if (isLWorAF) {
-      await sendLWAFPostCurationEmails(updatedDocument, oldDocument);
-    }
-  
-    await sendPostSharedWithUserNotifications(updatedDocument, oldDocument);
-    await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);
-    await updatePostShortform(updatedDocument, oldDocument, context);
-    await updateCommentHideKarma(updatedDocument, oldDocument, context);
-    await extractSocialPreviewImage(updatedDocument, updateCallbackProperties);
-    await oldPostsLastCommentedAt(updatedDocument, context);  
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  // former updateAsync callbacks
+  await eventUpdatedNotifications(updateCallbackProperties);
+  await notifyUsersAddedAsCoauthors(updateCallbackProperties);
+  await updatePostEmbeddingsOnChange(updateCallbackProperties.newDocument, updateCallbackProperties.oldDocument);
+  await updatedPostMaybeTriggerReview(updateCallbackProperties);
+  await sendRejectionPM(updateCallbackProperties);
+  await updateUserNotesOnPostDraft(updateCallbackProperties);
+  await updateUserNotesOnPostRejection(updateCallbackProperties);
+  await updateRecombeePost(updateCallbackProperties);
+  await autoTagUndraftedPost(updateCallbackProperties);
 
-    if (isElasticEnabled) {
-      void elasticSyncDocument('Posts', updatedDocument._id);
-    }
+  // former editAsync callbacks
+  await moveToAFUpdatesUserAFKarma(updatedDocument, oldDocument);
+  sendPostApprovalNotifications(updatedDocument, oldDocument);
+  await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
+  await removeRedraftNotifications(updatedDocument, oldDocument, context);
 
-    void logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData });
+  if (isEAForum) {
+    await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
+  }
 
-    return updatedDocument;
-  },
-});
+  if (isLWorAF) {
+    await sendLWAFPostCurationEmails(updatedDocument, oldDocument);
+  }
 
-export const createPostGqlMutation = makeGqlCreateMutation('Posts', createFunction, {
+  await sendPostSharedWithUserNotifications(updatedDocument, oldDocument);
+  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);
+  await updatePostShortform(updatedDocument, oldDocument, context);
+  await updateCommentHideKarma(updatedDocument, oldDocument, context);
+  await extractSocialPreviewImage(updatedDocument, updateCallbackProperties);
+  await oldPostsLastCommentedAt(updatedDocument, context);  
+
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
+
+  if (isElasticEnabled) {
+    void elasticSyncDocument('Posts', updatedDocument._id);
+  }
+
+  void logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData });
+
+  return updatedDocument;
+}
+
+export const createPostGqlMutation = makeGqlCreateMutation('Posts', createPost, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Posts', rawResult, context)
 });
 
-export const updatePostGqlMutation = makeGqlUpdateMutation('Posts', updateFunction, {
+export const updatePostGqlMutation = makeGqlUpdateMutation('Posts', updatePost, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Posts', rawResult, context)
 });
 
 
-export { createFunction as createPost, updateFunction as updatePost };
 
 
 export const graphqlPostTypeDefs = gql`

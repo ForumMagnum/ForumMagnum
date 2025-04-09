@@ -3,7 +3,6 @@ import schema from "@/lib/collections/postEmbeddings/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
@@ -21,58 +20,55 @@ function editCheck(user: DbUser | null, document: DbPostEmbedding | null, contex
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('PostEmbeddings', {
-  createFunction: async ({ data }: CreatePostEmbeddingInput, context) => {
-    const { currentUser } = context;
+export async function createPostEmbedding({ data }: CreatePostEmbeddingInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('PostEmbeddings', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('PostEmbeddings', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostEmbeddings', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PostEmbeddings', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostEmbeddings', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('PostEmbeddings', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdatePostEmbeddingInput, context) => {
-    const { currentUser, PostEmbeddings } = context;
+export async function updatePostEmbedding({ selector, data }: UpdatePostEmbeddingInput, context: ResolverContext) {
+  const { currentUser, PostEmbeddings } = context;
 
-    const {
-      documentSelector: postembeddingSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('PostEmbeddings', { selector, context, data, schema });
+  const {
+    documentSelector: postembeddingSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('PostEmbeddings', { selector, context, data, schema });
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    let updatedDocument = await updateAndReturnDocument(data, PostEmbeddings, postembeddingSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, PostEmbeddings, postembeddingSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostEmbeddings', updatedDocument, updateCallbackProperties.oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PostEmbeddings', updatedDocument, updateCallbackProperties.oldDocument);
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createPostEmbeddingGqlMutation = makeGqlCreateMutation('PostEmbeddings', createFunction, {
+export const createPostEmbeddingGqlMutation = makeGqlCreateMutation('PostEmbeddings', createPostEmbedding, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostEmbeddings', rawResult, context)
 });
 
-export const updatePostEmbeddingGqlMutation = makeGqlUpdateMutation('PostEmbeddings', updateFunction, {
+export const updatePostEmbeddingGqlMutation = makeGqlUpdateMutation('PostEmbeddings', updatePostEmbedding, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PostEmbeddings', rawResult, context)
 });
 
 
-export { createFunction as createPostEmbedding, updateFunction as updatePostEmbedding };
 
 
 export const graphqlPostEmbeddingTypeDefs = gql`

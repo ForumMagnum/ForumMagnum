@@ -2,7 +2,6 @@
 import schema from "@/lib/collections/petrovDayActions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -38,38 +37,35 @@ async function newCheck(user: DbUser | null, document: CreatePetrovDayActionData
   return false
 }
 
-const { createFunction } = getDefaultMutationFunctions('PetrovDayActions', {
-  createFunction: async ({ data }: CreatePetrovDayActionInput, context) => {
-    const { currentUser } = context;
+export async function createPetrovDayAction({ data }: CreatePetrovDayActionInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('PetrovDayActions', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('PetrovDayActions', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PetrovDayActions', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'PetrovDayActions', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('PetrovDayActions', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('PetrovDayActions', documentWithId);
 
-    return documentWithId;
-  },
-});
+  return documentWithId;
+}
 
-export const createPetrovDayActionGqlMutation = makeGqlCreateMutation('PetrovDayActions', createFunction, {
+export const createPetrovDayActionGqlMutation = makeGqlCreateMutation('PetrovDayActions', createPetrovDayAction, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PetrovDayActions', rawResult, context)
 });
 
 
-export { createFunction as createPetrovDayAction };
 
 export const graphqlPetrovDayActionTypeDefs = gql`
   input CreatePetrovDayActionDataInput {

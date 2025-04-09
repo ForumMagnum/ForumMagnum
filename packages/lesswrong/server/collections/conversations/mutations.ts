@@ -5,7 +5,6 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { conversationEditNotification, flagOrBlockUserOnManyDMs, sendUserLeavingConversationNotication } from "@/server/callbacks/conversationCallbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -25,68 +24,65 @@ function editCheck(user: DbUser | null, document: DbConversation | null) {
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Conversations', {
-  createFunction: async ({ data }: CreateConversationInput, context) => {
-    const { currentUser } = context;
+export async function createConversation({ data }: CreateConversationInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Conversations', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Conversations', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    await flagOrBlockUserOnManyDMs({ currentConversation: data, currentUser, context });
+  await flagOrBlockUserOnManyDMs({ currentConversation: data, currentUser, context });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Conversations', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Conversations', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Conversations', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Conversations', documentWithId);
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: { data: UpdateConversationDataInput | Partial<DbConversation>; selector: SelectorInput }, context) => {
-    const { currentUser, Conversations } = context;
+export async function updateConversation({ selector, data }: { data: UpdateConversationDataInput | Partial<DbConversation>; selector: SelectorInput }, context: ResolverContext) {
+  const { currentUser, Conversations } = context;
 
-    const {
-      documentSelector: conversationSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Conversations', { selector, context, data, schema });
+  const {
+    documentSelector: conversationSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Conversations', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    await flagOrBlockUserOnManyDMs({ currentConversation: data, oldConversation: oldDocument, currentUser, context });
+  await flagOrBlockUserOnManyDMs({ currentConversation: data, oldConversation: oldDocument, currentUser, context });
 
-    let updatedDocument = await updateAndReturnDocument(data, Conversations, conversationSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Conversations, conversationSelector, context);
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Conversations', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Conversations', updatedDocument, oldDocument);
 
-    await sendUserLeavingConversationNotication(updateCallbackProperties);
+  await sendUserLeavingConversationNotication(updateCallbackProperties);
 
-    await conversationEditNotification(updatedDocument, oldDocument, currentUser, context);
+  await conversationEditNotification(updatedDocument, oldDocument, currentUser, context);
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createConversationGqlMutation = makeGqlCreateMutation('Conversations', createFunction, {
+export const createConversationGqlMutation = makeGqlCreateMutation('Conversations', createConversation, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context)
 });
 
-export const updateConversationGqlMutation = makeGqlUpdateMutation('Conversations', updateFunction, {
+export const updateConversationGqlMutation = makeGqlUpdateMutation('Conversations', updateConversation, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context)
 });
 
 
-export { createFunction as createConversation, updateFunction as updateConversation };
 
 
 export const graphqlConversationTypeDefs = gql`

@@ -5,7 +5,6 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -24,102 +23,99 @@ function editCheck(user: DbUser | null, document: DbModerationTemplate | null, c
 }
 
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('ModerationTemplates', {
-  createFunction: async ({ data }: CreateModerationTemplateInput, context) => {
-    const { currentUser } = context;
+export async function createModerationTemplate({ data }: CreateModerationTemplateInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('ModerationTemplates', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('ModerationTemplates', {
+    context,
+    data,
+    schema,
+  });
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ModerationTemplates', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ModerationTemplates', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('ModerationTemplates', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('ModerationTemplates', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateModerationTemplateInput, context) => {
-    const { currentUser, ModerationTemplates } = context;
+export async function updateModerationTemplate({ selector, data }: UpdateModerationTemplateInput, context: ResolverContext) {
+  const { currentUser, ModerationTemplates } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: moderationtemplateSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('ModerationTemplates', { selector, context, data, schema });
+  const {
+    documentSelector: moderationtemplateSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('ModerationTemplates', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, ModerationTemplates, moderationtemplateSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, ModerationTemplates, moderationtemplateSelector, context);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ModerationTemplates', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ModerationTemplates', updatedDocument, oldDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    void logFieldChanges({ currentUser, collection: ModerationTemplates, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: ModerationTemplates, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createModerationTemplateGqlMutation = makeGqlCreateMutation('ModerationTemplates', createFunction, {
+export const createModerationTemplateGqlMutation = makeGqlCreateMutation('ModerationTemplates', createModerationTemplate, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ModerationTemplates', rawResult, context)
 });
 
-export const updateModerationTemplateGqlMutation = makeGqlUpdateMutation('ModerationTemplates', updateFunction, {
+export const updateModerationTemplateGqlMutation = makeGqlUpdateMutation('ModerationTemplates', updateModerationTemplate, {
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ModerationTemplates', rawResult, context)
 });
 
 
-export { createFunction as createModerationTemplate, updateFunction as updateModerationTemplate };
 
 
 export const graphqlModerationTemplateTypeDefs = gql`

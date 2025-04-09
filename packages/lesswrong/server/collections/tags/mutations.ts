@@ -5,7 +5,6 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { cascadeSoftDeleteToTagRels, reexportProfileTagUsersToElastic, updateParentTagSubTagIds, validateTagCreate, validateTagUpdate } from "@/server/callbacks/tagCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getDefaultMutationFunctions } from "@/server/resolvers/defaultMutations";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -15,125 +14,122 @@ import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { newCheck, editCheck } from "./helpers";
 
-const { createFunction, updateFunction } = getDefaultMutationFunctions('Tags', {
-  createFunction: async ({ data }: CreateTagInput, context) => {
-    const { currentUser } = context;
+export async function createTag({ data }: CreateTagInput, context: ResolverContext) {
+  const { currentUser } = context;
 
-    const callbackProps = await getLegacyCreateCallbackProps('Tags', {
-      context,
-      data,
-      schema,
-    });
+  const callbackProps = await getLegacyCreateCallbackProps('Tags', {
+    context,
+    data,
+    schema,
+  });
 
-    assignUserIdToData(data, currentUser, schema);
+  assignUserIdToData(data, currentUser, schema);
 
-    data = callbackProps.document;
+  data = callbackProps.document;
 
-    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-    data = await runSlugCreateBeforeCallback(callbackProps);
+  data = await runSlugCreateBeforeCallback(callbackProps);
 
-    data = await createInitialRevisionsForEditableFields({
-      doc: data,
-      props: callbackProps,
-    });
+  data = await createInitialRevisionsForEditableFields({
+    doc: data,
+    props: callbackProps,
+  });
 
-    const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Tags', callbackProps);
-    let documentWithId = afterCreateProperties.document;
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Tags', callbackProps);
+  let documentWithId = afterCreateProperties.document;
 
-    documentWithId = await updateRevisionsDocumentIds({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await updateRevisionsDocumentIds({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    documentWithId = await notifyUsersOfPingbackMentions({
-      newDoc: documentWithId,
-      props: afterCreateProperties,
-    });
+  documentWithId = await notifyUsersOfPingbackMentions({
+    newDoc: documentWithId,
+    props: afterCreateProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterCreate('Tags', documentWithId);
+  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Tags', documentWithId);
 
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };
+  const asyncProperties = {
+    ...afterCreateProperties,
+    document: documentWithId,
+    newDocument: documentWithId,
+  };
 
-    if (isElasticEnabled) {
-      void elasticSyncDocument('Tags', documentWithId._id);
-    }
+  if (isElasticEnabled) {
+    void elasticSyncDocument('Tags', documentWithId._id);
+  }
 
-    await uploadImagesInEditableFields({
-      newDoc: documentWithId,
-      props: asyncProperties,
-    });
+  await uploadImagesInEditableFields({
+    newDoc: documentWithId,
+    props: asyncProperties,
+  });
 
-    return documentWithId;
-  },
+  return documentWithId;
+}
 
-  updateFunction: async ({ selector, data }: UpdateTagInput, context) => {
-    const { currentUser, Tags } = context;
+export async function updateTag({ selector, data }: UpdateTagInput, context: ResolverContext) {
+  const { currentUser, Tags } = context;
 
-    // Save the original mutation (before callbacks add more changes to it) for
-    // logging in FieldChanges
-    const origData = cloneDeep(data);
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in FieldChanges
+  const origData = cloneDeep(data);
 
-    const {
-      documentSelector: tagSelector,
-      updateCallbackProperties,
-    } = await getLegacyUpdateCallbackProps('Tags', { selector, context, data, schema });
+  const {
+    documentSelector: tagSelector,
+    updateCallbackProperties,
+  } = await getLegacyUpdateCallbackProps('Tags', { selector, context, data, schema });
 
-    const { oldDocument } = updateCallbackProperties;
+  const { oldDocument } = updateCallbackProperties;
 
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
-    data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
+  data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-    data = await createRevisionsForEditableFields({
-      docData: data,
-      props: updateCallbackProperties,
-    });
+  data = await createRevisionsForEditableFields({
+    docData: data,
+    props: updateCallbackProperties,
+  });
 
-    let updatedDocument = await updateAndReturnDocument(data, Tags, tagSelector, context);
+  let updatedDocument = await updateAndReturnDocument(data, Tags, tagSelector, context);
 
-    updatedDocument = await cascadeSoftDeleteToTagRels(updatedDocument, updateCallbackProperties);
-    updatedDocument = await updateParentTagSubTagIds(updatedDocument, updateCallbackProperties);
-    updatedDocument = await reexportProfileTagUsersToElastic(updatedDocument, updateCallbackProperties);
+  updatedDocument = await cascadeSoftDeleteToTagRels(updatedDocument, updateCallbackProperties);
+  updatedDocument = await updateParentTagSubTagIds(updatedDocument, updateCallbackProperties);
+  updatedDocument = await reexportProfileTagUsersToElastic(updatedDocument, updateCallbackProperties);
 
-    updatedDocument = await notifyUsersOfNewPingbackMentions({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  updatedDocument = await notifyUsersOfNewPingbackMentions({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Tags', updatedDocument, oldDocument);
+  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Tags', updatedDocument, oldDocument);
 
-    await reuploadImagesIfEditableFieldsChanged({
-      newDoc: updatedDocument,
-      props: updateCallbackProperties,
-    });
+  await reuploadImagesIfEditableFieldsChanged({
+    newDoc: updatedDocument,
+    props: updateCallbackProperties,
+  });
 
-    if (isElasticEnabled) {
-      void elasticSyncDocument('Tags', updatedDocument._id);
-    }
+  if (isElasticEnabled) {
+    void elasticSyncDocument('Tags', updatedDocument._id);
+  }
 
-    void logFieldChanges({ currentUser, collection: Tags, oldDocument, data: origData });
+  void logFieldChanges({ currentUser, collection: Tags, oldDocument, data: origData });
 
-    return updatedDocument;
-  },
-});
+  return updatedDocument;
+}
 
-export const createTagGqlMutation = makeGqlCreateMutation('Tags', createFunction, {
+export const createTagGqlMutation = makeGqlCreateMutation('Tags', createTag, {
   newCheck: async (user, tag: CreateTagDataInput | null, context) => newCheck(user, tag) && await validateTagCreate(tag, context),
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 
-export const updateTagGqlMutation = makeGqlUpdateMutation('Tags', updateFunction, {
+export const updateTagGqlMutation = makeGqlUpdateMutation('Tags', updateTag, {
   editCheck: async (user, tag: DbTag, context, previewTag) => editCheck(user, tag) && await validateTagUpdate(tag, previewTag, context),
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 
 
-export { createFunction as createTag, updateFunction as updateTag };
 
 
 export const graphqlTagTypeDefs = gql`
