@@ -152,7 +152,7 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
 
 
   const [ mutate ] = useMutation(gql`
-    mutation petrovDayLaunchResolvers($launchCode: String) {
+    mutation launchPetrovMissile($launchCode: String) {
       PetrovDayLaunchMissile(launchCode: $launchCode) {
         launchCode
       }

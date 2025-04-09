@@ -1,7 +1,7 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 import { PostsListWithVotes } from "../posts/fragments"
 
-export const ChaptersFragment = () => frag`
+export const ChaptersFragment = () => gql`
   fragment ChaptersFragment on Chapter {
     _id
     createdAt
@@ -14,14 +14,14 @@ export const ChaptersFragment = () => frag`
     sequenceId
     postIds
     posts {
-      ${PostsListWithVotes}
+      ...PostsListWithVotes
     }
   }
 `
 
-export const ChaptersEdit = () => frag`
+export const ChaptersEdit = () => gql`
   fragment ChaptersEdit on Chapter {
-    ${ChaptersFragment}
+    ...ChaptersFragment
     contents {
       ...RevisionEdit
     }

@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const SurveyMinimumInfo = () => frag`
+export const SurveyMinimumInfo = () => gql`
   fragment SurveyMinimumInfo on Survey {
     _id
     name

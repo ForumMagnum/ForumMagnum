@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const UserJobAdsMinimumInfo = () => frag`
+export const UserJobAdsMinimumInfo = () => gql`
   fragment UserJobAdsMinimumInfo on UserJobAd {
     _id
     userId

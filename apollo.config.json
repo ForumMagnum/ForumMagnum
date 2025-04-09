@@ -1,0 +1,11 @@
+{
+  "client": {
+    "includes": ["packages/lesswrong/**/*.ts", "packages/lesswrong/**/*.tsx"],
+    "excludes": ["node_modules/**", "packages/lesswrong/lib/generated/gqlSchema.gql", "packages/lesswrong/server/**"],
+    "service": {
+      "name": "lesswrong",
+      // can be a string pointing to a single file or an array of strings
+      "localSchemaFile": "gqlSchema.gql"
+    }
+  }
+}

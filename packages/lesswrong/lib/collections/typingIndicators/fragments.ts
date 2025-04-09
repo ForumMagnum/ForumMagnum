@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const TypingIndicatorInfo = () => frag`
+export const TypingIndicatorInfo = () => gql`
   fragment TypingIndicatorInfo on TypingIndicator {
     _id
     userId

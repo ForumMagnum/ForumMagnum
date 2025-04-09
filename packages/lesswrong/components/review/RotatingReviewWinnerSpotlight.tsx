@@ -27,7 +27,7 @@ export const RotatingReviewWinnerSpotlight = () => {
   const category = "ai safety"
   const { data } = useQuery(
     gql`
-      query GetAllReviewWinners {
+      query GetAllReviewWinnersForSpotlight {
         GetAllReviewWinners {
           ...PostForReviewWinnerItem
         }
@@ -35,7 +35,7 @@ export const RotatingReviewWinnerSpotlight = () => {
       ${fragmentTextForQuery('PostForReviewWinnerItem')}
     `,
   )
-  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
+  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinnersForSpotlight ?? []];
   const winner = getTodayReviewInfo(reviewWinnersWithPosts, category);
 
   const { document } = useSingle({

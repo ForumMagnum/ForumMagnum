@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const TagRelVotes = () => frag`
+export const TagRelVotes = () => gql`
   fragment TagRelVotes on Vote {
     _id
     userId
@@ -15,7 +15,7 @@ export const TagRelVotes = () => frag`
   }
 `
 
-export const TagVotingActivity = () => frag`
+export const TagVotingActivity = () => gql`
   fragment TagVotingActivity on Vote {
     ...TagRelVotes
     tagRel {
@@ -24,7 +24,7 @@ export const TagVotingActivity = () => frag`
   }
 `
 
-export const UserVotes = () => frag`
+export const UserVotes = () => gql`
   fragment UserVotes on Vote {
     _id
     userId
@@ -38,7 +38,7 @@ export const UserVotes = () => frag`
   }
 `
 
-export const UserVotesWithDocument = () => frag`
+export const UserVotesWithDocument = () => gql`
   fragment UserVotesWithDocument on Vote {
     ...UserVotes
     comment {

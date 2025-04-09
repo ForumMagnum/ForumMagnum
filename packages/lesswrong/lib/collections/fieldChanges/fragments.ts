@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const FieldChangeFragment = () => frag`
+export const FieldChangeFragment = () => gql`
   fragment FieldChangeFragment on FieldChange {
     _id
     createdAt

@@ -8,7 +8,7 @@ import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateDefaultFragmentsFile } from './generateDefaultFragments';
 import { getGraphQLTypeDefs } from '../vulcan-lib/apollo-server/getTypeDefs';
 import * as typescriptPlugin from '@graphql-codegen/typescript'
-import { codegen } from '@graphql-codegen/core'
+import { generate } from '@graphql-codegen/cli'
 import { parse, print } from 'graphql';
 import gql from 'graphql-tag';
 
@@ -112,14 +112,14 @@ export async function generateTypes(repoRoot?: string) {
   try {
     writeIfChanged(generateDefaultFragmentsFile(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
-    writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
+    // writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateCollectionTypeNames(), "/packages/lesswrong/lib/generated/collectionTypeNames.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
     writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
-    writeIfChanged(await generateGraphQLCodegenTypes(), "/packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts");
+    await generateGraphQLCodegenTypes();
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error(e);
@@ -141,31 +141,33 @@ function generateGraphQLSchemaFile(): string {
   return sb.join("");
 }
 
-async function generateGraphQLCodegenTypes(): Promise<string> {
-  const {typeDefs: schema} = getGraphQLTypeDefs();
-  const fragmentsGraphQLSchemaText = generateFragmentsGqlFile();
-  const schemaWithFragments = gql`
-    ${schema}
-    ${fragmentsGraphQLSchemaText}
-  `;
-
-  return await codegen({
-    documents: [],
+async function generateGraphQLCodegenTypes(): Promise<void> {
+  const fileOutputs = await generate({
+    schema: '/packages/lesswrong/lib/generated/gqlSchema.gql',
     config: {
+      filename: "packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts",
     },
-    // used by a plugin internally, although the 'typescript' plugin currently
-    // returns the string output, rather than writing to a file
-    filename: "packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts",
-    schema: schemaWithFragments,
-    plugins: [
-      {
-        typescript: {
-          avoidOptionals: true,
+    generates: {
+      './packages/lesswrong/lib/generated/__gql-godegen__/': {
+        preset: 'client',
+        plugins: [],
+        presetConfig: {
+          gqlTagName: 'gql', 
         }
+      },
+      './packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts': {
+        plugins: [
+          {
+            typescript: {
+              avoidOptionals: true,
+            }
+          }
+        ]
       }
-    ],
-    pluginMap: {
-      typescript: typescriptPlugin
-    },
+    }
   })
+  // Write the files to disk
+  for (const fileOutput of fileOutputs) {
+    fs.writeFileSync(fileOutput.path, fileOutput.content);
+  }
 }

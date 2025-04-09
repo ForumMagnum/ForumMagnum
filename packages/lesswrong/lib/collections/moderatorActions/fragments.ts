@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const ModeratorActionDisplay = () => frag`
+export const ModeratorActionDisplay = () => gql`
   fragment ModeratorActionDisplay on ModeratorAction {
     _id
     user {

@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const UserEAGDetailsMinimumInfo = () => frag`
+export const UserEAGDetailsMinimumInfo = () => gql`
   fragment UserEAGDetailsMinimumInfo on UserEAGDetail {
     _id
     userId

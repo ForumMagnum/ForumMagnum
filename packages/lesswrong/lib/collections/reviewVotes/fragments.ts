@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const reviewVoteFragment = () => frag`
+export const reviewVoteFragment = () => gql`
   fragment reviewVoteFragment on ReviewVote {
     _id
     createdAt
@@ -16,7 +16,7 @@ export const reviewVoteFragment = () => frag`
 `
 
 
-export const reviewVoteWithUserAndPost = () => frag`
+export const reviewVoteWithUserAndPost = () => gql`
   fragment reviewVoteWithUserAndPost on ReviewVote {
     ...reviewVoteFragment
     user {
@@ -30,7 +30,7 @@ export const reviewVoteWithUserAndPost = () => frag`
   }
 `
 
-export const reviewAdminDashboard = () => frag`
+export const reviewAdminDashboard = () => gql`
   fragment reviewAdminDashboard on ReviewVote {
     _id
     createdAt

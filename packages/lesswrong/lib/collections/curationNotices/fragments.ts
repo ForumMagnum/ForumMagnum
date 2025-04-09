@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const CurationNoticesFragment = () => frag`
+export const CurationNoticesFragment = () => gql`
   fragment CurationNoticesFragment on CurationNotice {
     _id
     createdAt

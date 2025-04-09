@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const ElectionVoteInfo = () => frag`
+export const ElectionVoteInfo = () => gql`
   fragment ElectionVoteInfo on ElectionVote {
     _id
     electionName
@@ -14,7 +14,7 @@ export const ElectionVoteInfo = () => frag`
   }
 `
 
-export const ElectionVoteRecentDiscussion = () => frag`
+export const ElectionVoteRecentDiscussion = () => gql`
   fragment ElectionVoteRecentDiscussion on ElectionVote {
     _id
     electionName

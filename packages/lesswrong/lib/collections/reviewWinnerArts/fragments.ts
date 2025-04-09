@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const ReviewWinnerArtImages = () => frag`
+export const ReviewWinnerArtImages = () => gql`
   fragment ReviewWinnerArtImages on ReviewWinnerArt {
     _id
     postId

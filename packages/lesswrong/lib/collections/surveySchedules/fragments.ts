@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const SurveyScheduleMinimumInfo = () => frag`
+export const SurveyScheduleMinimumInfo = () => gql`
   fragment SurveyScheduleMinimumInfo on SurveySchedule {
     _id
     survey {
@@ -9,7 +9,7 @@ export const SurveyScheduleMinimumInfo = () => frag`
   }
 `
 
-export const SurveyScheduleEdit = () => frag`
+export const SurveyScheduleEdit = () => gql`
   fragment SurveyScheduleEdit on SurveySchedule {
     ...SurveyScheduleMinimumInfo
     surveyId

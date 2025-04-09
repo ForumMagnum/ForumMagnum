@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const UnclaimedReportsList = () => frag`
+export const UnclaimedReportsList = () => gql`
   fragment UnclaimedReportsList on Report {
     _id
     userId

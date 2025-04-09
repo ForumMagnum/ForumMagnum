@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const PostsMinimumInfo = () => frag`
+export const PostsMinimumInfo = () => gql`
   fragment PostsMinimumInfo on Post {
     _id
     slug
@@ -23,10 +23,10 @@ export const PostsMinimumInfo = () => frag`
   }
 `
 
-export const PostsTopItemInfo = () => frag`
+export const PostsTopItemInfo = () => gql`
   fragment PostsTopItemInfo on Post {
-    ${PostsMinimumInfo}
-    ${PostsAuthors}
+    ...PostsMinimumInfo
+    ...PostsAuthors
     isRead
     contents {
       _id
@@ -54,9 +54,9 @@ export const PostsTopItemInfo = () => frag`
   }
 `
 
-export const PostsBase = () => frag`
+export const PostsBase = () => gql`
   fragment PostsBase on Post {
-    ${PostsMinimumInfo}
+    ...PostsMinimumInfo
     
     # Core fields
     url
@@ -179,34 +179,34 @@ export const PostsBase = () => frag`
   }
 `
 
-export const PostsWithVotes = () => frag`
+export const PostsWithVotes = () => gql`
   fragment PostsWithVotes on Post {
-    ${PostsBase}
+    ...PostsBase
     currentUserVote
     currentUserExtendedVote
   }
 `
 
-export const PostsListWithVotes = () => frag`
+export const PostsListWithVotes = () => gql`
   fragment PostsListWithVotes on Post {
-    ${PostsList}
+    ...PostsList
     currentUserVote
     currentUserExtendedVote
   }
 `
 
-export const PostsListWithVotesAndSequence = () => frag`
+export const PostsListWithVotesAndSequence = () => gql`
   fragment PostsListWithVotesAndSequence on Post {
-    ${PostsListWithVotes}
+    ...PostsListWithVotes
     canonicalSequence {
       ...SequencesPageFragment
     }
   }
 `
 
-export const PostsReviewVotingList = () => frag`
+export const PostsReviewVotingList = () => gql`
   fragment PostsReviewVotingList on Post {
-    ${PostsListWithVotes}
+    ...PostsListWithVotes
     reviewVoteScoreAllKarma
     reviewVotesAllKarma
     reviewVoteScoreHighKarma
@@ -216,9 +216,9 @@ export const PostsReviewVotingList = () => frag`
   }
 `
 
-export const PostsModerationGuidelines = () => frag`
+export const PostsModerationGuidelines = () => gql`
   fragment PostsModerationGuidelines on Post {
-    ${PostsMinimumInfo}
+    ...PostsMinimumInfo
     frontpageDate
     user {
       _id
@@ -237,7 +237,7 @@ export const PostsModerationGuidelines = () => frag`
   }
 `
 
-export const PostsAuthors = () => frag`
+export const PostsAuthors = () => gql`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
@@ -254,10 +254,10 @@ export const PostsAuthors = () => frag`
   }
 `
 
-export const PostsListBase = () => frag`
+export const PostsListBase = () => gql`
   fragment PostsListBase on Post {
-    ${PostsBase}
-    ${PostsAuthors}
+    ...PostsBase
+    ...PostsAuthors
     readTimeMinutes
     rejectedReason
     customHighlight {
@@ -290,9 +290,9 @@ export const PostsListBase = () => frag`
   }
 `
 
-export const PostsList = () => frag`
+export const PostsList = () => gql`
   fragment PostsList on Post {
-    ${PostsListBase}
+    ...PostsListBase
     deletedDraft
     contents {
       _id
@@ -305,36 +305,36 @@ export const PostsList = () => frag`
   }
 `
 
-export const SunshineCurationPostsList = () => frag`
+export const SunshineCurationPostsList = () => gql`
   fragment SunshineCurationPostsList on Post {
-    ${PostsList}
+    ...PostsList
     curationNotices {
       ...CurationNoticesFragment
     }
   }
 `
 
-export const PostsListTag = () => frag`
+export const PostsListTag = () => gql`
   fragment PostsListTag on Post {
-    ${PostsList}
+    ...PostsList
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
   }
 `
 
-export const PostsListTagWithVotes = () => frag`
+export const PostsListTagWithVotes = () => gql`
   fragment PostsListTagWithVotes on Post {
-    ${PostsListWithVotes}
+    ...PostsListWithVotes
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
   }
 `
 
-export const PostsDetails = () => frag`
+export const PostsDetails = () => gql`
   fragment PostsDetails on Post {
-    ${PostsListBase}
+    ...PostsListBase
 
     canonicalSource
     noIndex
@@ -407,7 +407,7 @@ export const PostsDetails = () => frag`
       _id
       sourcePostId
       sourcePost {
-        ${PostsListWithVotes}
+        ...PostsListWithVotes
       }
       order
     }
@@ -416,7 +416,7 @@ export const PostsDetails = () => frag`
       sourcePostId
       targetPostId
       targetPost {
-        ${PostsListWithVotes}
+        ...PostsListWithVotes
       }
       order
     }
@@ -435,7 +435,7 @@ export const PostsDetails = () => frag`
   }
 `
 
-export const PostsExpandedHighlight = () => frag`
+export const PostsExpandedHighlight = () => gql`
   fragment PostsExpandedHighlight on Post {
     _id
     contents {
@@ -445,7 +445,7 @@ export const PostsExpandedHighlight = () => frag`
   }
 `
 
-export const PostsPlaintextDescription = () => frag`
+export const PostsPlaintextDescription = () => gql`
   fragment PostsPlaintextDescription on Post {
     _id
     contents {
@@ -457,9 +457,9 @@ export const PostsPlaintextDescription = () => frag`
 
 // Same as PostsPage, with added just optional arguments to the content field
 // and a list of revisions
-export const PostsRevision = () => frag`
+export const PostsRevision = () => gql`
   fragment PostsRevision on Post {
-    ${PostsDetails}
+    ...PostsDetails
 
     # Content & Revisions
     version
@@ -472,9 +472,9 @@ export const PostsRevision = () => frag`
   }
 `
 
-export const PostsRevisionEdit = () => frag`
+export const PostsRevisionEdit = () => gql`
   fragment PostsRevisionEdit on Post {
-    ${PostsDetails}
+    ...PostsDetails
 
     # Content & Revisions
     version
@@ -487,10 +487,10 @@ export const PostsRevisionEdit = () => frag`
   }
 `
 
-export const PostsWithNavigationAndRevision = () => frag`
+export const PostsWithNavigationAndRevision = () => gql`
   fragment PostsWithNavigationAndRevision on Post {
-    ${PostsRevision}
-    ${PostSequenceNavigation}
+    ...PostsRevision
+    ...PostSequenceNavigation
     customHighlight {
       ...RevisionDisplay
     }
@@ -502,10 +502,10 @@ export const PostsWithNavigationAndRevision = () => frag`
   }
 `
 
-export const PostsWithNavigation = () => frag`
+export const PostsWithNavigation = () => gql`
   fragment PostsWithNavigation on Post {
-    ${PostsPage}
-    ${PostSequenceNavigation}
+    ...PostsPage
+    ...PostSequenceNavigation
     
     tableOfContents
     reviewWinner {
@@ -515,20 +515,20 @@ export const PostsWithNavigation = () => frag`
 `
 
 // This is a union of the fields needed by PostsTopNavigation and BottomNavigation.
-export const PostSequenceNavigation = () => frag`
+export const PostSequenceNavigation = () => gql`
   fragment PostSequenceNavigation on Post {
     # Prev/next sequence navigation
     sequence(sequenceId: $sequenceId) {
       ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
-      ${PostsListWithVotes}
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
         _id
       }
     }
     nextPost(sequenceId: $sequenceId) {
-      ${PostsListWithVotes}
+      ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
         _id
       }
@@ -536,9 +536,9 @@ export const PostSequenceNavigation = () => frag`
   }
 `
 
-export const PostsPage = () => frag`
+export const PostsPage = () => gql`
   fragment PostsPage on Post {
-    ${PostsDetails}
+    ...PostsDetails
     version
     contents {
       ...RevisionDisplay
@@ -550,9 +550,9 @@ export const PostsPage = () => frag`
   }
 `
 
-export const PostsEdit = () => frag`
+export const PostsEdit = () => gql`
   fragment PostsEdit on Post {
-    ${PostsDetails}
+    ...PostsDetails
     ...PostSideComments
     myEditorAccess
     version
@@ -589,24 +589,24 @@ export const PostsEdit = () => frag`
   }
 `
 
-export const PostsEditQueryFragment = () => frag`
+export const PostsEditQueryFragment = () => gql`
   fragment PostsEditQueryFragment on Post {
-    ${PostsEdit}
+    ...PostsEdit
     contents(version: $version) {
       ...RevisionEdit
     }
   }
 `
-export const PostsEditMutationFragment = () => frag`
+export const PostsEditMutationFragment = () => gql`
   fragment PostsEditMutationFragment on Post {
-    ${PostsEdit}
+    ...PostsEdit
     contents {
       ...RevisionEdit
     }
   }
 `
 
-export const PostsRevisionsList = () => frag`
+export const PostsRevisionsList = () => gql`
   fragment PostsRevisionsList on Post {
     _id
     revisions {
@@ -615,25 +615,25 @@ export const PostsRevisionsList = () => frag`
   }
 `
 
-export const PostsRecentDiscussion = () => frag`
+export const PostsRecentDiscussion = () => gql`
   fragment PostsRecentDiscussion on Post {
-    ${PostsListWithVotes}
+    ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
   }
 `
 
-export const ShortformRecentDiscussion = () => frag`
+export const ShortformRecentDiscussion = () => gql`
   fragment ShortformRecentDiscussion on Post {
-    ${PostsListWithVotes}
+    ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsListWithTopLevelComment
     }
   }
 `
 
-export const UsersBannedFromPostsModerationLog = () => frag`
+export const UsersBannedFromPostsModerationLog = () => gql`
   fragment UsersBannedFromPostsModerationLog on Post {
     user {
       ...UsersMinimumInfo
@@ -645,9 +645,9 @@ export const UsersBannedFromPostsModerationLog = () => frag`
   }
 `
 
-export const SunshinePostsList = () => frag`
+export const SunshinePostsList = () => gql`
   fragment SunshinePostsList on Post {
-    ${PostsListBase}
+    ...PostsListBase
 
     currentUserVote
     currentUserExtendedVote
@@ -693,7 +693,7 @@ export const SunshinePostsList = () => frag`
   }
 `
 
-export const WithVotePost = () => frag`
+export const WithVotePost = () => gql`
   fragment WithVotePost on Post {
     __typename
     _id
@@ -708,7 +708,7 @@ export const WithVotePost = () => frag`
   }
 `
 
-export const HighlightWithHash = () => frag`
+export const HighlightWithHash = () => gql`
   fragment HighlightWithHash on Post {
     _id
     contents {
@@ -718,7 +718,7 @@ export const HighlightWithHash = () => frag`
   }
 `
 
-export const PostWithDialogueMessage = () => frag`
+export const PostWithDialogueMessage = () => gql`
   fragment PostWithDialogueMessage on Post {
     _id
     dialogueMessageContents(dialogueMessageId: $dialogueMessageId)
@@ -740,7 +740,7 @@ export const PostWithDialogueMessage = () => frag`
  * isn't the end of the word, but it is a _big_ field that we don't want to
  * waste bandwidth on).
  */
-export const PostSideComments = () => frag`
+export const PostSideComments = () => gql`
   fragment PostSideComments on Post {
     _id
     sideComments
@@ -750,16 +750,16 @@ export const PostSideComments = () => frag`
   }
 `
 
-export const PostWithGeneratedSummary = () => frag`
+export const PostWithGeneratedSummary = () => gql`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
   }
 `
 
-export const PostsBestOfList = () => frag`
+export const PostsBestOfList = () => gql`
   fragment PostsBestOfList on Post {
-    ${PostsListWithVotes}
+    ...PostsListWithVotes
     podcastEpisode {
       _id
       title
@@ -781,9 +781,9 @@ export const PostsBestOfList = () => frag`
   }
 `
 
-export const PostsRSSFeed = () => frag`
+export const PostsRSSFeed = () => gql`
   fragment PostsRSSFeed on Post {
-    ${PostsPage}
+    ...PostsPage
     scoreExceeded2Date
     scoreExceeded30Date
     scoreExceeded45Date
@@ -794,7 +794,7 @@ export const PostsRSSFeed = () => frag`
   }
 `
 
-export const PostsOriginalContents = () => frag`
+export const PostsOriginalContents = () => gql`
   fragment PostsOriginalContents on Post {
     _id
     contents {
@@ -807,7 +807,7 @@ export const PostsOriginalContents = () => frag`
   }
 `
 
-export const PostsHTML = () => frag`
+export const PostsHTML = () => gql`
   fragment PostsHTML on Post {
     _id
     contents {
@@ -816,7 +816,7 @@ export const PostsHTML = () => frag`
   }
 `
 
-export const PostsForAutocomplete = () => frag`
+export const PostsForAutocomplete = () => gql`
   fragment PostsForAutocomplete on Post {
     _id
     title
@@ -832,7 +832,7 @@ export const PostsForAutocomplete = () => frag`
   }
 `
 
-export const PostForReviewWinnerItem = () => frag`
+export const PostForReviewWinnerItem = () => gql`
   fragment PostForReviewWinnerItem on Post {
     _id
     spotlight {
@@ -845,9 +845,9 @@ export const PostForReviewWinnerItem = () => frag`
   }
 `
 
-export const PostsTwitterAdmin = () => frag`
+export const PostsTwitterAdmin = () => gql`
   fragment PostsTwitterAdmin on Post {
-    ${PostsListWithVotes}
+    ...PostsListWithVotes
     user {
       ...UsersSocialMediaInfo
     }
@@ -857,9 +857,9 @@ export const PostsTwitterAdmin = () => frag`
   }
 `
 
-export const SuggestAlignmentPost = () => frag`
+export const SuggestAlignmentPost = () => gql`
   fragment SuggestAlignmentPost on Post {
-    ${PostsList}
+    ...PostsList
     suggestForAlignmentUsers {
       _id
       displayName

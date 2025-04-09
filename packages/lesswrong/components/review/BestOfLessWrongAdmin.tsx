@@ -123,14 +123,14 @@ export const BestOfLessWrongAdmin = () => {
   const currentUser = useCurrentUser();
 
   const { data, loading: reviewWinnersLoading } = useQuery(gql`
-    query GetAllReviewWinners {
+    query GetReviewWinners {
       GetAllReviewWinners {
         ...PostsTopItemInfo
       }
     }
     ${fragmentTextForQuery('PostsTopItemInfo')}
   `);
-  const reviewWinners: PostsTopItemInfo[] = data?.GetAllReviewWinners ?? [];
+  const reviewWinners: PostsTopItemInfo[] = data?.GetReviewWinners ?? [];
   const reviewWinnersWithoutArt = reviewWinners.filter((reviewWinner: PostsTopItemInfo) => !reviewWinner.reviewWinner?.reviewWinnerArt);
 
   const { params: { year } } = useLocation()

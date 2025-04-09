@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const UserRateLimitDisplay = () => frag`
+export const UserRateLimitDisplay = () => gql`
   fragment UserRateLimitDisplay on UserRateLimit {
     _id
     user {

@@ -1,7 +1,7 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 import { CommentsListWithModerationMetadata } from "../comments/fragments";
 
-export const CommentModeratorActionDisplay = () => frag`
+export const CommentModeratorActionDisplay = () => gql`
   fragment CommentModeratorActionDisplay on CommentModeratorAction {
     _id
     comment {

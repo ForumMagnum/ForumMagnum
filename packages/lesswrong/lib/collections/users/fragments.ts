@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from '@apollo/client';
 
-export const UsersMinimumInfo = () => frag`
+export const UsersMinimumInfo = () => gql`
   fragment UsersMinimumInfo on User {
     _id
     slug
@@ -28,7 +28,7 @@ export const UsersMinimumInfo = () => frag`
   }
 `
 
-export const UsersProfile = () => frag`
+export const UsersProfile = () => gql`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
     oldSlugs
@@ -99,7 +99,7 @@ export const UsersProfile = () => frag`
   }
 `
 
-export const UsersCurrent = () => frag`
+export const UsersCurrent = () => gql`
   fragment UsersCurrent on User {
     ...UsersProfile
 
@@ -233,21 +233,21 @@ export const UsersCurrent = () => frag`
  * involve some DB queries that we don't want to have to finish in serial before the rest of the
  * page can start loading.
  */
-export const UsersCurrentCommentRateLimit = () => frag`
+export const UsersCurrentCommentRateLimit = () => gql`
   fragment UsersCurrentCommentRateLimit on User {
     _id
     rateLimitNextAbleToComment(postId: $postId)
   }
 `
 
-export const UsersCurrentPostRateLimit = () => frag`
+export const UsersCurrentPostRateLimit = () => gql`
   fragment UsersCurrentPostRateLimit on User {
     _id
     rateLimitNextAbleToPost(eventForm: $eventForm)
   }
 `
 
-export const UserBookmarkedPosts = () => frag`
+export const UserBookmarkedPosts = () => gql`
   fragment UserBookmarkedPosts on User {
     _id
     bookmarkedPosts {
@@ -256,7 +256,7 @@ export const UserBookmarkedPosts = () => frag`
   }
 `
 
-export const UserKarmaChanges = () => frag`
+export const UserKarmaChanges = () => gql`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
@@ -396,7 +396,7 @@ export const UserKarmaChanges = () => frag`
   }
 `
 
-export const UsersBannedFromUsersModerationLog = () => frag`
+export const UsersBannedFromUsersModerationLog = () => gql`
   fragment UsersBannedFromUsersModerationLog on User {
     _id
     slug
@@ -406,7 +406,7 @@ export const UsersBannedFromUsersModerationLog = () => frag`
   }
 `
 
-export const SunshineUsersList = () => frag`
+export const SunshineUsersList = () => gql`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
@@ -463,14 +463,14 @@ export const SunshineUsersList = () => frag`
   }
 `
 
-export const UserAltAccountsFragment = () => frag`
+export const UserAltAccountsFragment = () => gql`
   fragment UserAltAccountsFragment on User {
     ...SunshineUsersList
     IPs
   }
 `
 
-export const SharedUserBooleans = () => frag`
+export const SharedUserBooleans = () => gql`
   fragment SharedUserBooleans on User {
     walledGardenInvite
     hideWalledGardenUI
@@ -482,7 +482,7 @@ export const SharedUserBooleans = () => frag`
 
 // Fragment used for the map markers on /community. This is a much-larger-than-
 // usual number of users, so keep this fragment minimal.
-export const UsersMapEntry = () => frag`
+export const UsersMapEntry = () => gql`
   fragment UsersMapEntry on User {
     _id
     displayName
@@ -499,7 +499,7 @@ export const UsersMapEntry = () => frag`
 `
 
 
-export const UsersEdit = () => frag`
+export const UsersEdit = () => gql`
   fragment UsersEdit on User {
     ...UsersCurrent
     biography {
@@ -611,7 +611,7 @@ export const UsersEdit = () => frag`
   }
 `
 
-export const UsersAdmin = () => frag`
+export const UsersAdmin = () => gql`
   fragment UsersAdmin on User {
     _id
     username
@@ -626,7 +626,7 @@ export const UsersAdmin = () => frag`
   }
 `
 
-export const UsersWithReviewInfo = () => frag`
+export const UsersWithReviewInfo = () => gql`
   fragment UsersWithReviewInfo on User {
     ...UsersMinimumInfo
     reviewVoteCount
@@ -634,7 +634,7 @@ export const UsersWithReviewInfo = () => frag`
   }
 `
 
-export const UsersProfileEdit = () => frag`
+export const UsersProfileEdit = () => gql`
   fragment UsersProfileEdit on User {
     _id
     slug
@@ -668,7 +668,7 @@ export const UsersProfileEdit = () => frag`
   }
 `
 
-export const UsersCrosspostInfo = () => frag`
+export const UsersCrosspostInfo = () => gql`
   fragment UsersCrosspostInfo on User {
     _id
     username
@@ -677,14 +677,14 @@ export const UsersCrosspostInfo = () => frag`
   }
 `
 
-export const UsersOptedInToDialogueFacilitation = () => frag`
+export const UsersOptedInToDialogueFacilitation = () => gql`
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
     displayName
   }
 `
 
-export const UserOnboardingAuthor = () => frag`
+export const UserOnboardingAuthor = () => gql`
   fragment UserOnboardingAuthor on User {
     _id
     displayName
@@ -695,14 +695,14 @@ export const UserOnboardingAuthor = () => frag`
   }
 `
 
-export const UsersSocialMediaInfo = () => frag`
+export const UsersSocialMediaInfo = () => gql`
   fragment UsersSocialMediaInfo on User {
     ...UsersProfile
     twitterProfileURLAdmin
   }
 `
 
-export const SuggestAlignmentUser = () => frag`
+export const SuggestAlignmentUser = () => gql`
   fragment SuggestAlignmentUser on User {
     ...UsersMinimumInfo
     afKarma

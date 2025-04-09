@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const DigestsMinimumInfo = () => frag`
+export const DigestsMinimumInfo = () => gql`
   fragment DigestsMinimumInfo on Digest {
     _id
     num

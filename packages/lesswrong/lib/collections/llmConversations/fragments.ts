@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const LlmConversationsFragment = () => frag`
+export const LlmConversationsFragment = () => gql`
   fragment LlmConversationsFragment on LlmConversation {
     _id
     userId
@@ -11,7 +11,7 @@ export const LlmConversationsFragment = () => frag`
   }
 `
 
-export const LlmConversationsViewingPageFragment = () => frag`
+export const LlmConversationsViewingPageFragment = () => gql`
   fragment LlmConversationsViewingPageFragment on LlmConversation {
     ...LlmConversationsFragment
     totalCharacterCount
@@ -22,7 +22,7 @@ export const LlmConversationsViewingPageFragment = () => frag`
 `
 
 
-export const LlmConversationsWithMessagesFragment = () => frag`
+export const LlmConversationsWithMessagesFragment = () => gql`
   fragment LlmConversationsWithMessagesFragment on LlmConversation {
     ...LlmConversationsFragment
     messages {

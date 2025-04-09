@@ -1,7 +1,7 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 import { UsersMinimumInfo } from "../users/fragments";
 
-export const BansAdminPageFragment = () => frag`
+export const BansAdminPageFragment = () => gql`
   fragment BansAdminPageFragment on Ban {
     _id
     createdAt

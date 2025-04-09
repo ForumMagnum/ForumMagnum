@@ -5,6 +5,7 @@ import { gql, useLazyQuery } from '@apollo/client';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { UsersMinimumInfo } from '@/lib/collections/users/fragments';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +37,7 @@ const RandomUserPage = ({classes}: {
         ...UsersMinimumInfo
       }
     }
-    ${fragmentTextForQuery('UsersMinimumInfo')}
+    ${UsersMinimumInfo}
   `, {
     onCompleted: (data) => {
       if (!data.GetRandomUser) return;

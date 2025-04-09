@@ -147,7 +147,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   const [revertInProgress,setRevertInProgress] = useState(false);
 
   const [revertMutation] = useMutation(gql`
-    mutation revertToRevision($postId: String!, $revisionId: String!) {
+    mutation revertPostToRevision($postId: String!, $revisionId: String!) {
       revertPostToRevision(postId: $postId, revisionId: $revisionId) {
         ...PostsEdit
       }

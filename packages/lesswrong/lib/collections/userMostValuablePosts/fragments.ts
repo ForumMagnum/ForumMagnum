@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const UserMostValuablePostInfo = () => frag`
+export const UserMostValuablePostInfo = () => gql`
   fragment UserMostValuablePostInfo on UserMostValuablePost {
     _id
     userId

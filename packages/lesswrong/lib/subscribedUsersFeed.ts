@@ -1,6 +1,6 @@
 import { frag } from "./fragments/fragmentWrapper";
 
-export const SubscribedPostAndCommentsFeed = () => frag`
+export const SubscribedPostAndCommentsFeed = () => gql`
   fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {
     _id
     post {

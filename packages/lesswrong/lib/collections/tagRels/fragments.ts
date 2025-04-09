@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const TagRelBasicInfo = () => frag`
+export const TagRelBasicInfo = () => gql`
   fragment TagRelBasicInfo on TagRel {
     _id
     score
@@ -15,7 +15,7 @@ export const TagRelBasicInfo = () => frag`
 `
 
 
-export const TagRelFragment = () => frag`
+export const TagRelFragment = () => gql`
   fragment TagRelFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -30,7 +30,7 @@ export const TagRelFragment = () => frag`
   }
 `
 
-export const TagRelHistoryFragment = () => frag`
+export const TagRelHistoryFragment = () => gql`
   fragment TagRelHistoryFragment on TagRel {
     ...TagRelBasicInfo
     createdAt
@@ -43,7 +43,7 @@ export const TagRelHistoryFragment = () => frag`
   }
 `
 
-export const TagRelCreationFragment = () => frag`
+export const TagRelCreationFragment = () => gql`
   fragment TagRelCreationFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -61,7 +61,7 @@ export const TagRelCreationFragment = () => frag`
   }
 `
 
-export const TagRelMinimumFragment = () => frag`
+export const TagRelMinimumFragment = () => gql`
   fragment TagRelMinimumFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -75,7 +75,7 @@ export const TagRelMinimumFragment = () => frag`
 
 
 // This fragment has to be fully dereferences, because the context of vote fragments doesn't allow for spreading other fragments
-export const WithVoteTagRel = () => frag`
+export const WithVoteTagRel = () => gql`
   fragment WithVoteTagRel on TagRel {
     __typename
     _id

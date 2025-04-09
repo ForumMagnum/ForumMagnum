@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const ReviewWinnerEditDisplay = () => frag`
+export const ReviewWinnerEditDisplay = () => gql`
   fragment ReviewWinnerEditDisplay on ReviewWinner {
     _id
     postId
@@ -10,7 +10,7 @@ export const ReviewWinnerEditDisplay = () => frag`
   }
 `
 
-export const ReviewWinnerTopPostsDisplay = () => frag`
+export const ReviewWinnerTopPostsDisplay = () => gql`
   fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
     _id
     postId
@@ -23,7 +23,7 @@ export const ReviewWinnerTopPostsDisplay = () => frag`
   }
 `
 
-export const ReviewWinnerAll = () => frag`
+export const ReviewWinnerAll = () => gql`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     category
@@ -38,7 +38,7 @@ export const ReviewWinnerAll = () => frag`
   }
 `
 
-export const ReviewWinnerTopPostsPage = () => frag`
+export const ReviewWinnerTopPostsPage = () => gql`
   fragment ReviewWinnerTopPostsPage on ReviewWinner {
     _id
     category

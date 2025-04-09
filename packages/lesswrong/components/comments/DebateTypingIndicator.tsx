@@ -28,10 +28,10 @@ export const DebateTypingIndicator = ({classes, post}: {
   const [upsertTypingIndicator] = useMutation(gql`
     mutation upsertUserTypingIndicator($documentId: String!) {
       upsertUserTypingIndicator(documentId: $documentId) {
-        ...TypingIndicatorsDefaultFragment
+        ...TypingIndicatorInfo
       }
     }
-    ${fragmentTextForQuery("TypingIndicatorsDefaultFragment")}
+    ${fragmentTextForQuery("TypingIndicatorInfo")}
   `)
 
   useGlobalKeydown(throttle(() => {

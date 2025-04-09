@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const SequencesPageTitleFragment = () => frag`
+export const SequencesPageTitleFragment = () => gql`
   fragment SequencesPageTitleFragment on Sequence {
     _id
     title
@@ -12,7 +12,7 @@ export const SequencesPageTitleFragment = () => frag`
   }
 `
 
-export const SequencesPageFragment = () => frag`
+export const SequencesPageFragment = () => gql`
   fragment SequencesPageFragment on Sequence {
     ...SequencesPageTitleFragment
     createdAt
@@ -39,7 +39,7 @@ export const SequencesPageFragment = () => frag`
   }
 `
 
-export const SequenceContinueReadingFragment = () => frag`
+export const SequenceContinueReadingFragment = () => gql`
   fragment SequenceContinueReadingFragment on Sequence {
     _id
     title
@@ -48,7 +48,7 @@ export const SequenceContinueReadingFragment = () => frag`
   }
 `
 
-export const SequencesPageWithChaptersFragment = () => frag`
+export const SequencesPageWithChaptersFragment = () => gql`
   fragment SequencesPageWithChaptersFragment on Sequence {
     ...SequencesPageFragment
     chapters {
@@ -57,7 +57,7 @@ export const SequencesPageWithChaptersFragment = () => frag`
   }
 `
 
-export const SequencesEdit = () => frag`
+export const SequencesEdit = () => gql`
   fragment SequencesEdit on Sequence {
     ...SequencesPageFragment
     contents { 

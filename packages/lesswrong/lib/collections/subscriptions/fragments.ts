@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const SubscriptionState = () => frag`
+export const SubscriptionState = () => gql`
   fragment SubscriptionState on Subscription {
     _id
     userId
@@ -13,7 +13,7 @@ export const SubscriptionState = () => frag`
   }
 `
 
-export const MembersOfGroupFragment = () => frag`
+export const MembersOfGroupFragment = () => gql`
   fragment MembersOfGroupFragment on Subscription {
     user {
       ...UsersMinimumInfo

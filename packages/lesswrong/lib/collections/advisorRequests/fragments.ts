@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const AdvisorRequestsMinimumInfo = () => frag`
+export const AdvisorRequestsMinimumInfo = () => gql`
   fragment AdvisorRequestsMinimumInfo on AdvisorRequest {
     _id
     userId

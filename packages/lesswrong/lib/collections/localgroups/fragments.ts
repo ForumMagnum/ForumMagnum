@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const localGroupsBase = () => frag`
+export const localGroupsBase = () => gql`
   fragment localGroupsBase on Localgroup {
     _id
     createdAt
@@ -29,7 +29,7 @@ export const localGroupsBase = () => frag`
   }
 `
 
-export const localGroupsHomeFragment = () => frag`
+export const localGroupsHomeFragment = () => gql`
   fragment localGroupsHomeFragment on Localgroup {
     ...localGroupsBase
     contents {
@@ -38,7 +38,7 @@ export const localGroupsHomeFragment = () => frag`
   }
 `
 
-export const localGroupsEdit = () => frag`
+export const localGroupsEdit = () => gql`
   fragment localGroupsEdit on Localgroup {
     ...localGroupsBase
     contents {
@@ -47,7 +47,7 @@ export const localGroupsEdit = () => frag`
   }
 `
 
-export const localGroupsIsOnline = () => frag`
+export const localGroupsIsOnline = () => gql`
   fragment localGroupsIsOnline on Localgroup {
     _id
     name

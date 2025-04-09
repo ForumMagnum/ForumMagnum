@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const DialogueMatchPreferenceInfo = () => frag`
+export const DialogueMatchPreferenceInfo = () => gql`
   fragment DialogueMatchPreferenceInfo on DialogueMatchPreference {
     _id
     dialogueCheckId

@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper"
 
-export const SplashArtCoordinates = () => frag`
+export const SplashArtCoordinates = () => gql`
   fragment SplashArtCoordinates on SplashArtCoordinate {
     _id
     reviewWinnerArtId
@@ -22,7 +22,7 @@ export const SplashArtCoordinates = () => frag`
   }
 `
 
-export const SplashArtCoordinatesEdit = () => frag`
+export const SplashArtCoordinatesEdit = () => gql`
   fragment SplashArtCoordinatesEdit on SplashArtCoordinate {
     ...SplashArtCoordinates
     createdAt

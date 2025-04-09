@@ -227,7 +227,7 @@ const FooterTagList = ({
   });
 
   const [mutate] = useMutation(gql`
-    mutation addOrUpvoteTag($tagId: String, $postId: String) {
+    mutation addOrUpvote($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
         ...TagRelMinimumFragment
       }

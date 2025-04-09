@@ -1,6 +1,6 @@
 import { frag } from "@/lib/fragments/fragmentWrapper";
 
-export const NotificationsList = () => frag`
+export const NotificationsList = () => gql`
   fragment NotificationsList on Notification {
     _id
     documentId
