@@ -2,11 +2,6 @@ import Notifications from '../server/collections/notifications/collection';
 import Users from '../server/collections/users/collection';
 import { Posts } from '../server/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
-import './emailComponents/EmailWrapper';
-import './emailComponents/PostsEmail';
-import './emailComponents/PostNominatedEmail';
-import './emailComponents/PrivateMessagesEmail';
-import './emailComponents/EmailCuratedAuthors';
 import * as _ from 'underscore';
 import { getCollectionHooks } from './mutationCallbacks';
 
