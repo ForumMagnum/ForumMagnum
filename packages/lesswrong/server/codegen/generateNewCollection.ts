@@ -517,7 +517,7 @@ async function insertIntoInitGraphQL(collectionName: string) {
   let insertTypeDefsIndex = crudQueryTypeDefsIndex + 1;
   while (insertTypeDefsIndex < lines.length && 
          lines[insertTypeDefsIndex].trim().startsWith('${graphql') && 
-         lines[insertTypeDefsIndex].trim().localeCompare(typeDefsVariableName) < 0) {
+         lines[insertTypeDefsIndex].localeCompare(crudTypeDefsLine) < 0) {
     insertTypeDefsIndex++;
   }
 
@@ -535,7 +535,7 @@ async function insertIntoInitGraphQL(collectionName: string) {
   let insertFieldResolversIndex = collectionFieldResolversIndex + 1;
   while (insertFieldResolversIndex < lines.length && 
          lines[insertFieldResolversIndex].trim().startsWith('...') && 
-         lines[insertFieldResolversIndex].trim().localeCompare(fieldResolversVariableName) < 0) {
+         lines[insertFieldResolversIndex].localeCompare(collectionFieldResolversLine) < 0) {
     insertFieldResolversIndex++;
   }
 
