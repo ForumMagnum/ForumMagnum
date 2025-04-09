@@ -72,11 +72,12 @@
     "ea-replicate-dev-db": "./scripts/eaReplicateDevDb.sh",
     "generate-client-stats": "esbuild-visualizer --metadata ./client_meta.json --filename client_stats.html",
     "brigader-check": "ts-node -r tsconfig-paths/register scripts/brigaderCheck.ts",
-    "create-collection": "scripts/createCollection.sh"
+    "create-collection": "scripts/createCollection.sh",
+    "graphql-codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
-    "@apollo/client": "^3.2.0",
+    "@apollo/client": "^3.13.6",
     "@aws-sdk/client-cloudfront": "^3.577.0",
     "@babel/runtime": "^7.26.10",
     "@centreforeffectivealtruism/umzug": "^3.2.1",
@@ -333,9 +334,9 @@
     "@ckeditor/ckeditor5-core": "^43.1.0",
     "@ckeditor/ckeditor5-engine": "^43.1.0",
     "@ckeditor/ckeditor5-upload": "^43.1.0",
-    "@graphql-codegen/cli": "^1.9.1",
-    "@graphql-codegen/fragment-matcher": "^1.9.0",
-    "@graphql-codegen/introspection": "^1.9.0",
+    "@graphql-codegen/cli": "5.0.5",
+    "@graphql-codegen/client-preset": "4.8.0",
+    "@graphql-codegen/introspection": "4.0.3",
     "@playwright/test": "^1.43.1",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^15.0.5",
@@ -404,5 +405,9 @@
       "!packages/lesswrong/stubs/**",
       "!packages/lesswrong/server/migrations/**"
     ]
+  },
+  "graphql": {
+    "schema": "packages/lesswrong/lib/generated/gqlSchema.gql",
+    "documents": "packages/lesswrong/**/*.{graphql,ts,tsx}"
   }
 }

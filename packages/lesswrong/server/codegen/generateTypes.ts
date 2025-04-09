@@ -9,6 +9,11 @@ import { generateInputTypes } from './generateInputTypes';
 import { generateDefaultFragmentsFile } from './generateDefaultFragments';
 import { typeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
 import { print } from 'graphql';
+import { getGraphQLTypeDefs } from '../vulcan-lib/apollo-server/getTypeDefs';
+import * as typescriptPlugin from '@graphql-codegen/typescript'
+import { generate } from '@graphql-codegen/cli'
+import { parse, print } from 'graphql';
+import gql from 'graphql-tag';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -83,7 +88,7 @@ function extractComponentNames(content: string): string[] {
   return components;
 }
 
-export function generateTypes(repoRoot?: string) {
+export async function generateTypes(repoRoot?: string) {
   function writeIfChanged(contents: string, path: string) {
     if (repoRoot) {
       const absPath = repoRoot+path;
@@ -111,13 +116,14 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateDefaultFragmentsFile(), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateInputTypes(), "/packages/lesswrong/lib/generated/inputTypes.d.ts");
     writeIfChanged(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
-    writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
+    // writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateCollectionTypeNames(), "/packages/lesswrong/lib/generated/collectionTypeNames.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
     writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
+    await generateGraphQLCodegenTypes();
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error(e);
@@ -126,9 +132,9 @@ export function generateTypes(repoRoot?: string) {
 
 // After running this you still need to run:
 //   yarn graphql-codegen --config codegen.yml
-export const generateTypesAndSQLSchema = (rootDir?: string) => {
+export const generateTypesAndSQLSchema = async (rootDir?: string) => {
   generateSQLSchema(rootDir);
-  generateTypes(rootDir);
+  await generateTypes(rootDir);
 }
 
 function generateGraphQLSchemaFile(): string {
@@ -136,4 +142,45 @@ function generateGraphQLSchemaFile(): string {
   sb.push("# Generated file - run 'yarn generate' to update.\n\n");
   sb.push(print(typeDefs));
   return sb.join("");
+}
+
+async function generateGraphQLCodegenTypes(): Promise<void> {
+  const fileOutputs = await generate({
+    overwrite: true,
+    schema: "./packages/lesswrong/lib/generated/gqlSchema.gql",
+    documents: "./packages/lesswrong/",
+    generates: {
+      "./packages/lesswrong/lib/generated/gql-codegen/": {
+        preset: "client",
+        plugins: [
+          {
+            typescript: {
+              avoidOptionals: true,
+            }
+          }
+        ],
+        config: {
+          scalars: {
+            Date: "String",
+          }
+        },
+        presetConfig: {
+          gqlTagName: 'gql',
+        }
+      },
+      './packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts': {
+        plugins: [
+          {
+            typescript: {
+              avoidOptionals: true,
+            }
+          }
+        ]
+      }
+    }
+  })
+  // Write the files to disk
+  for (const fileOutput of fileOutputs) {
+    fs.writeFileSync(fileOutput.path, fileOutput.content);
+  }
 }
