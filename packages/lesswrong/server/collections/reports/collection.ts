@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const Reports: ReportsCollection = createCollection({
@@ -12,7 +11,6 @@ export const Reports: ReportsCollection = createCollection({
     indexSet.addIndex('Reports', {closedAt:1, createdAt: 1});
     return indexSet;
   },
-  resolvers: getDefaultResolvers('Reports'),
   logChanges: true,
 });
 

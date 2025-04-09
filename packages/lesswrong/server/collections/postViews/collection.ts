@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /**
@@ -17,7 +16,6 @@ export const PostViews = createCollection({
     indexSet.addIndex('PostViews', { windowStart: 1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('PostViews'),
   logChanges: true,
 });
 

@@ -1,5 +1,4 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const SurveySchedules = createCollection({
@@ -11,7 +10,6 @@ export const SurveySchedules = createCollection({
     indexSet.addIndex('SurveySchedules', {clientIds: 1});
     return indexSet;
   },
-  resolvers: getDefaultResolvers("SurveySchedules"),
   logChanges: true,
 });
 

@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /**
@@ -20,7 +19,6 @@ export const ModeratorActions: ModeratorActionsCollection = createCollection({
     indexSet.addIndex('ModeratorActions', { type: 1, createdAt: -1, endedAt: -1 })
     return indexSet;
   },
-  resolvers: getDefaultResolvers('ModeratorActions'),
   logChanges: true,
 });
 

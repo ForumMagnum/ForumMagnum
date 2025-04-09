@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const ModerationTemplates: ModerationTemplatesCollection = createCollection({
@@ -11,7 +10,6 @@ export const ModerationTemplates: ModerationTemplatesCollection = createCollecti
     indexSet.addIndex('ModerationTemplates', { collectionName: 1, deleted: 1, order: 1 })
     return indexSet;
   },
-  resolvers: getDefaultResolvers('ModerationTemplates'),
   logChanges: true,
 });
 

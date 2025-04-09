@@ -1,6 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { canVoteOnTagAsync } from '@/lib/voting/tagRelVoteRules';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import { getVoteGraphql } from '@/server/votingGraphQL';
 
@@ -13,7 +12,6 @@ export const TagRels: TagRelsCollection = createCollection({
     indexSet.addIndex('TagRels', {tagId: 1});
     return indexSet;
   },
-  resolvers: getDefaultResolvers('TagRels'),
   voteable: {
     timeDecayScoresCronjob: true,
     userCanVoteOn: (

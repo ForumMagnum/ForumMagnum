@@ -17,7 +17,6 @@ import type { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import type Table from '@/server/sql/Table';
 // eslint-disable-next-line import/no-restricted-paths
 import type { BulkWriterResult } from '@/server/sql/BulkWriter';
-import type { MutationOptions } from '@/server/resolvers/defaultMutations';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -86,30 +85,10 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   _ensureIndex: (fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>, options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>) => Promise<void>
 }
 
-interface DefaultMutationBase {
-  description: string,
-  name: string,
-  mutation: (root: void, { data }: AnyBecauseTodo, context: ResolverContext) => Promise<any>,
-}
-
-interface DefaultMutationWithCheck<T extends DbObject> extends DefaultMutationBase{
-  check: (user: DbUser | null, document: T | DbInsertion<T> | null, context: ResolverContext) => Promise<boolean> | boolean,
-}
-
-type DefaultMutations<T extends DbObject> = Partial<{
-  create: DefaultMutationWithCheck<T>,
-  update: DefaultMutationWithCheck<T>,
-  upsert: DefaultMutationBase,
-  delete: DefaultMutationWithCheck<T>,
-  options?: MutationOptions<T>,
-}>;
-
 type CollectionOptions<N extends CollectionNameString> = {
   typeName: string,
   collectionName: N,
   dbCollectionName?: string,
-  collection?: any,
-  resolvers?: any,
   description?: string,
   logChanges?: boolean,
   writeAheadLogged?: boolean,

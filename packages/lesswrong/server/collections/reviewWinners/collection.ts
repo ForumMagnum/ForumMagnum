@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /**
@@ -15,7 +14,6 @@ export const ReviewWinners = createCollection({
     indexSet.addIndex('ReviewWinners', { reviewYear: 1, reviewRanking: 1 }, { unique: true });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('ReviewWinners'),
   logChanges: true,
 });
 

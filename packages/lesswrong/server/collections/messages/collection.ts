@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
@@ -11,7 +10,6 @@ export const Messages: MessagesCollection = createCollection({
     indexSet.addIndex('Messages', { conversationId:1, createdAt:1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('Messages'),
   // Don't log things related to Messages to LWEvents, to keep LWEvents relatively
   // free of confidential stuff that admins shouldn't look at.
   logChanges: false,

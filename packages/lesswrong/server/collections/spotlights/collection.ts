@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const Spotlights: SpotlightsCollection = createCollection({
@@ -11,7 +10,6 @@ export const Spotlights: SpotlightsCollection = createCollection({
     indexSet.addIndex('Spotlights', { position: -1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('Spotlights'),
 });
 
 

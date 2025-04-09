@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const DigestPosts: DigestPostsCollection = createCollection({
@@ -10,7 +9,6 @@ export const DigestPosts: DigestPostsCollection = createCollection({
     indexSet.addIndex('DigestPosts', {digestId: 1});
     return indexSet;
   },
-  resolvers: getDefaultResolvers('DigestPosts'),
   logChanges: true,
 });
 
