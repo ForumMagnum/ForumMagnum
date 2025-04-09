@@ -10,7 +10,7 @@
  * - Deciding which comments to expand/highlight
  */
 
-import { PreDisplayFeedComment, PreDisplayFeedCommentThread, FeedCommentsThread } from '../../components/ultraFeed/ultraFeedTypes';
+import { PreDisplayFeedComment, PreDisplayFeedCommentThread, FeedCommentsThread, FeedCommentMetaInfo } from '../../components/ultraFeed/ultraFeedTypes';
 
 // Define local parameters for UltraFeed time decay which is same formula as HN to down-weight older threads
 const ULTRAFEED_SCORE_BIAS = 3; // Similar to SCORE_BIAS elsewhere, adjusts starting decay
@@ -329,97 +329,86 @@ function findNewestComment(thread: PreDisplayFeedCommentThread): PreDisplayFeedC
 }
 
 /**
- * Determine which comments to expand and highlight based on prioritization reason.
+ * Determine which comments to expand and highlight based on comment view status and karma.
  */
 export function prepareCommentThreadForResolver(
   prioritizedInfo: PrioritizedThreadInfo
 ): FeedCommentsThread {
-  const { thread, reason, latestUserInteractionTs, latestUserViewTs } = prioritizedInfo;
+  const { thread } = prioritizedInfo;
   const numComments = thread.length;
-  
+
+  // --- Development Sanity Check: Log if receiving a fully viewed thread ---
+  const allCommentsViewedOrInteracted = numComments > 0 && thread.every(
+    comment => comment.metaInfo?.lastViewed || comment.metaInfo?.lastInteracted
+  );
+  if (allCommentsViewedOrInteracted) {
+    const firstCommentId = thread[0].commentId;
+    const topLevelId = thread[0].topLevelCommentId ?? firstCommentId;
+    console.warn(`prepareCommentThreadForResolver (WARN): Received fully viewed/interacted thread ${topLevelId} (first comment: ${firstCommentId}). This should have been filtered upstream.`);
+    // Note: Processing continues, but this log indicates a potential upstream issue.
+  }
+  // --- End Sanity Check ---
+
   if (numComments === 0) {
-    return { 
+    return {
       comments: [],
     };
   }
 
-  // --- Determine 1-2 comments to expand based on reason ---
+  // --- Determine Comments to Expand based on new logic ---
   const expandedCommentIds = new Set<string>();
-  const firstCommentId = thread[0].commentId;
-  
-  // Always expand the first comment for context (unless specified otherwise in logic)
-  expandedCommentIds.add(firstCommentId);
-  
-  let primaryCandidateId: string | null = null;
 
-  try {
-    switch (reason) {
-      case 'EngagedUpdate': {
-        // Find first comment newer than last interaction
-        const firstNew = findFirstCommentNewerThan(thread, latestUserInteractionTs);
-        primaryCandidateId = firstNew?.commentId ?? null;
-        
-        // Also add the comment the user last interacted with (if different from first)
-        const lastInteractedComment = findLastInteractedComment(thread);
-        if (lastInteractedComment && lastInteractedComment.commentId !== firstCommentId) {
-          expandedCommentIds.add(lastInteractedComment.commentId);
-        }
-        break;
-      }
-      case 'UnviewedHealthy': {
-        // Find newest comment
-        const newest = findNewestComment(thread);
-        primaryCandidateId = newest?.commentId ?? null;
-        break;
-      }
-      case 'ViewedUpdate': {
-        // Find first comment newer than last view
-        const firstNew = findFirstCommentNewerThan(thread, latestUserViewTs);
-        primaryCandidateId = firstNew?.commentId ?? null;
-        break;
-      }
-      case 'EngagedStale': {
-        // Find comment user last interacted with
-        const lastInteractedComment = findLastInteractedComment(thread);
-        primaryCandidateId = lastInteractedComment?.commentId ?? null;
-        break;
-      }
-      case 'Fallback':
-      default: {
-        // Default: Expand newest if different from first
-        const newest = findNewestComment(thread);
-        primaryCandidateId = newest?.commentId ?? null;
-        break;
-      }
-    }
+  // 1. Identify unviewed comments and sort by karma
+  const unviewedComments = thread
+    .filter(comment => !comment.metaInfo?.lastViewed && !comment.metaInfo?.lastInteracted)
+    .sort((a, b) => (b.baseScore ?? 0) - (a.baseScore ?? 0)); // Descending karma
 
-    // Add primary candidate if valid and not already included
-    if (primaryCandidateId && primaryCandidateId !== firstCommentId) {
-      expandedCommentIds.add(primaryCandidateId);
-    }
+  // 2. Determine if the first comment is unviewed
+  const firstComment = thread[0];
+  const isFirstCommentUnviewed = firstComment && !firstComment.metaInfo?.lastViewed && !firstComment.metaInfo?.lastInteracted;
 
-    // Ensure we don't exceed 2 expanded comments
-    while (expandedCommentIds.size > 2) {
-      // Remove comments that aren't the first or primary (shouldn't happen with current logic)
-      const idsToRemove = Array.from(expandedCommentIds).filter(
-        id => id !== firstCommentId && id !== primaryCandidateId
-      );
-      
-      if (idsToRemove.length > 0) {
-        expandedCommentIds.delete(idsToRemove[0]);
-      } else {
-        // Shouldn't happen, but break to prevent infinite loop
-        break;
-      }
+  // 3. Apply expansion rules
+  if (unviewedComments.length > 0) {
+    const highestKarmaUnviewed = unviewedComments[0];
+    expandedCommentIds.add(highestKarmaUnviewed.commentId);
+
+    if (isFirstCommentUnviewed && firstComment.commentId !== highestKarmaUnviewed.commentId) {
+      // Expand first comment if it's unviewed and different from the highest karma one
+      expandedCommentIds.add(firstComment.commentId);
+    } else if (unviewedComments.length > 1 && expandedCommentIds.size < 2) {
+      // Expand second highest karma if first was viewed/same, and we have space
+      expandedCommentIds.add(unviewedComments[1].commentId);
     }
-  } catch (error) {
-    console.error("Error determining expanded comments:", error, { reason, thread });
-    // Fallback: just expand the first comment
-    expandedCommentIds.clear();
-    expandedCommentIds.add(firstCommentId);
   }
+  // --- End Determine Comments to Expand ---
+
+
+  // --- Process Comments: Add highlight and displayStatus flags in one pass ---
+  const finalComments = thread.map((comment): PreDisplayFeedComment => {
+    // Highlight if not viewed AND not interacted with
+    const shouldHighlight = !comment.metaInfo?.lastViewed && !comment.metaInfo?.lastInteracted;
+
+    // Expand based on the new logic derived above
+    const displayStatus = expandedCommentIds.has(comment.commentId) ? 'expanded' : 'collapsed';
+
+    const newMetaInfo: FeedCommentMetaInfo = {
+      sources: comment.metaInfo?.sources ?? null,
+      siblingCount: comment.metaInfo?.siblingCount ?? null,
+      lastServed: comment.metaInfo?.lastServed ?? null,
+      lastViewed: comment.metaInfo?.lastViewed ?? null,
+      lastInteracted: comment.metaInfo?.lastInteracted ?? null,
+      postedAt: comment.metaInfo?.postedAt ?? null,
+      displayStatus: displayStatus,
+      highlight: shouldHighlight,
+    };
+
+    return {
+      ...comment,
+      metaInfo: newMetaInfo,
+    };
+  });
 
   return {
-    comments: thread,
+    comments: finalComments,
   };
 } 
