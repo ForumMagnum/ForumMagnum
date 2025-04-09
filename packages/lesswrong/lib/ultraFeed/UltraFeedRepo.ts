@@ -75,18 +75,9 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
                  scenario = 'recombee-lesswrong-custom';
                }
              } else {
-               // Default fallback: Use empty sources array and warn
-               scenario = undefined; // Explicitly set scenario to undefined for clarity
+               scenario = 'hacker-news';
              }
-           }
-           
-           let sources: FeedItemSourceType[];
-           if (scenario) {
-             sources = [scenario as FeedItemSourceType];
-           } else {
-             sources = [];
-             // eslint-disable-next-line no-console
-             console.warn(`UltraFeedRepo: Could not determine specific source scenario for post ${item.post._id}. Assigning empty sources.`);
+
            }
            
            const recommInfo = (item.recommId && item.generatedAt) ? {
@@ -98,7 +89,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
            return {
              post: item.post,
              postMetaInfo: {
-               sources: sources,
+               sources: [scenario as FeedItemSourceType],
                displayStatus: 'expanded',
                recommInfo: recommInfo,
              },
@@ -122,6 +113,9 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     const userId = context.userId;
     const initialCandidateLimit = 100; // Limit for the first pass
 
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo.getCommentsForFeed starting. userId=${userId}, initialCandidateLimit=${initialCandidateLimit}, maxTotalComments=${maxTotalComments}`);
+
     const UNIVERSAL_COMMENT_FILTER_CLAUSE = `
       c.deleted IS NOT TRUE
       AND c.retracted IS NOT TRUE
@@ -132,6 +126,26 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     const CANDIDATE_DATE_FILTER_CLAUSE = `
       c."postedAt" > NOW() - INTERVAL '${COMMENT_LOOKBACK_WINDOW}'
     `;
+
+    // First run a simple diagnostic count query
+    try {
+      const commentCount = await db.one(`
+        -- UltraFeedRepo.getCommentsForFeed - Diagnostic Count
+        SELECT COUNT(*) as count
+        FROM "Comments" c
+        WHERE ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
+          AND ${CANDIDATE_DATE_FILTER_CLAUSE}
+      `);
+      // eslint-disable-next-line no-console
+      console.log(`UltraFeedRepo diagnostic: Found ${commentCount.count} total comments matching basic criteria.`);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`UltraFeedRepo diagnostic count query failed:`, error);
+    }
+
+    // Log query parameters
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo SQL params: userId=${userId}, initialCandidateLimit=${initialCandidateLimit}, maxTotalComments=${maxTotalComments}, COMMENT_LOOKBACK_WINDOW=${COMMENT_LOOKBACK_WINDOW}`);
 
     const suggestedComments: FeedCommentFromDb[] = await db.manyOrNone(`
       -- UltraFeedRepo.getCommentsForFeed
@@ -153,7 +167,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           c._id AS "commentId",
           COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
           c."postId",
-          CASE WHEN c."baseScore" > 20 THEN ARRAY['topComments'] ELSE ARRAY['quickTake'] END AS sources
+          CASE WHEN c."baseScore" > 20 THEN ARRAY['topComments'] ELSE ARRAY['quickTakes'] END AS sources
         FROM "Comments" c
         WHERE (c."baseScore" > 20 OR c.shortform IS TRUE) -- Potential candidates based on being Top Comments or Quick Takes
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
@@ -227,10 +241,16 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       LIMIT $(maxTotalComments)
     `, { userId, initialCandidateLimit, maxTotalComments });
 
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo.getCommentsForFeed received ${suggestedComments?.length || 0} comments.`);
+
     return suggestedComments;
   }
 
   public async getAllCommentThreads(candidates: FeedCommentFromDb[]): Promise<PreDisplayFeedComment[][]> {
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo.getAllCommentThreads starting with ${candidates?.length || 0} candidates`);
+
     const groups: Record<string, FeedCommentFromDb[]> = {};
     for (const candidate of candidates) {
       const topId = candidate.topLevelCommentId ?? candidate.commentId;
@@ -239,6 +259,9 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       }
       groups[topId].push(candidate);
     }
+
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo.getAllCommentThreads grouped into ${Object.keys(groups).length} distinct threads`);
 
     const allThreads: PreDisplayFeedComment[][] = [];
 
@@ -253,9 +276,15 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         )
       );
 
+      // eslint-disable-next-line no-console
+      console.log(`UltraFeedRepo.getAllCommentThreads: Thread ${_topLevelId} has ${generatedThreads.length} generated threads, ${unreadThreads.length} unread threads`);
+
       // 3. Add only the threads containing at least one unread comment
       allThreads.push(...unreadThreads);
     }
+
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo.getAllCommentThreads returning ${allThreads.length} threads`);
 
     return allThreads;
   }
@@ -341,10 +370,15 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     context: ResolverContext,
     limit = 20,
   ): Promise<FeedCommentsThread[]> {
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo.getUltraFeedCommentThreads starting with limit=${limit}`);
 
     const candidates = await this.getCommentsForFeed(context, 500);
     const threads = await this.getAllCommentThreads(candidates);
     const prioritizedThreadInfos = prioritizeThreads(threads);
+
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo.getUltraFeedCommentThreads: have ${prioritizedThreadInfos.length} prioritized threads`);
 
     const displayThreads = prioritizedThreadInfos
       .slice(0, limit * 2)
@@ -352,6 +386,9 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       .filter(thread => thread.comments.length > 0);
 
     const finalResult = displayThreads.slice(0, limit);
+    
+    // eslint-disable-next-line no-console
+    console.log(`UltraFeedRepo.getUltraFeedCommentThreads returning ${finalResult.length} threads`);
     
     return finalResult;
   }
