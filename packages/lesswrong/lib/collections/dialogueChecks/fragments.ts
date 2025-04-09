@@ -9,10 +9,10 @@ export const DialogueCheckInfo = () => frag`
     checkedAt
     hideInRecommendations
     matchPreference {
-      ...DialogueMatchPreferencesDefaultFragment
+      ...DialogueMatchPreferenceInfo
     }
     reciprocalMatchPreference {
-      ...DialogueMatchPreferencesDefaultFragment
+      ...DialogueMatchPreferenceInfo
     }
   }
 `
