@@ -1,8 +1,8 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JOB_AD_DATA } from "../../components/ea-forum/TargetedJobAd";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EmailJobAdReminder", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
@@ -17,15 +17,12 @@ const styles = (theme: ThemeType) => ({
   hr: {
     marginTop: 20,
   }
-});
+}));
 
-const EmailJobAdReminder = ({
-  jobName,
-  classes,
-}: {
+export const EmailJobAdReminder = ({ jobName }: {
   jobName: string;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;
 
@@ -39,14 +36,3 @@ const EmailJobAdReminder = ({
   );
 };
 
-const EmailJobAdReminderComponent = registerComponent(
-  "EmailJobAdReminder",
-  EmailJobAdReminder,
-  { styles }
-);
-
-declare global {
-  interface ComponentTypes {
-    EmailJobAdReminder: typeof EmailJobAdReminderComponent;
-  }
-}

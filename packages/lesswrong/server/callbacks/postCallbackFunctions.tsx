@@ -49,6 +49,8 @@ import { updatePost } from "../collections/posts/mutations";
 import { updateDialogueMatchPreference } from "../collections/dialogueMatchPreferences/mutations";
 import { updateDialogueCheck } from "../collections/dialogueChecks/mutations";
 import { updateNotification } from "../collections/notifications/mutations";
+import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
+import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -840,7 +842,7 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
         user: user,
         to: email,
         subject: `Event updated: ${newPost.title}`,
-        body: <Components.EventUpdatedEmail postId={newPost._id} />
+        body: <EventUpdatedEmail postId={newPost._id} />
       });
     }
     
@@ -1051,7 +1053,7 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
     void Promise.all(authors.map(author => wrapAndSendEmail({
         user: author,
         subject: "We’ve curated your post",
-        body: <Components.EmailCuratedAuthors user={author} post={post} />
+        body: <EmailCuratedAuthors user={author} post={post} />
       })
     ))
   }
