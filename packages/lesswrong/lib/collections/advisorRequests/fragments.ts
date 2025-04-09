@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const AdvisorRequestsMinimumInfo = () => frag`
+export const AdvisorRequestsMinimumInfo = () => gql(`
   fragment AdvisorRequestsMinimumInfo on AdvisorRequest {
     _id
     userId
@@ -8,4 +8,4 @@ export const AdvisorRequestsMinimumInfo = () => frag`
     interestedInMetaculus
     jobAds
   }
-`
+`)

@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const ElectionCandidateBasicInfo = () => frag`
+export const ElectionCandidateBasicInfo = () => gql(`
   fragment ElectionCandidateBasicInfo on ElectionCandidate {
     _id
     electionName
@@ -23,10 +23,10 @@ export const ElectionCandidateBasicInfo = () => frag`
     currentUserVote
     currentUserExtendedVote
   }
-`
+`)
 
 // For use in the "Other donation opportunities" section at the bottom of the Giving Portal
-export const ElectionCandidateSimple = () => frag`
+export const ElectionCandidateSimple = () => gql(`
   fragment ElectionCandidateSimple on ElectionCandidate {
     _id
     name
@@ -35,11 +35,11 @@ export const ElectionCandidateSimple = () => frag`
     fundraiserLink
     description
   }
-`
+`)
 
 // This fragment has to be fully dereferenced, because the context of vote
 // fragments doesn't allow for spreading other fragments
-export const WithVoteElectionCandidate = () => frag`
+export const WithVoteElectionCandidate = () => gql(`
   fragment WithVoteElectionCandidate on ElectionCandidate {
     __typename
     _id
@@ -51,4 +51,4 @@ export const WithVoteElectionCandidate = () => frag`
     currentUserVote
     currentUserExtendedVote
   }
-`
+`)

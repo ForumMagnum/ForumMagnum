@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlBanQueryTypeDefs = gql`
-  type Ban {
-    ${getAllGraphQLFields(schema)}
+  type Ban ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleBanInput {

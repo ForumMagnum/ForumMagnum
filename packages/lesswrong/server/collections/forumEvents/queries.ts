@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlForumEventQueryTypeDefs = gql`
-  type ForumEvent {
-    ${getAllGraphQLFields(schema)}
+  type ForumEvent ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleForumEventInput {

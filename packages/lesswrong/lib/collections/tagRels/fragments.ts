@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const TagRelBasicInfo = () => frag`
+export const TagRelBasicInfo = () => gql(`
   fragment TagRelBasicInfo on TagRel {
     _id
     score
@@ -12,10 +12,10 @@ export const TagRelBasicInfo = () => frag`
     postId
     autoApplied
   }
-`
+`)
 
 
-export const TagRelFragment = () => frag`
+export const TagRelFragment = () => gql(`
   fragment TagRelFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -28,9 +28,9 @@ export const TagRelFragment = () => frag`
     currentUserExtendedVote
     currentUserCanVote
   }
-`
+`)
 
-export const TagRelHistoryFragment = () => frag`
+export const TagRelHistoryFragment = () => gql(`
   fragment TagRelHistoryFragment on TagRel {
     ...TagRelBasicInfo
     createdAt
@@ -41,9 +41,9 @@ export const TagRelHistoryFragment = () => frag`
       ...PostsList
     }
   }
-`
+`)
 
-export const TagRelCreationFragment = () => frag`
+export const TagRelCreationFragment = () => gql(`
   fragment TagRelCreationFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -59,9 +59,9 @@ export const TagRelCreationFragment = () => frag`
     currentUserVote
     currentUserExtendedVote
   }
-`
+`)
 
-export const TagRelMinimumFragment = () => frag`
+export const TagRelMinimumFragment = () => gql(`
   fragment TagRelMinimumFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -71,11 +71,11 @@ export const TagRelMinimumFragment = () => frag`
     currentUserExtendedVote
     currentUserCanVote
   }
-`
+`)
 
 
 // This fragment has to be fully dereferences, because the context of vote fragments doesn't allow for spreading other fragments
-export const WithVoteTagRel = () => frag`
+export const WithVoteTagRel = () => gql(`
   fragment WithVoteTagRel on TagRel {
     __typename
     _id
@@ -87,4 +87,4 @@ export const WithVoteTagRel = () => frag`
     currentUserVote
     currentUserExtendedVote
   }
-`
+`)

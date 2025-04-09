@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlRevisionQueryTypeDefs = gql`
-  type Revision {
-    ${getAllGraphQLFields(schema)}
+  type Revision ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleRevisionInput {

@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlReviewWinnerQueryTypeDefs = gql`
-  type ReviewWinner {
-    ${getAllGraphQLFields(schema)}
+  type ReviewWinner ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleReviewWinnerInput {

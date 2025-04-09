@@ -77,16 +77,16 @@ export const updateTagRelGqlMutation = makeGqlUpdateMutation('TagRels', updateTa
 
 
 export const graphqlTagRelTypeDefs = gql`
-  input CreateTagRelDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateTagRelDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateTagRelInput {
     data: CreateTagRelDataInput!
   }
   
-  input UpdateTagRelDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateTagRelDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateTagRelInput {

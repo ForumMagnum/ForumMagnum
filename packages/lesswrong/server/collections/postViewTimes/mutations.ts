@@ -82,16 +82,16 @@ export const updatePostViewTimeGqlMutation = makeGqlUpdateMutation('PostViewTime
 
 
 export const graphqlPostViewTimeTypeDefs = gql`
-  input CreatePostViewTimeDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreatePostViewTimeDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreatePostViewTimeInput {
     data: CreatePostViewTimeDataInput!
   }
   
-  input UpdatePostViewTimeDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdatePostViewTimeDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdatePostViewTimeInput {

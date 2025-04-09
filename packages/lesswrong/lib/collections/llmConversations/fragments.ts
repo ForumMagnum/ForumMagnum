@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const LlmConversationsFragment = () => frag`
+export const LlmConversationsFragment = () => gql(`
   fragment LlmConversationsFragment on LlmConversation {
     _id
     userId
@@ -9,9 +9,9 @@ export const LlmConversationsFragment = () => frag`
     lastUpdatedAt
     deleted
   }
-`
+`)
 
-export const LlmConversationsViewingPageFragment = () => frag`
+export const LlmConversationsViewingPageFragment = () => gql(`
   fragment LlmConversationsViewingPageFragment on LlmConversation {
     ...LlmConversationsFragment
     totalCharacterCount
@@ -19,14 +19,14 @@ export const LlmConversationsViewingPageFragment = () => frag`
       ...UsersMinimumInfo
     }
   }
-`
+`)
 
 
-export const LlmConversationsWithMessagesFragment = () => frag`
+export const LlmConversationsWithMessagesFragment = () => gql(`
   fragment LlmConversationsWithMessagesFragment on LlmConversation {
     ...LlmConversationsFragment
     messages {
       ...LlmMessagesFragment
     }
   }
-`
+`)

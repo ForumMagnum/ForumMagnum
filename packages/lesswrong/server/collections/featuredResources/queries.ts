@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlFeaturedResourceQueryTypeDefs = gql`
-  type FeaturedResource {
-    ${getAllGraphQLFields(schema)}
+  type FeaturedResource ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleFeaturedResourceInput {

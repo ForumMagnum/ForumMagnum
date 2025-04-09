@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlTagQueryTypeDefs = gql`
-  type Tag {
-    ${getAllGraphQLFields(schema)}
+  type Tag ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleTagInput {

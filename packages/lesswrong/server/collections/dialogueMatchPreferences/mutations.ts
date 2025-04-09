@@ -88,16 +88,16 @@ export const updateDialogueMatchPreferenceGqlMutation = makeGqlUpdateMutation('D
 
 
 export const graphqlDialogueMatchPreferenceTypeDefs = gql`
-  input CreateDialogueMatchPreferenceDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateDialogueMatchPreferenceDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateDialogueMatchPreferenceInput {
     data: CreateDialogueMatchPreferenceDataInput!
   }
   
-  input UpdateDialogueMatchPreferenceDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateDialogueMatchPreferenceDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateDialogueMatchPreferenceInput {

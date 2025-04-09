@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const NotificationsList = () => frag`
+export const NotificationsList = () => gql(`
   fragment NotificationsList on Notification {
     _id
     documentId
@@ -14,4 +14,4 @@ export const NotificationsList = () => frag`
     viewed
     extraData
   }
-`
+`)

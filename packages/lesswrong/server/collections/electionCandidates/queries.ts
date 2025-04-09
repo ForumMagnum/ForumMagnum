@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlElectionCandidateQueryTypeDefs = gql`
-  type ElectionCandidate {
-    ${getAllGraphQLFields(schema)}
+  type ElectionCandidate ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleElectionCandidateInput {

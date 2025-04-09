@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const ReviewWinnerArtImages = () => frag`
+export const ReviewWinnerArtImages = () => gql(`
   fragment ReviewWinnerArtImages on ReviewWinnerArt {
     _id
     postId
@@ -10,4 +10,4 @@ export const ReviewWinnerArtImages = () => frag`
       ...SplashArtCoordinatesEdit
     }
   }
-`
+`)

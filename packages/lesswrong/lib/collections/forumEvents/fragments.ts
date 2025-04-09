@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const ForumEventsMinimumInfo = () => frag`
+export const ForumEventsMinimumInfo = () => gql(`
   fragment ForumEventsMinimumInfo on ForumEvent {
     _id
     title
@@ -22,9 +22,9 @@ export const ForumEventsMinimumInfo = () => frag`
 
     maxStickersPerUser
   }
-`
+`)
 
-export const ForumEventsDisplay = () => frag`
+export const ForumEventsDisplay = () => gql(`
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
     publicData
@@ -53,9 +53,9 @@ export const ForumEventsDisplay = () => frag`
       html
     }
   }
-`
+`)
 
-export const ForumEventsEdit = () => frag`
+export const ForumEventsEdit = () => gql(`
   fragment ForumEventsEdit on ForumEvent {
     ...ForumEventsMinimumInfo
     frontpageDescription {
@@ -71,4 +71,4 @@ export const ForumEventsEdit = () => frag`
       ...RevisionEdit
     }
   }
-`
+`)

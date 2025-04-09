@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlLlmConversationQueryTypeDefs = gql`
-  type LlmConversation {
-    ${getAllGraphQLFields(schema)}
+  type LlmConversation ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleLlmConversationInput {

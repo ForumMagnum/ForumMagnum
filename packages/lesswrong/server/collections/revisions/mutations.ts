@@ -85,8 +85,8 @@ export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', upda
 
 
 export const graphqlRevisionTypeDefs = gql`
-  input UpdateRevisionDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateRevisionDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateRevisionInput {

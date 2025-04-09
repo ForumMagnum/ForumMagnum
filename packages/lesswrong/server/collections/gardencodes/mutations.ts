@@ -147,16 +147,16 @@ export const updateGardenCodeGqlMutation = makeGqlUpdateMutation('GardenCodes', 
 
 
 export const graphqlGardenCodeTypeDefs = gql`
-  input CreateGardenCodeDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateGardenCodeDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateGardenCodeInput {
     data: CreateGardenCodeDataInput!
   }
   
-  input UpdateGardenCodeDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateGardenCodeDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateGardenCodeInput {

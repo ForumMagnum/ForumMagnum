@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlReportQueryTypeDefs = gql`
-  type Report {
-    ${getAllGraphQLFields(schema)}
+  type Report ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleReportInput {

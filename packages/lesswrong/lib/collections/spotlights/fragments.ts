@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SpotlightMinimumInfo = () => frag`
+export const SpotlightMinimumInfo = () => gql(`
   fragment SpotlightMinimumInfo on Spotlight {
     _id
     documentId
@@ -23,9 +23,9 @@ export const SpotlightMinimumInfo = () => frag`
     imageFade
     imageFadeColor
   }
-`
+`)
 
-export const SpotlightReviewWinner = () => frag`
+export const SpotlightReviewWinner = () => gql(`
   fragment SpotlightReviewWinner on Spotlight {
     ...SpotlightMinimumInfo
     description {
@@ -35,9 +35,9 @@ export const SpotlightReviewWinner = () => frag`
       ...ChaptersFragment
     }
   }
-`
+`)
 
-export const SpotlightHeaderEventSubtitle = () => frag`
+export const SpotlightHeaderEventSubtitle = () => gql(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
     post {
@@ -52,8 +52,8 @@ export const SpotlightHeaderEventSubtitle = () => frag`
       slug
     }
   }
-`
-export const SpotlightDisplay = () => frag`
+`)
+export const SpotlightDisplay = () => gql(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     post {
@@ -93,14 +93,14 @@ export const SpotlightDisplay = () => frag`
       html
     }
   }
-`
+`)
 
 
-export const SpotlightEditQueryFragment = () => frag`
+export const SpotlightEditQueryFragment = () => gql(`
   fragment SpotlightEditQueryFragment on Spotlight {
     ...SpotlightMinimumInfo
     description {
       ...RevisionEdit
     }
   }
-`
+`)

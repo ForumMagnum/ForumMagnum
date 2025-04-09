@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const CkEditorUserSessionInfo = () => frag`
+export const CkEditorUserSessionInfo = () => gql(`
   fragment CkEditorUserSessionInfo on CkEditorUserSession {
     _id
     userId
@@ -8,4 +8,4 @@ export const CkEditorUserSessionInfo = () => frag`
     endedAt
     endedBy
   }
-`
+`)

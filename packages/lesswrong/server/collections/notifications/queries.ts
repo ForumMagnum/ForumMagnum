@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlNotificationQueryTypeDefs = gql`
-  type Notification {
-    ${getAllGraphQLFields(schema)}
+  type Notification ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleNotificationInput {

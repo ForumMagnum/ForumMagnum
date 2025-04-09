@@ -1,8 +1,8 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const PodcastSelect = () => frag`
+export const PodcastSelect = () => gql(`
   fragment PodcastSelect on Podcast {
     _id
     title
   }
-`
+`)

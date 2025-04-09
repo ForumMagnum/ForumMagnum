@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const TagFlagFragment = () => frag`
+export const TagFlagFragment = () => gql(`
   fragment TagFlagFragment on TagFlag {
     _id
     createdAt
@@ -14,13 +14,13 @@ export const TagFlagFragment = () => frag`
       plaintextDescription
     }
   }
-`
+`)
 
-export const TagFlagEditFragment = () => frag`
+export const TagFlagEditFragment = () => gql(`
   fragment TagFlagEditFragment on TagFlag {
     ...TagFlagFragment
     contents {
       ...RevisionEdit
     }
   }
-`
+`)

@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlPostViewsQueryTypeDefs = gql`
-  type PostViews {
-    ${getAllGraphQLFields(schema)}
+  type PostViews ${
+    getAllGraphQLFields(schema)
   }
 
   input SinglePostViewsInput {

@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const PodcastEpisodeFull = () => frag`
+export const PodcastEpisodeFull = () => gql(`
   fragment PodcastEpisodeFull on PodcastEpisode {
     _id
     podcastId
@@ -8,4 +8,4 @@ export const PodcastEpisodeFull = () => frag`
     episodeLink
     externalEpisodeId
   }
-`
+`)

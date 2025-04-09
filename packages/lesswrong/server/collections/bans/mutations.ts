@@ -83,16 +83,16 @@ export const updateBanGqlMutation = makeGqlUpdateMutation('Bans', updateBan, {
 
 
 export const graphqlBanTypeDefs = gql`
-  input CreateBanDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateBanDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateBanInput {
     data: CreateBanDataInput!
   }
   
-  input UpdateBanDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateBanDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateBanInput {

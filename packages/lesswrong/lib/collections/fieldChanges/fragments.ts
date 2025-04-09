@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const FieldChangeFragment = () => frag`
+export const FieldChangeFragment = () => gql(`
   fragment FieldChangeFragment on FieldChange {
     _id
     createdAt
@@ -11,4 +11,4 @@ export const FieldChangeFragment = () => frag`
     oldValue
     newValue
   }
-`
+`)

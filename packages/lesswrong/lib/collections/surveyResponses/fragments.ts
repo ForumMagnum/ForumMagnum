@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SurveyResponseMinimumInfo = () => frag`
+export const SurveyResponseMinimumInfo = () => gql(`
   fragment SurveyResponseMinimumInfo on SurveyResponse {
     _id
     surveyId
@@ -9,4 +9,4 @@ export const SurveyResponseMinimumInfo = () => frag`
     clientId
     response
   }
-`
+`)

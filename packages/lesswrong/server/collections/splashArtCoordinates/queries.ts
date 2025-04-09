@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlSplashArtCoordinateQueryTypeDefs = gql`
-  type SplashArtCoordinate {
-    ${getAllGraphQLFields(schema)}
+  type SplashArtCoordinate ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleSplashArtCoordinateInput {

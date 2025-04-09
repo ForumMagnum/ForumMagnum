@@ -70,16 +70,16 @@ export const updateGoogleServiceAccountSessionGqlMutation = makeGqlUpdateMutatio
 
 
 export const graphqlGoogleServiceAccountSessionTypeDefs = gql`
-  input CreateGoogleServiceAccountSessionDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateGoogleServiceAccountSessionDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateGoogleServiceAccountSessionInput {
     data: CreateGoogleServiceAccountSessionDataInput!
   }
   
-  input UpdateGoogleServiceAccountSessionDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateGoogleServiceAccountSessionDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateGoogleServiceAccountSessionInput {

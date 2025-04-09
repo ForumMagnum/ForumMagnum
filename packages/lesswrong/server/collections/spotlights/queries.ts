@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlSpotlightQueryTypeDefs = gql`
-  type Spotlight {
-    ${getAllGraphQLFields(schema)}
+  type Spotlight ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleSpotlightInput {

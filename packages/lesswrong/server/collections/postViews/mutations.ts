@@ -82,16 +82,16 @@ export const updatePostViewsGqlMutation = makeGqlUpdateMutation('PostViews', upd
 
 
 export const graphqlPostViewsTypeDefs = gql`
-  input CreatePostViewsDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreatePostViewsDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreatePostViewsInput {
     data: CreatePostViewsDataInput!
   }
   
-  input UpdatePostViewsDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdatePostViewsDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdatePostViewsInput {

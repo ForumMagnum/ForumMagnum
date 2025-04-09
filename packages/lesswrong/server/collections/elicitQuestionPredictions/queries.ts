@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlElicitQuestionPredictionQueryTypeDefs = gql`
-  type ElicitQuestionPrediction {
-    ${getAllGraphQLFields(schema)}
+  type ElicitQuestionPrediction ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleElicitQuestionPredictionInput {

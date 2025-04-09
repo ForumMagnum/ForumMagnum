@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SubscriptionState = () => frag`
+export const SubscriptionState = () => gql(`
   fragment SubscriptionState on Subscription {
     _id
     userId
@@ -11,12 +11,12 @@ export const SubscriptionState = () => frag`
     deleted
     type
   }
-`
+`)
 
-export const MembersOfGroupFragment = () => frag`
+export const MembersOfGroupFragment = () => gql(`
   fragment MembersOfGroupFragment on Subscription {
     user {
       ...UsersMinimumInfo
     }
   }
-`
+`)

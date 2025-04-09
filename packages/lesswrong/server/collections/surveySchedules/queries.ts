@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlSurveyScheduleQueryTypeDefs = gql`
-  type SurveySchedule {
-    ${getAllGraphQLFields(schema)}
+  type SurveySchedule ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleSurveyScheduleInput {

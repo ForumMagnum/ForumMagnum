@@ -68,16 +68,16 @@ export const updateSplashArtCoordinateGqlMutation = makeGqlUpdateMutation('Splas
 
 
 export const graphqlSplashArtCoordinateTypeDefs = gql`
-  input CreateSplashArtCoordinateDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateSplashArtCoordinateDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateSplashArtCoordinateInput {
     data: CreateSplashArtCoordinateDataInput!
   }
   
-  input UpdateSplashArtCoordinateDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateSplashArtCoordinateDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateSplashArtCoordinateInput {

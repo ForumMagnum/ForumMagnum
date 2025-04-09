@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const messageListFragment = () => frag`
+export const messageListFragment = () => gql(`
   fragment messageListFragment on Message {
     _id
     user {
@@ -14,4 +14,4 @@ export const messageListFragment = () => frag`
     createdAt
     conversationId
   }
-`
+`)

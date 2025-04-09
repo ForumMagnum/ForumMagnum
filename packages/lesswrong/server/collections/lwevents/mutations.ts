@@ -85,16 +85,16 @@ export const updateLWEventGqlMutation = makeGqlUpdateMutation('LWEvents', update
 
 
 export const graphqlLWEventTypeDefs = gql`
-  input CreateLWEventDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateLWEventDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateLWEventInput {
     data: CreateLWEventDataInput!
   }
   
-  input UpdateLWEventDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateLWEventDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateLWEventInput {

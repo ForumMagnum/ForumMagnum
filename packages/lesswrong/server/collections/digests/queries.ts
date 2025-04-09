@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlDigestQueryTypeDefs = gql`
-  type Digest {
-    ${getAllGraphQLFields(schema)}
+  type Digest ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleDigestInput {

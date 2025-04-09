@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlUserJobAdQueryTypeDefs = gql`
-  type UserJobAd {
-    ${getAllGraphQLFields(schema)}
+  type UserJobAd ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleUserJobAdInput {

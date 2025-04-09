@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlCkEditorUserSessionQueryTypeDefs = gql`
-  type CkEditorUserSession {
-    ${getAllGraphQLFields(schema)}
+  type CkEditorUserSession ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleCkEditorUserSessionInput {

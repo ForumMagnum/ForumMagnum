@@ -176,16 +176,16 @@ export const updateUserGqlMutation = makeGqlUpdateMutation('Users', updateUser, 
 
 
 export const graphqlUserTypeDefs = gql`
-  input CreateUserDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateUserDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateUserInput {
     data: CreateUserDataInput!
   }
   
-  input UpdateUserDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateUserDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateUserInput {

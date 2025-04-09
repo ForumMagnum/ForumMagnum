@@ -72,16 +72,16 @@ export const updatePostEmbeddingGqlMutation = makeGqlUpdateMutation('PostEmbeddi
 
 
 export const graphqlPostEmbeddingTypeDefs = gql`
-  input CreatePostEmbeddingDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreatePostEmbeddingDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreatePostEmbeddingInput {
     data: CreatePostEmbeddingDataInput!
   }
   
-  input UpdatePostEmbeddingDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdatePostEmbeddingDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdatePostEmbeddingInput {

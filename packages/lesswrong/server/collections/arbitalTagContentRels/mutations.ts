@@ -72,16 +72,16 @@ export const updateArbitalTagContentRelGqlMutation = makeGqlUpdateMutation('Arbi
 
 
 export const graphqlArbitalTagContentRelTypeDefs = gql`
-  input CreateArbitalTagContentRelDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateArbitalTagContentRelDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateArbitalTagContentRelInput {
     data: CreateArbitalTagContentRelDataInput!
   }
   
-  input UpdateArbitalTagContentRelDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateArbitalTagContentRelDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateArbitalTagContentRelInput {

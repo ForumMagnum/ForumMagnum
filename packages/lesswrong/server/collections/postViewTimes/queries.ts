@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlPostViewTimeQueryTypeDefs = gql`
-  type PostViewTime {
-    ${getAllGraphQLFields(schema)}
+  type PostViewTime ${
+    getAllGraphQLFields(schema)
   }
 
   input SinglePostViewTimeInput {

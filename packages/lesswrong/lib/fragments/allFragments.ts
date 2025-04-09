@@ -220,7 +220,7 @@ function registerFragment(fragmentTextSource: string): FragmentDefinition {
 export function getMemoizedFragmentInfo(fragmentName: FragmentName): FragmentDefinition {
   let fragmentDefinition = memoizedFragmentInfo[fragmentName];
   if (!fragmentDefinition) {
-    fragmentDefinition = registerFragment(getAllFragments()[fragmentName]);
+    fragmentDefinition = registerFragment(getAllFragments()[fragmentName]!);
     memoizedFragmentInfo[fragmentName] = fragmentDefinition;
   }
 

@@ -142,16 +142,16 @@ export const updateMultiDocumentGqlMutation = makeGqlUpdateMutation('MultiDocume
 
 
 export const graphqlMultiDocumentTypeDefs = gql`
-  input CreateMultiDocumentDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateMultiDocumentDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateMultiDocumentInput {
     data: CreateMultiDocumentDataInput!
   }
   
-  input UpdateMultiDocumentDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateMultiDocumentDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateMultiDocumentInput {

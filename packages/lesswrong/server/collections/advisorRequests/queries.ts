@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlAdvisorRequestQueryTypeDefs = gql`
-  type AdvisorRequest {
-    ${getAllGraphQLFields(schema)}
+  type AdvisorRequest ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleAdvisorRequestInput {

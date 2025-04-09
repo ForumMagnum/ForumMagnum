@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlUserMostValuablePostQueryTypeDefs = gql`
-  type UserMostValuablePost {
-    ${getAllGraphQLFields(schema)}
+  type UserMostValuablePost ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleUserMostValuablePostInput {

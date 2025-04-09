@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const JargonTerms = () => frag`
+export const JargonTerms = () => gql(`
   fragment JargonTerms on JargonTerm {
     _id
     postId
@@ -13,9 +13,9 @@ export const JargonTerms = () => frag`
     deleted
     altTerms
   }
-`
+`)
 
-export const JargonTermsPost = () => frag`
+export const JargonTermsPost = () => gql(`
   fragment JargonTermsPost on JargonTerm {
     _id
     term
@@ -27,13 +27,13 @@ export const JargonTermsPost = () => frag`
       ...RevisionDisplay
     }
   }
-`
+`)
 
-export const JargonTermsWithPostInfo = () => frag`
+export const JargonTermsWithPostInfo = () => gql(`
   fragment JargonTermsWithPostInfo on JargonTerm {
     ...JargonTerms
     post {
       ...PostsMinimumInfo
     }
   }
-`
+`)

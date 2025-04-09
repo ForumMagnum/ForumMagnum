@@ -5,8 +5,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlDialogueMatchPreferenceQueryTypeDefs = gql`
-  type DialogueMatchPreference {
-    ${getAllGraphQLFields(schema)}
+  type DialogueMatchPreference ${
+    getAllGraphQLFields(schema)
   }
 
   input SingleDialogueMatchPreferenceInput {

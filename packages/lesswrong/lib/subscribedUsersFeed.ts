@@ -1,6 +1,6 @@
-import { frag } from "./fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SubscribedPostAndCommentsFeed = () => frag`
+export const SubscribedPostAndCommentsFeed = () => gql(`
   fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {
     _id
     post {
@@ -12,4 +12,4 @@ export const SubscribedPostAndCommentsFeed = () => frag`
     expandCommentIds
     postIsFromSubscribedUser
   }
-`
+`)
