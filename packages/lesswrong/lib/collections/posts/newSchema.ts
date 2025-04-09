@@ -475,6 +475,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      group: () => formGroups.adminOptions,
+    }
   },
   postedAt: {
     database: {

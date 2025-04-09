@@ -50,7 +50,6 @@ export interface UseMultiOptions<
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
-  enableCache?: boolean,
   extraVariables?: Record<string, PrimitiveGraphQLType>,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
@@ -112,7 +111,6 @@ export function useMulti<
   extraVariablesValues,
   pollInterval = 0, //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
-  enableCache = false,
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
@@ -144,11 +142,10 @@ export function useMulti<
   const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
-      resolverArgs: extraVariablesValues,
-      enableCache, enableTotal
+      resolverArgs: extraVariablesValues, enableTotal
     },
     ...extraVariablesValues
-  }), [terms, defaultLimit, enableCache, enableTotal, extraVariablesValues]);
+  }), [terms, defaultLimit, enableTotal, extraVariablesValues]);
 
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {

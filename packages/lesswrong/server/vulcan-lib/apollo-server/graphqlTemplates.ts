@@ -34,6 +34,35 @@ const getGraphQLType = <N extends CollectionNameString>(
   return graphql.outputType;
 };
 
+export function isGraphQLField(field: [string, GraphQLFieldSpecification<CollectionNameString> | undefined]): field is [string, GraphQLFieldSpecification<CollectionNameString>] {
+  const [_, graphql] = field;
+  if (!graphql) return false;
+
+  return !!graphql.canRead?.length || !!graphql.canCreate?.length || !!graphql.canUpdate?.length || !!graphql.forceIncludeInExecutableSchema;
+}
+
+export function getAllGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding = '    ') {
+  const fieldDescriptions = Object.entries(schema)
+    .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
+    .filter(isGraphQLField)
+    .map(([fieldName, fieldGraphql]) => {
+      const fieldType = getGraphQLType(fieldGraphql);
+
+      return {
+        description: '',
+        name: fieldName,
+        type: fieldType,
+        args: fieldGraphql.arguments ?? [],
+      };
+    });
+
+  if (fieldDescriptions.length === 0) {
+    throw new Error('No graphql fields found');
+  }
+
+  return convertToGraphQL(fieldDescriptions, padding);
+}
+
 export function getCreatableGraphQLFields(schema: NewSchemaType<CollectionNameString>, padding = '    ') {
   const fieldDescriptions = Object.entries(schema)
     .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)

@@ -109,6 +109,10 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      order: 25,
+      hidden: ({ document }) => document?.fieldName !== "description",
+    },
   },
   oldSlugs: {
     database: {

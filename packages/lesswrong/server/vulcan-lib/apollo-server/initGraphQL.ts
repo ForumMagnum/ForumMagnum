@@ -25,7 +25,7 @@ import {
   deleteMutationTemplate,
   convertToGraphQL,
 } from './graphqlTemplates';
-import type { GraphQLScalarType } from 'graphql';
+import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import gql from 'graphql-tag'; 
@@ -100,6 +100,93 @@ import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGrap
 import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
+import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
+import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
+import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
+import { graphqlBanQueryTypeDefs, banGqlQueryHandlers, banGqlFieldResolvers } from "@/server/collections/bans/queries";
+import { graphqlBookQueryTypeDefs, bookGqlQueryHandlers, bookGqlFieldResolvers } from "@/server/collections/books/queries";
+import { graphqlChapterQueryTypeDefs, chapterGqlQueryHandlers, chapterGqlFieldResolvers } from "@/server/collections/chapters/queries";
+import { graphqlCkEditorUserSessionQueryTypeDefs, ckEditorUserSessionGqlQueryHandlers, ckEditorUserSessionGqlFieldResolvers } from "@/server/collections/ckEditorUserSessions/queries";
+import { graphqlClientIdQueryTypeDefs, clientIdGqlQueryHandlers, clientIdGqlFieldResolvers } from "@/server/collections/clientIds/queries";
+import { graphqlCollectionQueryTypeDefs, collectionGqlQueryHandlers, collectionGqlFieldResolvers } from "@/server/collections/collections/queries";
+import { graphqlCommentModeratorActionQueryTypeDefs, commentModeratorActionGqlQueryHandlers, commentModeratorActionGqlFieldResolvers } from "@/server/collections/commentModeratorActions/queries";
+import { graphqlCommentQueryTypeDefs, commentGqlQueryHandlers, commentGqlFieldResolvers } from "@/server/collections/comments/queries";
+import { graphqlConversationQueryTypeDefs, conversationGqlQueryHandlers, conversationGqlFieldResolvers } from "@/server/collections/conversations/queries";
+import { graphqlCronHistoryQueryTypeDefs, cronHistoryGqlFieldResolvers } from "@/server/collections/cronHistories/queries";
+import { graphqlCurationEmailQueryTypeDefs, curationEmailGqlFieldResolvers } from "@/server/collections/curationEmails/queries";
+import { graphqlCurationNoticeQueryTypeDefs, curationNoticeGqlQueryHandlers, curationNoticeGqlFieldResolvers } from "@/server/collections/curationNotices/queries";
+import { graphqlDatabaseMetadataQueryTypeDefs, databaseMetadataGqlFieldResolvers } from "@/server/collections/databaseMetadata/queries";
+import { graphqlDebouncerEventsQueryTypeDefs, debouncerEventsGqlFieldResolvers } from "@/server/collections/debouncerEvents/queries";
+import { graphqlDialogueCheckQueryTypeDefs, dialogueCheckGqlQueryHandlers, dialogueCheckGqlFieldResolvers } from "@/server/collections/dialogueChecks/queries";
+import { graphqlDialogueMatchPreferenceQueryTypeDefs, dialogueMatchPreferenceGqlQueryHandlers, dialogueMatchPreferenceGqlFieldResolvers } from "@/server/collections/dialogueMatchPreferences/queries";
+import { graphqlDigestPostQueryTypeDefs, digestPostGqlQueryHandlers, digestPostGqlFieldResolvers } from "@/server/collections/digestPosts/queries";
+import { graphqlDigestQueryTypeDefs, digestGqlQueryHandlers, digestGqlFieldResolvers } from "@/server/collections/digests/queries";
+import { graphqlElectionCandidateQueryTypeDefs, electionCandidateGqlQueryHandlers, electionCandidateGqlFieldResolvers } from "@/server/collections/electionCandidates/queries";
+import { graphqlElectionVoteQueryTypeDefs, electionVoteGqlQueryHandlers, electionVoteGqlFieldResolvers } from "@/server/collections/electionVotes/queries";
+import { graphqlElicitQuestionPredictionQueryTypeDefs, elicitQuestionPredictionGqlQueryHandlers, elicitQuestionPredictionGqlFieldResolvers } from "@/server/collections/elicitQuestionPredictions/queries";
+import { graphqlElicitQuestionQueryTypeDefs, elicitQuestionGqlQueryHandlers, elicitQuestionGqlFieldResolvers } from "@/server/collections/elicitQuestions/queries";
+import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@/server/collections/emailTokens/queries";
+import { graphqlFeaturedResourceQueryTypeDefs, featuredResourceGqlQueryHandlers, featuredResourceGqlFieldResolvers } from "@/server/collections/featuredResources/queries";
+import { graphqlFieldChangeQueryTypeDefs, fieldChangeGqlFieldResolvers } from "@/server/collections/fieldChanges/queries";
+import { graphqlForumEventQueryTypeDefs, forumEventGqlQueryHandlers, forumEventGqlFieldResolvers } from "@/server/collections/forumEvents/queries";
+import { graphqlGardenCodeQueryTypeDefs, gardenCodeGqlQueryHandlers, gardenCodeGqlFieldResolvers } from "@/server/collections/gardencodes/queries";
+import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
+import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
+import { graphqlJargonTermQueryTypeDefs, jargonTermGqlQueryHandlers, jargonTermGqlFieldResolvers } from "@/server/collections/jargonTerms/queries";
+import { graphqlLWEventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldResolvers } from "@/server/collections/lwevents/queries";
+import { graphqlLegacyDataQueryTypeDefs, legacyDataGqlFieldResolvers } from "@/server/collections/legacyData/queries";
+import { graphqlLlmConversationQueryTypeDefs, llmConversationGqlQueryHandlers, llmConversationGqlFieldResolvers } from "@/server/collections/llmConversations/queries";
+import { graphqlLlmMessageQueryTypeDefs, llmMessageGqlFieldResolvers } from "@/server/collections/llmMessages/queries";
+import { graphqlLocalgroupQueryTypeDefs, localgroupGqlQueryHandlers, localgroupGqlFieldResolvers } from "@/server/collections/localgroups/queries";
+import { graphqlManifoldProbabilitiesCacheQueryTypeDefs, manifoldProbabilitiesCacheGqlFieldResolvers } from "@/server/collections/manifoldProbabilitiesCaches/queries";
+import { graphqlMessageQueryTypeDefs, messageGqlQueryHandlers, messageGqlFieldResolvers } from "@/server/collections/messages/queries";
+import { graphqlMigrationQueryTypeDefs, migrationGqlFieldResolvers } from "@/server/collections/migrations/queries";
+import { graphqlModerationTemplateQueryTypeDefs, moderationTemplateGqlQueryHandlers, moderationTemplateGqlFieldResolvers } from "@/server/collections/moderationTemplates/queries";
+import { graphqlModeratorActionQueryTypeDefs, moderatorActionGqlQueryHandlers, moderatorActionGqlFieldResolvers } from "@/server/collections/moderatorActions/queries";
+import { graphqlMultiDocumentQueryTypeDefs, multiDocumentGqlQueryHandlers, multiDocumentGqlFieldResolvers } from "@/server/collections/multiDocuments/queries";
+import { graphqlNotificationQueryTypeDefs, notificationGqlQueryHandlers, notificationGqlFieldResolvers } from "@/server/collections/notifications/queries";
+import { graphqlPageCacheEntryQueryTypeDefs, pageCacheEntryGqlFieldResolvers } from "@/server/collections/pagecache/queries";
+import { graphqlPetrovDayActionQueryTypeDefs, petrovDayActionGqlQueryHandlers, petrovDayActionGqlFieldResolvers } from "@/server/collections/petrovDayActions/queries";
+import { graphqlPetrovDayLaunchQueryTypeDefs, petrovDayLaunchGqlFieldResolvers } from "@/server/collections/petrovDayLaunchs/queries";
+import { graphqlPodcastEpisodeQueryTypeDefs, podcastEpisodeGqlQueryHandlers, podcastEpisodeGqlFieldResolvers } from "@/server/collections/podcastEpisodes/queries";
+import { graphqlPodcastQueryTypeDefs, podcastGqlQueryHandlers, podcastGqlFieldResolvers } from "@/server/collections/podcasts/queries";
+import { graphqlPostEmbeddingQueryTypeDefs, postEmbeddingGqlQueryHandlers, postEmbeddingGqlFieldResolvers } from "@/server/collections/postEmbeddings/queries";
+import { graphqlPostRecommendationQueryTypeDefs, postRecommendationGqlFieldResolvers } from "@/server/collections/postRecommendations/queries";
+import { graphqlPostRelationQueryTypeDefs, postRelationGqlQueryHandlers, postRelationGqlFieldResolvers } from "@/server/collections/postRelations/queries";
+import { graphqlPostViewTimeQueryTypeDefs, postViewTimeGqlQueryHandlers, postViewTimeGqlFieldResolvers } from "@/server/collections/postViewTimes/queries";
+import { graphqlPostViewsQueryTypeDefs, postViewsGqlQueryHandlers, postViewsGqlFieldResolvers } from "@/server/collections/postViews/queries";
+import { graphqlPostQueryTypeDefs, postGqlQueryHandlers, postGqlFieldResolvers } from "@/server/collections/posts/queries";
+import { graphqlRSSFeedQueryTypeDefs, rssfeedGqlQueryHandlers, rssfeedGqlFieldResolvers } from "@/server/collections/rssfeeds/queries";
+import { graphqlReadStatusQueryTypeDefs, readStatusGqlFieldResolvers } from "@/server/collections/readStatus/queries";
+import { graphqlRecommendationsCacheQueryTypeDefs, recommendationsCacheGqlFieldResolvers } from "@/server/collections/recommendationsCaches/queries";
+import { graphqlReportQueryTypeDefs, reportGqlQueryHandlers, reportGqlFieldResolvers } from "@/server/collections/reports/queries";
+import { graphqlReviewVoteQueryTypeDefs, reviewVoteGqlQueryHandlers, reviewVoteGqlFieldResolvers } from "@/server/collections/reviewVotes/queries";
+import { graphqlReviewWinnerArtQueryTypeDefs, reviewWinnerArtGqlQueryHandlers, reviewWinnerArtGqlFieldResolvers } from "@/server/collections/reviewWinnerArts/queries";
+import { graphqlReviewWinnerQueryTypeDefs, reviewWinnerGqlQueryHandlers, reviewWinnerGqlFieldResolvers } from "@/server/collections/reviewWinners/queries";
+import { graphqlRevisionQueryTypeDefs, revisionGqlQueryHandlers, revisionGqlFieldResolvers } from "@/server/collections/revisions/queries";
+import { graphqlSequenceQueryTypeDefs, sequenceGqlQueryHandlers, sequenceGqlFieldResolvers } from "@/server/collections/sequences/queries";
+import { graphqlSessionQueryTypeDefs, sessionGqlFieldResolvers } from "@/server/collections/sessions/queries";
+import { graphqlSideCommentCacheQueryTypeDefs, sideCommentCacheGqlFieldResolvers } from "@/server/collections/sideCommentCaches/queries";
+import { graphqlSplashArtCoordinateQueryTypeDefs, splashArtCoordinateGqlQueryHandlers, splashArtCoordinateGqlFieldResolvers } from "@/server/collections/splashArtCoordinates/queries";
+import { graphqlSpotlightQueryTypeDefs, spotlightGqlQueryHandlers, spotlightGqlFieldResolvers } from "@/server/collections/spotlights/queries";
+import { graphqlSubscriptionQueryTypeDefs, subscriptionGqlQueryHandlers, subscriptionGqlFieldResolvers } from "@/server/collections/subscriptions/queries";
+import { graphqlSurveyQuestionQueryTypeDefs, surveyQuestionGqlQueryHandlers, surveyQuestionGqlFieldResolvers } from "@/server/collections/surveyQuestions/queries";
+import { graphqlSurveyResponseQueryTypeDefs, surveyResponseGqlQueryHandlers, surveyResponseGqlFieldResolvers } from "@/server/collections/surveyResponses/queries";
+import { graphqlSurveyScheduleQueryTypeDefs, surveyScheduleGqlQueryHandlers, surveyScheduleGqlFieldResolvers } from "@/server/collections/surveySchedules/queries";
+import { graphqlSurveyQueryTypeDefs, surveyGqlQueryHandlers, surveyGqlFieldResolvers } from "@/server/collections/surveys/queries";
+import { graphqlTagFlagQueryTypeDefs, tagFlagGqlQueryHandlers, tagFlagGqlFieldResolvers } from "@/server/collections/tagFlags/queries";
+import { graphqlTagRelQueryTypeDefs, tagRelGqlQueryHandlers, tagRelGqlFieldResolvers } from "@/server/collections/tagRels/queries";
+import { graphqlTagQueryTypeDefs, tagGqlQueryHandlers, tagGqlFieldResolvers } from "@/server/collections/tags/queries";
+import { graphqlTweetQueryTypeDefs, tweetGqlFieldResolvers } from "@/server/collections/tweets/queries";
+import { graphqlTypingIndicatorQueryTypeDefs, typingIndicatorGqlQueryHandlers, typingIndicatorGqlFieldResolvers } from "@/server/collections/typingIndicators/queries";
+import { graphqlUserActivityQueryTypeDefs, userActivityGqlFieldResolvers } from "@/server/collections/useractivities/queries";
+import { graphqlUserEAGDetailQueryTypeDefs, userEAGDetailGqlQueryHandlers, userEAGDetailGqlFieldResolvers } from "@/server/collections/userEAGDetails/queries";
+import { graphqlUserJobAdQueryTypeDefs, userJobAdGqlQueryHandlers, userJobAdGqlFieldResolvers } from "@/server/collections/userJobAds/queries";
+import { graphqlUserMostValuablePostQueryTypeDefs, userMostValuablePostGqlQueryHandlers, userMostValuablePostGqlFieldResolvers } from "@/server/collections/userMostValuablePosts/queries";
+import { graphqlUserRateLimitQueryTypeDefs, userRateLimitGqlQueryHandlers, userRateLimitGqlFieldResolvers } from "@/server/collections/userRateLimits/queries";
+import { graphqlUserTagRelQueryTypeDefs, userTagRelGqlQueryHandlers, userTagRelGqlFieldResolvers } from "@/server/collections/userTagRels/queries";
+import { graphqlUserQueryTypeDefs, userGqlQueryHandlers, userGqlFieldResolvers } from "@/server/collections/users/queries";
+import { graphqlVoteQueryTypeDefs, voteGqlQueryHandlers, voteGqlFieldResolvers } from "@/server/collections/votes/queries";
 import { createAdvisorRequestGqlMutation, updateAdvisorRequestGqlMutation, graphqlAdvisorRequestTypeDefs } from "@/server/collections/advisorRequests/mutations";
 import { createArbitalTagContentRelGqlMutation, updateArbitalTagContentRelGqlMutation, graphqlArbitalTagContentRelTypeDefs } from "@/server/collections/arbitalTagContentRels/mutations";
 import { createBanGqlMutation, updateBanGqlMutation, graphqlBanTypeDefs } from "@/server/collections/bans/mutations";
@@ -166,7 +253,7 @@ const selectorInput = gql`
 `;
 
 export const typeDefs = gql`
-  # type Query
+  type Query
   type Mutation
   ${selectorInput}
   ${notificationTypeDefs}
@@ -243,7 +330,95 @@ export const typeDefs = gql`
   ${extraPostResolversGraphQLTypeDefs}
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
-  ## Mutation and input typedefs
+  ## CRUD Query typedefs
+  ${graphqlAdvisorRequestQueryTypeDefs}
+  ${graphqlArbitalCachesQueryTypeDefs}
+  ${graphqlArbitalTagContentRelQueryTypeDefs}
+  ${graphqlBanQueryTypeDefs}
+  ${graphqlBookQueryTypeDefs}
+  ${graphqlChapterQueryTypeDefs}
+  ${graphqlCkEditorUserSessionQueryTypeDefs}
+  ${graphqlClientIdQueryTypeDefs}
+  ${graphqlCollectionQueryTypeDefs}
+  ${graphqlCommentModeratorActionQueryTypeDefs}
+  ${graphqlCommentQueryTypeDefs}
+  ${graphqlConversationQueryTypeDefs}
+  ${graphqlCronHistoryQueryTypeDefs}
+  ${graphqlCurationEmailQueryTypeDefs}
+  ${graphqlCurationNoticeQueryTypeDefs}
+  ${graphqlDatabaseMetadataQueryTypeDefs}
+  ${graphqlDebouncerEventsQueryTypeDefs}
+  ${graphqlDialogueCheckQueryTypeDefs}
+  ${graphqlDialogueMatchPreferenceQueryTypeDefs}
+  ${graphqlDigestPostQueryTypeDefs}
+  ${graphqlDigestQueryTypeDefs}
+  ${graphqlElectionCandidateQueryTypeDefs}
+  ${graphqlElectionVoteQueryTypeDefs}
+  ${graphqlElicitQuestionPredictionQueryTypeDefs}
+  ${graphqlElicitQuestionQueryTypeDefs}
+  ${graphqlEmailTokensQueryTypeDefs}
+  ${graphqlFeaturedResourceQueryTypeDefs}
+  ${graphqlFieldChangeQueryTypeDefs}
+  ${graphqlForumEventQueryTypeDefs}
+  ${graphqlGardenCodeQueryTypeDefs}
+  ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
+  ${graphqlImagesQueryTypeDefs}
+  ${graphqlJargonTermQueryTypeDefs}
+  ${graphqlLWEventQueryTypeDefs}
+  ${graphqlLegacyDataQueryTypeDefs}
+  ${graphqlLlmConversationQueryTypeDefs}
+  ${graphqlLlmMessageQueryTypeDefs}
+  ${graphqlLocalgroupQueryTypeDefs}
+  ${graphqlManifoldProbabilitiesCacheQueryTypeDefs}
+  ${graphqlMessageQueryTypeDefs}
+  ${graphqlMigrationQueryTypeDefs}
+  ${graphqlModerationTemplateQueryTypeDefs}
+  ${graphqlModeratorActionQueryTypeDefs}
+  ${graphqlMultiDocumentQueryTypeDefs}
+  ${graphqlNotificationQueryTypeDefs}
+  ${graphqlPageCacheEntryQueryTypeDefs}
+  ${graphqlPetrovDayActionQueryTypeDefs}
+  ${graphqlPetrovDayLaunchQueryTypeDefs}
+  ${graphqlPodcastEpisodeQueryTypeDefs}
+  ${graphqlPodcastQueryTypeDefs}
+  ${graphqlPostEmbeddingQueryTypeDefs}
+  ${graphqlPostRecommendationQueryTypeDefs}
+  ${graphqlPostRelationQueryTypeDefs}
+  ${graphqlPostViewTimeQueryTypeDefs}
+  ${graphqlPostViewsQueryTypeDefs}
+  ${graphqlPostQueryTypeDefs}
+  ${graphqlRSSFeedQueryTypeDefs}
+  ${graphqlReadStatusQueryTypeDefs}
+  ${graphqlRecommendationsCacheQueryTypeDefs}
+  ${graphqlReportQueryTypeDefs}
+  ${graphqlReviewVoteQueryTypeDefs}
+  ${graphqlReviewWinnerArtQueryTypeDefs}
+  ${graphqlReviewWinnerQueryTypeDefs}
+  ${graphqlRevisionQueryTypeDefs}
+  ${graphqlSequenceQueryTypeDefs}
+  ${graphqlSessionQueryTypeDefs}
+  ${graphqlSideCommentCacheQueryTypeDefs}
+  ${graphqlSplashArtCoordinateQueryTypeDefs}
+  ${graphqlSpotlightQueryTypeDefs}
+  ${graphqlSubscriptionQueryTypeDefs}
+  ${graphqlSurveyQuestionQueryTypeDefs}
+  ${graphqlSurveyResponseQueryTypeDefs}
+  ${graphqlSurveyScheduleQueryTypeDefs}
+  ${graphqlSurveyQueryTypeDefs}
+  ${graphqlTagFlagQueryTypeDefs}
+  ${graphqlTagRelQueryTypeDefs}
+  ${graphqlTagQueryTypeDefs}
+  ${graphqlTweetQueryTypeDefs}
+  ${graphqlTypingIndicatorQueryTypeDefs}
+  ${graphqlUserActivityQueryTypeDefs}
+  ${graphqlUserEAGDetailQueryTypeDefs}
+  ${graphqlUserJobAdQueryTypeDefs}
+  ${graphqlUserMostValuablePostQueryTypeDefs}
+  ${graphqlUserRateLimitQueryTypeDefs}
+  ${graphqlUserTagRelQueryTypeDefs}
+  ${graphqlUserQueryTypeDefs}
+  ${graphqlVoteQueryTypeDefs}
+  ## CRUD Mutation and input typedefs
   ${graphqlAdvisorRequestTypeDefs}
   ${graphqlArbitalTagContentRelTypeDefs}
   ${graphqlBanTypeDefs}
@@ -339,6 +514,74 @@ export const resolvers = {
     ...diffGqlQueries,
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
+
+    // CRUD Query Handlers
+    ...advisorRequestGqlQueryHandlers,
+    ...arbitalTagContentRelGqlQueryHandlers,
+    ...banGqlQueryHandlers,
+    ...bookGqlQueryHandlers,
+    ...chapterGqlQueryHandlers,
+    ...ckEditorUserSessionGqlQueryHandlers,
+    ...clientIdGqlQueryHandlers,
+    ...collectionGqlQueryHandlers,
+    ...commentModeratorActionGqlQueryHandlers,
+    ...commentGqlQueryHandlers,
+    ...conversationGqlQueryHandlers,
+    ...curationNoticeGqlQueryHandlers,
+    ...dialogueCheckGqlQueryHandlers,
+    ...dialogueMatchPreferenceGqlQueryHandlers,
+    ...digestPostGqlQueryHandlers,
+    ...digestGqlQueryHandlers,
+    ...electionCandidateGqlQueryHandlers,
+    ...electionVoteGqlQueryHandlers,
+    ...elicitQuestionPredictionGqlQueryHandlers,
+    ...elicitQuestionGqlQueryHandlers,
+    ...featuredResourceGqlQueryHandlers,
+    ...forumEventGqlQueryHandlers,
+    ...gardenCodeGqlQueryHandlers,
+    ...googleServiceAccountSessionGqlQueryHandlers,
+    ...jargonTermGqlQueryHandlers,
+    ...lweventGqlQueryHandlers,
+    ...llmConversationGqlQueryHandlers,
+    ...localgroupGqlQueryHandlers,
+    ...messageGqlQueryHandlers,
+    ...moderationTemplateGqlQueryHandlers,
+    ...moderatorActionGqlQueryHandlers,
+    ...multiDocumentGqlQueryHandlers,
+    ...notificationGqlQueryHandlers,
+    ...petrovDayActionGqlQueryHandlers,
+    ...podcastEpisodeGqlQueryHandlers,
+    ...podcastGqlQueryHandlers,
+    ...postEmbeddingGqlQueryHandlers,
+    ...postRelationGqlQueryHandlers,
+    ...postViewTimeGqlQueryHandlers,
+    ...postViewsGqlQueryHandlers,
+    ...postGqlQueryHandlers,
+    ...rssfeedGqlQueryHandlers,
+    ...reportGqlQueryHandlers,
+    ...reviewVoteGqlQueryHandlers,
+    ...reviewWinnerArtGqlQueryHandlers,
+    ...reviewWinnerGqlQueryHandlers,
+    ...revisionGqlQueryHandlers,
+    ...sequenceGqlQueryHandlers,
+    ...splashArtCoordinateGqlQueryHandlers,
+    ...spotlightGqlQueryHandlers,
+    ...subscriptionGqlQueryHandlers,
+    ...surveyQuestionGqlQueryHandlers,
+    ...surveyResponseGqlQueryHandlers,
+    ...surveyScheduleGqlQueryHandlers,
+    ...surveyGqlQueryHandlers,
+    ...tagFlagGqlQueryHandlers,
+    ...tagRelGqlQueryHandlers,
+    ...tagGqlQueryHandlers,
+    ...typingIndicatorGqlQueryHandlers,
+    ...userEAGDetailGqlQueryHandlers,
+    ...userJobAdGqlQueryHandlers,
+    ...userMostValuablePostGqlQueryHandlers,
+    ...userRateLimitGqlQueryHandlers,
+    ...userTagRelGqlQueryHandlers,
+    ...userGqlQueryHandlers,
+    ...voteGqlQueryHandlers,
   },
   Mutation: {
     ...userResolversMutations,
@@ -495,8 +738,96 @@ export const resolvers = {
   },
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
+  // Collection Field Resolvers
+  ...advisorRequestGqlFieldResolvers,
+  ...arbitalCachesGqlFieldResolvers,
+  ...arbitalTagContentRelGqlFieldResolvers,
+  ...banGqlFieldResolvers,
+  ...bookGqlFieldResolvers,
+  ...chapterGqlFieldResolvers,
+  ...ckEditorUserSessionGqlFieldResolvers,
+  ...clientIdGqlFieldResolvers,
+  ...collectionGqlFieldResolvers,
+  ...commentModeratorActionGqlFieldResolvers,
+  ...commentGqlFieldResolvers,
+  ...conversationGqlFieldResolvers,
+  ...cronHistoryGqlFieldResolvers,
+  ...curationEmailGqlFieldResolvers,
+  ...curationNoticeGqlFieldResolvers,
+  ...databaseMetadataGqlFieldResolvers,
+  ...debouncerEventsGqlFieldResolvers,
+  ...dialogueCheckGqlFieldResolvers,
+  ...dialogueMatchPreferenceGqlFieldResolvers,
+  ...digestPostGqlFieldResolvers,
+  ...digestGqlFieldResolvers,
+  ...electionCandidateGqlFieldResolvers,
+  ...electionVoteGqlFieldResolvers,
+  ...elicitQuestionPredictionGqlFieldResolvers,
+  ...elicitQuestionGqlFieldResolvers,
+  ...emailTokensGqlFieldResolvers,
+  ...featuredResourceGqlFieldResolvers,
+  ...fieldChangeGqlFieldResolvers,
+  ...forumEventGqlFieldResolvers,
+  ...gardenCodeGqlFieldResolvers,
+  ...googleServiceAccountSessionGqlFieldResolvers,
+  ...imagesGqlFieldResolvers,
+  ...jargonTermGqlFieldResolvers,
+  ...lweventGqlFieldResolvers,
+  ...legacyDataGqlFieldResolvers,
+  ...llmConversationGqlFieldResolvers,
+  ...llmMessageGqlFieldResolvers,
+  ...localgroupGqlFieldResolvers,
+  ...manifoldProbabilitiesCacheGqlFieldResolvers,
+  ...messageGqlFieldResolvers,
+  ...migrationGqlFieldResolvers,
+  ...moderationTemplateGqlFieldResolvers,
+  ...moderatorActionGqlFieldResolvers,
+  ...multiDocumentGqlFieldResolvers,
+  ...notificationGqlFieldResolvers,
+  ...pageCacheEntryGqlFieldResolvers,
+  ...petrovDayActionGqlFieldResolvers,
+  ...petrovDayLaunchGqlFieldResolvers,
+  ...podcastEpisodeGqlFieldResolvers,
+  ...podcastGqlFieldResolvers,
+  ...postEmbeddingGqlFieldResolvers,
+  ...postRecommendationGqlFieldResolvers,
+  ...postRelationGqlFieldResolvers,
+  ...postViewTimeGqlFieldResolvers,
+  ...postViewsGqlFieldResolvers,
+  ...postGqlFieldResolvers,
+  ...rssfeedGqlFieldResolvers,
+  ...readStatusGqlFieldResolvers,
+  ...recommendationsCacheGqlFieldResolvers,
+  ...reportGqlFieldResolvers,
+  ...reviewVoteGqlFieldResolvers,
+  ...reviewWinnerArtGqlFieldResolvers,
+  ...reviewWinnerGqlFieldResolvers,
+  ...revisionGqlFieldResolvers,
+  ...sequenceGqlFieldResolvers,
+  ...sessionGqlFieldResolvers,
+  ...sideCommentCacheGqlFieldResolvers,
+  ...splashArtCoordinateGqlFieldResolvers,
+  ...spotlightGqlFieldResolvers,
+  ...subscriptionGqlFieldResolvers,
+  ...surveyQuestionGqlFieldResolvers,
+  ...surveyResponseGqlFieldResolvers,
+  ...surveyScheduleGqlFieldResolvers,
+  ...surveyGqlFieldResolvers,
+  ...tagFlagGqlFieldResolvers,
+  ...tagRelGqlFieldResolvers,
+  ...tagGqlFieldResolvers,
+  ...tweetGqlFieldResolvers,
+  ...typingIndicatorGqlFieldResolvers,
+  ...userActivityGqlFieldResolvers,
+  ...userEAGDetailGqlFieldResolvers,
+  ...userJobAdGqlFieldResolvers,
+  ...userMostValuablePostGqlFieldResolvers,
+  ...userRateLimitGqlFieldResolvers,
+  ...userTagRelGqlFieldResolvers,
+  ...userGqlFieldResolvers,
+  ...voteGqlFieldResolvers,
 } satisfies {
-  Query: Record<string, (root: void, args: any, context: ResolverContext) => any>,
+  Query: Record<string, (root: void, args: any, context: ResolverContext, info: GraphQLResolveInfo) => any>,
   Mutation: Record<string, (root: void, args: any, context: ResolverContext) => any>,
   KarmaChanges: { updateFrequency: (root: void, args: any, context: ResolverContext) => any },
   ElicitUser: { lwUser: (root: void, args: any, context: ResolverContext) => any },
@@ -691,10 +1022,6 @@ export const getFields = <N extends CollectionNameString>(schema: NewSchemaType<
 
 // generate a GraphQL schema corresponding to a given collection
 export const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
-  let graphQLSchema = '';
-
-  const schemaFragments: Array<string> = [];
-
   const collectionName = collection.collectionName;
 
   if (!collection.typeName) {
@@ -704,63 +1031,11 @@ export const generateSchema = (collection: CollectionBase<CollectionNameString>)
 
   const schema = getSchema(collectionName);
 
-  const { fields, resolvers: fieldResolvers } = getFields(schema, typeName);
+  const { resolvers: fieldResolvers } = getFields(schema, typeName);
 
-  const { resolvers } = collection.options;
-
-  const description = collection.options.description
-    ? collection.options.description
-    : `Type for ${collectionName}`;
-
-  const { mainType, create, update } = fields;
-
-  let addedQueries: Array<any> = [];
   let addedResolvers: Array<any> = [...fieldResolvers];
-  let addedMutations: Array<any> = [];
-
-  if (mainType.length) {
-    schemaFragments.push(
-      mainTypeTemplate({ typeName, description, interfaces: [], fields: mainType })
-    );
-
-    schemaFragments.push(singleInputTemplate({ typeName }));
-    schemaFragments.push(multiInputTemplate({ typeName }));
-    schemaFragments.push(singleOutputTemplate({ typeName }));
-    schemaFragments.push(multiOutputTemplate({ typeName }));
-
-    if (!_.isEmpty(resolvers)) {
-      const queryResolvers: Partial<Record<string,any>> = {};
-
-      // single
-      if (resolvers.single) {
-        addedQueries.push({query: singleQueryTemplate({ typeName }), description: resolvers.single.description});
-        queryResolvers[getSingleResolverName(typeName)] = resolvers.single.resolver.bind(
-          resolvers.single
-        );
-      }
-
-      // multi
-      if (resolvers.multi) {
-        addedQueries.push({query: multiQueryTemplate({ typeName }), description: resolvers.multi.description});
-        queryResolvers[
-          getMultiResolverName(typeName)
-        ] = resolvers.multi.resolver.bind(resolvers.multi);
-      }
-      addedResolvers.push({ Query: { ...queryResolvers } });
-    }
-
-    graphQLSchema = schemaFragments.join('\n\n') + '\n\n\n';
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(
-      `Warning: collection ${collectionName} doesn't have any GraphQL-enabled fields, so no corresponding type can be generated.`
-    );
-  }
 
   return {
-    schema: graphQLSchema,
-    addedQueries,
-    addedMutations,
     addedResolvers,
   };
 };

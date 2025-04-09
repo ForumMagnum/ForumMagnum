@@ -19,11 +19,15 @@ export const dashToCamel = function (str: string): string {
 };
 
 // Convert a string to camelCase and remove spaces.
-export const camelCaseify = function(str: string): string {
-  str = dashToCamel(str.replace(' ', '-'));
-  str = str.slice(0,1).toLowerCase() + str.slice(1);
-  return str;
+export const camelCaseify = function<T extends string>(str: T): CamelCaseify<T> {
+  const camelCaseStr = dashToCamel(str.replace(' ', '-'));
+  const lowerCamelCaseStr = camelCaseStr.slice(0,1).toLowerCase() + camelCaseStr.slice(1);
+  return lowerCamelCaseStr as CamelCaseify<T>;
 };
+
+export type CamelCaseify<T extends string> = T extends `${infer Prefix}-${infer Rest}`
+  ? `${Uncapitalize<Prefix>}${Capitalize<CamelCaseify<Rest>>}`
+  : Uncapitalize<T>;
 
 // Capitalize a string.
 export const capitalize = function(str: string): string {

@@ -38,22 +38,22 @@ export const getGraphQLTypeDefs = () => {
     "scalar Date",
   ];
 
-  const allQueries = [];
-  const allMutations = [];
+  // const allQueries = [];
+  // const allMutations = [];
   const allResolvers: Array<any> = [];
 
   for (let collection of getAllCollections()) {
-    const { schema, addedQueries, addedResolvers, addedMutations } = generateSchema(collection);
+    const { addedResolvers } = generateSchema(collection);
 
-    for (let query of addedQueries) allQueries.push(query);
+    // for (let query of addedQueries) allQueries.push(query);
     for (let resolver of addedResolvers) allResolvers.push(resolver);
-    for (let mutation of addedMutations) allMutations.push(mutation);
+    // for (let mutation of addedMutations) allMutations.push(mutation);
 
-    schemaContents.push(schema);
+    // schemaContents.push(schema);
   }
 
-  schemaContents.push(queriesToGraphQL(allQueries));
-  schemaContents.push(mutationsToGraphQL(allMutations));
+  // schemaContents.push(queriesToGraphQL(allQueries));
+  // schemaContents.push(mutationsToGraphQL(allMutations));
 
   return {
     typeDefs: gql`

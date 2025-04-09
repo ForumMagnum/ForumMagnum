@@ -9,6 +9,8 @@ import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections";
 import { allUserGroups } from "@/lib/permissions";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "../vulcan-lib/apollo-server/graphqlTemplates";
+import { getDefaultResolvers } from "../resolvers/defaultResolvers";
+import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
 
 const getPermissionsImportLine = (collection: CollectionBase<CollectionNameString>) => {
   const createPermissionCheckSection = getCreatePermissionCheckSection(collection);
@@ -570,4 +572,158 @@ export async function moveLlmMessagesMutations() {
   const reviewVoteMutations = generateMutationFunctions('LlmMessages');
 
   await writeFile(mutationFilePath, reviewVoteMutations);
+}
+
+function generateQueryResolvers(collectionName: CollectionNameString) {
+  const typeName = collectionNameToTypeName[collectionName];
+
+  const collectionPathPart = getCollectionPathPart(collectionName);
+
+  const singleResolverName = getSingleResolverName(typeName);
+  const multiResolverName = getMultiResolverName(typeName);
+
+  const singleInputTypeName = `Single${typeName}Input`;
+  const multiInputTypeName = `Multi${typeName}Input`;
+  const singleOutputTypeName = `Single${typeName}Output`;
+  const multiOutputTypeName = `Multi${typeName}Output`;
+
+  const typeDefsVariableName = `graphql${typeName}QueryTypeDefs`;
+  const resolversVariableName = `${singleResolverName}GqlQueryHandlers`;
+  const fieldResolversVariableName = `${singleResolverName}GqlFieldResolvers`;
+
+  const fileContents = `import schema from "@/lib/collections/${collectionPathPart}/newSchema";
+import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
+import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
+import gql from "graphql-tag";
+
+export const ${typeDefsVariableName} = gql\`
+  type ${typeName} {
+    \${getAllGraphQLFields(schema)}
+  }
+
+  input ${singleInputTypeName} {
+    selector: SelectorInput
+    resolverArgs: JSON
+    allowNull: Boolean
+  }
+
+  type ${singleOutputTypeName} {
+    result: ${typeName}
+  }
+
+  input ${multiInputTypeName} {
+    terms: JSON
+    resolverArgs: JSON
+    enableTotal: Boolean
+  }
+  
+  type ${multiOutputTypeName} {
+    results: [${typeName}]
+    totalCount: Int
+  }
+
+  extend type Query {
+    ${singleResolverName}(input: ${singleInputTypeName}): ${singleOutputTypeName}
+    ${multiResolverName}(input: ${multiInputTypeName}): ${multiOutputTypeName}
+  }
+\`;
+
+export const ${resolversVariableName} = getDefaultResolvers('${collectionName}');
+export const ${fieldResolversVariableName} = getFieldGqlResolvers('${collectionName}', schema);
+`;
+
+  const initGraphQLImportLine = `import { ${typeDefsVariableName}, ${resolversVariableName}, ${fieldResolversVariableName} } from "@/server/collections/${collectionPathPart}/queries";`;
+
+  return { fileContents, initGraphQLImportLine };
+}
+
+function generageMainTypeDef(collectionName: CollectionNameString) {
+  const typeName = collectionNameToTypeName[collectionName];
+  const collectionPathPart = getCollectionPathPart(collectionName);
+  const typeDefsVariableName = `graphql${typeName}QueryTypeDefs`;
+  const singleResolverName = getSingleResolverName(typeName);
+  const fieldResolversVariableName = `${singleResolverName}GqlFieldResolvers`;
+
+
+  const fileContents = `import schema from "@/lib/collections/${collectionPathPart}/newSchema";
+import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
+import gql from "graphql-tag";
+
+export const ${typeDefsVariableName} = gql\`
+  type ${typeName} {
+    \${getAllGraphQLFields(schema)}
+  }
+\`;
+
+export const ${fieldResolversVariableName} = getFieldGqlResolvers('${collectionName}', schema);
+`;
+
+  const initGraphQLImportLine = `import { ${typeDefsVariableName}, ${fieldResolversVariableName} } from "@/server/collections/${collectionPathPart}/queries";`;
+
+  return { fileContents, initGraphQLImportLine };
+}
+
+function getCollectionPathPart(collectionName: CollectionNameString) {
+  switch (collectionName) {
+    case 'ReadStatuses':
+      return 'readStatus';
+    default:
+      return collectionName[0].toLowerCase() + collectionName.slice(1);
+  }
+}
+
+export async function moveQueryResolvers() {
+  const allCollections = getAllCollections();
+
+  const imports: string[] = [];
+  const queryGqlTypeDefAssignments: string[] = [];
+  const queryResolverAssignments: string[] = [];
+  const fieldResolversAssignments: string[] = [];
+
+  for (const collection of allCollections) {
+    const collectionName = collection.collectionName;
+    const collectionQueryResolvers = collection.options.resolvers;
+
+    const typeName = collectionNameToTypeName[collectionName];
+    const singleResolverName = getSingleResolverName(typeName);
+    const fieldResolversVariableName = `${singleResolverName}GqlFieldResolvers`;
+
+    const collectionPathPart = getCollectionPathPart(collectionName);
+    const queriesFilePath = join(__dirname, `../collections/${collectionPathPart}/queries.ts`);
+
+    if (!collectionQueryResolvers) {
+      const { fileContents, initGraphQLImportLine } = generageMainTypeDef(collectionName);
+      // await writeFile(queriesFilePath, fileContents);
+
+      imports.push(initGraphQLImportLine);
+      queryGqlTypeDefAssignments.push(`  \${graphql${typeName}QueryTypeDefs}`);
+      fieldResolversAssignments.push(`    ...${fieldResolversVariableName},`);
+    } else {
+      const { fileContents, initGraphQLImportLine } = generateQueryResolvers(collectionName);
+
+      // await writeFile(queriesFilePath, fileContents);
+  
+      imports.push(initGraphQLImportLine);
+      queryGqlTypeDefAssignments.push(`  \${graphql${typeName}QueryTypeDefs}`);
+      queryResolverAssignments.push(`    ...${singleResolverName}GqlQueryHandlers,`);
+      fieldResolversAssignments.push(`    ...${fieldResolversVariableName},`);
+    }
+  }
+
+  const importsBlock = imports.join('\n');
+  const queryTypeDefsBlock = queryGqlTypeDefAssignments.join('\n');
+  const queryResolverBlock = queryResolverAssignments.join('\n');
+  const fieldResolversBlock = fieldResolversAssignments.join('\n');
+
+  await writeFile(join(__dirname, `../initGraphQLImports.ts`), importsBlock + '\n\n' + queryTypeDefsBlock + '\n\n' + queryResolverBlock + '\n\n' + fieldResolversBlock);
+}
+
+export async function movePodcastsQueries() {
+  const queryResolverFilePath = join(__dirname, `../collections/podcasts/queries.ts`);
+
+  const { fileContents } = generateQueryResolvers('Podcasts');
+
+  await writeFile(queryResolverFilePath, fileContents);
 }
