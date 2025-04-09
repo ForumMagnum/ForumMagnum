@@ -5,6 +5,7 @@ import { recordPerfMetrics } from '../../server/repos/perfMetricWrapper';
 import { prioritizeThreads, prepareCommentThreadForResolver  } from './ultraFeedThreadHelpers';
 import { recombeeApi, recombeeRequestHelpers } from '../../server/recombee/client';
 import { HybridRecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
+import { aboutPostIdSetting } from '@/lib/instanceSettings';
 
 const COMMENT_LOOKBACK_WINDOW = '90 days';
 
@@ -27,6 +28,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     limit = 20,
     servedPostIds: Set<string> = new Set()
   ): Promise<FeedFullPost[]> {
+    
 
     const { currentUser } = context;
     const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
@@ -37,7 +39,7 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
       console.warn("UltraFeedRepo: No Recombee user found. Cannot fetch hybrid recommendations.");
     } else {
       const settings: HybridRecombeeConfiguration = {
-        hybridScenarios: { fixed: 'forum-classic', configurable: 'recombee-lesswrong-custom' },
+        hybridScenarios: { fixed: 'hacker-news', configurable: 'recombee-lesswrong-custom' },
         excludedPostIds: Array.from(servedPostIds),
         filterSettings: currentUser?.frontpageFilterSettings,
       };
@@ -50,21 +52,55 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
           context
         );
 
-        displayPosts = recommendedResults.map((item): FeedFullPost | null => {
+        displayPosts = recommendedResults.map((item, idx): FeedFullPost | null => {
            if (!item.post?._id) return null;
 
-           const sources: FeedItemSourceType[] = item.scenario ? [item.scenario as FeedItemSourceType] : ['postThreads'];
+
+           // Try to determine the scenario - using the same logic hierarchy as RecombeePostsList.tsx
+           let scenario: string | undefined = item.scenario;
+           
+           if (!scenario) {
+             // Try to detect special posts first, then try recommId
+             const aboutPostId = aboutPostIdSetting.get();
+             if (aboutPostId && item.post._id === aboutPostId && idx === 0) {
+               scenario = 'welcome-post';
+             } else if (item.curated) {
+               scenario = 'curated';
+             } else if (item.stickied || item.post.sticky) { 
+               scenario = 'stickied';
+             } else if (item.recommId) {
+               if (item.recommId.includes('forum-classic')) {
+                 scenario = 'hacker-news';
+               } else if (item.recommId.includes('recombee-lesswrong-custom')) {
+                 scenario = 'recombee-lesswrong-custom';
+               }
+             } else {
+               // Default fallback: Use empty sources array and warn
+               scenario = undefined; // Explicitly set scenario to undefined for clarity
+             }
+           }
+           
+           let sources: FeedItemSourceType[];
+           if (scenario) {
+             sources = [scenario as FeedItemSourceType];
+           } else {
+             sources = [];
+             // eslint-disable-next-line no-console
+             console.warn(`UltraFeedRepo: Could not determine specific source scenario for post ${item.post._id}. Assigning empty sources.`);
+           }
+           
+           const recommInfo = (item.recommId && item.generatedAt) ? {
+             recommId: item.recommId,
+             scenario: scenario || 'unknown',
+             generatedAt: item.generatedAt,
+           } : undefined;
 
            return {
              post: item.post,
              postMetaInfo: {
                sources: sources,
                displayStatus: 'expanded',
-               recommInfo: (item.recommId && item.generatedAt) ? {
-                 recommId: item.recommId,
-                 scenario: item.scenario,
-                 generatedAt: item.generatedAt,
-               } : undefined,
+               recommInfo: recommInfo,
              },
            };
         }).filter((p): p is FeedFullPost => p !== null);
@@ -206,12 +242,19 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
 
     const allThreads: PreDisplayFeedComment[][] = [];
 
-    // For each top-level group, compute all linear threads
-    for (const [topLevelId, groupCandidates] of Object.entries(groups)) {
-      const threads = this.buildDistinctLinearThreads(groupCandidates);
+    for (const [_topLevelId, groupCandidates] of Object.entries(groups)) {
+      const generatedThreads = this.buildDistinctLinearThreads(groupCandidates);
 
-      allThreads.push(...threads);
+      // 2. Filter out threads where every comment has been seen/interacted with
+      const unreadThreads = generatedThreads.filter(thread =>
+        // Keep the thread if *at least one* comment is unread
+        thread.some(comment =>
+          !comment.metaInfo?.lastViewed && !comment.metaInfo?.lastInteracted
+        )
+      );
 
+      // 3. Add only the threads containing at least one unread comment
+      allThreads.push(...unreadThreads);
     }
 
     return allThreads;
@@ -294,11 +337,15 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
     return buildCommentThreads(topLevelId);
   }
 
-  public async getUltraFeedCommentThreads(context: ResolverContext, limit = 20): Promise<FeedCommentsThread[]> {
+  public async getUltraFeedCommentThreads(
+    context: ResolverContext,
+    limit = 20,
+  ): Promise<FeedCommentsThread[]> {
 
     const candidates = await this.getCommentsForFeed(context, 500);
     const threads = await this.getAllCommentThreads(candidates);
     const prioritizedThreadInfos = prioritizeThreads(threads);
+
     const displayThreads = prioritizedThreadInfos
       .slice(0, limit * 2)
       .map(info => prepareCommentThreadForResolver(info))
