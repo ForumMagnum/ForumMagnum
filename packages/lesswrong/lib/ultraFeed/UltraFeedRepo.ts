@@ -165,14 +165,16 @@ class UltraFeedRepo extends AbstractRepo<"Comments"> {
         LEFT JOIN "CommentEvents" ce ON ic."commentId" = ce."documentId"
       ),
       "FilteredUnseenCandidates" AS (
-        -- Filter candidates: Keep only those NOT viewed or interacted with
+        -- Filter candidates: Keep only those NOT viewed, interacted with, OR served in the last 24 hours
         SELECT
           "commentId",
           "threadTopLevelId",
           "postId",
           sources
         FROM "CandidatesWithEvents"
-        WHERE "lastViewed" IS NULL AND "lastInteracted" IS NULL
+        WHERE "lastViewed" IS NULL 
+          AND "lastInteracted" IS NULL
+          AND ("lastServed" IS NULL OR "lastServed" < NOW() - INTERVAL '24 hours')
       ),
       "RelevantThreads" AS (
         SELECT DISTINCT "threadTopLevelId" FROM "FilteredUnseenCandidates"
