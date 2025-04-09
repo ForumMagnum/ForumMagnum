@@ -5,7 +5,13 @@ import {
   PreDisplayFeedComment,
   FeedCommentsThread,
   FeedCommentsThreadResolverType,
-  FeedPostResolverType
+  FeedPostResolverType,
+  FeedPostSourceType,
+  FeedCommentSourceType,
+  FeedSpotlightSourceType,
+  feedPostSourceTypesArray,
+  feedCommentSourceTypesArray,
+  feedSpotlightSourceTypesArray
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
@@ -54,17 +60,27 @@ export const ultraFeedGraphQLTypeDefs = gql`
     ): UltraFeedQueryResults!
   }
 `
-const SOURCE_WEIGHTS = {
-  postThreads: 20,
-  commentThreads: 40,
-  spotlights: 1,
+const SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
+  // Post sources
+  'recombee-lesswrong-custom': 20,
+  'hacker-news': 10,
+  'welcome-post': 1, // Low weight, maybe only for new users?
+  'curated': 2,
+  'stickied': 0,
+
+  // Comment sources
+  'quickTakes': 20,
+  'topComments': 30,
+
+  // Spotlight sources
+  'spotlights': 3,
 };
 
-type UsedFeedItemSourceType = Extract<FeedItemSourceType, "postThreads" | "commentThreads" | "spotlights">;
+// Re-add WeightedSource interface
 interface WeightedSource {
   weight: number;
   items: FeedItem[];
-  renderAsType: FeedItemRenderType;
+  renderAsType: FeedItemRenderType; // This might need rethinking later
 }
 
 type SampledItem = { renderAsType: "feedCommentThread", feedCommentThread: FeedCommentsThread }
@@ -72,17 +88,17 @@ type SampledItem = { renderAsType: "feedCommentThread", feedCommentThread: FeedC
                  | { renderAsType: "feedSpotlight", feedSpotlight: FeedSpotlight };
 
 function weightedSample(
-  inputs: Record<UsedFeedItemSourceType, WeightedSource>, 
+  inputs: Record<FeedItemSourceType, WeightedSource>,
   totalItems: number
 ): SampledItem[] {
   // Create deep copies of the input arrays to avoid modifying the originals
   const sourcesWithCopiedItems = Object.entries(inputs).reduce((acc, [key, value]) => {
-    acc[key as UsedFeedItemSourceType] = {
+    acc[key as FeedItemSourceType] = {
       ...value,
       items: [...value.items] // Create a copy of the items array
     };
     return acc;
-  }, {} as Record<UsedFeedItemSourceType, WeightedSource>);
+  }, {} as Record<FeedItemSourceType, WeightedSource>);
 
   const finalFeed: SampledItem[] = [];
   let totalWeight = Object.values(sourcesWithCopiedItems).reduce(
@@ -96,14 +112,14 @@ function weightedSample(
     const pick = Math.random() * totalWeight;
 
     let cumulative = 0;
-    let chosenSourceKey: UsedFeedItemSourceType | null = null;
+    let chosenSourceKey: FeedItemSourceType | null = null;
 
     for (const [key, src] of Object.entries(sourcesWithCopiedItems)) {
       if (src.items.length === 0) continue;
 
       cumulative += src.weight;
       if (pick < cumulative) {
-        chosenSourceKey = key as UsedFeedItemSourceType;
+        chosenSourceKey = key as FeedItemSourceType;
         break;
       }
     }
@@ -159,9 +175,15 @@ export const ultraFeedGraphQLQueries = {
       const totalWeight = Object.values(SOURCE_WEIGHTS).reduce((sum, weight) => sum + weight, 0);
       const bufferMultiplier = 2; // Fetch 2x the expected need as buffer
 
-      const postFetchLimit = Math.ceil(limit * (SOURCE_WEIGHTS.postThreads / totalWeight) * bufferMultiplier);
-      const commentBufferLimit = Math.ceil(limit * (SOURCE_WEIGHTS.commentThreads / totalWeight) * bufferMultiplier);
-      const spotlightFetchLimit = Math.ceil(limit * (SOURCE_WEIGHTS.spotlights / totalWeight) * bufferMultiplier);
+      // --- Calculate weights per category using imported arrays directly ---
+      const totalPostWeight = feedPostSourceTypesArray.reduce((sum, type) => sum + (SOURCE_WEIGHTS[type] || 0), 0);
+      const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum, type) => sum + (SOURCE_WEIGHTS[type] || 0), 0);
+      const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum, type) => sum + (SOURCE_WEIGHTS[type] || 0), 0);
+
+      // --- Calculate fetch limits based on summed weights ---
+      const postFetchLimit = totalWeight > 0 ? Math.ceil(limit * (totalPostWeight / totalWeight) * bufferMultiplier) : limit * bufferMultiplier;
+      const commentBufferLimit = totalWeight > 0 ? Math.ceil(limit * (totalCommentWeight / totalWeight) * bufferMultiplier) : limit * bufferMultiplier;
+      const spotlightFetchLimit = totalWeight > 0 ? Math.ceil(limit * (totalSpotlightWeight / totalWeight) * bufferMultiplier) : limit; // Spotlights might not need as large a buffer
 
 
       let servedPostIds = new Set<string>();
@@ -189,25 +211,89 @@ export const ultraFeedGraphQLQueries = {
         ultraFeedRepo.getUltraFeedSpotlights(context, spotlightFetchLimit)
       ]);
 
-      const sources: Record<UsedFeedItemSourceType, WeightedSource> = {
-        postThreads: {
-          weight: SOURCE_WEIGHTS.postThreads,
-          items: postThreadsItems,
-          renderAsType: "feedPost"
-        },
-        commentThreads: {
-          weight: SOURCE_WEIGHTS.commentThreads,
-          items: commentThreadsItems,
-          renderAsType: "feedCommentThread"
-        },
-        spotlights: {
-          weight: SOURCE_WEIGHTS.spotlights,
-          items: spotlightItems,
-          renderAsType: "feedSpotlight"
-        }
-      };
+      // --- Initialize sources object dynamically ---
+      const sources = {} as Record<FeedItemSourceType, WeightedSource>;
+      Object.entries(SOURCE_WEIGHTS).forEach(([source, weight]) => {
+        const sourceType = source as FeedItemSourceType;
+        let renderAsType: FeedItemRenderType;
 
-      const sampledItems = weightedSample(sources, limit);
+        if ((feedPostSourceTypesArray as readonly string[]).includes(sourceType)) {
+          renderAsType = 'feedPost';
+        } else if ((feedCommentSourceTypesArray as readonly string[]).includes(sourceType)) {
+          renderAsType = 'feedCommentThread';
+        } else if ((feedSpotlightSourceTypesArray as readonly string[]).includes(sourceType)) {
+          renderAsType = 'feedSpotlight';
+        } else {
+          // eslint-disable-next-line no-console
+          console.warn(`UltraFeedResolver: Source type "${sourceType}" found in SOURCE_WEIGHTS but not in known type arrays.`);
+          // Assign a default or handle as error? For now, skip maybe?
+          return; // Skip sources not mappable to a render type
+        }
+
+        sources[sourceType] = {
+          weight,
+          items: [], // Initialize with empty items
+          renderAsType
+        };
+      });
+
+      // --- Populate sources with fetched items ---
+
+      // Populate spotlights (if the source exists)
+      if (sources.spotlights) {
+        sources.spotlights.items = spotlightItems;
+      } else if (spotlightItems.length > 0) {
+         // eslint-disable-next-line no-console
+         console.warn("UltraFeedResolver: Fetched spotlights but 'spotlights' source is not defined in SOURCE_WEIGHTS.");
+      }
+
+      // Populate posts
+      postThreadsItems.forEach(postItem => {
+        const itemSources = postItem.postMetaInfo?.sources;
+        if (Array.isArray(itemSources)) {
+          itemSources.forEach(source => {
+            const sourceType = source as FeedItemSourceType;
+            if (sources[sourceType]) {
+              sources[sourceType].items.push(postItem);
+            } else {
+              // Optional: Log if a post source doesn't match any weighted source
+              // console.warn(`Post ${postItem.post?._id} has source "${sourceType}" not in SOURCE_WEIGHTS.`);
+            }
+          });
+        }
+      });
+
+      // Populate comment threads
+      commentThreadsItems.forEach(commentThread => {
+        // Use sources from the first comment in the thread
+        const firstCommentMeta = commentThread.comments[0]?.metaInfo;
+        const itemSources = firstCommentMeta?.sources;
+
+        if (Array.isArray(itemSources)) {
+          itemSources.forEach(source => {
+            const sourceType = source as FeedItemSourceType;
+            if (sources[sourceType]) {
+              // Add the entire thread to the bucket for this source
+              sources[sourceType].items.push(commentThread);
+            } else {
+              // Optional: Log if a comment source doesn't match any weighted source
+              console.warn(`Comment thread starting with ${commentThread.comments[0]?.commentId} has source "${sourceType}" not in SOURCE_WEIGHTS.`);
+            }
+          });
+        }
+      });
+
+      // --- Filter out sources with no items to prevent issues in weightedSample ---
+      const populatedSources = Object.entries(sources).reduce((acc, [key, value]) => {
+        if (value.items.length > 0) {
+          acc[key as FeedItemSourceType] = value;
+        }
+        return acc;
+      }, {} as Record<FeedItemSourceType, WeightedSource>);
+
+
+      // const sampledItems = weightedSample(sources, limit);
+      const sampledItems = weightedSample(populatedSources, limit); // Use populatedSources
       
       const results: UltraFeedResolverType[] = filterNonnull(await Promise.all(
         sampledItems.map(async (item: SampledItem, index: number):

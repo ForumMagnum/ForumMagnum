@@ -1,8 +1,14 @@
-export type FeedPostSourceType = 'recombee-lesswrong-custom' | 'hacker-news' | 'welcome-post' | 'curated' | 'stickied';
-export type FeedCommentSourceType = 'quickTakes' | 'topComments';
-export type FeedSpotlightSourceType = 'spotlights';
+// Define source type arrays
+export const feedPostSourceTypesArray = ['recombee-lesswrong-custom', 'hacker-news', 'welcome-post', 'curated', 'stickied'] as const;
+export const feedCommentSourceTypesArray = ['quickTakes', 'topComments'] as const;
+export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 
-export type FeedItemSourceType = | FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
+// Derive types from arrays
+export type FeedPostSourceType = typeof feedPostSourceTypesArray[number];
+export type FeedCommentSourceType = typeof feedCommentSourceTypesArray[number];
+export type FeedSpotlightSourceType = typeof feedSpotlightSourceTypesArray[number];
+
+export type FeedItemSourceType = FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
 export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
  
