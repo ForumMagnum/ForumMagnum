@@ -16,7 +16,6 @@ export const PostViews = createCollection({
     indexSet.addIndex('PostViews', { windowStart: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

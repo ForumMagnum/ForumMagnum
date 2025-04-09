@@ -10,7 +10,6 @@ export const SurveySchedules = createCollection({
     indexSet.addIndex('SurveySchedules', {clientIds: 1});
     return indexSet;
   },
-  logChanges: true,
 });
 
 

@@ -9,7 +9,6 @@ export const UserTagRels: UserTagRelsCollection = createCollection({
     indexSet.addIndex('UserTagRels', { tagId: 1, userId: 1 }, { unique: true });
     return indexSet;
   },
-  logChanges: true,
 });
 
 export default UserTagRels;

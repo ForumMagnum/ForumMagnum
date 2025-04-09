@@ -9,7 +9,6 @@ export const UserEAGDetails: UserEAGDetailsCollection = createCollection({
     indexSet.addIndex('UserEAGDetails', { userId: 1 }, { unique: true });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

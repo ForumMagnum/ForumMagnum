@@ -9,7 +9,6 @@ export const CkEditorUserSessions = createCollection({
     indexSet.addIndex('CkEditorUserSessions', { documentId: 1, userId: 1 })
     return indexSet;
   },
-  logChanges: true,
 })
 
 

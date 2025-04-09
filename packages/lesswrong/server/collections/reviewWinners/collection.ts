@@ -14,7 +14,6 @@ export const ReviewWinners = createCollection({
     indexSet.addIndex('ReviewWinners', { reviewYear: 1, reviewRanking: 1 }, { unique: true });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

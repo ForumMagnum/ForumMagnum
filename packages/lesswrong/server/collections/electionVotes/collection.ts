@@ -10,7 +10,6 @@ export const ElectionVotes: ElectionVotesCollection = createCollection({
     indexSet.addIndex('ElectionVotes', {electionName: 1, userId: 1}, {unique: true});
     return indexSet;
   },
-  logChanges: true,
 });
 
 

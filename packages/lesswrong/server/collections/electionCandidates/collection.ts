@@ -9,7 +9,6 @@ export const ElectionCandidates: ElectionCandidatesCollection = createCollection
     indexSet.addIndex('ElectionCandidates', {electionName: 1});
     return indexSet;
   },
-  logChanges: true,
   voteable: {
     timeDecayScoresCronjob: false,
   },

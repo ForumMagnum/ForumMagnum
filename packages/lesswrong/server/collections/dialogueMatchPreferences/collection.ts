@@ -9,7 +9,6 @@ export const DialogueMatchPreferences: DialogueMatchPreferencesCollection = crea
     indexSet.addIndex('DialogueMatchPreferences', { dialogueCheckId: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 export default DialogueMatchPreferences;

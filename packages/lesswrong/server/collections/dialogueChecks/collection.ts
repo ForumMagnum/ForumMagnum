@@ -9,7 +9,6 @@ export const DialogueChecks: DialogueChecksCollection = createCollection({
     indexSet.addIndex('DialogueChecks', { userId: 1, targetUserId: 1 }, { unique: true });
     return indexSet;
   },
-  logChanges: true,
 })
 
 export default DialogueChecks;

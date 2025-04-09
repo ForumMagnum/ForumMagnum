@@ -9,7 +9,6 @@ export const Books: BooksCollection = createCollection({
     indexSet.addIndex('Books', { collectionId: 1 })
     return indexSet;
   },
-  logChanges: true,
 });
 
 

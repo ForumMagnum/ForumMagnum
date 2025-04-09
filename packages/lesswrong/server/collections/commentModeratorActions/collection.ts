@@ -9,7 +9,6 @@ export const CommentModeratorActions: CommentModeratorActionsCollection = create
     indexSet.addIndex('CommentModeratorActions', { commentId: 1, createdAt: -1 })
     return indexSet;
   },
-  logChanges: true,
 });
 
 

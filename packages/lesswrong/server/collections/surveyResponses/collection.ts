@@ -12,7 +12,6 @@ export const SurveyResponses = createCollection({
     indexSet.addIndex('SurveyResponses', {clientId: 1});
     return indexSet;
   },
-  logChanges: false,
 });
 
 

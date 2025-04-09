@@ -9,7 +9,6 @@ export const PostEmbeddings: PostEmbeddingsCollection = createCollection({
     indexSet.addIndex('PostEmbeddings', { postId: 1, model: 1 }, { unique: true });
     return indexSet;
   },
-  logChanges: false,
 });
 
 

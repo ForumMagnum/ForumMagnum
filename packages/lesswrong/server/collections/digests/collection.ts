@@ -9,7 +9,6 @@ export const Digests: DigestsCollection = createCollection({
     indexSet.addIndex('Digests', { num: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

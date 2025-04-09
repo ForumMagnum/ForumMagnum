@@ -9,7 +9,6 @@ export const TypingIndicators: TypingIndicatorsCollection = createCollection({
     indexSet.addIndex('TypingIndicators', { documentId: 1, userId: 1 }, { unique: true });
     return indexSet;
   },
-  logChanges: true,
 })
 
 export default TypingIndicators;

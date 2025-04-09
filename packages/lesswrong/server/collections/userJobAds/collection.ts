@@ -13,7 +13,6 @@ export const UserJobAds: UserJobAdsCollection = createCollection({
     indexSet.addIndex('UserJobAds', { jobName: 1, adState: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

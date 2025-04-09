@@ -12,7 +12,6 @@ export const Messages: MessagesCollection = createCollection({
   },
   // Don't log things related to Messages to LWEvents, to keep LWEvents relatively
   // free of confidential stuff that admins shouldn't look at.
-  logChanges: false,
 });
 
 export default Messages;

@@ -9,7 +9,6 @@ export const JargonTerms: JargonTermsCollection = createCollection({
     indexSet.addIndex('JargonTerms', { postId: 1, term: 1, createdAt: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 export default JargonTerms;

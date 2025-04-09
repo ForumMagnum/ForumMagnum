@@ -20,7 +20,6 @@ export const Notifications: NotificationsCollection = createCollection({
 
     return indexSet;
   },
-  logChanges: false,
 });
 
 export default Notifications;

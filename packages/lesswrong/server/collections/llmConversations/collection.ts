@@ -9,7 +9,6 @@ export const LlmConversations: LlmConversationsCollection = createCollection({
     indexSet.addIndex('LlmConversations', { userId: 1, deleted: 1, createdAt: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 export default LlmConversations;

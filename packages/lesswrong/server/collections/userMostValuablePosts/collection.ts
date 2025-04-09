@@ -10,7 +10,6 @@ export const UserMostValuablePosts: UserMostValuablePostsCollection = createColl
     indexSet.addIndex('UserMostValuablePosts', { userId: 1, postId: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

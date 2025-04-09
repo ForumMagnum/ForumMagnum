@@ -15,7 +15,6 @@ export const Localgroups: LocalgroupsCollection = createCollection({
     indexSet.addIndex('Localgroups', { isOnline: 1, inactive: 1, deleted: 1, name: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

@@ -12,7 +12,6 @@ export const Chapters: ChaptersCollection = createCollection({
     indexSet.addIndex('Chapters', { sequenceId: 1, number: 1 })
     return indexSet;
   },
-  logChanges: true,
 })
 
 export default Chapters;

@@ -11,7 +11,6 @@ export const Reports: ReportsCollection = createCollection({
     indexSet.addIndex('Reports', {closedAt:1, createdAt: 1});
     return indexSet;
   },
-  logChanges: true,
 });
 
 export default Reports;

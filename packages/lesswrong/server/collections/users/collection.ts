@@ -4,7 +4,6 @@ import gql from 'graphql-tag';
 export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  logChanges: true,
   dependencies: [
     {type: "extension", name: "pg_trgm"},
   ],

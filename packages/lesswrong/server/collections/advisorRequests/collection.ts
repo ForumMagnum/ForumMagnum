@@ -9,7 +9,6 @@ export const AdvisorRequests: AdvisorRequestsCollection = createCollection({
     indexSet.addIndex('AdvisorRequests', { userId: 1 })
     return indexSet;
   },
-  logChanges: true,
 });
 
 

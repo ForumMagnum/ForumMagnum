@@ -12,7 +12,6 @@ export const GardenCodes: GardenCodesCollection = createCollection({
     indexSet.addIndex('GardenCodes', {code: 1, deleted: 1, userId: 1, });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

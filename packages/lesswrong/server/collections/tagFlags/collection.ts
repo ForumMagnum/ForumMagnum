@@ -11,7 +11,6 @@ export const TagFlags: TagFlagsCollection = createCollection({
     indexSet.addIndex('TagFlags', {deleted: 1, order: 1, name: 1});
     return indexSet;
   },
-  logChanges: true,
 });
 
 

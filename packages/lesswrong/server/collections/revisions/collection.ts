@@ -4,7 +4,6 @@ import { getVoteGraphql } from '@/server/votingGraphQL';
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
-  logChanges: true,
   voteable: {
     timeDecayScoresCronjob: false,
   },

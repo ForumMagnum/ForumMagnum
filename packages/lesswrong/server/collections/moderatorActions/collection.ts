@@ -19,7 +19,6 @@ export const ModeratorActions: ModeratorActionsCollection = createCollection({
     indexSet.addIndex('ModeratorActions', { type: 1, createdAt: -1, endedAt: -1 })
     return indexSet;
   },
-  logChanges: true,
 });
 
 

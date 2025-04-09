@@ -4,7 +4,6 @@ import { getVoteGraphql } from '@/server/votingGraphQL';
 export const Tags = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
-  logChanges: true,
   voteable: {
     timeDecayScoresCronjob: false,
   },

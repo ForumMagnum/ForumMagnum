@@ -12,7 +12,6 @@ export const ReviewWinnerArts = createCollection({
     indexSet.addIndex('ReviewWinnerArts', { postId: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

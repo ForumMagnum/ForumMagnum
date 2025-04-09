@@ -244,7 +244,7 @@ const updateFunctionOpeningSection = (collectionName: CollectionNameString, coll
   return `
   updateFunction: async ({ selector, data }, context, skipValidation?: boolean) => {
     const { currentUser, ${collectionName} } = context;
-${collection.options.logChanges ? `
+${('logChanges' in collection.options && collection.options.logChanges) ? `
     // Save the original mutation (before callbacks add more changes to it) for
     // logging in FieldChanges
     const origData = cloneDeep(data);\n` : ''}
@@ -369,7 +369,7 @@ function generateMutationFunctions(collectionName: CollectionNameString) {
   const collectionHasElasticSync = searchIndexedCollectionNamesSet.has(collectionName);
 
   const hasEditableFields = editableFields.length > 0;
-  const hasLogChanges = !!collection.options.logChanges;
+  const hasLogChanges = false; // !!collection.options.logChanges;
   const hasSlug = !!schema.slug?.graphql && 'slugCallbackOptions' in schema.slug.graphql;
   const creatableFields = getCreatableGraphQLFields(schema, '      ');
   const updatableFields = getUpdatableGraphQLFields(schema, '      ');

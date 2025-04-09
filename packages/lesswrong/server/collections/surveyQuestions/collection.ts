@@ -9,7 +9,6 @@ export const SurveyQuestions: SurveyQuestionsCollection = createCollection({
     indexSet.addIndex('SurveyQuestions', {surveyId: 1});
     return indexSet;
   },
-  logChanges: true,
 });
 
 

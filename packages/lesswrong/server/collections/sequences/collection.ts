@@ -17,7 +17,6 @@ export const Sequences = createCollection({
     indexSet.addIndex('Sequences', augmentForDefaultView({ curatedOrder:-1 }));
     return indexSet;
   },
-  logChanges: true,
 })
 
 export default Sequences;

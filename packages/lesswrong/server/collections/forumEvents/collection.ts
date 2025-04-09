@@ -9,7 +9,6 @@ export const ForumEvents: ForumEventsCollection = createCollection({
     indexSet.addIndex('ForumEvents', {endDate: 1});
     return indexSet;
   },
-  logChanges: true,
 });
 
 

@@ -9,7 +9,6 @@ export const PostRelations: PostRelationsCollection = createCollection({
     indexSet.addIndex('PostRelations', { sourcePostId: 1, order: 1, createdAt: -1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

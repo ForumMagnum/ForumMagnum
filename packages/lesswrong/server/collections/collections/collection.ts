@@ -10,7 +10,6 @@ export const Collections: CollectionsCollection = createCollection({
     indexSet.addIndex('Collections', { slug: "hashed" });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

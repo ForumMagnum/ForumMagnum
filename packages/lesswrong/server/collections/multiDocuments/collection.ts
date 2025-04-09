@@ -13,7 +13,6 @@ export const MultiDocuments = createCollection({
     indexSet.addCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin(pingbacks);`);
     return indexSet;
   },
-  logChanges: true,
   voteable: {
     timeDecayScoresCronjob: false,
   },

@@ -8,7 +8,6 @@ import { getVoteGraphql } from '@/server/votingGraphQL';
 export const Posts = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
-  logChanges: true,
   voteable: {
     timeDecayScoresCronjob: true,
   },

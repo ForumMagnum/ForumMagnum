@@ -10,7 +10,6 @@ export const ModerationTemplates: ModerationTemplatesCollection = createCollecti
     indexSet.addIndex('ModerationTemplates', { collectionName: 1, deleted: 1, order: 1 })
     return indexSet;
   },
-  logChanges: true,
 });
 
 

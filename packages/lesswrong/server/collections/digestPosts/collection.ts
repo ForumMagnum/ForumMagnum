@@ -9,7 +9,6 @@ export const DigestPosts: DigestPostsCollection = createCollection({
     indexSet.addIndex('DigestPosts', {digestId: 1});
     return indexSet;
   },
-  logChanges: true,
 });
 
 

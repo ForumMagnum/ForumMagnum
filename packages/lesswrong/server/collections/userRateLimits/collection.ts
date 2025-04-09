@@ -18,7 +18,6 @@ export const UserRateLimits: UserRateLimitsCollection = createCollection({
     indexSet.addIndex('UserRateLimits', { userId: 1, createdAt: -1, endedAt: -1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

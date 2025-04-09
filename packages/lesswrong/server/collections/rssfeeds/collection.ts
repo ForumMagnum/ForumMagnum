@@ -11,7 +11,6 @@ export const RSSFeeds: RSSFeedsCollection = createCollection({
     indexSet.addIndex('RSSFeeds', { userId: 1, createdAt: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

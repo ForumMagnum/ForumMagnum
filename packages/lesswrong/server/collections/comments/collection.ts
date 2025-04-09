@@ -5,7 +5,6 @@ import { getVoteGraphql } from '@/server/votingGraphQL';
 export const Comments = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
-  logChanges: true,
   voteable: commentVotingOptions,
 });
 

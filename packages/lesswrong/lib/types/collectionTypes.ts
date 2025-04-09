@@ -89,8 +89,6 @@ type CollectionOptions<N extends CollectionNameString> = {
   typeName: string,
   collectionName: N,
   dbCollectionName?: string,
-  description?: string,
-  logChanges?: boolean,
   writeAheadLogged?: boolean,
   dependencies?: SchemaDependency[],
   voteable?: CollectionVoteOptions,

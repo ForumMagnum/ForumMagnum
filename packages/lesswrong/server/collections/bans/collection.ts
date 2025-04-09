@@ -10,7 +10,6 @@ export const Bans: BansCollection = createCollection({
     indexSet.addIndex('Bans', { ip: 1 })
     return indexSet;
   },
-  logChanges: true,
 });
 
 export default Bans
