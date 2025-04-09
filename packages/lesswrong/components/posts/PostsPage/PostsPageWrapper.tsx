@@ -59,15 +59,18 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000, postId: documentId}
 
+  // Don't pass in the eagerPostComments if we skipped the query,
+  // otherwise PostsPage will skip the lazy query if the terms change
+  const skipEagerComments = !!postPreload;
   const commentQueryResult = useMulti({
     terms,
-    skip: !!postPreload,
+    skip: skipEagerComments,
     ...postsCommentsThreadMultiOptions,
   });
-  const eagerPostComments = {
-    terms,
-    queryResponse: commentQueryResult,
-  }
+  const eagerPostComments = skipEagerComments
+    ? undefined
+    : { terms, queryResponse: commentQueryResult };
+    
   // End of performance section
 
   const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;

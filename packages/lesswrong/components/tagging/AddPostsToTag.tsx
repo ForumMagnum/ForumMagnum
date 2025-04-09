@@ -121,8 +121,8 @@ const AddPostsToTag = ({classes, tag}: {
   const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
       return
     }

@@ -1,14 +1,8 @@
 import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import { getAllFragments, getMemoizedFragmentInfo } from '../fragments/allFragments';
+import { extractFragmentName } from '../fragments/fragmentWrapper';
 
-
-// Get a fragment's name from its text
-function extractFragmentName(fragmentText: string): FragmentName {
-  const match = fragmentText.match(/fragment (.*) on/)
-  if (!match) throw new Error("Could not extract fragment name");
-  return match[1] as FragmentName;
-}
 
 // Create gql fragment object from text and subfragments
 function getFragmentObject(fragmentText: string, subFragments: Array<FragmentName>|undefined): DocumentNode {

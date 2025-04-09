@@ -60,7 +60,7 @@ const schema = {
   },
   participants: {
     graphql: {
-      outputType: "[User!]!",
+      outputType: "[User!]",
       canRead: ["members"],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "participantIds" }),
     },

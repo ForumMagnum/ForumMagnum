@@ -14,8 +14,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-interface AFApplicationFormProps extends WithMessagesProps, WithStylesProps, WithUpdateCurrentUserProps {
+interface ExternalProps {
   onClose: any,
+}
+
+interface AFApplicationFormProps extends ExternalProps, WithMessagesProps, WithStylesProps, WithUpdateCurrentUserProps {
 }
 interface AFApplicationFormState {
   applicationText: string,
@@ -80,7 +83,7 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
   }
 }
 
-const AFApplicationFormComponent = registerComponent(
+const AFApplicationFormComponent = registerComponent<ExternalProps>(
   'AFApplicationForm', AFApplicationForm, { styles, hocs: [
     withMessages,
     withUpdateCurrentUser,

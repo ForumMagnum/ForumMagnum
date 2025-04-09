@@ -11,7 +11,7 @@ export const splashArtCoordinateCache = new SwrCache<{
       coordinatesByReviewWinnerArtId: keyBy(activeSplashArtCoordinates, (sac) => sac.reviewWinnerArtId)
     };
   },
-  expiryMs: 60*60*1000, //1 hour
+  expiryMs: 60*60*1000
 });
 
 export async function getReviewWinnerArtCoordinates(reviewWinnerArtId: string, context: ResolverContext): Promise<DbSplashArtCoordinate | null> {

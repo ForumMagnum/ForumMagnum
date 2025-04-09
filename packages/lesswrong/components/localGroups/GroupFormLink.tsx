@@ -15,8 +15,12 @@ const GroupFormLink = ({documentId, isOnline}: {
 
   const handleOpenGroupForm = () => {
     openDialog({
-      componentName: "GroupFormDialog",
-      componentProps: {documentId: documentId, isOnline: isOnline}
+      name: "GroupFormDialog",
+      contents: ({onClose}) => <Components.GroupFormDialog
+        onClose={onClose}
+        documentId={documentId}
+        isOnline={isOnline}
+      />
     })
   }
 

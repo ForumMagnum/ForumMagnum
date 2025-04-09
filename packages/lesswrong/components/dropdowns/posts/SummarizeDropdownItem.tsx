@@ -17,8 +17,11 @@ const SummarizeDropdownItem = ({post, closeMenu}: {
   const showPostSummary = () => {
     closeMenu?.();
     openDialog({
-      componentName: "PostSummaryDialog",
-      componentProps: {post},
+      name: "PostSummaryDialog",
+      contents: ({onClose}) => <Components.PostSummaryDialog
+        onClose={onClose}
+        post={post}
+      />
     });
   }
 

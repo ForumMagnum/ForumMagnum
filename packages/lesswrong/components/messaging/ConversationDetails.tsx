@@ -26,10 +26,11 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
 
   const openConversationOptions = () => {
     openDialog({
-      componentName: "ConversationTitleEditForm",
-      componentProps: {
-        documentId: conversation._id
-      }
+      name: "ConversationTitleEditForm",
+      contents: ({onClose}) => <Components.ConversationTitleEditForm
+        onClose={onClose}
+        documentId={conversation._id}
+      />
     });
   }
 

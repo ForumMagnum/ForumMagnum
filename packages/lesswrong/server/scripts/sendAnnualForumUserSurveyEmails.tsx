@@ -3,9 +3,8 @@ import { isEAForum } from "@/lib/instanceSettings";
 import { loggerConstructor } from "@/lib/utils/logging";
 import UsersRepo from "../repos/UsersRepo";
 import { wrapAndSendEmail } from "../emails/renderEmail";
-import './../emailComponents/EmailAnnualForumUserSurvey';
 import Users from '@/server/collections/users/collection';
-import { Components } from "@/lib/vulcan-lib/components.tsx";
+import { EmailAnnualForumUserSurvey } from './../emailComponents/EmailAnnualForumUserSurvey';
 
 /**
  * Used by the EA Forum to send an email to a subset of users
@@ -39,7 +38,7 @@ export const sendUserSurveyEmails = async (limit=10) => {
         user,
         from: 'EA Forum Team <eaforum@centreforeffectivealtruism.org>',
         subject: `We’d love to hear from you! Fill out the 2024 EA Forum user survey`,
-        body: <Components.EmailAnnualForumUserSurvey user={user} />,
+        body: <EmailAnnualForumUserSurvey user={user} />,
       })
       await Users.rawUpdateOne(
         {_id: user._id},

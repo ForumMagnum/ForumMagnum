@@ -37,11 +37,11 @@ interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
 }
 
-interface ArbitalCachesDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
+interface ArbitalCachesDefaultFragment { // fragment on ArbitalCaches
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface ArbitalLinkedPagesFragment { // fragment on non-collection type
@@ -259,10 +259,10 @@ interface CommentEdit extends CommentsList { // fragment on Comments
 
 interface CommentModeratorActionDisplay { // fragment on CommentModeratorActions
   readonly _id: string,
-  readonly comment: CommentsListWithModerationMetadata,
+  readonly comment: CommentsListWithModerationMetadata|null,
   readonly commentId: string,
   readonly type: "downvotedCommentAlert",
-  readonly active: boolean,
+  readonly active: boolean|null,
   readonly createdAt: Date,
   readonly endedAt: Date | null,
 }
@@ -645,18 +645,18 @@ interface CurationNoticesFragment { // fragment on CurationNotices
   readonly contents: RevisionEdit|null,
 }
 
-interface DatabaseMetadataDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
+interface DatabaseMetadataDefaultFragment { // fragment on DatabaseMetadata
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface DebouncerEventsDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
+interface DebouncerEventsDefaultFragment { // fragment on DebouncerEvents
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface DeletedCommentsMetaData { // fragment on Comments
@@ -913,11 +913,11 @@ interface ElicitQuestionsDefaultFragment { // fragment on ElicitQuestions
   readonly resolvesBy: Date | null,
 }
 
-interface EmailTokensDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
+interface EmailTokensDefaultFragment { // fragment on EmailTokens
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface ExplorePageTagFragment extends TagFragment { // fragment on Tags
@@ -1139,11 +1139,11 @@ interface HighlightWithHash_contents { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
 }
 
-interface ImagesDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
+interface ImagesDefaultFragment { // fragment on Images
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface JargonTerms { // fragment on JargonTerms
@@ -1197,11 +1197,11 @@ interface LWEventsDefaultFragment { // fragment on LWEvents
   readonly intercom: boolean,
 }
 
-interface LegacyDataDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
+interface LegacyDataDefaultFragment { // fragment on LegacyData
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface LlmConversationsDefaultFragment { // fragment on LlmConversations
@@ -1295,7 +1295,7 @@ interface ManifoldProbabilitiesCachesDefaultFragment { // fragment on ManifoldPr
 }
 
 interface MembersOfGroupFragment { // fragment on Subscriptions
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface MessagesDefaultFragment { // fragment on Messages
@@ -1486,11 +1486,11 @@ interface NotificationsList { // fragment on Notifications
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface PageCacheDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
+interface PageCacheDefaultFragment { // fragment on PageCache
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface PetrovDayActionInfo { // fragment on PetrovDayActions
@@ -1650,11 +1650,11 @@ interface PostViewTimesDefaultFragment { // fragment on PostViewTimes
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface PostViewsDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
-  readonly legacyData: any,
+interface PostViewsDefaultFragment { // fragment on PostViews
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
+  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface PostWithDialogueMessage { // fragment on Posts
@@ -1664,7 +1664,7 @@ interface PostWithDialogueMessage { // fragment on Posts
 
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
-  readonly languageModelSummary: string,
+  readonly languageModelSummary: string|null,
 }
 
 interface PostsAuthors { // fragment on Posts
@@ -2470,12 +2470,29 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly competitorCount: number|null,
 }
 
+interface ReviewWinnerAnnouncement { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
+  readonly curatedOrder: number | null,
+  readonly reviewYear: number,
+  readonly reviewRanking: number,
+  readonly competitorCount: number|null,
+  readonly postId: string,
+  readonly post: ReviewWinnerAnnouncement_post|null,
+}
+
+interface ReviewWinnerAnnouncement_post { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+}
+
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly postId: string,
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
-  readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
+  readonly activeSplashArtCoordinates: SplashArtCoordinatesEdit|null,
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
@@ -2499,7 +2516,7 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
 interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
-  readonly post: PostsTopItemInfo,
+  readonly post: PostsTopItemInfo|null,
   readonly reviewYear: number,
   readonly curatedOrder: number | null,
   readonly reviewRanking: number,
@@ -2516,7 +2533,7 @@ interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
 
 interface ReviewWinnerTopPostsPage_reviewWinnerArt { // fragment on ReviewWinnerArts
   readonly splashArtImageUrl: string,
-  readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
+  readonly activeSplashArtCoordinates: SplashArtCoordinatesEdit|null,
 }
 
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
@@ -2799,6 +2816,10 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
   readonly rightHeightPct: number,
   readonly rightWidthPct: number,
   readonly rightFlipped: boolean,
+}
+
+interface SplashArtCoordinatesEdit extends SplashArtCoordinates { // fragment on SplashArtCoordinates
+  readonly createdAt: Date,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -3673,7 +3694,7 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
 interface UnclaimedReportsList { // fragment on Reports
   readonly _id: string,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
   readonly commentId: string,
   readonly comment: UnclaimedReportsList_comment|null,
   readonly postId: string,
@@ -5264,7 +5285,7 @@ interface UsersSocialMediaInfo extends UsersProfile { // fragment on Users
 }
 
 interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
-  readonly reviewVoteCount: number,
+  readonly reviewVoteCount: number|null,
   readonly email: string,
 }
 
@@ -5679,6 +5700,7 @@ interface FragmentTypes {
   ReportsDefaultFragment: ReportsDefaultFragment
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
+  ReviewWinnerAnnouncement: ReviewWinnerAnnouncement
   ReviewWinnerArtImages: ReviewWinnerArtImages
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
@@ -5708,6 +5730,7 @@ interface FragmentTypes {
   SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
   SplashArtCoordinates: SplashArtCoordinates
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
+  SplashArtCoordinatesEdit: SplashArtCoordinatesEdit
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
@@ -5900,12 +5923,12 @@ interface FragmentTypesByCollection {
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
   ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
-  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
+  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   Sessions: "SessionsDefaultFragment"
   SideCommentCaches: "SideCommentCacheMinimumInfo"|"SideCommentCachesDefaultFragment"
-  SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesDefaultFragment"
+  SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"|"SpotlightReviewWinner"|"SpotlightsDefaultFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"|"SubscriptionsDefaultFragment"
@@ -5933,7 +5956,7 @@ interface CollectionNamesByFragmentName {
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   AllTagsPageFragment: "Tags"
-  ArbitalCachesDefaultFragment: never
+  ArbitalCachesDefaultFragment: "ArbitalCaches"
   ArbitalLinkedPagesFragment: never
   ArbitalTagContentRelsDefaultFragment: "ArbitalTagContentRels"
   BansAdminPageFragment: "Bans"
@@ -5973,8 +5996,8 @@ interface CollectionNamesByFragmentName {
   CurationEmailsDefaultFragment: "CurationEmails"
   CurationNoticesDefaultFragment: "CurationNotices"
   CurationNoticesFragment: "CurationNotices"
-  DatabaseMetadataDefaultFragment: never
-  DebouncerEventsDefaultFragment: never
+  DatabaseMetadataDefaultFragment: "DatabaseMetadata"
+  DebouncerEventsDefaultFragment: "DebouncerEvents"
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
   DialogueCheckInfo: "DialogueChecks"
@@ -5994,7 +6017,7 @@ interface CollectionNamesByFragmentName {
   ElicitQuestionFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
-  EmailTokensDefaultFragment: never
+  EmailTokensDefaultFragment: "EmailTokens"
   ExplorePageTagFragment: "Tags"
   FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
@@ -6011,13 +6034,13 @@ interface CollectionNamesByFragmentName {
   GoogleServiceAccountSessionInfo: "GoogleServiceAccountSessions"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   HighlightWithHash: "Posts"
-  ImagesDefaultFragment: never
+  ImagesDefaultFragment: "Images"
   JargonTerms: "JargonTerms"
   JargonTermsDefaultFragment: "JargonTerms"
   JargonTermsPost: "JargonTerms"
   JargonTermsWithPostInfo: "JargonTerms"
   LWEventsDefaultFragment: "LWEvents"
-  LegacyDataDefaultFragment: never
+  LegacyDataDefaultFragment: "LegacyData"
   LlmConversationsDefaultFragment: "LlmConversations"
   LlmConversationsFragment: "LlmConversations"
   LlmConversationsViewingPageFragment: "LlmConversations"
@@ -6044,7 +6067,7 @@ interface CollectionNamesByFragmentName {
   MultiDocumentsDefaultFragment: "MultiDocuments"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
-  PageCacheDefaultFragment: never
+  PageCacheDefaultFragment: "PageCache"
   PetrovDayActionInfo: "PetrovDayActions"
   PetrovDayActionsDefaultFragment: "PetrovDayActions"
   PetrovDayLaunchInfo: "PetrovDayLaunchs"
@@ -6060,7 +6083,7 @@ interface CollectionNamesByFragmentName {
   PostSequenceNavigation: "Posts"
   PostSideComments: "Posts"
   PostViewTimesDefaultFragment: "PostViewTimes"
-  PostViewsDefaultFragment: never
+  PostViewsDefaultFragment: "PostViews"
   PostWithDialogueMessage: "Posts"
   PostWithGeneratedSummary: "Posts"
   PostsAuthors: "Posts"
@@ -6105,6 +6128,7 @@ interface CollectionNamesByFragmentName {
   ReportsDefaultFragment: "Reports"
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
+  ReviewWinnerAnnouncement: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   ReviewWinnerEditDisplay: "ReviewWinners"
@@ -6134,6 +6158,7 @@ interface CollectionNamesByFragmentName {
   SideCommentCachesDefaultFragment: "SideCommentCaches"
   SplashArtCoordinates: "SplashArtCoordinates"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
+  SplashArtCoordinatesEdit: "SplashArtCoordinates"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   SpotlightHeaderEventSubtitle: "Spotlights"

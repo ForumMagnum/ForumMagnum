@@ -1,22 +1,19 @@
 import React from 'react';
 import { getConfirmedCoauthorIds, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { EmailContentItemBody } from './EmailContentItemBody';
 
 export interface DialogueMessageEmailInfo {
   messageContents: string,
   messageAuthorId: string,
 }
 
-const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEmailInfo}: {
+export const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEmailInfo}: {
   documentId: string,
   userId: string,
   dialogueMessageEmailInfo?: DialogueMessageEmailInfo
 }) => {
-
-  const { EmailContentItemBody } = Components;
-
   const { document: post } = useSingle({
     documentId,
     collectionName: "Posts",
@@ -61,13 +58,5 @@ const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEmailInfo}
       <p>There are new responses in the dialogue you are subscribed to, <a href={postGetPageUrl(post)}>{post.title}</a>.
       </p>
     </>;
-  }
-}
-
-const NewDialogueMessagesEmailComponent = registerComponent("NewDialogueMessagesEmail", NewDialogueMessagesEmail);
-
-declare global {
-  interface ComponentTypes {
-    NewDialogueMessagesEmail: typeof NewDialogueMessagesEmailComponent
   }
 }

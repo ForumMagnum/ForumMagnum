@@ -346,7 +346,16 @@ const getReviewWinnerPosts = async () => {
     finalReviewVoteScoreAllKarma: {$gte: 1},
     reviewCount: {$gte: 1},
     positiveReviewVoteCount: {$gte: 1}
-  }, {sort: {finalReviewVoteScoreHighKarma: 1}, limit: 1}).fetch()
+  }, {sort: {finalReviewVoteScoreHighKarma: -1}, limit: 51}).fetch()
+}
+
+export const createReviewWinnerFromId = async (postId: string, idx: number, category: ReviewWinnerCategory) => {
+  const post = await Posts.findOne({_id: postId})
+  if (!post) {
+    throw new Error(`Post not found: ${postId}`)
+  }
+  const adminContext = createAdminContext();
+  return createReviewWinner(post, idx, category, adminContext)
 }
 
 const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWinnerCategory, adminContext: ResolverContext) => { 
@@ -378,7 +387,6 @@ export const checkReviewWinners = async () => {
   })
 }
 
-// Exported to allow running manually with "yarn repl"
 export const createReviewWinners = async () => {
   const posts = await getReviewWinnerPosts()
   const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
@@ -388,5 +396,45 @@ export const createReviewWinners = async () => {
     const category = getPostCategory(post, coreTags, aiStrategyTags)
     return createReviewWinner(post, idx, category, adminContext)
   }))
-
 }
+
+// If you made any mistakes with the rank-order of the ReviewWinners (i.e. because you decided
+// to remove a post from the list), run this function to fix the rank orders.
+//
+// This is necessary because the reviewRanking has enforced uniqueness for rank+year, and
+// you can't edit an individual
+//
+// (This is similar but not identical to the updateCuratedOrder function in ReviewWinnersRepo,
+// which handles a similar case for the curatedOrder field, although only one post at a time)
+export const updateReviewWinnerRankings = async (year: number) => {
+  
+  const reviewWinners = await ReviewWinners.find({reviewYear: year}).fetch()
+  const postIds = reviewWinners.map(winner => winner.postId)
+  const posts = await Posts.find({ _id: { $in: postIds } }).fetch()
+
+  const postsById = Object.fromEntries(posts.map(post => [post._id, post]))
+
+  const sortedWinners = [...reviewWinners].sort((a, b) => {
+    const scoreA = postsById[a.postId]?.finalReviewVoteScoreHighKarma ?? 0;
+    const scoreB = postsById[b.postId]?.finalReviewVoteScoreHighKarma ?? 0;
+    return scoreB - scoreA; // Sort descending
+  });
+
+  // 4. Set temporary rankings in parallel
+  // (to avoid errors from the enforced uniqueness)
+  const tempRankStart = -10000;
+  await Promise.all(
+    sortedWinners.map((winner, i) => 
+      ReviewWinners.rawUpdateOne(
+        {_id: winner._id},
+        {$set: {reviewRanking: tempRankStart - i}}
+      )
+    )
+  );
+
+  sortedWinners.map((winner, i) => ReviewWinners.rawUpdateOne(
+      {_id: winner._id},
+      {$set: {reviewRanking: i}}
+    )
+  )
+};

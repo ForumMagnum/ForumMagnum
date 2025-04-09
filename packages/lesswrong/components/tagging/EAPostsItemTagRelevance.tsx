@@ -71,8 +71,8 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
       flash(whyYouCantVote ?? "You can't vote on this");
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
     }
   }

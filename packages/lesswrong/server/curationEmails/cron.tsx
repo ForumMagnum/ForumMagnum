@@ -5,7 +5,6 @@ import { Posts } from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
 import { isEAForum, testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
-import { Components } from "../../lib/vulcan-lib/components";
 import { addCronJob } from "../cron/cronUtil";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import CurationEmailsRepo from "../repos/CurationEmailsRepo";
@@ -13,6 +12,7 @@ import UsersRepo from "../repos/UsersRepo";
 
 import chunk from "lodash/chunk";
 import moment from "moment";
+import { PostsEmail } from "../emailComponents/PostsEmail";
 
 export async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
@@ -54,7 +54,7 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
     await wrapAndSendEmail({
       user,
       subject: subject ?? post.title,
-      body: <Components.PostsEmail postIds={[post._id]} reason={reason}/>
+      body: <PostsEmail postIds={[post._id]} reason={reason}/>
     });
   }
 }

@@ -10,6 +10,7 @@ import { useRefetchCurrentUser } from "../../common/withUser";
 import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instanceSettings'
 import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
 import { captureException } from '@sentry/core';
+import { auth0FacebookLoginEnabled } from "@/lib/publicSettings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,6 +28,15 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: 16,
     right: 16,
+    width: 20,
+    height: 20,
+  },
+  backArrow: {
+    color: theme.palette.grey[600],
+    cursor: "pointer",
+    position: "absolute",
+    top: 16,
+    left: 16,
     width: 20,
     height: 20,
   },
@@ -88,6 +98,12 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 4,
     fontSize: 14,
     fontWeight: 500,
+  },
+  facebookWarning: {
+    marginBottom: 24,
+    fontSize: 14,
+    fontWeight: 500,
+    textAlign: "left"
   },
   error: {
     color: theme.palette.text.error2,
@@ -218,7 +234,9 @@ const links = {
   privacy: "/privacyPolicy",
 } as const;
 
-export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = true, googleEnabled = true, classes}: {
+const FACEBOOK_DEFAULT_ENABLED = auth0FacebookLoginEnabled.get()
+
+export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = FACEBOOK_DEFAULT_ENABLED, googleEnabled = true, classes}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
   facebookEnabled?: boolean,
@@ -241,6 +259,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [policy, setPolicy] = useState<string | null>(null);
+  const [showFacebookWarning, setShowFacebookWarning] = useState(false);
   const refetchCurrentUser = useRefetchCurrentUser();
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
@@ -285,7 +304,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   const onSubmit = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    if (isResettingPassword) {
+    if (isResettingPassword || showFacebookWarning) {
       return onSendPasswordReset();
     }
 
@@ -325,10 +344,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     } finally {
       setLoading(false);
     }
-  }, [
-    client, email, password, isSignup, isResettingPassword,
-    onSendPasswordReset, refetchCurrentUser, action,
-  ]);
+  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, refetchCurrentUser, action]);
 
   const onClickGoogle = useCallback(async () => {
     setMessage(null);
@@ -337,12 +353,16 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     client.socialLogin("google-oauth2");
   }, [client]);
 
-  const onClickFacebook = useCallback(async () => {
+  const confirmFacebookLogin = useCallback(() => {
     setMessage(null);
     setError(null);
     setPolicy(null);
     client.socialLogin("facebook");
   }, [client]);
+
+  const onClickFacebook = useCallback(() => {
+    setShowFacebookWarning(true);
+  }, []);
 
   const onForgotPassword = useCallback(() => {
     setIsResettingPassword(true);
@@ -370,12 +390,15 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
       setError(null);
       setPolicy(null);
       setIsResettingPassword(false);
+      setShowFacebookWarning(false);
     }
   }, [open]);
 
   const title = isSignup
     ? `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`
-    : "Welcome back";
+    : showFacebookWarning
+      ? "Facebook login will be removed soon"
+      : "Welcome back";
 
   const canSubmit = !!email && (!!password || isResettingPassword) && !loading;
 
@@ -383,6 +406,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   return (
     <BlurredBackgroundModal open={open} onClose={onClose} className={classes.root}>
       <AnalyticsContext pageElementContext="loginPopover">
+        {showFacebookWarning && <ForumIcon icon="ArrowLeft" onClick={() => setShowFacebookWarning(false)} className={classes.backArrow} />}
         <ForumIcon
           icon="Close"
           onClick={onClose}
@@ -391,6 +415,23 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
         <div className={classes.lightbulb}>{lightbulbIcon}</div>
         <div className={classes.title}>{title}</div>
         <div className={classes.formContainer}>
+          {showFacebookWarning && (
+            <div className={classes.facebookWarning}>
+              <p>
+                You should have received an email containing instructions on how to change your login method.
+              </p>
+              <p>
+                You may also use the form below to request a password reset for the email
+                associated with your account, to enable using email/password login.
+              </p>
+              <div className={classes.switchPrompt}>
+                <a onClick={confirmFacebookLogin} className={classes.switchPromptButton}>
+                  I understand, continue to log in with Facebook anyway
+                </a>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={onSubmit} className={classes.form}>
             <div className={classNames(classes.inputContainer, {
               [classes.inputBottomMargin]: isResettingPassword,
@@ -405,7 +446,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
                 autoFocus
               />
             </div>
-            {!isResettingPassword &&
+            {!isResettingPassword && !showFacebookWarning && (
               <div className={classes.inputContainer}>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -421,23 +462,23 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
                   className={classes.showPasswordButton}
                 />
               </div>
-            }
-            {!isSignup && !isResettingPassword &&
+            )}
+            {!isSignup && !isResettingPassword && !showFacebookWarning && (
               <div className={classes.forgotPassword}>
                 <a onClick={onForgotPassword}>Forgot password?</a>
               </div>
-            }
+            )}
             {message &&
               <div className={classes.message}>
                 {message}
               </div>
             }
-            {error &&
+            {error && (
               <div className={classes.error}>
                 {error}
                 {policy && <PasswordPolicy policy={policy} classes={classes} />}
               </div>
-            }
+            )}
             <EAButton
               type="submit"
               style="primary"
@@ -447,7 +488,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
             >
               {loading
                 ? <Loading />
-                : isResettingPassword
+                : isResettingPassword || showFacebookWarning
                   ? "Request password reset"
                   : isSignup
                     ? "Sign up"
@@ -455,61 +496,68 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
               }
             </EAButton>
           </form>
-          <div className={classes.orContainer}>
-            <span className={classes.orHr} />OR<span className={classes.orHr} />
-          </div>
-          <div className={classes.socialContainer}>
-            {googleEnabled && <EAButton
-              style="grey"
-              variant="outlined"
-              onClick={onClickGoogle}
-              className={classNames(classes.button, classes.socialButton)}
-            >
-              <img src={links.googleLogo} /> Continue with Google
-            </EAButton>}
-            {facebookEnabled && !isSignup && <EAButton
-              style="grey"
-              variant="outlined"
-              onClick={onClickFacebook}
-              className={classNames(classes.button, classes.socialButton)}
-            >
-              <FacebookIcon /> Continue with Facebook
-            </EAButton>}
-          </div>
-          {isSignup
-            ? (
-              <div className={classes.switchPrompt}>
-                Already have an account?{" "}
-                <a
-                  onClick={onLinkToLogin}
-                  className={classes.switchPromptButton}
-                >
-                  Login
-                </a>
+
+          {!showFacebookWarning && (
+            <>
+              <div className={classes.orContainer}>
+                <span className={classes.orHr} />OR<span className={classes.orHr} />
               </div>
-            )
-            : (
-              <div className={classes.switchPrompt}>
-                Don't have an account?{" "}
-                <a
-                  onClick={onLinkToSignup}
-                  className={classes.switchPromptButton}
-                >
-                  Sign up
-                </a>
+              <div className={classes.socialContainer}>
+                {googleEnabled && (
+                  <EAButton
+                    style="grey"
+                    variant="outlined"
+                    onClick={onClickGoogle}
+                    className={classNames(classes.button, classes.socialButton)}
+                  >
+                    <img src={links.googleLogo} alt="google logo" /> Continue with Google
+                  </EAButton>
+                )}
+                {facebookEnabled && !isSignup && (
+                  <EAButton
+                    style="grey"
+                    variant="outlined"
+                    onClick={onClickFacebook}
+                    className={classNames(classes.button, classes.socialButton)}
+                  >
+                    <FacebookIcon />
+                    Continue with Facebook
+                  </EAButton>
+                )}
               </div>
-            )
-          }
+
+              {isSignup ? (
+                <div className={classes.switchPrompt}>
+                  Already have an account?{" "}
+                  <a onClick={onLinkToLogin} className={classes.switchPromptButton}>
+                    Login
+                  </a>
+                </div>
+              ) : (
+                <div className={classes.switchPrompt}>
+                  Don't have an account?{" "}
+                  <a onClick={onLinkToSignup} className={classes.switchPromptButton}>
+                    Sign up
+                  </a>
+                </div>
+              )}
+            </>
+          )}
         </div>
-        {isSignup && <div className={classes.finePrint}>
-          By creating an{" " + forumTitleSetting.get() + " "}account, you agree to the{" "}
-          <Link to={links.terms} target="_blank" rel="noopener noreferrer">
-            Terms of Use
-          </Link> and{" "}
-          <Link to={links.privacy} target="_blank" rel="noopener noreferrer">
-            Privacy Policy
-          </Link>.
-        </div>}
+
+        {isSignup && !showFacebookWarning && (
+          <div className={classes.finePrint}>
+            By creating an{" " + forumTitleSetting.get() + " "}account, you agree to the{" "}
+            <Link to={links.terms} target="_blank" rel="noopener noreferrer">
+              Terms of Use
+            </Link>{" "}
+            and{" "}
+            <Link to={links.privacy} target="_blank" rel="noopener noreferrer">
+              Privacy Policy
+            </Link>
+            .
+          </div>
+        )}
       </AnalyticsContext>
     </BlurredBackgroundModal>
   );
