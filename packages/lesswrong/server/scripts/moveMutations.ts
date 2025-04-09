@@ -674,51 +674,51 @@ function getCollectionPathPart(collectionName: CollectionNameString) {
   }
 }
 
-export async function moveQueryResolvers() {
-  const allCollections = getAllCollections();
+// export async function moveQueryResolvers() {
+//   const allCollections = getAllCollections();
 
-  const imports: string[] = [];
-  const queryGqlTypeDefAssignments: string[] = [];
-  const queryResolverAssignments: string[] = [];
-  const fieldResolversAssignments: string[] = [];
+//   const imports: string[] = [];
+//   const queryGqlTypeDefAssignments: string[] = [];
+//   const queryResolverAssignments: string[] = [];
+//   const fieldResolversAssignments: string[] = [];
 
-  for (const collection of allCollections) {
-    const collectionName = collection.collectionName;
-    const collectionQueryResolvers = collection.options.resolvers;
+//   for (const collection of allCollections) {
+//     const collectionName = collection.collectionName;
+//     const collectionQueryResolvers = collection.options.resolvers;
 
-    const typeName = collectionNameToTypeName[collectionName];
-    const singleResolverName = getSingleResolverName(typeName);
-    const fieldResolversVariableName = `${singleResolverName}GqlFieldResolvers`;
+//     const typeName = collectionNameToTypeName[collectionName];
+//     const singleResolverName = getSingleResolverName(typeName);
+//     const fieldResolversVariableName = `${singleResolverName}GqlFieldResolvers`;
 
-    const collectionPathPart = getCollectionPathPart(collectionName);
-    const queriesFilePath = join(__dirname, `../collections/${collectionPathPart}/queries.ts`);
+//     const collectionPathPart = getCollectionPathPart(collectionName);
+//     const queriesFilePath = join(__dirname, `../collections/${collectionPathPart}/queries.ts`);
 
-    if (!collectionQueryResolvers) {
-      const { fileContents, initGraphQLImportLine } = generageMainTypeDef(collectionName);
-      // await writeFile(queriesFilePath, fileContents);
+//     if (!collectionQueryResolvers) {
+//       const { fileContents, initGraphQLImportLine } = generageMainTypeDef(collectionName);
+//       // await writeFile(queriesFilePath, fileContents);
 
-      imports.push(initGraphQLImportLine);
-      queryGqlTypeDefAssignments.push(`  \${graphql${typeName}QueryTypeDefs}`);
-      fieldResolversAssignments.push(`    ...${fieldResolversVariableName},`);
-    } else {
-      const { fileContents, initGraphQLImportLine } = generateQueryResolvers(collectionName);
+//       imports.push(initGraphQLImportLine);
+//       queryGqlTypeDefAssignments.push(`  \${graphql${typeName}QueryTypeDefs}`);
+//       fieldResolversAssignments.push(`    ...${fieldResolversVariableName},`);
+//     } else {
+//       const { fileContents, initGraphQLImportLine } = generateQueryResolvers(collectionName);
 
-      // await writeFile(queriesFilePath, fileContents);
+//       // await writeFile(queriesFilePath, fileContents);
   
-      imports.push(initGraphQLImportLine);
-      queryGqlTypeDefAssignments.push(`  \${graphql${typeName}QueryTypeDefs}`);
-      queryResolverAssignments.push(`    ...${singleResolverName}GqlQueryHandlers,`);
-      fieldResolversAssignments.push(`    ...${fieldResolversVariableName},`);
-    }
-  }
+//       imports.push(initGraphQLImportLine);
+//       queryGqlTypeDefAssignments.push(`  \${graphql${typeName}QueryTypeDefs}`);
+//       queryResolverAssignments.push(`    ...${singleResolverName}GqlQueryHandlers,`);
+//       fieldResolversAssignments.push(`    ...${fieldResolversVariableName},`);
+//     }
+//   }
 
-  const importsBlock = imports.join('\n');
-  const queryTypeDefsBlock = queryGqlTypeDefAssignments.join('\n');
-  const queryResolverBlock = queryResolverAssignments.join('\n');
-  const fieldResolversBlock = fieldResolversAssignments.join('\n');
+//   const importsBlock = imports.join('\n');
+//   const queryTypeDefsBlock = queryGqlTypeDefAssignments.join('\n');
+//   const queryResolverBlock = queryResolverAssignments.join('\n');
+//   const fieldResolversBlock = fieldResolversAssignments.join('\n');
 
-  await writeFile(join(__dirname, `../initGraphQLImports.ts`), importsBlock + '\n\n' + queryTypeDefsBlock + '\n\n' + queryResolverBlock + '\n\n' + fieldResolversBlock);
-}
+//   await writeFile(join(__dirname, `../initGraphQLImports.ts`), importsBlock + '\n\n' + queryTypeDefsBlock + '\n\n' + queryResolverBlock + '\n\n' + fieldResolversBlock);
+// }
 
 export async function movePodcastsQueries() {
   const queryResolverFilePath = join(__dirname, `../collections/podcasts/queries.ts`);
