@@ -41,6 +41,7 @@ import { createModeratorAction } from "../collections/moderatorActions/mutations
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
 import { updateComment } from "../collections/comments/mutations";
+import { EmailComment } from "../emailComponents/EmailComment";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -154,7 +155,7 @@ const utils = {
         user: user,
         to: email,
         subject: `New comment on ${post.title}`,
-        body: <Components.EmailComment commentId={comment._id}/>,
+        body: <EmailComment commentId={comment._id}/>,
       });
     }
   },

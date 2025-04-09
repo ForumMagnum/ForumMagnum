@@ -10,12 +10,11 @@ import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
-import LWEvents from '../../server/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
+import { EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
@@ -24,6 +23,12 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { FMJssProvider } from '@/components/hooks/FMJssProvider';
+import { createStylesContext } from '@/components/hooks/useStyles';
+import { generateEmailStylesheet } from '../styleGeneration';
+import { ThemeContextProvider } from '@/components/themes/useTheme';
+import { ThemeOptions } from '@/themes/themeNames';
+import { EmailWrapper } from '../emailComponents/EmailWrapper';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -158,9 +163,15 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // visited since before that feature was implemented.
   const timezone = user?.lastUsedTimezone || null
   
+  const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
+  const theme = getForumTheme(themeOptions);
+  const stylesContext = createStylesContext(theme);
+  
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
+    <ThemeContextProvider options={themeOptions}>
+    <FMJssProvider stylesContext={stylesContext}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
@@ -170,6 +181,8 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     </UserContext.Provider>
     </MuiThemeProvider>
     </JssProvider>
+    </FMJssProvider>
+    </ThemeContextProvider>
     </ApolloProvider>
     </EmailRenderContext.Provider>
   );
@@ -183,7 +196,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
-  const css = sheetsRegistry.toString();
+  const css = generateEmailStylesheet({ muiSheetsRegistry: sheetsRegistry, stylesContext, theme, themeOptions });
   const html = boilerplateGenerator({ css, body, title:subject })
   
   // Find any relative links, and convert them to absolute
@@ -226,11 +239,11 @@ export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user:
     to,
     from,
     subject: subject,
-    bodyComponent: <Components.EmailWrapper
+    bodyComponent: <EmailWrapper
       unsubscribeAllLink={unsubscribeAllLink}
     >
       {body}
-    </Components.EmailWrapper>
+    </EmailWrapper>
   });
 }
 
