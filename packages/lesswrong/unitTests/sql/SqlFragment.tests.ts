@@ -249,7 +249,7 @@ describe('topologicalSort', () => {
     const result = topologicalSort(fragments);
     expect(result).toHaveLength(3);
     // FragB and FragC must come before FragA
-    expect(result[2]).toEqual(['FragA', ['FragB', 'FragC']]); // Order within dependencies array might vary, check function logic if specific order needed
+    expect(result[2]).toEqual(['FragA', ['FragB', 'FragC']]);
     expect(result.slice(0, 2)).toContainEqual(['FragB', []]);
     expect(result.slice(0, 2)).toContainEqual(['FragC', []]);
   });
@@ -324,5 +324,4 @@ describe('topologicalSort', () => {
     expect(getIndex('FragB')).toBeLessThan(getIndex('FragA'));
     expect(getIndex('FragC')).toBeLessThan(getIndex('FragA'));
   });
-
 });
