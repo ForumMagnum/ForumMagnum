@@ -638,7 +638,7 @@ export const ${fieldResolversVariableName} = getFieldGqlResolvers('${collectionN
   return { fileContents, initGraphQLImportLine };
 }
 
-function generageMainTypeDef(collectionName: CollectionNameString) {
+function generateMainTypeDef(collectionName: CollectionNameString) {
   const typeName = collectionNameToTypeName[collectionName];
   const collectionPathPart = getCollectionPathPart(collectionName);
   const typeDefsVariableName = `graphql${typeName}QueryTypeDefs`;
@@ -694,7 +694,7 @@ function getCollectionPathPart(collectionName: CollectionNameString) {
 //     const queriesFilePath = join(__dirname, `../collections/${collectionPathPart}/queries.ts`);
 
 //     if (!collectionQueryResolvers) {
-//       const { fileContents, initGraphQLImportLine } = generageMainTypeDef(collectionName);
+//       const { fileContents, initGraphQLImportLine } = generateMainTypeDef(collectionName);
 //       // await writeFile(queriesFilePath, fileContents);
 
 //       imports.push(initGraphQLImportLine);
