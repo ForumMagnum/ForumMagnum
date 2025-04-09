@@ -54,7 +54,7 @@ export const getResolverCollection = (
   return getCollectionByTypeName(type);
 }
 
-function extractFragmentDefinitions(fragmentSrc: string): Record<string, string> {
+export function extractFragmentDefinitions(fragmentSrc: string): Record<string, string> {
   // Matches on e.g. `fragment PostsList on Post {`
   const fragmentDeclarations = fragmentSrc.matchAll(/fragment\s+([a-zA-Z0-9-_]+)\s+on\s+([a-zA-Z0-9-_]+)\s*\{/g);
   const fragments: Record<string, string> = {};
@@ -81,7 +81,7 @@ function extractFragmentDefinitions(fragmentSrc: string): Record<string, string>
 }
 
 // Build a dependency graph and perform topological sort on fragments
-function topologicalSort(fragments: Record<string, string>): [string, string[]][] {
+export function topologicalSort(fragments: Record<string, string>): [string, string[]][] {
   const graph: Record<string, string[]> = {};
   const visited: Record<string, boolean> = {};
   const temp: Record<string, boolean> = {}; // For cycle detection
