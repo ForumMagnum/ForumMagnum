@@ -34,7 +34,7 @@ interface UltraFeedObserverContextType {
 
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
 
-const VIEW_THRESHOLD_MS = 500;
+const VIEW_THRESHOLD_MS = 300;
 const INTERSECTION_THRESHOLD = 0.5; // 50% visible
 
 const mapDocumentTypeToCollectionName = (documentType: DocumentType): "Posts" | "Comments" | "Spotlights" => {
