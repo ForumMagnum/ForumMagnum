@@ -50,6 +50,11 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     // textOverflow: 'ellipsis !important', // might want to reenable
     maxHeight: 'none !important',
     // paddingBottom: '0.25em !important', // might want to reenable
+
+    // Hide first blockquote when line clamping is active
+    '& blockquote:first-child': {
+      display: 'none !important',
+    },
   },
   lineClamp1: {
     WebkitLineClamp: '1 !important',
@@ -97,6 +102,8 @@ interface BaseFeedContentBodyProps {
   className?: string;
   /** Override word truncation with line clamping (number of lines) */
   clampOverride?: number;
+  /** If true, don't show the inline '(read more)' suffix */
+  hideSuffix?: boolean;
 }
 
 type FeedContentBodyProps = BaseFeedContentBodyProps & DocumentProps;
@@ -115,6 +122,7 @@ const FeedContentBody = ({
   nofollow = false,
   className,
   clampOverride,
+  hideSuffix,
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
@@ -179,6 +187,11 @@ const FeedContentBody = ({
   
   if (!usingLineClamp) {
     const createReadMoreSuffix = () => {
+      // If the parent view is collapsed, only show ellipsis
+      if (hideSuffix) {
+        return '...';
+      }
+      // Otherwise, proceed with original logic
       if (isMaxLevel && linkToDocumentOnFinalExpand) {
         return '...';
       }
