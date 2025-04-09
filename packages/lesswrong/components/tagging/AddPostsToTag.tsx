@@ -106,14 +106,14 @@ const AddPostsToTag = ({classes, tag}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const [mutate] = useMutation(gql`
-    mutation addOrUpvoteTag($tagId: String, $postId: String) {
+    mutation addPostsToTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
         ...TagRelCreationFragment
       }
     }
     ${fragmentTextForQuery("TagRelCreationFragment")}
   `, {
-    update(cache, { data: {addOrUpvoteTag: TagRel}  }) {
+    update(cache, { data: {addPostsToTag: TagRel}  }) {
       updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: TagRel.post })
     }
   });
