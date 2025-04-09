@@ -270,6 +270,7 @@ const UltraFeedCommentItem = ({
             nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
             clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
             onExpand={handleContentExpand}
+            hideSuffix={!expanded}
           />
         </div>
         <UltraFeedItemFooter document={comment} collectionName="Comments" />
