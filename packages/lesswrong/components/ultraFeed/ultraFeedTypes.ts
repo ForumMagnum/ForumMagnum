@@ -1,5 +1,8 @@
-export type FeedItemSourceType = 'postThreads' | 'commentThreads' | 'spotlights' | 'quickTakes' | 'topComments' | 'RecombeeHybridPosts'
+export type FeedPostSourceType = 'recombee-lesswrong-custom' | 'hacker-news' | 'welcome-post' | 'curated' | 'stickied';
+export type FeedCommentSourceType = 'quickTakes' | 'topComments';
+export type FeedSpotlightSourceType = 'spotlights';
 
+export type FeedItemSourceType = | FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
 export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
  
