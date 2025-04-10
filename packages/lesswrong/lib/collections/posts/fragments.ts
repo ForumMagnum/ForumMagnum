@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const PostsMinimumInfo = () => gql(`
+export const PostsMinimumInfo = gql(`
   fragment PostsMinimumInfo on Post {
     _id
     slug
@@ -23,7 +23,7 @@ export const PostsMinimumInfo = () => gql(`
   }
 `)
 
-export const PostsTopItemInfo = () => gql(`
+export const PostsTopItemInfo = gql(`
   fragment PostsTopItemInfo on Post {
     ...PostsMinimumInfo
     ...PostsAuthors
@@ -54,7 +54,7 @@ export const PostsTopItemInfo = () => gql(`
   }
 `)
 
-export const PostsBase = () => gql(`
+export const PostsBase = gql(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
     
@@ -179,7 +179,7 @@ export const PostsBase = () => gql(`
   }
 `)
 
-export const PostsWithVotes = () => gql(`
+export const PostsWithVotes = gql(`
   fragment PostsWithVotes on Post {
     ...PostsBase
     currentUserVote
@@ -187,7 +187,7 @@ export const PostsWithVotes = () => gql(`
   }
 `)
 
-export const PostsListWithVotes = () => gql(`
+export const PostsListWithVotes = gql(`
   fragment PostsListWithVotes on Post {
     ...PostsList
     currentUserVote
@@ -195,7 +195,7 @@ export const PostsListWithVotes = () => gql(`
   }
 `)
 
-export const PostsListWithVotesAndSequence = () => gql(`
+export const PostsListWithVotesAndSequence = gql(`
   fragment PostsListWithVotesAndSequence on Post {
     ...PostsListWithVotes
     canonicalSequence {
@@ -204,7 +204,7 @@ export const PostsListWithVotesAndSequence = () => gql(`
   }
 `)
 
-export const PostsReviewVotingList = () => gql(`
+export const PostsReviewVotingList = gql(`
   fragment PostsReviewVotingList on Post {
     ...PostsListWithVotes
     reviewVoteScoreAllKarma
@@ -216,7 +216,7 @@ export const PostsReviewVotingList = () => gql(`
   }
 `)
 
-export const PostsModerationGuidelines = () => gql(`
+export const PostsModerationGuidelines = gql(`
   fragment PostsModerationGuidelines on Post {
     ...PostsMinimumInfo
     frontpageDate
@@ -237,7 +237,7 @@ export const PostsModerationGuidelines = () => gql(`
   }
 `)
 
-export const PostsAuthors = () => gql(`
+export const PostsAuthors = gql(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
@@ -254,7 +254,7 @@ export const PostsAuthors = () => gql(`
   }
 `)
 
-export const PostsListBase = () => gql(`
+export const PostsListBase = gql(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
@@ -290,7 +290,7 @@ export const PostsListBase = () => gql(`
   }
 `)
 
-export const PostsList = () => gql(`
+export const PostsList = gql(`
   fragment PostsList on Post {
     ...PostsListBase
     deletedDraft
@@ -305,7 +305,7 @@ export const PostsList = () => gql(`
   }
 `)
 
-export const SunshineCurationPostsList = () => gql(`
+export const SunshineCurationPostsList = gql(`
   fragment SunshineCurationPostsList on Post {
     ...PostsList
     curationNotices {
@@ -314,7 +314,7 @@ export const SunshineCurationPostsList = () => gql(`
   }
 `)
 
-export const PostsListTag = () => gql(`
+export const PostsListTag = gql(`
   fragment PostsListTag on Post {
     ...PostsList
     tagRel(tagId: $tagId) {
@@ -323,7 +323,7 @@ export const PostsListTag = () => gql(`
   }
 `)
 
-export const PostsListTagWithVotes = () => gql(`
+export const PostsListTagWithVotes = gql(`
   fragment PostsListTagWithVotes on Post {
     ...PostsListWithVotes
     tagRel(tagId: $tagId) {
@@ -332,7 +332,7 @@ export const PostsListTagWithVotes = () => gql(`
   }
 `)
 
-export const PostsDetails = () => gql(`
+export const PostsDetails = gql(`
   fragment PostsDetails on Post {
     ...PostsListBase
 
@@ -435,7 +435,7 @@ export const PostsDetails = () => gql(`
   }
 `)
 
-export const PostsExpandedHighlight = () => gql(`
+export const PostsExpandedHighlight = gql(`
   fragment PostsExpandedHighlight on Post {
     _id
     contents {
@@ -445,7 +445,7 @@ export const PostsExpandedHighlight = () => gql(`
   }
 `)
 
-export const PostsPlaintextDescription = () => gql(`
+export const PostsPlaintextDescription = gql(`
   fragment PostsPlaintextDescription on Post {
     _id
     contents {
@@ -457,7 +457,7 @@ export const PostsPlaintextDescription = () => gql(`
 
 // Same as PostsPage, with added just optional arguments to the content field
 // and a list of revisions
-export const PostsRevision = () => gql(`
+export const PostsRevision = gql(`
   fragment PostsRevision on Post {
     ...PostsDetails
 
@@ -472,7 +472,7 @@ export const PostsRevision = () => gql(`
   }
 `)
 
-export const PostsRevisionEdit = () => gql(`
+export const PostsRevisionEdit = gql(`
   fragment PostsRevisionEdit on Post {
     ...PostsDetails
 
@@ -487,7 +487,7 @@ export const PostsRevisionEdit = () => gql(`
   }
 `)
 
-export const PostsWithNavigationAndRevision = () => gql(`
+export const PostsWithNavigationAndRevision = gql(`
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
     ...PostSequenceNavigation
@@ -502,7 +502,7 @@ export const PostsWithNavigationAndRevision = () => gql(`
   }
 `)
 
-export const PostsWithNavigation = () => gql(`
+export const PostsWithNavigation = gql(`
   fragment PostsWithNavigation on Post {
     ...PostsPage
     ...PostSequenceNavigation
@@ -515,7 +515,7 @@ export const PostsWithNavigation = () => gql(`
 `)
 
 // This is a union of the fields needed by PostsTopNavigation and BottomNavigation.
-export const PostSequenceNavigation = () => gql(`
+export const PostSequenceNavigation = gql(`
   fragment PostSequenceNavigation on Post {
     # Prev/next sequence navigation
     sequence(sequenceId: $sequenceId) {
@@ -536,7 +536,7 @@ export const PostSequenceNavigation = () => gql(`
   }
 `)
 
-export const PostsPage = () => gql(`
+export const PostsPage = gql(`
   fragment PostsPage on Post {
     ...PostsDetails
     version
@@ -550,7 +550,7 @@ export const PostsPage = () => gql(`
   }
 `)
 
-export const PostsEdit = () => gql(`
+export const PostsEdit = gql(`
   fragment PostsEdit on Post {
     ...PostsDetails
     ...PostSideComments
@@ -589,7 +589,7 @@ export const PostsEdit = () => gql(`
   }
 `)
 
-export const PostsEditQueryFragment = () => gql(`
+export const PostsEditQueryFragment = gql(`
   fragment PostsEditQueryFragment on Post {
     ...PostsEdit
     contents(version: $version) {
@@ -597,7 +597,7 @@ export const PostsEditQueryFragment = () => gql(`
     }
   }
 `)
-export const PostsEditMutationFragment = () => gql(`
+export const PostsEditMutationFragment = gql(`
   fragment PostsEditMutationFragment on Post {
     ...PostsEdit
     contents {
@@ -606,7 +606,7 @@ export const PostsEditMutationFragment = () => gql(`
   }
 `)
 
-export const PostsRevisionsList = () => gql(`
+export const PostsRevisionsList = gql(`
   fragment PostsRevisionsList on Post {
     _id
     revisions {
@@ -615,7 +615,7 @@ export const PostsRevisionsList = () => gql(`
   }
 `)
 
-export const PostsRecentDiscussion = () => gql(`
+export const PostsRecentDiscussion = gql(`
   fragment PostsRecentDiscussion on Post {
     ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
@@ -624,7 +624,7 @@ export const PostsRecentDiscussion = () => gql(`
   }
 `)
 
-export const ShortformRecentDiscussion = () => gql(`
+export const ShortformRecentDiscussion = gql(`
   fragment ShortformRecentDiscussion on Post {
     ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
@@ -633,7 +633,7 @@ export const ShortformRecentDiscussion = () => gql(`
   }
 `)
 
-export const UsersBannedFromPostsModerationLog = () => gql(`
+export const UsersBannedFromPostsModerationLog = gql(`
   fragment UsersBannedFromPostsModerationLog on Post {
     user {
       ...UsersMinimumInfo
@@ -645,7 +645,7 @@ export const UsersBannedFromPostsModerationLog = () => gql(`
   }
 `)
 
-export const SunshinePostsList = () => gql(`
+export const SunshinePostsList = gql(`
   fragment SunshinePostsList on Post {
     ...PostsListBase
 
@@ -693,7 +693,7 @@ export const SunshinePostsList = () => gql(`
   }
 `)
 
-export const WithVotePost = () => gql(`
+export const WithVotePost = gql(`
   fragment WithVotePost on Post {
     __typename
     _id
@@ -708,7 +708,7 @@ export const WithVotePost = () => gql(`
   }
 `)
 
-export const HighlightWithHash = () => gql(`
+export const HighlightWithHash = gql(`
   fragment HighlightWithHash on Post {
     _id
     contents {
@@ -718,7 +718,7 @@ export const HighlightWithHash = () => gql(`
   }
 `)
 
-export const PostWithDialogueMessage = () => gql(`
+export const PostWithDialogueMessage = gql(`
   fragment PostWithDialogueMessage on Post {
     _id
     dialogueMessageContents(dialogueMessageId: $dialogueMessageId)
@@ -740,7 +740,7 @@ export const PostWithDialogueMessage = () => gql(`
  * isn't the end of the word, but it is a _big_ field that we don't want to
  * waste bandwidth on).
  */
-export const PostSideComments = () => gql(`
+export const PostSideComments = gql(`
   fragment PostSideComments on Post {
     _id
     sideComments
@@ -750,14 +750,14 @@ export const PostSideComments = () => gql(`
   }
 `)
 
-export const PostWithGeneratedSummary = () => gql(`
+export const PostWithGeneratedSummary = gql(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
   }
 `)
 
-export const PostsBestOfList = () => gql(`
+export const PostsBestOfList = gql(`
   fragment PostsBestOfList on Post {
     ...PostsListWithVotes
     podcastEpisode {
@@ -781,7 +781,7 @@ export const PostsBestOfList = () => gql(`
   }
 `)
 
-export const PostsRSSFeed = () => gql(`
+export const PostsRSSFeed = gql(`
   fragment PostsRSSFeed on Post {
     ...PostsPage
     scoreExceeded2Date
@@ -794,7 +794,7 @@ export const PostsRSSFeed = () => gql(`
   }
 `)
 
-export const PostsOriginalContents = () => gql(`
+export const PostsOriginalContents = gql(`
   fragment PostsOriginalContents on Post {
     _id
     contents {
@@ -807,7 +807,7 @@ export const PostsOriginalContents = () => gql(`
   }
 `)
 
-export const PostsHTML = () => gql(`
+export const PostsHTML = gql(`
   fragment PostsHTML on Post {
     _id
     contents {
@@ -816,7 +816,7 @@ export const PostsHTML = () => gql(`
   }
 `)
 
-export const PostsForAutocomplete = () => gql(`
+export const PostsForAutocomplete = gql(`
   fragment PostsForAutocomplete on Post {
     _id
     title
@@ -832,7 +832,7 @@ export const PostsForAutocomplete = () => gql(`
   }
 `)
 
-export const PostForReviewWinnerItem = () => gql(`
+export const PostForReviewWinnerItem = gql(`
   fragment PostForReviewWinnerItem on Post {
     _id
     spotlight {
@@ -845,7 +845,7 @@ export const PostForReviewWinnerItem = () => gql(`
   }
 `)
 
-export const PostsTwitterAdmin = () => gql(`
+export const PostsTwitterAdmin = gql(`
   fragment PostsTwitterAdmin on Post {
     ...PostsListWithVotes
     user {
@@ -857,7 +857,7 @@ export const PostsTwitterAdmin = () => gql(`
   }
 `)
 
-export const SuggestAlignmentPost = () => gql(`
+export const SuggestAlignmentPost = gql(`
   fragment SuggestAlignmentPost on Post {
     ...PostsList
     suggestForAlignmentUsers {

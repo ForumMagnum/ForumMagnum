@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const reviewVoteFragment = () => gql(`
+export const reviewVoteFragment = gql(`
   fragment reviewVoteFragment on ReviewVote {
     _id
     createdAt
@@ -16,7 +16,7 @@ export const reviewVoteFragment = () => gql(`
 `)
 
 
-export const reviewVoteWithUserAndPost = () => gql(`
+export const reviewVoteWithUserAndPost = gql(`
   fragment reviewVoteWithUserAndPost on ReviewVote {
     ...reviewVoteFragment
     user {
@@ -30,7 +30,7 @@ export const reviewVoteWithUserAndPost = () => gql(`
   }
 `)
 
-export const reviewAdminDashboard = () => gql(`
+export const reviewAdminDashboard = gql(`
   fragment reviewAdminDashboard on ReviewVote {
     _id
     createdAt

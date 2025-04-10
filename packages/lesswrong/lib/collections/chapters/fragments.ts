@@ -1,5 +1,5 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
-export const ChaptersFragment = () => gql(`
+export const ChaptersFragment = gql(`
   fragment ChaptersFragment on Chapter {
     _id
     createdAt
@@ -17,7 +17,7 @@ export const ChaptersFragment = () => gql(`
   }
 `)
 
-export const ChaptersEdit = () => gql(`
+export const ChaptersEdit = gql(`
   fragment ChaptersEdit on Chapter {
     ...ChaptersFragment
     contents {

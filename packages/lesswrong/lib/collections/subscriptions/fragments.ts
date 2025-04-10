@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SubscriptionState = () => gql(`
+export const SubscriptionState = gql(`
   fragment SubscriptionState on Subscription {
     _id
     userId
@@ -13,7 +13,7 @@ export const SubscriptionState = () => gql(`
   }
 `)
 
-export const MembersOfGroupFragment = () => gql(`
+export const MembersOfGroupFragment = gql(`
   fragment MembersOfGroupFragment on Subscription {
     user {
       ...UsersMinimumInfo

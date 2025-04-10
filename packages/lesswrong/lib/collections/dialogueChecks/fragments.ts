@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const DialogueCheckInfo = () => gql(`
+export const DialogueCheckInfo = gql(`
   fragment DialogueCheckInfo on DialogueCheck {
     _id
     userId

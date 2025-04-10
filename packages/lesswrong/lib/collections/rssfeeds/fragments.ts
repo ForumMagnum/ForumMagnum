@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const RSSFeedMinimumInfo = () => gql(`
+export const RSSFeedMinimumInfo = gql(`
   fragment RSSFeedMinimumInfo on RSSFeed {
     _id
     userId
@@ -16,7 +16,7 @@ export const RSSFeedMinimumInfo = () => gql(`
   }
 `)
 
-export const newRSSFeedFragment = () => gql(`
+export const newRSSFeedFragment = gql(`
   fragment newRSSFeedFragment on RSSFeed {
     _id
     userId
@@ -32,7 +32,7 @@ export const newRSSFeedFragment = () => gql(`
 
 
 
-export const RSSFeedMutationFragment = () => gql(`
+export const RSSFeedMutationFragment = gql(`
   fragment RSSFeedMutationFragment on RSSFeed {
     _id
     userId

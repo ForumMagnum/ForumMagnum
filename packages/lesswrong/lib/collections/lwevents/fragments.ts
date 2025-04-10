@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const newEventFragment = () => gql(`
+export const newEventFragment = gql(`
   fragment newEventFragment on LWEvent {
     _id
     createdAt
@@ -12,7 +12,7 @@ export const newEventFragment = () => gql(`
   }
 `)
 
-export const lastEventFragment = () => gql(`
+export const lastEventFragment = gql(`
   fragment lastEventFragment on LWEvent {
     _id
     createdAt
@@ -25,7 +25,7 @@ export const lastEventFragment = () => gql(`
   }
 `)
 
-export const lwEventsAdminPageFragment = () => gql(`
+export const lwEventsAdminPageFragment = gql(`
   fragment lwEventsAdminPageFragment on LWEvent {
     _id
     createdAt
@@ -41,7 +41,7 @@ export const lwEventsAdminPageFragment = () => gql(`
   }
 `)
 
-export const emailHistoryFragment = () => gql(`
+export const emailHistoryFragment = gql(`
   fragment emailHistoryFragment on LWEvent {
     _id
     createdAt

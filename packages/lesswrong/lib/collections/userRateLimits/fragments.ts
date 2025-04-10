@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const UserRateLimitDisplay = () => gql(`
+export const UserRateLimitDisplay = gql(`
   fragment UserRateLimitDisplay on UserRateLimit {
     _id
     user {

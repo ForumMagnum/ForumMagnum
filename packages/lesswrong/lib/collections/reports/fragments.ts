@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const UnclaimedReportsList = () => gql(`
+export const UnclaimedReportsList = gql(`
   fragment UnclaimedReportsList on Report {
     _id
     userId

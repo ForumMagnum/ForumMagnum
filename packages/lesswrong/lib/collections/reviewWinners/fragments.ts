@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const ReviewWinnerEditDisplay = () => gql(`
+export const ReviewWinnerEditDisplay = gql(`
   fragment ReviewWinnerEditDisplay on ReviewWinner {
     _id
     postId
@@ -10,7 +10,7 @@ export const ReviewWinnerEditDisplay = () => gql(`
   }
 `)
 
-export const ReviewWinnerTopPostsDisplay = () => gql(`
+export const ReviewWinnerTopPostsDisplay = gql(`
   fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
     _id
     postId
@@ -23,7 +23,7 @@ export const ReviewWinnerTopPostsDisplay = () => gql(`
   }
 `)
 
-export const ReviewWinnerAll = () => gql(`
+export const ReviewWinnerAll = gql(`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     category
@@ -38,7 +38,7 @@ export const ReviewWinnerAll = () => gql(`
   }
 `)
 
-export const ReviewWinnerTopPostsPage = () => gql(`
+export const ReviewWinnerTopPostsPage = gql(`
   fragment ReviewWinnerTopPostsPage on ReviewWinner {
     _id
     category
@@ -54,7 +54,7 @@ export const ReviewWinnerTopPostsPage = () => gql(`
   }
 `)
 
-export const ReviewWinnerAnnouncement = () => gql(`
+export const ReviewWinnerAnnouncement = gql(`
   fragment ReviewWinnerAnnouncement on ReviewWinner {
     _id
     category

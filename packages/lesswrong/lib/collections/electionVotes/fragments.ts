@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const ElectionVoteInfo = () => gql(`
+export const ElectionVoteInfo = gql(`
   fragment ElectionVoteInfo on ElectionVote {
     _id
     electionName
@@ -14,7 +14,7 @@ export const ElectionVoteInfo = () => gql(`
   }
 `)
 
-export const ElectionVoteRecentDiscussion = () => gql(`
+export const ElectionVoteRecentDiscussion = gql(`
   fragment ElectionVoteRecentDiscussion on ElectionVote {
     _id
     electionName

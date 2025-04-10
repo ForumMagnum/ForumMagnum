@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const MultiDocumentMinimumInfo = () => gql(`
+export const MultiDocumentMinimumInfo = gql(`
   fragment MultiDocumentMinimumInfo on MultiDocument {
     _id
     parentDocumentId
@@ -29,7 +29,7 @@ export const MultiDocumentMinimumInfo = () => gql(`
   }
 `)
 
-export const MultiDocumentContentDisplay = () => gql(`
+export const MultiDocumentContentDisplay = gql(`
   fragment MultiDocumentContentDisplay on MultiDocument {
     ...MultiDocumentMinimumInfo
     tableOfContents
@@ -40,7 +40,7 @@ export const MultiDocumentContentDisplay = () => gql(`
   }
 `)
 
-export const MultiDocumentEdit = () => gql(`
+export const MultiDocumentEdit = gql(`
   fragment MultiDocumentEdit on MultiDocument {
     ...MultiDocumentContentDisplay
     arbitalLinkedPages {
@@ -53,7 +53,7 @@ export const MultiDocumentEdit = () => gql(`
   }
 `)
 
-export const MultiDocumentParentDocument = () => gql(`
+export const MultiDocumentParentDocument = gql(`
   fragment MultiDocumentParentDocument on MultiDocument {
     ...MultiDocumentEdit
     parentTag {
@@ -62,7 +62,7 @@ export const MultiDocumentParentDocument = () => gql(`
   }
 `)
 
-export const MultiDocumentWithContributors = () => gql(`
+export const MultiDocumentWithContributors = gql(`
   fragment MultiDocumentWithContributors on MultiDocument {
     ...MultiDocumentEdit
     contributors {
@@ -77,7 +77,7 @@ export const MultiDocumentWithContributors = () => gql(`
   }
 `)
 
-export const MultiDocumentRevision = () => gql(`
+export const MultiDocumentRevision = gql(`
   fragment MultiDocumentRevision on MultiDocument {
     ...MultiDocumentMinimumInfo
     contents(version: $version) {
@@ -87,7 +87,7 @@ export const MultiDocumentRevision = () => gql(`
   }
 `)
 
-export const MultiDocumentWithContributorsRevision = () => gql(`
+export const MultiDocumentWithContributorsRevision = gql(`
   fragment MultiDocumentWithContributorsRevision on MultiDocument {
     ...MultiDocumentRevision
     contributors(version: $version) {
@@ -107,7 +107,7 @@ export const MultiDocumentWithContributorsRevision = () => gql(`
   }
 `)
 
-export const WithVoteMultiDocument = () => gql(`
+export const WithVoteMultiDocument = gql(`
   fragment WithVoteMultiDocument on MultiDocument {
     ...MultiDocumentMinimumInfo
   }

@@ -1,5 +1,5 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
-export const CollectionContinueReadingFragment = () => gql(`
+export const CollectionContinueReadingFragment = gql(`
   fragment CollectionContinueReadingFragment on Collection {
     _id
     title
@@ -8,7 +8,7 @@ export const CollectionContinueReadingFragment = () => gql(`
   }
 `)
 
-export const CollectionsPageFragment = () => gql(`
+export const CollectionsPageFragment = gql(`
   fragment CollectionsPageFragment on Collection {
     _id
     createdAt
@@ -31,7 +31,7 @@ export const CollectionsPageFragment = () => gql(`
   }
 `)
 
-export const CollectionsEditFragment = () => gql(`
+export const CollectionsEditFragment = gql(`
   fragment CollectionsEditFragment on Collection {
     ...CollectionsPageFragment
     contents {
@@ -40,7 +40,7 @@ export const CollectionsEditFragment = () => gql(`
   }
 `)
 
-export const CollectionsBestOfFragment = () => gql(`
+export const CollectionsBestOfFragment = gql(`
   fragment CollectionsBestOfFragment on Collection {
     _id
     createdAt

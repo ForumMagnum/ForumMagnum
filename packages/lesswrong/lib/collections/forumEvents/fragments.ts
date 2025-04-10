@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const ForumEventsMinimumInfo = () => gql(`
+export const ForumEventsMinimumInfo = gql(`
   fragment ForumEventsMinimumInfo on ForumEvent {
     _id
     title
@@ -24,7 +24,7 @@ export const ForumEventsMinimumInfo = () => gql(`
   }
 `)
 
-export const ForumEventsDisplay = () => gql(`
+export const ForumEventsDisplay = gql(`
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
     publicData
@@ -55,7 +55,7 @@ export const ForumEventsDisplay = () => gql(`
   }
 `)
 
-export const ForumEventsEdit = () => gql(`
+export const ForumEventsEdit = gql(`
   fragment ForumEventsEdit on ForumEvent {
     ...ForumEventsMinimumInfo
     frontpageDescription {

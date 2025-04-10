@@ -13,8 +13,8 @@ export function extractFragmentName(fragmentText: string): FragmentName {
   return match[1] as FragmentName;
 }
 
-export function transformFragments(fragments: Record<string, () => DocumentNode>) {
-  return mapValues(fragments, (n) => print(n()))
+export function transformFragments(fragments: Record<string, DocumentNode>) {
+  return mapValues(fragments, print)
 }
 
 export function frag(strings: TemplateStringsArray, ...values: (string|FragmentInfo|(() => FragmentInfo))[]): FragmentInfo {

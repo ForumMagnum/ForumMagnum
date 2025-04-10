@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const TagRelVotes = () => gql(`
+export const TagRelVotes = gql(`
   fragment TagRelVotes on Vote {
     _id
     userId
@@ -15,7 +15,7 @@ export const TagRelVotes = () => gql(`
   }
 `)
 
-export const TagVotingActivity = () => gql(`
+export const TagVotingActivity = gql(`
   fragment TagVotingActivity on Vote {
     ...TagRelVotes
     tagRel {
@@ -24,7 +24,7 @@ export const TagVotingActivity = () => gql(`
   }
 `)
 
-export const UserVotes = () => gql(`
+export const UserVotes = gql(`
   fragment UserVotes on Vote {
     _id
     userId
@@ -38,7 +38,7 @@ export const UserVotes = () => gql(`
   }
 `)
 
-export const UserVotesWithDocument = () => gql(`
+export const UserVotesWithDocument = gql(`
   fragment UserVotesWithDocument on Vote {
     ...UserVotes
     comment {

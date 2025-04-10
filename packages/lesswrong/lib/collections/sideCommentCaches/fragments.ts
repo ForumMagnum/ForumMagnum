@@ -5,7 +5,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 // field on the posts object. This fragment is used by the SQL fragments
 // compiler to fetch the necessary fields for the resolver on the posts
 // collection.
-export const SideCommentCacheMinimumInfo = () => gql(`
+export const SideCommentCacheMinimumInfo = gql(`
   fragment SideCommentCacheMinimumInfo on SideCommentCache {
     _id
     postId

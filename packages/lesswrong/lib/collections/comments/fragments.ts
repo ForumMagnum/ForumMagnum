@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const CommentsList = () => gql(`
+export const CommentsList = gql(`
   fragment CommentsList on Comment {
     _id
     postId
@@ -82,7 +82,7 @@ export const CommentsList = () => gql(`
   }
 `)
 
-export const CommentsListWithTopLevelComment = () => gql(`
+export const CommentsListWithTopLevelComment = gql(`
   fragment CommentsListWithTopLevelComment on Comment {
     ...CommentsList
     topLevelComment {
@@ -91,7 +91,7 @@ export const CommentsListWithTopLevelComment = () => gql(`
   }
 `)
 
-export const ShortformComments = () => gql(`
+export const ShortformComments = gql(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {
@@ -103,7 +103,7 @@ export const ShortformComments = () => gql(`
   }
 `)
 
-export const CommentWithRepliesFragment = () => gql(`
+export const CommentWithRepliesFragment = gql(`
   fragment CommentWithRepliesFragment on Comment {
     ...CommentsList
     lastSubthreadActivity
@@ -119,7 +119,7 @@ export const CommentWithRepliesFragment = () => gql(`
   }
 `)
 
-export const CommentEdit = () => gql(`
+export const CommentEdit = gql(`
   fragment CommentEdit on Comment {
     ...CommentsList
     relevantTagIds
@@ -129,7 +129,7 @@ export const CommentEdit = () => gql(`
   }
 `)
 
-export const DeletedCommentsMetaData = () => gql(`
+export const DeletedCommentsMetaData = gql(`
   fragment DeletedCommentsMetaData on Comment {
     _id
     deleted
@@ -143,7 +143,7 @@ export const DeletedCommentsMetaData = () => gql(`
   }
 `)
 
-export const DeletedCommentsModerationLog = () => gql(`
+export const DeletedCommentsModerationLog = gql(`
   fragment DeletedCommentsModerationLog on Comment {
     ...DeletedCommentsMetaData
     user {
@@ -157,7 +157,7 @@ export const DeletedCommentsModerationLog = () => gql(`
   }
 `)
 
-export const CommentsListWithParentMetadata = () => gql(`
+export const CommentsListWithParentMetadata = gql(`
   fragment CommentsListWithParentMetadata on Comment {
     ...CommentsList
     post {
@@ -172,7 +172,7 @@ export const CommentsListWithParentMetadata = () => gql(`
 
 // TODO: This is now the same as CommentWithRepliesFragment, now that said
 // fragment gets the tag field
-export const StickySubforumCommentFragment = () => gql(`
+export const StickySubforumCommentFragment = gql(`
   fragment StickySubforumCommentFragment on Comment {
     ...CommentWithRepliesFragment
     tag {
@@ -181,7 +181,7 @@ export const StickySubforumCommentFragment = () => gql(`
   }
 `)
 
-export const WithVoteComment = () => gql(`
+export const WithVoteComment = gql(`
   fragment WithVoteComment on Comment {
     __typename
     _id
@@ -196,7 +196,7 @@ export const WithVoteComment = () => gql(`
   }
 `)
 
-export const CommentsListWithModerationMetadata = () => gql(`
+export const CommentsListWithModerationMetadata = gql(`
   fragment CommentsListWithModerationMetadata on Comment {
     ...CommentWithRepliesFragment
     allVotes {
@@ -205,7 +205,7 @@ export const CommentsListWithModerationMetadata = () => gql(`
   }
 `)
 
-export const CommentsListWithModGPTAnalysis = () => gql(`
+export const CommentsListWithModGPTAnalysis = gql(`
   fragment CommentsListWithModGPTAnalysis on Comment {
     ...CommentsList
     post {
@@ -215,7 +215,7 @@ export const CommentsListWithModGPTAnalysis = () => gql(`
   }
 `)
 
-export const CommentsForAutocomplete = () => gql(`
+export const CommentsForAutocomplete = gql(`
   fragment CommentsForAutocomplete on Comment {
     _id
     postId
@@ -240,7 +240,7 @@ export const CommentsForAutocomplete = () => gql(`
  * recursive function, but that didn't work well with codegen so it's now
  * fully unrolled.
  */
-export const CommentsForAutocompleteWithParents = () => gql(`
+export const CommentsForAutocompleteWithParents = gql(`
   fragment CommentsForAutocompleteWithParents on Comment {
     ...CommentsForAutocomplete
     parentComment {
@@ -276,7 +276,7 @@ export const CommentsForAutocompleteWithParents = () => gql(`
   }
 `)
 
-export const SuggestAlignmentComment = () => gql(`
+export const SuggestAlignmentComment = gql(`
   fragment SuggestAlignmentComment on Comment {
     ...CommentsList
     post {
