@@ -1591,6 +1591,6 @@ const schema = {
     },
   },
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
-} satisfies Record<string, NewCollectionFieldSpecification<"Comments">>;
+} satisfies Record<string, CollectionFieldSpecification<"Comments">>;
 
 export default schema;

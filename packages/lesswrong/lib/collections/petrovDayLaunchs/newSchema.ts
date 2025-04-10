@@ -48,6 +48,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PetrovDayLaunchs">>;
+} satisfies Record<string, CollectionFieldSpecification<"PetrovDayLaunchs">>;
 
 export default schema;

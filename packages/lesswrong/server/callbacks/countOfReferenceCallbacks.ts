@@ -15,8 +15,8 @@ interface InvertedCountOfReferenceOptions {
 
 type CountOfReferenceMap = Record<string, InvertedCountOfReferenceOptions[] | undefined>;
 
-type CollectionFieldEntry = [string, NewCollectionFieldSpecification<CollectionNameString>];
-type CollectionFieldEntryWithCountOfReferences = [string, NewCollectionFieldSpecification<CollectionNameString> & { graphql: GraphQLWriteableFieldSpecification<CollectionNameString> & { countOfReferences: CountOfReferenceOptions } }];
+type CollectionFieldEntry = [string, CollectionFieldSpecification<CollectionNameString>];
+type CollectionFieldEntryWithCountOfReferences = [string, CollectionFieldSpecification<CollectionNameString> & { graphql: GraphQLWriteableFieldSpecification<CollectionNameString> & { countOfReferences: CountOfReferenceOptions } }];
 
 function isCountOfReferencesField(field: CollectionFieldEntry): field is CollectionFieldEntryWithCountOfReferences {
   const { graphql } = field[1];

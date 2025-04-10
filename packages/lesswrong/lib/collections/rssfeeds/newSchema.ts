@@ -186,6 +186,6 @@ const schema = {
       control: "checkbox",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"RSSFeeds">>;
+} satisfies Record<string, CollectionFieldSpecification<"RSSFeeds">>;
 
 export default schema;

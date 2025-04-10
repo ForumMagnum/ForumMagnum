@@ -5676,6 +5676,6 @@ const schema = {
       hidden: true,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Users">>;
+} satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

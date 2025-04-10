@@ -113,6 +113,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Bans">>;
+} satisfies Record<string, CollectionFieldSpecification<"Bans">>;
 
 export default schema;

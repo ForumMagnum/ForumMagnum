@@ -604,6 +604,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Spotlights">>;
+} satisfies Record<string, CollectionFieldSpecification<"Spotlights">>;
 
 export default schema;

@@ -82,6 +82,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"DigestPosts">>;
+} satisfies Record<string, CollectionFieldSpecification<"DigestPosts">>;
 
 export default schema;

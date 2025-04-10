@@ -245,6 +245,6 @@ const schema = {
         }),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Conversations">>;
+} satisfies Record<string, CollectionFieldSpecification<"Conversations">>;
 
 export default schema;

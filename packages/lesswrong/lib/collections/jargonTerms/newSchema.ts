@@ -192,6 +192,6 @@ const schema = {
       tooltip: "Comma-separated, no spaces",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"JargonTerms">>;
+} satisfies Record<string, CollectionFieldSpecification<"JargonTerms">>;
 
 export default schema;

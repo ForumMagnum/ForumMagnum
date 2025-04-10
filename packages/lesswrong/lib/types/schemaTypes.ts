@@ -4,7 +4,7 @@ import type { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 import type { permissionGroups } from "../permissions";
 import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
-import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldOptions } from '../editor/makeEditableOptions';
+import type { EditableFieldCallbackOptions, EditableFieldClientOptions } from '../editor/makeEditableOptions';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -89,24 +89,6 @@ type SqlPostProcess<N extends CollectionNameString> = (
   root: ObjectsByCollectionName[N],
   context: ResolverContext,
 ) => AnyBecauseHard;
-
-type CollectionFieldResolveAs<N extends CollectionNameString> = {
-  type: string | GraphQLScalarType,
-  description?: string,
-  fieldName?: string,
-  addOriginalField?: boolean,
-  arguments?: string|null,
-  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
-  sqlResolver?: SqlResolver<N>,
-  /**
-   * `sqlPostProcess` is run on the result of the database call, in addition
-   * to the `sqlResolver`. It should return the value of this `field`, generally
-   * by performing some operation on the value returned by the `sqlResolver`.
-   * Most of the time this is an anti-pattern which should be avoided, but
-   * sometimes it's unavoidable.
-   */
-  sqlPostProcess?: SqlPostProcess<N>,
-}
 
 interface CountOfReferenceOptions {
   foreignCollectionName: CollectionNameString
@@ -264,114 +246,10 @@ interface FormFieldSpecification<N extends CollectionNameString> {
   canCreate?: FieldCreatePermissions,
 }
 
-interface NewCollectionFieldSpecification<N extends CollectionNameString> {
+interface CollectionFieldSpecification<N extends CollectionNameString> {
   database?: DatabaseFieldSpecification<N>,
   graphql?: GraphQLFieldSpecification<N>,
   form?: FormFieldSpecification<N>,
-}
-
-interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
-  type?: any,
-  description?: string,
-  /**
-   * Whether this field must be included in create and update
-   * mutations (separate from whether it is allowed to be null)
-   */
-  optional?: boolean,
-  defaultValue?: any,
-  graphQLType?: string,
-  typescriptType?: string,
-  /** Use the following information in the GraphQL schema and at query-time to
-   * calculate a response */
-  resolveAs?: CollectionFieldResolveAs<N>,
-  blackbox?: boolean,
-  denormalized?: boolean,
-  canAutoDenormalize?: boolean,
-  canAutofillDefault?: boolean,
-  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
-  getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
-  foreignKey?: any,
-  logChanges?: boolean,
-  /**
-   * Whether this field can be null (enforced at the database level)
-   */
-  nullable?: boolean,
-  
-  min?: number,
-  max?: number,
-  regEx?: any,
-  minCount?: number,
-  /** NOTE: not in use or tested as of 2022-05 */
-  maxCount?: number,
-  options?: (props: SmartFormProps<N>) => any,
-  allowedValues?: string[],
-  vectorSize?: number,
-  
-  /**
-   * Custom props that will be passed to the input component. Can pass in
-   * values or functions. All functions will be called before being passed into
-   * the input component. Example:
-   *
-   * {
-   *   emphasis: 'bold',
-   *   defaultValue: () => new Date(),
-   * }
-   *
-   * Note that if you want to put a component as one of the input values (you're
-   * doing something crazy aren't you), components are functions and so would be
-   * called. To get your intended behavior, wrap it in a callback:
-   *
-   * {
-   *   decorativeComponent: () => MyDecorativeComponent
-   * }
-   *
-   * This used to have a synonym `inputProperties` (a legacy of Vulcan's mass-renaming).
-   */
-  form?: Record<string, string | number | boolean | Record<string, any> | ((props: SmartFormProps<N>) => any) | undefined>,
-  
-  beforeComponent?: keyof ComponentTypes,
-  /** NOTE: not in use or tested as of 2022-05 */
-  afterComponent?: keyof ComponentTypes,
-  order?: number,
-  label?: string,
-  tooltip?: string,
-  control?: FormInputType,
-  placeholder?: string,
-  hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
-  group?: () => FormGroupType<N>,
-  
-  // Field mutation callbacks, invoked from Vulcan mutators. Notes:
-  //  * The "document" field in onUpdate is deprecated due to an earlier mixup
-  //    (breaking change) affecting whether it means oldDocument or newDocument
-  //  * Return type of these callbacks is not enforced because we don't have the
-  //    field's type in a usable format here. onCreate and onUpdate should all
-  //    return a new value for the field, EXCEPT that if they return undefined
-  //    the field value is left unchanged.
-  //
-  onCreate?: (args: {
-    currentUser: DbUser|null,
-    collection: CollectionBase<N>,
-    context: ResolverContext,
-    document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-    newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-    fieldName: string
-  }) => any,
-  onUpdate?: (args: {
-    data: Partial<ObjectsByCollectionName[N]>,
-    oldDocument: ObjectsByCollectionName[N],
-    newDocument: ObjectsByCollectionName[N],
-    document: ObjectsByCollectionName[N],
-    currentUser: DbUser|null,
-    collection: CollectionBase<N>,
-    context: ResolverContext,
-    fieldName: string
-    modifier: MongoModifier
-  }) => any,
-  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext}) => Promise<void>,
-
-  countOfReferences?: CountOfReferenceOptions;
-  editableFieldOptions?: EditableFieldOptions;
-  slugCallbackOptions?: SlugCallbackOptions<N>;
 }
 
 /** Field specification for a Form field, created from the collection schema */
@@ -415,9 +293,6 @@ type FormGroupSafeType<N extends CollectionNameString> = Omit<FormGroupType<N>, 
   layoutComponent?: string;
 };
 
-type SchemaType<N extends CollectionNameString> = Record<string, CollectionFieldSpecification<N>>;
-type OldSimpleSchemaType<N extends CollectionNameString> = SimpleSchema & {_schema: SchemaType<N>};
-
 type DerivedSimpleSchemaFieldType = {
   optional: boolean,
   label: string,
@@ -427,7 +302,7 @@ type DerivedSimpleSchemaFieldType = {
   type: {
     singleType: Function | string | SimpleSchema,
     definitions: Array<{
-      type: NewSimpleSchemaType<CollectionNameString>,
+      type: SimpleSchemaType<CollectionNameString>,
       allowedValues: string[]
     }>
   },
@@ -437,7 +312,7 @@ type DerivedSimpleSchemaType<T extends Partial<Record<string, any>>> = {
   [k in keyof T]: DerivedSimpleSchemaFieldType
 };
 
-type NewSchemaType<N extends CollectionNameString> = Record<string, NewCollectionFieldSpecification<N>>;
-type NewSimpleSchemaType<N extends CollectionNameString> = SimpleSchema & { _schema: DerivedSimpleSchemaType<NewSchemaType<N>> };
+type SchemaType<N extends CollectionNameString> = Record<string, CollectionFieldSpecification<N>>;
+type SimpleSchemaType<N extends CollectionNameString> = SimpleSchema & { _schema: DerivedSimpleSchemaType<SchemaType<N>> };
 
 }

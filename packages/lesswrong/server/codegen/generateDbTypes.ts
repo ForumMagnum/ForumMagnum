@@ -82,7 +82,7 @@ function generateCollectionType(collection: any): string {
   return `type ${collectionName}Collection = CollectionBase<"${collectionName}">;\n\n`;
 }
 
-function isNonTrivialSimpleSchemaType(fieldSimpleSchemaType: DerivedSimpleSchemaType<NewSchemaType<CollectionNameString>>[string]['type'], fieldSchema: NewCollectionFieldSpecification<any>): boolean {
+function isNonTrivialSimpleSchemaType(fieldSimpleSchemaType: DerivedSimpleSchemaType<SchemaType<CollectionNameString>>[string]['type'], fieldSchema: CollectionFieldSpecification<any>): boolean {
   return (typeof fieldSimpleSchemaType.singleType !== 'function')
     || fieldSimpleSchemaType.singleType === Object
     || (fieldSimpleSchemaType.singleType === Array && !!fieldSchema.graphql?.validation?.simpleSchema)

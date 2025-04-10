@@ -1,11 +1,10 @@
 import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
-import { camelCaseify } from '../vulcan-lib/utils';
 import { getOriginalContents } from '../collections/revisions/helpers';
 import { accessFilterMultiple } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import type { EditableFieldCallbackOptions, EditableFieldClientOptions, EditableFieldName, EditableFieldOptions, MakeEditableOptions } from './makeEditableOptions';
+import type { EditableFieldCallbackOptions, EditableFieldClientOptions, MakeEditableOptions } from './makeEditableOptions';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 import { ContentType } from '../collections/revisions/revisionConstants';
 
@@ -72,7 +71,7 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
   revisionsHaveCommitMessages: false,
 }
 
-interface EditableField<N extends CollectionNameString> extends NewCollectionFieldSpecification<N> {
+interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   graphql: GraphQLFieldSpecification<N> & {
     editableFieldOptions: EditableFieldCallbackOptions;
   }
@@ -81,7 +80,7 @@ interface EditableField<N extends CollectionNameString> extends NewCollectionFie
   }
 };
 
-export function isEditableField<N extends CollectionNameString>(field: [string, NewCollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
+export function isEditableField<N extends CollectionNameString>(field: [string, CollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
   const { graphql, form } = field[1];
   return !!graphql && 'editableFieldOptions' in graphql && !!graphql.editableFieldOptions && !!form?.editableFieldOptions;
 }
@@ -228,46 +227,6 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
   }
 }
 
-const buildEditableResolver = <N extends CollectionNameString>(
-  collectionName: N,
-  fieldName: string,
-  normalized: boolean,
-): CollectionFieldResolveAs<N> => {
-  if (normalized) {
-    return {
-      type: "Revision",
-      arguments: "version: String",
-      resolver: getNormalizedEditableResolver(fieldName),
-      sqlResolver: getNormalizedEditableSqlResolver(fieldName),
-    };
-  }
-
-  return {
-    type: "Revision",
-    arguments: "version: String",
-    resolver: getDenormalizedEditableResolver(collectionName, fieldName),
-  };
-}
-
-
-const defaultPingbackFields = {
-  // Dictionary from collection name to array of distinct referenced
-  // document IDs in that collection, in order of appearance
-  pingbacks: {
-    type: Object,
-    canRead: 'guests',
-    optional: true,
-    hidden: true,
-    denormalized: true,
-  },
-  "pingbacks.$": {
-    type: Array,
-  },
-  "pingbacks.$.$": {
-    type: String,
-  },
-} as const;
-
 export function getDefaultLocalStorageIdGenerator<N extends CollectionNameString>(collectionName: N) {
   return function defaultLocalStorageIdGenerator(doc: any, name: string): {id: string, verify: boolean} {
     const { _id, conversationId } = doc
@@ -315,124 +274,4 @@ export function getNormalizedVersionResolver(fieldName: string) {
     }
     return revision?.version ?? null;
   }
-}
-
-export function editableFields<N extends CollectionNameString>(collectionName: N, options: MakeEditableOptions<N> = {}): Record<string, CollectionFieldSpecification<N>> {  
-  const optionsWithDefaults = { ...defaultOptions, ...options };
-  const {
-    commentEditor,
-    commentStyles,
-    label,
-    formVariant,
-    hintText,
-    order,
-    hideControls = false,
-    formGroup,
-    permissions,
-    fieldName = "contents" as EditableFieldName<N>,
-    hidden = false,
-    pingbacks = false,
-    normalized = false,
-    revisionsHaveCommitMessages,
-    hasToc,
-  } = optionsWithDefaults;
-
-  // We don't want to allow random stuff like escape characters in editable field names, since:
-  // 1. why would you do that
-  // 2. we manually interpolate editable field names into a SQL string in one place
-  if (!/^[a-zA-Z]+$/.test(fieldName)) {
-    throw new Error(`Invalid characters in ${fieldName}; only a-z & A-Z are allowed.`);
-  }
-
-  const getLocalStorageId = options.getLocalStorageId || getDefaultLocalStorageIdGenerator(collectionName);
-
-  const callbackOptions: EditableFieldCallbackOptions = {
-    pingbacks,
-    normalized,
-  };
-
-  const clientOptions: EditableFieldClientOptions = {
-    getLocalStorageId,
-    hasToc,
-    revisionsHaveCommitMessages
-  };
-
-  const editableFieldOptions: EditableFieldOptions = {
-    callbackOptions,
-    clientOptions,
-  };
-
-  const formOptions = {
-    label,
-    formVariant,
-    hintText,
-    fieldName,
-    collectionName,
-    commentEditor,
-    commentStyles,
-    hideControls,
-  };
-
-  const editableField: CollectionFieldSpecification<N> = {
-    type: RevisionStorageType,
-    editableFieldOptions,
-    optional: true,
-    logChanges: false, //Logged via Revisions rather than LWEvents
-    typescriptType: "EditableFieldContents",
-    group: formGroup,
-    ...permissions,
-    order,
-    hidden,
-    control: 'EditorFormComponent',
-    resolveAs: buildEditableResolver(collectionName, fieldName, normalized),
-    form: formOptions,
-  };
-
-  const latestRevisionIdFieldName = `${fieldName}_latest`;
-  const latestRevisionIdField: CollectionFieldSpecification<N> = {
-    type: String,
-    canRead: ['guests'],
-    optional: true,
-  };
-
-  const revisionsResolverFieldName = fieldName === "contents"
-    ? "revisions"
-    : camelCaseify(`${fieldName}Revisions`);
-
-  const revisionsResolverField: CollectionFieldSpecification<N> = {
-    type: Object,
-    canRead: ['guests'],
-    optional: true,
-    resolveAs: {
-      type: '[Revision]',
-      arguments: 'limit: Int = 5',
-      resolver: getRevisionsResolver(fieldName),
-    },
-  };
-
-  const versionResolverFieldName = fieldName === "contents"
-    ? "version"
-    : camelCaseify(`${fieldName}Version`);
-
-  const versionResolverField: CollectionFieldSpecification<N> = {
-    type: String,
-    canRead: ['guests'],
-    optional: true,
-    resolveAs: {
-      type: 'String',
-      resolver: getNormalizedVersionResolver(fieldName),
-    },
-  };
-
-  const pingbackFields: Partial<typeof defaultPingbackFields> = pingbacks
-    ? defaultPingbackFields
-    : {};
-
-  return {
-    [fieldName]: editableField,
-    [latestRevisionIdFieldName]: latestRevisionIdField,
-    [revisionsResolverFieldName]: revisionsResolverField,
-    [versionResolverFieldName]: versionResolverField,
-    ...pingbackFields,
-  };
 }

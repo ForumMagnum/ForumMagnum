@@ -55,7 +55,7 @@ export const DEFAULT_CURRENT_USER_VOTE_FIELD = {
     },
     sqlResolver: currentUserVoteResolver,
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD = {
   graphql: {
@@ -68,7 +68,7 @@ export const DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD = {
     },
     sqlResolver: currentUserExtendedVoteResolver,
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 // This has an inlined collection name in the `getValue` filter function, so unfortunately it needs to be a function.
 export function defaultVoteCountField<N extends VoteableCollectionName>(collectionName: N) {
@@ -104,7 +104,7 @@ export function defaultVoteCountField<N extends VoteableCollectionName>(collecti
         optional: true,
       },
     },
-  } satisfies NewCollectionFieldSpecification<N>;
+  } satisfies CollectionFieldSpecification<N>;
 
   return fieldSpec;
 }
@@ -123,7 +123,7 @@ export const DEFAULT_BASE_SCORE_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_EXTENDED_SCORE_FIELD = {
   database: {
@@ -136,7 +136,7 @@ export const DEFAULT_EXTENDED_SCORE_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_SCORE_FIELD = {
   database: {
@@ -152,7 +152,7 @@ export const DEFAULT_SCORE_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_INACTIVE_FIELD = {
   database: {
@@ -161,7 +161,7 @@ export const DEFAULT_INACTIVE_FIELD = {
     canAutofillDefault: true,
     nullable: false,
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_AF_BASE_SCORE_FIELD = {
   database: {
@@ -177,7 +177,7 @@ export const DEFAULT_AF_BASE_SCORE_FIELD = {
   form: {
     label: "Alignment Base Score",
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_AF_EXTENDED_SCORE_FIELD = {
   database: {
@@ -190,7 +190,7 @@ export const DEFAULT_AF_EXTENDED_SCORE_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_AF_VOTE_COUNT_FIELD = {
   database: {
@@ -203,7 +203,7 @@ export const DEFAULT_AF_VOTE_COUNT_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;

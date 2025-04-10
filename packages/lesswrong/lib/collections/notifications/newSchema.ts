@@ -179,6 +179,6 @@ const schema = {
       canRead: [userOwns],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Notifications">>;
+} satisfies Record<string, CollectionFieldSpecification<"Notifications">>;
 
 export default schema;

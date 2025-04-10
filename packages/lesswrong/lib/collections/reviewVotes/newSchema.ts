@@ -127,6 +127,6 @@ const schema = {
       canRead: ["guests"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ReviewVotes">>;
+} satisfies Record<string, CollectionFieldSpecification<"ReviewVotes">>;
 
 export default schema;

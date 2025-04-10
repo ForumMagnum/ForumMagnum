@@ -79,6 +79,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ManifoldProbabilitiesCaches">>;
+} satisfies Record<string, CollectionFieldSpecification<"ManifoldProbabilitiesCaches">>;
 
 export default schema;

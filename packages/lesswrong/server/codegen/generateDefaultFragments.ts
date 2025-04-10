@@ -3,7 +3,7 @@ import { allSchemas } from "@/lib/schema/allSchemas";
 // Create default "dumb" gql fragment object for a given collection
 function getDefaultFragmentText<N extends CollectionNameString>(
   collectionName: N,
-  schema: Record<string, NewCollectionFieldSpecification<any>>,
+  schema: Record<string, CollectionFieldSpecification<any>>,
   collectionToTypeNameMap: Record<string, string>,
   options = { onlyViewable: true },
 ): string|null {
@@ -16,7 +16,7 @@ function getDefaultFragmentText<N extends CollectionNameString>(
     3. it's not viewable (if onlyViewable option is true)
 
     */
-    const field: NewCollectionFieldSpecification<N> = schema[fieldName];
+    const field: CollectionFieldSpecification<N> = schema[fieldName];
     // OpenCRUD backwards compatibility
 
     const { database, graphql } = field;

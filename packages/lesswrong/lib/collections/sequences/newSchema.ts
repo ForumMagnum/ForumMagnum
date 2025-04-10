@@ -417,6 +417,6 @@ const schema = {
       label: "Alignment Forum",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Sequences">>;
+} satisfies Record<string, CollectionFieldSpecification<"Sequences">>;
 
 export default schema;

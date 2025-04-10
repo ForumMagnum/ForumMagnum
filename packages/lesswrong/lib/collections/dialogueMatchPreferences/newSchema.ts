@@ -174,6 +174,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"DialogueMatchPreferences">>;
+} satisfies Record<string, CollectionFieldSpecification<"DialogueMatchPreferences">>;
 
 export default schema;

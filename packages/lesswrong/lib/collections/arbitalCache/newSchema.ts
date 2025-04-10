@@ -29,6 +29,6 @@ const schema = {
       nullable: false,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ArbitalCaches">>;
+} satisfies Record<string, CollectionFieldSpecification<"ArbitalCaches">>;
 
 export default schema;

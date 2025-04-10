@@ -130,6 +130,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"TagFlags">>;
+} satisfies Record<string, CollectionFieldSpecification<"TagFlags">>;
 
 export default schema;

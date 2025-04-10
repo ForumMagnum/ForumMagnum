@@ -231,6 +231,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Collections">>;
+} satisfies Record<string, CollectionFieldSpecification<"Collections">>;
 
 export default schema;

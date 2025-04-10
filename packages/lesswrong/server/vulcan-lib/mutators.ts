@@ -10,7 +10,7 @@ import clone from 'lodash/clone';
  * @deprecated Prefer to avoid using onCreate callbacks on fields for new collections.
  */
 export async function runFieldOnCreateCallbacks<
-  S extends NewSchemaType<CollectionName>,
+  S extends SchemaType<CollectionName>,
   CollectionName extends CollectionNameString,
   D extends {} = CreateInputsByCollectionName[CollectionName]['data']
 >(schema: S, data: D, properties: CreateCallbackProperties<CollectionName, D>): Promise<D> {
@@ -32,7 +32,7 @@ export async function runFieldOnCreateCallbacks<
  * @deprecated Prefer to avoid using onUpdate callbacks on fields for new collections.
  */
 export async function runFieldOnUpdateCallbacks<
-  S extends NewSchemaType<CollectionName>,
+  S extends SchemaType<CollectionName>,
   CollectionName extends CollectionNameString,
   D extends {} = UpdateInputsByCollectionName[CollectionName]['data']
 >(
@@ -55,13 +55,13 @@ export async function runFieldOnUpdateCallbacks<
   return data;
 }
 
-interface CheckCreatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends NewSchemaType<N>, D = CreateInputsByCollectionName[N]['data']> {
+interface CheckCreatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends SchemaType<N>, D = CreateInputsByCollectionName[N]['data']> {
   context: ResolverContext;
   data: D;
   schema: S,
 }
 
-interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends NewSchemaType<N>, D = UpdateInputsByCollectionName[N]['data']> {
+interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionNameString, S extends SchemaType<N>, D = UpdateInputsByCollectionName[N]['data']> {
   selector: SelectorInput;
   context: ResolverContext;
   data: D;
@@ -74,7 +74,7 @@ interface CheckUpdatePermissionsAndReturnArgumentsProps<N extends CollectionName
  * a new collection with default mutations, just pass in whatever
  * arguments you need to functions you have before/after the db update.
  */
-export async function getLegacyCreateCallbackProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = CreateInputsByCollectionName[T]['data']>(
+export async function getLegacyCreateCallbackProps<const T extends CollectionNameString, S extends SchemaType<T>, D extends {} = CreateInputsByCollectionName[T]['data']>(
   collectionName: T,
   { context, data, schema }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
@@ -106,7 +106,7 @@ export function getPreviewDocument<N extends CollectionNameString, D extends {} 
  * a new collection with default mutations, just pass in whatever
  * arguments you need to functions you have before/after the db update.
  */
-export async function getLegacyUpdateCallbackProps<const T extends CollectionNameString, S extends NewSchemaType<T>, D extends {} = UpdateInputsByCollectionName[T]['data']>(
+export async function getLegacyUpdateCallbackProps<const T extends CollectionNameString, S extends SchemaType<T>, D extends {} = UpdateInputsByCollectionName[T]['data']>(
   collectionName: T,
   { selector, context, data, schema }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
@@ -144,7 +144,7 @@ export async function getLegacyUpdateCallbackProps<const T extends CollectionNam
   };
 }
 
-export function assignUserIdToData(data: unknown, currentUser: DbUser | null, schema: NewSchemaType<CollectionNameString> & { userId: NewCollectionFieldSpecification<CollectionNameString> }) {
+export function assignUserIdToData(data: unknown, currentUser: DbUser | null, schema: SchemaType<CollectionNameString> & { userId: CollectionFieldSpecification<CollectionNameString> }) {
   // You know, it occurs to me that this seems to allow users to insert arbitrary userIds
   // for documents they're creating if they have a userId field and canCreate: member.
   if (currentUser && schema.userId && !(data as HasUserIdType).userId) {

@@ -118,6 +118,6 @@ const schema = {
       label: "Don't show the intro post at the top of topic feeds",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"UserTagRels">>;
+} satisfies Record<string, CollectionFieldSpecification<"UserTagRels">>;
 
 export default schema;

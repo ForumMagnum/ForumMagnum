@@ -165,6 +165,6 @@ const schema = {
       resolver: (doc) => isActionActive(doc),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ModeratorActions">>;
+} satisfies Record<string, CollectionFieldSpecification<"ModeratorActions">>;
 
 export default schema;

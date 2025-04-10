@@ -187,6 +187,6 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ElicitQuestionPredictions">>;
+} satisfies Record<string, CollectionFieldSpecification<"ElicitQuestionPredictions">>;
 
 export default schema;

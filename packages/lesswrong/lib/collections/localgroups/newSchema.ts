@@ -475,6 +475,6 @@ const schema = {
       nullable: true,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Localgroups">>;
+} satisfies Record<string, CollectionFieldSpecification<"Localgroups">>;
 
 export default schema;

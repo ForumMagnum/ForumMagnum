@@ -304,6 +304,6 @@ const schema = {
       control: "checkbox",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"GardenCodes">>;
+} satisfies Record<string, CollectionFieldSpecification<"GardenCodes">>;
 
 export default schema;

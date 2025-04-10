@@ -37,6 +37,6 @@ const schema = {
       nullable: false,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Images">>;
+} satisfies Record<string, CollectionFieldSpecification<"Images">>;
 
 export default schema;

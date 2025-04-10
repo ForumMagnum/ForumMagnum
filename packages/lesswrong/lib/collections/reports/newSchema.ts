@@ -219,6 +219,6 @@ const schema = {
       hidden: true,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Reports">>;
+} satisfies Record<string, CollectionFieldSpecification<"Reports">>;
 
 export default schema;
