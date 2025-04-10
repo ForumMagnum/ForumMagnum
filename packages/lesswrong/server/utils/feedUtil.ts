@@ -114,7 +114,6 @@ export function getFeedResolverGraphQL<CutoffType>({name, resolver, args, cutoff
   }) => Promise<{
     cutoff: CutoffType|null,
     results: Array<any>,
-    endOffset: number,
     sessionId?: string
   }>,
   args: string,

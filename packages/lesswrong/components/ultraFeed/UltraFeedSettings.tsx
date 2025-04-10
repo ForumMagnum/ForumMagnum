@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useUltraFeedSettings, DEFAULT_SETTINGS } from '../../lib/ultraFeedSettings';
+import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
+import { DEFAULT_SETTINGS } from '../../lib/ultraFeedSettings';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 

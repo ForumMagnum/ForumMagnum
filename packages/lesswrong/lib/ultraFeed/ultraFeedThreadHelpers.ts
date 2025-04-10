@@ -8,9 +8,18 @@
  * - Determining user state relative to threads
  * - Prioritizing threads for display
  * - Deciding which comments to expand/highlight
+ * - Building comment threads from raw comment data
  */
 
-import { PreDisplayFeedComment, PreDisplayFeedCommentThread, FeedCommentsThread, FeedCommentMetaInfo } from '../../components/ultraFeed/ultraFeedTypes';
+import { 
+  PreDisplayFeedComment, 
+  PreDisplayFeedCommentThread, 
+  FeedCommentsThread, 
+  FeedCommentMetaInfo, 
+  FeedCommentFromDb,
+  FeedItemSourceType
+} from '../../components/ultraFeed/ultraFeedTypes';
+import CommentsRepo from '../../server/repos/CommentsRepo';
 
 // Define local parameters for UltraFeed time decay which is same formula as HN to down-weight older threads
 const ULTRAFEED_SCORE_BIAS = 3; // Similar to SCORE_BIAS elsewhere, adjusts starting decay
@@ -409,4 +418,135 @@ export function prepareCommentThreadForResolver(
   return {
     comments: finalComments,
   };
+}
+
+/**
+ * Transforms comment data from the database into thread structures
+ */
+export function getAllCommentThreads(candidates: FeedCommentFromDb[]): PreDisplayFeedComment[][] {
+  const groups: Record<string, FeedCommentFromDb[]> = {};
+  for (const candidate of candidates) {
+    const topId = candidate.topLevelCommentId ?? candidate.commentId;
+    if (!groups[topId]) {
+      groups[topId] = [];
+    }
+    groups[topId].push(candidate);
+  }
+
+  const allThreads: PreDisplayFeedComment[][] = [];
+
+  for (const [_topLevelId, groupCandidates] of Object.entries(groups)) {
+    const generatedThreads = buildDistinctLinearThreads(groupCandidates);
+
+    // Filter out threads where every comment has been seen/interacted with
+    const unreadThreads = generatedThreads.filter(thread =>
+      // Keep the thread if *at least one* comment is unread
+      thread.some(comment =>
+        !comment.metaInfo?.lastViewed && !comment.metaInfo?.lastInteracted
+      )
+    );
+
+    // Add only the threads containing at least one unread comment
+    allThreads.push(...unreadThreads);
+  }
+
+  return allThreads;
+}
+
+/**
+ * Builds distinct linear comment threads from a set of comments
+ * (Each thread is a valid path from root to leaf)
+ */
+export function buildDistinctLinearThreads(
+  candidates: FeedCommentFromDb[]
+): PreDisplayFeedCommentThread[] {
+  if (!candidates.length) return [];
+
+  const children: Record<string, string[]> = {};
+  for (const c of candidates) {
+    const parent = c.parentCommentId ?? "root";
+    if (!children[parent]) {
+      children[parent] = [];
+    }
+    children[parent].push(c.commentId);
+  }
+
+  const enhancedCandidates: PreDisplayFeedComment[] = candidates.map(candidate => {
+    const parentId = candidate.parentCommentId ?? 'root';
+    const siblingCount = children[parentId] ? children[parentId].length - 1 : 0;
+
+    return {
+      commentId: candidate.commentId,
+      postId: candidate.postId,
+      baseScore: candidate.baseScore,
+      topLevelCommentId: candidate.topLevelCommentId,
+      metaInfo: {
+        sources: candidate.sources as FeedItemSourceType[],
+        siblingCount,
+        lastServed: candidate.lastServed,
+        lastViewed: candidate.lastViewed,
+        lastInteracted: candidate.lastInteracted,
+        postedAt: candidate.postedAt,
+      }
+    };
+  });
+
+  const commentsById = new Map<string, PreDisplayFeedComment>(
+    enhancedCandidates.map((c) => [c.commentId, c])
+  );
+
+  const topLevelId = candidates[0].topLevelCommentId;
+
+  if (!topLevelId) {
+    // eslint-disable-next-line no-console
+    console.warn("buildDistinctLinearThreads: No top-level comment ID found. Returning empty array.");
+    return [];
+  }
+
+  const buildCommentThreads = (currentId: string): PreDisplayFeedCommentThread[] => {
+    const currentCandidate = commentsById.get(currentId);
+    if (!currentCandidate) return [];
+
+    const childIds = children[currentId] || [];
+    if (!childIds.length) {
+      return [[currentCandidate]]; // Leaf node
+    }
+
+    const results: PreDisplayFeedCommentThread[] = [];
+    for (const cid of childIds) {
+      const subPaths = buildCommentThreads(cid);
+      for (const subPath of subPaths) {
+        results.push([currentCandidate, ...subPath]);
+      }
+    }
+    return results;
+  };
+
+  if (!commentsById.has(topLevelId)) {
+    // eslint-disable-next-line no-console
+    console.warn(`buildDistinctLinearThreads: Top level comment ${topLevelId} not found in candidates map. Thread group might be incomplete or invalid.`);
+    return [];
+  }
+
+  return buildCommentThreads(topLevelId);
+}
+
+/**
+ * Builds comment threads for the UltraFeed using raw comment data
+ */
+export async function getUltraFeedCommentThreads(
+  commentsRepo: CommentsRepo,
+  context: ResolverContext,
+  limit = 20,
+): Promise<FeedCommentsThread[]> {
+  const candidates = await commentsRepo.getCommentsForFeed(context, 500);
+  const threads = getAllCommentThreads(candidates);
+  const prioritizedThreadInfos = prioritizeThreads(threads);
+
+  const displayThreads = prioritizedThreadInfos
+    .slice(0, limit * 2)
+    .map(info => prepareCommentThreadForResolver(info))
+    .filter(thread => thread.comments.length > 0);
+
+  return displayThreads.slice(0, limit);
 } 

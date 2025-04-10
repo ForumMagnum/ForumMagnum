@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
-import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
+import { useUltraFeedSettings } from "../hooks/useUltraFeedSettings";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 
 

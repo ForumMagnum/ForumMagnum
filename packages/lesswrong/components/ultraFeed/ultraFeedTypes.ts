@@ -47,10 +47,6 @@ export interface FeedCommentFromDb {
   postedAt: Date | null;
 }
 
-/**
- * A comment that's a candidate for inclusion in the feed.
- * Used in: UltraFeedRepo.getAllCommentThreads(), buildDistinctLinearThreads()
- */
 export interface PreDisplayFeedComment {
   commentId: string;
   postId: string;
