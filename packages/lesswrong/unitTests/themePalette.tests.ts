@@ -59,7 +59,7 @@ describe('JSS', () => {
     for (const name in topLevelStyleDefinitions) {
       const styleGetter = topLevelStyleDefinitions[name].styles;
       const styles = styleGetter(fakeTheme);
-      if (styles && !ComponentsTable[name]?.options?.allowNonThemeColors) {
+      if (styles && !topLevelStyleDefinitions[name].options?.allowNonThemeColors) {
         assertNoNonPaletteColors(name, styles, nonPaletteColors);
       }
     }
