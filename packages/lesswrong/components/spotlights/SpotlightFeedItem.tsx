@@ -15,7 +15,6 @@ const useSpotlightFeedItemStyles = defineStyles(
   (theme: ThemeType) => ({
     root: {
       background: theme.palette.panelBackground.default,
-      boxShadow: theme.palette.boxShadow.default,
       paddingTop: 24,
       paddingBottom: 24,
       paddingLeft: 16,
@@ -93,11 +92,11 @@ const useSpotlightFeedItemStyles = defineStyles(
       ...theme.typography.postStyle,
       ...theme.typography.italic,
       color: theme.palette.grey[700],
-      fontSize: "1.3rem",
+      fontSize: "1.1rem",
       marginTop: -1,
     },
     imageContainer: {
-      margin: "-30px -16px -20px -16px",
+      margin: "-10px -16px -20px -16px",
       position: "relative",
       zIndex: 1,
       alignSelf: "stretch",
@@ -203,7 +202,7 @@ const useSpotlightFeedItemStyles = defineStyles(
       transform: "rotate(180deg)",
     },
     imageContainerWithAuthor: {
-      marginTop: -30,
+      marginTop: -10,
     },
   }),
   { stylePriority: -1 }
