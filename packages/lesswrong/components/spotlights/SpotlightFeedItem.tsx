@@ -7,8 +7,13 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useStyles, defineStyles } from '../hooks/useStyles';
-import { descriptionStyles, buildFadeMask, getSpotlightDisplayTitle } from './SpotlightItem';
+import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
+
+const buildVerticalFadeMask = (breakpoints: string[]) => {
+  const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
+  return {mask, "-webkit-mask-image": mask};
+}
 
 const useSpotlightFeedItemStyles = defineStyles(
   "SpotlightFeedItem",
@@ -30,9 +35,6 @@ const useSpotlightFeedItemStyles = defineStyles(
       position: "relative",
       borderRadius: theme.borderRadius.default,
       overflow: "hidden",
-      "&:hover": {
-        boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
-      },
     },
     contentContainer: {
       display: "flex",
@@ -96,12 +98,15 @@ const useSpotlightFeedItemStyles = defineStyles(
       marginTop: -1,
     },
     imageContainer: {
-      margin: "-10px -16px -20px -16px",
+      margin: "-20px -16px -20px -16px",
       position: "relative",
       zIndex: 1,
       alignSelf: "stretch",
       display: "flex",
       justifyContent: "flex-end",
+    },
+    imageContainerWithAuthor: {
+      marginTop: -20,
     },
     image: {
       maxWidth: "100%",
@@ -111,23 +116,11 @@ const useSpotlightFeedItemStyles = defineStyles(
       maxHeight: 250,
       borderRadius: `${theme.borderRadius.default}px 0 0 ${theme.borderRadius.default}px`,
     },
-    imageDualFade: buildFadeMask([
-      "transparent 5%",
-      `${theme.palette.text.alwaysWhite} 25%`,
-      `${theme.palette.text.alwaysWhite} 65%`,
-      "rgba(255,255,255,0.5) 80%",
-      "transparent 100%"
-    ]),
-    imageFade: buildFadeMask([
+    imageVerticalFade: buildVerticalFadeMask([
       "transparent 0",
+      `${theme.palette.text.alwaysWhite} 20%`,
       `${theme.palette.text.alwaysWhite} 80%`,
-      `${theme.palette.text.alwaysWhite} 100%`,
-    ]),
-    imageFadeCustom: buildFadeMask([
-      "transparent 0",
-      "transparent 30%",
-      `${theme.palette.text.alwaysWhite} 90%`,
-      `${theme.palette.text.alwaysWhite} 100%`,
+      "transparent 100%",
     ]),
     descriptionArea: {
       marginTop: 5,
@@ -200,9 +193,6 @@ const useSpotlightFeedItemStyles = defineStyles(
     },
     reverseIcon: {
       transform: "rotate(180deg)",
-    },
-    imageContainerWithAuthor: {
-      marginTop: -10,
     },
   }),
   { stylePriority: -1 }
@@ -286,14 +276,14 @@ const SpotlightFeedItem = ({
               {spotlight.spotlightSplashImageUrl && 
                 <img 
                   src={spotlight.spotlightSplashImageUrl} 
-                  className={classNames(classes.image, classes.imageDualFade, classes.splashImage)}
+                  className={classNames(classes.image, classes.imageVerticalFade, classes.splashImage)}
                 />
               }
               {spotlight.spotlightImageId && 
                 <CloudinaryImage2
                   publicId={spotlight.spotlightImageId}
                   darkPublicId={spotlight.spotlightDarkImageId}
-                  className={classNames(classes.image, classes.imageDualFade)}
+                  className={classNames(classes.image, classes.imageVerticalFade)}
                   imgProps={{w: "800"}}
                   loading="lazy"
                 />
