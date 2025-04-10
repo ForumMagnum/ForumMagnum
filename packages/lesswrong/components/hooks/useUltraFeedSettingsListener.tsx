@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getUltraFeedSettings, SETTINGS_CHANGE_EVENT, UltraFeedSettings } from '../../lib/ultraFeedSettings';
+import { getUltraFeedSettings, SETTINGS_CHANGE_EVENT, UltraFeedSettings } from './useUltraFeedSettings';
 
 /**
  * Hook that listens for UltraFeed settings changes and forces a re-render

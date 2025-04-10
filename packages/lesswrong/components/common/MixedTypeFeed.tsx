@@ -171,20 +171,6 @@ const MixedTypeFeed = (args: {
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
 
-
-  console.log(data?.[resolverName]?.results);
-
-  // console.log("MixedTypeFeed render state", {
-  //   resolverName,
-  //   dataExists: !!data,
-  //   resolverData: data?.[resolverName],
-  //   cutoff: data?.[resolverName]?.cutoff,
-  //   reachedEnd,
-  //   hasResults: data?.[resolverName]?.results?.length > 0,
-  //   resultsCount: data?.[resolverName]?.results?.length || 0,
-  //   sessionId: resolverArgsValues?.sessionId 
-  // });
-  
   const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
 
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
@@ -221,19 +207,11 @@ const MixedTypeFeed = (args: {
             const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
             const newResults = fetchMoreResult[resolverName].results;
             
-            console.log(`[MixedTypeFeed updateQuery] Prev keys count: ${prevKeys.size}`);
-            console.log(`[MixedTypeFeed updateQuery] New results count: ${newResults.length}`);
-            
             const deduplicatedResults = newResults.filter((result: any) => {
               const key = keyFunc(result);
               const alreadyExists = prevKeys.has(key);
-              if (alreadyExists) {
-                console.log(`[MixedTypeFeed updateQuery] Filtering duplicate key: ${key}`);
-              }
               return !alreadyExists;
             });
-            
-            console.log(`[MixedTypeFeed updateQuery] Deduplicated new results count: ${deduplicatedResults.length}`);
             
             return {
               [resolverName]: {
