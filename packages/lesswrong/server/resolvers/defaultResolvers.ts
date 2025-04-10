@@ -1,19 +1,20 @@
-import { throwError } from "@/server/vulcan-lib/errors";
-import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
-import { maxAllowedApiSkip } from "@/lib/instanceSettings";
-import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users/permissions.ts";
-import { asyncFilter } from "@/lib/utils/asyncUtils";
-import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
-import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
-import type { FieldNode, FragmentSpreadNode, GraphQLResolveInfo } from "graphql";
-import { captureException } from "@sentry/core";
-import isEqual from "lodash/isEqual";
-import { convertDocumentIdToIdInSelector, CamelCaseify } from "@/lib/vulcan-lib/utils";
-import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
+import { maxAllowedApiSkip } from "@/lib/instanceSettings";
+import { asyncFilter } from "@/lib/utils/asyncUtils";
+import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
+import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import { Pluralize } from "@/lib/vulcan-lib/pluralize";
+import { CamelCaseify, convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
+import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users/permissions.ts";
+import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
+import { throwError } from "@/server/vulcan-lib/errors";
+import { captureException } from "@sentry/core";
+import { print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import isEqual from "lodash/isEqual";
+import { getCollectionAccessFilter } from "../permissions/accessFilters";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
+
 export interface DefaultResolverOptions {
   cacheMaxAge: number
 }
@@ -22,34 +23,52 @@ const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
 
-const logMissingFragmentNames = false;
-
-const getFragmentNameFromInfo = (
-  {fieldName, fieldNodes}: GraphQLResolveInfo,
-  resultFieldName: string,
-): string | null => {
+const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
   const query = fieldNodes.find(
-    ({name: {value}}) => value === fieldName,
+    ({ name: { value } }) => value === fieldName,
   );
   const mainSelections = query?.selectionSet?.selections;
   const results = mainSelections?.find(
-    (node) => node.kind === "Field" && node.name.value === resultFieldName,
-  ) as FieldNode | undefined;
-  const resultSelections = results?.selectionSet?.selections;
-  const fragmentSpread = resultSelections?.find(
-    ({kind}) => kind === "FragmentSpread",
-  ) as FragmentSpreadNode | undefined;
-  const fragmentName = fragmentSpread?.name.value;
-  if (!fragmentName) {
-    if (logMissingFragmentNames) {
-      const data = JSON.stringify(fieldNodes, null, 2);
-      // eslint-disable-next-line no-console
-      console.error("Fragment name not found for", fieldName, data);
-    }
-    return null;
+    (node): node is FieldNode => node.kind === "Field" && node.name.value === resultFieldName,
+  );
+
+  if (!results || !results.selectionSet) {
+    return;
   }
-  return fragmentName;
-}
+
+  const resultSelections = results.selectionSet.selections;
+
+  // We construct an implicit fragment using whatever selections were in the result/results field
+  // because because we need to handle the possibility of fields directly selected from the root
+  // rather than being nested inside a subfragment.
+  const implicitFragment: FragmentDefinitionNode = {
+    kind: 'FragmentDefinition',
+    name: {
+      kind: 'Name',
+      value: fieldName,
+    },
+    typeCondition: {
+      kind: 'NamedType',
+      name: {
+        kind: 'Name',
+        value: typeName,
+      },
+    },
+    selectionSet: {
+      kind: 'SelectionSet',
+      selections: resultSelections,
+    },
+  };
+
+  const fragmentsWithImplicitFragment = [implicitFragment, ...Object.values(fragments)];
+  // TODO: at some point, would be good to switch to just returning AST nodes and parsing those in SqlFragment directly
+  // since we're doing a bunch of hacky regex parsing over there
+  const fragmentText = fragmentsWithImplicitFragment.map(print).join('\n\n');
+  return {
+    fragmentText,
+    fragmentName: fieldName,
+  };
+};
 
 type DefaultSingleResolverHandler<N extends CollectionNameString> = {
   [k in N as `${CamelCaseify<typeof collectionNameToTypeName[k]>}`]: (_root: void, { input }: { input: AnyBecauseTodo; }, context: ResolverContext, info: GraphQLResolveInfo) => Promise<{ result: Partial<ObjectsByCollectionName[N]> | null; }>
@@ -135,13 +154,13 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const parameters = viewTermsToQuery(collectionName, terms, {}, context);
 
     // get fragment from GraphQL AST
-    const fragmentName = getFragmentNameFromInfo(info, "results");
+    const fragmentInfo = getFragmentInfo(info, "results", typeName);
 
     let fetchDocs: () => Promise<T[]>;
-    if (fragmentName) {
+    if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment = require('../../lib/vulcan-lib/fragments').getSqlFragment;
-      const sqlFragment = getSqlFragment(fragmentName as FragmentName);
+      const getSqlFragment: typeof import('../../lib/fragments/allFragments').getSqlFragment = require('../../lib/fragments/allFragments').getSqlFragment;
+      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
@@ -226,13 +245,13 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const documentId = selector._id;
 
     // get fragment from GraphQL AST
-    const fragmentName = getFragmentNameFromInfo(info, "result");
+    const fragmentInfo = getFragmentInfo(info, "result", typeName);
 
     let doc: ObjectsByCollectionName[N] | null;
-    if (fragmentName) {
+    if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment = require('../../lib/vulcan-lib/fragments').getSqlFragment;
-      const sqlFragment = getSqlFragment(fragmentName as FragmentName);
+      const getSqlFragment: typeof import('../../lib/fragments/allFragments').getSqlFragment = require('../../lib/fragments/allFragments').getSqlFragment;
+      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,

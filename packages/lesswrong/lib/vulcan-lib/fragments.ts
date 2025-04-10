@@ -1,7 +1,5 @@
 import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-// This has a stub for the client bundle
-import type SqlFragment from '@/server/sql/SqlFragment';
 import { getAllFragments, getMemoizedFragmentInfo } from '../fragments/allFragments';
 import { extractFragmentName } from '../fragments/fragmentWrapper';
 
@@ -45,18 +43,6 @@ export function getFragment(fragmentName: FragmentName): DocumentNode {
   }
   return fragmentObject;
 };
-
-export function getSqlFragment(fragmentName: FragmentName): SqlFragment {
-  // TODO: Should we also check that nested fragment names are also defined?
-  if (!isValidFragmentName(fragmentName)) {
-    throw new Error(`Fragment "${fragmentName}" not registered.`);
-  }
-  const {sqlFragment} = getMemoizedFragmentInfo(fragmentName);
-  if (!sqlFragment) {
-    throw new Error(`SQL fragment missing (did you request it on the client?)`);
-  }
-  return sqlFragment;
-}
 
 /**
  * WARNING: This doesn't include the subfragments, so it's not a full fragment definition.

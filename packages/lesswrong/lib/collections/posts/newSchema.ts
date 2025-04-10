@@ -66,7 +66,7 @@ import {
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { SmartFormProps } from "@/components/vulcan-forms/propTypes";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
@@ -356,14 +356,14 @@ const schema = {
       outputType: "[Revision]",
       canRead: ["guests"],
       arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("revisions"),
+      resolver: getRevisionsResolver("contents"),
     },
   },
   version: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: getVersionResolver("version"),
+      resolver: getNormalizedVersionResolver("contents"),
     },
   },
   pingbacks: {

@@ -24,7 +24,7 @@ import {
   getDenormalizedCountOfReferencesGetValue,
   getDenormalizedFieldOnCreate,
   getDenormalizedFieldOnUpdate,
-  googleLocationToMongoLocation, schemaDefaultValue
+  googleLocationToMongoLocation,
 } from "../../utils/schemaUtils";
 import { postStatuses } from "../posts/constants";
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from "../../reviewUtils";

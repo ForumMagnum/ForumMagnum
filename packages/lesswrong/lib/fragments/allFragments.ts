@@ -2,10 +2,11 @@
 // Keep that in mind if changing the structure.
 
 // Helper imports
-import SqlFragment from '@/server/sql/SqlFragment';
+import { SqlFragment } from '@/server/sql/SqlFragment';
 import type { DocumentNode } from 'graphql';
 import uniq from 'lodash/uniq';
 import { isAnyTest } from '../executionEnvironment';
+import LRU from "lru-cache";
 
 // Generated default fragments
 import * as defaultFragments from '@/lib/generated/defaultFragments';
@@ -183,10 +184,30 @@ interface FragmentDefinition {
   fragmentText: string
   subFragments?: Array<FragmentName>
   fragmentObject?: DocumentNode
-  sqlFragment?: SqlFragment
 }
 
 const memoizedFragmentInfo: Partial<Record<FragmentName, FragmentDefinition>> = {};
+
+const sqlFragmentCache = new LRU<string, SqlFragment>({
+  max: 5_000_000,
+  // Rough estimate that a SQL Fragment is 3x the size of the fragment text, plus the fragment text itself as the key
+  // I'm not sure how the key might be missing, but empirically our queries end up measuring at about 10kb
+  length: (_, key) => !key ? 10_000 : key.length * 4,
+});
+
+
+export function getSqlFragment(fragmentName: string, fragmentText: string): SqlFragment {
+  // Remove comments from the fragment source text
+  fragmentText = fragmentText.replace(/#.*\n/g, '\n');
+
+  const cached = sqlFragmentCache.get(fragmentText);
+  if (cached) {
+    return cached;
+  }
+  const sqlFragment = new SqlFragment(fragmentName, fragmentText);
+  sqlFragmentCache.set(fragmentText, sqlFragment);
+  return sqlFragment;
+}
 
 // Register a fragment, including its text, the text of its subfragments, and the fragment object
 function registerFragment(fragmentTextSource: string): FragmentDefinition {
@@ -197,17 +218,8 @@ function registerFragment(fragmentTextSource: string): FragmentDefinition {
   const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
   const subFragments = uniq(matchedSubFragments.map(f => f.replace('...', '')));
 
-  const sqlFragment = bundleIsServer
-    // eslint-disable-next-line import/no-restricted-paths, babel/new-cap
-    ? new SqlFragment(
-      fragmentText,
-      (name: FragmentName) => getMemoizedFragmentInfo(name).sqlFragment ?? null,
-    )
-    : undefined;
-
   const fragmentDefinition: FragmentDefinition = {
     fragmentText,
-    sqlFragment,
   };
 
   if (subFragments && subFragments.length) {
