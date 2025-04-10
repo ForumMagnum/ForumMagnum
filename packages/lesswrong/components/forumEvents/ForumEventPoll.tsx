@@ -16,6 +16,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
+import { useSingle } from "@/lib/crud/withSingle";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
@@ -486,16 +487,26 @@ export const ForumEventPoll = ({
   postId,
   hideViewResults,
   classes,
+  forumEventId,
 }: {
   postId?: string;
   hideViewResults?: boolean;
   classes: ClassesType<typeof styles>;
+  forumEventId?: string;
 }) => {
-  const { currentForumEvent: event, refetch } = useCurrentAndRecentForumEvents();
+  const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
-
   const { captureEvent } = useTracking();
+
+  const { document: eventFromId } = useSingle({
+    collectionName: "ForumEvents",
+    fragmentName: "ForumEventsDisplay",
+    documentId: forumEventId,
+    skip: !forumEventId,
+  });
+
+  const event = eventFromId || currentForumEvent;
 
   const initialUserVotePos: number | null = getForumEventVoteForUser(
     event,
@@ -571,7 +582,7 @@ export const ForumEventPoll = ({
   }
 
   const voteClusters = useMemo(
-    () => clusterForumEventVotes({ voters: votersRef.current, comments, event, currentUser }),
+    () => clusterForumEventVotes({ voters: votersRef.current, comments, event: event, currentUser }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [votersRef.current, event, currentUser, comments]
   );

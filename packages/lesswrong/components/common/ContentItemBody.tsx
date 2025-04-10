@@ -11,6 +11,10 @@ import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBl
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
+import { useCurrentAndRecentForumEvents, useConcreteThemeOptions } from '@/lib/betas';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { Link } from 'react-router-dom';
+import { makeCloudinaryImageUrl } from '@/lib/vulcan-lib/utils';
 
 interface ExternalProps {
   /**
@@ -157,6 +161,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
 
       this.addCTAButtonEventListeners(element);
+      this.replaceForumEventPollPlaceholders(element);
 
       this.markScrollableBlocks(element);
       this.collapseFootnotes(element);
@@ -431,8 +436,36 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     }
   }
 
-  // TODO add polls
-  
+  replaceForumEventPollPlaceholders = (element: HTMLElement) => {
+    const pollPlaceholders = element.getElementsByClassName('ck-poll');
+
+    const {ForumEventPoll} = Components;
+
+    for (let i = 0; i < pollPlaceholders.length; i++) {
+      const placeholder = pollPlaceholders[i];
+
+      const forumEventId = placeholder.getAttribute('data-internal-id');
+      if (forumEventId) {
+        // Create the poll element with styling and context
+        const pollElement = (
+          <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
+            <div>
+              <h2>
+                Have you voted yet?
+              </h2>
+              <div>
+                {/* TODO get this from somewhere */}
+                <ForumEventPoll postId={'WLpTp92n6rDybiSgH'} forumEventId={forumEventId} hideViewResults />
+              </div>
+            </div>
+          </AnalyticsContext>
+        );
+
+        this.replaceElement(placeholder, pollElement);
+      }
+    }
+  }
+
   replaceSubstrings = (
     element: HTMLElement,
     replacedSubstrings: ContentReplacedSubstringComponentInfo[],

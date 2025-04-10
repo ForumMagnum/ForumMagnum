@@ -396,7 +396,7 @@ interface EditableFieldContents {
 
 // The subset of EditableFieldContents that you provide when creating a new document
 // or revision, ie, the parts of a revision which are not auto-generated.
-type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage"|"googleDocMetadata">
+export type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage"|"googleDocMetadata">
 
 type EditableFieldUpdate = EditableFieldInsertion & {
   dataWithDiscardedSuggestions?: string,
@@ -412,10 +412,9 @@ type EditableCollectionNames = {
 
 type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
-type DbInsertion<T extends DbObject> = Omit<
-  ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>,
-  "_id"
->
+type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion> & {
+  _id?: T["_id"]
+}
 
 type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
 interface SpotlightFirstPost {
