@@ -104,10 +104,10 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     borderLeft: `4px solid ${theme.palette.secondary.light}8c`,
   },
   verticalLineFirstComment: {
-    marginTop: 16, // Match the margin-top from thread item
+    marginTop: 16,
   },
   verticalLineLastComment: {
-    marginBottom: 16, // Match the margin-bottom from thread item
+    marginBottom: 16,
   },
   footer: {
     paddingTop: 12,
@@ -212,14 +212,14 @@ const UltraFeedCommentItem = ({
   const expanded = displayStatus === "expanded";
 
   const truncationBreakpoints = useMemo(() => {
+    if (!post) {
+      // eslint-disable-next-line no-console
+      console.log("Missing post data:", comment._id);
+      return null;
+    }
+
     const fullBreakpoints = settings.commentTruncationBreakpoints || [];
     const collapsedLimit = settings.collapsedCommentTruncation;
-
-  if (!post) {
-    // eslint-disable-next-line no-console
-    console.log("Missing post data:", comment._id);
-    return null;
-  }
 
     if (expanded) {
       return fullBreakpoints;
@@ -248,7 +248,7 @@ const UltraFeedCommentItem = ({
       
       <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
         <div className={classes.commentHeader}>
-          <UltraFeedCommentsItemMeta comment={comment} />
+          <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
           {showInLineCommentThreadTitle && !comment.shortform && post && (
             <div className={classes.inlineCommentThreadTitle}>
               <button 
@@ -263,12 +263,12 @@ const UltraFeedCommentItem = ({
         <div className={classes.contentWrapper}>
           <FeedContentBody
             comment={comment}
-            html={comment.contents?.html || ""}
-            breakpoints={truncationBreakpoints || []}
-            wordCount={comment.contents?.wordCount || 0}
+            html={comment.contents?.html ?? ""}
+            breakpoints={truncationBreakpoints ?? []}
+            wordCount={comment.contents?.wordCount ?? 0}
             linkToDocumentOnFinalExpand={expanded}
             initialExpansionLevel={0}
-            nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+            nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
             clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
             onExpand={handleContentExpand}
             hideSuffix={!expanded}

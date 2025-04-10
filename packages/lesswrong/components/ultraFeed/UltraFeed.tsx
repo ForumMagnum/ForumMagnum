@@ -77,7 +77,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     }
   },
   titleText: {
-    // No custom styling to preserve original appearance
   },
   titleTextDesktop: {
     display: 'inline',

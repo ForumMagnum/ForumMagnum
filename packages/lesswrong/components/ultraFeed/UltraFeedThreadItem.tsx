@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { DisplayFeedCommentThread } from "./ultraFeedTypes";
+import { DisplayFeedCommentThread, FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
@@ -26,10 +26,11 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   },
 }));
 
+type CommentDisplayStatusMap = Record<string, "expanded" | "collapsed" | "hidden">;
 
 /* if there are multiple comments in a row that are collapsed, compress them into a single placeholder */
 function compressCollapsedComments(
-  displayStatuses: Record<string, "expanded" | "collapsed" | "hidden">,
+  displayStatuses: CommentDisplayStatusMap,
   comments: UltraFeedComment[],
 ) {
   const result: Array<UltraFeedComment | { placeholder: true; hiddenComments: UltraFeedComment[] }> = [];
@@ -82,11 +83,11 @@ const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
 
-  const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<Record<string, "expanded" | "collapsed" | "hidden">>(() => {
-    // Initialize from commentMetaInfos if available
-    const result: Record<string, "expanded" | "collapsed" | "hidden"> = {};
-    
-    for (const [commentId, meta] of Object.entries(commentMetaInfos || {})) {
+  const calculateInitialDisplayStatuses = (
+    metaInfos: Record<string, FeedCommentMetaInfo> | undefined
+  ): CommentDisplayStatusMap => {
+    const result: CommentDisplayStatusMap = {};
+    for (const [commentId, meta] of Object.entries(metaInfos ?? {})) {
       // For the first comment, ensure it's at least "collapsed"
       if (comments.length > 0 && commentId === comments[0]._id) {
         const firstCommentStatus = meta.displayStatus === "hidden"
@@ -94,24 +95,30 @@ const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
         : meta.displayStatus ?? "collapsed";
         result[commentId] = firstCommentStatus;
       } else {
-        result[commentId] = meta.displayStatus || "collapsed";
+        result[commentId] = meta.displayStatus ?? "collapsed"; 
       }
     }
-
     return result;
-  });
+  };
 
-  const [highlightStatuses, setHighlightStatuses] = useState<Record<string, boolean>>(() => {
+  const initializeHighlightStatuses = (
+    initialDisplayStatuses: CommentDisplayStatusMap,
+    metaInfos: Record<string, FeedCommentMetaInfo> | undefined
+  ): Record<string, boolean> => {
     const result: Record<string, boolean> = {};
-    
-    for (const [commentId, _] of Object.entries(commentDisplayStatuses)) {
-      const metaInfo = commentMetaInfos[commentId];
-      
-      result[commentId] = metaInfo?.highlight || false;
+    for (const commentId of Object.keys(initialDisplayStatuses)) {
+      const metaInfo = metaInfos?.[commentId]; // Safely access metaInfos
+      result[commentId] = metaInfo?.highlight ?? false; // Use ?? nullish coalescing
     }
-    
     return result;
-  });
+  };
+
+  const initialDisplayStatuses = calculateInitialDisplayStatuses(commentMetaInfos);
+  const initialHighlightStatuses = initializeHighlightStatuses(initialDisplayStatuses, commentMetaInfos);
+
+  // Use the pre-calculated initial states
+  const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<CommentDisplayStatusMap>(initialDisplayStatuses);
+  const [highlightStatuses] = useState<Record<string, boolean>>(initialHighlightStatuses);
 
   const { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } = Components;
 
