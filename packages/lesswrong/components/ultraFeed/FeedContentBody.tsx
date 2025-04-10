@@ -132,8 +132,15 @@ const FeedContentBody = ({
   const currentWordLimit = breakpoints[expansionLevel];
   const isFirstLevel = expansionLevel === 0;
   
-  const documentType = post ? 'post' : comment ? 'comment' : 'tag';
-  const documentId = post?._id || comment?._id || tag?._id;
+  let documentType: 'post' | 'comment' | 'tag';
+  if (post) {
+    documentType = 'post';
+  } else if (comment) {
+    documentType = 'comment';
+  } else {
+    documentType = 'tag';
+  }
+  const documentId = post?._id ?? comment?._id ?? tag?._id;
   
   const getDocumentUrl = () => {
     if (post) return postGetPageUrl(post);
@@ -180,48 +187,52 @@ const FeedContentBody = ({
   
   const usingLineClamp = clampOverride !== undefined && clampOverride > 0;
   
-  // Process the HTML content only if not using line clamp
-  let truncatedHtml = html;
-  let wasTruncated = false;
-  let wordsLeft = 0;
-  
-  if (!usingLineClamp) {
-    const createReadMoreSuffix = () => {
-      // If the parent view is collapsed, only show ellipsis
-      if (hideSuffix) {
-        return '...';
+  // Helper function to calculate truncation state
+  const calculateTruncationState = () => {
+    let truncatedHtml = html;
+    let wasTruncated = false;
+    let wordsLeft = 0;
+
+    if (!usingLineClamp) {
+      const createReadMoreSuffix = () => {
+        if (hideSuffix) {
+          return '...';
+        }
+        if (isMaxLevel && linkToDocumentOnFinalExpand) {
+          return '...';
+        }
+        return `...<span class="read-more-button" data-expansion-level="${expansionLevel}">(read more)</span>`;
+      };
+
+      const result = truncateWithGrace(
+        html,
+        currentWordLimit,
+        20,
+        wordCount,
+        createReadMoreSuffix()
+      );
+
+      truncatedHtml = result.truncatedHtml;
+      wasTruncated = result.wasTruncated;
+      wordsLeft = result.wordsLeft;
+
+      // Ensure truncation is correctly identified
+      if (wordCount > currentWordLimit && !wasTruncated) {
+        wasTruncated = true;
+        wordsLeft = wordCount - currentWordLimit;
       }
-      // Otherwise, proceed with original logic
-      if (isMaxLevel && linkToDocumentOnFinalExpand) {
-        return '...';
-      }
-      return `...<span class="read-more-button" data-expansion-level="${expansionLevel}">(read more)</span>`;
-    };
-    
-    const result = truncateWithGrace(
-      html,
-      currentWordLimit,
-      20,
-      wordCount,
-      createReadMoreSuffix()
-    );
-    
-    truncatedHtml = result.truncatedHtml;
-    wasTruncated = result.wasTruncated;
-    wordsLeft = result.wordsLeft;
-    
-    // Direct check to ensure we correctly identify if content is truncated
-    // This handles cases where truncateWithGrace might not accurately report truncation
-    if (wordCount > currentWordLimit && !wasTruncated) {
-      wasTruncated = true;
-      wordsLeft = wordCount - currentWordLimit;
+    } else {
+      // Estimate truncation for line clamp mode
+      wasTruncated = wordCount > currentWordLimit; // Simple estimate
+      wordsLeft = wasTruncated ? wordCount - currentWordLimit : 0;
+      // truncatedHtml remains the original html for line clamp
     }
-  } else {
-    // For line clamp mode, assume there's more content if word count exceeds a threshold
-    // (This is an estimate since we can't know exactly without rendering)
-    wasTruncated = wordCount > currentWordLimit;
-    wordsLeft = wordCount - currentWordLimit;
-  }
+
+    return { truncatedHtml, wasTruncated, wordsLeft };
+  };
+
+  // Calculate the truncation state
+  const { truncatedHtml, wasTruncated, wordsLeft } = calculateTruncationState();
   
   const getLineClampClass = () => {
     if (!usingLineClamp || !clampOverride) return "";

@@ -137,7 +137,6 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
 }));
 
-// --- Component Props ---
 interface UltraFeedSettingsComponentProps {
   settings: UltraFeedSettingsType;
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void;
@@ -146,24 +145,45 @@ interface UltraFeedSettingsComponentProps {
   onClose?: () => void;
 }
 
+type FormValuesState = Omit<UltraFeedSettingsType, 'collapsedCommentTruncation' | 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights'> & {
+  collapsedCommentTruncation: number | '';
+  lineClampNumberOfLines: number | '';
+  postTruncationBreakpoints: (number | '')[];
+  commentTruncationBreakpoints: (number | '')[];
+  sourceWeights: Record<FeedItemSourceType, number | '' >;
+};
+
 const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, onClose }: UltraFeedSettingsComponentProps) => {
   const classes = useStyles(styles);
-  
-  // Initialize formValues state to include sourceWeights
-  const [formValues, setFormValues] = useState<UltraFeedSettingsType>(() => ({ 
-    ...settings, 
-    sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) }
-  }));
+  const [formValues, setFormValues] = useState<FormValuesState>(() => { 
+
+    const { collapsedCommentTruncation, lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints } = settings; 
+
+    return {
+      collapsedCommentTruncation,
+      lineClampNumberOfLines,
+      postTruncationBreakpoints,
+      commentTruncationBreakpoints,
+      sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) }
+    };
+  });
 
   useEffect(() => {
-    // Ensure sourceWeights is always fully populated when settings prop changes
+    const updatedSourceWeights: Record<FeedItemSourceType, number | '' > = {
+      ...DEFAULT_SOURCE_WEIGHTS,
+      ...(settings.sourceWeights || {}),
+    };
+      
     setFormValues({
       ...settings,
-      sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) }
+      collapsedCommentTruncation: settings.collapsedCommentTruncation,
+      lineClampNumberOfLines: settings.lineClampNumberOfLines,
+      postTruncationBreakpoints: settings.postTruncationBreakpoints,
+      commentTruncationBreakpoints: settings.commentTruncationBreakpoints,
+      sourceWeights: updatedSourceWeights,
     });
   }, [settings]);
 
-  // Initialize errors state to include sourceWeights
   const [errors, setErrors] = useState(() => {
     const initialErrors: Record<string, boolean> = {};
     Object.keys(DEFAULT_SOURCE_WEIGHTS).forEach(key => {
@@ -178,38 +198,47 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }
   });
 
-  // Update array of numbers at specific index
   const handleArrayChange = useCallback((
     key: 'postTruncationBreakpoints' | 'commentTruncationBreakpoints',
     index: number,
     value: string
   ) => {
     setFormValues(prev => {
-      const newArray = [...prev[key]];
+      const newArray: (number | '')[] = [...prev[key]];
       
       if (value === '') {
-        newArray[index] = '' as any; // Allow empty string temporarily
+        newArray[index] = ''; 
         setErrors(prevErrors => {
           const newErrors = [...prevErrors[key]];
           if (!newErrors.includes(index)) {
             newErrors.push(index);
           }
-          return {
+          return { 
             ...prevErrors,
             [key]: newErrors
           };
         });
       } else {
         const numValue = parseInt(value, 10);
-        newArray[index] = numValue;
+        newArray[index] = isNaN(numValue) ? '' : numValue; 
+        
         if (!isNaN(numValue)) {
-          setErrors(prevErrors => {
-            const newErrors = [...prevErrors[key]].filter(i => i !== index);
-            return {
-              ...prevErrors,
-              [key]: newErrors
+           setErrors(prevErrors => {
+             const newErrors = [...prevErrors[key]].filter(i => i !== index);
+             return { 
+               ...prevErrors,
+               [key]: newErrors
+             };
+           });
+        } else {
+           setErrors(prevErrors => {
+             const fieldErrors = [...prevErrors[key]];
+             if (!fieldErrors.includes(index)) fieldErrors.push(index);
+             return { 
+                ...prevErrors,
+                [key]: fieldErrors 
             };
-          });
+           });
         }
       }
       return {
@@ -219,131 +248,183 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     });
   }, []);
 
-  // Handle number input change
   const handleNumberChange = useCallback((
     key: 'collapsedCommentTruncation' | 'lineClampNumberOfLines',
     value: string
   ) => {
     if (value === '') {
-      setFormValues(prev => ({ ...prev, [key]: '' as any }));
+      setFormValues(prev => ({ ...prev, [key]: '' })); 
       setErrors(prev => ({ ...prev, [key]: true }));
     } else {
       const numValue = parseInt(value, 10);
-      setFormValues(prev => ({ ...prev, [key]: numValue }));
+      const newValue = isNaN(numValue) ? '' : numValue;
+      setFormValues(prev => ({ ...prev, [key]: newValue })); 
+      
       if (!isNaN(numValue)) {
         setErrors(prev => ({ ...prev, [key]: false }));
+      } else {
+         setErrors(prev => ({ ...prev, [key]: true })); 
       }
     }
   }, []);
   
-  // Callback for source weight input changes
   const handleSourceWeightChange = useCallback((key: FeedItemSourceType, value: string) => {
-    const numValue = parseInt(value, 10);
-    const isValid = !isNaN(numValue) && numValue >= 0;
+    let numValue: number | '' = '';
+    let isValid = true;
+
+    if (value === '') {
+      numValue = '';
+      isValid = true; 
+    } else {
+      const parsedValue = parseInt(value, 10);
+      if (!isNaN(parsedValue) && parsedValue >= 0) {
+        numValue = parsedValue;
+        isValid = true;
+      } else {
+        numValue = ''; 
+        isValid = false;
+      }
+    }
 
     setFormValues(prev => ({
       ...prev,
       sourceWeights: {
         ...prev.sourceWeights,
-        [key]: value === '' ? '' : numValue, // Store empty string or number
+        [key]: numValue, 
       },
     }));
 
+    
     setErrors(prev => ({
       ...prev,
       sourceWeights: {
         ...prev.sourceWeights,
-        [key]: !isValid || value === '', // Error if not valid OR empty
+        [key]: !isValid && value !== '',
       },
     }));
   }, []);
 
   const hasErrors = useMemo(() => {
-    const sourceWeightErrors = Object.values(errors.sourceWeights).some(Boolean);
+    
+    const sourceWeightErrors = Object.entries(errors.sourceWeights).some(([key, hasError]) => {
+      
+      return hasError && String(formValues.sourceWeights[key as FeedItemSourceType]) !== '';
+    });
+    
     return errors.postTruncationBreakpoints.length > 0 ||
            errors.commentTruncationBreakpoints.length > 0 ||
            errors.collapsedCommentTruncation ||
            errors.lineClampNumberOfLines ||
            sourceWeightErrors;
-  }, [errors]);
+  }, [errors, formValues.sourceWeights]);
 
-  // Handle form submission
   const handleSave = useCallback(() => {
-    let hasEmptyFields = false;
+    let hasValidationErrors = false;
     const validatedValues: Partial<UltraFeedSettingsType> = {};
-    const validatedWeights: Record<FeedItemSourceType, number> = {} as any;
+    const validatedWeights: Record<FeedItemSourceType, number> = Object.keys(DEFAULT_SOURCE_WEIGHTS).reduce((acc, key) => {
+      acc[key as FeedItemSourceType] = 0;
+      return acc;
+    }, {} as Record<FeedItemSourceType, number>);
 
-    // Validate arrays
+    
     ['postTruncationBreakpoints', 'commentTruncationBreakpoints'].forEach(key => {
       const arrKey = key as 'postTruncationBreakpoints' | 'commentTruncationBreakpoints';
-      const arr: number[] = formValues[arrKey];
+      const arr: (number|string)[] = formValues[arrKey]; 
       const validArr: number[] = [];
       arr.forEach((val, index) => {
-        // Attempt to parse, even if it's already a number (parseInt handles numbers)
         const numVal = parseInt(String(val), 10);
-        if (isNaN(numVal)) { // Check if the result is NaN (covers empty string, non-numeric strings)
-          hasEmptyFields = true;
-          setErrors(prev => {
+        if (isNaN(numVal)) {
+           hasValidationErrors = true; 
+           setErrors(prev => {
             const fieldErrors = [...prev[arrKey]];
             if (!fieldErrors.includes(index)) fieldErrors.push(index);
             return { ...prev, [arrKey]: fieldErrors };
-          });
+           });
         } else {
           validArr.push(numVal);
         }
       });
-      if (!hasEmptyFields) {
-        validatedValues[arrKey] = validArr;
-      }
+      if (hasValidationErrors) { validatedValues[arrKey] = undefined } 
+      else { validatedValues[arrKey] = validArr; }
     });
-
-    // Validate single number fields
+    
     ['collapsedCommentTruncation', 'lineClampNumberOfLines'].forEach(key => {
-      const numKey = key as 'collapsedCommentTruncation' | 'lineClampNumberOfLines';
-      const val: number | string = formValues[numKey];
-      // Attempt to parse, even if it's already a number
-      const numVal = parseInt(String(val), 10);
-      if (isNaN(numVal)) { // Check if the result is NaN
-        hasEmptyFields = true;
-        setErrors(prev => ({ ...prev, [numKey]: true }));
-      } else {
-        validatedValues[numKey] = numVal;
-      }
+       const numKey = key as 'collapsedCommentTruncation' | 'lineClampNumberOfLines';
+       const val: number | string = formValues[numKey];
+       const numVal = parseInt(String(val), 10);
+      if (isNaN(numVal)) {
+         hasValidationErrors = true;
+         setErrors(prev => ({ ...prev, [numKey]: true }));
+      } 
+      
+      if (hasValidationErrors) { validatedValues[numKey] = undefined }
+      else { validatedValues[numKey] = numVal; }
     });
+    
 
-    // Validate source weights
+    
     Object.entries(formValues.sourceWeights).forEach(([key, val]) => {
       const sourceKey = key as FeedItemSourceType;
-      // Attempt to parse, even if it's already a number or empty string
-      const numVal = parseInt(String(val), 10);
-      if (isNaN(numVal) || numVal < 0) { // Check if NaN or negative
-        hasEmptyFields = true;
-        setErrors(prev => ({
-          ...prev,
-          sourceWeights: { ...prev.sourceWeights, [sourceKey]: true }
-        }));
+      let weightValue = 0;
+      
+      if (String(val) === '') { 
+        weightValue = 0;
       } else {
-        validatedWeights[sourceKey] = numVal;
+        const numVal = parseInt(String(val), 10);
+        if (isNaN(numVal) || numVal < 0) {
+          hasValidationErrors = true;
+          setErrors(prev => ({
+            ...prev,
+            sourceWeights: { ...prev.sourceWeights, [sourceKey]: true }
+          }));
+          return;
+        } else {
+          weightValue = numVal;
+        }
+      }
+      if (!isNaN(parseInt(String(val), 10)) || String(val) === '') { 
+         validatedWeights[sourceKey] = weightValue;
       }
     });
-
-    if (!hasEmptyFields) {
+    
+    
+    if (!hasValidationErrors) {
        validatedValues.sourceWeights = validatedWeights;
+    } else {
+        validatedValues.sourceWeights = undefined; 
     }
 
-    if (hasEmptyFields) {
-      return;
+    
+    if (hasValidationErrors) {
+      return; 
     }
 
-    // Pass validated values including sourceWeights
-    updateSettings({
-       ...(validatedValues as Omit<Partial<UltraFeedSettingsType>, 'sourceWeights'>), // Cast existing validated values
-       sourceWeights: validatedValues.sourceWeights // Add validated weights
-    });
-    // if (onClose) onClose();
+    
+    const finalSettingsToUpdate: Partial<UltraFeedSettingsType> = {};
+    if (validatedValues.postTruncationBreakpoints !== undefined) {
+      finalSettingsToUpdate.postTruncationBreakpoints = validatedValues.postTruncationBreakpoints;
+    }
+    if (validatedValues.commentTruncationBreakpoints !== undefined) {
+      finalSettingsToUpdate.commentTruncationBreakpoints = validatedValues.commentTruncationBreakpoints;
+    }
+    if (validatedValues.collapsedCommentTruncation !== undefined) {
+      finalSettingsToUpdate.collapsedCommentTruncation = validatedValues.collapsedCommentTruncation;
+    }
+    if (validatedValues.lineClampNumberOfLines !== undefined) {
+      finalSettingsToUpdate.lineClampNumberOfLines = validatedValues.lineClampNumberOfLines;
+    }
+    if (validatedValues.sourceWeights !== undefined) {
+      finalSettingsToUpdate.sourceWeights = validatedValues.sourceWeights;
+    }
+
+    
+    if (Object.keys(finalSettingsToUpdate).length > 0) {
+       updateSettings(finalSettingsToUpdate);
+    }
+    
+    
   }, [formValues, updateSettings, setErrors]);
   
-  // Handle reset button
   const handleReset = useCallback(() => {
     resetSettingsToDefault();
   }, [resetSettingsToDefault]);
@@ -366,7 +447,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
                   className={classNames(classes.sourceWeightInput, {
                     [classes.invalidInput]: errors.sourceWeights[sourceKey]
                   })}
-                  value={formValues.sourceWeights[sourceKey] ?? ''} // Handle potential undefined
+                  value={formValues.sourceWeights[sourceKey] ?? ''}
                   onChange={(e) => handleSourceWeightChange(sourceKey, e.target.value)}
                   min={0}
                 />

@@ -231,15 +231,16 @@ const UltraFeedContent = () => {
                   },
                   feedSpotlight: {
                     fragmentName: 'FeedSpotlightFragment',
-                    render: (item: {_id: string, spotlight: FeedSpotlightFragment['spotlight']}) => {
-                      if (!item || !item.spotlight) {
+                    render: (item: FeedSpotlightFragment) => {
+                      const { spotlight } = item;
+                      if (!spotlight) {
                         return null;
                       }
 
                       return (
                         <FeedItemWrapper>
                           <SpotlightFeedItem 
-                            spotlight={item.spotlight}
+                            spotlight={spotlight}
                             showSubtitle={true}
                           />
                         </FeedItemWrapper>

@@ -239,7 +239,6 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
- 
   return <div className={className}>
     {orderedResults.map((result) =>
       <div key={keyFunc(result)}>

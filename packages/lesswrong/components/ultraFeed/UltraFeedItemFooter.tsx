@@ -75,8 +75,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   }
 }));
 
-// --- Core Footer Component ---
-
 interface UltraFeedItemFooterCoreProps {
   commentCount: number;
   onClickComments: () => void;
