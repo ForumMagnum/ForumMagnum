@@ -3,7 +3,7 @@ import { userHasLlmChat } from "@/lib/betas";
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
-import { userVisibleMessageRoles } from "../llmMessages/schema";
+import { userVisibleMessageRoles } from "../llmMessages/newSchema";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,

@@ -2,7 +2,7 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { getDomain, getOutgoingUrl } from "../../vulcan-lib/utils";
 import moment from "moment";
 import {
-  schemaDefaultValue, googleLocationToMongoLocation, accessFilterMultiple,
+  googleLocationToMongoLocation, accessFilterMultiple,
   accessFilterSingle, arrayOfForeignKeysOnCreate,
   generateIdResolverMulti,
   generateIdResolverSingle,
@@ -29,7 +29,7 @@ import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import { formGroups } from "./formGroups";
 import SimpleSchema from "simpl-schema";
-import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/schema";
+import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/newSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { getVotingSystems } from '../../voting/getVotingSystem';
 import {
@@ -229,22 +229,8 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
       userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 };
 
-const schemaDefaultValueFmCrosspost = schemaDefaultValue<"Posts">({
-  isCrosspost: false,
-});
-
 const fmCrosspostOnCreate = getFillIfMissing({ isCrosspost: false });
 const fmCrosspostOnUpdate = throwIfSetToNull;
-
-const userHasModerationGuidelines = (currentUser: DbUser | null): boolean => {
-  if (!hasAuthorModeration) {
-    return false;
-  }
-  return !!(
-    currentUser &&
-    ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle)
-  );
-};
 
 function shouldHideEndTime(props: SmartFormProps<"Posts">): boolean {
   return !props.eventForm || props.document?.eventType === "course";

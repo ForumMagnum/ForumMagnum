@@ -1,6 +1,6 @@
 import { getAllCollections } from '@/server/collections/allCollections';
 import { generateAllowedValuesTypeString, generatedFileHeader, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
-import { isUniversalField } from '../../lib/collectionUtils';
+import { isUniversalField } from '../../lib/utils/schemaUtils';
 import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import orderBy from 'lodash/orderBy';
 import { isArrayTypeString, isVarcharTypeString } from '../sql/Type';
