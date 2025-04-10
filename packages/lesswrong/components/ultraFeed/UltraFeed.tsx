@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -9,7 +9,38 @@ import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
+import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { isClient } from '../../lib/executionEnvironment';
 
+const getStoredSettings = (): UltraFeedSettingsType => {
+  if (!isClient) return DEFAULT_SETTINGS;
+  
+  const ls = getBrowserLocalStorage();
+  if (!ls) return DEFAULT_SETTINGS;
+  
+  const storedSettings = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
+  if (!storedSettings) return DEFAULT_SETTINGS;
+  
+  try {
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(storedSettings) };
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to parse UltraFeed settings", e);
+    return DEFAULT_SETTINGS;
+  }
+};
+
+const saveSettings = (settings: Partial<UltraFeedSettingsType>): UltraFeedSettingsType => {
+  const ls = getBrowserLocalStorage();
+  if (!ls) return DEFAULT_SETTINGS;
+  
+  const currentSettings = getStoredSettings();
+  const newSettings = { ...currentSettings, ...settings };
+  
+  ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(newSettings));
+  return newSettings;
+};
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   root: {
@@ -89,6 +120,7 @@ const UltraFeedContent = () => {
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   const ultraFeedEnabled = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
   
+  const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [sessionId] = useState(() => randomId());
   
@@ -105,6 +137,16 @@ const UltraFeedContent = () => {
   const toggleSettings = (e: React.MouseEvent) => {
     e.stopPropagation();
     setSettingsVisible(!settingsVisible);
+  };
+  
+  const updateSettings = (newSettings: Partial<UltraFeedSettingsType>) => {
+    const updatedSettings = saveSettings(newSettings);
+    setSettings(updatedSettings);
+  };
+  
+  const resetSettingsToDefault = () => {
+    const defaultSettings = saveSettings(DEFAULT_SETTINGS);
+    setSettings(defaultSettings);
   };
   
   const customTitle = <>
@@ -140,7 +182,12 @@ const UltraFeedContent = () => {
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
             {settingsVisible && (
               <div className={classes.settingsContainer}>
-                <UltraFeedSettings onClose={() => setSettingsVisible(false)} />
+                <UltraFeedSettings 
+                  settings={settings}
+                  updateSettings={updateSettings}
+                  resetSettingsToDefault={resetSettingsToDefault}
+                  onClose={() => setSettingsVisible(false)} 
+                />
               </div>
             )}
             
@@ -154,53 +201,52 @@ const UltraFeedContent = () => {
                 resolverArgsValues={{ sessionId }}
                 loadMoreDistanceProp={1000}
                 renderers={{
-                    feedCommentThread: {
-                      fragmentName: 'FeedCommentThreadFragment',
-                      render: (item: FeedCommentThreadFragment) => {
-                        if (!item) {
-                          return null;
-                        }
-                        
-                        return (
-                          <FeedItemWrapper>
-                            <UltraFeedThreadItem thread={item} />
-                          </FeedItemWrapper>
-                        );
+                  feedCommentThread: {
+                    fragmentName: 'FeedCommentThreadFragment',
+                    render: (item: FeedCommentThreadFragment) => {
+                      if (!item) {
+                        return null;
                       }
-                    },
-                    feedPost: {
-                      fragmentName: 'FeedPostFragment',
-                      render: (item: FeedPostFragment) => {
-                        if (!item) {
-                          return null;
-                        }
-                        
-                        return (
-                          <FeedItemWrapper>
-                            <UltraFeedPostItem post={item.post} postMetaInfo={item.postMetaInfo} />
-                          </FeedItemWrapper>
-                        );
+                      
+                      return (
+                        <FeedItemWrapper>
+                          <UltraFeedThreadItem thread={item} settings={settings} />
+                        </FeedItemWrapper>
+                      );
+                    }
+                  },
+                  feedPost: {
+                    fragmentName: 'FeedPostFragment',
+                    render: (item: FeedPostFragment) => {
+                      if (!item) {
+                        return null;
                       }
-                    },
-                    feedSpotlight: {
-                      fragmentName: 'FeedSpotlightFragment',
-                      render: (item: {_id: string, spotlight: FeedSpotlightFragment['spotlight']}) => {
-                        if (!item || !item.spotlight) {
-                          return null;
-                        }
+                      
+                      return (
+                        <FeedItemWrapper>
+                          <UltraFeedPostItem post={item.post} postMetaInfo={item.postMetaInfo} settings={settings} />
+                        </FeedItemWrapper>
+                      );
+                    }
+                  },
+                  feedSpotlight: {
+                    fragmentName: 'FeedSpotlightFragment',
+                    render: (item: {_id: string, spotlight: FeedSpotlightFragment['spotlight']}) => {
+                      if (!item || !item.spotlight) {
+                        return null;
+                      }
 
-                        return (
-                          <FeedItemWrapper>
-                            <SpotlightFeedItem 
-                              spotlight={item.spotlight}
-                              showSubtitle={true}
-                            />
-                          </FeedItemWrapper>
-                        );
-                      }
+                      return (
+                        <FeedItemWrapper>
+                          <SpotlightFeedItem 
+                            spotlight={item.spotlight}
+                            showSubtitle={true}
+                          />
+                        </FeedItemWrapper>
+                      );
                     }
                   }
-                }
+                }}
               />
             </div>
           </SingleColumnSection>

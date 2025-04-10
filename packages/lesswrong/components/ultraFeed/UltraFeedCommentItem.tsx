@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
-import { useUltraFeedSettings } from "../hooks/useUltraFeedSettings";
+import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 
 
@@ -156,6 +156,7 @@ export interface UltraFeedCommentItemProps {
   isFirstComment?: boolean;
   isLastComment?: boolean;
   onPostTitleClick?: () => void;
+  settings?: UltraFeedSettingsType;
 }
 
 const UltraFeedCommentItem = ({
@@ -167,11 +168,10 @@ const UltraFeedCommentItem = ({
   isFirstComment = false,
   isLastComment = false,
   onPostTitleClick,
+  settings = DEFAULT_SETTINGS,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
-  const { settings } = useUltraFeedSettings();
-
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { post } = comment;

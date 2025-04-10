@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUltraFeedSettings, DEFAULT_SETTINGS } from '../hooks/useUltraFeedSettings';
+import { UltraFeedSettingsType, DEFAULT_SETTINGS } from './ultraFeedSettingsTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 
@@ -112,18 +112,23 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
+// --- Component Props ---
+interface UltraFeedSettingsComponentProps {
+  settings: UltraFeedSettingsType;
+  updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void;
+  resetSettingsToDefault: () => void;
+  classes: Record<string, string>;
+  onClose?: () => void;
+}
+
+const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, onClose }: UltraFeedSettingsComponentProps) => {
+  const [formValues, setFormValues] = useState<UltraFeedSettingsType>(settings);
   const classes = useStyles(styles);
-  const { settings, updateSetting, resetSettings } = useUltraFeedSettings();
   
-  // Local state for form values
-  const [formValues, setFormValues] = useState({
-    postTruncationBreakpoints: [...settings.postTruncationBreakpoints],
-    commentTruncationBreakpoints: [...settings.commentTruncationBreakpoints],
-    collapsedCommentTruncation: settings.collapsedCommentTruncation,
-    lineClampNumberOfLines: settings.lineClampNumberOfLines,
-  });
-  
+  useEffect(() => {
+    setFormValues(settings);
+  }, [settings]);
+
   // Track validation errors
   const [errors, setErrors] = useState({
     postTruncationBreakpoints: [] as number[],
@@ -142,10 +147,7 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
       const newArray = [...prev[key]];
       
       if (value === '') {
-        // Allow empty string but mark as error
-        newArray[index] = '' as any; // Using 'any' to allow empty string temporarily
-        
-        // Update errors
+        newArray[index] = '' as any; // Allow empty string temporarily
         setErrors(prevErrors => {
           const newErrors = [...prevErrors[key]];
           if (!newErrors.includes(index)) {
@@ -159,8 +161,6 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
       } else {
         const numValue = parseInt(value, 10);
         newArray[index] = numValue;
-        
-        // Clear error if value is valid
         if (!isNaN(numValue)) {
           setErrors(prevErrors => {
             const newErrors = [...prevErrors[key]].filter(i => i !== index);
@@ -171,7 +171,6 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
           });
         }
       }
-      
       return {
         ...prev,
         [key]: newArray
@@ -185,36 +184,17 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
     value: string
   ) => {
     if (value === '') {
-      // Allow empty input but mark as error
-      setFormValues(prev => ({
-        ...prev,
-        [key]: '' as any // Using 'any' to allow empty string temporarily
-      }));
-      
-      // Set error for this field
-      setErrors(prev => ({
-        ...prev,
-        [key]: true
-      }));
+      setFormValues(prev => ({ ...prev, [key]: '' as any }));
+      setErrors(prev => ({ ...prev, [key]: true }));
     } else {
       const numValue = parseInt(value, 10);
-      
-      setFormValues(prev => ({
-        ...prev,
-        [key]: numValue
-      }));
-      
-      // Clear error if value is valid
+      setFormValues(prev => ({ ...prev, [key]: numValue }));
       if (!isNaN(numValue)) {
-        setErrors(prev => ({
-          ...prev,
-          [key]: false
-        }));
+        setErrors(prev => ({ ...prev, [key]: false }));
       }
     }
   }, []);
   
-  // Check if the form has any validation errors
   const hasErrors = useMemo(() => {
     return errors.postTruncationBreakpoints.length > 0 ||
            errors.commentTruncationBreakpoints.length > 0 ||
@@ -224,60 +204,63 @@ const UltraFeedSettings = ({ onClose }: { onClose: () => void }) => {
 
   // Handle form submission
   const handleSave = useCallback(() => {
-    // First validate all inputs to make sure there are no empty fields
+    // Validate all inputs to make sure there are no empty fields
     let hasEmptyFields = false;
-    
-    // Check array fields for empty values
-    ['postTruncationBreakpoints', 'commentTruncationBreakpoints'].forEach((key) => {
-      const arr = formValues[key as keyof typeof formValues] as any[];
+    const validatedValues: Partial<UltraFeedSettingsType> = {};
+
+    // Validate arrays
+    ['postTruncationBreakpoints', 'commentTruncationBreakpoints'].forEach(key => {
+      const arrKey = key as 'postTruncationBreakpoints' | 'commentTruncationBreakpoints';
+      const arr: number[] = formValues[arrKey];
+      const validArr: number[] = [];
       arr.forEach((val, index) => {
-        if (val === '' || val === null || val === undefined) {
+        // Attempt to parse, even if it's already a number (parseInt handles numbers)
+        const numVal = parseInt(String(val), 10);
+        if (isNaN(numVal)) { // Check if the result is NaN (covers empty string, non-numeric strings)
           hasEmptyFields = true;
-          
-          // Mark as error
           setErrors(prev => {
-            const fieldErrors = [...prev[key as 'postTruncationBreakpoints' | 'commentTruncationBreakpoints']];
-            if (!fieldErrors.includes(index)) {
-              fieldErrors.push(index);
-            }
-            return {
-              ...prev,
-              [key]: fieldErrors
-            };
+            const fieldErrors = [...prev[arrKey]];
+            if (!fieldErrors.includes(index)) fieldErrors.push(index);
+            return { ...prev, [arrKey]: fieldErrors };
           });
+        } else {
+          validArr.push(numVal);
         }
       });
+      if (!hasEmptyFields) {
+        validatedValues[arrKey] = validArr;
+      }
     });
-    
-    // Check collapsedCommentTruncation
-    const collapseValue = formValues.collapsedCommentTruncation;
-    if ((typeof collapseValue === 'string' && collapseValue === '') || 
-        collapseValue === null || 
-        collapseValue === undefined) {
-      hasEmptyFields = true;
-      setErrors(prev => ({
-        ...prev,
-        collapsedCommentTruncation: true
-      }));
-    }
-    
+
+    // Validate single number fields
+    ['collapsedCommentTruncation', 'lineClampNumberOfLines'].forEach(key => {
+      const numKey = key as 'collapsedCommentTruncation' | 'lineClampNumberOfLines';
+      const val: number | string = formValues[numKey];
+      // Attempt to parse, even if it's already a number
+      const numVal = parseInt(String(val), 10);
+      if (isNaN(numVal)) { // Check if the result is NaN
+        hasEmptyFields = true;
+        setErrors(prev => ({ ...prev, [numKey]: true }));
+      } else {
+        validatedValues[numKey] = numVal;
+      }
+    });
+
     // If there are any errors, don't save
     if (hasEmptyFields) {
       return;
     }
-    
-    // Update all settings at once
-    Object.entries(formValues).forEach(([key, value]) => {
-      updateSetting(key as keyof typeof formValues, value);
-    });
-    // onClose();
-  }, [formValues, updateSetting, setErrors]);
+
+    // Update all settings using the passed function
+    updateSettings(validatedValues as Partial<UltraFeedSettingsType>);
+    // Optional: Call onClose if provided by parent after successful save
+    // if (onClose) onClose(); 
+  }, [formValues, updateSettings, setErrors]);
   
   // Handle reset button
   const handleReset = useCallback(() => {
-    resetSettings();
-    onClose();
-  }, [resetSettings, onClose]);
+    resetSettingsToDefault();
+  }, [resetSettingsToDefault]);
   
   return (
     <div className={classes.root}>

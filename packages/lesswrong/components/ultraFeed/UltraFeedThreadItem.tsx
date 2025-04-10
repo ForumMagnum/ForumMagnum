@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread } from "./ultraFeedTypes";
+import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   root: {
@@ -72,8 +73,9 @@ function compressCollapsedComments(
   return result;
 }
 
-const UltraFeedThreadItem = ({thread}: {
+const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
   thread: DisplayFeedCommentThread,
+  settings?: UltraFeedSettingsType,
 }) => {
   const { comments, commentMetaInfos } = thread;
 
@@ -165,6 +167,7 @@ const UltraFeedThreadItem = ({thread}: {
                   highlight={highlightStatuses[cId] || false}
                   isFirstComment={isFirstItem}
                   isLastComment={isLastItem}
+                  settings={settings}
                 />
               </div>
             );

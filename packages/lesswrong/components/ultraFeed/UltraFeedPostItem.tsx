@@ -6,7 +6,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { postGetLink, postGetKarma } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
-import { useUltraFeedSettings } from "../hooks/useUltraFeedSettings";
+import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 
@@ -152,15 +152,15 @@ const UltraFeedPostItem = ({
   post,
   postMetaInfo,
   showKarma,
+  settings = DEFAULT_SETTINGS,
 }: {
   post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
   showKarma?: boolean,
+  settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
   const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate } = Components;
-  const { settings } = useUltraFeedSettings();
-
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
 
