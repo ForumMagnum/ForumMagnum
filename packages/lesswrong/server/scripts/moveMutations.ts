@@ -2,7 +2,6 @@ import { getAllCollections, getCollection } from "../collections/allCollections"
 import { join } from "path";
 import { readFile, writeFile } from "fs/promises";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
-import { getCollectionHooks } from "../mutationCallbacks";
 import { getSchema } from "@/lib/schema/allSchemas";
 import { getEditableFieldNamesForCollection } from "@/lib/editor/make_editable";
 import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections";
@@ -361,165 +360,165 @@ const callbackSectionMarker = (callbackStage: string) => `
     // ****************************************************
 `;
 
-function generateMutationFunctions(collectionName: CollectionNameString) {
-  const collectionHooks = getCollectionHooks(collectionName);
-  const collection = getCollection(collectionName);
-  const schema = getSchema(collectionName);
-  const editableFields = getEditableFieldNamesForCollection(collectionName);
-  const collectionHasElasticSync = searchIndexedCollectionNamesSet.has(collectionName);
+// function generateMutationFunctions(collectionName: CollectionNameString) {
+//   const collectionHooks = getCollectionHooks(collectionName);
+//   const collection = getCollection(collectionName);
+//   const schema = getSchema(collectionName);
+//   const editableFields = getEditableFieldNamesForCollection(collectionName);
+//   const collectionHasElasticSync = searchIndexedCollectionNamesSet.has(collectionName);
 
-  const hasEditableFields = editableFields.length > 0;
-  const hasLogChanges = false; // !!collection.options.logChanges;
-  const hasSlug = !!schema.slug?.graphql && 'slugCallbackOptions' in schema.slug.graphql;
-  const creatableFields = getCreatableGraphQLFields(schema, '      ');
-  const updatableFields = getUpdatableGraphQLFields(schema, '      ');
+//   const hasEditableFields = editableFields.length > 0;
+//   const hasLogChanges = false; // !!collection.options.logChanges;
+//   const hasSlug = !!schema.slug?.graphql && 'slugCallbackOptions' in schema.slug.graphql;
+//   const creatableFields = getCreatableGraphQLFields(schema, '      ');
+//   const updatableFields = getUpdatableGraphQLFields(schema, '      ');
 
-  const sb: string[] = [];
+//   const sb: string[] = [];
 
-  sb.push(sharedImportsSection(hasEditableFields, hasLogChanges, hasSlug, collection, creatableFields, updatableFields));
+//   sb.push(sharedImportsSection(hasEditableFields, hasLogChanges, hasSlug, collection, creatableFields, updatableFields));
 
-  sb.push('\n')
-  sb.push(getCreatePermissionCheckSection(collection));
-  sb.push('\n\n');
-  sb.push(getUpdatePermissionCheckSection(collection));
-  sb.push('\n');
+//   sb.push('\n')
+//   sb.push(getCreatePermissionCheckSection(collection));
+//   sb.push('\n\n');
+//   sb.push(getUpdatePermissionCheckSection(collection));
+//   sb.push('\n');
 
-  sb.push(openingSection(collectionName));
+//   sb.push(openingSection(collectionName));
 
-  if (collectionHooks.createValidate.any()) {
-    sb.push(callbackSectionMarker('createValidate'));
-  }
+//   if (collectionHooks.createValidate.any()) {
+//     sb.push(callbackSectionMarker('createValidate'));
+//   }
 
-  sb.push(`\n    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);\n`);
+//   sb.push(`\n    data = await runFieldOnCreateCallbacks(schema, data, callbackProps);\n`);
   
-  if (hasSlug) {
-    sb.push(slugCreateBeforeSection);
-  }
+//   if (hasSlug) {
+//     sb.push(slugCreateBeforeSection);
+//   }
 
-  if (collectionHooks.createBefore.any()) {
-    sb.push(callbackSectionMarker('createBefore'));
-  }
+//   if (collectionHooks.createBefore.any()) {
+//     sb.push(callbackSectionMarker('createBefore'));
+//   }
 
-  if (hasEditableFields) {
-    sb.push(createBeforeEditableSection);
-  }
+//   if (hasEditableFields) {
+//     sb.push(createBeforeEditableSection);
+//   }
 
-  if (collectionHooks.newSync.any()) {
-    sb.push(callbackSectionMarker('newSync'));
-  }
+//   if (collectionHooks.newSync.any()) {
+//     sb.push(callbackSectionMarker('newSync'));
+//   }
   
-  sb.push(insertIntoDbSection(collectionName));
+//   sb.push(insertIntoDbSection(collectionName));
 
-  if (collectionHooks.createAfter.any()) {
-    sb.push(callbackSectionMarker('createAfter'));
-  }
+//   if (collectionHooks.createAfter.any()) {
+//     sb.push(callbackSectionMarker('createAfter'));
+//   }
 
-  if (hasEditableFields) {
-    sb.push(createAfterEditableSection);
-  }
+//   if (hasEditableFields) {
+//     sb.push(createAfterEditableSection);
+//   }
 
-  sb.push(createRunCountOfReferenceCallbacksSection(collectionName));
+//   sb.push(createRunCountOfReferenceCallbacksSection(collectionName));
 
-  if (collectionHooks.newAfter.any()) {
-    sb.push(callbackSectionMarker('newAfter'));
-  }
+//   if (collectionHooks.newAfter.any()) {
+//     sb.push(callbackSectionMarker('newAfter'));
+//   }
 
-  if (collectionHooks.createAsync.any() || hasEditableFields) {
-    sb.push(`
-    const asyncProperties = {
-      ...afterCreateProperties,
-      document: documentWithId,
-      newDocument: documentWithId,
-    };\n`);
-  }
+//   if (collectionHooks.createAsync.any() || hasEditableFields) {
+//     sb.push(`
+//     const asyncProperties = {
+//       ...afterCreateProperties,
+//       document: documentWithId,
+//       newDocument: documentWithId,
+//     };\n`);
+//   }
 
-  if (collectionHooks.createAsync.any()) {
-    sb.push(callbackSectionMarker('createAsync'));
-  }
+//   if (collectionHooks.createAsync.any()) {
+//     sb.push(callbackSectionMarker('createAsync'));
+//   }
 
-  if (collectionHasElasticSync) {
-    sb.push(createElasticSyncSection(collectionName));
-  }
+//   if (collectionHasElasticSync) {
+//     sb.push(createElasticSyncSection(collectionName));
+//   }
 
-  if (collectionHooks.newAsync.any()) {
-    sb.push(callbackSectionMarker('newAsync'));
-  }
+//   if (collectionHooks.newAsync.any()) {
+//     sb.push(callbackSectionMarker('newAsync'));
+//   }
 
-  if (hasEditableFields) {
-    sb.push(newAsyncEditableSection);
-  }
+//   if (hasEditableFields) {
+//     sb.push(newAsyncEditableSection);
+//   }
 
-  sb.push(createReturnValueSection);
+//   sb.push(createReturnValueSection);
 
-  const needsOldDocument = hasLogChanges || collectionHooks.editSync.any() || collectionHooks.editAsync.any();
-  sb.push(updateFunctionOpeningSection(collectionName, collection, needsOldDocument));
+//   const needsOldDocument = hasLogChanges || collectionHooks.editSync.any() || collectionHooks.editAsync.any();
+//   sb.push(updateFunctionOpeningSection(collectionName, collection, needsOldDocument));
 
-  if (collectionHooks.updateValidate.any()) {
-    sb.push(callbackSectionMarker('updateValidate'));
-  }
+//   if (collectionHooks.updateValidate.any()) {
+//     sb.push(callbackSectionMarker('updateValidate'));
+//   }
 
-  sb.push(`
-    data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);\n`);
+//   sb.push(`
+//     data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);\n`);
 
-  if (hasSlug) {
-    sb.push(slugUpdateBeforeSection);
-  }
+//   if (hasSlug) {
+//     sb.push(slugUpdateBeforeSection);
+//   }
 
-  if (collectionHooks.updateBefore.any()) {
-    sb.push(callbackSectionMarker('updateBefore'));
-  }
+//   if (collectionHooks.updateBefore.any()) {
+//     sb.push(callbackSectionMarker('updateBefore'));
+//   }
 
-  if (hasEditableFields) {
-    sb.push(updateBeforeEditableSection);
-  }
+//   if (hasEditableFields) {
+//     sb.push(updateBeforeEditableSection);
+//   }
 
-  sb.push(`\n    let modifier = dataToModifier(data);\n`);
+//   sb.push(`\n    let modifier = dataToModifier(data);\n`);
 
-  if (collectionHooks.editSync.any()) {
-    sb.push(callbackSectionMarker('editSync'));
-  }
+//   if (collectionHooks.editSync.any()) {
+//     sb.push(callbackSectionMarker('editSync'));
+//   }
   
-  sb.push(editDbSection(collectionName));
+//   sb.push(editDbSection(collectionName));
 
-  if (collectionHooks.updateAfter.any()) {
-    sb.push(callbackSectionMarker('updateAfter'));
-  }
+//   if (collectionHooks.updateAfter.any()) {
+//     sb.push(callbackSectionMarker('updateAfter'));
+//   }
 
-  if (hasEditableFields) {
-    sb.push(updateAfterEditableSection);
-  }
+//   if (hasEditableFields) {
+//     sb.push(updateAfterEditableSection);
+//   }
 
-  sb.push(updateRunCountOfReferenceCallbacksSection(collectionName));
+//   sb.push(updateRunCountOfReferenceCallbacksSection(collectionName));
   
-  if (collectionHooks.updateAsync.any()) {
-    sb.push(callbackSectionMarker('updateAsync'));
-  }
+//   if (collectionHooks.updateAsync.any()) {
+//     sb.push(callbackSectionMarker('updateAsync'));
+//   }
 
-  if (collectionHooks.editAsync.any()) {
-    sb.push(callbackSectionMarker('editAsync'));
-  }
+//   if (collectionHooks.editAsync.any()) {
+//     sb.push(callbackSectionMarker('editAsync'));
+//   }
 
-  if (hasEditableFields) {
-    sb.push(runEditAsyncEditableCallbacksSection);
-  }
+//   if (hasEditableFields) {
+//     sb.push(runEditAsyncEditableCallbacksSection);
+//   }
 
-  if (collectionHasElasticSync) {
-    sb.push(updateElasticSyncSection(collectionName));
-  }
+//   if (collectionHasElasticSync) {
+//     sb.push(updateElasticSyncSection(collectionName));
+//   }
 
-  if (hasLogChanges) {
-    sb.push(logFieldChangesSection(collectionName));
-  }
+//   if (hasLogChanges) {
+//     sb.push(logFieldChangesSection(collectionName));
+//   }
 
-  sb.push(updateReturnValueSection);
+//   sb.push(updateReturnValueSection);
 
-  sb.push('\n\n');
-  sb.push(exportFunctionsSection(collectionName));
-  sb.push('\n\n');
-  sb.push(exportGraphQLFieldsSection(collectionName, creatableFields, updatableFields));
+//   sb.push('\n\n');
+//   sb.push(exportFunctionsSection(collectionName));
+//   sb.push('\n\n');
+//   sb.push(exportGraphQLFieldsSection(collectionName, creatableFields, updatableFields));
 
-  return sb.join('');
-}
+//   return sb.join('');
+// }
 
 
 // export async function moveMutations() {
@@ -566,13 +565,13 @@ function generateMutationFunctions(collectionName: CollectionNameString) {
 //   await writeFile('./packages/lesswrong/server/initGraphQLImports.ts', importBlock + '\n\n' + mutationBlock);
 // }
 
-export async function moveLlmMessagesMutations() {
-  const mutationFilePath = join(__dirname, `../collections/llmMessages/mutations.ts`);
+// export async function moveLlmMessagesMutations() {
+//   const mutationFilePath = join(__dirname, `../collections/llmMessages/mutations.ts`);
 
-  const reviewVoteMutations = generateMutationFunctions('LlmMessages');
+//   const reviewVoteMutations = generateMutationFunctions('LlmMessages');
 
-  await writeFile(mutationFilePath, reviewVoteMutations);
-}
+//   await writeFile(mutationFilePath, reviewVoteMutations);
+// }
 
 function generateQueryResolvers(collectionName: CollectionNameString) {
   const typeName = collectionNameToTypeName[collectionName];
