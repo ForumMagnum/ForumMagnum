@@ -8,9 +8,7 @@ class FragmentLexer {
   private position = 0;
 
   constructor(fragmentSrc: string) {
-    const firstFragmentIx = fragmentSrc.indexOf("fragment");
-    const secondFragmentIx = fragmentSrc.indexOf("fragment", firstFragmentIx + 1);
-    const match = fragmentSrc.slice(0,secondFragmentIx).match(/\s*fragment\s+([a-zA-Z0-9-_]+)\s+on\s+([a-zA-Z0-9-_]+)\s*{(.*)}/s);
+    const match = fragmentSrc.match(/\s*fragment\s+([a-zA-Z0-9-_]+)\s+on\s+([a-zA-Z0-9-_]+)\s*{(.*)}/s);
     if (match?.length !== 4) {
       throw new Error("Cannot parse fragment text");
     }
