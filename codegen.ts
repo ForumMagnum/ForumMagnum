@@ -8,17 +8,11 @@ const config: CodegenConfig = {
   generates: {
     "./packages/lesswrong/lib/generated/gql-codegen/": {
       preset: "client",
-      plugins: [
-        {
-          typescript: {
-            avoidOptionals: true,
-          }
-        }
-      ],
       config: {
         scalars: {
           Date: "String",
-        }
+        },
+        avoidOptionals: true,
       },
       presetConfig: {
         gqlTagName: 'gql',
