@@ -35,6 +35,7 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
           AND "createdAt" > NOW() - INTERVAL '90 days'
           AND "userId" = $(userId)
         GROUP BY "documentId"
+        HAVING COUNT(*) <= 5
       )
       SELECT
         s._id

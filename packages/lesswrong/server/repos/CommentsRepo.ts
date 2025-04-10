@@ -509,9 +509,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c._id AS "commentId",
           COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
           c."postId",
-          CASE WHEN c."baseScore" > 20 THEN ARRAY['topComments'] ELSE ARRAY['quickTakes'] END AS sources
+          CASE WHEN c."baseScore" > 10 THEN ARRAY['topComments'] ELSE ARRAY['quickTakes'] END AS sources
         FROM "Comments" c
-        WHERE (c."baseScore" > 20 OR c.shortform IS TRUE) -- Potential candidates based on being Top Comments or Quick Takes
+        WHERE (c."baseScore" > 10 OR c.shortform IS TRUE) -- Potential candidates based on being Top Comments or Quick Takes
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
           AND ${CANDIDATE_DATE_FILTER_CLAUSE}
         ORDER BY c."postedAt" DESC
