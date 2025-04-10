@@ -39,7 +39,7 @@ export const descriptionStyles = (theme: ThemeType) => ({
   },
 })
 
-const buildFadeMask = (breakpoints: string[]) => {
+export const buildFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to right, ${breakpoints.join(",")})`;
   return {mask, "-webkit-mask-image": mask};
 }

@@ -1,38 +1,14 @@
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit';
-import PublishIcon from '@/lib/vendor/@material-ui/icons/src/Publish';
-import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
-import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import classNames from 'classnames';
 import React, { CSSProperties, useCallback, useState, useRef, useEffect } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { postBodyStyles } from '../../themes/stylePiping';
-import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useStyles, defineStyles } from '../hooks/useStyles';
-import { descriptionStyles } from './SpotlightItem';
+import { descriptionStyles, buildFadeMask, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
-
-const buildFadeMask = (breakpoints: string[]) => {
-  const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
-  return {mask, "-webkit-mask-image": mask};
-}
-
-const buildDualFadeMask = (theme: ThemeType) => {
-  return buildFadeMask([
-    "transparent 0%",
-    `${theme.palette.text.alwaysWhite} 20%`,
-    `${theme.palette.text.alwaysWhite} 80%`,
-    "transparent 100%"
-  ]);
-}
 
 const useSpotlightFeedItemStyles = defineStyles(
   "SpotlightFeedItem",
@@ -232,18 +208,6 @@ const useSpotlightFeedItemStyles = defineStyles(
   }),
   { stylePriority: -1 }
 );
-
-function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
-  const { customTitle, post, sequence, tag } = spotlight;
-  if (customTitle) return customTitle;
-
-  if (post) return post.title;
-  if (sequence) return sequence.title;
-  if (tag) return tag.name;
-
-  // We should never reach this
-  return "";
-}
 
 const SpotlightFeedItem = ({
   spotlight,

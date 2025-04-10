@@ -22,13 +22,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   commentContentWrapperWithBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
-    // paddingBottom: 16,
   },
   commentHeader: {
     marginBottom: 8,
   },
   contentWrapper: {
-    // cursor: "pointer",
   },
   numComments: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -94,7 +92,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'center',
     marginRight: 2,
-    // marginTop: -17,
     marginBottom: 0,
   },
   verticalLine: {

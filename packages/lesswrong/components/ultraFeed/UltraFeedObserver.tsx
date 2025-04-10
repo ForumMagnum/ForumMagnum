@@ -1,3 +1,38 @@
+/**
+ * @file UltraFeedObserver.tsx
+ * 
+ * This file implements a centralized IntersectionObserver system for the UltraFeed.
+ * 
+ * **Purpose:**
+ * To efficiently track when feed items (posts, comments, etc.) become visible 
+ * within the viewport for a sufficient duration (e.g., 300ms) to count as "viewed".
+ * It also provides a mechanism (`trackExpansion`) to log when items are expanded.
+ * 
+ * **How it works:**
+ * - It uses a single `IntersectionObserver` instance (`observerRef`) to monitor multiple 
+ *   target elements (feed items) added via the `observe` function.
+ * - `elementDataMapRef` stores metadata associated with each observed element.
+ * - `timerMapRef` manages setTimeout timers for each element entering the viewport.
+ * - When an element meets the intersection threshold (`INTERSECTION_THRESHOLD`) for 
+ *   the required duration (`VIEW_THRESHOLD_MS`), a 'viewed' event is logged via 
+ *   `createUltraFeedEvent`, the element is marked as viewed in `viewedItemsRef`, 
+ *   and the observer stops watching it (`unobserve`).
+ * - If an element leaves the viewport before the timer completes, the timer is cleared.
+ * 
+ * **Why this approach? (Performance Rationale):**
+ * The primary alternative would be to instantiate a separate IntersectionObserver for 
+ * each individual item rendered within `MixedTypeFeed.tsx`. However, a feed can contain 
+ * hundreds or potentially thousands of items as the user scrolls. Creating and managing 
+ * that many observers would be highly inefficient and could lead to significant 
+ * performance degradation (increased memory usage, higher CPU load managing callbacks).
+ * 
+ * Using a single, centralized observer that monitors multiple targets is a much more 
+ * performant pattern recommended by the Intersection Observer API documentation. 
+ * This component acts as that central manager, providing a context (`useUltraFeedObserver`) 
+ * for individual feed items to register themselves for observation without needing their 
+ * own observer instances.
+ */
+
 import React, {
   createContext,
   useContext,
@@ -35,16 +70,13 @@ interface UltraFeedObserverContextType {
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
 
 const VIEW_THRESHOLD_MS = 300;
-const INTERSECTION_THRESHOLD = 0.5; // 50% visible
+const INTERSECTION_THRESHOLD = 0.5;
 
-const mapDocumentTypeToCollectionName = (documentType: DocumentType): "Posts" | "Comments" | "Spotlights" => {
-  const mapping: Record<DocumentType, "Posts" | "Comments" | "Spotlights"> = {
-    'post': "Posts",
-    'comment': "Comments",
-    'spotlight': "Spotlights"
-  };
-  return mapping[documentType];
-};
+const documentTypeToCollectionName = {
+  post: "Posts",
+  comment: "Comments",
+  spotlight: "Spotlights"
+} satisfies Record<DocumentType, "Posts" | "Comments" | "Spotlights">;
 
 export const UltraFeedObserverProvider = ({ children }: { children: ReactNode }) => {
   const currentUser = useCurrentUser();
@@ -79,7 +111,7 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
                 userId: currentUser._id,
                 eventType: 'viewed' as const,
                 documentId: elementData.documentId,
-                collectionName: mapDocumentTypeToCollectionName(elementData.documentType),
+                collectionName: documentTypeToCollectionName[elementData.documentType],
               };
 
               createUltraFeedEvent({
@@ -155,7 +187,7 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
       userId: currentUser._id,
       eventType: 'expanded' as const,
       documentId: data.documentId,
-      collectionName: mapDocumentTypeToCollectionName(data.documentType),
+      collectionName: documentTypeToCollectionName[data.documentType],
       event: {
         expansionLevel: data.level,
         maxExpansionReached: data.maxLevelReached,

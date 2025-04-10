@@ -10,7 +10,6 @@ import { useUltraFeedSettings } from "../hooks/useUltraFeedSettings";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 
-// Styles for the UltraFeedPostItem component
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     paddingTop: 24,
@@ -122,44 +121,50 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     marginRight: 8,
   },
   footer: {
-    // paddingBottom: 24,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
 }));
+
+// TODO: This is optimized for mobile (only show one author, might want to show more on desktop)
+const PostAuthorsDisplay = ({ authors, isAnon }: { authors: UsersMinimumInfo[]; isAnon: boolean }) => {
+  const classes = useStyles(styles);
+  const { UserNameDeleted, UsersName } = Components;
+
+  if (isAnon || authors.length === 0) {
+    return <UserNameDeleted />;
+  }
+
+  const mainAuthor = authors[0];
+  const additionalAuthorsCount = authors.length - 1;
+
+  return (
+    <span className={classes.metaUsername}>
+      <UsersName user={mainAuthor} />
+      {additionalAuthorsCount > 0 && (
+        <span className={classes.metaCoauthors}>+{additionalAuthorsCount}</span>
+      )}
+    </span>
+  );
+};
 
 const UltraFeedPostItem = ({
   post,
   postMetaInfo,
+  showKarma,
 }: {
   post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
+  showKarma?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, UsersName, UserNameDeleted } = Components;
+  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate } = Components;
   const { settings } = useUltraFeedSettings();
 
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
 
   const { isAnon, authors } = usePostsUserAndCoauthors(post);
-  const showKarma = !post.rejected;
-
-  const renderAuthors = () => {
-    if (isAnon || authors.length === 0) {
-      return <UserNameDeleted />;
-    }
-
-    const mainAuthor = authors[0];
-    const additionalAuthorsCount = authors.length - 1;
-
-    return (
-      <span className={classes.metaUsername}>
-        <UsersName user={mainAuthor} />
-        {additionalAuthorsCount > 0 && (
-          <span className={classes.metaCoauthors}>+{additionalAuthorsCount}</span>
-        )}
-      </span>
-    );
-  };
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -197,10 +202,10 @@ const UltraFeedPostItem = ({
         </div>
         <div className={classes.metaRoot}>
           <span className={classes.metaLeftSection}>
-            {showKarma && <span className={classes.metaKarma}>
-              {postGetKarma(post)}
+            {showKarma && !post.rejected && <span className={classes.metaKarma}>
+               {postGetKarma(post)}
             </span>}
-            {renderAuthors()}
+            <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
             {post.postedAt && (
               <span className={classes.metaDateContainer}>
                 <FormatDate date={post.postedAt} />
@@ -213,12 +218,12 @@ const UltraFeedPostItem = ({
       {post.contents && (
         <FeedContentBody
           post={post}
-          html={post.contents.htmlHighlight || ""}
+          html={post.contents.htmlHighlight ?? ""}
           breakpoints={settings.postTruncationBreakpoints}
           initialExpansionLevel={0}
-          wordCount={post.contents.wordCount || 0}
+          wordCount={post.contents.wordCount ?? 0}
           linkToDocumentOnFinalExpand={true}
-          nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
+          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
           onExpand={handleContentExpand}
         />
       )}
