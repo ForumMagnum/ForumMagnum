@@ -10,7 +10,7 @@ import { getGraphQLSingleQueryFromOptions } from '@/lib/crud/withSingle';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { DocumentNode, ExecutionResult, graphql, GraphQLError, print } from 'graphql';
 import { makeExecutableSchema } from 'graphql-tools';
-import { getGraphQLSchema } from './apollo-server/getTypeDefs';
+import { typeDefs, resolvers } from './apollo-server/initGraphQL';
 import { createAnonymousContext } from './createContexts';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
@@ -32,7 +32,7 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
 
 // note: if no context is passed, default to running requests with full admin privileges
 export const runQuery = async <T = Record<string, any>>(query: string | DocumentNode, variables: any = {}, context?: Partial<ResolverContext>) => {
-  const executableSchema = makeExecutableSchema(getGraphQLSchema());
+  const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
   const queryContext = createAnonymousContext(context);
 
   const stringQuery = typeof query === 'string'

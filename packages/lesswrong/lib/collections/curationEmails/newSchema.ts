@@ -40,6 +40,6 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"CurationEmails">>;
+} satisfies Record<string, CollectionFieldSpecification<"CurationEmails">>;
 
 export default schema;

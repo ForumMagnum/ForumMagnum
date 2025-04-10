@@ -22,6 +22,6 @@ const schema = {
       nullable: false,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"DatabaseMetadata">>;
+} satisfies Record<string, CollectionFieldSpecification<"DatabaseMetadata">>;
 
 export default schema;

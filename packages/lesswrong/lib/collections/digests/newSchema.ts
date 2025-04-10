@@ -116,6 +116,6 @@ const schema = {
       control: "FormComponentColorPicker",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Digests">>;
+} satisfies Record<string, CollectionFieldSpecification<"Digests">>;
 
 export default schema;

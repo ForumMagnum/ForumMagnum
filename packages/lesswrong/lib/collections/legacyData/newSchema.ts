@@ -17,6 +17,6 @@ const schema = {
       nullable: false,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"LegacyData">>;
+} satisfies Record<string, CollectionFieldSpecification<"LegacyData">>;
 
 export default schema;

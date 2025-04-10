@@ -173,6 +173,6 @@ const schema = {
       resolver: generateIdResolverMulti({ foreignCollectionName: "Posts", fieldName: "postIds" }),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Chapters">>;
+} satisfies Record<string, CollectionFieldSpecification<"Chapters">>;
 
 export default schema;

@@ -13,7 +13,7 @@ import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
-import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/schema";
+import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
 import { forumSelect } from "@/lib/forumTypeUtils";
 
 export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = (isEAForum || isLWorAF) && !isE2E;

@@ -10,6 +10,7 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useGetUserBySlug } from '../hooks/useGetUserBySlug';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -83,7 +84,7 @@ const EditProfileForm = ({classes}: {
   ]);
 
   const {
-    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile,
+    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile, Loading,
   } = Components;
 
   let terms: {slug?: string, documentId?: string} = {}
@@ -92,6 +93,8 @@ const EditProfileForm = ({classes}: {
   } else if (currentUser) {
     terms.documentId = currentUser._id
   }
+
+  const { user, loading: loadingUser } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersProfileEdit', skip: !terms.slug });
 
   // no matching user
   if ((!terms.slug && !terms.documentId) || !currentUser) {
@@ -153,9 +156,10 @@ const EditProfileForm = ({classes}: {
         </div>
       }
 
-      <WrappedSmartForm
+      {loadingUser && <Loading />}
+      {!loadingUser && <WrappedSmartForm
         collectionName="Users"
-        {...terms}
+        documentId={user?._id}
         fields={[
           ...(isFriendlyUI ? ['displayName'] : []), // In UsersEditForm ("Account settings") in book UI
           'profileImageId',
@@ -185,7 +189,7 @@ const EditProfileForm = ({classes}: {
         successCallback={async (user: AnyBecauseTodo) => {
           navigate(userGetProfileUrl(user))
         }}
-      />
+      />}
     </div>
   )
 }

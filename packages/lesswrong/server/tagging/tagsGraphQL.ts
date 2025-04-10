@@ -3,7 +3,7 @@ import { Tags } from '../../server/collections/tags/collection';
 import { TagRels } from '../../server/collections/tagRels/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
-import { createMutator } from "../vulcan-lib/mutators";
+import { createTagRel } from '../collections/tagRels/mutations';
 
 export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context, selfVote = false}: {
   tagId: string,
@@ -25,20 +25,14 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
   // Check whether this document already has this tag applied
   const existingTagRel = await TagRels.findOne({ tagId, postId, deleted: false });
   if (!existingTagRel) {
-    const tagRel = await createMutator({
-      collection: TagRels,
-      document: { tagId, postId, userId: currentUser._id },
-      validate: false,
-      currentUser,
-      context,
-    });
+    const tagRel = await createTagRel({ data: { tagId, postId, userId: currentUser._id } }, context);
     
     // If the tag has a parent which has not been applied to this post, apply it
     if (!ignoreParent && tag?.parentTagId && !await TagRels.findOne({ tagId: tag.parentTagId, postId })) {
       // RECURSIVE CALL, should only ever go one level deep because we disallow chaining of parent tags (see packages/lesswrong/lib/collections/tags/schema.ts)
       await addOrUpvoteTag({tagId: tag?.parentTagId, postId, currentUser, context, selfVote: true});
     }
-    return tagRel.data;
+    return tagRel;
   } else {
     // Upvote the tag
     const { performVoteServer } = require("../voteServer");

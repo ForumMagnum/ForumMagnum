@@ -1,18 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
-const commonFields = ({
-  nullable = false,
-}: {
-  nullable?: boolean;
-} = {}): CollectionFieldSpecification<"SurveyQuestions"> => ({
-  canRead: ["guests"],
-  canCreate: ["admins"],
-  canUpdate: ["admins"],
-  optional: nullable,
-  nullable,
-});
-
 export const surveyQuestionFormats = {
   rank0To10: "Rank 0-10",
   text: "Text",
@@ -89,6 +77,6 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"SurveyQuestions">>;
+} satisfies Record<string, CollectionFieldSpecification<"SurveyQuestions">>;
 
 export default schema;

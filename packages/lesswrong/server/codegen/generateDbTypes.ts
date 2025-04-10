@@ -1,6 +1,6 @@
 import { getAllCollections } from '@/server/collections/allCollections';
 import { generateAllowedValuesTypeString, generatedFileHeader, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
-import { isUniversalField } from '../../lib/collectionUtils';
+import { isUniversalField } from '../../lib/utils/schemaUtils';
 import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
 import orderBy from 'lodash/orderBy';
 import { isArrayTypeString, isVarcharTypeString } from '../sql/Type';
@@ -82,7 +82,7 @@ function generateCollectionType(collection: any): string {
   return `type ${collectionName}Collection = CollectionBase<"${collectionName}">;\n\n`;
 }
 
-function isNonTrivialSimpleSchemaType(fieldSimpleSchemaType: DerivedSimpleSchemaType<NewSchemaType<CollectionNameString>>[string]['type'], fieldSchema: NewCollectionFieldSpecification<any>): boolean {
+function isNonTrivialSimpleSchemaType(fieldSimpleSchemaType: DerivedSimpleSchemaType<SchemaType<CollectionNameString>>[string]['type'], fieldSchema: CollectionFieldSpecification<any>): boolean {
   return (typeof fieldSimpleSchemaType.singleType !== 'function')
     || fieldSimpleSchemaType.singleType === Object
     || (fieldSimpleSchemaType.singleType === Array && !!fieldSchema.graphql?.validation?.simpleSchema)

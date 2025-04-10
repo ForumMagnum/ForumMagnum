@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
-import { useMulti } from "../../lib/crud/withMulti";
-import { isAF } from "../../lib/instanceSettings";
+import { useCallback } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { useMessages } from "../common/withMessages";
 import { useTracking } from "../../lib/analyticsEvents";
+import { gql, useMutation } from "@apollo/client";
+import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 
 /**
  * Hook to initiate a conversation with a user. This get's the existing conversation (first conversation
@@ -14,8 +14,6 @@ import { useTracking } from "../../lib/analyticsEvents";
  */
 export const useInitiateConversation = (props?: {
   includeModerators?: boolean;
-  /** If given the conversation will be initiated immediately */
-  userIds?: string[]
 }) => {
   const {captureEvent} = useTracking({
     eventType: "initiateConversation",
@@ -25,51 +23,38 @@ export const useInitiateConversation = (props?: {
 
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const [userIds, setUserIds] = useState<string[] | null>(props?.userIds ?? null);
-  const skip = !currentUser || !userIds?.length
+  const skip = !currentUser;
 
-  const alignmentFields = isAF ? { af: true } : {};
-  const moderatorField = includeModerators ? { moderator: true } : {};
 
-  const participantIds = skip ? [] : [currentUser._id, ...userIds];
-
-  const { results, loading, error } = useMulti({
-    terms: {
-      view: "userGroupUntitledConversations",
-      userId: currentUser?._id,
-      participantIds,
-      ...moderatorField,
-    },
-    collectionName: "Conversations",
-    fragmentName: "ConversationsMinimumInfo",
-    fetchPolicy: "network-only",
-    limit: 1,
-    skip,
-    createIfMissing: {
-      participantIds,
-      ...alignmentFields,
-      ...moderatorField,
+  const [initateConversation, { data, loading }] = useMutation<{ initiateConversation: ConversationsMinimumInfo }>(gql`
+    mutation initiateConversation($participantIds: [String!]!, $af: Boolean, $moderator: Boolean) {
+      initiateConversation(participantIds: $participantIds, af: $af, moderator: $moderator) {
+        ...ConversationsMinimumInfo
+      }
+    }
+    ${fragmentTextForQuery('ConversationsMinimumInfo')}
+  `, {
+    onError: (error) => {
+      flash({messageString: "Error initiating conversation", type: "error"});
     },
   });
 
-  // If there is an error in executing the query, reset and flash a message
-  useEffect(() => {
-    if (error) {
-      flash({messageString: "Error initiating conversation", type: "error"});
-      setUserIds(null);
-    }
-  }, [error, flash])
+  const conversation = data?.initiateConversation;
 
-  const conversation = results?.[0];
+  const wrappedInitiateConversation = useCallback((userIds: string[]) => {
+    const moderatorField = includeModerators ? { moderator: true } : {};
+    const participantIds = skip || !userIds.length ? [] : [currentUser._id, ...userIds];
+  
+    void initateConversation({
+      variables: { participantIds, ...moderatorField },
+    });
 
-  const initiateConversation = useCallback((userIds: string[]) => {
-    setUserIds(userIds?.length ? userIds : null);
     captureEvent();
-  }, [captureEvent]);
+  }, [captureEvent, currentUser?._id, includeModerators, initateConversation, skip]);
 
   return {
     conversation,
     conversationLoading: loading,
-    initiateConversation,
+    initiateConversation: wrappedInitiateConversation,
   };
 };

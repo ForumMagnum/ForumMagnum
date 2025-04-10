@@ -76,6 +76,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PostRelations">>;
+} satisfies Record<string, CollectionFieldSpecification<"PostRelations">>;
 
 export default schema;

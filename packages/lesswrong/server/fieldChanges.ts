@@ -9,7 +9,7 @@ export const logFieldChanges = async <
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
   oldDocument: ObjectsByCollectionName[N],
-  data: Partial<ObjectsByCollectionName[N]>,
+  data: Partial<ObjectsByCollectionName[N]> | UpdateInputsByCollectionName[N]['data'],
 }) => {
   let loggedChangesBefore: any = {};
   let loggedChangesAfter: any = {};
@@ -17,17 +17,14 @@ export const logFieldChanges = async <
   
   for (let key of Object.keys(data)) {
     let before = oldDocument[key as keyof ObjectsByCollectionName[N]];
-    let after = data[key as keyof ObjectsByCollectionName[N]];
+    let after = (data as AnyBecauseHard)[key];
     // Don't log if:
     //  * The field didn't change
     //  * It's a denormalized field
     //  * The logChanges option is present on the field, and false
-    //  * The logChanges option is undefined on the field, and is false on the collection
     if (before===after || JSON.stringify(before)===JSON.stringify(after)) continue;
     if (schema[key]?.database?.denormalized) continue;
     if (schema[key]?.database?.logChanges !== undefined && !schema[key]?.database?.logChanges)
-      continue;
-    if (!schema[key]?.database?.logChanges && !collection.options.logChanges)
       continue;
     
     // As a special case, don't log changes from null to undefined (or vise versa).

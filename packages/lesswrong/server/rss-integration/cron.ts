@@ -1,7 +1,5 @@
 import { addCronJob } from '../cron/cronUtil';
 import RSSFeeds from '../../server/collections/rssfeeds/collection';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
-import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import feedparser from 'feedparser-promised';
@@ -12,6 +10,10 @@ import { sanitize } from '../../lib/vulcan-lib/utils';
 import { dataToHTML } from '../editor/conversionUtils';
 import { fetchFragmentSingle } from '../fetchFragment';
 import gql from 'graphql-tag';
+import { createPost } from '../collections/posts/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updateRSSFeed } from '../collections/rssfeeds/mutations';
 
 export const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
@@ -45,12 +47,7 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
   var set: any = {};
   set.rawFeed = currentPosts;
 
-  await updateMutator({
-    collection: RSSFeeds,
-    documentId: feed._id,
-    set: set,
-    validate: false,
-  })
+  await updateRSSFeed({ data: { ...set }, selector: { _id: feed._id } }, createAnonymousContext())
 
   await asyncForeachSequential(newPosts, async newPost => {
     const body = getRssPostContents(newPost);
@@ -71,13 +68,13 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
     };
 
     let lwUser = await Users.findOne({_id: feed.userId});
+    
+    // Create context with the lwUser as the currentUser
+    const lwContext = await computeContextFromUser({ user: lwUser, isSSR: false });
 
-    await createMutator({
-      collection: Posts,
-      document: post,
-      currentUser: lwUser,
-      validate: false,
-    })
+    await createPost({
+      data: post
+    }, lwContext);
   })
 }
 

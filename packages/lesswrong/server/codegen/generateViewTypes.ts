@@ -1,4 +1,5 @@
 import { allViews } from '@/lib/views/allViews';
+import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 import { getAllCollections } from '@/server/collections/allCollections';
 import orderBy from 'lodash/orderBy';
 
@@ -33,7 +34,8 @@ export function generateViewTypes(): string {
   sb.push("interface ViewTermsByCollectionName {\n");
   for (let collection of collections) {
     const collectionName = collection.collectionName;
-    const collectionViewSet = allViews[collectionName];
+    // The cast isn't necessary at all, but it's there in to try to shave off ~250ms off tsc before they get around to the go rewrite
+    const collectionViewSet = allViews[collectionName] as CollectionViewSet<CollectionNameString, Record<string, ViewFunction<CollectionNameString>>> | undefined;
     
     // Does this collection have any views?
     if (collectionViewSet && (

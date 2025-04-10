@@ -1,5 +1,4 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const TypingIndicators: TypingIndicatorsCollection = createCollection({
@@ -10,8 +9,6 @@ export const TypingIndicators: TypingIndicatorsCollection = createCollection({
     indexSet.addIndex('TypingIndicators', { documentId: 1, userId: 1 }, { unique: true });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('TypingIndicators'),
-  logChanges: true,
 })
 
 export default TypingIndicators;

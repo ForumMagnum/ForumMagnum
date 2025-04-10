@@ -1,5 +1,5 @@
 import { registerMigration } from './migrationUtils';
-import { generateLinkSharingKey } from '../ckEditor/ckEditorCallbacks';
+import { generateLinkSharingKey } from '../callbacks/helpers';
 import { Posts } from '../../server/collections/posts/collection';
 
 export default registerMigration({

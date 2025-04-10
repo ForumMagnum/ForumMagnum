@@ -9,7 +9,6 @@ export const RecommendationsCaches: RecommendationsCachesCollection = createColl
     indexSet.addIndex('RecommendationsCaches', { userId: 1, postId: 1, source: 1, scenario: 1 }, { unique: true });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

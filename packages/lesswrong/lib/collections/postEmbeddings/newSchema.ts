@@ -90,6 +90,6 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PostEmbeddings">>;
+} satisfies Record<string, CollectionFieldSpecification<"PostEmbeddings">>;
 
 export default schema;

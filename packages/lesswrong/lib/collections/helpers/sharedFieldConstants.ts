@@ -10,7 +10,7 @@ export const DEFAULT_ID_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;
 
 /** @deprecated There's no reason to add this field to new table schemas. */
 export const DEFAULT_SCHEMA_VERSION_FIELD = {
@@ -28,7 +28,7 @@ export const DEFAULT_SCHEMA_VERSION_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;
 
 export const DEFAULT_CREATED_AT_FIELD = {
   database: {
@@ -43,7 +43,7 @@ export const DEFAULT_CREATED_AT_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;
 
 /**
  * Don't stick this field willy-nilly into new schemas unless/until it's actually needed;
@@ -67,7 +67,7 @@ export const DEFAULT_LEGACY_DATA_FIELD = {
   form: {
     hidden: true,
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;
 
 export const DEFAULT_LATEST_REVISION_ID_FIELD = {
   database: {
@@ -80,4 +80,4 @@ export const DEFAULT_LATEST_REVISION_ID_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;

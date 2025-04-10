@@ -90,9 +90,11 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
+      canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["GardenCodes"],
-        getTitle: (gc) => gc.title,
+        getTitle: (gc) => gc.title!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
       },
@@ -302,6 +304,6 @@ const schema = {
       control: "checkbox",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"GardenCodes">>;
+} satisfies Record<string, CollectionFieldSpecification<"GardenCodes">>;
 
 export default schema;

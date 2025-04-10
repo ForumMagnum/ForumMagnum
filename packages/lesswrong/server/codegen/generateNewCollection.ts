@@ -1,6 +1,7 @@
 import path from 'path';
 import { existsSync } from 'fs';
 import { writeFile, mkdir, readFile } from 'fs/promises';
+import { getSingleResolverName } from '@/lib/crud/utils';
 
 function uncapitalize(s: string) {
   return s.charAt(0).toLowerCase() + s.slice(1);
@@ -51,29 +52,50 @@ export default {};
 `;
 }
 
+function getTypeDefsVariableName(collectionName: string) {
+  const typeName = getTypeName(collectionName);
+  const typeDefsVariableName = `graphql${typeName}QueryTypeDefs`;
+
+  return typeDefsVariableName;
+}
+
+function getFieldResolversVariableName(collectionName: string) {
+  const typeName = getTypeName(collectionName);
+  const singleResolverName = getSingleResolverName(typeName);
+  const fieldResolversVariableName = `${singleResolverName}GqlFieldResolvers`;
+
+  return fieldResolversVariableName;
+}
+
+function getQueryFile(collectionName: string) {
+  const typeDefsVariableName = getTypeDefsVariableName(collectionName);
+  const fieldResolversVariableName = getFieldResolversVariableName(collectionName);
+
+  const typeName = getTypeName(collectionName);
+  const collectionPathPart = uncapitalize(collectionName);
+
+  const fileContents = `import schema from "@/lib/collections/${collectionPathPart}/newSchema";
+import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
+import gql from "graphql-tag";
+
+export const ${typeDefsVariableName} = gql\`
+  type ${typeName} {
+    \${getAllGraphQLFields(schema)}
+  }
+\`;
+
+export const ${fieldResolversVariableName} = getFieldGqlResolvers('${collectionName}', schema);
+`;
+
+  return fileContents;
+}
+
 function getCollectionFile(collectionName: string) {
-  const collectionNameLower = uncapitalize(collectionName);
   const typeName = getTypeName(collectionName);
 
   return `import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
-
-/**
- * If this collection wants to allow users to create/update records, uncomment the following lines
- * and implement the check functions for newCheck, editCheck, and removeCheck.  (removeCheck should by default return false.)
- * Otherwise, delete this block.
- */
-// const mutationOptions = {
-//   newCheck: async (user: DbUser | null, document: Db${typeName} | null, context: ResolverContext) => {
-//     return false;
-//   },
-//   editCheck: async (user: DbUser | null, document: Db${typeName} | null, context: ResolverContext) => {
-//     return false;
-//   },
-//   removeCheck: async (user: DbUser | null, document: Db${typeName} | null, context: ResolverContext) => {
-//     return false;
-//   },
-// };
 
 export const ${collectionName}: ${collectionName}Collection = createCollection({
   collectionName: '${collectionName}',
@@ -84,19 +106,6 @@ export const ${collectionName}: ${collectionName}Collection = createCollection({
     const indexSet = new DatabaseIndexSet();
     return indexSet;
   },
-
-  /** 
-   * If this collection wants to be used for basic CRUD operations, uncomment the following lines and import the necessary functions.
-   * Otherwise, remove them.
-   */
-  // resolvers: getDefaultResolvers('${collectionNameLower}'),
-  // mutations: getDefaultMutations('${collectionNameLower}', mutationOptions),
-
-  /**
-   * If you want to log field changes by default for all fields in this collection, uncomment the following line.
-   * Otherwise, remove it.  You can also set logChanges to true for specific fields in the schema.
-   */
-  // logChanges: true,
 });
 
 
@@ -470,6 +479,77 @@ async function insertIntoAllFragments(collectionName: string) {
   return allFragmentsPath;
 }
 
+async function insertIntoInitGraphQL(collectionName: string) {
+  const initGraphQLPath = path.join(__dirname, '..', '..', 'server', 'vulcan-lib', 'apollo-server', 'initGraphQL.ts');
+  const initGraphQL = await readFile(initGraphQLPath, 'utf8');
+  const lines = initGraphQL.split('\n');
+
+  const collectionNameLower = uncapitalize(collectionName);
+  const typeDefsVariableName = getTypeDefsVariableName(collectionName);
+  const fieldResolversVariableName = getFieldResolversVariableName(collectionName);
+  const importLine = `import { ${typeDefsVariableName}, ${fieldResolversVariableName} } from "@/server/collections/${collectionNameLower}/queries";`;
+
+  const collectionImportsIndex = lines.findIndex(line => line.includes('// Collection imports'));
+  if (collectionImportsIndex === -1) {
+    throw new Error('Could not find Collection imports section');
+  }
+  
+  // Find where to insert the import statement alphabetically in the Collection imports section
+  let importIndex = collectionImportsIndex + 1;
+  while (importIndex < lines.length && 
+          lines[importIndex].startsWith('import') && 
+          lines[importIndex].localeCompare(importLine) < 0) {
+    importIndex++;
+  }
+
+  // Insert the import statement
+  lines.splice(importIndex, 0, importLine);
+  
+  // Find the "CRUD Query typedefs" section
+  const crudQueryTypeDefsIndex = lines.findIndex(line => line.includes('## CRUD Query typedefs'));
+  if (crudQueryTypeDefsIndex === -1) {
+    throw new Error('Could not find CRUD Query typedefs section');
+  }
+
+  const crudTypeDefsLine = `  \${${typeDefsVariableName}}`;
+  
+  // Find where to insert the imported typeDefs alphabetically in the CRUD Query typedefs section
+  let insertTypeDefsIndex = crudQueryTypeDefsIndex + 1;
+  while (insertTypeDefsIndex < lines.length && 
+         lines[insertTypeDefsIndex].trim().startsWith('${graphql') && 
+         lines[insertTypeDefsIndex].localeCompare(crudTypeDefsLine) < 0) {
+    insertTypeDefsIndex++;
+  }
+
+  lines.splice(insertTypeDefsIndex, 0, crudTypeDefsLine);
+
+  // Find the "Collection Field Resolvers" section
+  const collectionFieldResolversIndex = lines.findIndex(line => line.includes('// Collection Field Resolvers'));
+  if (collectionFieldResolversIndex === -1) {
+    throw new Error('Could not find Collection Field Resolvers section');
+  }
+
+  const collectionFieldResolversLine = `  ...${fieldResolversVariableName},`;
+  
+  // Find where to insert the imported fieldResolvers alphabetically in the Collection Field Resolvers section
+  let insertFieldResolversIndex = collectionFieldResolversIndex + 1;
+  while (insertFieldResolversIndex < lines.length && 
+         lines[insertFieldResolversIndex].trim().startsWith('...') && 
+         lines[insertFieldResolversIndex].localeCompare(collectionFieldResolversLine) < 0) {
+    insertFieldResolversIndex++;
+  }
+
+  lines.splice(insertFieldResolversIndex, 0, collectionFieldResolversLine);
+
+  // Write the file back
+  await writeFile(initGraphQLPath, lines.join('\n'));
+
+  // eslint-disable-next-line no-console
+  console.log(`Updated initGraphQL.ts with ${collectionName}`);
+
+  return initGraphQLPath;
+}
+
 export async function generateNewCollection(collectionName?: string) {
   if (!collectionName?.endsWith('s')) {
     // eslint-disable-next-line no-console
@@ -490,33 +570,33 @@ export async function generateNewCollection(collectionName?: string) {
   const schemaFile = getSchemaFile(collectionName);
   const viewFile = getViewFile(collectionName);
   const fragmentFile = getFragmentFile(collectionName);
+  const queryFile = getQueryFile(collectionName);
   const collectionFile = getCollectionFile(collectionName);
 
   const libPath = path.join(__dirname, '..', '..', 'lib', 'collections', uncapitalize(collectionName));
+  const serverPath = path.join(__dirname, '..', '..', 'server', 'collections', uncapitalize(collectionName));
+
   // eslint-disable-next-line no-console
-  console.log(`Creating ${collectionName} in ${libPath}`);
+  console.log(`Creating ${collectionName} in ${libPath} and ${serverPath}`);
   await mkdir(libPath, { recursive: true });
+  await mkdir(serverPath, { recursive: true });
 
   await Promise.all([
     writeFile(path.join(libPath, 'newSchema.ts'), schemaFile),
     writeFile(path.join(libPath, 'views.ts'), viewFile),
     writeFile(path.join(libPath, 'fragments.ts'), fragmentFile),
+    writeFile(path.join(serverPath, 'queries.ts'), queryFile),
+    writeFile(path.join(serverPath, 'collection.ts'), collectionFile),
   ]);
 
-  const serverPath = path.join(__dirname, '..', '..', 'server', 'collections', uncapitalize(collectionName));
   // eslint-disable-next-line no-console
-  console.log(`Creating ${collectionName} in ${serverPath}`);
-  await mkdir(serverPath, { recursive: true });
-
-  await writeFile(path.join(serverPath, 'collection.ts'), collectionFile);
-
-  // eslint-disable-next-line no-console
-  console.log('Updating allCollections.ts, allViews.ts, allFragments.ts, and allSchemas.ts');
-  const [allCollectionsPath, allViewsPath, allFragmentsPath, allSchemasPath] = await Promise.all([
+  console.log('Updating allCollections.ts, allViews.ts, allFragments.ts, allSchemas.ts, and initGraphQL.ts');
+  const [allCollectionsPath, allViewsPath, allFragmentsPath, allSchemasPath, initGraphQLPath] = await Promise.all([
     insertIntoAllCollections(collectionName),
     insertIntoAllViews(collectionName),
     insertIntoAllFragments(collectionName),
     insertIntoAllSchemas(collectionName),
+    insertIntoInitGraphQL(collectionName),
   ]);
 
   // eslint-disable-next-line no-console
@@ -530,6 +610,7 @@ export async function generateNewCollection(collectionName?: string) {
       ${allViewsPath}
       ${allFragmentsPath}
       ${allSchemasPath}
+      ${initGraphQLPath}
   `);
   // eslint-disable-next-line no-console
   console.log('Now running `yarn generate`...');

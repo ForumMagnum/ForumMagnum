@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const PostRelations: PostRelationsCollection = createCollection({
@@ -10,8 +9,6 @@ export const PostRelations: PostRelationsCollection = createCollection({
     indexSet.addIndex('PostRelations', { sourcePostId: 1, order: 1, createdAt: -1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('PostRelations'),
-  logChanges: true,
 });
 
 

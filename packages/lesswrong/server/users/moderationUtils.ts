@@ -1,4 +1,3 @@
-import Bans from "@/server/collections/bans/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import Reports from "@/server/collections/reports/collection";
 import Sequences from "@/server/collections/sequences/collection";
@@ -7,39 +6,16 @@ import { getCollection } from "@/server/collections/allCollections";
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from "../akismet";
 import { syncDocumentWithLatestRevision } from "../editor/utils";
 import UsersRepo from "../repos/UsersRepo";
-import { createMutator, updateMutator, deleteMutator } from "../vulcan-lib/mutators";
-import { runQuery } from "../vulcan-lib/query";
-import { userGetGroups } from "@/lib/vulcan-users/permissions";
-import type { VoteDocTuple } from "@/lib/voting/vote";
+import { createBan } from "../collections/bans/mutations";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { updateTag } from "../collections/tags/mutations";
+import { updatePost } from "../collections/posts/mutations";
+import { updateComment } from "../collections/comments/mutations";
+import { updateReport } from "../collections/reports/mutations";
+import { updateSequence } from "../collections/sequences/mutations";
+import { updateNotification } from "../collections/notifications/mutations";
 
-const MODERATE_OWN_PERSONAL_THRESHOLD = 50;
-const TRUSTLEVEL1_THRESHOLD = 2000;
 
-export async function updateTrustedStatus({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
-  const { Users } = context;
-
-  const user = await Users.findOne(newDocument.userId)
-  if (user && (user?.karma) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
-    await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
-    const updatedUser = await Users.findOne(newDocument.userId)
-    //eslint-disable-next-line no-console
-    console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
-  }
-}
-
-export async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
-  const { Users } = context;
-  
-  const user = await Users.findOne(newDocument.userId)
-  if (!user) throw Error("Couldn't find user")
-  if ((user.karma) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
-    await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
-    const updatedUser = await Users.findOne(newDocument.userId)
-    if (!updatedUser) throw Error("Couldn't find user to update")
-    //eslint-disable-next-line no-console
-    console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
-  }
-}
 
 /**
  * Add user IP address to IP ban list for a day and remove their login tokens
@@ -48,6 +24,7 @@ export async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTupl
  * assumed to work.
  */
 export async function userIPBanAndResetLoginTokens(user: DbUser) {
+  const { runQuery }: typeof import('../vulcan-lib/query') = require('../vulcan-lib/query');
   // IP ban
   const query = `
     query UserIPBan($userId:String) {
@@ -63,19 +40,15 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
     await asyncForeachSequential(IPs.data.user.result.IPs as Array<string>, async ip => {
       let tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      const ban: Partial<DbBan> = {
+      const ban = {
         expirationDate: tomorrow,
         userId: user._id,
         reason: "User account banned",
         comment: "Automatic IP ban",
         ip: ip,
       }
-      await createMutator({
-        collection: Bans,
-        document: ban,
-        currentUser: user,
-        validate: false,
-      })
+      const userContext = await computeContextFromUser({ user, isSSR: false });
+      await createBan({ data: ban }, userContext);
     })
   }
 
@@ -92,13 +65,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, co
   for (let tag of tags) {
     if (!tag.deleted) {
       try {
-        await updateMutator({
-          collection: Tags,
-          documentId: tag._id,
-          set: {deleted: true},
-          currentUser: deletingUser,
-          validate: false
-        })
+        await updateTag({ data: {deleted: true}, selector: { _id: tag._id } }, context)
       } catch(err) {
         // eslint-disable-next-line no-console
         console.error("Failed to delete tag")
@@ -138,38 +105,20 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);
   for (let post of posts) {
-    await updateMutator({
-      collection: Posts,
-      documentId: post._id,
-      set: {status: postStatuses.STATUS_DELETED},
-      unset: {},
-      currentUser: deletingUser,
-      validate: false,
-    })
+    await updatePost({ data: {status: postStatuses.STATUS_DELETED}, selector: { _id: post._id } }, context)
 
     const notifications = await Notifications.find({documentId: post._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for post ${post._id}: `, notifications);
     for (let notification of notifications) {
-      await deleteMutator({
-        collection: Notifications,
-        documentId: notification._id,
-        validate: false,
-      })
+      await updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context);
     }
 
     const reports = await Reports.find({postId: post._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for post ${post._id}: `, reports);
     for (let report of reports) {
-      await updateMutator({
-        collection: Reports,
-        documentId: report._id,
-        set: {closedAt: new Date()},
-        unset: {},
-        currentUser: deletingUser,
-        validate: false,
-      })
+      await updateReport({ data: {closedAt: new Date()}, selector: { _id: report._id } }, context)
     }
     
     await postReportPurgeAsSpam(post, context);
@@ -181,14 +130,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
   for (let comment of comments) {
     if (!comment.deleted) {
       try {
-        await updateMutator({
-          collection: Comments,
-          documentId: comment._id,
-          set: {deleted: true, deletedDate: new Date()},
-          unset: {},
-          currentUser: deletingUser,
-          validate: false,
-        })
+        await updateComment({ data: {deleted: true, deletedDate: new Date()}, selector: { _id: comment._id } }, context)
       } catch(err) {
         //eslint-disable-next-line no-console
         console.error("Failed to delete comment")
@@ -201,25 +143,14 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
     //eslint-disable-next-line no-console
     console.info(`Deleting notifications for comment ${comment._id}: `, notifications);
     for (let notification of notifications) {
-      await deleteMutator({ // TODO: This should be a soft-delete not a hard-delete
-        collection: Notifications,
-        documentId: notification._id,
-        validate: false,
-      })
+      await updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context);
     }
 
     const reports = await Reports.find({commentId: comment._id}).fetch();
     //eslint-disable-next-line no-console
     console.info(`Deleting reports for comment ${comment._id}: `, reports);
     for (let report of reports) {
-      await updateMutator({
-        collection: Reports,
-        documentId: report._id,
-        set: {closedAt: new Date()},
-        unset: {},
-        currentUser: deletingUser,
-        validate: false,
-      })
+      await updateReport({ data: {closedAt: new Date()}, selector: { _id: report._id } }, context)
     }
 
     await commentReportPurgeAsSpam(comment, context);
@@ -229,14 +160,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
   //eslint-disable-next-line no-console
   console.info("Deleting sequences: ", sequences);
   for (let sequence of sequences) {
-    await updateMutator({
-      collection: Sequences,
-      documentId: sequence._id,
-      set: {isDeleted: true},
-      unset: {},
-      currentUser: deletingUser,
-      validate: false,
-    })
+    await updateSequence({ data: {isDeleted: true}, selector: { _id: sequence._id } }, context)
   }
   
   if (deleteTags) {

@@ -1,9 +1,10 @@
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import ElicitQuestions from '../../server/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../server/collections/elicitQuestionPredictions/collection';
-import { createMutator } from '../vulcan-lib/mutators';
 import { randomId } from '@/lib/random';
 import gql from 'graphql-tag';
+import { createElicitQuestionPrediction } from '../collections/elicitQuestionPredictions/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
 export const elicitPredictionsGraphQLTypeDefs = gql`
   type ElicitUser {
@@ -96,9 +97,9 @@ export const elicitPredictionsGraphQLFieldResolvers = {
 export const elicitPredictionsGraphQLMutations = {
   async MakeElicitPrediction(root: void, { questionId, prediction }: { questionId: string, prediction: number }, { currentUser }: ResolverContext) {
     if (!currentUser) throw Error("Can only make elicit prediction when logged in")
-    const predictionObj = (await createMutator({
-      collection: ElicitQuestionPredictions,
-      document: {
+    const userContext = await computeContextFromUser({ user: currentUser, isSSR: false });
+    const predictionObj = (await createElicitQuestionPrediction({
+      data: {
         prediction,
         binaryQuestionId: questionId,
         notes: "",
@@ -112,9 +113,7 @@ export const elicitPredictionsGraphQLMutations = {
         sourceUrl: "",
         sourceId: "",
       },
-      currentUser,
-      validate: false,
-    })).data;
+    }, userContext));
 
     // Delete any predictions by this user other than this one
     await ElicitQuestionPredictions.rawUpdateMany({

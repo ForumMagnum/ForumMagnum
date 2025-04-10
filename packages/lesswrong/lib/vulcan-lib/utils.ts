@@ -19,11 +19,15 @@ export const dashToCamel = function (str: string): string {
 };
 
 // Convert a string to camelCase and remove spaces.
-export const camelCaseify = function(str: string): string {
-  str = dashToCamel(str.replace(' ', '-'));
-  str = str.slice(0,1).toLowerCase() + str.slice(1);
-  return str;
+export const camelCaseify = function<T extends string>(str: T): CamelCaseify<T> {
+  const camelCaseStr = dashToCamel(str.replace(' ', '-'));
+  const lowerCamelCaseStr = camelCaseStr.slice(0,1).toLowerCase() + camelCaseStr.slice(1);
+  return lowerCamelCaseStr as CamelCaseify<T>;
 };
+
+export type CamelCaseify<T extends string> = T extends `${infer Prefix}-${infer Rest}`
+  ? `${Uncapitalize<Prefix>}${Capitalize<CamelCaseify<Rest>>}`
+  : Uncapitalize<T>;
 
 // Capitalize a string.
 export const capitalize = function(str: string): string {
@@ -220,6 +224,18 @@ export const removeProperty = (obj: any, propertyName: string): void => {
   }
 };
 
+export type UpdateSelector = {
+  _id: string;
+  documentId: null;
+} | {
+  _id: null;
+  documentId: string;
+};
+
+function isDocumentIdSelector(selector: UpdateSelector): selector is { _id: null; documentId: string } {
+  return !selector._id;
+}
+
 /**
  * Given a mongodb-style selector, if it contains `documentId`, replace that
  * with `_id`. This is a silly thing to do and a terrible hack; it's
@@ -236,12 +252,12 @@ export const removeProperty = (obj: any, propertyName: string): void => {
  * and the console-log warning from this function isn't appearing in logs, then
  * this function is a no-op and is safe to remove.
  */
-export const convertDocumentIdToIdInSelector = (selector: any) => {
-  if (selector.documentId) {
+export const convertDocumentIdToIdInSelector = (selector: UpdateSelector): { _id: string } => {
+  if (isDocumentIdSelector(selector)) {
     //eslint-disable-next-line no-console
     console.log("Warning: Performed documentId-to-_id replacement");
-    const result = {...selector, _id: selector.documentId};
-    delete result.documentId;
+    const { documentId, ...rest } = selector;
+    const result = { ...rest, _id: documentId };
     return result;
   }
   return selector;

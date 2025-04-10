@@ -87,6 +87,6 @@ const schema = {
       control: "datetime",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"FeaturedResources">>;
+} satisfies Record<string, CollectionFieldSpecification<"FeaturedResources">>;
 
 export default schema;

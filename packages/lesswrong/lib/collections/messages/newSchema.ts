@@ -118,6 +118,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Messages">>;
+} satisfies Record<string, CollectionFieldSpecification<"Messages">>;
 
 export default schema;

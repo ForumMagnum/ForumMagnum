@@ -1,5 +1,3 @@
-import { resolverOnlyField } from "@/lib/utils/schemaUtils";
-
 export function getSummariesFieldResolver<N extends CollectionNameString>(collectionName: N) {
   return async function summariesFieldResolver(doc: ObjectsByCollectionName[N], _args: void, context: ResolverContext) {
     const { MultiDocuments, Revisions } = context;
@@ -33,23 +31,5 @@ export function getSummariesFieldSqlResolver<N extends CollectionNameString>(col
       AND md."fieldName" = 'summary'
       LIMIT 1
     )`;
-  }
-}
-
-export function summariesField<T extends CollectionNameString>(collectionName: T, fieldOptions: CollectionFieldSpecification<T> = {}) {
-  return {
-    summaries: resolverOnlyField({
-      ...fieldOptions,
-      type: Array,
-      graphQLtype: '[MultiDocument!]!',
-      canRead: ['guests'],
-      control: "SummariesEditForm",
-      resolver: getSummariesFieldResolver(collectionName),
-      sqlResolver: getSummariesFieldSqlResolver(collectionName),
-    }),
-    'summaries.$': {
-      type: Object,
-      optional: true,
-    },
   }
 }

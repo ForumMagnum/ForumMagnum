@@ -9,7 +9,6 @@ import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../lib/instanceSettings';
 import * as _ from 'underscore';
 import fs from 'fs';
-import { printInProgressCallbacks } from './utils/callbackHooks';
 import type { AddMiddlewareType } from './apolloServer';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
@@ -162,5 +161,4 @@ function printInFlightGraphqlQueries() {
 export function logInFlightStuff() {
   printInFlightRequests();
   printInFlightGraphqlQueries();
-  printInProgressCallbacks();
 }

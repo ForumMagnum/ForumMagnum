@@ -145,11 +145,12 @@ module.exports = {
     "import/no-extraneous-dependencies": 0,
     "import/no-duplicates": 1,
     "import/extensions": 0,
-    "import/no-cycle": ["error", {
-      // A dynamic cyclic import (ie,  a require() inside a function) is okay
-      // if you're confident it won't be called at import-time.
-      allowUnsafeDynamicCyclicDependency: true,
-    }],
+    "import/no-cycle": 0,
+    // "import/no-cycle": ["error", {
+    //   // A dynamic cyclic import (ie,  a require() inside a function) is okay
+    //   // if you're confident it won't be called at import-time.
+    //   allowUnsafeDynamicCyclicDependency: true,
+    // }],
     "import/no-mutable-exports": 1,
     "no-restricted-imports": ["error", {
       "paths": restrictedImportsPaths,

@@ -2,14 +2,16 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { getDomain, getOutgoingUrl } from "../../vulcan-lib/utils";
 import moment from "moment";
 import {
-  schemaDefaultValue, googleLocationToMongoLocation, accessFilterMultiple,
+  googleLocationToMongoLocation, accessFilterMultiple,
   accessFilterSingle, arrayOfForeignKeysOnCreate,
   generateIdResolverMulti,
   generateIdResolverSingle,
   getDenormalizedCountOfReferencesGetValue,
   getDenormalizedFieldOnCreate,
   getDenormalizedFieldOnUpdate,
-  getForeignKeySqlResolver
+  getForeignKeySqlResolver,
+  getFillIfMissing,
+  throwIfSetToNull
 } from "../../utils/schemaUtils";
 import {
   postCanEditHideCommentKarma,
@@ -27,7 +29,7 @@ import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import { formGroups } from "./formGroups";
 import SimpleSchema from "simpl-schema";
-import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/schema";
+import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/newSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { getVotingSystems } from '../../voting/getVotingSystem';
 import {
@@ -227,19 +229,8 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
       userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 };
 
-const schemaDefaultValueFmCrosspost = schemaDefaultValue<"Posts">({
-  isCrosspost: false,
-});
-
-const userHasModerationGuidelines = (currentUser: DbUser | null): boolean => {
-  if (!hasAuthorModeration) {
-    return false;
-  }
-  return !!(
-    currentUser &&
-    ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle)
-  );
-};
+const fmCrosspostOnCreate = getFillIfMissing({ isCrosspost: false });
+const fmCrosspostOnUpdate = throwIfSetToNull;
 
 function shouldHideEndTime(props: SmartFormProps<"Posts">): boolean {
   return !props.eventForm || props.document?.eventType === "course";
@@ -257,7 +248,7 @@ function isNotEventForm(props: SmartFormProps<"Posts">) {
   return !props.eventForm;
 }
 
-function postHasStartTimeOrGoogleLocation(data: Partial<DbPost>) {
+function postHasStartTimeOrGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
   return "startTime" in data || "googleLocation" in data;
 }
 
@@ -268,7 +259,7 @@ async function getUpdatedLocalStartTime(post: DbPost, context: ResolverContext) 
   return await getLocalTime(post.startTime, googleLocation);
 }
 
-function postHasEndTimeOrGoogleLocation(data: Partial<DbPost>) {
+function postHasEndTimeOrGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
   return "endTime" in data || "googleLocation" in data;
 }
 
@@ -279,7 +270,7 @@ async function getUpdatedLocalEndTime(post: DbPost, context: ResolverContext) {
   return await getLocalTime(post.endTime, googleLocation);
 }
 
-function postHasGoogleLocation(data: Partial<DbPost>) {
+function postHasGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
   return "googleLocation" in data;
 }
 
@@ -457,9 +448,12 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
+      canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Posts"],
-        getTitle: (post) => post.title,
+        // The cast is somewhat unfortunately but posts can't be missing titles
+        getTitle: (post) => post.title!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
       },
@@ -467,6 +461,9 @@ const schema = {
         optional: true,
       },
     },
+    form: {
+      group: () => formGroups.adminOptions,
+    }
   },
   postedAt: {
     database: {
@@ -637,8 +634,8 @@ const schema = {
       outputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members"],
-      onUpdate: ({ data, document, oldDocument, currentUser }) => {
-        if (!currentUser?.isAdmin && oldDocument.deletedDraft && !document.deletedDraft) {
+      onUpdate: ({ data, newDocument, oldDocument, currentUser }) => {
+        if (!currentUser?.isAdmin && oldDocument.deletedDraft && !newDocument.deletedDraft) {
           throw new Error("You cannot un-delete posts");
         }
         return data.deletedDraft;
@@ -667,7 +664,7 @@ const schema = {
           return postGetDefaultStatus(currentUser!);
         }
       },
-      onUpdate: ({ modifier, document, currentUser }) => {
+      onUpdate: ({ modifier, currentUser }) => {
         // if for some reason post status has been removed, give it default status
         if (modifier.$unset && modifier.$unset.status) {
           return postGetDefaultStatus(currentUser!);
@@ -829,7 +826,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: [documentIsNotDeleted],
-      onUpdate: async ({ modifier, document, currentUser, context }) => {
+      onUpdate: async ({ modifier, context }) => {
         // if userId is changing, change the author name too
         if (modifier.$set && modifier.$set.userId) {
           return await userGetDisplayNameById(modifier.$set.userId, context);
@@ -1084,10 +1081,10 @@ const schema = {
         if ("submitToFrontpage" in newDocument) return newDocument.submitToFrontpage;
         return true;
       },
-      onUpdate: ({ data, document }) => {
-        const updatedDocIsEvent = "isEvent" in document ? document.isEvent : false;
+      onUpdate: ({ newDocument }) => {
+        const updatedDocIsEvent = "isEvent" in newDocument ? newDocument.isEvent : false;
         if (updatedDocIsEvent) return false;
-        return "submitToFrontpage" in document ? document.submitToFrontpage : true;
+        return "submitToFrontpage" in newDocument ? newDocument.submitToFrontpage : true;
       },
       validation: {
         optional: true,
@@ -2120,7 +2117,7 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: ({ document }) => document.votingSystem ?? getDefaultVotingSystem(),
+      onCreate: ({ document }) => ('votingSystem' in document && document.votingSystem) ?? getDefaultVotingSystem(),
       validation: {
         optional: true,
       },
@@ -2470,9 +2467,9 @@ const schema = {
       canCreate: ["members"],
       ...(!requireReviewToFrontpagePostsSetting.get() && {
         onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) => eaFrontpageDateDefault(
-          isEvent,
-          submitToFrontpage,
-          draft,
+          isEvent ?? undefined,
+          submitToFrontpage ?? undefined,
+          draft ?? undefined,
         ),
         onUpdate: ({ data, oldDocument }) => {
           if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
@@ -2687,7 +2684,7 @@ const schema = {
         if (document.fmCrosspost?.foreignPostId && !context.isFMCrosspostRequest) {
           throw new Error("Cannot set the foreign post ID of a crosspost");
         }
-        return schemaDefaultValueFmCrosspost.onCreate?.(args);
+        return fmCrosspostOnCreate<'Posts'>(args);
       },
       onUpdate: (args) => {
         const { data, oldDocument } = args;
@@ -2697,7 +2694,7 @@ const schema = {
         ) {
           throw new Error("Cannot change the foreign post ID of a crosspost");
         }
-        return schemaDefaultValueFmCrosspost.onUpdate?.(args);
+        return fmCrosspostOnUpdate<'Posts'>(args);
       },
       validation: {
         simpleSchema: crosspostSchema,
@@ -3170,7 +3167,8 @@ const schema = {
     graphql: {
       outputType: "Float",
       canRead: ["guests"],
-      onCreate: ({ document }) => document.baseScore ?? 0,
+      // This needs to be a `||` rather than `??` because otherwise it coalesces to `false`, which isn't a number and causes a db error.
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore) || 0,
       validation: {
         optional: true,
       },
@@ -3185,7 +3183,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 2 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 2 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3199,7 +3197,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 30 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 30 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3213,7 +3211,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 45 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 45 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3227,7 +3225,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 75 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 75 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3241,7 +3239,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 125 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 125 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -3255,7 +3253,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onCreate: ({ document }) => (document.baseScore >= 200 ? new Date() : null),
+      onCreate: ({ document }) => ('baseScore' in document && document.baseScore && (document.baseScore as number) >= 200 ? new Date() : null),
       validation: {
         optional: true,
       },
@@ -4484,8 +4482,6 @@ const schema = {
     graphql: {
       outputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: ["debaters", "sunshineRegiment", "admins"],
       validation: {
         optional: true,
       },
@@ -4633,7 +4629,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-      onUpdate: ({ modifier, document, currentUser }) => {
+      onUpdate: ({ modifier, currentUser }) => {
         if (modifier.$set?.rejected && currentUser) {
           return modifier.$set.rejectedByUserId || currentUser._id;
         }
@@ -5025,6 +5021,6 @@ const schema = {
   afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
   afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
-} satisfies Record<string, NewCollectionFieldSpecification<"Posts">>;
+} satisfies Record<string, CollectionFieldSpecification<"Posts">>;
 
 export default schema;

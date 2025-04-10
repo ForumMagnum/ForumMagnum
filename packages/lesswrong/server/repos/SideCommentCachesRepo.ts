@@ -1,7 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import SideCommentCaches from "../../server/collections/sideCommentCaches/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { sideCommentCacheVersion } from "../../lib/collections/posts/schema";
+import { sideCommentCacheVersion } from "../../lib/collections/posts/newSchema";
 import { randomId } from "../../lib/random";
 
 class SideCommentCachesRepo extends AbstractRepo<"SideCommentCaches"> {

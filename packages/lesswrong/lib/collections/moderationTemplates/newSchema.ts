@@ -128,6 +128,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ModerationTemplates">>;
+} satisfies Record<string, CollectionFieldSpecification<"ModerationTemplates">>;
 
 export default schema;

@@ -188,7 +188,7 @@ describe('moderator-applied user comment rate limit', () => {
       actionsPerInterval: 1,
       endedAt: moment().add(1, 'day').toDate(),
       schemaVersion: 1,
-    })
+    } as unknown as CreateUserRateLimitDataInput)
 
     function createCommentQuery(postId: string) {
       return `

@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { CAREER_STAGES } from "../../../lib/collections/users/schema";
+import { CAREER_STAGES } from "../../../lib/collections/users/newSchema";
 import { SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "../../../lib/collections/users/helpers";
 import { communityPath } from "../../../lib/routes";
 

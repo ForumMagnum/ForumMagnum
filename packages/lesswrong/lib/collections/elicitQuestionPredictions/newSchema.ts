@@ -64,7 +64,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-      onCreate: ({ document: prediction }) => prediction.createdAt ?? new Date(),
+      onCreate: () => new Date(),
     },
   },
   notes: {
@@ -187,6 +187,6 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ElicitQuestionPredictions">>;
+} satisfies Record<string, CollectionFieldSpecification<"ElicitQuestionPredictions">>;
 
 export default schema;

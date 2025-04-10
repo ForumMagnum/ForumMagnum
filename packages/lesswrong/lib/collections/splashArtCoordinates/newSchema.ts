@@ -229,6 +229,6 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"SplashArtCoordinates">>;
+} satisfies Record<string, CollectionFieldSpecification<"SplashArtCoordinates">>;
 
 export default schema;

@@ -120,6 +120,6 @@ const schema = {
       }
     }
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PageCache">>;
+} satisfies Record<string, CollectionFieldSpecification<"PageCache">>;
 
 export default schema;

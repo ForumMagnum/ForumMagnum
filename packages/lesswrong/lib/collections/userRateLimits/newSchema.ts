@@ -132,6 +132,6 @@ const schema = {
       control: "datetime",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"UserRateLimits">>;
+} satisfies Record<string, CollectionFieldSpecification<"UserRateLimits">>;
 
 export default schema;

@@ -2,14 +2,13 @@ const { extract } = require('@extractus/article-extractor')
 import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
 
-import Posts from '../../server/collections/posts/collection'
 import { fetchFragmentSingle } from '../fetchFragment'
 import Users from '@/server/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
 import { eligibleToNominate } from '@/lib/reviewUtils';
-import { createMutator } from "../vulcan-lib/mutators";
 import { sanitize } from "../../lib/vulcan-lib/utils";
 import gql from 'graphql-tag';
+import { createPost } from "../collections/posts/mutations";
 
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
@@ -76,43 +75,39 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
     }
   }
 
-  const { data } = await createMutator({
-    collection: Posts,
-    document: {
+  const post = await createPost({
+    data: {
       userId: reviewUser._id,
       title: extractedData.title,
       url: url,
       contents: {originalContents: {data: sanitize(extractedData.content ?? ''), type: 'ckEditorMarkup'}},
       postedAt: extractedData.published ? new Date(extractedData.published) : undefined,
-      modifiedAt: new Date(),
       coauthorStatuses: [{userId: context.currentUser._id, confirmed: true, requested: true}],
       hasCoauthorPermission: true,
       draft: true,
-    } as Partial<DbPost>,
-    currentUser: context.currentUser,
-    validate: false,
-  })
+    }
+  }, context);
 
-  if (!data) {
+  if (!post) {
     throw new Error('Failed to create post');
   }
 
-  const latestRevision = await getLatestContentsRevision(data, context);
+  const latestRevision = await getLatestContentsRevision(post, context);
 
   return {
     alreadyExists: false,
     post: {
-      _id: data._id,
-      slug: data.slug ?? null,
-      title: data.title ?? null,
-      url: data.url ?? null,
-      postedAt: data.postedAt ?? null,
-      createdAt: data.createdAt ?? null,
-      userId: data.userId ?? null,
-      modifiedAt: data.modifiedAt ?? null,
-      draft: data.draft ?? false,
+      _id: post._id,
+      slug: post.slug ?? null,
+      title: post.title ?? null,
+      url: post.url ?? null,
+      postedAt: post.postedAt ?? null,
+      createdAt: post.createdAt ?? null,
+      userId: post.userId ?? null,
+      modifiedAt: post.modifiedAt ?? null,
+      draft: post.draft ?? false,
       content: latestRevision?.html ?? '',
-      coauthorStatuses: data.coauthorStatuses ?? null,
+      coauthorStatuses: post.coauthorStatuses ?? null,
     }
   }
 }

@@ -92,10 +92,10 @@ export type FragmentsFromSource = Record<string, FragmentFromSource>
 // Memoize so we don't search the source tree multiple times
 let allFragmentsInSource: FragmentsFromSource|null = null;
 
-export function findFragmentsInSource(): FragmentsFromSource {
+export function findFragmentsInSource(collectionNameToTypeName: Record<string, string>): FragmentsFromSource {
   if (allFragmentsInSource) return allFragmentsInSource;
   const foundFragmentStrings = findFragmentsIn("packages/lesswrong", "frag");
-  const defaultFragmentStrings = generateDefaultFragments();
+  const defaultFragmentStrings = generateDefaultFragments(collectionNameToTypeName);
   const fragmentStrings = [
     ...foundFragmentStrings,
     ...defaultFragmentStrings,

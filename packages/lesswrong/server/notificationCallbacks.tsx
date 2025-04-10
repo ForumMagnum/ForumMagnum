@@ -1,16 +1,10 @@
 import Notifications from '../server/collections/notifications/collection';
 import Users from '../server/collections/users/collection';
-import { Posts } from '../server/collections/posts/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import * as _ from 'underscore';
-import { getCollectionHooks } from './mutationCallbacks';
-
 import type { RSVPType } from '../lib/collections/posts/newSchema';
 import { createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
-import difference from 'lodash/difference';
-import Messages from '../server/collections/messages/collection';
-import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 
 
@@ -122,7 +116,7 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
 }
 
 
-export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{rsvp: RSVPType, userId: string|null, email: string|undefined}[]> {
+export async function getUsersToNotifyAboutEvent(post: DbPost | DbInsertion<DbPost>): Promise<{rsvp: RSVPType, userId: string|null, email: string|undefined}[]> {
   if (!post.rsvps || !post.rsvps.length) {
     return [];
   }
@@ -136,37 +130,6 @@ export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{rsvp: R
     }))
   );
 }
-
-// This may have been sending out duplicate notifications in previous years, maybe just be because this was implemented partway into the review, and some posts slipped through that hadn't previously gotten voted on.
-getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
-  const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
-  if (post && post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD) {
-    const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
-    if (!notifications.length) {
-      await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
-    }
-  }
-})
-
-getCollectionHooks("Conversations").editAsync.add(async function conversationEditNotification(
-  conversation: DbConversation,
-  oldConversation: DbConversation,
-  currentUser: DbUser | null,
-) {
-  // Filter out the new participant if the user added themselves (which can
-  // happen with mods)
-  const newParticipantIds = difference(
-    conversation.participantIds || [],
-    oldConversation.participantIds || [],
-  ).filter((id) => id !== currentUser?._id);
-
-  if (newParticipantIds.length) {
-    // Notify newly added users of the most recent message
-    const mostRecentMessage = await Messages.findOne({conversationId: conversation._id}, {sort: {createdAt: -1}});
-    if (mostRecentMessage) // don't notify if there are no messages, they will still be notified when they receive the first message
-      await createNotifications({userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
-  }
-});
 
 export async function bellNotifyEmailVerificationRequired (user: DbUser) {
   await createNotifications({userIds: [user._id], notificationType: 'emailVerificationRequired', documentType: null, documentId: null});

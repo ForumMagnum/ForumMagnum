@@ -3,7 +3,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { gql } from '@apollo/client';
 import { capitalize } from '../../lib/vulcan-lib/utils';
 import { useCreate } from '../../lib/crud/withCreate';
-import { useSingle, DocumentIdOrSlug } from '../../lib/crud/withSingle';
+import { useSingle, SelectorInput } from '../../lib/crud/withSingle';
 import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
@@ -51,7 +51,7 @@ function generateMutationFragment(mutationFragmentName: string, collectionTypeNa
  * Get fragment used to decide what data to load from the server to populate the form,
  * as well as what data to ask for as return value for the mutation
  */
-const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", props: WrappedSmartFormProps<N> & { schema: NewSimpleSchemaType<N> }) => {
+const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", props: WrappedSmartFormProps<N> & { schema: SimpleSchemaType<N> }) => {
   const { collectionName, schema } = props;
   const collectionTypeName = collectionNameToTypeName[collectionName];
   const fragmentName = `${props.collectionName}${capitalize(formType)}FormFragment`;
@@ -122,7 +122,7 @@ const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}
   const newProps = { ...props, location, history };
   
   // if a document is being passed, this is an edit form
-  const formType = (props.documentId || props.slug) ? 'edit' : 'new';
+  const formType = props.documentId ? 'edit' : 'new';
 
   if (formType === "edit") {
     return <FormWrapperEdit {...newProps} showRemove={showRemove} schema={schema}/>
@@ -135,7 +135,7 @@ const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}
  * Wrapper around a 'new' form, which adds createMutation. Should be used only
  * via FormWrapper.
  */
-const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormProps<N> & { schema: NewSimpleSchemaType<N> }) => {
+const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormProps<N> & { schema: SimpleSchemaType<N> }) => {
   const currentUser = useCurrentUser();
   const { collectionName } = props;
   const typeName = collectionNameToTypeName[collectionName];
@@ -159,7 +159,7 @@ const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormP
  * Wrapper around an 'edit' form, which adds updateMutation. Should be used only
  * via FormWrapper.
  */
-const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartFormProps<N> & { schema: NewSimpleSchemaType<N> }) => {
+const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartFormProps<N> & { schema: SimpleSchemaType<N> }) => {
   const currentUser = useCurrentUser();
   const { collectionName } = props;
   const typeName = collectionNameToTypeName[collectionName];
@@ -169,9 +169,8 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
   // if we're not e.g. being redirected after an autosave, we always want to load a fresh copy of the document
   const fetchPolicy = editFormFetchPolicy ?? 'network-only';
   
-  const selector: DocumentIdOrSlug = props.documentId
-    ? {documentId: props.documentId}
-    : {slug: props.slug}
+  const selector = { documentId: props.documentId };
+
   const { document, loading } = useSingle<AnyBecauseHard>({
     ...selector,
     collectionName,

@@ -4,7 +4,6 @@ import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import Tags from "../../server/collections/tags/collection";
 import Users from "../../server/collections/users/collection";
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { createMutator } from "../vulcan-lib/mutators";
 
 // Exported to allow running manually with "yarn repl"
 export async function bestOfLessWrongTagUpdate () {

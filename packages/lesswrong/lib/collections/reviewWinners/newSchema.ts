@@ -148,6 +148,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ReviewWinners">>;
+} satisfies Record<string, CollectionFieldSpecification<"ReviewWinners">>;
 
 export default schema;

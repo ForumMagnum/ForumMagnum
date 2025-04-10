@@ -1,5 +1,5 @@
 import type { TagCommentType } from "../../../lib/collections/comments/types";
-import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
+import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import gql from 'graphql-tag';
 // When adding fields here, you almost certainly want to update the
 // `UserKarmaChanges` fragment too

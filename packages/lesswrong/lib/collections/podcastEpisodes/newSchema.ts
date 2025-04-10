@@ -64,6 +64,6 @@ const schema = {
       canCreate: ["podcasters", "admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PodcastEpisodes">>;
+} satisfies Record<string, CollectionFieldSpecification<"PodcastEpisodes">>;
 
 export default schema;

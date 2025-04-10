@@ -73,6 +73,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ElicitQuestions">>;
+} satisfies Record<string, CollectionFieldSpecification<"ElicitQuestions">>;
 
 export default schema;

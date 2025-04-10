@@ -139,6 +139,6 @@ const schema = {
   afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
   afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
-} satisfies Record<string, NewCollectionFieldSpecification<"TagRels">>;
+} satisfies Record<string, CollectionFieldSpecification<"TagRels">>;
 
 export default schema;

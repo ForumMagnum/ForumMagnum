@@ -84,6 +84,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"AdvisorRequests">>;
+} satisfies Record<string, CollectionFieldSpecification<"AdvisorRequests">>;
 
 export default schema;

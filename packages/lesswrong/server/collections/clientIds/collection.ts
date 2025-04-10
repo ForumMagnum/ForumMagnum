@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const ClientIds: ClientIdsCollection = createCollection({
@@ -11,7 +10,6 @@ export const ClientIds: ClientIdsCollection = createCollection({
     indexSet.addIndex('ClientIds', { userIds: 1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('ClientIds'),
 });
 
 

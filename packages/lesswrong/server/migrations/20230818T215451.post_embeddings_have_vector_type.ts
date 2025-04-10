@@ -1,4 +1,4 @@
-import { EMBEDDINGS_VECTOR_SIZE } from "../../lib/collections/postEmbeddings/schema";
+import { EMBEDDINGS_VECTOR_SIZE } from "../../lib/collections/postEmbeddings/newSchema";
 
 export const acceptsSchemaHash = "87520014b627c9ee151523bd05e7bdae";
 

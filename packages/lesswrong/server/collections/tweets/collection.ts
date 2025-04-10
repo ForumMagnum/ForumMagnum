@@ -14,7 +14,6 @@ export const Tweets: TweetsCollection = createCollection({
     indexSet.addIndex('Tweets', {tweetId: 1});
     return indexSet;
   },
-  logChanges: true,
 });
 
 

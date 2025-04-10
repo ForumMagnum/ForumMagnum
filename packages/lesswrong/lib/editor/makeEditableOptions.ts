@@ -21,11 +21,6 @@ export interface EditableFieldClientOptions {
   revisionsHaveCommitMessages?: boolean,
 }
 
-export interface EditableFieldOptions {
-  callbackOptions: EditableFieldCallbackOptions;
-  clientOptions: EditableFieldClientOptions;
-}
-
 export type MakeEditableOptions<N extends CollectionNameString> = {
   commentEditor?: boolean,
   commentStyles?: boolean,

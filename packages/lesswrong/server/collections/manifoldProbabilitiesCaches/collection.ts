@@ -9,7 +9,6 @@ export const ManifoldProbabilitiesCaches = createCollection({
     indexSet.addIndex('ManifoldProbabilitiesCaches', {marketId: 1}, {unique: true});
     return indexSet;
   },
-  logChanges: false,
   writeAheadLogged: false,
 });
 

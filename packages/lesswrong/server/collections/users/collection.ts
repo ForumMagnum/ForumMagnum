@@ -1,32 +1,9 @@
-import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import gql from 'graphql-tag';
 
 export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-    resolvers: getDefaultResolvers('Users'),
-  mutations: getDefaultMutations('Users', {
-    editCheck: (user: DbUser|null, document: DbUser) => {
-      if (!user || !document)
-        return false;
-  
-      if (userCanDo(user, 'alignment.sidebar'))
-        return true
-  
-      // OpenCRUD backwards compatibility
-      return userOwns(user, document)
-        ? userCanDo(user, ['user.update.own', 'users.edit.own'])
-        : userCanDo(user, ['user.update.all', 'users.edit.all']);
-    },
-    // Anyone can create users
-    newCheck: () => true,
-    // Nobody can delete users
-    removeCheck: () => false
-  }),
-  logChanges: true,
   dependencies: [
     {type: "extension", name: "pg_trgm"},
   ],

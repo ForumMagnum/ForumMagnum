@@ -15,8 +15,6 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 export const Migrations: MigrationsCollection = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
-    //resolvers: getDefaultResolvers("Migrations"),
-  //mutations: getDefaultMutations("Migrations"),
 });
 
 export default Migrations;

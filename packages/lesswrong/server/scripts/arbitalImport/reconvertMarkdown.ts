@@ -13,7 +13,7 @@ import { getLatestRev } from "@/server/editor/utils";
 import pick from "lodash/pick";
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
-import { buildRevision } from "@/server/editor/make_editable_callbacks";
+import { buildRevision } from "@/server/editor/conversionUtils";
 import { Users } from "@/server/collections/users/collection";
 import { getCollection } from "@/server/collections/allCollections";
 import { getEditableFieldInCollection } from "@/lib/editor/make_editable";

@@ -1,6 +1,6 @@
 import { registerMigration } from "./migrationUtils";
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { updateMutator } from "../vulcan-lib/mutators";
+import { updatePost } from "../collections/posts/mutations";
 
 export default registerMigration({
   name: "updateReviewWinnerSocialPreviewImages",
@@ -17,19 +17,15 @@ export default registerMigration({
       const postId = reviewWinnerPostIds[parseInt(idx)];
       const imageId = art.splashArtImageUrl.split('f_auto,q_auto/')[1];
 
-      await updateMutator({
-        collection: Posts,
-        context: adminContext,
-        currentUser: adminContext.currentUser,
-        documentId: postId,
-        set: {
+      await updatePost({
+        data: {
           socialPreview: {
             imageId,
             // We want to keep the default preview text, which is a snippet of the first paragraph of the post.
             text: '',
           }
-        }
-      });
+        }, selector: { _id: postId }
+      }, adminContext);
     }
   }
 });

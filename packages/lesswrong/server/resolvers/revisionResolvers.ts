@@ -1,14 +1,14 @@
-import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
+import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { afterCreateRevisionCallback, buildRevision } from '../editor/make_editable_callbacks';
 import isEqual from 'lodash/isEqual';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import gql from 'graphql-tag';
+import { createRevision } from '../collections/revisions/mutations';
+import { updateTag } from '../collections/tags/mutations';
 
 export const revisionResolversGraphQLTypeDefs = gql`
   input AutosaveContentType {
@@ -46,17 +46,13 @@ export const revisionResolversGraphQLMutations = {
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
     if (!anyDiff)           throw new Error(`Can't find difference between revisions`);
 
-    await updateMutator({
-      collection: Tags,
-      context,
-      documentId: tag._id,
+    await updateTag({
       data: {
         description: {
           originalContents: revertToRevision.originalContents,
         },
-      },
-      currentUser,
-    });
+      }, selector: { _id: tag._id }
+    }, context);
   },
   autosaveRevision: async (root: void, { postId, contents }: { postId: string, contents: EditorContents }, context: ResolverContext) => {
     const { currentUser, loaders, Revisions } = context;
@@ -103,16 +99,9 @@ export const revisionResolversGraphQLMutations = {
       commitMessage: 'Native editor autosave',
     };
 
-    const { data: createdRevision } = await createMutator({
-      collection: Revisions,
-      document: newRevision,
-      context,
-      currentUser,
-      validate: false
-    });
-
-    // TODO: not sure if we need these?  The aren't called by `saveDocumentRevision` in `ckEditorWebhook.ts` after creating a new revision from ckeditor's cloud autosave
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: createdRevision._id, context }]);
+    const createdRevision = await createRevision({
+      data: newRevision
+    }, context);
 
     return createdRevision;
   }

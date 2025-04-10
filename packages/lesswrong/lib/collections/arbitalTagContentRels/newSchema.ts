@@ -117,6 +117,6 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ArbitalTagContentRels">>;
+} satisfies Record<string, CollectionFieldSpecification<"ArbitalTagContentRels">>;
 
 export default schema;

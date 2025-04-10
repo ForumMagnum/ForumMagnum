@@ -34,7 +34,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true,
 };
 
-function isCommentOnPost(data: Partial<DbComment>) {
+function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
 }
 
@@ -725,11 +725,11 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onUpdate: async ({ data, document, oldDocument }) => {
+      onUpdate: async ({ data, oldDocument, newDocument }) => {
         if (data?.promoted && !oldDocument.promoted) {
           return new Date();
         }
-        if (!document.promoted && oldDocument.promoted) {
+        if (!newDocument.promoted && oldDocument.promoted) {
           return null;
         }
       },
@@ -993,7 +993,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onUpdate: ({ modifier, document, currentUser }) => {
+      onUpdate: ({ modifier, currentUser }) => {
         if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
           return modifier.$set.deletedByUserId || currentUser._id;
         }
@@ -1350,7 +1350,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-      onUpdate: ({ modifier, document, currentUser }) => {
+      onUpdate: ({ modifier, currentUser }) => {
         if (modifier.$set?.rejected && currentUser) {
           return modifier.$set.rejectedByUserId || currentUser._id;
         }
@@ -1591,6 +1591,6 @@ const schema = {
     },
   },
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
-} satisfies Record<string, NewCollectionFieldSpecification<"Comments">>;
+} satisfies Record<string, CollectionFieldSpecification<"Comments">>;
 
 export default schema;

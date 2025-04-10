@@ -112,6 +112,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"DialogueChecks">>;
+} satisfies Record<string, CollectionFieldSpecification<"DialogueChecks">>;
 
 export default schema;

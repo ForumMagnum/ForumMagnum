@@ -1,4 +1,4 @@
-import { getDefaultVotingSystem } from "../../lib/collections/posts/schema";
+import { getDefaultVotingSystem } from "../../lib/collections/posts/newSchema";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 

@@ -56,12 +56,10 @@ type TReturn<FragmentTypeName extends keyof FragmentTypes> = (TSuccessReturn<Fra
 
 // You can pass either `documentId` or `slug`, but not both. The must pass one;
 // you pass undefined, in which case the query is skipped.
-export type DocumentIdOrSlug =
-   {documentId: string|undefined, slug?: never}
-  |{slug: string|undefined, documentId?: never};
+export type SelectorInput = { documentId: string | undefined };
 
 export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
-  DocumentIdOrSlug & {
+  SelectorInput & {
     collectionName: CollectionNameString,
     fragmentName?: FragmentTypeName,
     fragment?: any,
@@ -92,7 +90,7 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
  * of those arguments, and extraVariablesValues, which contains their values.
  */
 export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
-  documentId, slug,
+  documentId,
   collectionName,
   fragmentName, fragment,
   extraVariables,
@@ -108,12 +106,12 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   const typeName = collectionNameToTypeName[collectionName];
   const resolverName = getSingleResolverName(typeName)
   const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName, resolverName })
-  const skipQuery = skip || (!documentId && !slug);
+  const skipQuery = skip || !documentId;
   // TODO: Properly type this generic query
   const { data, error, loading, ...rest } = useQuery(query, {
     variables: {
       input: {
-        selector: { documentId, slug },
+        selector: { documentId },
         resolverArgs: extraVariablesValues,
         ...(allowNull && {allowNull: true})
       },

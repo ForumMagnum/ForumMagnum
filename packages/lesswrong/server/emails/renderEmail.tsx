@@ -10,19 +10,19 @@ import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
-import LWEvents from '../../server/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { createLWEvent } from '../collections/lwevents/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { createStylesContext } from '@/components/hooks/useStyles';
 import { generateEmailStylesheet } from '../styleGeneration';
@@ -316,10 +316,8 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
     user: user?._id,
   };
   // Log in LWEvents table
-  await createMutator({
-    collection: LWEvents,
-    currentUser: user,
-    document: {
+  await createLWEvent({
+    data: {
       userId: user?._id,
       name: "emailSent",
       properties: {
@@ -327,9 +325,8 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
         ...additionalFields,
       },
       intercom: false,
-    },
-    validate: false,
-  })
+    }
+  }, createAnonymousContext())
 }
 
 // Returns a string explanation of why we can't send emails to a given user, or

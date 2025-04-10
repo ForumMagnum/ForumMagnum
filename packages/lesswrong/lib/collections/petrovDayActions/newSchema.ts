@@ -77,6 +77,6 @@ const schema = {
       canCreate: ["members"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PetrovDayActions">>;
+} satisfies Record<string, CollectionFieldSpecification<"PetrovDayActions">>;
 
 export default schema;

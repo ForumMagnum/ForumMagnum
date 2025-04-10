@@ -8,17 +8,17 @@ import * as _ from 'underscore';
 
 /* getters */
 
-export const getReadableFields = <N extends CollectionNameString>(schema: NewSimpleSchemaType<N>) => {
+export const getReadableFields = <N extends CollectionNameString>(schema: SimpleSchemaType<N>) => {
   // OpenCRUD backwards compatibility
   return Object.keys(schema).filter(fieldName => schema._schema[fieldName]?.canRead);
 };
 
-export const getCreateableFields = <N extends CollectionNameString>(schema: NewSimpleSchemaType<N>) => {
+export const getCreateableFields = <N extends CollectionNameString>(schema: SimpleSchemaType<N>) => {
   // OpenCRUD backwards compatibility
   return Object.keys(schema).filter(fieldName => schema._schema[fieldName]?.canCreate);
 };
 
-export const getUpdateableFields = <N extends CollectionNameString>(schema: NewSimpleSchemaType<N>) => {
+export const getUpdateableFields = <N extends CollectionNameString>(schema: SimpleSchemaType<N>) => {
   // OpenCRUD backwards compatibility
   return Object.keys(schema).filter(fieldName => schema._schema[fieldName]?.canUpdate);
 };
@@ -78,7 +78,7 @@ export type ConvertedFormSchema = Record<
  * Convert a nested SimpleSchema schema into a JSON object
  * If flatten = true, will create a flat object instead of nested tree
  */
-export const convertSchema = <N extends CollectionNameString>(schema: NewSimpleSchemaType<N>, flatten = false) => {
+export const convertSchema = <N extends CollectionNameString>(schema: SimpleSchemaType<N>, flatten = false) => {
   if (schema._schema) {
     let jsonSchema: ConvertedFormSchema = {};
 
@@ -123,7 +123,7 @@ export const convertSchema = <N extends CollectionNameString>(schema: NewSimpleS
 Get a JSON object representing a field's schema
 
 */
-export const getFieldSchema = <N extends CollectionNameString>(fieldName: string, schema: NewSimpleSchemaType<N>) => {
+export const getFieldSchema = <N extends CollectionNameString>(fieldName: string, schema: SimpleSchemaType<N>) => {
   let fieldSchema: FormSchemaField = {};
   schemaProperties.forEach(property => {
     const propertyValue = schema.get(fieldName, property);
@@ -136,11 +136,11 @@ export const getFieldSchema = <N extends CollectionNameString>(fieldName: string
 
 // type is an array due to the possibility of using SimpleSchema.oneOf
 // right now we support only fields with one type
-export const getSchemaType = (schema: DerivedSimpleSchemaType<NewSchemaType<CollectionNameString>>[string]) => schema.type.definitions[0].type;
+export const getSchemaType = (schema: DerivedSimpleSchemaType<SchemaType<CollectionNameString>>[string]) => schema.type.definitions[0].type;
 
 const getArrayNestedSchema = <N extends CollectionNameString>(
   fieldName: string,
-  schema: NewSimpleSchemaType<N>,
+  schema: SimpleSchemaType<N>,
 ) => {
   const arrayItemSchema = schema._schema[`${fieldName}.$`];
   
@@ -149,12 +149,12 @@ const getArrayNestedSchema = <N extends CollectionNameString>(
 };
 // nested object fields type is of the form "type: new SimpleSchema({...})"
 // so they should possess a "_schema" prop
-const isNestedSchemaField = <N extends CollectionNameString>(fieldSchema: NewSimpleSchemaType<N>['_schema'][string]) => {
+const isNestedSchemaField = <N extends CollectionNameString>(fieldSchema: SimpleSchemaType<N>['_schema'][string]) => {
   const fieldType = getSchemaType(fieldSchema);
   //console.log('fieldType', typeof fieldType, fieldType._schema)
   return fieldType && !!fieldType._schema;
 };
-const getObjectNestedSchema = <N extends CollectionNameString>(fieldName: string, schema: NewSimpleSchemaType<N>) => {
+const getObjectNestedSchema = <N extends CollectionNameString>(fieldName: string, schema: SimpleSchemaType<N>) => {
   const fieldSchema = schema._schema[fieldName];
   if (!isNestedSchemaField(fieldSchema)) return null;
   const nestedSchema = fieldSchema && getSchemaType(fieldSchema);
@@ -165,7 +165,7 @@ const getObjectNestedSchema = <N extends CollectionNameString>(fieldName: string
 Given an array field, get its nested schema
 If the field is not an object, this will return the subfield type instead
 */
-export const getNestedFieldSchemaOrType = <N extends CollectionNameString>(fieldName: string, schema: NewSimpleSchemaType<N>) => {
+export const getNestedFieldSchemaOrType = <N extends CollectionNameString>(fieldName: string, schema: SimpleSchemaType<N>) => {
   const arrayItemSchema = getArrayNestedSchema(fieldName, schema);
   if (!arrayItemSchema) {
     // look for an object schema

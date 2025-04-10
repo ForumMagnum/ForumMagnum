@@ -2,9 +2,11 @@ import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { EmailTokens } from '../../server/collections/emailTokens/collection';
 import { randomSecret } from '../../lib/random';
 import Users from '../../server/collections/users/collection';
-import { updateMutator } from '../vulcan-lib/mutators';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import gql from 'graphql-tag';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updateEmailToken } from '../collections/emailTokens/mutations';
+import { updateUser } from '../collections/users/mutations';
 
 let emailTokenTypesByName: Partial<Record<string,EmailTokenType>> = {};
 
@@ -96,15 +98,10 @@ export const emailTokensGraphQLMutations = {
         const { tokenObj, tokenType } = await getAndValidateToken(token)
 
         const resultProps = await tokenType.handleToken(tokenObj, args);
-        await updateMutator({
-          collection: EmailTokens,
-          documentId: tokenObj._id,
-          set: {
-            usedAt: new Date()
-          },
-          unset: {},
-          validate: false
-        });
+        await updateEmailToken({
+          data: { usedAt: new Date() },
+          selector: { _id: tokenObj._id }
+        }, context);
         
         return resultProps;
       } catch(e) {
@@ -124,15 +121,10 @@ export const emailTokensGraphQLMutations = {
 export const UnsubscribeAllToken = new EmailTokenType({
   name: "unsubscribeAll",
   onUseAction: async (user: DbUser) => {
-    await updateMutator({ // FIXME: Doesn't actually do the thing
-      collection: Users,
-      documentId: user._id,
-      set: {
-        unsubscribeFromAll: true,
-      },
-      unset: {},
-      validate: false,
-    });
+    await updateUser({
+      data: { unsubscribeFromAll: true },
+      selector: { _id: user._id }
+    }, createAnonymousContext());
     return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get()}.` };
   },
   resultComponentName: "EmailTokenResult",

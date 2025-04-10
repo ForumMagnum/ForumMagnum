@@ -89,6 +89,6 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"RecommendationsCaches">>;
+} satisfies Record<string, CollectionFieldSpecification<"RecommendationsCaches">>;
 
 export default schema;

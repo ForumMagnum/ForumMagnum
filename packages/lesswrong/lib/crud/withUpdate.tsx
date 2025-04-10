@@ -48,7 +48,7 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
   const typeName = collectionNameToTypeName[options.collectionName];
   const resolverName = getUpdateMutationName(typeName);
   const query = gql`
-    mutation update${typeName}($selector: ${typeName}SelectorUniqueInput!, $data: Update${typeName}DataInput!) {
+    mutation update${typeName}($selector: SelectorInput!, $data: Update${typeName}DataInput!) {
       ${resolverName}(selector: $selector, data: $data) {
         data {
           ...${fragmentName}

@@ -1,12 +1,14 @@
 import { registerMigration } from './migrationUtils';
-import Users from '../../server/collections/users/collection';
-import { createMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../server/collections/posts/collection';
 import { mapsAPIKeySetting } from '../../components/form-components/LocationFormComponent';
 import { getLocalTime } from '../mapsUtils';
 import {userFindOneByEmail} from "../commonQueries";
 import { writeFile } from 'fs/promises';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
+import { createUser } from '../collections/users/mutations';
+import { createPost } from '../collections/posts/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
 async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }) {
   const requestOptions: any = {
@@ -44,36 +46,26 @@ export default registerMigration({
       } else {
         const username = await getUnusedSlugByCollectionName("Users", row["Name"].toLowerCase());
         try {
-          const { data: newUser } = await createMutator({
-            collection: Users,
-            document: {
-              username,
-              displayName: row["Name"],
-              email: email,
-              reviewedByUserId: adminId,
-              reviewedAt: new Date()
-            },
-            validate: false,
-            currentUser: null
-          })
+          const userDoc = {
+            username,
+            displayName: row["Name"],
+            email: email,
+            reviewedByUserId: adminId,
+            reviewedAt: new Date()
+          };
+          const newUser = await createUser({ data: userDoc }, createAnonymousContext());
           eventOrganizer = newUser
         } catch (err) {
           // eslint-disable-next-line no-console
           console.log({ err, email, row }, 'Error when creating a new user, using a different username');
-
-          const { data: newUser } = await createMutator({
-            collection: Users,
-            document: {
-              username: `${username}-acx-23`,
-              displayName: row["Name"],
-              email: email,
-              reviewedByUserId: adminId,
-              reviewedAt: new Date()
-            },
-            validate: false,
-            currentUser: null
-          })
-
+          const userDoc = {
+            username: `${username}-acx-23`,
+            displayName: row["Name"],
+            email: email,
+            reviewedByUserId: adminId,
+            reviewedAt: new Date()
+          };
+          const newUser = await createUser({ data: userDoc }, createAnonymousContext());
           eventOrganizer = newUser
         }
       }
@@ -139,12 +131,7 @@ export default registerMigration({
             'SSC'
           ],
         };
-        const { data: newPost } = await createMutator({
-          collection: Posts,
-          document: newPostData,
-          currentUser: eventOrganizer,
-          validate: false
-        })
+        const newPost = await createPost({ data: newPostData }, await computeContextFromUser({ user: eventOrganizer, isSSR: false }));
         // eslint-disable-next-line no-console
         console.log("Created new ACX Meetup: ", newPost.title);
         const googleLocationInfo = newPost.googleLocation?.geometry?.location;

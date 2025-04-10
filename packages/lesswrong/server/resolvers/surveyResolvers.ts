@@ -1,12 +1,10 @@
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { hasSurveys } from "@/lib/betas";
-import Surveys from "@/server/collections/surveys/collection";
-import SurveyQuestions from "@/server/collections/surveyQuestions/collection";
 import type { SurveyQuestionInfo } from "@/components/surveys/SurveyEditPage";
 import type { SurveyScheduleWithSurvey } from "../repos/SurveySchedulesRepo";
 import gql from "graphql-tag";
-
+import { createSurveyQuestion, updateSurveyQuestion } from "../collections/surveyQuestions/mutations";
+import { updateSurvey } from "../collections/surveys/mutations";
 
 type EditSurveyArgs = {
   surveyId: string,
@@ -70,13 +68,7 @@ export const surveyResolversGraphQLMutations = {
       throw new Error("Missing parameters");
     }
 
-    const {data: survey} = await updateMutator({
-      collection: Surveys,
-      documentId: surveyId,
-      set: {name},
-      currentUser,
-      validate: false,
-    });
+    const survey = await updateSurvey({ data: {name}, selector: { _id: surveyId } }, context);
 
     const questionIds = filterNonnull(questions.map(({_id}) => _id));
     await context.repos.surveys.deleteOrphanedQuestions(surveyId, questionIds);
@@ -84,18 +76,11 @@ export const surveyResolversGraphQLMutations = {
     const questionPromises = questions.map(({_id, question, format}, order) => {
       const data = {surveyId, question, format, order};
       if (_id) {
-        return updateMutator({
-          collection: SurveyQuestions,
-          documentId: _id,
-          set: data,
-          validate: false,
-        });
+        return updateSurveyQuestion({ data: { ...data }, selector: { _id: _id } }, context);
       } else {
-        return createMutator({
-          collection: SurveyQuestions,
-          document: data,
-          validate: false,
-        });
+        return createSurveyQuestion({
+          data
+        }, context);
       }
     });
     await Promise.all(questionPromises);

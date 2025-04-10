@@ -9,7 +9,6 @@ export const LlmMessages: LlmMessagesCollection = createCollection({
     indexSet.addIndex('LlmMessages', { conversationId: 1, createdAt: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 export default LlmMessages;

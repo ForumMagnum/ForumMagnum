@@ -50,6 +50,6 @@ const schema = {
       type: "TEXT[]",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"DebouncerEvents">>;
+} satisfies Record<string, CollectionFieldSpecification<"DebouncerEvents">>;
 
 export default schema;

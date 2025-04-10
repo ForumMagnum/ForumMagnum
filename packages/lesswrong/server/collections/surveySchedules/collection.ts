@@ -1,6 +1,4 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const SurveySchedules = createCollection({
@@ -12,9 +10,6 @@ export const SurveySchedules = createCollection({
     indexSet.addIndex('SurveySchedules', {clientIds: 1});
     return indexSet;
   },
-  resolvers: getDefaultResolvers("SurveySchedules"),
-  mutations: getDefaultMutations("SurveySchedules"),
-  logChanges: true,
 });
 
 

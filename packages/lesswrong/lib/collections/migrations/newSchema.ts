@@ -33,6 +33,6 @@ const schema = {
       nullable: false,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Migrations">>;
+} satisfies Record<string, CollectionFieldSpecification<"Migrations">>;
 
 export default schema;

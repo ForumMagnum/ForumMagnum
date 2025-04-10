@@ -2,7 +2,7 @@ import moment from "moment"
 import { capitalize, combineUrls, getSiteUrl } from "../../vulcan-lib/utils"
 import { SettingsOption } from "../posts/dropdownOptions"
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils"
-import { DIGEST_STATUSES } from "../digestPosts/schema"
+import { DIGEST_STATUSES } from "../digestPosts/newSchema"
 import type { DigestPost } from "../../../components/ea-forum/digest/EditDigest"
 import { isPostWithForeignId } from "../../../components/hooks/useForeignCrosspost"
 

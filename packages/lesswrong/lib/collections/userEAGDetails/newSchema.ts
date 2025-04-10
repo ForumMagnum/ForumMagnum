@@ -134,6 +134,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"UserEAGDetails">>;
+} satisfies Record<string, CollectionFieldSpecification<"UserEAGDetails">>;
 
 export default schema;

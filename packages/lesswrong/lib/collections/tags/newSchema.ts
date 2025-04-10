@@ -235,7 +235,7 @@ const schema = {
       canCreate: ["admins", "sunshineRegiment"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Tags", "MultiDocuments"],
-        getTitle: (t) => t.name,
+        getTitle: (t) => t.name!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: true,
       },
@@ -1127,7 +1127,8 @@ const schema = {
         if (tag.parentTagId) {
           // don't allow chained parent tag relationships
           const { Tags } = context;
-          if ((await Tags.find({ parentTagId: tag._id }).count())) {
+          // Actually I think this is nonsensical; tags don't have _id until after they're created
+          if ((await Tags.find({ parentTagId: (tag as DbTag)._id }).count())) {
             throw Error(`Tag ${tag.name} is a parent tag of another tag.`);
           }
         }
@@ -1559,6 +1560,6 @@ const schema = {
   afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
   afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
-} satisfies Record<string, NewCollectionFieldSpecification<"Tags">>;
+} satisfies Record<string, CollectionFieldSpecification<"Tags">>;
 
 export default schema;

@@ -91,7 +91,6 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
   mutationFragmentName?: FragmentName
 
   documentId?: string
-  slug?: string
   /**
    * Warning - passing in a prefetched document into a wrapped smart form might cause unexpected issues for anything using ckEditor, if the loaded document comes back with different data than what was prefetched.
    */
@@ -118,7 +117,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
 export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
   typeName: string
   document?: ObjectsByCollectionName[T]
-  schema: NewSimpleSchemaType<T>
+  schema: SimpleSchemaType<T>
   createMutation?: any
   updateMutation?: any
   removeMutation?: any

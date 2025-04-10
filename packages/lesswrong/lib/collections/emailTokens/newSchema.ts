@@ -44,6 +44,6 @@ const schema = {
       }
     }
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"EmailTokens">>;
+} satisfies Record<string, CollectionFieldSpecification<"EmailTokens">>;
 
 export default schema;

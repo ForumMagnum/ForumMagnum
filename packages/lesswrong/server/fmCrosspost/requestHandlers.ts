@@ -2,7 +2,6 @@ import type { Request } from "express";
 import Posts from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
 import { getGraphQLSingleQueryFromOptions } from "../../lib/crud/withSingle";
-import { createMutator } from "../vulcan-lib/mutators";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
@@ -16,6 +15,8 @@ import {
   UpdateCrosspostPayloadValidator,
 } from "./types";
 import { connectCrossposterToken } from "../crossposting/tokens";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createPost } from '../collections/posts/mutations';
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 import { getSingleResolverName } from "@/lib/crud/utils";
 
@@ -71,7 +72,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
    * TODO: Null is made legal value for fields but database types are incorrectly generated without null. 
    * Hacky fix for now. Search 84b2 to find all instances of this casting.
    */
-  const document: Partial<DbPost> = {
+  const document: CreatePostDataInput = {
     userId: user._id,
     fmCrosspost: {
       isCrosspost: true,
@@ -79,21 +80,10 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
       foreignPostId: postId,
     },
     ...denormalizedData,
-  } as Partial<DbPost>;
+  };
 
-  const {data: post} = await createMutator({
-    document,
-    collection: Posts,
-    validate: false,
-    currentUser: user,
-    // This is a hack - we have only a fraction of the necessary information for
-    // a context. But it appears to be working.
-    context: {
-      ...createAnonymousContext(),
-      currentUser: user,
-      isFMCrosspostRequest: true,
-    },
-  });
+  const userContext = await computeContextFromUser({ user, isSSR: false })
+  const post = await createPost({ data: document }, { ...userContext, isFMCrosspostRequest: true });
 
   return {
     status: "posted",

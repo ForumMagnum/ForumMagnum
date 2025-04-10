@@ -65,9 +65,11 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
+      canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["TagFlags"],
-        getTitle: (tf) => tf.name,
+        getTitle: (tf) => tf.name!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
       },
@@ -128,6 +130,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"TagFlags">>;
+} satisfies Record<string, CollectionFieldSpecification<"TagFlags">>;
 
 export default schema;

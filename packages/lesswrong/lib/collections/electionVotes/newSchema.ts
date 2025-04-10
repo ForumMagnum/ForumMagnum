@@ -204,6 +204,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ElectionVotes">>;
+} satisfies Record<string, CollectionFieldSpecification<"ElectionVotes">>;
 
 export default schema;

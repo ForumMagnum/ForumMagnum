@@ -101,6 +101,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"LWEvents">>;
+} satisfies Record<string, CollectionFieldSpecification<"LWEvents">>;
 
 export default schema;

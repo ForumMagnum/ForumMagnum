@@ -67,6 +67,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Sessions">>;
+} satisfies Record<string, CollectionFieldSpecification<"Sessions">>;
 
 export default schema;

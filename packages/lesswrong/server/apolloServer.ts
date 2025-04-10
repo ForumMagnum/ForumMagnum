@@ -61,7 +61,7 @@ import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
 import { makeAbsolute } from '@/lib/vulcan-lib/utils';
 import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
-import { getGraphQLSchema } from './vulcan-lib/apollo-server/getTypeDefs';
+import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -231,7 +231,7 @@ export function startWebserver() {
     introspection: true,
     debug: isDevelopment,
     
-    schema: makeExecutableSchema(getGraphQLSchema()),
+    schema: makeExecutableSchema({ typeDefs, resolvers }),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
       const {message, ...properties} = e;

@@ -51,6 +51,6 @@ const schema = {
       nullable: false,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PostViews">>;
+} satisfies Record<string, CollectionFieldSpecification<"PostViews">>;
 
 export default schema;

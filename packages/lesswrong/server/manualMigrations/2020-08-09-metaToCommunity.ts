@@ -11,8 +11,8 @@ import Users from '../../server/collections/users/collection'
 import Tags from '../../server/collections/tags/collection'
 import Posts from '../../server/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import TagRels from '../../server/collections/tagRels/collection';
-import { createMutator } from '../vulcan-lib/mutators';
+import { createTagRel } from '../collections/tagRels/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 // Your frontpage settings are shaped like:
 // ```
@@ -116,17 +116,7 @@ export const metaToCommunityPosts = registerMigration({
           // Oh man, I refactored this migration to use this method, and it
           // changed my life. 10/10 would use again in future migrations.
           // bulkwrite is faster, but callbacks are often important
-          await createMutator({
-            collection: TagRels,
-            document: {
-              tagId: communityTagId,
-              postId: post._id,
-              userId: post.reviewedByUserId || defaultAdminUserId,
-            },
-            // Validation requires us to have a context object, which has
-            // things like currentUser that aren't applicable.
-            validate: false,
-          })
+          await createTagRel({ data: { tagId: communityTagId, postId: post._id, userId: post.reviewedByUserId || defaultAdminUserId }}, createAnonymousContext());
         }
       }
     })

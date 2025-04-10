@@ -43,6 +43,6 @@ const schema = {
       canCreate: ["members"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"TypingIndicators">>;
+} satisfies Record<string, CollectionFieldSpecification<"TypingIndicators">>;
 
 export default schema;

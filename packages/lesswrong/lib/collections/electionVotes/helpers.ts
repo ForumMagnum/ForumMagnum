@@ -31,7 +31,7 @@ export const getInitialCompareState = (candidatePairs: ElectionCandidateBasicInf
   );
 }
 
-export const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
+export const validateVote = ({data}: {data: CreateElectionVoteDataInput | UpdateElectionVoteDataInput}) => {
   if (data.vote && typeof data.vote !== 'object') {
     throw new Error("Invalid vote value");
   }
@@ -46,7 +46,7 @@ export const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
   return data.vote;
 };
 
-export const validateCompareState = ({data}: {data: Partial<DbElectionVote>}) => {
+export const validateCompareState = ({data}: {data: CreateElectionVoteDataInput | UpdateElectionVoteDataInput}) => {
   const compareState: CompareState = data.compareState;
 
   for (let key in compareState) {
