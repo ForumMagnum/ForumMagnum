@@ -1,4 +1,6 @@
-export const FeedPostFragment = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+
+export const FeedPostFragment = () => frag`
   fragment FeedPostFragment on FeedPost {
     _id
     postMetaInfo
@@ -8,7 +10,7 @@ export const FeedPostFragment = `
   }
 `;
 
-export const FeedCommentThreadFragment = `
+export const FeedCommentThreadFragment = () => frag`
   fragment FeedCommentThreadFragment on FeedCommentThread {
     _id
     commentMetaInfos
@@ -18,7 +20,7 @@ export const FeedCommentThreadFragment = `
   }
 `;
 
-export const FeedSpotlightFragment = `
+export const FeedSpotlightFragment = () => frag`
   fragment FeedSpotlightFragment on FeedSpotlightItem {
     _id
     spotlight {

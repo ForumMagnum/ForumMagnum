@@ -4,8 +4,8 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined';
 import { useVote } from "../votes/withVote";
-import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttachedReactions";
+import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
