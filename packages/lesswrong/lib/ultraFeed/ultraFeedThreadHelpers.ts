@@ -63,9 +63,9 @@ export interface PrioritizedThreadInfo {
   stats: ThreadStatistics;
   priorityScore: number;
   reason: PrioritizationReason;
-  latestUserInteractionTs: Date | null; // Max lastInteracted for the user in this thread
-  latestUserViewTs: Date | null;        // Max lastViewed for the user in this thread
-  newestCommentTs: Date | null;         // Max postedAt within the thread
+  latestUserInteractionTs: Date | null;
+  latestUserViewTs: Date | null;
+  newestCommentTs: Date | null;
 }
 
 // User's relationship with a thread based on interaction history.
@@ -151,7 +151,6 @@ function determineUserState(
   latestUserServedTs: Date | null;
   hasUnserved: boolean;
 } {
-  // Track latest timestamps for different interactions
   let latestUserInteractionTs: Date | null = null;
   let latestUserViewTs: Date | null = null;
   let latestUserServedTs: Date | null = null;
@@ -296,7 +295,6 @@ export function prioritizeThreads(threads: PreDisplayFeedCommentThread[]): Prior
     const group = groupedByTopLevel[topLevelId];
     if (group.length === 0) continue;
 
-    // Find the thread with the highest priority score within the group
     const bestInGroup = group.reduce((best, current) => {
       return current.priorityScore > best.priorityScore ? current : best;
     });
@@ -304,37 +302,6 @@ export function prioritizeThreads(threads: PreDisplayFeedCommentThread[]): Prior
   }
 
   return representativeThreads.sort((a, b) => b.priorityScore - a.priorityScore);
-}
-
-function findFirstCommentNewerThan(thread: PreDisplayFeedCommentThread, referenceDate: Date | null): PreDisplayFeedComment | null {
-  if (!referenceDate) return null;
-  
-  return thread.find((comment: PreDisplayFeedComment) => {
-    const postedAt = comment.metaInfo?.postedAt;
-    return postedAt instanceof Date && postedAt > referenceDate;
-  }) || null;
-}
-
-function findLastInteractedComment(thread: PreDisplayFeedCommentThread): PreDisplayFeedComment | null {
-  return thread.reduce((latest: PreDisplayFeedComment | null, current: PreDisplayFeedComment) => {
-    const currentTs = current.metaInfo?.lastInteracted;
-    const latestTs = latest?.metaInfo?.lastInteracted;
-    if (currentTs instanceof Date && (!latestTs || currentTs > latestTs)) {
-      return current;
-    }
-    return latest;
-  }, null);
-}
-
-function findNewestComment(thread: PreDisplayFeedCommentThread): PreDisplayFeedComment | null {
-  return thread.reduce((latest: PreDisplayFeedComment | null, current: PreDisplayFeedComment) => {
-    const currentTs = current.metaInfo?.postedAt;
-    const latestTs = latest?.metaInfo?.postedAt;
-    if (currentTs instanceof Date && (!latestTs || currentTs > latestTs)) {
-      return current;
-    }
-    return latest;
-  }, null);
 }
 
 /**
@@ -346,7 +313,7 @@ export function prepareCommentThreadForResolver(
   const { thread } = prioritizedInfo;
   const numComments = thread.length;
 
-  // --- Development Sanity Check: Log if receiving a fully viewed thread ---
+  // Sanity Check: Log if receiving a fully viewed thread TODO: remove after development
   const allCommentsViewedOrInteracted = numComments > 0 && thread.every(
     comment => comment.metaInfo?.lastViewed || comment.metaInfo?.lastInteracted
   );
@@ -354,9 +321,7 @@ export function prepareCommentThreadForResolver(
     const firstCommentId = thread[0].commentId;
     const topLevelId = thread[0].topLevelCommentId ?? firstCommentId;
     console.warn(`prepareCommentThreadForResolver (WARN): Received fully viewed/interacted thread ${topLevelId} (first comment: ${firstCommentId}). This should have been filtered upstream.`);
-    // Note: Processing continues, but this log indicates a potential upstream issue.
   }
-  // --- End Sanity Check ---
 
   if (numComments === 0) {
     return {
@@ -390,12 +355,9 @@ export function prepareCommentThreadForResolver(
   }
 
 
-  // --- Process Comments: Add highlight and displayStatus flags in one pass ---
   const finalComments = thread.map((comment): PreDisplayFeedComment => {
     // Highlight if not viewed AND not interacted with
     const shouldHighlight = !comment.metaInfo?.lastViewed && !comment.metaInfo?.lastInteracted;
-
-    // Expand based on the new logic derived above
     const displayStatus = expandedCommentIds.has(comment.commentId) ? 'expanded' : 'collapsed';
 
     const newMetaInfo: FeedCommentMetaInfo = {
@@ -446,7 +408,6 @@ export function getAllCommentThreads(candidates: FeedCommentFromDb[]): PreDispla
       )
     );
 
-    // Add only the threads containing at least one unread comment
     allThreads.push(...unreadThreads);
   }
 

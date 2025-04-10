@@ -273,7 +273,7 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      const bufferMultiplier = 2; // Fetch 2x the expected need as buffer
+      const bufferMultiplier = 2;
 
       const totalPostWeight = feedPostSourceTypesArray.reduce((sum, type) => sum + (sourceWeights[type] || 0), 0);
       const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum, type) => sum + (sourceWeights[type] || 0), 0);
@@ -334,7 +334,6 @@ export const ultraFeedGraphQLQueries = {
          console.warn("UltraFeedResolver: Fetched spotlights but 'spotlights' source is not defined in sourceWeights.");
       }
 
-      // Populate posts
       postThreadsItems.forEach(postItem => {
         const itemSources = postItem.postMetaInfo?.sources;
         if (Array.isArray(itemSources)) {
@@ -347,7 +346,6 @@ export const ultraFeedGraphQLQueries = {
         }
       });
 
-      // Populate comment threads
       commentThreadsItems.forEach(commentThread => {
         let foundSources = false;
         // Find the first comment that *has* source info
