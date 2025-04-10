@@ -6,7 +6,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { postGetLink, postGetKarma } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
-import { useUltraFeedSettings } from "../../lib/ultraFeedSettings";
+import { useUltraFeedSettings } from "../hooks/useUltraFeedSettings";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 
