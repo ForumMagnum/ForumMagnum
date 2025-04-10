@@ -18,6 +18,7 @@ import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import gql from "graphql-tag";
+import { userIsPostGroupOrganizer } from "../posts/helpers";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -63,23 +64,28 @@ const isSharable = (document: any): document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document;
 };
 
-export const getOriginalContents = <N extends CollectionNameString>(
+export const getOriginalContents = async <N extends CollectionNameString>(
   currentUser: DbUser | null,
   document: ObjectsByCollectionName[N],
-  originalContents: EditableFieldContents["originalContents"]
+  originalContents: EditableFieldContents["originalContents"],
+  context: ResolverContext,
 ) => {
   const canViewOriginalContents = (user: DbUser | null, doc: DbObject) =>
     isSharable(doc) ? userIsSharedOn(user, doc) : true;
 
-  const returnOriginalContents = userCanReadField(
+  const userHasReadPermissions = userCanReadField(
     currentUser,
     // We need `userIsPodcaster` here to make it possible for podcasters to open post edit forms to add/update podcast episode info
     // Without it, `originalContents` may resolve to undefined, which causes issues in revisionResolvers
     [userOwns, canViewOriginalContents, userIsPodcaster, "admins", "sunshineRegiment"],
     document
-  );
+  ) || (await userIsPostGroupOrganizer(currentUser, document as DbPost, context));
 
-  return returnOriginalContents ? originalContents : null;
+  if (userHasReadPermissions) {
+    return originalContents;
+  }
+
+  return null;
 };
 
 const schema = {
@@ -259,7 +265,7 @@ const schema = {
         // it means we need originalContents to default to unviewable)
         if (document.collectionName === "Posts" && document.documentId) {
           const post = await context.loaders["Posts"].load(document.documentId);
-          return getOriginalContents(context.currentUser, post, document.originalContents);
+          return getOriginalContents(context.currentUser, post, document.originalContents, context);
         }
         return document.originalContents;
       },

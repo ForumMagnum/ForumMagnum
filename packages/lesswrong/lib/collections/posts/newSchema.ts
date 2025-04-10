@@ -29,7 +29,7 @@ import { formGroups } from "./formGroups";
 import SimpleSchema from "simpl-schema";
 import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/schema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { getVotingSystems } from "../../voting/votingSystems";
+import { getVotingSystems } from '../../voting/getVotingSystem';
 import {
   eaFrontpageDateDefault, fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum,
   isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting
@@ -64,7 +64,7 @@ import {
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { SmartFormProps } from "@/components/vulcan-forms/propTypes";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
@@ -351,14 +351,14 @@ const schema = {
       outputType: "[Revision]",
       canRead: ["guests"],
       arguments: "limit: Int = 5",
-      resolver: getRevisionsResolver("revisions"),
+      resolver: getRevisionsResolver("contents"),
     },
   },
   version: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: getVersionResolver("version"),
+      resolver: getNormalizedVersionResolver("contents"),
     },
   },
   pingbacks: {
@@ -3340,7 +3340,7 @@ const schema = {
   },
   organizers: {
     graphql: {
-      outputType: "[User!]!",
+      outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "organizerIds" }),
     },
@@ -3904,7 +3904,7 @@ const schema = {
   },
   usersSharedWith: {
     graphql: {
-      outputType: "[User!]!",
+      outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "shareWithUsers" }),
     },
@@ -4439,7 +4439,7 @@ const schema = {
   },
   languageModelSummary: {
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["admins"],
       resolver: async (post, _args, context) => {
         if (!post.contents_latest) {
@@ -4883,7 +4883,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String]",
-      canRead: ["members"],
+      canRead: ["guests"],
       canUpdate: ["members", "alignmentForum", "alignmentForumAdmins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -4901,7 +4901,7 @@ const schema = {
   suggestForAlignmentUsers: {
     graphql: {
       outputType: "[User!]!",
-      canRead: ["members"],
+      canRead: ["guests"],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Users", fieldName: "suggestForAlignmentUserIds" }),
     },
   },

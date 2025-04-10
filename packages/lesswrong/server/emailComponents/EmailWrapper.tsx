@@ -1,26 +1,26 @@
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI ? {...theme.typography.smallText} : {}),
     "& img": {
       maxWidth: "100%",
     }
   },
-})
+}))
 
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-const EmailWrapper = ({unsubscribeAllLink, children, classes}: {
+export const EmailWrapper = ({unsubscribeAllLink, children}: {
   unsubscribeAllLink: string | null,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const accountLink = `${getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()
   
@@ -99,10 +99,3 @@ const EmailWrapper = ({unsubscribeAllLink, children, classes}: {
   );
 }
 
-const EmailWrapperComponent = registerComponent("EmailWrapper", EmailWrapper, {styles});
-
-declare global {
-  interface ComponentTypes {
-    EmailWrapper: typeof EmailWrapperComponent
-  }
-}

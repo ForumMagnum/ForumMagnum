@@ -214,10 +214,11 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
       documentId: doc._id,
       collectionName,
       editedAt: new Date(docField?.editedAt ?? Date.now()),
-      originalContents: getOriginalContents(
+      originalContents: await getOriginalContents(
         context.currentUser,
         doc,
         docField.originalContents,
+        context,
       ),
     } as DbRevision;
     // HACK: Pretend that this denormalized field is a DbRevision (even though
@@ -304,9 +305,14 @@ export function getRevisionsResolver(fieldName: string) {
   }
 }
 
-export function getVersionResolver(fieldName: string) {
-  return function versionResolver<N extends CollectionNameString>(doc: ObjectsByCollectionName[N]): string {
-    return (doc as AnyBecauseTodo)[fieldName]?.version
+export function getNormalizedVersionResolver(fieldName: string) {
+  return async function versionResolver<N extends CollectionNameString>(doc: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<string | null> {
+    const revisionId = doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]] as string;
+    let revision;
+    if (revisionId) {
+      revision = await context.loaders.Revisions.load(revisionId);
+    }
+    return revision?.version ?? null;
   }
 }
 
@@ -413,7 +419,7 @@ export function editableFields<N extends CollectionNameString>(collectionName: N
     optional: true,
     resolveAs: {
       type: 'String',
-      resolver: getVersionResolver(fieldName),
+      resolver: getNormalizedVersionResolver(fieldName),
     },
   };
 

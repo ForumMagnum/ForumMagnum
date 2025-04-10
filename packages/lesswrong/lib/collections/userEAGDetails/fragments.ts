@@ -1,4 +1,6 @@
-export const UserEAGDetailsMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const UserEAGDetailsMinimumInfo = () => frag`
   fragment UserEAGDetailsMinimumInfo on UserEAGDetail {
     _id
     userId

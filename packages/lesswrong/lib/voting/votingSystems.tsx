@@ -11,7 +11,6 @@ import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
-import { isEAForum } from '../instanceSettings';
 import { TagLens } from '../arbital/useTagLenses';
 
 export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
@@ -79,13 +78,11 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   }) => ContentReplacedSubstringComponentInfo[]
 }
 
-const votingSystems: Partial<Record<string,VotingSystem>> = {};
-
-export const registerVotingSystem = <V,S>(votingSystem: VotingSystem<V,S>) => {
-  votingSystems[votingSystem.name] = votingSystem;
+export const defineVotingSystem = <V,S>(votingSystem: VotingSystem<V,S>) => {
+  return votingSystem;
 }
 
-registerVotingSystem({
+export const defaultVotingSystem = defineVotingSystem({
   name: "default",
   description: "Reddit-style up/down with strongvotes",
   getCommentVotingComponent: () => Components.VoteOnComment,
@@ -103,7 +100,7 @@ registerVotingSystem({
   },
 });
 
-registerVotingSystem({
+export const twoAxisVotingSystem = defineVotingSystem({
   name: "twoAxis",
   description: "Default (Two-Axis Approve and Agree)",
   userCanActivate: true,
@@ -183,7 +180,7 @@ export const reactBallotStandaloneReactions: ReactBallotStandaloneReaction[] = [
 const reactBallotAxisNames = reactBallotAxes.map(axis=>axis.name);
 const reactBallotStandaloneReactionNames = reactBallotStandaloneReactions.map(reaction => reaction.name);
 
-registerVotingSystem({
+export const reactsBallotVotingSystem = defineVotingSystem({
   name: "reactsBallot",
   description: "React-Ballots",
   getCommentVotingComponent: () => Components.ReactBallotVoteOnComment,
@@ -249,7 +246,7 @@ export const emojiReactions: EmojiReactionType[] = [
 ]
 const emojiReactionNames = emojiReactions.map(reaction => reaction.name)
 
-registerVotingSystem({
+export const emojiReactionsVotingSystem = defineVotingSystem({
   name: "emojiReactions",
   description: "Emoji reactions",
   getCommentVotingComponent: () => Components.EmojiReactionVoteOnComment,
@@ -287,7 +284,7 @@ registerVotingSystem({
 const getEmojiReactionPower = (value?: boolean) =>
   value === true ? 1 : 0;
 
-registerVotingSystem({
+export const eaEmojisVotingSystem = defineVotingSystem({
   name: "eaEmojis",
   description: "Approval voting, plus EA Forum emoji reactions",
   getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
@@ -347,39 +344,4 @@ registerVotingSystem({
 
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);
-}
-
-export function getVotingSystemByName(name: string): VotingSystem {
-  if (name && votingSystems[name])
-    return votingSystems[name]!;
-  else
-    return getDefaultVotingSystem();
-}
-
-export function getDefaultVotingSystem(): VotingSystem {
-  return votingSystems["default"]!;
-}
-
-export function getVotingSystems(): VotingSystem[] {
-  return Object.keys(votingSystems).map(k => votingSystems[k]!);
-}
-
-export async function getVotingSystemNameForDocument(document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext): Promise<string> {
-  if (collectionName === "MultiDocuments" || collectionName === "Tags") {
-    return "reactionsAndLikes";
-  }
-  if ((document as DbComment).tagId) {
-    return isEAForum ? "eaEmojis" : "namesAttachedReactions";
-  }
-  if ((document as DbComment).postId) {
-    const post = await context.loaders.Posts.load((document as DbComment).postId!);
-    if (post?.votingSystem) {
-      return post.votingSystem;
-    }
-  }
-  return (document as DbPost)?.votingSystem ?? "default";
-}
-
-export async function getVotingSystemForDocument(document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext) {
-  return getVotingSystemByName(await getVotingSystemNameForDocument(document, collectionName, context));
 }

@@ -4,7 +4,7 @@ import {
   isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
-import { REVIEW_YEAR } from './reviewUtils';
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
@@ -752,6 +752,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: "MyAnalyticsPage",
     },
     {
+      name: "openThread",
+      path:'/open-thread',
+      componentName: "CurrentOpenThreadPage",
+    },
+    {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },
@@ -930,6 +935,19 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => `/tag/site-meta`,
     },
     {
+      name: 'bestOfLessWrongAdmin',
+      path: '/bestoflesswrongadmin',
+      // the "year + 2" is a hack because it's annoying to fetch ReviewWinnerArt by review year
+      // instead we fetch by createdAt date for the art, which is generally 2 years after review
+      redirect: () => `/bestoflesswrongadmin/${BEST_OF_LESSWRONG_PUBLISH_YEAR + 2}`,
+    },
+    {
+      name: 'bestOfLessWrongAdminYear',
+      path: '/bestoflesswrongadmin/:year',
+      componentName: 'BestOfLessWrongAdmin',
+      title: "Best of LessWrong Admin",
+    },
+    {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
       componentName: 'TopPostsPage',
@@ -1047,12 +1065,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/allCommentsWithReacts',
       componentName: 'AllReactedCommentsPage',
       title: "All Comments with Reacts"
-    },
-    {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
     },
     {
       name: 'nominations2018-old',
@@ -1174,13 +1186,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Meta',
       path: '/meta',
       redirect: () => `/tag/site-meta`,
-    },
-    // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
-    {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
     },
     {
       name: 'nominations2018-old',

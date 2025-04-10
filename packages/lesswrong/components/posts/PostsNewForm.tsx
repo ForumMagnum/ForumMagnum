@@ -12,7 +12,7 @@ import { convertSchema, getInsertableFields } from '@/lib/vulcan-forms/schema_ut
 import { hasAuthorModeration } from '@/lib/betas';
 import { getSimpleSchema } from '@/lib/schema/allSchemas';
 
-const prefillFromTemplate = (template: PostsEdit) => {
+const prefillFromTemplate = (template: PostsEditMutationFragment) => {
   return pick(
     template,
     [
@@ -89,6 +89,29 @@ function usePrefetchForAutosaveRedirect() {
   return prefetchPostFragmentsForRedirect;
 }
 
+function sanitizePrefilledProps(prefilledProps: NullablePartial<PostsEditMutationFragment>, currentUser: UsersCurrent) {
+  const postSchema = getSimpleSchema('Posts');
+  const convertedSchema = convertSchema(postSchema);
+  const insertableFields = getInsertableFields(convertedSchema!, currentUser);
+  const prefilledInsertableFields = pick(prefilledProps, insertableFields);
+
+  const sanitizedPrefilledInsertableFields = Object.keys(prefilledInsertableFields).map(fieldName => {
+    if (postSchema._schema[fieldName].editableFieldOptions) {
+      const originalEditableFieldValue: RevisionEdit | null = prefilledInsertableFields[fieldName as keyof PostsEditMutationFragment];
+      if (!originalEditableFieldValue?.originalContents) {
+        return [fieldName, null];
+      }
+      const { originalContents: { type, data } } = originalEditableFieldValue;
+      const minimalEditableFieldValue = { originalContents: { type, data } };
+      return [fieldName, minimalEditableFieldValue];
+    }
+
+    return [fieldName, prefilledInsertableFields[fieldName as keyof PostsEditMutationFragment]];
+  });
+
+  return Object.fromEntries(sanitizedPrefilledInsertableFields);
+}
+
 const PostsNewForm = () => {
   const { LoginForm, SingleColumnSection, Typography, Loading } = Components;
   const { query } = useLocation();
@@ -127,7 +150,7 @@ const PostsNewForm = () => {
     skip: !currentUser,
   });
 
-  let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
+  let prefilledProps: NullablePartial<PostsEditMutationFragment> = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
@@ -161,15 +184,13 @@ const PostsNewForm = () => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
-        const postSchema = getSimpleSchema('Posts');
-        const convertedSchema = convertSchema(postSchema);
-        const insertableFields = getInsertableFields(convertedSchema!, currentUser);
+        const sanitizedPrefilledProps = sanitizePrefilledProps(prefilledProps, currentUser);
         try {
           const { data } = await createPost.create({
             data: {
               title: "Untitled Draft",
               draft: true,
-              ...pick(prefilledProps, insertableFields),
+              ...sanitizedPrefilledProps,
               ...(currentUserWithModerationGuidelines?.moderationGuidelines?.originalContents &&
                 hasAuthorModeration && {
                 moderationGuidelines: {

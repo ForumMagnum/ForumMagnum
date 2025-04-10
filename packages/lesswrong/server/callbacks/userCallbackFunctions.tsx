@@ -7,7 +7,6 @@ import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/col
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recombeeEnabledSetting } from "@/lib/publicSettings";
-import { Components } from "@/lib/vulcan-lib/components";
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@sentry/core";
@@ -38,6 +37,7 @@ import isEqual from "lodash/isEqual";
 import md5 from "md5";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
+import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -112,7 +112,7 @@ async function sendWelcomeMessageTo(userId: string) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,
-      body: <Components.EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+      body: <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
     })
   }
 }

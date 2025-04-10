@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from "react";
+import React, { MouseEvent, useState } from "react";
 import { useDialog } from "../common/withDialog";
 import { useCurrentUser } from "../common/withUser";
 import { pluck } from "underscore";
@@ -7,6 +7,7 @@ import { gql, useMutation } from "@apollo/client";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import type { ForumIconName } from "../common/ForumIcon";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { Components } from "@/lib/vulcan-lib/components";
 
 export type BookmarkPost = {
   icon: ForumIconName,
@@ -54,8 +55,8 @@ export const useBookmarkPost = (post: PostsMinimumInfo): BookmarkPost => {
   const toggleBookmark = (event: MouseEvent) => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
       event.preventDefault();
       return;

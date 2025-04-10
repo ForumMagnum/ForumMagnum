@@ -340,9 +340,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </LWTooltip>
     <LWTooltip title="Create a new moderator action for this user">
       <ReportProblemIcon className={classes.modButton} onClick={() => openDialog({
-        componentName: 'NewModeratorActionDialog',
-        componentProps: {userId: user._id}})}
-      />
+        name: 'NewModeratorActionDialog',
+        contents: ({onClose}) => <Components.NewModeratorActionDialog
+          onClose={onClose}
+          userId={user._id}
+        />
+      })}/>
     </LWTooltip>
   </div>
 

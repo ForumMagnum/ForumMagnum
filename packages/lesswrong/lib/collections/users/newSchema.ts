@@ -24,7 +24,7 @@ import {
   getDenormalizedCountOfReferencesGetValue,
   getDenormalizedFieldOnCreate,
   getDenormalizedFieldOnUpdate,
-  googleLocationToMongoLocation, schemaDefaultValue
+  googleLocationToMongoLocation,
 } from "../../utils/schemaUtils";
 import { postStatuses } from "../posts/constants";
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from "../../reviewUtils";
@@ -43,7 +43,7 @@ import {
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
@@ -2157,7 +2157,7 @@ const schema = {
   },
   bookmarkedPosts: {
     graphql: {
-      outputType: "[Post!]!",
+      outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: generateIdResolverMulti({
         foreignCollectionName: "Posts",
@@ -2201,7 +2201,7 @@ const schema = {
   },
   hiddenPosts: {
     graphql: {
-      outputType: "[Post!]!",
+      outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: generateIdResolverMulti({ foreignCollectionName: "Posts", fieldName: "hiddenPostsMetadata" }),
     },
@@ -4171,7 +4171,7 @@ const schema = {
   },
   reviewVoteCount: {
     graphql: {
-      outputType: "Int!",
+      outputType: "Int",
       canRead: ["admins", "sunshineRegiment"],
       resolver: async (document, args, context) => {
         const { ReviewVotes } = context;

@@ -1,4 +1,6 @@
-export const newEventFragment = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const newEventFragment = () => frag`
   fragment newEventFragment on LWEvent {
     _id
     createdAt
@@ -10,7 +12,7 @@ export const newEventFragment = `
   }
 `
 
-export const lastEventFragment = `
+export const lastEventFragment = () => frag`
   fragment lastEventFragment on LWEvent {
     _id
     createdAt
@@ -23,7 +25,7 @@ export const lastEventFragment = `
   }
 `
 
-export const lwEventsAdminPageFragment = `
+export const lwEventsAdminPageFragment = () => frag`
   fragment lwEventsAdminPageFragment on LWEvent {
     _id
     createdAt
@@ -39,7 +41,7 @@ export const lwEventsAdminPageFragment = `
   }
 `
 
-export const emailHistoryFragment = `
+export const emailHistoryFragment = () => frag`
   fragment emailHistoryFragment on LWEvent {
     _id
     createdAt

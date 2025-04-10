@@ -5,44 +5,33 @@ import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import gql from 'graphql-tag';
 
-const mutationsToGraphQL = (mutations: {mutation: string, description?: string}[]): string =>
-  mutations.length > 0
-    ? `
-${
-        mutations.length > 0
-          ? `type Mutation {
-
-${mutations
-              .map(m => `${
-                m.description
-                  ? `  # ${m.description}\n`
-                  : ''
-              }  ${m.mutation}\n`)
-              .join('\n')}
+const mutationsToGraphQL = (mutations: {mutation: string, description?: string}[]): string => {
+  if (!mutations.length) return "";
+  const sb: string[] = [];
+  sb.push("type Mutation {\n");
+  for (const m of mutations) {
+    if (m.description)
+      sb.push(`  # ${m.description}\n`);
+    sb.push(`  ${m.mutation}\n`);
+  }
+  sb.push("}\n\n");
+  return sb.join("");
 }
-`
-          : ''
-      }
 
-`
-    : '';
-
-const queriesToGraphQL = (queries: {query: string, description?: string}[]): string =>
-  `type Query {
-${queries.map(q =>
-        `${
-          q.description
-            ? `  # ${q.description}\n`
-            : ''
-        }  ${q.query}
-  `
-    )
-    .join('\n')}
+const queriesToGraphQL = (queries: {query: string, description?: string}[]): string => {
+  const sb: string[] = [];
+  sb.push("type Query {\n");
+  for (const q of queries) {
+    if (q.description)
+      sb.push(`  # ${q.description}\n`);
+    sb.push(`  ${q.query}\n`);
+  }
+  sb.push("}\n\n");
+  return sb.join("");
 }
-`
 
 // generate GraphQL schemas for all registered collections
-const getTypeDefs = () => {
+export const getGraphQLTypeDefs = () => {
   const schemaContents: Array<string> = [
     "scalar JSON",
     "scalar Date",
@@ -66,14 +55,17 @@ const getTypeDefs = () => {
   schemaContents.push(mutationsToGraphQL(allMutations));
 
   return {
-    schemaText: schemaContents.join("\n"),
+    typeDefs: gql`
+      ${gql`${schemaContents.join("\n")}`}
+      ${typeDefs}
+    `,
     addedResolvers: allResolvers,
   };
 };
 
 
 export const getGraphQLSchema = () => {
-  const { schemaText, addedResolvers } = getTypeDefs();
+  const { typeDefs, addedResolvers } = getGraphQLTypeDefs();
   
   let allResolvers = {
     JSON: GraphQLJSON,
@@ -86,10 +78,7 @@ export const getGraphQLSchema = () => {
   }
 
   return {
-    typeDefs: gql`
-      ${gql`${schemaText}`}
-      ${typeDefs}
-    `,
+    typeDefs,
     resolvers: allResolvers,
   }
 };// generate a GraphQL schema corresponding to a given collection

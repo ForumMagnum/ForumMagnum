@@ -10,6 +10,7 @@ import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import BestOfLessWrongAnnouncement from '../posts/PostsPage/BestOfLessWrong/BestOfLessWrongAnnouncement';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -40,8 +41,9 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, EAPopularCommentsSection, QuickTakesSection, LWHomePosts, HeadTags, UltraFeed
+  const { RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
+    SingleColumnSection, EAPopularCommentsSection,
+    QuickTakesSection, LWHomePosts, HeadTags, UltraFeed
   } = Components;
 
   const currentUser = useCurrentUser();
@@ -59,8 +61,9 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-
-            <DismissibleSpotlightItem current/>
+          <BestOfLessWrongAnnouncement />
+          {/* TODO: revert after removing BestofLessWrongAnnouncement */}
+          {/* <DismissibleSpotlightItem current/> */} 
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
