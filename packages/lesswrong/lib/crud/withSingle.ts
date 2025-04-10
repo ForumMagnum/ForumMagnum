@@ -27,7 +27,7 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
     extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
   }
 
-  const query = gql`
+  const queryText = `
     query single${typeName}Query($input: Single${typeName}Input, ${extraVariablesString || ''}) {
       ${resolverName}(input: $input) {
         result {
@@ -37,7 +37,9 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
       }
     }
     ${fragment}
-  `;
+  `
+
+  const query = gql`${queryText}`;
   
   return query
 }

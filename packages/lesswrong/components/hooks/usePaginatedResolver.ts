@@ -46,7 +46,7 @@ export const usePaginatedResolver = <
   const [limit, setLimit] = useState(initialLimit);
   const [list, setList] = useState<FragmentTypes[FragmentName][] | undefined>();
 
-  const query = gql`
+  const queryText = `
     query get${resolverName}($limit: Int) {
       ${resolverName}(limit: $limit) {
         results {
@@ -55,7 +55,9 @@ export const usePaginatedResolver = <
       }
     }
     ${fragmentTextForQuery(fragmentName)}
-  `;
+  `
+
+  const query = gql`${queryText}`;
 
   const {
     data,
