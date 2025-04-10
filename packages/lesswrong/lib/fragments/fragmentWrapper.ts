@@ -1,4 +1,4 @@
-import { DocumentNode } from 'graphql';
+import { DocumentNode, print } from 'graphql';
 import mapValues from 'lodash/mapValues';
 
 interface FragmentInfo {
@@ -14,7 +14,7 @@ export function extractFragmentName(fragmentText: string): FragmentName {
 }
 
 export function transformFragments(fragments: Record<string, () => DocumentNode>) {
-  return mapValues(fragments, (n) => n().loc?.source?.body)
+  return mapValues(fragments, (n) => print(n()))
 }
 
 export function frag(strings: TemplateStringsArray, ...values: (string|FragmentInfo|(() => FragmentInfo))[]): FragmentInfo {
