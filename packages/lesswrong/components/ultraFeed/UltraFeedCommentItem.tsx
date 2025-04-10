@@ -9,7 +9,7 @@ import { useUltraFeedObserver } from "./UltraFeedObserver";
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
-    paddingTop: 16,
+    paddingTop: 12,
     display: 'flex',
     flexDirection: 'row',
   },
@@ -84,7 +84,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'center',
     marginRight: 2,
-    marginTop: -17,
+    marginTop: -12,
     marginBottom: 0,
   },
   verticalLineContainerCompressed: {
@@ -104,10 +104,14 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     borderLeft: `4px solid ${theme.palette.secondary.light}8c`,
   },
   verticalLineFirstComment: {
-    marginTop: 20, // Match the margin-top from thread item
+    marginTop: 16, // Match the margin-top from thread item
   },
   verticalLineLastComment: {
-    marginBottom: 8, // Match the margin-bottom from thread item
+    marginBottom: 16, // Match the margin-bottom from thread item
+  },
+  footer: {
+    paddingTop: 12,
+    paddingBottom: 12,
   },
 }));
 
@@ -270,7 +274,7 @@ const UltraFeedCommentItem = ({
             hideSuffix={!expanded}
           />
         </div>
-        <UltraFeedItemFooter document={comment} collectionName="Comments" />
+        <UltraFeedItemFooter document={comment} collectionName="Comments" className={classes.footer}/>
       </div>
     </div>
   );

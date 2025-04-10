@@ -12,7 +12,7 @@ import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
-    paddingTop: 24,
+    paddingTop: 12,
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -121,8 +121,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     marginRight: 8,
   },
   footer: {
-    paddingTop: 4,
-    paddingBottom: 4,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
 }));
 
@@ -227,9 +227,7 @@ const UltraFeedPostItem = ({
           onExpand={handleContentExpand}
         />
       )}
-      <div className={classes.footer}>
-        <UltraFeedItemFooter document={post} collectionName="Posts" />
-      </div>
+      <UltraFeedItemFooter document={post} collectionName="Posts" className={classes.footer} />
     </div>
   );
 };

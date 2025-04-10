@@ -11,10 +11,10 @@ import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
     position: "relative",
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingLeft: 8,
+    paddingRight: 8,
+    // paddingTop: 8,
+    // paddingBottom: 8,
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
@@ -85,6 +85,7 @@ interface UltraFeedItemFooterCoreProps {
   hideKarma?: boolean;
   reactionCount: number;
   bookmarkDocument?: PostsMinimumInfo;
+  className?: string;
 }
 
 const UltraFeedItemFooterCore = ({
@@ -95,6 +96,7 @@ const UltraFeedItemFooterCore = ({
   hideKarma,
   reactionCount,
   bookmarkDocument,
+  className,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const { BookmarkButton, OverallVoteAxis, AgreementVoteAxis, AddReactionButton } = Components;
@@ -114,7 +116,7 @@ const UltraFeedItemFooterCore = ({
   );
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, className)}>
       {commentCountIcon}
 
       {showVoteButtons && voteProps.document && (
@@ -158,7 +160,7 @@ const UltraFeedItemFooterCore = ({
 };
 
 
-const UltraFeedPostFooter = ({ post }: { post: PostsListWithVotes }) => {
+const UltraFeedPostFooter = ({ post, className }: { post: PostsListWithVotes, className?: string }) => {
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
   const voteProps = useVote(post, "Posts", votingSystem);
   const reacts = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
@@ -176,12 +178,13 @@ const UltraFeedPostFooter = ({ post }: { post: PostsListWithVotes }) => {
       hideKarma={false}
       reactionCount={reactionCount}
       bookmarkDocument={post}
+      className={className}
     />
   );
 }
 
 
-const UltraFeedCommentFooter = ({ comment }: { comment: UltraFeedComment }) => {
+const UltraFeedCommentFooter = ({ comment, className }: { comment: UltraFeedComment, className?: string }) => {
   const parentPost = comment.post;
   const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
   const voteProps = useVote(comment, "Comments", votingSystem);
@@ -203,6 +206,7 @@ const UltraFeedCommentFooter = ({ comment }: { comment: UltraFeedComment }) => {
       hideKarma={hideKarma}
       reactionCount={reactionCount}
       bookmarkDocument={bookmarkDocument ?? undefined}
+      className={className}
     />
   );
 }
@@ -211,13 +215,14 @@ const UltraFeedCommentFooter = ({ comment }: { comment: UltraFeedComment }) => {
 interface UltraFeedItemFooterProps {
   document: PostsListWithVotes | UltraFeedComment;
   collectionName: "Posts" | "Comments";
+  className?: string;
 }
 
-const UltraFeedItemFooter = ({ document, collectionName }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({ document, collectionName, className }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
-    return <UltraFeedPostFooter post={document as PostsListWithVotes} />;
+    return <UltraFeedPostFooter post={document as PostsListWithVotes} className={className} />;
   } else if (collectionName === "Comments") {
-    return <UltraFeedCommentFooter comment={document as UltraFeedComment} />;
+    return <UltraFeedCommentFooter comment={document as UltraFeedComment} className={className} />;
   }
   return null;
 };
