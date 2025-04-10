@@ -130,7 +130,6 @@ export const baseTheme: BaseThemeSpecification = {
           color: palette.grey[800],
         },
         title: {
-          color: palette.grey[800],
           fontSize: 18,
           fontWeight: 400,
           marginBottom: 3,

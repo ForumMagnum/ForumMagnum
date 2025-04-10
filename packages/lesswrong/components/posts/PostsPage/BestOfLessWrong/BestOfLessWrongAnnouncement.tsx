@@ -16,6 +16,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
   },
   title: {
     ...theme.typography.title,
+    color: theme.palette.grey[800],
     textWrap: 'balance',
     fontSize: 40,
     marginTop: 12,
