@@ -511,8 +511,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c."postId",
           CASE WHEN c."baseScore" > 10 THEN ARRAY['topComments'] ELSE ARRAY['quickTakes'] END AS sources
         FROM "Comments" c
-        WHERE (c."baseScore" > 10 OR c.shortform IS TRUE) -- Potential candidates based on being Top Comments or Quick Takes
+        WHERE (c."baseScore" > 10 OR c.shortform IS TRUE)
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
+          AND ${getViewableCommentsSelector('c')}
           AND ${CANDIDATE_DATE_FILTER_CLAUSE}
         ORDER BY c."postedAt" DESC
         LIMIT $(initialCandidateLimit)
@@ -550,6 +551,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         FROM "Comments" c
         WHERE c._id IN (SELECT "threadTopLevelId" FROM "RelevantThreads")
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
+          AND ${getViewableCommentsSelector('c')}
       ),
       "AllCommentsForValidThreads" AS (
         -- Fetch ALL valid comments (universal filter) belonging to threads whose top-level comment is valid
@@ -566,6 +568,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 OR (c."topLevelCommentId" IS NULL AND c._id IN (SELECT "topLevelCommentId" FROM "ValidTopLevelComments"))
               )
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
+          AND ${getViewableCommentsSelector('c')}
       )
       SELECT
         ac."commentId",

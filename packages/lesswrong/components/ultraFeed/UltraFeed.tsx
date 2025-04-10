@@ -194,7 +194,7 @@ const UltraFeedContent = () => {
               <MixedTypeFeed
                 resolverName="UltraFeed"
                 sortKeyType="Date"
-                resolverArgs={{ settings: "JSON" }}
+                resolverArgs={{ sessionId: "String", settings: "JSON" }}
                 firstPageSize={15}
                 pageSize={15}
                 refetchRef={refetchSubscriptionContentRef}

@@ -26,11 +26,11 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   renderers: any,
 }) => {
   const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
-  const queryArgsList=[ "$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int", "$sessionId: String",
+  const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
   ];
-  const resolverArgsList=[ "limit: $limit", "cutoff: $cutoff", "offset: $offset", "sessionId: $sessionId",
+  const resolverArgsList=["limit: $limit", "cutoff: $cutoff", "offset: $offset",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `${k}: $${k}`) : []),
   ];
 
@@ -157,7 +157,6 @@ const MixedTypeFeed = (args: {
       cutoff: null,
       offset: 0,
       limit: firstPageSize,
-      sessionId: resolverArgsValues?.sessionId || null,
     },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
@@ -170,7 +169,7 @@ const MixedTypeFeed = (args: {
   // Whether we've reached the end. The end-marker is when a query returns null
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
-
+  
   const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
 
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
@@ -185,17 +184,14 @@ const MixedTypeFeed = (args: {
     {
       if (!queryIsPending.current) {
         queryIsPending.current = true;
-        const variables = {
-          ...resolverArgsValues,
-          ...fragmentArgsValues,
-          cutoff: data[resolverName].cutoff,
-          offset: data[resolverName].endOffset,
-          limit: pageSize,
-          sessionId: resolverArgsValues?.sessionId || null,
-        };
-        // Reset the flag after fetchMore completes or fails
-        void fetchMore({ 
-          variables,
+        void fetchMore({
+          variables: {
+            ...resolverArgsValues,
+            ...fragmentArgsValues,
+            cutoff: data[resolverName].cutoff,
+            offset: data[resolverName].endOffset,
+            limit: pageSize,
+          },
           updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
             queryIsPending.current = false;
             if (!fetchMoreResult) {
@@ -206,25 +202,17 @@ const MixedTypeFeed = (args: {
             // would use cursor-based pagination to avoid this
             const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
             const newResults = fetchMoreResult[resolverName].results;
-            
-            const deduplicatedResults = newResults.filter((result: any) => {
-              const key = keyFunc(result);
-              const alreadyExists = prevKeys.has(key);
-              return !alreadyExists;
-            });
+            const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
             
             return {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
                 endOffset: fetchMoreResult[resolverName].endOffset,
-                sessionId: fetchMoreResult[resolverName].sessionId,
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };
           }
-        }).finally(() => {
-            queryIsPending.current = false;
         });
       }
     }

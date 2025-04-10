@@ -21,7 +21,7 @@ const schema = {
         optional: false,
       },
     },
-  } satisfies NewCollectionFieldSpecification<"UltraFeedEvents">,
+  },
 
   collectionName: {
     database: {
@@ -38,7 +38,7 @@ const schema = {
         optional: false,
       },
     },
-  } satisfies NewCollectionFieldSpecification<"UltraFeedEvents">,
+  },
 
   eventType: {
     database: {
@@ -48,36 +48,30 @@ const schema = {
     graphql: {
       outputType: "String",
       inputType: "String!",
-      canRead: ["admins"], // Changed from guests
+      canRead: ["admins"], 
       canCreate: ["members"],
       validation: {
         allowedValues: ALLOWED_EVENT_TYPES,
         optional: false,
       },
     },
-  } satisfies NewCollectionFieldSpecification<"UltraFeedEvents">,
+  },
 
   userId: {
     database: {
-      type: "TEXT", // Stores the user ID string
-      nullable: false, // Assuming an event always has a user initiator
+      type: "TEXT", 
+      nullable: false, 
     },
     graphql: {
-      outputType: "String", // Outputs the ID string
+      outputType: "String", 
       inputType: "String!",
-      canRead: ["admins"], // Changed from guests
+      canRead: ["admins"], 
       canCreate: ["members"],
-      // Add resolver here later if you want to automatically fetch the User object
-      // resolveAs: { ... }
       validation: {
         optional: false,
       },
     },
-    form: {
-        label: "User ID",
-        // hidden: true // Often automatically filled or not user-editable
-    }
-  } satisfies NewCollectionFieldSpecification<"UltraFeedEvents">,
+  },
 
   event: {
     database: {
@@ -94,11 +88,7 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-        label: "Event Data",
-        // hidden: true
-    }
-  } satisfies NewCollectionFieldSpecification<"UltraFeedEvents">,
+  },
 
   feedItemId: {
     database: {
@@ -110,35 +100,15 @@ const schema = {
       inputType: "String",  // TODO: once this is being provided, make it required
       canRead: ["admins"],
       canCreate: ["members"],
-      // TODO: Add resolveAs once the UltrafeedItems collection exists
-      // resolveAs: {
-      //   fieldName: 'ultrafeedItem', // Name of the resolved field
-      //   typeName: 'UltrafeedItem', // GraphQL type of the related object
-      //   relation: 'hasOne',
-      //   // Replace 'UltrafeedItems' if the actual collection name is different
-      //   foreignCollectionName: "UltrafeedItems"
-      // },
       validation: {
         optional: true,
       },
     },
-  } satisfies NewCollectionFieldSpecification<"UltraFeedEvents">,
+  },
 
 } satisfies Record<string, NewCollectionFieldSpecification<"UltraFeedEvents">>;
 
 export default schema;
-
-// Define a matching TypeScript interface
-export interface UltrafeedEvent {
-  _id?: string;
-  createdAt?: Date;
-  userId: string;
-  documentId: string;
-  collectionName: typeof ALLOWED_COLLECTION_NAMES[number];
-  eventType: typeof ALLOWED_EVENT_TYPES[number];
-  feedItemId?: string;
-  event?: Record<string, any>; // Or a more specific type if the structure is known
-}
 
 interface ExpandedEventData {
   expansionLevel: number;
@@ -146,14 +116,8 @@ interface ExpandedEventData {
   wordCount: number;
 }
 
-interface UltraFeedEventBase {
-  _id?: string;
-  createdAt?: Date;
-  userId: string;
-  documentId: string;
-  collectionName: typeof ALLOWED_COLLECTION_NAMES[number];
-  feedItemId?: string;
-}
+// Use Pick on the generated DB type (adjust type name 'DbUltraFeedEvent' if needed)
+type UltraFeedEventBase = Pick<DbUltraFeedEvent, '_id' | 'createdAt' | 'userId' | 'documentId' | 'collectionName' | 'feedItemId'>;
 
 // Specific event types using discriminated unions based on eventType
 export type UltraFeedEvent =
