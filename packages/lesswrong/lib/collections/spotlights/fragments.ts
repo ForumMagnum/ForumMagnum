@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SpotlightMinimumInfo = () => gql(`
+export const SpotlightMinimumInfo = gql(`
   fragment SpotlightMinimumInfo on Spotlight {
     _id
     documentId
@@ -25,7 +25,7 @@ export const SpotlightMinimumInfo = () => gql(`
   }
 `)
 
-export const SpotlightReviewWinner = () => gql(`
+export const SpotlightReviewWinner = gql(`
   fragment SpotlightReviewWinner on Spotlight {
     ...SpotlightMinimumInfo
     description {
@@ -37,7 +37,7 @@ export const SpotlightReviewWinner = () => gql(`
   }
 `)
 
-export const SpotlightHeaderEventSubtitle = () => gql(`
+export const SpotlightHeaderEventSubtitle = gql(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
     post {
@@ -53,7 +53,7 @@ export const SpotlightHeaderEventSubtitle = () => gql(`
     }
   }
 `)
-export const SpotlightDisplay = () => gql(`
+export const SpotlightDisplay = gql(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     post {
@@ -96,7 +96,7 @@ export const SpotlightDisplay = () => gql(`
 `)
 
 
-export const SpotlightEditQueryFragment = () => gql(`
+export const SpotlightEditQueryFragment = gql(`
   fragment SpotlightEditQueryFragment on Spotlight {
     ...SpotlightMinimumInfo
     description {

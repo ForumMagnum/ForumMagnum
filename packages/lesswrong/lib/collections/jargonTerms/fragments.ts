@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const JargonTerms = () => gql(`
+export const JargonTerms = gql(`
   fragment JargonTerms on JargonTerm {
     _id
     postId
@@ -15,7 +15,7 @@ export const JargonTerms = () => gql(`
   }
 `)
 
-export const JargonTermsPost = () => gql(`
+export const JargonTermsPost = gql(`
   fragment JargonTermsPost on JargonTerm {
     _id
     term
@@ -29,7 +29,7 @@ export const JargonTermsPost = () => gql(`
   }
 `)
 
-export const JargonTermsWithPostInfo = () => gql(`
+export const JargonTermsWithPostInfo = gql(`
   fragment JargonTermsWithPostInfo on JargonTerm {
     ...JargonTerms
     post {

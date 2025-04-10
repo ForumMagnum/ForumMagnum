@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const ConversationsMinimumInfo = () => gql(`
+export const ConversationsMinimumInfo = gql(`
   fragment ConversationsMinimumInfo on Conversation {
     _id
     createdAt
@@ -13,7 +13,7 @@ export const ConversationsMinimumInfo = () => gql(`
   }
 `)
 
-export const ConversationsList = () => gql(`
+export const ConversationsList = gql(`
   fragment ConversationsList on Conversation {
     ...ConversationsMinimumInfo
     participants {
@@ -25,7 +25,7 @@ export const ConversationsList = () => gql(`
   }
 `)
 
-export const ConversationsListWithReadStatus = () => gql(`
+export const ConversationsListWithReadStatus = gql(`
   fragment ConversationsListWithReadStatus on Conversation {
     ...ConversationsList
     hasUnreadMessages

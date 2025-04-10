@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const TagBasicInfo = () => gql(`
+export const TagBasicInfo = gql(`
   fragment TagBasicInfo on Tag {
     _id
     userId
@@ -33,7 +33,7 @@ export const TagBasicInfo = () => gql(`
   }
 `)
 
-export const TagDetailsFragment = () => gql(`
+export const TagDetailsFragment = gql(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
     subtitle
@@ -60,7 +60,7 @@ export const TagDetailsFragment = () => gql(`
   }
 `)
 
-export const TagFragment = () => gql(`
+export const TagFragment = gql(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
@@ -81,7 +81,7 @@ export const TagFragment = () => gql(`
   }
 `)
 
-export const TagHistoryFragment = () => gql(`
+export const TagHistoryFragment = gql(`
   fragment TagHistoryFragment on Tag {
     ...TagFragment
     textLastUpdatedAt
@@ -95,7 +95,7 @@ export const TagHistoryFragment = () => gql(`
   }
 `)
 
-export const TagCreationHistoryFragment = () => gql(`
+export const TagCreationHistoryFragment = gql(`
   fragment TagCreationHistoryFragment on Tag {
     ...TagFragment
     user {
@@ -107,7 +107,7 @@ export const TagCreationHistoryFragment = () => gql(`
   }
 `)
 
-export const TagRevisionFragment = () => gql(`
+export const TagRevisionFragment = gql(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
@@ -132,7 +132,7 @@ export const TagRevisionFragment = () => gql(`
   }
 `)
 
-export const TagPreviewFragment = () => gql(`
+export const TagPreviewFragment = gql(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -151,7 +151,7 @@ export const TagPreviewFragment = () => gql(`
   }
 `)
 
-export const TagSectionPreviewFragment = () => gql(`
+export const TagSectionPreviewFragment = gql(`
   fragment TagSectionPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -169,7 +169,7 @@ export const TagSectionPreviewFragment = () => gql(`
   }
 `)
 
-export const TagSubforumFragment = () => gql(`
+export const TagSubforumFragment = gql(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     subforumModeratorIds
@@ -182,7 +182,7 @@ export const TagSubforumFragment = () => gql(`
 `)
 
 // TODO: would prefer to fetch subtags in fewer places
-export const TagSubtagFragment = () => gql(`
+export const TagSubtagFragment = gql(`
   fragment TagSubtagFragment on Tag {
     _id
     subforumModeratorIds
@@ -192,13 +192,13 @@ export const TagSubtagFragment = () => gql(`
   }
 `)
 
-export const TagSubforumSidebarFragment = () => gql(`
+export const TagSubforumSidebarFragment = gql(`
   fragment TagSubforumSidebarFragment on Tag {
     ...TagBasicInfo
   }
 `)
 
-export const TagDetailedPreviewFragment = () => gql(`
+export const TagDetailedPreviewFragment = gql(`
   fragment TagDetailedPreviewFragment on Tag {
     ...TagDetailsFragment
     description {
@@ -208,7 +208,7 @@ export const TagDetailedPreviewFragment = () => gql(`
   }
 `)
 
-export const TagWithFlagsFragment = () => gql(`
+export const TagWithFlagsFragment = gql(`
   fragment TagWithFlagsFragment on Tag {
     ...TagFragment
     tagFlagsIds
@@ -218,7 +218,7 @@ export const TagWithFlagsFragment = () => gql(`
   }
 `)
 
-export const TagWithFlagsAndRevisionFragment = () => gql(`
+export const TagWithFlagsAndRevisionFragment = gql(`
   fragment TagWithFlagsAndRevisionFragment on Tag {
     ...TagRevisionFragment
     tagFlagsIds
@@ -229,7 +229,7 @@ export const TagWithFlagsAndRevisionFragment = () => gql(`
 `)
 
 // This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
-export const ArbitalLinkedPagesFragment = () => gql(`
+export const ArbitalLinkedPagesFragment = gql(`
   fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
     faster {
       _id
@@ -274,7 +274,7 @@ export const ArbitalLinkedPagesFragment = () => gql(`
   }
 `)
 
-export const TagPageArbitalContentFragment = () => gql(`
+export const TagPageArbitalContentFragment = gql(`
   fragment TagPageArbitalContentFragment on Tag {
     lenses {
       ...MultiDocumentWithContributors
@@ -285,7 +285,7 @@ export const TagPageArbitalContentFragment = () => gql(`
   }
 `)
 
-export const TagPageFragment = () => gql(`
+export const TagPageFragment = gql(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
@@ -315,21 +315,21 @@ export const TagPageFragment = () => gql(`
   }
 `)
 
-export const TagPageWithArbitalContentFragment = () => gql(`
+export const TagPageWithArbitalContentFragment = gql(`
   fragment TagPageWithArbitalContentFragment on Tag {
     ...TagPageFragment
     ...TagPageArbitalContentFragment
   }
 `)
 
-export const AllTagsPageFragment = () => gql(`
+export const AllTagsPageFragment = gql(`
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
   }
 `)
 
-export const TagPageWithRevisionFragment = () => gql(`
+export const TagPageWithRevisionFragment = gql(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
@@ -359,14 +359,14 @@ export const TagPageWithRevisionFragment = () => gql(`
   }
 `)
 
-export const TagPageRevisionWithArbitalContentFragment = () => gql(`
+export const TagPageRevisionWithArbitalContentFragment = gql(`
   fragment TagPageRevisionWithArbitalContentFragment on Tag {
     ...TagPageWithRevisionFragment
     ...TagPageArbitalContentFragment
   }
 `)
 
-export const TagFullContributorsList = () => gql(`
+export const TagFullContributorsList = gql(`
   fragment TagFullContributorsList on Tag {
     contributors {
       totalCount
@@ -383,7 +383,7 @@ export const TagFullContributorsList = () => gql(`
   }
 `)
 
-export const TagEditFragment = () => gql(`
+export const TagEditFragment = gql(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     isPostType
@@ -411,7 +411,7 @@ export const TagEditFragment = () => gql(`
   }
 `)
 
-export const TagRecentDiscussion = () => gql(`
+export const TagRecentDiscussion = gql(`
   fragment TagRecentDiscussion on Tag {
     ...TagFragment
     lastVisitedAt
@@ -421,7 +421,7 @@ export const TagRecentDiscussion = () => gql(`
   }
 `)
 
-export const SunshineTagFragment = () => gql(`
+export const SunshineTagFragment = gql(`
   fragment SunshineTagFragment on Tag {
     ...TagFragment
     user {
@@ -430,7 +430,7 @@ export const SunshineTagFragment = () => gql(`
   }
 `)
 
-export const UserOnboardingTag = () => gql(`
+export const UserOnboardingTag = gql(`
   fragment UserOnboardingTag on Tag {
     _id
     name
@@ -440,7 +440,7 @@ export const UserOnboardingTag = () => gql(`
   }
 `)
 
-export const TagName = () => gql(`
+export const TagName = gql(`
   fragment TagName on Tag {
     _id
     name
@@ -448,7 +448,7 @@ export const TagName = () => gql(`
   }
 `)
 
-export const ExplorePageTagFragment = () => gql(`
+export const ExplorePageTagFragment = gql(`
   fragment ExplorePageTagFragment on Tag {
     ...TagFragment
     contributors(limit: $contributorsLimit) {
@@ -467,7 +467,7 @@ export const ExplorePageTagFragment = () => gql(`
   }
 `)
 
-export const ConceptItemFragment = () => gql(`
+export const ConceptItemFragment = gql(`
   fragment ConceptItemFragment on Tag {
     _id
     core
@@ -491,7 +491,7 @@ export const ConceptItemFragment = () => gql(`
   }
 `)
 
-export const TagPageWithArbitalContentAndLensRevisionFragment = () => gql(`
+export const TagPageWithArbitalContentAndLensRevisionFragment = gql(`
   fragment TagPageWithArbitalContentAndLensRevisionFragment on Tag {
     ...TagPageFragment
     arbitalLinkedPages {
@@ -503,7 +503,7 @@ export const TagPageWithArbitalContentAndLensRevisionFragment = () => gql(`
   }
 `)
 
-export const WithVoteTag = () => gql(`
+export const WithVoteTag = gql(`
   fragment WithVoteTag on Tag {
     ...TagBasicInfo
   }

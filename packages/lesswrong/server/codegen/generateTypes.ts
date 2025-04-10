@@ -8,8 +8,6 @@ import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateInputTypes } from './generateInputTypes';
 import { generateDefaultFragmentsFile } from './generateDefaultFragments';
 import { typeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
-import { print } from 'graphql';
-import { getGraphQLTypeDefs } from '../vulcan-lib/apollo-server/getTypeDefs';
 import * as typescriptPlugin from '@graphql-codegen/typescript'
 import { generate } from '@graphql-codegen/cli'
 import { parse, print } from 'graphql';

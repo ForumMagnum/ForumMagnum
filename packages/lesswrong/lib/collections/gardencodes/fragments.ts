@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const GardenCodeFragment = () => gql(`
+export const GardenCodeFragment = gql(`
   fragment GardenCodeFragment on GardenCode {
     _id
     code
@@ -19,7 +19,7 @@ export const GardenCodeFragment = () => gql(`
   }
 `)
 
-export const GardenCodeFragmentEdit = () => gql(`
+export const GardenCodeFragmentEdit = gql(`
   fragment GardenCodeFragmentEdit on GardenCode {
     _id
     code

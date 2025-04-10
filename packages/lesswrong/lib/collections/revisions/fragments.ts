@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const RevisionDisplay = () => gql(`
+export const RevisionDisplay = gql(`
   fragment RevisionDisplay on Revision {
     _id
     version
@@ -15,14 +15,14 @@ export const RevisionDisplay = () => gql(`
   }
 `)
 
-export const RevisionHTML = () => gql(`
+export const RevisionHTML = gql(`
   fragment RevisionHTML on Revision {
     _id
     html
   }
 `)
 
-export const RevisionEdit = () => gql(`
+export const RevisionEdit = gql(`
   fragment RevisionEdit on Revision {
     _id
     version
@@ -43,7 +43,7 @@ export const RevisionEdit = () => gql(`
   }
 `)
 
-export const RevisionMetadata = () => gql(`
+export const RevisionMetadata = gql(`
   fragment RevisionMetadata on Revision {
     _id
     version
@@ -60,7 +60,7 @@ export const RevisionMetadata = () => gql(`
   }
 `)
 
-export const RevisionMetadataWithChangeMetrics = () => gql(`
+export const RevisionMetadataWithChangeMetrics = gql(`
   fragment RevisionMetadataWithChangeMetrics on Revision {
     ...RevisionMetadata
     changeMetrics
@@ -70,7 +70,7 @@ export const RevisionMetadataWithChangeMetrics = () => gql(`
   }
 `)
 
-export const RevisionHistoryEntry = () => gql(`
+export const RevisionHistoryEntry = gql(`
   fragment RevisionHistoryEntry on Revision {
     ...RevisionMetadata
     documentId
@@ -84,7 +84,7 @@ export const RevisionHistoryEntry = () => gql(`
   }
 `)
 
-export const RevisionHistorySummaryEdit = () => gql(`
+export const RevisionHistorySummaryEdit = gql(`
   fragment RevisionHistorySummaryEdit on Revision {
     ...RevisionHistoryEntry
     summary {
@@ -103,7 +103,7 @@ export const RevisionHistorySummaryEdit = () => gql(`
   }
 `)
 
-export const RevisionTagFragment = () => gql(`
+export const RevisionTagFragment = gql(`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
@@ -115,7 +115,7 @@ export const RevisionTagFragment = () => gql(`
   }
 `)
 
-export const RecentDiscussionRevisionTagFragment = () => gql(`
+export const RecentDiscussionRevisionTagFragment = gql(`
   fragment RecentDiscussionRevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
@@ -124,7 +124,7 @@ export const RecentDiscussionRevisionTagFragment = () => gql(`
   }
 `)
 
-export const WithVoteRevision = () => gql(`
+export const WithVoteRevision = gql(`
   fragment WithVoteRevision on Revision {
     __typename
     _id

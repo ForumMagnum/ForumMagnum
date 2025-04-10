@@ -1,5 +1,5 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
-export const BansAdminPageFragment = () => gql(`
+export const BansAdminPageFragment = gql(`
   fragment BansAdminPageFragment on Ban {
     _id
     createdAt

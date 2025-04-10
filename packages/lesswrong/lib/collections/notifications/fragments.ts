@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const NotificationsList = () => gql(`
+export const NotificationsList = gql(`
   fragment NotificationsList on Notification {
     _id
     documentId

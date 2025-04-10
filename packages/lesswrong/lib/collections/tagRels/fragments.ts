@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const TagRelBasicInfo = () => gql(`
+export const TagRelBasicInfo = gql(`
   fragment TagRelBasicInfo on TagRel {
     _id
     score
@@ -15,7 +15,7 @@ export const TagRelBasicInfo = () => gql(`
 `)
 
 
-export const TagRelFragment = () => gql(`
+export const TagRelFragment = gql(`
   fragment TagRelFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -30,7 +30,7 @@ export const TagRelFragment = () => gql(`
   }
 `)
 
-export const TagRelHistoryFragment = () => gql(`
+export const TagRelHistoryFragment = gql(`
   fragment TagRelHistoryFragment on TagRel {
     ...TagRelBasicInfo
     createdAt
@@ -43,7 +43,7 @@ export const TagRelHistoryFragment = () => gql(`
   }
 `)
 
-export const TagRelCreationFragment = () => gql(`
+export const TagRelCreationFragment = gql(`
   fragment TagRelCreationFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -61,7 +61,7 @@ export const TagRelCreationFragment = () => gql(`
   }
 `)
 
-export const TagRelMinimumFragment = () => gql(`
+export const TagRelMinimumFragment = gql(`
   fragment TagRelMinimumFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -75,7 +75,7 @@ export const TagRelMinimumFragment = () => gql(`
 
 
 // This fragment has to be fully dereferences, because the context of vote fragments doesn't allow for spreading other fragments
-export const WithVoteTagRel = () => gql(`
+export const WithVoteTagRel = gql(`
   fragment WithVoteTagRel on TagRel {
     __typename
     _id

@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SplashArtCoordinates = () => gql(`
+export const SplashArtCoordinates = gql(`
   fragment SplashArtCoordinates on SplashArtCoordinate {
     _id
     reviewWinnerArtId
@@ -22,7 +22,7 @@ export const SplashArtCoordinates = () => gql(`
   }
 `)
 
-export const SplashArtCoordinatesEdit = () => gql(`
+export const SplashArtCoordinatesEdit = gql(`
   fragment SplashArtCoordinatesEdit on SplashArtCoordinate {
     ...SplashArtCoordinates
     createdAt

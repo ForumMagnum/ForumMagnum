@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const localGroupsBase = () => gql(`
+export const localGroupsBase = gql(`
   fragment localGroupsBase on Localgroup {
     _id
     createdAt
@@ -29,7 +29,7 @@ export const localGroupsBase = () => gql(`
   }
 `)
 
-export const localGroupsHomeFragment = () => gql(`
+export const localGroupsHomeFragment = gql(`
   fragment localGroupsHomeFragment on Localgroup {
     ...localGroupsBase
     contents {
@@ -38,7 +38,7 @@ export const localGroupsHomeFragment = () => gql(`
   }
 `)
 
-export const localGroupsEdit = () => gql(`
+export const localGroupsEdit = gql(`
   fragment localGroupsEdit on Localgroup {
     ...localGroupsBase
     contents {
@@ -47,7 +47,7 @@ export const localGroupsEdit = () => gql(`
   }
 `)
 
-export const localGroupsIsOnline = () => gql(`
+export const localGroupsIsOnline = gql(`
   fragment localGroupsIsOnline on Localgroup {
     _id
     name

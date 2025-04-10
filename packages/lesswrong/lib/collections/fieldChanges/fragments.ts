@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const FieldChangeFragment = () => gql(`
+export const FieldChangeFragment = gql(`
   fragment FieldChangeFragment on FieldChange {
     _id
     createdAt

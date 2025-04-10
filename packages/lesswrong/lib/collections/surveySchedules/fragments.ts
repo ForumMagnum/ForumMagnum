@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SurveyScheduleMinimumInfo = () => gql(`
+export const SurveyScheduleMinimumInfo = gql(`
   fragment SurveyScheduleMinimumInfo on SurveySchedule {
     _id
     survey {
@@ -9,7 +9,7 @@ export const SurveyScheduleMinimumInfo = () => gql(`
   }
 `)
 
-export const SurveyScheduleEdit = () => gql(`
+export const SurveyScheduleEdit = gql(`
   fragment SurveyScheduleEdit on SurveySchedule {
     ...SurveyScheduleMinimumInfo
     surveyId

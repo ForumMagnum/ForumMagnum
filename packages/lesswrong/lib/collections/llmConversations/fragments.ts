@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const LlmConversationsFragment = () => gql(`
+export const LlmConversationsFragment = gql(`
   fragment LlmConversationsFragment on LlmConversation {
     _id
     userId
@@ -11,7 +11,7 @@ export const LlmConversationsFragment = () => gql(`
   }
 `)
 
-export const LlmConversationsViewingPageFragment = () => gql(`
+export const LlmConversationsViewingPageFragment = gql(`
   fragment LlmConversationsViewingPageFragment on LlmConversation {
     ...LlmConversationsFragment
     totalCharacterCount
@@ -22,7 +22,7 @@ export const LlmConversationsViewingPageFragment = () => gql(`
 `)
 
 
-export const LlmConversationsWithMessagesFragment = () => gql(`
+export const LlmConversationsWithMessagesFragment = gql(`
   fragment LlmConversationsWithMessagesFragment on LlmConversation {
     ...LlmConversationsFragment
     messages {

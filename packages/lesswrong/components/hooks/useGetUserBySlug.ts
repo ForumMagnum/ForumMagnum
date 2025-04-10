@@ -8,15 +8,15 @@ interface GetUserBySlugOptions<FragmentName extends FragmentTypesByCollection['U
 
 export function useGetUserBySlug<FragmentName extends FragmentTypesByCollection['Users']>(slug: string | undefined, options: GetUserBySlugOptions<FragmentName>) {
   const { fragmentName, skip } = options;
-
-  const { data, ...rest } = useQuery<{ GetUserBySlug: FragmentTypes[FragmentName] }>(gql`
+  const queryText = `
     query GetUserBySlug($slug: String!) {
       GetUserBySlug(slug: $slug) {
         ...${fragmentName}
       }
     }
     ${fragmentTextForQuery(fragmentName)}
-  `, {
+  `
+  const { data, ...rest } = useQuery<{ GetUserBySlug: FragmentTypes[FragmentName] }>(gql`${queryText}`, {
     fetchPolicy: 'network-only',
     variables: { slug },
     skip: skip || !slug,

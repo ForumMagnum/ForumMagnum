@@ -1,6 +1,6 @@
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const SequencesPageTitleFragment = () => gql(`
+export const SequencesPageTitleFragment = gql(`
   fragment SequencesPageTitleFragment on Sequence {
     _id
     title
@@ -12,7 +12,7 @@ export const SequencesPageTitleFragment = () => gql(`
   }
 `)
 
-export const SequencesPageFragment = () => gql(`
+export const SequencesPageFragment = gql(`
   fragment SequencesPageFragment on Sequence {
     ...SequencesPageTitleFragment
     createdAt
@@ -39,7 +39,7 @@ export const SequencesPageFragment = () => gql(`
   }
 `)
 
-export const SequenceContinueReadingFragment = () => gql(`
+export const SequenceContinueReadingFragment = gql(`
   fragment SequenceContinueReadingFragment on Sequence {
     _id
     title
@@ -48,7 +48,7 @@ export const SequenceContinueReadingFragment = () => gql(`
   }
 `)
 
-export const SequencesPageWithChaptersFragment = () => gql(`
+export const SequencesPageWithChaptersFragment = gql(`
   fragment SequencesPageWithChaptersFragment on Sequence {
     ...SequencesPageFragment
     chapters {
@@ -57,7 +57,7 @@ export const SequencesPageWithChaptersFragment = () => gql(`
   }
 `)
 
-export const SequencesEdit = () => gql(`
+export const SequencesEdit = gql(`
   fragment SequencesEdit on Sequence {
     ...SequencesPageFragment
     contents { 
