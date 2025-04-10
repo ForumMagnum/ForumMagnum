@@ -29,7 +29,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     fontSize: '1.1rem',
     ...theme.typography.commentStyle,
     textTransform: 'uppercase',
-    color: theme.palette.grey[700],
+    color: "#616161",
     position: 'relative',
     top: 2,
     [theme.breakpoints.down('sm')]: {
@@ -54,7 +54,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     '&:hover $winnerItem': {
       [theme.breakpoints.up('md')]: {
         opacity: 1,
-        borderBottom: theme.palette.border.grey200,
+        borderBottom: `1px solid #eee`,
       },
     },
     '&:hover $winnerItem:last-child': {
@@ -125,7 +125,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     color: theme.palette.text.alwaysWhite,
     whiteSpace: 'nowrap',
     backdropFilter: 'blur(1px)',
-    textShadow: `0 0 4px ${theme.palette.greyAlpha(.8)}, 0 0 8px ${theme.palette.greyAlpha(.2)}`,
+    textShadow: `0 0 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.2)`,
   },
   winnersContainer: {
     display: "flex",
@@ -153,10 +153,10 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
       filter: "brightness(1) saturate(1)",
     },
     '&:hover $winnerCategoryRank': {
-      color: theme.palette.grey[300],
+      color: "#e0e0e0",
     },
     '&:hover $winnerTitle': {
-      color: theme.palette.grey[100],
+      color: "#f5f5f5",
     },
     '&:hover $winnerImageBackground': {
       opacity: .2,
@@ -185,7 +185,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     ...theme.typography.body2,
     transition: "opacity 0.2s ease-in-out",
     fontSize: 13,
-    color: theme.palette.grey[300],
+    color: "#e0e0e0",
     lineHeight: '1.2',
     position: "absolute",
     textShadow: `0px 0px 3px ${theme.palette.text.alwaysBlack}, 0 0 5px ${theme.palette.text.alwaysBlack}`,
@@ -198,13 +198,13 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     ...theme.typography.body2,
     transition: "opacity 0.1s ease-in-out",
     fontSize: '.9rem',
-    color: theme.palette.grey[500],
+    color: "#9e9e9e",
     lineHeight: '1.2',
     position: "absolute",
     bottom: 8,
     left: 8,
     opacity: 0,
-    textShadow: `0 0 4px ${theme.palette.greyAlpha(.8)}`,
+    textShadow: `0 0 4px rgba(0,0,0,0.8)`,
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
@@ -230,7 +230,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
       display: "none"
     }
   },
-}));
+}), { allowNonThemeColors: true });
 
 const BestOfLessWrongAnnouncement = () => {
   const classes = useStyles(styles);
