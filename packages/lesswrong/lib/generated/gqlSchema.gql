@@ -9428,6 +9428,7 @@ type User {
   username: String
   emails: [JSON]
   isAdmin: Boolean
+  profile: JSON
   services: JSON
   hasAuth0Id: Boolean
   displayName: String
@@ -9900,6 +9901,7 @@ input UpdateUserDataInput {
   groups: [String]
   theme: JSON
   lastUsedTimezone: String
+  whenConfirmationEmailSent: Date
   legacy: Boolean
   commentSorting: String
   sortDraftsBy: String

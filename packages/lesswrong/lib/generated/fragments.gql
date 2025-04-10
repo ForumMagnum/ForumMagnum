@@ -4605,6 +4605,7 @@ fragment UsersDefaultFragment on User {
   username
   emails
   isAdmin
+  profile
   services
   displayName
   previousDisplayName

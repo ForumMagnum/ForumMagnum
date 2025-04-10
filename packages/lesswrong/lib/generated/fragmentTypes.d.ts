@@ -4156,6 +4156,7 @@ interface UsersDefaultFragment { // fragment on Users
     verified: boolean,
   }>,
   readonly isAdmin: boolean,
+  readonly profile: any,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly displayName: string,
   readonly previousDisplayName: string,
