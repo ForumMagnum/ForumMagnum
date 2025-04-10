@@ -4,7 +4,7 @@ export const DEFAULT_ID_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "String",
+    outputType: "String!",
     canRead: ["guests"],
     validation: {
       optional: true,
@@ -21,7 +21,7 @@ export const DEFAULT_SCHEMA_VERSION_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "Float",
+    outputType: "Float!",
     canRead: ["guests"],
     onUpdate: () => 1,
     validation: {
@@ -36,7 +36,7 @@ export const DEFAULT_CREATED_AT_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "Date",
+    outputType: "Date!",
     canRead: ["guests"],
     onCreate: () => new Date(),
     validation: {

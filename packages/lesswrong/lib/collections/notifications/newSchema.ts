@@ -15,6 +15,7 @@ const schema = {
     database: DEFAULT_CREATED_AT_FIELD.database,
     graphql: {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
+      outputType: "Date",
       canRead: [userOwns],
     },
   },
