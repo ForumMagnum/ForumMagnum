@@ -43,6 +43,7 @@ export const recentDiscussionFeedGraphQLTypeDefs = gql`
       offset: Int,
       af: Boolean,
       sessionId: String,
+      settings: JSON
     ): RecentDiscussionFeedQueryResults!
   }
 `

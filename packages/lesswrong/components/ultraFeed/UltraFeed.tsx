@@ -195,10 +195,11 @@ const UltraFeedContent = () => {
               <MixedTypeFeed
                 resolverName="UltraFeed"
                 sortKeyType="Date"
+                resolverArgs={{ settings: "JSON" }}
                 firstPageSize={15}
                 pageSize={15}
                 refetchRef={refetchSubscriptionContentRef}
-                resolverArgsValues={{ sessionId }}
+                resolverArgsValues={{ sessionId, settings: JSON.stringify(settings) }}
                 loadMoreDistanceProp={1000}
                 renderers={{
                   feedCommentThread: {
