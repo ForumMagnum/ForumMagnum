@@ -1565,6 +1565,7 @@ const schema = {
     ...DEFAULT_BASE_SCORE_FIELD,
     graphql: {
       ...DEFAULT_BASE_SCORE_FIELD.graphql,
+      outputType: "Float",
       canRead: [customBaseScoreReadAccess],
     },
   },

@@ -72,6 +72,7 @@ export const DEFAULT_LEGACY_DATA_FIELD = {
 export const DEFAULT_LATEST_REVISION_ID_FIELD = {
   database: {
     type: "TEXT",
+    nullable: true,
   },
   graphql: {
     outputType: "String",

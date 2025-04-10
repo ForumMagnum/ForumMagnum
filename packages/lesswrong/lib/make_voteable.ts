@@ -91,7 +91,7 @@ export function defaultVoteCountField<N extends VoteableCollectionName>(collecti
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -117,7 +117,7 @@ export const DEFAULT_BASE_SCORE_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "Float",
+    outputType: "Float!",
     canRead: ["guests"],
     validation: {
       optional: true,
@@ -128,6 +128,7 @@ export const DEFAULT_BASE_SCORE_FIELD = {
 export const DEFAULT_EXTENDED_SCORE_FIELD = {
   database: {
     type: "JSONB",
+    nullable: true,
   },
   graphql: {
     outputType: GraphQLJSON,
@@ -146,7 +147,7 @@ export const DEFAULT_SCORE_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "Float",
+    outputType: "Float!",
     canRead: ["guests"],
     validation: {
       optional: true,
@@ -166,6 +167,7 @@ export const DEFAULT_INACTIVE_FIELD = {
 export const DEFAULT_AF_BASE_SCORE_FIELD = {
   database: {
     type: "DOUBLE PRECISION",
+    nullable: true,
   },
   graphql: {
     outputType: "Float",
@@ -182,6 +184,7 @@ export const DEFAULT_AF_BASE_SCORE_FIELD = {
 export const DEFAULT_AF_EXTENDED_SCORE_FIELD = {
   database: {
     type: "JSONB",
+    nullable: true,
   },
   graphql: {
     outputType: GraphQLJSON,
@@ -195,6 +198,7 @@ export const DEFAULT_AF_EXTENDED_SCORE_FIELD = {
 export const DEFAULT_AF_VOTE_COUNT_FIELD = {
   database: {
     type: "DOUBLE PRECISION",
+    nullable: true,
   },
   graphql: {
     outputType: "Float",
