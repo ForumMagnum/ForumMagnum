@@ -1,12 +1,11 @@
 import React from 'react';
 import { addCronJob } from './cron/cronUtil';
 import { wrapAndSendEmail } from './emails/renderEmail';
-import './emailComponents/EmailInactiveUserSurvey';
 import { loggerConstructor } from '../lib/utils/logging';
 import UsersRepo from './repos/UsersRepo';
 import Users from '@/server/collections/users/collection';
 import { isEAForum } from '../lib/instanceSettings';
-import { Components } from "../lib/vulcan-lib/components";
+import { EmailInactiveUserSurvey } from './emailComponents/EmailInactiveUserSurvey';
 
 /**
  * Sends emails to inactive users with a link to a feedback survey
@@ -31,7 +30,7 @@ export const sendInactiveUserSurveyEmails = async () => {
         user,
         from: 'EA Forum Team <eaforum@centreforeffectivealtruism.org>',
         subject: `Help us improve the site`,
-        body: <Components.EmailInactiveUserSurvey user={user} />,
+        body: <EmailInactiveUserSurvey user={user} />,
       })
       await Users.rawUpdateOne(
         {_id: user._id},

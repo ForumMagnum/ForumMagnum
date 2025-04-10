@@ -126,7 +126,7 @@ const styles = (theme: ThemeType) => ({
       minHeight: 100
     },
     [theme.breakpoints.down('xs')]: {
-      marginRight: 100
+      marginRight: 50
     },
     '& br': {
       [theme.breakpoints.down('sm')]: {

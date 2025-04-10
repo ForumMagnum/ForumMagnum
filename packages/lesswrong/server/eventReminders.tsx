@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components } from '../lib/vulcan-lib/components';
 import { testServerSetting } from '../lib/instanceSettings';
 import { Posts } from '../server/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
@@ -8,8 +7,8 @@ import { getUsersToNotifyAboutEvent } from './notificationCallbacks';
 import { addCronJob } from './cron/cronUtil';
 import { updateMutator } from './vulcan-lib/mutators';
 import { wrapAndSendEmail } from './emails/renderEmail';
-import './emailComponents/EventTomorrowReminder';
 import moment from '../lib/moment-timezone';
+import { EventTomorrowReminder } from './emailComponents/EventTomorrowReminder';
 
 async function checkAndSendUpcomingEventEmails() {
   const in24hours = moment(new Date()).add(24, 'hours').toDate();
@@ -56,7 +55,7 @@ async function checkAndSendUpcomingEventEmails() {
       await wrapAndSendEmail({
         user, to: email,
         subject: `Event reminder: ${upcomingEvent.title}`,
-        body: <Components.EventTomorrowReminder rsvp={rsvp} postId={upcomingEvent._id}/>
+        body: <EventTomorrowReminder rsvp={rsvp} postId={upcomingEvent._id}/>
       });
     }
   }

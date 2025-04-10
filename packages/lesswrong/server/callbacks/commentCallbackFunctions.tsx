@@ -33,6 +33,7 @@ import _ from "underscore";
 import moment from "moment";
 import isEqual from "lodash/isEqual";
 import uniq from "lodash/uniq";
+import { EmailComment } from "../emailComponents/EmailComment";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -160,7 +161,7 @@ const utils = {
         user: user,
         to: email,
         subject: `New comment on ${post.title}`,
-        body: <Components.EmailComment commentId={comment._id}/>,
+        body: <EmailComment commentId={comment._id}/>,
       });
     }
   },
