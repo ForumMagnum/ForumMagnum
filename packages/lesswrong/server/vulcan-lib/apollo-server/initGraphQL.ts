@@ -35,6 +35,7 @@ import { adminGqlTypeDefs, adminGqlMutations } from '@/server/resolvers/adminRes
 import { alignmentForumMutations, alignmentForumTypeDefs } from '@/server/resolvers/alignmentForumMutations'
 import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs } from '@/server/resolvers/allTagsActivityFeed';
 import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
+import { ultraFeedGraphQLQueries, ultraFeedGraphQLTypeDefs } from '@/server/resolvers/ultraFeedResolver';
 import { subscribedUsersFeedGraphQLQueries, subscribedUsersFeedGraphQLTypeDefs } from '@/server/resolvers/subscribedUsersFeedResolver';
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
 import { subForumFeedGraphQLQueries, subForumFeedGraphQLTypeDefs, tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
@@ -155,6 +156,7 @@ import { graphqlTagRelQueryTypeDefs, tagRelGqlQueryHandlers, tagRelGqlFieldResol
 import { graphqlTagQueryTypeDefs, tagGqlQueryHandlers, tagGqlFieldResolvers } from "@/server/collections/tags/queries";
 import { graphqlTweetQueryTypeDefs, tweetGqlFieldResolvers } from "@/server/collections/tweets/queries";
 import { graphqlTypingIndicatorQueryTypeDefs, typingIndicatorGqlQueryHandlers, typingIndicatorGqlFieldResolvers } from "@/server/collections/typingIndicators/queries";
+import { graphqlUltraFeedEventQueryTypeDefs, ultraFeedEventGqlFieldResolvers } from "@/server/collections/ultraFeedEvents/queries";
 import { graphqlUserActivityQueryTypeDefs, userActivityGqlFieldResolvers } from "@/server/collections/useractivities/queries";
 import { graphqlUserEAGDetailQueryTypeDefs, userEAGDetailGqlQueryHandlers, userEAGDetailGqlFieldResolvers } from "@/server/collections/userEAGDetails/queries";
 import { graphqlUserJobAdQueryTypeDefs, userJobAdGqlQueryHandlers, userJobAdGqlFieldResolvers } from "@/server/collections/userJobAds/queries";
@@ -211,6 +213,7 @@ import { createSurveyGqlMutation, updateSurveyGqlMutation, graphqlSurveyTypeDefs
 import { createTagFlagGqlMutation, updateTagFlagGqlMutation, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
 import { createTagRelGqlMutation, updateTagRelGqlMutation, graphqlTagRelTypeDefs } from "@/server/collections/tagRels/mutations";
 import { createTagGqlMutation, updateTagGqlMutation, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
+import { graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
 import { createUserEAGDetailGqlMutation, updateUserEAGDetailGqlMutation, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
 import { createUserJobAdGqlMutation, updateUserJobAdGqlMutation, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
 import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMutation, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
@@ -305,6 +308,7 @@ export const typeDefs = gql`
   ${diffGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
+  ${ultraFeedGraphQLTypeDefs}
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
   ## CRUD Query typedefs
@@ -387,6 +391,7 @@ export const typeDefs = gql`
   ${graphqlTagQueryTypeDefs}
   ${graphqlTweetQueryTypeDefs}
   ${graphqlTypingIndicatorQueryTypeDefs}
+  ${graphqlUltraFeedEventQueryTypeDefs}
   ${graphqlUserActivityQueryTypeDefs}
   ${graphqlUserEAGDetailQueryTypeDefs}
   ${graphqlUserJobAdQueryTypeDefs}
@@ -444,6 +449,7 @@ export const typeDefs = gql`
   ${graphqlTagFlagTypeDefs}
   ${graphqlTagRelTypeDefs}
   ${graphqlTagTypeDefs}
+  ${graphqlUltraFeedEventTypeDefs}
   ${graphqlUserEAGDetailTypeDefs}
   ${graphqlUserJobAdTypeDefs}
   ${graphqlUserMostValuablePostTypeDefs}
@@ -493,6 +499,7 @@ export const resolvers = {
     ...diffGqlQueries,
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
+    ...ultraFeedGraphQLQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,
@@ -799,6 +806,7 @@ export const resolvers = {
   ...tagGqlFieldResolvers,
   ...tweetGqlFieldResolvers,
   ...typingIndicatorGqlFieldResolvers,
+  ...ultraFeedEventGqlFieldResolvers,
   ...userActivityGqlFieldResolvers,
   ...userEAGDetailGqlFieldResolvers,
   ...userJobAdGqlFieldResolvers,

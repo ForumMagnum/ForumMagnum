@@ -171,17 +171,24 @@ export function assignUserIdToData(data: unknown, currentUser: DbUser | null, sc
   }
 }
 
+export async function insertAndReturnDocument<N extends CollectionNameString, T extends CreateInputsByCollectionName[N]['data'] | Partial<ObjectsByCollectionName[N]>>(data: T, collectionName: N, context: ResolverContext) {
+  const collection = context[collectionName] as CollectionBase<N>;
+  const insertedId = await collection.rawInsert(data);
+  const insertedDocument = (await collection.findOne(insertedId))!;
+  return insertedDocument;
+}
+
 /**
  * @deprecated This function returns AfterCreateCallbackProperties, which
  * is a legacy holdover from mutation callbacks.  If you're creating
  * a new collection with CRUD mutations, just insert the document directly
  * into the database and fetch it again if you need it with its default values,
  * and don't write functions which depend on `AfterCreateCallbackProperties`.
+ * 
+ * Instead, use insertAndReturnDocument.
  */
 export async function insertAndReturnCreateAfterProps<N extends CollectionNameString, T extends CreateInputsByCollectionName[N]['data'] | Partial<ObjectsByCollectionName[N]>>(data: T, collectionName: N, createCallbackProperties: CreateCallbackProperties<N, T>) {
-  const collection = createCallbackProperties.context[collectionName] as CollectionBase<N>;
-  const insertedId = await collection.rawInsert(data);
-  const insertedDocument = (await collection.findOne(insertedId))!;
+  const insertedDocument = await insertAndReturnDocument(data, collectionName, createCallbackProperties.context);
 
   const afterCreateProperties: AfterCreateCallbackProperties<N> = {
     ...createCallbackProperties,

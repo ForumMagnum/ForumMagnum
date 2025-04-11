@@ -3,6 +3,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 declare global {
   interface SpotlightsViewTerms extends ViewTermsBase {
     documentIds?: string[];
+    spotlightIds?: string[];
   }
 }
 
@@ -61,10 +62,24 @@ function spotlightsByDocumentIds(terms: SpotlightsViewTerms) {
   }
 }
 
+function spotlightsById(terms: SpotlightsViewTerms) {
+  return {
+    selector: {
+      _id: { $in: terms.spotlightIds },
+      draft: false,
+      deletedDraft: false
+    },
+    options: {
+      sort: { position: 1 }
+    }
+  }
+}
+
 export const SpotlightsViews = new CollectionViewSet('Spotlights', {
   mostRecentlyPromotedSpotlights,
   spotlightsPage,
   spotlightsPageDraft,
-  spotlightsByDocumentIds
+  spotlightsByDocumentIds,
+  spotlightsById
 });
 

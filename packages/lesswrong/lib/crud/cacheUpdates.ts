@@ -40,6 +40,7 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document }:
   watchesToUpdate.forEach(({query, variables}: {query: any, variables: any}) => {
     const { input: { terms } } = variables
     const data: any = store.readQuery({query, variables})
+    if (!data) return;
     const multiResolverName = getMultiResolverName(typeName);
     const collectionName = typeNameToCollectionName[typeName];
     const parameters = viewTermsToQuery(collectionName, terms);

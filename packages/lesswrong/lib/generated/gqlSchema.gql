@@ -659,6 +659,7 @@ type RecentDiscussionFeedQueryResults {
   cutoff: Date
   endOffset: Int!
   results: [RecentDiscussionFeedEntryType!]
+  sessionId: String
 }
 
 type RecentDiscussionFeedEntryType {
@@ -1186,6 +1187,42 @@ extend type Mutation {
 
 extend type Mutation {
   increasePostViewCount(postId: String): Float
+}
+
+type FeedPost {
+  _id: String!
+  postMetaInfo: JSON
+  post: Post
+}
+
+type FeedCommentThread {
+  _id: String!
+  commentMetaInfos: JSON
+  comments: [Comment]
+  post: Post
+}
+
+type FeedSpotlightItem {
+  _id: String!
+  spotlight: Spotlight
+}
+
+type UltraFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [UltraFeedEntryType!]
+  sessionId: String
+}
+
+type UltraFeedEntryType {
+  type: String!
+  feedCommentThread: FeedCommentThread
+  feedPost: FeedPost
+  feedSpotlight: FeedSpotlightItem
+}
+
+extend type Query {
+  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON): UltraFeedQueryResults!
 }
 
 extend type Mutation {
@@ -4312,6 +4349,17 @@ extend type Query {
   typingIndicators(input: MultiTypingIndicatorInput): MultiTypingIndicatorOutput
 }
 
+type UltraFeedEvent {
+  _id: String!
+  createdAt: Date!
+  documentId: String
+  collectionName: String
+  eventType: String
+  userId: String
+  event: JSON
+  feedItemId: String
+}
+
 type UserActivity {
   _id: String!
   schemaVersion: Float!
@@ -7004,6 +7052,27 @@ type TagOutput {
 extend type Mutation {
   createTag(data: CreateTagDataInput!): TagOutput
   updateTag(selector: SelectorInput!, data: UpdateTagDataInput!): TagOutput
+}
+
+input CreateUltraFeedEventDataInput {
+  documentId: String!
+  collectionName: String!
+  eventType: String!
+  userId: String!
+  event: JSON
+  feedItemId: String
+}
+
+input CreateUltraFeedEventInput {
+  data: CreateUltraFeedEventDataInput!
+}
+
+type UltraFeedEventOutput {
+  data: UltraFeedEvent
+}
+
+extend type Mutation {
+  createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
 }
 
 input CreateUserEAGDetailDataInput {

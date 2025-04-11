@@ -437,6 +437,7 @@ interface RecentDiscussionFeedQueryResults {
   cutoff?: Date | null;
   endOffset: number;
   results?: Array<RecentDiscussionFeedEntryType> | null;
+  sessionId?: string | null;
 }
 
 interface RecentDiscussionFeedEntryType {
@@ -728,6 +729,38 @@ interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
   htmlDiff: string;
+}
+
+interface FeedPost {
+  _id: string;
+  postMetaInfo?: any;
+  post?: UpdatePostDataInput | null;
+}
+
+interface FeedCommentThread {
+  _id: string;
+  commentMetaInfos?: any;
+  comments?: Array<UpdateCommentDataInput | null> | null;
+  post?: UpdatePostDataInput | null;
+}
+
+interface FeedSpotlightItem {
+  _id: string;
+  spotlight?: UpdateSpotlightDataInput | null;
+}
+
+interface UltraFeedQueryResults {
+  cutoff?: Date | null;
+  endOffset: number;
+  results?: Array<UltraFeedEntryType> | null;
+  sessionId?: string | null;
+}
+
+interface UltraFeedEntryType {
+  type: string;
+  feedCommentThread?: FeedCommentThread | null;
+  feedPost?: FeedPost | null;
+  feedSpotlight?: FeedSpotlightItem | null;
 }
 
 interface SingleAdvisorRequestInput {
@@ -4084,6 +4117,23 @@ interface TagOutput {
   data?: UpdateTagDataInput | null;
 }
 
+interface CreateUltraFeedEventDataInput {
+  documentId: string;
+  collectionName: string;
+  eventType: string;
+  userId: string;
+  event?: any;
+  feedItemId?: string | null;
+}
+
+interface CreateUltraFeedEventInput {
+  data: CreateUltraFeedEventDataInput;
+}
+
+interface UltraFeedEventOutput {
+  data?: UpdateUltraFeedEventDataInput | null;
+}
+
 interface CreateUserEAGDetailDataInput {
   legacyData?: any;
   lastUpdated?: Date | null;
@@ -4708,6 +4758,11 @@ interface GraphQLTypeMap {
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   RssPostChangeInfo: RssPostChangeInfo;
+  FeedPost: FeedPost;
+  FeedCommentThread: FeedCommentThread;
+  FeedSpotlightItem: FeedSpotlightItem;
+  UltraFeedQueryResults: UltraFeedQueryResults;
+  UltraFeedEntryType: UltraFeedEntryType;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
   MultiAdvisorRequestInput: MultiAdvisorRequestInput;
@@ -5212,6 +5267,9 @@ interface GraphQLTypeMap {
   UpdateTagDataInput: UpdateTagDataInput;
   UpdateTagInput: UpdateTagInput;
   TagOutput: TagOutput;
+  CreateUltraFeedEventDataInput: CreateUltraFeedEventDataInput;
+  CreateUltraFeedEventInput: CreateUltraFeedEventInput;
+  UltraFeedEventOutput: UltraFeedEventOutput;
   CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
   CreateUserEAGDetailInput: CreateUserEAGDetailInput;
   UpdateUserEAGDetailDataInput: UpdateUserEAGDetailDataInput;
@@ -5291,6 +5349,7 @@ interface CreateInputsByCollectionName {
   TagFlags: CreateTagFlagInput;
   TagRels: CreateTagRelInput;
   Tags: CreateTagInput;
+  UltraFeedEvents: CreateUltraFeedEventInput;
   UserEAGDetails: CreateUserEAGDetailInput;
   UserJobAds: CreateUserJobAdInput;
   UserMostValuablePosts: CreateUserMostValuablePostInput;
@@ -5420,6 +5479,7 @@ interface UpdateInputsByCollectionName {
   Subscriptions: never;
   Tweets: never;
   TypingIndicators: never;
+  UltraFeedEvents: never;
   UserActivities: never;
   Votes: never;
 }
