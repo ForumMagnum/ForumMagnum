@@ -494,13 +494,12 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.headerStyle,
     fontVariantCaps: 'all-small-caps',
     color: theme.palette.grey[600],
-    marginBottom: 24,
     whiteSpace: 'nowrap',
+    display: 'inline-block',
     [theme.breakpoints.down('sm')]: {
-      marginLeft: 8,
-      marginRight: 8,
-      marginTop:8,
-      marginBottom: 8,
+      margin: 8,
+      marginBottom: 2,
+      marginTop: 4,
     }
   },
   categoryIsSelected: {
@@ -526,7 +525,7 @@ const styles = (theme: ThemeType) => ({
   },
   categorySelector: {
     textWrap: 'balance',
-    marginBottom: '12px',
+    marginBottom: 24,
     display: 'flex',
     justifyContent: 'center',
     flexWrap: 'wrap',
