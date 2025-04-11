@@ -842,17 +842,6 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   const initialCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
   const [category, setCategory] = useState<CategorySelectorState>(initialCategory)
 
-  // useEffect(() => {
-  //   if (yearQuery) {
-  //     const element = document.getElementById('year-category-section');
-  //     if (element) {          
-  //       window.scrollTo({
-  //         top: element.getBoundingClientRect().top + window.pageYOffset - 800
-  //       });
-  //     }
-  //   }
-  // }, [yearQuery]);
-
   let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
 
   filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
