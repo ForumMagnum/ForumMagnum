@@ -54,6 +54,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     marginBottom: 8,
+    marginRight: 8,
   },
   feedComementItem: {
     marginBottom: 16

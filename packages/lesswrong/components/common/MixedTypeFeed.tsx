@@ -157,6 +157,7 @@ const MixedTypeFeed = (args: {
       cutoff: null,
       offset: 0,
       limit: firstPageSize,
+      sessionId: resolverArgsValues?.sessionId || null,
     },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
@@ -191,6 +192,7 @@ const MixedTypeFeed = (args: {
             cutoff: data[resolverName].cutoff,
             offset: data[resolverName].endOffset,
             limit: pageSize,
+            sessionId: resolverArgsValues?.sessionId || null,
           },
           updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
             queryIsPending.current = false;
@@ -209,6 +211,7 @@ const MixedTypeFeed = (args: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
                 endOffset: fetchMoreResult[resolverName].endOffset,
+                sessionId: fetchMoreResult[resolverName].sessionId,
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };
