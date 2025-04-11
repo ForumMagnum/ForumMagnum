@@ -154,6 +154,12 @@ const styles = (theme: ThemeType) => ({
       '--top-posts-page-scrim-opacity': '0%'
     },
   },
+  gridMobileCollapsed: {
+    [theme.breakpoints.down(800)]: {
+      maxHeight: `159px !important`,
+      overflow: 'hidden',
+    },
+  },
   expandedImageGrid: {
     '& $imageGridContainer': {
       transition: 'width 0.5s ease-in-out',
@@ -448,6 +454,7 @@ const styles = (theme: ThemeType) => ({
   },
   postsByYearSectionCentered: {
     marginTop: 60,
+    width: 'calc(100vw - 16px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -466,10 +473,19 @@ const styles = (theme: ThemeType) => ({
     margin: 12,
     color: theme.palette.grey[600],
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.4rem',
       marginLeft: 6,
       marginRight: 6,
     }
+  },
+  yearAll: {
+    fontVariant: 'all-small-caps',
+    fontSize: 30,
+    position: 'relative',
+    top: -4
+  },
+  yearIsSelected: {
+    color: theme.palette.grey[900],
+    fontWeight: 600,
   },
   category: {
     ...theme.typography.display1,
@@ -479,11 +495,17 @@ const styles = (theme: ThemeType) => ({
     fontVariantCaps: 'all-small-caps',
     color: theme.palette.grey[600],
     marginBottom: 24,
+    whiteSpace: 'nowrap',
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.4rem',
-      marginLeft: 6,
-      marginRight: 6,
+      marginLeft: 8,
+      marginRight: 8,
+      marginTop:8,
+      marginBottom: 8,
     }
+  },
+  categoryIsSelected: {
+    color: theme.palette.grey[900],
+    fontWeight: 600,
   },
   postsByYearCategory: {
     display: 'flex',
@@ -498,12 +520,16 @@ const styles = (theme: ThemeType) => ({
   yearSelector: {
     textWrap: 'balance',
     marginBottom: '12px',
-    textAlign: "center",
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   categorySelector: {
     textWrap: 'balance',
     marginBottom: '12px',
-    textAlign: "center",
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   disabledCategory: {
     opacity: .5,
@@ -513,12 +539,27 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 20,
     display: 'flex',
     alignItems: 'center',
+    // [theme.breakpoints.down('sm')]: {
+    '& .SpotlightItem-root': {
+      [theme.breakpoints.down('sm')]: {
+        width: 'calc(100vw - 16px)'
+      },
+      [theme.breakpoints.up('xs')]: {
+        marginBottom: -8
+      }
+    }
+    // }
   },
   spotlightRanking: {
     marginRight: 16,
+    width: 28,
+    textAlign: 'right',
     ...theme.typography.body2,
     ...theme.typography.headerStyle,
     color: theme.palette.grey[500],
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
   },
   spotlightIsNotRead: {
     filter: 'saturate(0) opacity(0.8)',
@@ -744,25 +785,26 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
-        <div className={classes.widerColumn}>
-          <div className={classes.description}>
-            <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} titleClassName={classes.title} />
-            <ContentStyles contentType="post">
-              When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
-              <br /><br />
-              For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
-            </ContentStyles>
+          <div className={classes.widerColumn}>
+            <div className={classes.description}>
+              <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} titleClassName={classes.title} />
+              <ContentStyles contentType="post">
+                When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
+                <br /><br />
+                For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
+              </ContentStyles>
+            </div>
+            <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
+              {sectionGrid}
+            </div>
           </div>
-          <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
-            {sectionGrid}
-          </div>
-          {loading && <Loading/>}
+          {loading && <div style={{ height: 30 }}><Loading/></div>}
           <TopSpotlightsSection classes={classes} 
             yearGroupsInfo={yearGroupsInfo} 
             sectionsInfo={sectionsInfo} 
             reviewWinnersWithPosts={reviewWinnersWithPosts} 
           />
-        </div>
+          {loading && <Loading/>}
       </AnalyticsContext>
     </>
   );
@@ -803,16 +845,16 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   const initialCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
   const [category, setCategory] = useState<CategorySelectorState>(initialCategory)
 
-  useEffect(() => {
-    if (yearQuery) {
-      const element = document.getElementById('year-category-section');
-      if (element) {          
-        window.scrollTo({
-          top: element.getBoundingClientRect().top + window.pageYOffset - 400
-        });
-      }
-    }
-  }, [yearQuery]);
+  // useEffect(() => {
+  //   if (yearQuery) {
+  //     const element = document.getElementById('year-category-section');
+  //     if (element) {          
+  //       window.scrollTo({
+  //         top: element.getBoundingClientRect().top + window.pageYOffset - 800
+  //       });
+  //     }
+  //   }
+  // }, [yearQuery]);
 
   let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
 
@@ -868,10 +910,10 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
           const postsCount = reviewWinnersWithPosts.filter(post => {
             return post.reviewWinner?.reviewYear === y
           }).length
-          return <LWTooltip key={y} title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classes.year} key={y} style={{color: y === year ? '#000' : '#888'}}>{y}</a></LWTooltip>
+          return <LWTooltip key={y} title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classNames(classes.year, y === year && classes.yearIsSelected)} key={y}>{y}</a></LWTooltip>
         })}
         <LWTooltip key="all" title={`${reviewWinnersWithPosts.length} posts`} inlineBlock={false}>
-          <a onClick={() => handleSetYear('all')} className={classes.year} style={{color: year === 'all' ? '#000' : '#888', fontVariant: 'all-small-caps'}}>
+          <a onClick={() => handleSetYear('all')} className={classNames(classes.year, year === 'all' && classes.yearIsSelected, classes.yearAll)}>
             All
           </a>
         </LWTooltip>
@@ -880,14 +922,14 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         {categories.map((t) => {
           const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
           return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
-            <a onClick={() => handleSetCategory(t)} className={classNames(classes.category, !postsCount && classes.disabledCategory)} style={{color: t === category ? '#000' : '#888'}}>{sectionsInfo[t].title}</a>
+            <a onClick={() => handleSetCategory(t)} className={classNames(classes.category, !postsCount && classes.disabledCategory, t === category && classes.categoryIsSelected)}>{sectionsInfo[t].title}</a>
           </LWTooltip>
         })}
         <LWTooltip key="all" title={`${reviewWinnersWithPosts.filter(post => {
           if (year === 'all') return true
           return post.reviewWinner?.reviewYear === year
         }).length} posts`} inlineBlock={false}>
-          <a onClick={() => handleSetCategory('all')} className={classes.category} style={{color: category === 'all' ? '#000' : '#888'}}>
+          <a onClick={() => handleSetCategory('all')} className={classNames(classes.category, category === 'all' && classes.categoryIsSelected)}>
             All
           </a>
         </LWTooltip>
@@ -907,7 +949,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
           </LWTooltip>
         })}
       </div>
-      <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
+      <div style={{ maxWidth: SECTION_WIDTH }}>
         {filteredSpotlights.map((spotlight) => <div key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.post?.isRead && classes.spotlightIsNotRead )}>
           <LWTooltip title={`Ranked #${spotlight.ranking} in ${spotlight.post?.reviewWinner?.reviewYear}`}>
             <div className={classes.spotlightRanking}>#{(spotlight.ranking ?? 0) + 1}</div>
@@ -1103,6 +1145,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
     [classes.expandedImageGrid]: isExpanded,
     [classes.collapsedImageGrid]: isCollapsed,
     [classes.showAllImageGrid]: isShowingAll,
+    [classes.gridMobileCollapsed]: !isExpanded || isCollapsed,
   });
 
   const gridClassName = classNames(classes.imageGrid, classes[gridPositionClass]);
