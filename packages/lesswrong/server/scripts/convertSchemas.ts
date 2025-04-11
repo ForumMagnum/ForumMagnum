@@ -278,7 +278,7 @@ const defaultFieldValueSubstitutions = {
         }
 
         const foreignCollectionName = func.foreignCollectionName;
-        const getKeyPart = fieldName === ('bookmarkedPostsMetadata' || fieldName === 'hiddenPostsMetadata')
+        const getKeyPart = (fieldName === 'bookmarkedPostsMetadata' || fieldName === 'hiddenPostsMetadata')
           ? ', getKey: (obj) => obj.postId'
           : '';
 
