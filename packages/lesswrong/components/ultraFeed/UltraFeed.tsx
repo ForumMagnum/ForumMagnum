@@ -12,6 +12,7 @@ import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const getStoredSettings = (): UltraFeedSettingsType => {
   if (!isClient) return DEFAULT_SETTINGS;
@@ -163,8 +164,8 @@ const UltraFeedContent = () => {
       />
     </div>
   </>;
-
   return (
+    <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
     <div className={classes.root}>
       <div className={classes.toggleContainer}>
         <SectionFooterCheckbox 
@@ -204,35 +205,44 @@ const UltraFeedContent = () => {
                 renderers={{
                   feedCommentThread: {
                     fragmentName: 'FeedCommentThreadFragment',
-                    render: (item: FeedCommentThreadFragment) => {
+                    render: (item: FeedCommentThreadFragment, index: number) => {
                       if (!item) {
                         return null;
                       }
                       
                       return (
                         <FeedItemWrapper>
-                          <UltraFeedThreadItem thread={item} settings={settings} />
+                          <UltraFeedThreadItem
+                            thread={item}
+                            settings={settings}
+                            index={index}
+                          />
                         </FeedItemWrapper>
                       );
                     }
                   },
                   feedPost: {
                     fragmentName: 'FeedPostFragment',
-                    render: (item: FeedPostFragment) => {
+                    render: (item: FeedPostFragment, index: number) => {
                       if (!item) {
                         return null;
                       }
                       
                       return (
                         <FeedItemWrapper>
-                          <UltraFeedPostItem post={item.post} postMetaInfo={item.postMetaInfo} settings={settings} />
+                          <UltraFeedPostItem
+                            post={item.post}
+                            postMetaInfo={item.postMetaInfo}
+                            settings={settings}
+                            index={index} 
+                          />
                         </FeedItemWrapper>
                       );
                     }
                   },
                   feedSpotlight: {
                     fragmentName: 'FeedSpotlightFragment',
-                    render: (item: FeedSpotlightFragment) => {
+                    render: (item: FeedSpotlightFragment, index: number) => {
                       const { spotlight } = item;
                       if (!spotlight) {
                         return null;
@@ -243,6 +253,7 @@ const UltraFeedContent = () => {
                           <SpotlightFeedItem 
                             spotlight={spotlight}
                             showSubtitle={true}
+                            index={index}
                           />
                         </FeedItemWrapper>
                       );
@@ -255,6 +266,7 @@ const UltraFeedContent = () => {
         </UltraFeedObserverProvider>
       </>}
     </div>
+    </AnalyticsContext>
   );
 };
 

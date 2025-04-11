@@ -5,6 +5,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
+import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
@@ -200,6 +201,14 @@ const UltraFeedCommentItem = ({
       maxLevelReached: maxReached,
       wordCount,
     });
+    
+    captureEvent("ultraFeedCommentItemExpanded", {
+      commentId: comment._id,
+      postId: comment.postId,
+      level,
+      maxLevelReached: maxReached,
+      wordCount,
+    });
 
     // If the comment was previously collapsed and is now expanding (level > 0),
     // update its display status in the parent component.
@@ -234,6 +243,7 @@ const UltraFeedCommentItem = ({
   const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
 
   return (
+    <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
     <div ref={elementRef} className={classNames(classes.root)} >
       <div className={classes.verticalLineContainer}>
         <div className={classNames(
@@ -277,6 +287,7 @@ const UltraFeedCommentItem = ({
         <UltraFeedItemFooter document={comment} collectionName="Comments" className={classes.footer}/>
       </div>
     </div>
+    </AnalyticsContext>
   );
 };
 

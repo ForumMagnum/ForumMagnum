@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
@@ -74,8 +74,9 @@ function compressCollapsedComments(
   return result;
 }
 
-const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
+const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   thread: DisplayFeedCommentThread,
+  index: number,
   settings?: UltraFeedSettingsType,
 }) => {
   const { comments, commentMetaInfos } = thread;
@@ -139,6 +140,7 @@ const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
   }, [visibleComments, commentDisplayStatuses]);
 
   return (
+    <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
     <div className={classes.root}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
         <div className={classes.commentsList}>
@@ -147,42 +149,44 @@ const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
               const hiddenCount = item.hiddenComments.length;
               return (
                 <div className={classes.commentItem} key={`placeholder-${index}`}>
-                <UltraFeedCompressedCommentsItem
-                  numComments={hiddenCount}
-                  setExpanded={() => {
-                    item.hiddenComments.forEach(h => {
-                      setDisplayStatus(h._id, "expanded");
-                    });
-                  }}
-                  isFirstComment={index === 0}
-                  isLastComment={index === compressedItems.length - 1}
-                />
-              </div>
-            );
-          } else {
-            const cId = item._id;
-            const isFirstItem = index === 0;
-            const isLastItem = index === compressedItems.length - 1;
-            
-            return (
-              <div key={cId} className={classes.commentItem}>
-                <UltraFeedCommentItem
-                  comment={item}
-                  displayStatus={commentDisplayStatuses[cId]}
-                  onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
-                  showInLineCommentThreadTitle={isFirstItem}
-                  highlight={highlightStatuses[cId] || false}
-                  isFirstComment={isFirstItem}
-                  isLastComment={isLastItem}
-                  settings={settings}
-                />
-              </div>
-            );
-          }
+                  <UltraFeedCompressedCommentsItem
+                    numComments={hiddenCount}
+                    setExpanded={() => {
+                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { ultraCardIndex: index, ultraCardCount: compressedItems.length, });
+                      item.hiddenComments.forEach(h => {
+                        setDisplayStatus(h._id, "expanded");
+                      });
+                    }}
+                    isFirstComment={index === 0}
+                    isLastComment={index === compressedItems.length - 1}
+                  />
+                </div>
+              );
+            } else {
+              const cId = item._id;
+              const isFirstItem = index === 0;
+              const isLastItem = index === compressedItems.length - 1;
+              
+              return (
+                <div key={cId} className={classes.commentItem}>
+                  <UltraFeedCommentItem
+                    comment={item}
+                    displayStatus={commentDisplayStatuses[cId]}
+                    onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
+                    showInLineCommentThreadTitle={isFirstItem}
+                    highlight={highlightStatuses[cId] || false}
+                    isFirstComment={isFirstItem}
+                    isLastComment={isLastItem}
+                    settings={settings}
+                  />
+                </div>
+              );
+            }
           })}
         </div>
       </div>}
     </div>
+    </AnalyticsContext>
   );
 }
 
