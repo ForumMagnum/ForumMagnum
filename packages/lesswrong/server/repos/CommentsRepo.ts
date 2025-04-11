@@ -471,35 +471,23 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
    * Get comments for the UltraFeed
    */
   async getCommentsForFeed(
-    context: ResolverContext, 
+    userId: string,
     maxTotalComments = 1000,
     lookbackWindow = '90 days'
   ): Promise<FeedCommentFromDb[]> {
     const db = this.getRawDb();
-    const userId = context.userId;
-    const initialCandidateLimit = 100; // Limit for the first pass
+    const initialCandidateLimit = 200; // Limit for the first pass
 
     const UNIVERSAL_COMMENT_FILTER_CLAUSE = `
       c.deleted IS NOT TRUE
       AND c.retracted IS NOT TRUE
-      AND c."authorIsUnreviewed" IS NOT TRUE
       AND c."postId" IS NOT NULL
+      AND ${getViewableCommentsSelector('c')}
     `;
 
     const suggestedComments: FeedCommentFromDb[] = await db.manyOrNone(`
       -- CommentsRepo.getCommentsForFeed
       WITH
-      "CommentEvents" AS (
-        SELECT
-          "documentId",
-          MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) AS "lastServed",
-          MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" END) AS "lastViewed",
-          MAX(CASE WHEN "eventType" = 'expanded' THEN "createdAt" END) AS "lastInteracted"
-        FROM "UltraFeedEvents"
-        WHERE "userId" = $(userId)
-          AND "collectionName" = 'Comments'
-        GROUP BY "documentId"
-      ),
       "InitialCandidates" AS (
         SELECT
           c._id AS "commentId",
@@ -509,10 +497,30 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         FROM "Comments" c
         WHERE (c."baseScore" > 10 OR c.shortform IS TRUE)
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
-          AND ${getViewableCommentsSelector('c')}
           AND c."postedAt" > NOW() - INTERVAL '${lookbackWindow}'
         ORDER BY c."postedAt" DESC
         LIMIT $(initialCandidateLimit)
+      ),
+      "RawUltraFeedEvents" AS (
+        SELECT * FROM "UltraFeedEvents"
+        WHERE "userId" = $(userId)
+          AND "collectionName" = 'Comments'
+          AND "documentId" IN (SELECT "commentId" FROM "InitialCandidates")
+          AND (
+            ("eventType" = 'served' AND "createdAt" > NOW() - INTERVAL '24 hours')
+            OR ("eventType" != 'served')
+          )
+        ORDER BY "createdAt" DESC
+        LIMIT 1000
+      ),
+      "CommentEvents" AS (
+        SELECT
+          "documentId",
+          MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) AS "lastServed",
+          MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" END) AS "lastViewed",
+          MAX(CASE WHEN "eventType" = 'expanded' THEN "createdAt" END) AS "lastInteracted"
+        FROM "RawUltraFeedEvents"
+        GROUP BY "documentId"
       ),
       "CandidatesWithEvents" AS (
         SELECT
@@ -547,7 +555,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         FROM "Comments" c
         WHERE c._id IN (SELECT "threadTopLevelId" FROM "RelevantThreads")
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
-          AND ${getViewableCommentsSelector('c')}
       ),
       "AllCommentsForValidThreads" AS (
         -- Fetch ALL valid comments (universal filter) belonging to threads whose top-level comment is valid
@@ -564,7 +571,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 OR (c."topLevelCommentId" IS NULL AND c._id IN (SELECT "topLevelCommentId" FROM "ValidTopLevelComments"))
               )
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
-          AND ${getViewableCommentsSelector('c')}
       )
       SELECT
         ac."commentId",
@@ -582,7 +588,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       LEFT JOIN "InitialCandidates" ic ON ac."commentId" = ic."commentId"
       ORDER BY ac."threadTopLevelId", ac."postedAt"
       LIMIT $(maxTotalComments)
-    `, { userId, initialCandidateLimit, maxTotalComments });
+    `, { userId, initialCandidateLimit, maxTotalComments, lookbackWindow });
 
     return suggestedComments;
   }

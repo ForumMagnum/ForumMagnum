@@ -72,6 +72,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   bookmarkButton: {
     marginBottom: -2,
+  },
+  agreementButtons: {
+    marginLeft: -8 // necessary to counter baked-in left margin from AgreementVoteAxis.tsx
   }
 }));
 
@@ -128,12 +131,14 @@ const UltraFeedItemFooterCore = ({
             size="large"
             hideAfScore={true}
           />
-          <AgreementVoteAxis
-            document={voteProps.document}
-            hideKarma={hideKarma}
-            voteProps={voteProps}
-            size="large"
-          />
+          <div className={classes.agreementButtons}>
+            <AgreementVoteAxis
+              document={voteProps.document}
+              hideKarma={hideKarma}
+              voteProps={voteProps}
+              size="large"
+            />
+          </div>
         </>
       )}
 

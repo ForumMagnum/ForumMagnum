@@ -42,8 +42,6 @@ export const recentDiscussionFeedGraphQLTypeDefs = gql`
       cutoff: Date,
       offset: Int,
       af: Boolean,
-      sessionId: String,
-      settings: JSON
     ): RecentDiscussionFeedQueryResults!
   }
 `

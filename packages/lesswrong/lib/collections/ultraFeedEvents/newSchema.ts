@@ -17,9 +17,6 @@ const schema = {
       inputType: "String!",
       canRead: ["admins"],
       canCreate: ["members"],
-      validation: {
-        optional: false,
-      },
     },
   },
 
@@ -35,7 +32,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         allowedValues: ALLOWED_COLLECTION_NAMES,
-        optional: false,
       },
     },
   },
@@ -52,7 +48,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         allowedValues: ALLOWED_EVENT_TYPES,
-        optional: false,
       },
     },
   },
@@ -67,9 +62,6 @@ const schema = {
       inputType: "String!",
       canRead: ["admins"], 
       canCreate: ["members"],
-      validation: {
-        optional: false,
-      },
     },
   },
 

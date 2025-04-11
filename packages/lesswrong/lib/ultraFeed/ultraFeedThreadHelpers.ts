@@ -497,11 +497,20 @@ export function buildDistinctLinearThreads(
  * Builds comment threads for the UltraFeed using raw comment data
  */
 export async function getUltraFeedCommentThreads(
-  commentsRepo: CommentsRepo,
   context: ResolverContext,
   limit = 20,
 ): Promise<FeedCommentsThread[]> {
-  const candidates = await commentsRepo.getCommentsForFeed(context, 500);
+  const userId = context.userId;
+
+  if (!userId) {
+    // eslint-disable-next-line no-console
+    console.warn("getUltraFeedCommentThreads: No user ID provided. Returning empty array.");
+    return [];
+  }
+
+  const commentsRepo = context.repos.comments
+
+  const candidates = await commentsRepo.getCommentsForFeed(userId, 500);
   const threads = getAllCommentThreads(candidates);
   const prioritizedThreadInfos = prioritizeThreads(threads);
 
