@@ -585,6 +585,9 @@ const styles = (theme: ThemeType) => ({
     borderColor: theme.palette.grey[700],
     backgroundOpacity: .2,
     opacity: .7
+  },
+  loading: {
+    height: 30
   }
 });
 
@@ -795,7 +798,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             {sectionGrid}
           </div>
         </div>
-        {loading && <div style={{ height: 30 }}><Loading/></div>}
+        {loading && <div className={classes.loading}><Loading/></div>}
         <TopSpotlightsSection classes={classes} 
           yearGroupsInfo={yearGroupsInfo} 
           sectionsInfo={sectionsInfo} 
