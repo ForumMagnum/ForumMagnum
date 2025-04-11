@@ -416,7 +416,8 @@ const transformItemsForResolver = (
  */
 const createUltraFeedEvents = (
   results: UltraFeedResolverType[],
-  userId: string
+  userId: string,
+  sessionId: string
 ): UltraFeedEventInsertData[] => {
   const eventsToCreate: UltraFeedEventInsertData[] = [];
   
@@ -426,18 +427,19 @@ const createUltraFeedEvents = (
         userId,
         eventType: "served",
         collectionName: "Spotlights",
-        documentId: item.feedSpotlight.spotlight._id
+        documentId: item.feedSpotlight.spotlight._id,
+        feedItemId: sessionId
       });
     } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
         const threadData = item.feedCommentThread;
         const comments = threadData?.comments;
         const postId = comments?.[0]?.postId;
         if (postId) {
-          eventsToCreate.push({ userId, eventType: "served", collectionName: "Posts", documentId: postId });
+          eventsToCreate.push({ userId, eventType: "served", collectionName: "Posts", documentId: postId, feedItemId: sessionId });
         }
         comments?.forEach((comment: DbComment) => {
           if (comment?._id) {
-             eventsToCreate.push({ userId, eventType: "served", collectionName: "Comments", documentId: comment._id });
+             eventsToCreate.push({ userId, eventType: "served", collectionName: "Comments", documentId: comment._id, feedItemId: sessionId });
           }
         });
     } else if (item.type === "feedPost" && item.feedPost?.post?._id) {
@@ -448,7 +450,8 @@ const createUltraFeedEvents = (
           userId, 
           eventType: "served", 
           collectionName: "Posts", 
-          documentId: feedItem.post._id 
+          documentId: feedItem.post._id,
+          feedItemId: sessionId
         });
       }
     }
@@ -541,11 +544,11 @@ interface UltraFeedArgs {
   limit?: number;
   cutoff?: Date;
   offset?: number;
-  sessionId?: string;
+  sessionId: string;
   settings?: string;
 }
 
-type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId'>;
+type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId' | 'feedItemId'>;
 
 /**
  * UltraFeed resolver
@@ -630,7 +633,7 @@ export const ultraFeedGraphQLQueries = {
       const results = transformItemsForResolver(sampledItems, spotlightsById, commentsById);
       
       // Create events for tracking served items
-      const eventsToCreate = createUltraFeedEvents(results, currentUser._id);
+      const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId);
       if (eventsToCreate.length > 0) {
         void bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]);
       }
