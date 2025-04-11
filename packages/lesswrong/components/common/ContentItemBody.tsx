@@ -4,17 +4,13 @@ import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
-import { withTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext, withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
-import { useCurrentAndRecentForumEvents, useConcreteThemeOptions } from '@/lib/betas';
-import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { Link } from 'react-router-dom';
-import { makeCloudinaryImageUrl } from '@/lib/vulcan-lib/utils';
 
 interface ExternalProps {
   /**
@@ -439,7 +435,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   replaceForumEventPollPlaceholders = (element: HTMLElement) => {
     const pollPlaceholders = element.getElementsByClassName('ck-poll');
 
-    const {ForumEventPoll} = Components;
+    const {ForumEventPostPagePollSection} = Components;
 
     for (let i = 0; i < pollPlaceholders.length; i++) {
       const placeholder = pollPlaceholders[i];
@@ -447,19 +443,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       const forumEventId = placeholder.getAttribute('data-internal-id');
       if (forumEventId) {
         // Create the poll element with styling and context
-        const pollElement = (
-          <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
-            <div>
-              <h2>
-                Have you voted yet?
-              </h2>
-              <div>
-                {/* TODO get this from somewhere */}
-                <ForumEventPoll postId={'WLpTp92n6rDybiSgH'} forumEventId={forumEventId} hideViewResults />
-              </div>
-            </div>
-          </AnalyticsContext>
-        );
+        const pollElement = <ForumEventPostPagePollSection postId={'WLpTp92n6rDybiSgH'} forumEventId={forumEventId} />;
 
         this.replaceElement(placeholder, pollElement);
       }

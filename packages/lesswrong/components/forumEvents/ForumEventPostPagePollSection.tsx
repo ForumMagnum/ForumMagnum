@@ -60,41 +60,51 @@ const announcementPostUrl = '/posts/9ad4C4YknLM5fGG4v/announcing-animal-welfare-
  * and allow users to update their vote to show that the post changed their minds.
  * This uses the theme name to set the root element's colors so you should NoSSR it.
  */
-export const ForumEventPostPagePollSection = ({postId, classes}: {
+export const ForumEventPostPagePollSection = ({postId, forumEventId, classes}: {
   postId: string,
+  forumEventId?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
+
+  const isGlobalEvent = !forumEventId;
+
+  console.log({forumEventId})
+
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
+  const { document: eventFromId } = useSingle({
+    collectionName: "ForumEvents",
+    fragmentName: "ForumEventsDisplay",
+    documentId: forumEventId,
+    skip: !forumEventId,
+  });
+  const event = isGlobalEvent ? currentForumEvent : eventFromId;
+
   const currentUser = useCurrentUser()
-  const hasVoted = getForumEventVoteForUser(currentForumEvent, currentUser) !== null
+  const hasVoted = getForumEventVoteForUser(event, currentUser) !== null
   const themeOptions = useConcreteThemeOptions()
 
   const {document: post} = useSingle({
     collectionName: "Posts",
     fragmentName: "PostsDetails",
     documentId: params._id,
-    skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId || currentForumEvent.eventFormat !== "POLL",
+    // TODO skip if forumEventId
+    skip: !!forumEventId || !hasForumEvents || !params._id || !event?.tagId || event.eventFormat !== "POLL",
   });
 
   // Only show this section for forum events that have a poll
-  if (!currentForumEvent || !post || currentForumEvent.eventFormat !== "POLL") {
+  if ((!event || event.eventFormat !== "POLL") || (isGlobalEvent && !post)) {
+    console.log("Returning null", {eventFormat: event?.eventFormat, event, post})
     return null;
   }
 
-  // Only show this section for posts tagged with the event tag
-  const relevance = currentForumEvent.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0;
-  if (relevance < 1) {
-    return null;
-  }
-
-  const {bannerImageId, darkColor, lightColor, bannerTextColor} = currentForumEvent;
+  const {bannerImageId, darkColor, lightColor, bannerTextColor} = event;
 
   const pollAreaStyle = {
     "--forum-event-background": darkColor,
     "--forum-event-foreground": lightColor,
     "--forum-event-banner-text": bannerTextColor,
-    background: "--forum-event-background",
+    background: "var(--forum-event-background)",
   } as CSSProperties;
 
   if (bannerImageId) {
@@ -115,19 +125,21 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
       <div className={classes.root} style={
         themeOptions.name === 'dark' ? {background: darkColor, color: lightColor} : {background: lightColor, color: darkColor}
       }>
-        <h2 className={classes.heading}>
-          {!hasVoted ? 'Have you voted yet?' : 'Did this post change your mind?'}
-        </h2>
-        <div className={classes.description}>
-          This post is part of <Link to={announcementPostUrl}>{currentForumEvent.title}</Link>.{" "}
-          {!hasVoted ? <>
-            Click and drag your avatar to vote on the debate statement. Votes are non-anonymous, and you can change your mind.
-          </> : <>
-            If it changed your mind, click and drag your avatar to move your vote below.
-          </>}
-        </div>
+        {isGlobalEvent && <>
+          <h2 className={classes.heading}>
+            {!hasVoted ? 'Have you voted yet?' : 'Did this post change your mind?'}
+          </h2>
+          <div className={classes.description}>
+            This post is part of <Link to={announcementPostUrl}>{event.title}</Link>.{" "}
+            {!hasVoted ? <>
+              Click and drag your avatar to vote on the debate statement. Votes are non-anonymous, and you can change your mind.
+            </> : <>
+              If it changed your mind, click and drag your avatar to move your vote below.
+            </>}
+          </div>
+        </>}
         <div className={classes.pollArea} style={pollAreaStyle}>
-          <ForumEventPoll postId={postId} hideViewResults />
+          <ForumEventPoll postId={postId} forumEventId={forumEventId} hideViewResults={isGlobalEvent} />
         </div>
       </div>
     </AnalyticsContext>

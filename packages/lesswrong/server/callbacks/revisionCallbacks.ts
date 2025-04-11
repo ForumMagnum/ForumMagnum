@@ -67,7 +67,7 @@ getCollectionHooks("Revisions").updateAsync.add(async ({oldDocument, newDocument
 });
 
 // Upsert a ForumEvent with eventFormat = "POLL"
-async function upsertPoll({ _id, question, user }: { _id: string; question: string; user: DbUser | null; }) {
+async function upsertPoll({ _id, question, user, postId }: { _id: string; question: string; user: DbUser | null; postId: string; }) {
   const existingPoll = await ForumEvents.findOne({ _id });
 
   if (existingPoll) {
@@ -82,8 +82,8 @@ async function upsertPoll({ _id, question, user }: { _id: string; question: stri
             data: `<p>${question}</p>`,
             type: "ckEditorMarkup"
           }
-        // Note: this should be a type error not a real error
         } as EditableFieldInsertion,
+        postId, // Set the postId on the updated forumEvent
       },
       validate: false,
       currentUser: user,
@@ -107,6 +107,7 @@ async function upsertPoll({ _id, question, user }: { _id: string; question: stri
         darkColor: "#000000",
         lightColor: "#ffffff",
         bannerTextColor: "#ffffff",
+        postId, // Set the postId on the new forumEvent
       },
       validate: false,
       currentUser: user,
@@ -120,7 +121,7 @@ getCollectionHooks("Revisions").createAfter.add(async (revision: DbRevision, { c
   console.log("In createAfter for revision");
 
   // TODO more specific check here for perf reasons
-  if (revision.html) {
+  if (revision.html && revision.collectionName === "Posts" && !!revision.documentId) {
     const $ = cheerio.load(revision.html);
     // TODO make it a div instead of an a
     const internalIds = $(".ck-poll[data-internal-id]")
@@ -134,7 +135,7 @@ getCollectionHooks("Revisions").createAfter.add(async (revision: DbRevision, { c
 
     // Upsert a poll for each internal id found in the HTML
     for (const { internalId, question } of internalIds) {
-      await upsertPoll({ _id: internalId, question, user: currentUser });
+      await upsertPoll({ _id: internalId, question, user: currentUser, postId: revision.documentId });
     }
   }
 

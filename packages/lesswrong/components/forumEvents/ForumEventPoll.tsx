@@ -499,6 +499,7 @@ export const ForumEventPoll = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
+  // TODO remove
   const { document: eventFromId } = useSingle({
     collectionName: "ForumEvents",
     fragmentName: "ForumEventsDisplay",
