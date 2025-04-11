@@ -216,7 +216,7 @@ const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, captureEvent]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus]);
 
   const expanded = displayStatus === "expanded";
 
