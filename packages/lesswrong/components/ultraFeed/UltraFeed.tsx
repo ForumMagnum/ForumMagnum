@@ -12,6 +12,7 @@ import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const getStoredSettings = (): UltraFeedSettingsType => {
   if (!isClient) return DEFAULT_SETTINGS;
@@ -165,96 +166,98 @@ const UltraFeedContent = () => {
   </>;
 
   return (
-    <div className={classes.root}>
-      <div className={classes.toggleContainer}>
-        <SectionFooterCheckbox 
-          value={ultraFeedEnabled} 
-          onClick={toggleUltraFeed} 
-          label="Use UltraFeed"
-          tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
-        />
-      </div>
-      
-      {ultraFeedEnabled && <>
-        <UltraFeedObserverProvider>
-          <SingleColumnSection>
-            {/* place this higher than top feed so it properly scrolls into view */}
-            <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
-            {settingsVisible && (
-              <div className={classes.settingsContainer}>
-                <UltraFeedSettings 
-                  settings={settings}
-                  updateSettings={updateSettings}
-                  resetSettingsToDefault={resetSettingsToDefault}
-                  onClose={() => setSettingsVisible(false)} 
+    <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
+      <div className={classes.root}>
+        <div className={classes.toggleContainer}>
+          <SectionFooterCheckbox 
+            value={ultraFeedEnabled} 
+            onClick={toggleUltraFeed} 
+            label="Use UltraFeed"
+            tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
+          />
+        </div>
+        
+        {ultraFeedEnabled && <>
+          <UltraFeedObserverProvider>
+            <SingleColumnSection>
+              {/* place this higher than top feed so it properly scrolls into view */}
+              <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
+              {settingsVisible && (
+                <div className={classes.settingsContainer}>
+                  <UltraFeedSettings 
+                    settings={settings}
+                    updateSettings={updateSettings}
+                    resetSettingsToDefault={resetSettingsToDefault}
+                    onClose={() => setSettingsVisible(false)} 
+                  />
+                </div>
+              )}
+              
+              <div className={classes.ultraFeedNewContentContainer}>
+                <MixedTypeFeed
+                  resolverName="UltraFeed"
+                  sortKeyType="Date"
+                  resolverArgs={{ sessionId: "String", settings: "JSON" }}
+                  firstPageSize={15}
+                  pageSize={15}
+                  refetchRef={refetchSubscriptionContentRef}
+                  resolverArgsValues={{ sessionId, settings: JSON.stringify(settings) }}
+                  loadMoreDistanceProp={1000}
+                  renderers={{
+                    feedCommentThread: {
+                      fragmentName: 'FeedCommentThreadFragment',
+                      render: (item: FeedCommentThreadFragment) => {
+                        if (!item) {
+                          return null;
+                        }
+                        
+                        return (
+                          <FeedItemWrapper>
+                            <UltraFeedThreadItem thread={item} settings={settings} />
+                          </FeedItemWrapper>
+                        );
+                      }
+                    },
+                    feedPost: {
+                      fragmentName: 'FeedPostFragment',
+                      render: (item: FeedPostFragment) => {
+                        if (!item) {
+                          return null;
+                        }
+                        
+                        return (
+                          <FeedItemWrapper>
+                            <UltraFeedPostItem post={item.post} postMetaInfo={item.postMetaInfo} settings={settings} />
+                          </FeedItemWrapper>
+                        );
+                      }
+                    },
+                    feedSpotlight: {
+                      fragmentName: 'FeedSpotlightFragment',
+                      render: (item: FeedSpotlightFragment) => {
+                        const { spotlight } = item;
+                        if (!spotlight) {
+                          return null;
+                        }
+
+                        return (
+                          <FeedItemWrapper>
+                            <SpotlightFeedItem 
+                              spotlight={spotlight}
+                              showSubtitle={true}
+                            />
+                          </FeedItemWrapper>
+                        );
+                      }
+                    }
+                  }}
                 />
               </div>
-            )}
-            
-            <div className={classes.ultraFeedNewContentContainer}>
-              <MixedTypeFeed
-                resolverName="UltraFeed"
-                sortKeyType="Date"
-                resolverArgs={{ sessionId: "String", settings: "JSON" }}
-                firstPageSize={15}
-                pageSize={15}
-                refetchRef={refetchSubscriptionContentRef}
-                resolverArgsValues={{ sessionId, settings: JSON.stringify(settings) }}
-                loadMoreDistanceProp={1000}
-                renderers={{
-                  feedCommentThread: {
-                    fragmentName: 'FeedCommentThreadFragment',
-                    render: (item: FeedCommentThreadFragment) => {
-                      if (!item) {
-                        return null;
-                      }
-                      
-                      return (
-                        <FeedItemWrapper>
-                          <UltraFeedThreadItem thread={item} settings={settings} />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  },
-                  feedPost: {
-                    fragmentName: 'FeedPostFragment',
-                    render: (item: FeedPostFragment) => {
-                      if (!item) {
-                        return null;
-                      }
-                      
-                      return (
-                        <FeedItemWrapper>
-                          <UltraFeedPostItem post={item.post} postMetaInfo={item.postMetaInfo} settings={settings} />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  },
-                  feedSpotlight: {
-                    fragmentName: 'FeedSpotlightFragment',
-                    render: (item: FeedSpotlightFragment) => {
-                      const { spotlight } = item;
-                      if (!spotlight) {
-                        return null;
-                      }
-
-                      return (
-                        <FeedItemWrapper>
-                          <SpotlightFeedItem 
-                            spotlight={spotlight}
-                            showSubtitle={true}
-                          />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  }
-                }}
-              />
-            </div>
-          </SingleColumnSection>
-        </UltraFeedObserverProvider>
-      </>}
-    </div>
+            </SingleColumnSection>
+          </UltraFeedObserverProvider>
+        </>}
+      </div>
+    </AnalyticsContext>
   );
 };
 

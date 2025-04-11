@@ -9,6 +9,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const buildVerticalFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
@@ -238,74 +239,77 @@ const SpotlightFeedItem = ({
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
 
   return (
-    <div
-      ref={elementRef}
-      id={spotlight._id}
-      style={style}
-      className={classNames(classes.root, className)}
-    >
-      <div className={classNames(classes.spotlightItem, {
-        [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
-      })}>
-        <div className={classes.contentContainer}>
-          <div className={classes.content}>
-            <div className={classes.titleArea}>
-              <div className={classes.title}>
-                <Link to={url}>
-                  {getSpotlightDisplayTitle(spotlight)}
-                </Link>
-              </div>
-              {spotlight.showAuthor && spotlightDocument?.user && 
-                <Typography variant='body2' className={classes.author}>
-                  by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
-                    {spotlightDocument?.user.displayName}
+    <AnalyticsContext pageElementContext="spotlightFeedItem" spotlightId={spotlight._id}>
+      <div
+        ref={elementRef}
+        id={spotlight._id}
+        style={style}
+        className={classNames(classes.root, className)}
+      >
+        <div className={classNames(classes.spotlightItem, {
+          [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
+        })}>
+          <div className={classes.contentContainer}>
+            <div className={classes.content}>
+              <div className={classes.titleArea}>
+                <div className={classes.title}>
+                  <Link to={url}>
+                    {getSpotlightDisplayTitle(spotlight)}
                   </Link>
-                </Typography>
-              }
-              {spotlight.customSubtitle && showSubtitle && 
-                <div className={classes.subtitle}>
-                  {subtitleComponent}
                 </div>
-              }
-            </div>
-            
-            <div className={classNames(
-              classes.imageContainer, 
-              {[classes.imageContainerWithAuthor]: spotlight.showAuthor && spotlightDocument?.user}
-            )}>
-              {spotlight.spotlightSplashImageUrl && 
-                <img 
-                  src={spotlight.spotlightSplashImageUrl} 
-                  className={classNames(classes.image, classes.imageVerticalFade, classes.splashImage)}
-                />
-              }
-              {spotlight.spotlightImageId && 
-                <CloudinaryImage2
-                  publicId={spotlight.spotlightImageId}
-                  darkPublicId={spotlight.spotlightDarkImageId}
-                  className={classNames(classes.image, classes.imageVerticalFade)}
-                  imgProps={{w: "800"}}
-                  loading="lazy"
-                />
-              }
-            </div>
-            
-            <div className={classes.descriptionArea}>
-              {(spotlight.description?.html || isBookUI) && 
-                <div className={classes.description}>
-                  <ContentItemBody
-                    dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                    description={`${spotlight.documentType} ${spotlightDocument?._id}`}
-                  />
-                </div>
-              }
+                {spotlight.showAuthor && spotlightDocument?.user && 
+                  <Typography variant='body2' className={classes.author}>
+                    by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
+                      {spotlightDocument?.user.displayName}
+                    </Link>
+                  </Typography>
+                }
+                {spotlight.customSubtitle && showSubtitle && 
+                  <div className={classes.subtitle}>
+                    {subtitleComponent}
+                  </div>
+                }
+              </div>
               
+              <div className={classNames(
+                classes.imageContainer, 
+                {[classes.imageContainerWithAuthor]: spotlight.showAuthor && spotlightDocument?.user}
+              )}>
+                {spotlight.spotlightSplashImageUrl && 
+                  <img 
+                    src={spotlight.spotlightSplashImageUrl} 
+                    className={classNames(classes.image, classes.imageVerticalFade, classes.splashImage)}
+                  />
+                }
+                {spotlight.spotlightImageId && 
+                  <CloudinaryImage2
+                    publicId={spotlight.spotlightImageId}
+                    darkPublicId={spotlight.spotlightDarkImageId}
+                    className={classNames(classes.image, classes.imageVerticalFade)}
+                    imgProps={{w: "800"}}
+                    loading="lazy"
+                  />
+                }
+              </div>
+              
+              <div className={classes.descriptionArea}>
+                {(spotlight.description?.html || isBookUI) && 
+                  <div className={classes.description}>
+                    <ContentItemBody
+                      dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                      description={`${spotlight.documentType} ${spotlightDocument?._id}`}
+                    />
+                  </div>
+                }
+                
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  )}
+    </AnalyticsContext>
+  )
+}
 
 const SpotlightFeedItemComponent = registerComponent('SpotlightFeedItem', SpotlightFeedItem)
 

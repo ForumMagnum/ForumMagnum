@@ -123,4 +123,6 @@ export interface LinearCommentThreadStatistics {
   averageTop3Comments: number;
 }
 
-
+export interface UltraFeedAnalyticsContext {
+  sessionId: string;
+}

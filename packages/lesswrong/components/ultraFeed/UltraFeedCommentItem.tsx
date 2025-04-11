@@ -5,6 +5,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
+import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
@@ -200,6 +201,14 @@ const UltraFeedCommentItem = ({
       maxLevelReached: maxReached,
       wordCount,
     });
+    
+    captureEvent("ultraFeedCommentItemExpanded", {
+      commentId: comment._id,
+      postId: comment.postId,
+      level,
+      maxLevelReached: maxReached,
+      wordCount,
+    });
 
     // If the comment was previously collapsed and is now expanding (level > 0),
     // update its display status in the parent component.
@@ -207,7 +216,7 @@ const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, captureEvent]);
 
   const expanded = displayStatus === "expanded";
 
@@ -234,49 +243,51 @@ const UltraFeedCommentItem = ({
   const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
 
   return (
-    <div ref={elementRef} className={classNames(classes.root)} >
-      <div className={classes.verticalLineContainer}>
-        <div className={classNames(
-          classes.verticalLine,
-          { 
-            [classes.verticalLineHighlighted]: highlight,
-            [classes.verticalLineFirstComment]: isFirstComment,
-            [classes.verticalLineLastComment]: isLastComment
-          }
-        )} />
-      </div>
-      
-      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-        <div className={classes.commentHeader}>
-          <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
-          {showInLineCommentThreadTitle && !comment.shortform && post && (
-            <div className={classes.inlineCommentThreadTitle}>
-              <button 
-                className={classes.inlineCommentThreadTitleLink}
-                onClick={onPostTitleClick}
-              >
-                Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
-              </button>
-            </div>
-          )}
+    <AnalyticsContext pageElementContext="ultraFeedComment" commentId={comment._id}>
+      <div ref={elementRef} className={classNames(classes.root)} >
+        <div className={classes.verticalLineContainer}>
+          <div className={classNames(
+            classes.verticalLine,
+            { 
+              [classes.verticalLineHighlighted]: highlight,
+              [classes.verticalLineFirstComment]: isFirstComment,
+              [classes.verticalLineLastComment]: isLastComment
+            }
+          )} />
         </div>
-        <div className={classes.contentWrapper}>
-          <FeedContentBody
-            comment={comment}
-            html={comment.contents?.html ?? ""}
-            breakpoints={truncationBreakpoints ?? []}
-            wordCount={comment.contents?.wordCount ?? 0}
-            linkToDocumentOnFinalExpand={expanded}
-            initialExpansionLevel={0}
-            nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
-            onExpand={handleContentExpand}
-            hideSuffix={!expanded}
-          />
+        
+        <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+          <div className={classes.commentHeader}>
+            <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
+            {showInLineCommentThreadTitle && !comment.shortform && post && (
+              <div className={classes.inlineCommentThreadTitle}>
+                <button 
+                  className={classes.inlineCommentThreadTitleLink}
+                  onClick={onPostTitleClick}
+                >
+                  Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
+                </button>
+              </div>
+            )}
+          </div>
+          <div className={classes.contentWrapper}>
+            <FeedContentBody
+              comment={comment}
+              html={comment.contents?.html ?? ""}
+              breakpoints={truncationBreakpoints ?? []}
+              wordCount={comment.contents?.wordCount ?? 0}
+              linkToDocumentOnFinalExpand={expanded}
+              initialExpansionLevel={0}
+              nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+              clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
+              onExpand={handleContentExpand}
+              hideSuffix={!expanded}
+            />
+          </div>
+          <UltraFeedItemFooter document={comment} collectionName="Comments" className={classes.footer}/>
         </div>
-        <UltraFeedItemFooter document={comment} collectionName="Comments" className={classes.footer}/>
       </div>
-    </div>
+    </AnalyticsContext>
   );
 };
 

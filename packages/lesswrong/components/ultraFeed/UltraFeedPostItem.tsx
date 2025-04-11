@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetLink, postGetKarma } from "@/lib/collections/posts/helpers";
@@ -163,7 +163,7 @@ const UltraFeedPostItem = ({
   const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate } = Components;
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
-
+  const { captureEvent } = useTracking();
   const { isAnon, authors } = usePostsUserAndCoauthors(post);
 
   useEffect(() => {
@@ -181,9 +181,17 @@ const UltraFeedPostItem = ({
       maxLevelReached: maxReached,
       wordCount,
     });
-  }, [trackExpansion, post._id]);
+
+    captureEvent("ultraFeedPostItemExpanded", {
+      postId: post._id,
+      level,
+      maxLevelReached: maxReached,
+      wordCount,
+    });
+  }, [trackExpansion, post._id, captureEvent]);
 
   return (
+    <AnalyticsContext pageElementContext="ultraFeedPost" postId={post._id}>
     <div ref={elementRef} className={classes.root}>
       <div className={classes.header}>
         <div className={classes.titleRow}>
@@ -227,8 +235,9 @@ const UltraFeedPostItem = ({
           onExpand={handleContentExpand}
         />
       )}
-      <UltraFeedItemFooter document={post} collectionName="Posts" className={classes.footer} />
-    </div>
+        <UltraFeedItemFooter document={post} collectionName="Posts" className={classes.footer} />
+      </div>
+    </AnalyticsContext>
   );
 };
 

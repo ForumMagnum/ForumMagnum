@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
@@ -139,9 +139,10 @@ const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
   }, [visibleComments, commentDisplayStatuses]);
 
   return (
-    <div className={classes.root}>
-      {comments.length > 0 && <div className={classes.commentsContainer}>
-        <div className={classes.commentsList}>
+    <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraCardId={thread._id}>
+      <div className={classes.root}>
+        {comments.length > 0 && <div className={classes.commentsContainer}>
+          <div className={classes.commentsList}>
           {compressedItems.map((item, index) => {
             if ("placeholder" in item) {
               const hiddenCount = item.hiddenComments.length;
@@ -150,6 +151,7 @@ const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
                 <UltraFeedCompressedCommentsItem
                   numComments={hiddenCount}
                   setExpanded={() => {
+                    captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { ultraCardIndex: index, ultraCardCount: compressedItems.length, });
                     item.hiddenComments.forEach(h => {
                       setDisplayStatus(h._id, "expanded");
                     });
@@ -183,6 +185,7 @@ const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
         </div>
       </div>}
     </div>
+    </AnalyticsContext>
   );
 }
 
