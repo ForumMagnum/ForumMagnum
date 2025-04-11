@@ -244,49 +244,49 @@ const UltraFeedCommentItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
-      <div ref={elementRef} className={classNames(classes.root)} >
-        <div className={classes.verticalLineContainer}>
-          <div className={classNames(
-            classes.verticalLine,
-            { 
-              [classes.verticalLineHighlighted]: highlight,
-              [classes.verticalLineFirstComment]: isFirstComment,
-              [classes.verticalLineLastComment]: isLastComment
-            }
-          )} />
-        </div>
-        
-        <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-          <div className={classes.commentHeader}>
-            <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
-            {showInLineCommentThreadTitle && !comment.shortform && post && (
-              <div className={classes.inlineCommentThreadTitle}>
-                <button 
-                  className={classes.inlineCommentThreadTitleLink}
-                  onClick={onPostTitleClick}
-                >
-                  Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
-                </button>
-              </div>
-            )}
-          </div>
-          <div className={classes.contentWrapper}>
-            <FeedContentBody
-              comment={comment}
-              html={comment.contents?.html ?? ""}
-              breakpoints={truncationBreakpoints ?? []}
-              wordCount={comment.contents?.wordCount ?? 0}
-              linkToDocumentOnFinalExpand={expanded}
-              initialExpansionLevel={0}
-              nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-              clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
-              onExpand={handleContentExpand}
-              hideSuffix={!expanded}
-            />
-          </div>
-          <UltraFeedItemFooter document={comment} collectionName="Comments" className={classes.footer}/>
-        </div>
+    <div ref={elementRef} className={classNames(classes.root)} >
+      <div className={classes.verticalLineContainer}>
+        <div className={classNames(
+          classes.verticalLine,
+          { 
+            [classes.verticalLineHighlighted]: highlight,
+            [classes.verticalLineFirstComment]: isFirstComment,
+            [classes.verticalLineLastComment]: isLastComment
+          }
+        )} />
       </div>
+      
+      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+        <div className={classes.commentHeader}>
+          <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
+          {showInLineCommentThreadTitle && !comment.shortform && post && (
+            <div className={classes.inlineCommentThreadTitle}>
+              <button 
+                className={classes.inlineCommentThreadTitleLink}
+                onClick={onPostTitleClick}
+              >
+                Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
+              </button>
+            </div>
+          )}
+        </div>
+        <div className={classes.contentWrapper}>
+          <FeedContentBody
+            comment={comment}
+            html={comment.contents?.html ?? ""}
+            breakpoints={truncationBreakpoints ?? []}
+            wordCount={comment.contents?.wordCount ?? 0}
+            linkToDocumentOnFinalExpand={expanded}
+            initialExpansionLevel={0}
+            nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+            clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
+            onExpand={handleContentExpand}
+            hideSuffix={!expanded}
+          />
+        </div>
+        <UltraFeedItemFooter document={comment} collectionName="Comments" className={classes.footer}/>
+      </div>
+    </div>
     </AnalyticsContext>
   );
 };

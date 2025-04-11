@@ -242,73 +242,73 @@ const SpotlightFeedItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} ultraFeedCardIndex={index}>
-      <div
-        ref={elementRef}
-        id={spotlight._id}
-        style={style}
-        className={classNames(classes.root, className)}
-      >
-        <div className={classNames(classes.spotlightItem, {
-          [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
-        })}>
-          <div className={classes.contentContainer}>
-            <div className={classes.content}>
-              <div className={classes.titleArea}>
-                <div className={classes.title}>
-                  <Link to={url}>
-                    {getSpotlightDisplayTitle(spotlight)}
+    <div
+      ref={elementRef}
+      id={spotlight._id}
+      style={style}
+      className={classNames(classes.root, className)}
+    >
+      <div className={classNames(classes.spotlightItem, {
+        [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
+      })}>
+        <div className={classes.contentContainer}>
+          <div className={classes.content}>
+            <div className={classes.titleArea}>
+              <div className={classes.title}>
+                <Link to={url}>
+                  {getSpotlightDisplayTitle(spotlight)}
+                </Link>
+              </div>
+              {spotlight.showAuthor && spotlightDocument?.user && 
+                <Typography variant='body2' className={classes.author}>
+                  by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
+                    {spotlightDocument?.user.displayName}
                   </Link>
+                </Typography>
+              }
+              {spotlight.customSubtitle && showSubtitle && 
+                <div className={classes.subtitle}>
+                  {subtitleComponent}
                 </div>
-                {spotlight.showAuthor && spotlightDocument?.user && 
-                  <Typography variant='body2' className={classes.author}>
-                    by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
-                      {spotlightDocument?.user.displayName}
-                    </Link>
-                  </Typography>
-                }
-                {spotlight.customSubtitle && showSubtitle && 
-                  <div className={classes.subtitle}>
-                    {subtitleComponent}
-                  </div>
-                }
-              </div>
-              
-              <div className={classNames(
-                classes.imageContainer, 
-                {[classes.imageContainerWithAuthor]: spotlight.showAuthor && spotlightDocument?.user}
-              )}>
-                {spotlight.spotlightSplashImageUrl && 
-                  <img 
-                    src={spotlight.spotlightSplashImageUrl} 
-                    className={classNames(classes.image, classes.imageVerticalFade, classes.splashImage)}
+              }
+            </div>
+            
+            <div className={classNames(
+              classes.imageContainer, 
+              {[classes.imageContainerWithAuthor]: spotlight.showAuthor && spotlightDocument?.user}
+            )}>
+              {spotlight.spotlightSplashImageUrl && 
+                <img 
+                  src={spotlight.spotlightSplashImageUrl} 
+                  className={classNames(classes.image, classes.imageVerticalFade, classes.splashImage)}
+                />
+              }
+              {spotlight.spotlightImageId && 
+                <CloudinaryImage2
+                  publicId={spotlight.spotlightImageId}
+                  darkPublicId={spotlight.spotlightDarkImageId}
+                  className={classNames(classes.image, classes.imageVerticalFade)}
+                  imgProps={{w: "800"}}
+                  loading="lazy"
+                />
+              }
+            </div>
+            
+            <div className={classes.descriptionArea}>
+              {(spotlight.description?.html || isBookUI) && 
+                <div className={classes.description}>
+                  <ContentItemBody
+                    dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                    description={`${spotlight.documentType} ${spotlightDocument?._id}`}
                   />
-                }
-                {spotlight.spotlightImageId && 
-                  <CloudinaryImage2
-                    publicId={spotlight.spotlightImageId}
-                    darkPublicId={spotlight.spotlightDarkImageId}
-                    className={classNames(classes.image, classes.imageVerticalFade)}
-                    imgProps={{w: "800"}}
-                    loading="lazy"
-                  />
-                }
-              </div>
+                </div>
+              }
               
-              <div className={classes.descriptionArea}>
-                {(spotlight.description?.html || isBookUI) && 
-                  <div className={classes.description}>
-                    <ContentItemBody
-                      dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                      description={`${spotlight.documentType} ${spotlightDocument?._id}`}
-                    />
-                  </div>
-                }
-                
-              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
     </AnalyticsContext>
   )
 }

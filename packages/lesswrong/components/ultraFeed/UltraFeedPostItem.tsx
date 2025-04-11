@@ -213,7 +213,7 @@ const UltraFeedPostItem = ({
         <div className={classes.metaRoot}>
           <span className={classes.metaLeftSection}>
             {showKarma && !post.rejected && <span className={classes.metaKarma}>
-               {postGetKarma(post)}
+              {postGetKarma(post)}
             </span>}
             <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
             {post.postedAt && (
@@ -237,8 +237,8 @@ const UltraFeedPostItem = ({
           onExpand={handleContentExpand}
         />
       )}
-        <UltraFeedItemFooter document={post} collectionName="Posts" className={classes.footer} />
-      </div>
+      <UltraFeedItemFooter document={post} collectionName="Posts" className={classes.footer} />
+    </div>
     </AnalyticsContext>
   );
 };
