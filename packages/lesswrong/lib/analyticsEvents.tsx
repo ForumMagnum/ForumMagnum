@@ -8,7 +8,7 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
 import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
-import { UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
+import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -113,7 +113,9 @@ export type AnalyticsProps = {
   searchQuery?: string,
   componentName?: string,
   ultraFeedContext?: UltraFeedAnalyticsContext,
-  ultraCardId?: string,
+  ultraFeedElementType?: FeedItemType,
+  ultraFeedCardId?: string,
+  ultraFeedCardIndex?: number,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */

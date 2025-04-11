@@ -74,8 +74,9 @@ function compressCollapsedComments(
   return result;
 }
 
-const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
+const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   thread: DisplayFeedCommentThread,
+  index: number,
   settings?: UltraFeedSettingsType,
 }) => {
   const { comments, commentMetaInfos } = thread;
@@ -139,7 +140,7 @@ const UltraFeedThreadItem = ({thread, settings = DEFAULT_SETTINGS}: {
   }, [visibleComments, commentDisplayStatuses]);
 
   return (
-    <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraCardId={thread._id}>
+    <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
       <div className={classes.root}>
         {comments.length > 0 && <div className={classes.commentsContainer}>
           <div className={classes.commentsList}>

@@ -201,10 +201,12 @@ const useSpotlightFeedItemStyles = defineStyles(
 
 const SpotlightFeedItem = ({
   spotlight,
+  index,
   showSubtitle=true,
   className,
 }: {
   spotlight: SpotlightDisplay,
+  index: number,
   showSubtitle?: boolean,
   className?: string,
 }) => {
@@ -239,7 +241,7 @@ const SpotlightFeedItem = ({
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
 
   return (
-    <AnalyticsContext pageElementContext="spotlightFeedItem" spotlightId={spotlight._id}>
+    <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} ultraFeedCardIndex={index}>
       <div
         ref={elementRef}
         id={spotlight._id}

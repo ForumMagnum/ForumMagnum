@@ -545,7 +545,7 @@ interface UltraFeedArgs {
   cutoff?: Date;
   offset?: number;
   sessionId: string;
-  settings?: string;
+  settings: string;
 }
 
 type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId' | 'feedItemId'>;

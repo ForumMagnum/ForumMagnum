@@ -73,7 +73,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
 
 interface FeedRenderer<FragmentName extends keyof FragmentTypes> {
   fragmentName: FragmentName,
-  render: (result: FragmentTypes[FragmentName]) => React.ReactNode,
+  render: (result: FragmentTypes[FragmentName], index?: number) => React.ReactNode,
 }
 
 // An infinitely scrolling feed of elements, which may be of multiple types.
@@ -248,9 +248,9 @@ const MixedTypeFeed = (args: {
   logFeedResultStats(resolverArgsValues, orderedResults, captureEvent);
 
   return <div className={className}>
-    {orderedResults.map((result) =>
+    {orderedResults.map((result, index) =>
       <div key={keyFunc(result)}>
-        <RenderFeedItem renderers={renderers} item={result}/>
+        <RenderFeedItem renderers={renderers} item={result} index={index}/>
       </div>
     )}
 
@@ -263,12 +263,13 @@ const MixedTypeFeed = (args: {
 // Render an item in a mixed-type feed. This component is mainly just here to
 // have a React.memo wrapper around it, so that users of the component don't
 // have to carefully memoize every feed item type individually.
-const RenderFeedItem = React.memo(({renderers, item}: {
+const RenderFeedItem = React.memo(({renderers, item, index}: {
   renderers: any,
-  item: any
+  item: any,
+  index?: number
 }) => {
   const renderFn = renderers[item.type]?.render;
-  return renderFn ? renderFn(item[item.type]) : item[item.type];
+  return renderFn ? renderFn(item[item.type], index) : item[item.type];
 });
 
 // Returns whether an element, which is presumed to be either visible or below

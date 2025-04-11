@@ -206,35 +206,44 @@ const UltraFeedContent = () => {
                   renderers={{
                     feedCommentThread: {
                       fragmentName: 'FeedCommentThreadFragment',
-                      render: (item: FeedCommentThreadFragment) => {
+                      render: (item: FeedCommentThreadFragment, index: number) => {
                         if (!item) {
                           return null;
                         }
                         
                         return (
                           <FeedItemWrapper>
-                            <UltraFeedThreadItem thread={item} settings={settings} />
+                            <UltraFeedThreadItem
+                              thread={item}
+                              settings={settings}
+                              index={index}
+                            />
                           </FeedItemWrapper>
                         );
                       }
                     },
                     feedPost: {
                       fragmentName: 'FeedPostFragment',
-                      render: (item: FeedPostFragment) => {
+                      render: (item: FeedPostFragment, index: number) => {
                         if (!item) {
                           return null;
                         }
                         
                         return (
                           <FeedItemWrapper>
-                            <UltraFeedPostItem post={item.post} postMetaInfo={item.postMetaInfo} settings={settings} />
+                            <UltraFeedPostItem
+                              post={item.post}
+                              postMetaInfo={item.postMetaInfo}
+                              settings={settings}
+                              index={index} 
+                            />
                           </FeedItemWrapper>
                         );
                       }
                     },
                     feedSpotlight: {
                       fragmentName: 'FeedSpotlightFragment',
-                      render: (item: FeedSpotlightFragment) => {
+                      render: (item: FeedSpotlightFragment, index: number) => {
                         const { spotlight } = item;
                         if (!spotlight) {
                           return null;
@@ -245,6 +254,7 @@ const UltraFeedContent = () => {
                             <SpotlightFeedItem 
                               spotlight={spotlight}
                               showSubtitle={true}
+                              index={index}
                             />
                           </FeedItemWrapper>
                         );

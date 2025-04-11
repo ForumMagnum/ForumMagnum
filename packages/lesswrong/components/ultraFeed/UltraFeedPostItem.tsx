@@ -151,11 +151,13 @@ const PostAuthorsDisplay = ({ authors, isAnon }: { authors: UsersMinimumInfo[]; 
 const UltraFeedPostItem = ({
   post,
   postMetaInfo,
+  index,
   showKarma,
   settings = DEFAULT_SETTINGS,
 }: {
   post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
+  index: number,
   showKarma?: boolean,
   settings?: UltraFeedSettingsType,
 }) => {
@@ -191,7 +193,7 @@ const UltraFeedPostItem = ({
   }, [trackExpansion, post._id, captureEvent]);
 
   return (
-    <AnalyticsContext pageElementContext="ultraFeedPost" postId={post._id}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
     <div ref={elementRef} className={classes.root}>
       <div className={classes.header}>
         <div className={classes.titleRow}>

@@ -11,6 +11,7 @@ export type FeedSpotlightSourceType = typeof feedSpotlightSourceTypesArray[numbe
 export type FeedItemSourceType = FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
 export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
+export type FeedItemType = FeedItemRenderType | "feedComment";
  
 export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden";
 export interface RecombeeMetaInfo {

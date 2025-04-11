@@ -243,7 +243,7 @@ const UltraFeedCommentItem = ({
   const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
 
   return (
-    <AnalyticsContext pageElementContext="ultraFeedComment" commentId={comment._id}>
+    <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
       <div ref={elementRef} className={classNames(classes.root)} >
         <div className={classes.verticalLineContainer}>
           <div className={classNames(
