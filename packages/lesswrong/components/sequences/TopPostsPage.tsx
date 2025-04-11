@@ -538,7 +538,6 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 20,
     display: 'flex',
     alignItems: 'center',
-    // [theme.breakpoints.down('sm')]: {
     '& .SpotlightItem-root': {
       [theme.breakpoints.down('sm')]: {
         width: 'calc(100vw - 16px)'
@@ -547,7 +546,6 @@ const styles = (theme: ThemeType) => ({
         marginBottom: -8
       }
     }
-    // }
   },
   spotlightRanking: {
     marginRight: 16,
@@ -784,26 +782,26 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
-          <div className={classes.widerColumn}>
-            <div className={classes.description}>
-              <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} titleClassName={classes.title} />
-              <ContentStyles contentType="post">
-                When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
-                <br /><br />
-                For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
-              </ContentStyles>
-            </div>
-            <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
-              {sectionGrid}
-            </div>
+        <div className={classes.widerColumn}>
+          <div className={classes.description}>
+            <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} titleClassName={classes.title} />
+            <ContentStyles contentType="post">
+              When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
+              <br /><br />
+              For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
+            </ContentStyles>
           </div>
-          {loading && <div style={{ height: 30 }}><Loading/></div>}
-          <TopSpotlightsSection classes={classes} 
-            yearGroupsInfo={yearGroupsInfo} 
-            sectionsInfo={sectionsInfo} 
-            reviewWinnersWithPosts={reviewWinnersWithPosts} 
-          />
-          {loading && <Loading/>}
+          <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
+            {sectionGrid}
+          </div>
+        </div>
+        {loading && <div style={{ height: 30 }}><Loading/></div>}
+        <TopSpotlightsSection classes={classes} 
+          yearGroupsInfo={yearGroupsInfo} 
+          sectionsInfo={sectionsInfo} 
+          reviewWinnersWithPosts={reviewWinnersWithPosts} 
+        />
+        {loading && <Loading/>}
       </AnalyticsContext>
     </>
   );
