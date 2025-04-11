@@ -2981,9 +2981,6 @@ fragment SessionsDefaultFragment on Session {
 }
 
 fragment SharedUserBooleans on User {
-  walledGardenInvite
-  hideWalledGardenUI
-  walledGardenPortalOnboarded
   taggingDashboardCollapsed
   usernameUnset
 }

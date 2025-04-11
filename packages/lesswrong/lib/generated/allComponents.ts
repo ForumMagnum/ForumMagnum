@@ -579,6 +579,7 @@ importComponent("AlignmentCrosspostMessage", () => require("../../components/pos
 importComponent("AllPostsList", () => require("../../components/posts/AllPostsList.tsx"));
 importComponent("AllPostsPage", () => require("../../components/posts/AllPostsPage.tsx"));
 importComponent("BookmarkButton", () => require("../../components/posts/BookmarkButton.tsx"));
+importComponent("CurrentOpenThreadPage", () => require("../../components/posts/CurrentOpenThreadPage.tsx"));
 importComponent("DraftsList", () => require("../../components/posts/DraftsList.tsx"));
 importComponent("DraftsListSettings", () => require("../../components/posts/DraftsListSettings.tsx"));
 importComponent("DraftsPage", () => require("../../components/posts/DraftsPage.tsx"));
@@ -1207,4 +1208,5 @@ importComponent("WalledGardenMessage", () => require("../../components/walledGar
 importComponent("WalledGardenPortal", () => require("../../components/walledGarden/WalledGardenPortal.tsx"));
 importComponent("WalledGardenPortalBar", () => require("../../components/walledGarden/WalledGardenPortalBar.tsx"));
 importComponent("SimpleDivider", () => require("../../components/widgets/SimpleDivider.tsx"));
+importComponent("Button", () => require("../../components/vulcan-ui-bootstrap/ui/Button.tsx"));
 

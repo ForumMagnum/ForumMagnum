@@ -2743,9 +2743,6 @@ interface SessionsDefaultFragment { // fragment on Sessions
 }
 
 interface SharedUserBooleans { // fragment on Users
-  readonly walledGardenInvite: boolean,
-  readonly hideWalledGardenUI: boolean,
-  readonly walledGardenPortalOnboarded: boolean,
   readonly taggingDashboardCollapsed: boolean,
   readonly usernameUnset: boolean,
 }

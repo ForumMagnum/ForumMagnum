@@ -15,7 +15,7 @@ import { getVotingSystemNameForDocument } from "../../voting/getVotingSystem";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { quickTakesTagsEnabledSetting } from "../../publicSettings";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
-import { getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";

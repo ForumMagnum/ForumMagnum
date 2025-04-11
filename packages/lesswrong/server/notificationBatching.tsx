@@ -6,11 +6,11 @@ import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Posts } from '../server/collections/posts/collection';
-import { Components } from '../lib/vulcan-lib/components';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import Users from '@/server/collections/users/collection';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
 import gql from 'graphql-tag';
+import { PostsEmail } from './emailComponents/PostsEmail';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -133,7 +133,7 @@ export const graphqlQueries = {
         emails = [{
           user: currentUser,
           subject: post.title,
-          body: <Components.PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' />
+          body: <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' />
         }]
       }
     }

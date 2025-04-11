@@ -752,6 +752,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: "MyAnalyticsPage",
     },
     {
+      name: "openThread",
+      path:'/open-thread',
+      componentName: "CurrentOpenThreadPage",
+    },
+    {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },
@@ -986,17 +991,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/bookmarks',
       componentName: 'BookmarksPage',
       title: 'Bookmarks',
-    },
-    {
-      name: 'Walled Garden',
-      path: '/walledGarden',
-      componentName: 'WalledGardenHome',
-      title: "Walled Garden",
-    },
-    {
-      name: 'Walled Garden Portal',
-      path: '/walledGardenPortal',
-      redirect: () => `/walledGarden`,
     },
     {
       name: 'HPMOR.posts.single',
