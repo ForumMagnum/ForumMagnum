@@ -22,7 +22,6 @@ import { DialogContentClassKey } from '../DialogContent';
 import { DialogContentTextClassKey } from '../DialogContentText';
 import { DialogTitleClassKey } from '../DialogTitle';
 import { DividerClassKey } from '../Divider';
-import { DrawerClassKey } from '../Drawer';
 import { ExpansionPanelActionsClassKey } from '../ExpansionPanelActions';
 import { ExpansionPanelClassKey } from '../ExpansionPanel';
 import { ExpansionPanelDetailsClassKey } from '../ExpansionPanelDetails';
@@ -120,7 +119,6 @@ export interface ComponentNameToClassKey {
   MuiDialogContentText: DialogContentTextClassKey;
   MuiDialogTitle: DialogTitleClassKey;
   MuiDivider: DividerClassKey;
-  MuiDrawer: DrawerClassKey;
   MuiExpansionPanel: ExpansionPanelClassKey;
   MuiExpansionPanelActions: ExpansionPanelActionsClassKey;
   MuiExpansionPanelDetails: ExpansionPanelDetailsClassKey;

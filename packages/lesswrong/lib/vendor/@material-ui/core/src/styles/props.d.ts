@@ -114,7 +114,6 @@ export interface ComponentsPropsList {
   MuiDialogContentText: DialogContentTextProps;
   MuiDialogTitle: DialogTitleProps;
   MuiDivider: DividerProps;
-  MuiDrawer: DrawerProps;
   MuiExpansionPanel: ExpansionPanelProps;
   MuiExpansionPanelActions: ExpansionPanelActionsProps;
   MuiExpansionPanelDetails: ExpansionPanelDetailsProps;

@@ -5,6 +5,7 @@ import { TransitionProps } from '../transitions/transition';
 export interface SlideProps extends TransitionProps {
   direction: 'left' | 'right' | 'up' | 'down';
   theme?: Theme;
+  children?: React.ReactNode;
 }
 
 declare const Slide: React.ComponentType<SlideProps>;

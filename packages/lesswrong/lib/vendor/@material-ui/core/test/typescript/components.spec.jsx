@@ -53,7 +53,6 @@ import {
   Select,
   Snackbar,
   SnackbarContent,
-  SwipeableDrawer,
   Switch,
   Tab,
   Table,
@@ -333,47 +332,6 @@ const DrawerTest = () => {
       <Drawer variant="persistent" anchor="right" open={open.right} onClose={log} onClick={log}>
         List
       </Drawer>
-    </div>
-  );
-};
-
-const SwipeableDrawerTest = () => {
-  const open = {
-    top: false,
-    left: false,
-    bottom: false,
-    right: false,
-  };
-  return (
-    <div>
-      <SwipeableDrawer open={open.left} onClose={log} onClick={log} onOpen={log}>
-        List
-      </SwipeableDrawer>
-      <SwipeableDrawer
-        anchor="top"
-        open={open.top}
-        onClose={log}
-        onClick={log}
-        onOpen={log}
-        ModalProps={{
-          hideBackdrop: true,
-        }}
-      >
-        List
-      </SwipeableDrawer>
-      <SwipeableDrawer anchor="bottom" open={open.bottom} onClose={log} onClick={log} onOpen={log}>
-        List
-      </SwipeableDrawer>
-      <SwipeableDrawer
-        variant="temporary"
-        anchor="right"
-        open={open.right}
-        onClose={log}
-        onClick={log}
-        onOpen={log}
-      >
-        List
-      </SwipeableDrawer>
     </div>
   );
 };

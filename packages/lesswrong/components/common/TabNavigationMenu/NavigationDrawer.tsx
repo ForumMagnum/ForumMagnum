@@ -1,10 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import SwipeableDrawer from '@/lib/vendor/@material-ui/core/src/SwipeableDrawer';
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { Drawer } from '@/components/material-ui/Drawer'
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NavigationDrawer", (theme: ThemeType) => ({
   paperWithoutToC: {
     width: 280,
     overflowY: "auto"
@@ -49,23 +50,22 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   },
-})
+}))
 
-const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
+const NavigationDrawer = ({open, handleClose, toc}: {
   open: boolean,
   handleOpen: () => void,
   handleClose: () => void,
   toc: ToCData|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
   const showToc = toc && toc.sections
 
-  return <SwipeableDrawer
+  return <Drawer
     open={open}
     onClose={(event) => handleClose()}
-    onOpen={(event) => handleOpen()}
-    classes={{paper: showToc ? classes.paperWithToC : classes.paperWithoutToC}}
+    paperClassName={showToc ? classes.paperWithToC : classes.paperWithoutToC}
   >
     <div className={classNames(
       classes.drawerNavigationMenuUncompressed,
@@ -85,12 +85,10 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
         />
       </div>
     </React.Fragment>}
-  </SwipeableDrawer>
+  </Drawer>
 }
 
-const NavigationDrawerComponent = registerComponent(
-  'NavigationDrawer', NavigationDrawer, {styles}
-);
+const NavigationDrawerComponent = registerComponent('NavigationDrawer', NavigationDrawer);
 
 declare global {
   interface ComponentTypes {
