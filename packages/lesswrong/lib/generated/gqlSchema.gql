@@ -9900,6 +9900,7 @@ input UpdateUserDataInput {
   groups: [String]
   theme: JSON
   lastUsedTimezone: String
+  whenConfirmationEmailSent: Date
   legacy: Boolean
   commentSorting: String
   sortDraftsBy: String

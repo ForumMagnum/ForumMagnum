@@ -3582,9 +3582,6 @@ CREATE INDEX IF NOT EXISTS "idx_Users_profileTagIds_deleted_deleteContent_karma"
   "karma"
 );
 
--- Index "idx_Users_walledGardenInvite"
-CREATE INDEX IF NOT EXISTS "idx_Users_walledGardenInvite" ON "Users" USING btree ("walledGardenInvite");
-
 -- Index "idx_Users_optedInToDialogueFacilitation_karma"
 CREATE INDEX IF NOT EXISTS "idx_Users_optedInToDialogueFacilitation_karma" ON "Users" USING btree ("optedInToDialogueFacilitation", "karma");
 
