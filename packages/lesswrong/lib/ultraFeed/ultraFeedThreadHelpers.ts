@@ -320,6 +320,7 @@ export function prepareCommentThreadForResolver(
   if (allCommentsViewedOrInteracted) {
     const firstCommentId = thread[0].commentId;
     const topLevelId = thread[0].topLevelCommentId ?? firstCommentId;
+    // eslint-disable-next-line no-console
     console.warn(`prepareCommentThreadForResolver (WARN): Received fully viewed/interacted thread ${topLevelId} (first comment: ${firstCommentId}). This should have been filtered upstream.`);
   }
 
