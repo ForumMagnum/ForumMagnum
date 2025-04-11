@@ -123,7 +123,9 @@ export const allSchemas = {
   SurveySchedules, Surveys, TagFlags, TagRels, Tags,
   Tweets, TypingIndicators, UserEAGDetails, UserJobAds,
   UserMostValuablePosts, UserRateLimits, UserTagRels, UserActivities,
-  Users, Votes, ...testSchemas,
+  Users, Votes,
+  UltraFeedEvents: {} as SchemaType<"UltraFeedEvents">, // Placeholder for new schema system
+  ...testSchemas,
 } satisfies Record<CollectionNameString, SchemaType<CollectionNameString>>;
 
 export function getSchema<N extends CollectionNameString>(collectionName: N): SchemaType<N> {

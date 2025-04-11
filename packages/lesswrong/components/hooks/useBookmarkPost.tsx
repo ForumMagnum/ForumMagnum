@@ -30,7 +30,7 @@ const getHoverText = (bookmarked: boolean) => {
   return bookmarked ? "Un-bookmark" : "Bookmark";
 }
 
-export const useBookmarkPost = (post: PostsBase): BookmarkPost => {
+export const useBookmarkPost = (post: PostsMinimumInfo): BookmarkPost => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [bookmarked, setBookmarkedState] = useState(pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id));

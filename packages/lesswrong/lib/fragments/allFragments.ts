@@ -69,6 +69,7 @@ import * as tagFlagsFragments from '../collections/tagFlags/fragments';
 import * as tagRelsFragments from '../collections/tagRels/fragments';
 import * as tagsFragments from '../collections/tags/fragments';
 import * as typingIndicatorsFragments from '../collections/typingIndicators/fragments';
+import * as ultraFeedEventsFragments from '../collections/ultraFeedEvents/fragments';
 import * as userEAGDetailsFragments from '../collections/userEAGDetails/fragments';
 import * as userJobAdsFragments from '../collections/userJobAds/fragments';
 import * as userMostValuablePostsFragments from '../collections/userMostValuablePosts/fragments';
@@ -79,6 +80,7 @@ import * as votesFragments from '../collections/votes/fragments';
 
 // Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
+import * as ultraFeedFragments from '../ultraFeed';
 import { transformFragments } from './fragmentWrapper';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
@@ -144,22 +146,24 @@ const staticFragments = transformFragments({
   ...subscriptionsFragments,
   ...surveyQuestionsFragments,
   ...surveyResponsesFragments,
-  ...surveySchedulesFragments,
   ...surveysFragments,
+  ...surveySchedulesFragments,
   ...tagFlagsFragments,
   ...tagRelsFragments,
   ...tagsFragments,
   ...typingIndicatorsFragments,
+  // ...ultraFeedEventsFragments,
   ...userEAGDetailsFragments,
   ...userJobAdsFragments,
   ...userMostValuablePostsFragments,
   ...userRateLimitsFragments,
-  ...userTagRelsFragments,
   ...usersFragments,
+  ...userTagRelsFragments,
   ...votesFragments,
 
   // Non-collection fragments
   ...subscribedUserFeedFragments,
+  ...ultraFeedFragments,
 
   // Test fragments
   ...testFragments,

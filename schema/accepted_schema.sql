@@ -3097,6 +3097,21 @@ CREATE INDEX IF NOT EXISTS "idx_TypingIndicators_schemaVersion" ON "TypingIndica
 -- Index "idx_TypingIndicators_documentId_userId"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "TypingIndicators" USING btree ("documentId", "userId");
 
+-- Table "UltraFeedEvents"
+CREATE TABLE "UltraFeedEvents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "eventType" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "event" JSONB,
+  "feedItemId" TEXT
+);
+
+-- Index "idx_ultraFeedEvents_document_user_event_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_document_user_event_createdAt" ON "UltraFeedEvents" USING btree ("documentId", "userId", "eventType", "createdAt");
+
 -- Table "UserActivities"
 CREATE TABLE "UserActivities" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3581,9 +3596,6 @@ CREATE INDEX IF NOT EXISTS "idx_Users_profileTagIds_deleted_deleteContent_karma"
   "deleteContent",
   "karma"
 );
-
--- Index "idx_Users_walledGardenInvite"
-CREATE INDEX IF NOT EXISTS "idx_Users_walledGardenInvite" ON "Users" USING btree ("walledGardenInvite");
 
 -- Index "idx_Users_optedInToDialogueFacilitation_karma"
 CREATE INDEX IF NOT EXISTS "idx_Users_optedInToDialogueFacilitation_karma" ON "Users" USING btree ("optedInToDialogueFacilitation", "karma");

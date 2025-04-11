@@ -40,26 +40,16 @@ interface ServerNotificationType {
   emailSubject: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<string>,
   emailBody: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<React.ReactNode>,
 }
-// A default skip function is added in serverRegisterNotificationType so it is optional when registering a notification type
+// A default skip function is added in createServerNotificationType so it is optional when registering a notification type
 type ServerRegisterNotificationType = Omit<ServerNotificationType, 'skip'> & Partial<Pick<ServerNotificationType, 'skip'>>
 
-const notificationTypes: Record<string, ServerNotificationType> = {};
-
-export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
-  if (name in notificationTypes)
-    return notificationTypes[name];
-  else
-    throw new Error(`Invalid notification type: ${name}`);
-}
-
-const serverRegisterNotificationType = ({skip = async () => false, ...notificationTypeClass}: ServerRegisterNotificationType): ServerNotificationType => {
+const createServerNotificationType = ({skip = async () => false, ...notificationTypeClass}: ServerRegisterNotificationType): ServerNotificationType => {
   const notificationType = {skip, ...notificationTypeClass};
   const name = notificationType.name;
-  notificationTypes[name] = notificationType;
   return notificationType;
 }
 
-export const NewPostNotification = serverRegisterNotificationType({
+export const NewPostNotification = createServerNotificationType({
   name: "newPost",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -88,7 +78,7 @@ export const NewPostNotification = serverRegisterNotificationType({
 });
 
 // Vulcan notification that we don't really use
-export const PostApprovedNotification = serverRegisterNotificationType({
+export const PostApprovedNotification = createServerNotificationType({
   name: "postApproved",
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return "LessWrong notification";
@@ -96,7 +86,7 @@ export const PostApprovedNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => null
 });
 
-export const NewEventNotification = serverRegisterNotificationType({
+export const NewEventNotification = createServerNotificationType({
   name: "newEvent",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -111,7 +101,7 @@ export const NewEventNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewGroupPostNotification = serverRegisterNotificationType({
+export const NewGroupPostNotification = createServerNotificationType({
   name: "newGroupPost",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -126,7 +116,7 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   },
 });
 
-export const NominatedPostNotification = serverRegisterNotificationType({
+export const NominatedPostNotification = createServerNotificationType({
   name: "postNominated",
   canCombineEmails: false,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
@@ -139,7 +129,7 @@ export const NominatedPostNotification = serverRegisterNotificationType({
   }
 })
 
-export const NewShortformNotification = serverRegisterNotificationType({
+export const NewShortformNotification = createServerNotificationType({
   name: "newShortform",
   canCombineEmails: true,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
@@ -166,7 +156,7 @@ export const NewShortformNotification = serverRegisterNotificationType({
   }
 })
 
-export const NewTagPostsNotification = serverRegisterNotificationType({
+export const NewTagPostsNotification = createServerNotificationType({
   name: "newTagPosts",
   canCombineEmails: false,
   emailSubject: async ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -182,7 +172,7 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
   }
 })
 
-export const NewSequencePostsNotification = serverRegisterNotificationType({
+export const NewSequencePostsNotification = createServerNotificationType({
   name: "newSequencePosts",
   canCombineEmails: false,
   emailSubject: async ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -208,7 +198,7 @@ export const NewSequencePostsNotification = serverRegisterNotificationType({
   }
 })
 
-export const NewCommentNotification = serverRegisterNotificationType({
+export const NewCommentNotification = createServerNotificationType({
   name: "newComment",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -231,7 +221,7 @@ export const NewCommentNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewUserCommentNotification = serverRegisterNotificationType({
+export const NewUserCommentNotification = createServerNotificationType({
   name: "newUserComment",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -254,7 +244,7 @@ export const NewUserCommentNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewSubforumCommentNotification = serverRegisterNotificationType({
+export const NewSubforumCommentNotification = createServerNotificationType({
   name: "newSubforumComment",
   canCombineEmails: true,
   skip: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -288,7 +278,7 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewDialogueMessageNotification = serverRegisterNotificationType({
+export const NewDialogueMessageNotification = createServerNotificationType({
   name: "newDialogueMessages",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -321,7 +311,7 @@ function getDialogueMessageEmailInfo(extraData?: AnyBecauseHard): DialogueMessag
   return { messageContents, messageAuthorId }
 }
 
-export const NewDialogueMessageBatchNotification = serverRegisterNotificationType({
+export const NewDialogueMessageBatchNotification = createServerNotificationType({
   name: "newDialogueBatchMessages",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -337,7 +327,7 @@ export const NewDialogueMessageBatchNotification = serverRegisterNotificationTyp
 });
 
 //subscriber notification for dialogues
-export const NewPublishedDialogueMessageNotification = serverRegisterNotificationType({
+export const NewPublishedDialogueMessageNotification = createServerNotificationType({
   name: "newPublishedDialogueMessages",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -352,7 +342,7 @@ export const NewPublishedDialogueMessageNotification = serverRegisterNotificatio
   },
 });
 
-export const NewDebateCommentNotification = serverRegisterNotificationType({
+export const NewDebateCommentNotification = createServerNotificationType({
   name: "newDebateComment",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -375,7 +365,7 @@ export const NewDebateCommentNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewDebateReplyNotification = serverRegisterNotificationType({
+export const NewDebateReplyNotification = createServerNotificationType({
   name: "newDebateReply",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -398,7 +388,7 @@ export const NewDebateReplyNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewReplyNotification = serverRegisterNotificationType({
+export const NewReplyNotification = createServerNotificationType({
   name: "newReply",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -421,7 +411,7 @@ export const NewReplyNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewReplyToYouNotification = serverRegisterNotificationType({
+export const NewReplyToYouNotification = createServerNotificationType({
   name: "newReplyToYou",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -447,7 +437,7 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
 });
 
 // Vulcan notification that we don't really use
-export const NewUserNotification = serverRegisterNotificationType({
+export const NewUserNotification = createServerNotificationType({
   name: "newUser",
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return "LessWrong notification";
@@ -461,7 +451,7 @@ const newMessageEmails: ForumOptions<string | null> = {
 }
 const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined
 
-export const NewMessageNotification = serverRegisterNotificationType({
+export const NewMessageNotification = createServerNotificationType({
   name: "newMessage",
   from: forumNewMessageEmail, // passing in undefined will lead to default behavior
   loadData: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
@@ -503,7 +493,7 @@ export const NewMessageNotification = serverRegisterNotificationType({
   },
 });
 
-export const WrappedNotification = serverRegisterNotificationType({
+export const WrappedNotification = createServerNotificationType({
   name: "wrapped",
   emailSubject: async function() {
     return 'Your 2024 EA Forum Wrapped';
@@ -529,7 +519,7 @@ export const WrappedNotification = serverRegisterNotificationType({
 
 // This notification type should never be emailed (but is displayed in the
 // on-site UI).
-export const EmailVerificationRequiredNotification = serverRegisterNotificationType({
+export const EmailVerificationRequiredNotification = createServerNotificationType({
   name: "emailVerificationRequired",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -540,7 +530,7 @@ export const EmailVerificationRequiredNotification = serverRegisterNotificationT
   },
 });
 
-export const PostSharedWithUserNotification = serverRegisterNotificationType({
+export const PostSharedWithUserNotification = createServerNotificationType({
   name: "postSharedWithUser",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -560,7 +550,7 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   },
 });
 
-export const PostAddedAsCoauthorNotification = serverRegisterNotificationType({
+export const PostAddedAsCoauthorNotification = createServerNotificationType({
   name: "addedAsCoauthor",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -588,7 +578,7 @@ export const isComment = (document: DbPost | DbComment): document is DbComment =
   return false
 }
 
-export const AlignmentSubmissionApprovalNotification = serverRegisterNotificationType({
+export const AlignmentSubmissionApprovalNotification = createServerNotificationType({
   name: "alignmentSubmissionApproved",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -617,7 +607,7 @@ export const AlignmentSubmissionApprovalNotification = serverRegisterNotificatio
   },
 });
 
-export const NewEventInRadiusNotification = serverRegisterNotificationType({
+export const NewEventInRadiusNotification = createServerNotificationType({
   name: "newEventInRadius",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -632,7 +622,7 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
   },
 });
 
-export const EditedEventInRadiusNotification = serverRegisterNotificationType({
+export const EditedEventInRadiusNotification = createServerNotificationType({
   name: "editedEventInRadius",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -648,7 +638,7 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
 });
 
 
-export const NewRSVPNotification = serverRegisterNotificationType({
+export const NewRSVPNotification = createServerNotificationType({
   name: "newRSVP",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -670,7 +660,7 @@ export const NewRSVPNotification = serverRegisterNotificationType({
   },
 });
 
-export const KarmaPowersGainedNotification = serverRegisterNotificationType({
+export const KarmaPowersGainedNotification = createServerNotificationType({
   name: "karmaPowersGained",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -683,7 +673,7 @@ export const KarmaPowersGainedNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewGroupOrganizerNotification = serverRegisterNotificationType({
+export const NewGroupOrganizerNotification = createServerNotificationType({
   name: "newGroupOrganizer",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -714,7 +704,7 @@ export const NewGroupOrganizerNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewCommentOnDraftNotification = serverRegisterNotificationType({
+export const NewCommentOnDraftNotification = createServerNotificationType({
   name: "newCommentOnDraft",
   canCombineEmails: true,
   
@@ -750,7 +740,7 @@ export const NewCommentOnDraftNotification = serverRegisterNotificationType({
   }
 });
 
-export const PostCoauthorRequestNotification = serverRegisterNotificationType({
+export const PostCoauthorRequestNotification = createServerNotificationType({
   name: "coauthorRequestNotification",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -776,7 +766,7 @@ export const PostCoauthorRequestNotification = serverRegisterNotificationType({
   },
 });
 
-export const PostCoauthorAcceptNotification = serverRegisterNotificationType({
+export const PostCoauthorAcceptNotification = createServerNotificationType({
   name: "coauthorAcceptNotification",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -800,7 +790,7 @@ export const PostCoauthorAcceptNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewSubforumMemberNotification = serverRegisterNotificationType({
+export const NewSubforumMemberNotification = createServerNotificationType({
   name: "newSubforumMember",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -829,7 +819,7 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewMentionNotification = serverRegisterNotificationType({
+export const NewMentionNotification = createServerNotificationType({
   name: "newMention",
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId, context);
@@ -856,3 +846,50 @@ export const NewMentionNotification = serverRegisterNotificationType({
     );
   },
 });
+
+const serverNotificationTypesArray: ServerNotificationType[] = [
+  NewPostNotification,
+  PostApprovedNotification,
+  NewEventNotification,
+  NewGroupPostNotification,
+  NominatedPostNotification,
+  NewShortformNotification,
+  NewTagPostsNotification,
+  NewSequencePostsNotification,
+  NewCommentNotification,
+  NewUserCommentNotification,
+  NewSubforumCommentNotification,
+  NewDialogueMessageNotification,
+  NewDialogueMessageBatchNotification,
+  NewPublishedDialogueMessageNotification,
+  NewDebateCommentNotification,
+  NewDebateReplyNotification,
+  NewReplyNotification,
+  NewReplyToYouNotification,
+  NewUserNotification,
+  NewMessageNotification,
+  WrappedNotification,
+  EmailVerificationRequiredNotification,
+  PostSharedWithUserNotification,
+  PostAddedAsCoauthorNotification,
+  AlignmentSubmissionApprovalNotification,
+  NewEventInRadiusNotification,
+  EditedEventInRadiusNotification,
+  NewRSVPNotification,
+  KarmaPowersGainedNotification,
+  NewGroupOrganizerNotification,
+  NewCommentOnDraftNotification,
+  PostCoauthorRequestNotification,
+  PostCoauthorAcceptNotification,
+  NewSubforumMemberNotification,
+  NewMentionNotification,
+];
+const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
+
+
+export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
+  if (name in serverNotificationTypes)
+    return serverNotificationTypes[name];
+  else
+    throw new Error(`Invalid notification type: ${name}`);
+}
