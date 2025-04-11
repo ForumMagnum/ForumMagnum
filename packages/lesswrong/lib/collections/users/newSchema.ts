@@ -868,7 +868,9 @@ const schema = {
       canRead: ["guests"],
       // GraphQL resolver is provided for API back-compat (issarice's reader
       // has it in its user fragment), but only returns an empty object.
-      resolver: (user, args, context) => ({}),
+      resolver: (user, args, context) => ({
+        fieldNoLongerSupported: true
+      }),
     },
     form: {
       hidden: true,
