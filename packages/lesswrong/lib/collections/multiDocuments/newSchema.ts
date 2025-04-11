@@ -95,7 +95,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canCreate: ["admins"],
       canUpdate: ["admins"],
@@ -122,7 +123,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -169,8 +171,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -205,7 +206,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       onCreate: ({ currentUser }) => currentUser?._id,
@@ -230,8 +232,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
@@ -291,8 +292,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -310,8 +310,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -328,7 +327,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       canUpdate: ["members"],
       onCreate: async ({ newDocument, context }) => {
@@ -433,7 +433,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userCanDeleteMultiDocument, "sunshineRegiment", "admins"],
       validation: {

@@ -83,8 +83,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[Float]",
-      inputType: "[Float]!",
+      outputType: "[Float!]",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],

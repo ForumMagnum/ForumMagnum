@@ -33,8 +33,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -46,8 +45,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -59,8 +57,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -72,8 +69,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -86,7 +82,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -101,8 +98,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -114,8 +110,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -127,8 +122,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -140,8 +134,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -154,7 +147,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -169,8 +163,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -182,8 +175,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -195,8 +187,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -208,8 +199,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -222,8 +212,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
-      inputType: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],

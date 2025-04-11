@@ -12,8 +12,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -29,8 +28,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
-      inputType: "Date!",
+      outputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],

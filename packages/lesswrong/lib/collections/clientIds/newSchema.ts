@@ -53,8 +53,8 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "[String]",
-      inputType: "[String]!",
+      outputType: "[String!]",
+      inputType: "[String!]!",
       canRead: ["sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
     },

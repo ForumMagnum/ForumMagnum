@@ -138,7 +138,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -271,7 +272,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -354,8 +356,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "JSON",
-      inputType: "JSON!",
+      outputType: "JSON!",
       canRead: ["guests"],
       validation: {
         blackbox: true,
@@ -395,7 +396,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       validation: {

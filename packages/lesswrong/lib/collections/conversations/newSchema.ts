@@ -45,7 +45,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
+      inputType: "[String!]",
       canRead: ["members"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -116,7 +117,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -154,7 +156,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],

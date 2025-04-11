@@ -81,7 +81,7 @@ export const testSchema3: SchemaType<CollectionNameString> = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
     },
   },
