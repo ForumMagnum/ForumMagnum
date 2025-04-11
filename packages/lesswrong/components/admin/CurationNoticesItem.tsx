@@ -93,7 +93,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentItemBody, Button, BasicFormStyles, WrappedSmartForm } = Components;
+  const { ContentItemBody, BasicFormStyles, WrappedSmartForm } = Components;
 
 
   const [edit, setEdit] = useState<boolean>(false)

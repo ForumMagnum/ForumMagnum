@@ -1,6 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import Divider from "@/lib/vendor/@material-ui/core/src/Divider";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
@@ -14,8 +13,9 @@ const DropdownDivider = ({className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { SimpleDivider } = Components;
   return (
-    <Divider className={classNames(className, classes.root)} />
+    <SimpleDivider className={classNames(className, classes.root)} />
   );
 }
 

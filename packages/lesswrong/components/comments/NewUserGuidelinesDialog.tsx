@@ -1,5 +1,4 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
@@ -8,6 +7,7 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
+import { DialogActions } from '../widgets/DialogActions';
 
 const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 

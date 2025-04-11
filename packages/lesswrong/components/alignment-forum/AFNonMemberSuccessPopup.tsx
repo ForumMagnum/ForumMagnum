@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
-import Card from "@/lib/vendor/@material-ui/core/src/Card";
+import { Card } from "@/components/widgets/Paper";
 import { useTagBySlug } from '../tagging/useTag';
 import Button  from '@/lib/vendor/@material-ui/core/src/Button'
 

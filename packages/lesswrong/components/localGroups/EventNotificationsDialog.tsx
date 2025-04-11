@@ -5,9 +5,9 @@ import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest } from 'react-geosuggest';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogActions } from '../widgets/DialogActions';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';

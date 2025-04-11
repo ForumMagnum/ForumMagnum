@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogContentText from '@/lib/vendor/@material-ui/core/src/DialogContentText';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { DialogContentText } from "@/components/widgets/DialogContentText";
+import { DialogTitle } from "@/components/widgets/DialogTitle";
 
 const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   dialog: {

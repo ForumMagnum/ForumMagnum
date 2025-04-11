@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
-import Chip from '@/lib/vendor/@material-ui/core/src/Chip/Chip';
+import { Chip } from "@/components/widgets/Chip";
 
 const styles = (theme: ThemeType) => ({
   root: {

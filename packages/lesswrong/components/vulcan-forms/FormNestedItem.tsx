@@ -48,18 +48,15 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
       removeButton={
         isArray && !hideRemove && [
           <div key="remove-button" className="form-nested-item-remove">
-            <Components.Button
+            <button
               className="form-nested-button"
-              variant="danger"
-              size="small"
-              iconButton
               tabIndex={-1}
               onClick={() => {
                 removeItem(name);
               }}
             >
               <Components.IconRemove height={12} width={12} />
-            </Components.Button>
+            </button>
           </div>,
           <div
             key="remove-button-overlay"

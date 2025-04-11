@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { FilterMode, useSubscribeUserToTag } from '../../lib/filterSettings';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';

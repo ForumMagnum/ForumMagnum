@@ -1,7 +1,7 @@
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 

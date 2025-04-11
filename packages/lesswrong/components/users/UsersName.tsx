@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
 import React from 'react';
 
 /**

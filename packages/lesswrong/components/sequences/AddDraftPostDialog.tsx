@@ -2,9 +2,9 @@ import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogActions } from '../widgets/DialogActions';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useDialog } from '../common/withDialog';
 

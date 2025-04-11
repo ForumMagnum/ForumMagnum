@@ -1,11 +1,23 @@
 import React from 'react';
-import Alert from 'react-bootstrap/Alert';
 import { registerComponent } from '@/lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const BootstrapAlert = ({ children, variant,  ...rest }: AnyBecauseTodo) => 
-  <Alert variant={variant} {...rest}>{children}</Alert>;
+const styles = defineStyles("Alert", theme => ({
+  alert: {
+    color: theme.palette.error.main,
+  },
+}));
 
-const AlertComponent = registerComponent('Alert', BootstrapAlert);
+const Alert = ({ children }: {
+  children: React.ReactNode
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.alert}>
+    {children}
+  </div>;
+}
+
+const AlertComponent = registerComponent('Alert', Alert);
 
 declare global {
   interface ComponentTypes {

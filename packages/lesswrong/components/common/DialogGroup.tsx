@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import { DialogActions } from '../widgets/DialogActions';
+import { DialogTitle } from '../widgets/DialogTitle';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 // Dialog group, with trigger-button and dialog-instance

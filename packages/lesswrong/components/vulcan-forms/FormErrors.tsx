@@ -15,7 +15,7 @@ const FormErrors = ({ errors, getLabel, classes }: {
 }) => (
   <div className={classNames(classes.root, "form-errors")}>
     {!!errors.length && (
-      <Components.Alert className="flash-message" variant="danger">
+      <Components.Alert>
         <ul>
           {errors.map((error, index) => (
             <li key={index}>

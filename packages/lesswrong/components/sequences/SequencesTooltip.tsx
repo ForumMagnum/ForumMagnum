@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import type { PopperPlacementType } from "@/lib/vendor/@material-ui/core/src/Popper";
+import type { Placement as PopperPlacementType } from "popper.js"
 
 export const SequencesTooltip = ({
   sequence,

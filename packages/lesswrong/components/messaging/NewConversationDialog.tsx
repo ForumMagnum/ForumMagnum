@@ -7,7 +7,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useNavigate } from "../../lib/routeUtil";
 import type { Hit } from "react-instantsearch-core";
-import Chip from "@/lib/vendor/@material-ui/core/src/Chip";
+import { Chip } from "@/components/widgets/Chip";
 import { InstantSearch } from "../../lib/utils/componentsWithChildren";
 
 const styles = (theme: ThemeType) => ({

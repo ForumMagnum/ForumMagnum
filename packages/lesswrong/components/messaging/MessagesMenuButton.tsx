@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 import { styles  } from "../notifications/NotificationsMenuButton";
-import Badge from "@/lib/vendor/@material-ui/core/src/Badge";
+import { Badge } from "@/components/widgets/Badge";
 import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
@@ -28,14 +28,12 @@ const MessagesMenuButton = ({className, classes}: {
       className={className}
     >
       <Badge
-        classes={{
-          root: classes.badgeContainer,
-          badge: classNames(classes.badge, {
-            [classes.badgeBackground]: hasBadge,
-            [classes.badge1Char]: badgeText.length === 1,
-            [classes.badge2Chars]: badgeText.length === 2,
-          })
-        }}
+        className={classes.badgeContainer}
+        badgeClassName={classNames(classes.badge, {
+          [classes.badgeBackground]: hasBadge,
+          [classes.badge1Char]: badgeText.length === 1,
+          [classes.badge2Chars]: badgeText.length === 2,
+        })}
         badgeContent={badgeText}
       >
         <IconButton

@@ -30,7 +30,6 @@
 // TODO: Add registerStyles() to register styles without the component.
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { fade } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ListItem from '@/lib/vendor/@material-ui/core/src/ListItem';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
@@ -39,17 +38,6 @@ import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 // which involves passing "fakecolor" colors in the theme. This would case
 // `fade` to throw, for example.
 export const themePaletteTestExcludedComponents = ["MuiButton"]
-
-registerComponent("MuiPaper", Paper, {
-  styles: (theme: ThemeType) => {
-    return {
-      root: {
-        backgroundColor: theme.palette.background.paper,
-      },
-    };
-  },
-  stylePriority: -10,
-});
 
 registerComponent("MuiButton", Button, {
   styles: (theme: AnyBecauseTodo) => ({

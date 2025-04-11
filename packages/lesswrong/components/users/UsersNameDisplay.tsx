@@ -6,7 +6,7 @@ import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
 
 const styles = (theme: ThemeType) => ({
   color: {

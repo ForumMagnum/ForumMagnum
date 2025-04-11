@@ -5,9 +5,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'
 import ArchiveIcon from '@/lib/vendor/@material-ui/icons/src/Archive';
 import UnarchiveIcon from '@/lib/vendor/@material-ui/icons/src/Unarchive';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames'
 import * as _ from 'underscore';
+import { TooltipSpan } from '../common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
   boxShadow: {
     boxShadow: theme.palette.boxShadow.faint,
-  }
+  },
 });
 
 const ConversationItem = ({conversation, updateConversation, currentUser, classes, expanded}: {
@@ -72,9 +72,9 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
           <FormatDate date={conversation.latestActivity} />
         </PostsItem2MetaInfo></span>}
         {<div className={classes.actions} onClick={archiveIconClick}>
-          <Tooltip title={isArchived ? "Restore this conversation" : "Archive this conversation"}>
+          <TooltipSpan title={isArchived ? "Restore this conversation" : "Archive this conversation"} className={classes.leftMargin}>
             {isArchived ? <UnarchiveIcon /> : <ArchiveIcon />}
-          </Tooltip>
+          </TooltipSpan>
         </div>}
     </div>
       {expanded && <div className={classes.expanded}>

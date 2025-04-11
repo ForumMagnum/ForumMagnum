@@ -6,12 +6,12 @@ import { truncatise } from '../../../lib/truncatise';
 import Edit from '@/lib/vendor/@material-ui/icons/src/Edit';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { TooltipSpan } from '@/components/common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,10 +30,12 @@ const styles = (theme: ThemeType) => ({
   'reign-of-terror': {
     color: theme.palette.text.moderationGuidelinesReignOfTerror,
   },
-  'editButton': {
+  editButtonWrapper: {
     cursor: "pointer",
     position: 'absolute',
     right: 16,
+  },
+  editButton: {
     height: '0.8em'
   },
   collapse: {
@@ -173,9 +175,12 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
       {
         !!(isPostType(document) ? userCanModeratePost(currentUser, document) : userCanModerateSubforum(currentUser, document)) &&
         <span onClick={openEditDialog}>
-          <Tooltip title="Edit moderation guidelines">
-            <Edit className={classes.editButton} />
-          </Tooltip>
+          <TooltipSpan
+            title="Edit moderation guidelines"
+            className={classes.editButtonWrapper}
+          >
+            <Edit className={classes.editButton}/>
+          </TooltipSpan>
         </span>
       }
       <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>

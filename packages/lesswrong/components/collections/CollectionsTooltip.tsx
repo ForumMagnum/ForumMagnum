@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
-import Card from "@/lib/vendor/@material-ui/core/src/Card";
+import { Card } from "@/components/widgets/Paper";
 import { FRIENDLY_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 
 const styles = (theme: ThemeType) => ({

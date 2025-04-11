@@ -1,12 +1,11 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper, Card }from '@/components/widgets/Paper';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Card from '@/lib/vendor/@material-ui/core/src/Card'
 import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
 

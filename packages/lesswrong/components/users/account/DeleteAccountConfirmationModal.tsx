@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { Link } from '@/lib/reactRouterWrapper';

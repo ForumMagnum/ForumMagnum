@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { Ref, useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -7,10 +7,9 @@ import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
+import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -80,19 +79,19 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
       <AnalyticsContext pageContext="allPostsPage">
         <SingleColumnSection>
         <DeferRender ssr={false}>
-          <Tooltip
+          <TooltipRef
             title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`}
             placement="top-end"
           >
-            <div className={classes.title} onClick={toggleSettings}>
+            {(ref: Ref<HTMLDivElement>) => <div ref={ref} className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={preferredHeadingCase("All Posts")}>
                 {isFriendlyUI ?
                   <SortButton label={formatSort(currentSorting)} /> :
                   <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 }
               </SectionTitle>
-            </div>
-          </Tooltip>
+            </div>}
+          </TooltipRef>
           {isFriendlyUI && !showSettings && <hr className={classes.divider} />}
           <PostsListSettings
             hidden={!showSettings}

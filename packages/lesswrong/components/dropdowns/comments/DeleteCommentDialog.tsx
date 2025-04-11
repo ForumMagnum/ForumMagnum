@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { useModerateComment } from './withModerateComment'
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogActions } from '@/components/widgets/DialogActions';
+import { DialogContent } from '../../widgets/DialogContent';
+import { DialogTitle } from '../../widgets/DialogTitle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { isFriendlyUI } from '../../../themes/forumTheme';

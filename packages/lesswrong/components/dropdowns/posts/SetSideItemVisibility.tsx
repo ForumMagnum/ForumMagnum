@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { sideCommentFilterMinKarma } from '../../../lib/collections/posts/constants';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import ChatBubbleOutline from '@/lib/vendor/@material-ui/icons/src/ChatBubbleOutline';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import Check from '@/lib/vendor/@material-ui/icons/src/Check';

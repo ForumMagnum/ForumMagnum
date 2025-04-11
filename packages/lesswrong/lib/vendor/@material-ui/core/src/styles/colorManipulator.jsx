@@ -84,17 +84,6 @@ export function decomposeColor(color) {
   let values = color.substring(marker + 1, color.length - 1).split(',');
   values = values.map(value => parseFloat(value));
 
-  if (process.env.NODE_ENV !== 'production') {
-    if (['rgb', 'rgba', 'hsl', 'hsla'].indexOf(type) === -1) {
-      throw new Error(
-        [
-          `Material-UI: unsupported \`${color}\` color.`,
-          'We support the following formats: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla().',
-        ].join('\n'),
-      );
-    }
-  }
-
   return { type, values };
 }
 

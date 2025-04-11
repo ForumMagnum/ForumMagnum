@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
-import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { isLWorAF } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 

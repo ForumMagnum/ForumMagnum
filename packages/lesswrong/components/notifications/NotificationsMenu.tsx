@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import SwipeableDrawer from '@/lib/vendor/@material-ui/core/src/SwipeableDrawer';
-import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
@@ -103,7 +103,8 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
       name: "New Messages",
       icon: () => (
         <Badge
-          classes={{ root: classes.badgeContainer, badge: classes.badge }}
+          className={classes.badgeContainer}
+          badgeClassName={classes.badge}
           badgeContent={unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""}
         >
           <MailIcon classes={{root: classes.icon}} />
