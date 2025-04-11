@@ -164,20 +164,19 @@ const UltraFeedContent = () => {
       />
     </div>
   </>;
-
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
-      <div className={classes.root}>
-        <div className={classes.toggleContainer}>
-          <SectionFooterCheckbox 
-            value={ultraFeedEnabled} 
-            onClick={toggleUltraFeed} 
-            label="Use UltraFeed"
-            tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
-          />
-        </div>
-        
-        {ultraFeedEnabled && <>
+    <div className={classes.root}>
+      <div className={classes.toggleContainer}>
+        <SectionFooterCheckbox 
+          value={ultraFeedEnabled} 
+          onClick={toggleUltraFeed} 
+          label="Use UltraFeed"
+          tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
+        />
+      </div>
+      
+      {ultraFeedEnabled && <>
         <UltraFeedObserverProvider>
           <SingleColumnSection>
             {/* place this higher than top feed so it properly scrolls into view */}
