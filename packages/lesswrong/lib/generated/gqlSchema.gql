@@ -8824,6 +8824,86 @@ enum TypingIndicatorOrderByInput {
   foobar
 }
 
+type UltraFeedEvent {
+  _id: String
+  createdAt: Date
+  documentId: String
+  collectionName: String
+  eventType: String
+  userId: String
+  event: JSON
+  feedItemId: String
+}
+
+input DeleteUltraFeedEventInput {
+  selector: UltraFeedEventSelectorUniqueInput!
+}
+
+input SingleUltraFeedEventInput {
+  selector: UltraFeedEventSelectorUniqueInput
+  resolverArgs: JSON
+  enableCache: Boolean
+  allowNull: Boolean
+}
+
+input MultiUltraFeedEventInput {
+  terms: JSON
+  resolverArgs: JSON
+  offset: Int
+  limit: Int
+  enableCache: Boolean
+  enableTotal: Boolean
+  createIfMissing: JSON
+  where: UltraFeedEventSelectorInput
+  orderBy: UltraFeedEventOrderByInput
+  skip: Int
+  after: String
+  before: String
+  first: Int
+  last: Int
+}
+
+type SingleUltraFeedEventOutput {
+  result: UltraFeedEvent
+}
+
+type MultiUltraFeedEventOutput {
+  results: [UltraFeedEvent]
+  totalCount: Int
+}
+
+type UltraFeedEventOutput {
+  data: UltraFeedEvent
+}
+
+input CreateUltraFeedEventInput {
+  data: CreateUltraFeedEventDataInput!
+}
+
+input CreateUltraFeedEventDataInput {
+  documentId: String!
+  collectionName: String!
+  eventType: String!
+  userId: String!
+  event: JSON
+  feedItemId: String
+}
+
+input UltraFeedEventSelectorInput {
+  AND: [UltraFeedEventSelectorInput]
+  OR: [UltraFeedEventSelectorInput]
+}
+
+input UltraFeedEventSelectorUniqueInput {
+  _id: String
+  documentId: String
+  slug: String
+}
+
+enum UltraFeedEventOrderByInput {
+  foobar
+}
+
 type UserActivity {
   _id: String
   schemaVersion: Float
@@ -10429,6 +10509,7 @@ type Mutation {
   updateTagRel(selector: TagRelSelectorUniqueInput!, data: UpdateTagRelDataInput!): TagRelOutput
   createTag(data: CreateTagDataInput!): TagOutput
   updateTag(selector: TagSelectorUniqueInput!, data: UpdateTagDataInput!): TagOutput
+  createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
   createUserEAGDetail(data: CreateUserEAGDetailDataInput!): UserEAGDetailOutput
   updateUserEAGDetail(selector: UserEAGDetailSelectorUniqueInput!, data: UpdateUserEAGDetailDataInput!): UserEAGDetailOutput
   createUserJobAd(data: CreateUserJobAdDataInput!): UserJobAdOutput
@@ -11088,6 +11169,7 @@ type RecentDiscussionFeedQueryResults {
   cutoff: Date
   endOffset: Int!
   results: [RecentDiscussionFeedEntryType!]
+  sessionId: String
 }
 
 type RecentDiscussionFeedEntryType {
@@ -11099,7 +11181,7 @@ type RecentDiscussionFeedEntryType {
 }
 
 extend type Query {
-  RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): RecentDiscussionFeedQueryResults!
+  RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean, sessionId: String): RecentDiscussionFeedQueryResults!
 }
 
 type SubscribedPostAndComments {
@@ -11614,6 +11696,42 @@ extend type Mutation {
 
 extend type Mutation {
   increasePostViewCount(postId: String): Float
+}
+
+type FeedPost {
+  _id: String!
+  postMetaInfo: JSON
+  post: Post
+}
+
+type FeedCommentThread {
+  _id: String!
+  commentMetaInfos: JSON
+  comments: [Comment]
+  post: Post
+}
+
+type FeedSpotlightItem {
+  _id: String!
+  spotlight: Spotlight
+}
+
+type UltraFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [UltraFeedEntryType!]
+  sessionId: String
+}
+
+type UltraFeedEntryType {
+  type: String!
+  feedCommentThread: FeedCommentThread
+  feedPost: FeedPost
+  feedSpotlight: FeedSpotlightItem
+}
+
+extend type Query {
+  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String): UltraFeedQueryResults!
 }
 
 extend type Mutation {

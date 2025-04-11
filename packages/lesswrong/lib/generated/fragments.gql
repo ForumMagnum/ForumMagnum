@@ -1004,6 +1004,29 @@ fragment FeaturedResourcesFragment on FeaturedResource {
   expiresAt
 }
 
+fragment FeedCommentThreadFragment on FeedCommentThread {
+  _id
+  commentMetaInfos
+  comments {
+    ...UltraFeedComment
+  }
+}
+
+fragment FeedPostFragment on FeedPost {
+  _id
+  postMetaInfo
+  post {
+    ...PostsListWithVotes
+  }
+}
+
+fragment FeedSpotlightFragment on FeedSpotlightItem {
+  _id
+  spotlight {
+    ...SpotlightDisplay
+  }
+}
+
 fragment FieldChangeFragment on FieldChange {
   _id
   createdAt
@@ -4063,6 +4086,25 @@ fragment TypingIndicatorsDefaultFragment on TypingIndicator {
   userId
   documentId
   lastUpdated
+}
+
+fragment UltraFeedComment on Comment {
+  ...CommentsList
+  post {
+    ...PostsMinimumInfo
+    votingSystem
+  }
+}
+
+fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
+  _id
+  createdAt
+  documentId
+  collectionName
+  eventType
+  userId
+  event
+  feedItemId
 }
 
 fragment UnclaimedReportsList on Report {
