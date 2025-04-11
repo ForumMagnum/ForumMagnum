@@ -2203,7 +2203,11 @@ const schema = {
     graphql: {
       outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      resolver: generateIdResolverMulti({ foreignCollectionName: "Posts", fieldName: "hiddenPostsMetadata" }),
+      resolver: generateIdResolverMulti({
+        foreignCollectionName: "Posts",
+        fieldName: "hiddenPostsMetadata",
+        getKey: (obj) => obj.postId
+      }),
     },
   },
   // Legacy ID: ID used in the original LessWrong database
