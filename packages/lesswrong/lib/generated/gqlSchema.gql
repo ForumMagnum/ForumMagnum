@@ -9508,6 +9508,7 @@ type User {
   username: String
   emails: [JSON]
   isAdmin: Boolean
+  profile: JSON
   services: JSON
   hasAuth0Id: Boolean
   displayName: String
