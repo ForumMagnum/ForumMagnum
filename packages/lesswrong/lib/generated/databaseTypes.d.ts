@@ -2222,7 +2222,7 @@ interface DbUser extends DbObject {
   postGlossariesPinned: boolean
   postingDisabled: boolean | null
   previousDisplayName: string | null
-  profile: any
+  profile: any /*{"definitions":[{}]}*/
   profileImageId: string | null
   profileTagIds: Array<string>
   profileUpdatedAt: Date
