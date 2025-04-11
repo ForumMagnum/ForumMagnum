@@ -114,13 +114,10 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
                 collectionName: documentTypeToCollectionName[elementData.documentType],
               };
 
-              createUltraFeedEvent({
+              void createUltraFeedEvent({
                 data: eventData
-              }).catch(err => {
-                // eslint-disable-next-line no-console
-                console.error("Failed to log UltraFeed 'viewed' event:", err);
               });
-
+              
               viewedItemsRef.current.add(elementData.documentId);
               observerRef.current?.unobserve(element);
               elementDataMapRef.current.delete(element);
@@ -195,11 +192,8 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
       },
     };
 
-    createUltraFeedEvent({
+    void createUltraFeedEvent({
       data: eventData
-    }).catch(err => {
-      // eslint-disable-next-line no-console
-      console.error("Failed to log UltraFeed 'expanded' event:", err);
     });
   }, [createUltraFeedEvent, currentUser]);
 

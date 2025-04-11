@@ -486,10 +486,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       AND c."postId" IS NOT NULL
     `;
 
-    const CANDIDATE_DATE_FILTER_CLAUSE = `
-      c."postedAt" > NOW() - INTERVAL '${lookbackWindow}'
-    `;
-
     const suggestedComments: FeedCommentFromDb[] = await db.manyOrNone(`
       -- CommentsRepo.getCommentsForFeed
       WITH
@@ -514,7 +510,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         WHERE (c."baseScore" > 10 OR c.shortform IS TRUE)
           AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
           AND ${getViewableCommentsSelector('c')}
-          AND ${CANDIDATE_DATE_FILTER_CLAUSE}
+          AND c."postedAt" > NOW() - INTERVAL '${lookbackWindow}'
         ORDER BY c."postedAt" DESC
         LIMIT $(initialCandidateLimit)
       ),

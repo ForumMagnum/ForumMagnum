@@ -67,10 +67,10 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
     borderRadius: 6
   },
   reactionPaletteScrollRegion: {
-    width: 250,
-    maxHeight: 162,
+    width: 350,
+    maxHeight: 305,
     overflowY: "scroll",
-    marginTop: 12
+    marginTop: 12,
   },
   tooltipIcon: {
     marginRight: 12,

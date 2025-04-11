@@ -22,7 +22,6 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   },
   agreementScore: {
     lineHeight: 1,
-    margin: '0 7px',
   },
   agreementScoreSmall: {
     fontSize: "1.1rem",
