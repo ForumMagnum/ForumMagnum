@@ -1581,6 +1581,7 @@ export const UsersDefaultFragment = `
     username
     emails
     isAdmin
+    profile
     services
     displayName
     previousDisplayName

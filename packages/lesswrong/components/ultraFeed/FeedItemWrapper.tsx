@@ -4,8 +4,8 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
 const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
-    marginBottom: 0,
-    borderBottom: `2px solid ${theme.palette.greyAlpha(0.05)}`
+    // marginBottom: 8,
+    borderBottom: theme.palette.ultraFeed.cardSeparator
 
   },
 }));
