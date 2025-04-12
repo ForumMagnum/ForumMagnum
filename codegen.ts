@@ -10,22 +10,27 @@ const config: CodegenConfig = {
       preset: "client",
       config: {
         scalars: {
-          Date: "String",
+          Date: "String|Date",
         },
-        avoidOptionals: true,
+        avoidOptionals: false,
       },
       presetConfig: {
         gqlTagName: 'gql',
+        fragmentMasking: false,
       }
     },
     './packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts': {
       plugins: [
         {
           typescript: {
-            avoidOptionals: true,
+            avoidOptionals: false,
           }
         }
-      ]
+      ],
+      config: {
+        fragmentMasking: false,
+        inputMaybeValue: 'T | null | undefined',
+      }
     }
   }
 };
