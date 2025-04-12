@@ -43,7 +43,7 @@ interface EditAsyncEditableCallbackProperties<N extends CollectionNameString> {
   props: UpdateCallbackProperties<N>;
 }
 
-function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema, collection }: { schema: NewSchemaType<N>, collection: CollectionBase<N> }) {
+function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema, collection }: { schema: SchemaType<N>, collection: CollectionBase<N> }) {
   const editableFields = Object.entries(schema).filter(isEditableField);
   return editableFields.map(([fieldName, fieldSpec]) => {
     const { collectionName } = collection;

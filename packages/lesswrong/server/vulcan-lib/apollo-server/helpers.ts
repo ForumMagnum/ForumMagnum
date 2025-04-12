@@ -133,7 +133,7 @@ function isGraphQLResolverField<N extends CollectionNameString>(field: [string, 
   return isGraphQLField(field) && !!field[1].resolver;
 }
 
-export function getFieldGqlResolvers<N extends CollectionNameString, S extends NewSchemaType<N>>(collectionName: N, schema: S) {
+export function getFieldGqlResolvers<N extends CollectionNameString, S extends SchemaType<N>>(collectionName: N, schema: S) {
   const typeName = collectionNameToTypeName[collectionName];
   const collectionFieldResolvers = Object.fromEntries(Object.entries(schema)
     .map(([fieldName, field]) => [fieldName, field.graphql])

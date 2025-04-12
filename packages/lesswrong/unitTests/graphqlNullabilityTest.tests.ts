@@ -63,7 +63,7 @@ describe("graphql schemas", () => {
       chai.assert.equal(badFields.length, 0);
     }
   });
-  /*
+  
   it("Doesn't mark fields nullable when they correspond to a non-nullable database field", () => {
     const collections = getAllCollections();
     const badFields: FieldProblem[] = [];
@@ -72,7 +72,7 @@ describe("graphql schemas", () => {
       const schema = getSchema(collection.collectionName);
       for (const [name,field] of Object.entries(schema)) {
         if (field.graphql) {
-          const dbNonnull = field.database && !field.database.nullable;
+          const dbNonnull = field.database && field.database.nullable === false;
           const fieldPermissionsGated = field.graphql.canRead && !permissionsAllowGuest(field.graphql.canRead);
           const outputType = field.graphql.outputType;
           const graphqlNullable = (typeof outputType !== 'string') || !outputType.endsWith("!");
@@ -94,7 +94,6 @@ describe("graphql schemas", () => {
       chai.assert.equal(badFields.length, 0);
     }
   });
-  */
 });
 
 export function permissionsAllowGuest(permissions: FieldPermissions) {

@@ -1,6 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
@@ -21,8 +20,6 @@ export const Notifications: NotificationsCollection = createCollection({
 
     return indexSet;
   },
-  resolvers: getDefaultResolvers('Notifications'),
-  logChanges: false,
 });
 
 export default Notifications;

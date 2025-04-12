@@ -1,5 +1,4 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
 export const ElectionVotes: ElectionVotesCollection = createCollection({
@@ -11,8 +10,6 @@ export const ElectionVotes: ElectionVotesCollection = createCollection({
     indexSet.addIndex('ElectionVotes', {electionName: 1, userId: 1}, {unique: true});
     return indexSet;
   },
-  resolvers: getDefaultResolvers("ElectionVotes"),
-  logChanges: true,
 });
 
 

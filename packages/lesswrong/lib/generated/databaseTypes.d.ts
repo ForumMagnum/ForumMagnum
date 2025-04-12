@@ -1557,6 +1557,19 @@ interface DbTypingIndicator extends DbObject {
   userId: string
 }
 
+type UltraFeedEventsCollection = CollectionBase<"UltraFeedEvents">;
+
+interface DbUltraFeedEvent extends DbObject {
+  __collectionName?: "UltraFeedEvents"
+  collectionName: "Posts" | "Comments" | "Spotlights"
+  createdAt: Date
+  documentId: string
+  event: any /*{"definitions":[{"blackbox":true}]}*/
+  eventType: "served" | "viewed" | "expanded"
+  feedItemId: string | null
+  userId: string
+}
+
 type UserActivitiesCollection = CollectionBase<"UserActivities">;
 
 interface DbUserActivity extends DbObject {
@@ -2403,6 +2416,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   Tweets: TweetsCollection
   TypingIndicators: TypingIndicatorsCollection
+  UltraFeedEvents: UltraFeedEventsCollection
   UserActivities: UserActivitiesCollection
   UserEAGDetails: UserEAGDetailsCollection
   UserJobAds: UserJobAdsCollection
@@ -2493,6 +2507,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   Tweets: DbTweet
   TypingIndicators: DbTypingIndicator
+  UltraFeedEvents: DbUltraFeedEvent
   UserActivities: DbUserActivity
   UserEAGDetails: DbUserEAGDetail
   UserJobAds: DbUserJobAd
@@ -2583,6 +2598,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   Tweet: DbTweet
   TypingIndicator: DbTypingIndicator
+  UltraFeedEvent: DbUltraFeedEvent
   UserActivity: DbUserActivity
   UserEAGDetail: DbUserEAGDetail
   UserJobAd: DbUserJobAd

@@ -16,12 +16,19 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
   },
   title: {
     ...theme.typography.title,
+    color: theme.palette.grey[800],
+    textWrap: 'balance',
     fontSize: 40,
     marginTop: 12,
     marginBottom: 16,
     display: 'block',
     [theme.breakpoints.down('sm')]: {
       fontSize: 40,
+    },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 32,
+      marginTop: 8,
+      marginBottom: 10,
     },
   },
   viewAllLink: {
@@ -33,7 +40,7 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
     position: 'relative',
     top: 2,
     [theme.breakpoints.down('sm')]: {
-      paddingRight: 14,
+      display: 'none'
     },
   },
   categoriesContainer: {
@@ -71,6 +78,9 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
       [theme.breakpoints.up('md')]: {
         opacity: 1,
       },
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: -16
     },
   },
   category: {
@@ -279,7 +289,7 @@ const BestOfLessWrongAnnouncement = () => {
     <AnalyticsContext pageSectionContext="bestOfLessWrongAnnouncement">
       <SingleColumnSection>
         <div className={classes.titleContainer}>
-          <Link to={`/bestoflesswrong`} className={classes.title}>
+          <Link to={`/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review`} className={classes.title}>
             Best of LessWrong {REVIEW_YEAR}
           </Link>
           <Link to={`/bestoflesswrong`} className={classes.viewAllLink}> 
@@ -291,7 +301,7 @@ const BestOfLessWrongAnnouncement = () => {
             const section = sections[category as keyof typeof sections];
             return <div className={classes.category} key={category}>
               <div className={classes.categoryImageContainer}>
-                <Link to={`/bestoflesswrong?category=${category.toLowerCase()}`} className={classes.mobileLink}/>
+                <Link to={`/bestoflesswrong?category=${category.toLowerCase()}#year-category-section`} className={classes.mobileLink}/>
                 <img src={section.img} className={classes.categoryImage}/>
                 <div className={classes.winnersContainer}> 
                   {section.topThree?.map(({post, _id}, index) => {

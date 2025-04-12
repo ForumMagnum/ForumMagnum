@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 /**
@@ -17,8 +16,6 @@ export const PostViewTimes = createCollection({
     indexSet.addIndex('PostViewTimes', { windowStart: 1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('PostViewTimes'),
-  logChanges: true,
 });
 
 

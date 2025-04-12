@@ -9,8 +9,9 @@ import type { VotingProps } from './votingProps';
 import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const getCommonStyles = (theme: ThemeType) => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
@@ -29,16 +30,13 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     display: "inline-block",
   },
-  voteScore: {
-    fontSize: '1.1rem',
-    margin: '0 4px',
-    lineHeight: 1,
+  voteScore: { 
+    lineHeight: 1
   },
   secondarySymbol: {
     fontFamily: theme.typography.body1.fontFamily,
   },
   secondaryScore: {
-    fontSize: '1.1rem',
     marginLeft: 2,
     marginRight: 14
   },
@@ -62,33 +60,62 @@ const styles = (theme: ThemeType) => ({
       display: "block",
     },
   },
-})
+});
+
+const smallStylesDefinition = defineStyles('OverallVoteAxisSmall', theme => ({
+  ...getCommonStyles(theme),
+  voteScore: { 
+    ...getCommonStyles(theme).voteScore,
+    fontSize: '1.1rem',
+    margin: '0 4px', 
+  },
+  secondaryScore: {
+    ...getCommonStyles(theme).secondaryScore,
+    fontSize: '1.1rem',
+  },
+}));
+
+const largeStylesDefinition = defineStyles('OverallVoteAxisLarge', theme => ({
+  ...getCommonStyles(theme),
+  voteScore: { 
+    ...getCommonStyles(theme).voteScore,
+    fontSize: '1.3rem', 
+    margin: '0 7px', 
+  },
+  secondaryScore: { 
+    ...getCommonStyles(theme).secondaryScore,
+    fontSize: '1.3rem', 
+  }
+}));
 
 const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
 
 const OverallVoteAxis = ({
   document,
-  hideKarma=false,
+  hideKarma = false,
   voteProps,
-  classes,
-  showBox=false,
+  showBox = false,
   verticalArrows,
   largeArrows,
+  hideAfScore,
+  size = 'small', // Default size
   className,
 }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>,
   showBox?: boolean,
   verticalArrows?: boolean,
   largeArrows?: boolean,
+  size?: 'small' | 'large',
+  hideAfScore?: boolean,
   className?: string,
 }) => {
+  const stylesToUse = size === 'small' ? smallStylesDefinition : largeStylesDefinition;
+  const classes = useStyles(stylesToUse);
+
   const currentUser = useCurrentUser();
-
-
-  const { OverallVoteButton, LWTooltip } = Components
+  const { OverallVoteButton, LWTooltip } = Components;
 
   const collectionName = voteProps.collectionName;
   const extendedScore = voteProps.document?.extendedScore
@@ -162,7 +189,7 @@ const OverallVoteAxis = ({
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
-      {!!af && !isAF &&
+      {!!af && !isAF && !hideAfScore &&
         <LWTooltip
           placement={tooltipPlacement}
           popperClassName={classes.tooltip}
@@ -236,7 +263,9 @@ const OverallVoteAxis = ({
   </TooltipIfDisabled>
 }
 
-const OverallVoteAxisComponent = registerComponent('OverallVoteAxis', OverallVoteAxis, {styles});
+const OverallVoteAxisComponent = registerComponent('OverallVoteAxis', OverallVoteAxis);
+
+export default OverallVoteAxisComponent;
 
 declare global {
   interface ComponentTypes {

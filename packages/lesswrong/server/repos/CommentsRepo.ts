@@ -10,6 +10,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
+import { FeedCommentFromDb } from "../../components/ultraFeed/ultraFeedTypes";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -464,6 +465,132 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         END)
       WHERE "forumEventId" = $1 AND "userId" = $3
     `, [forumEventId, latestVote, userId]);
+  }
+
+  /**
+   * Get comments for the UltraFeed
+   */
+  async getCommentsForFeed(
+    userId: string,
+    maxTotalComments = 1000,
+    lookbackWindow = '90 days'
+  ): Promise<FeedCommentFromDb[]> {
+    const db = this.getRawDb();
+    const initialCandidateLimit = 200; // Limit for the first pass
+
+    const UNIVERSAL_COMMENT_FILTER_CLAUSE = `
+      c.deleted IS NOT TRUE
+      AND c.retracted IS NOT TRUE
+      AND c."postId" IS NOT NULL
+      AND ${getViewableCommentsSelector('c')}
+    `;
+
+    const suggestedComments: FeedCommentFromDb[] = await db.manyOrNone(`
+      -- CommentsRepo.getCommentsForFeed
+      WITH
+      "InitialCandidates" AS (
+        SELECT
+          c._id AS "commentId",
+          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
+          c."postId",
+          CASE WHEN c."baseScore" > 10 THEN ARRAY['topComments'] ELSE ARRAY['quickTakes'] END AS sources
+        FROM "Comments" c
+        WHERE (c."baseScore" > 10 OR c.shortform IS TRUE)
+          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
+          AND c."postedAt" > NOW() - INTERVAL '${lookbackWindow}'
+        ORDER BY c."postedAt" DESC
+        LIMIT $(initialCandidateLimit)
+      ),
+      "RawUltraFeedEvents" AS (
+        SELECT * FROM "UltraFeedEvents"
+        WHERE "userId" = $(userId)
+          AND "collectionName" = 'Comments'
+          AND "documentId" IN (SELECT "commentId" FROM "InitialCandidates")
+          AND (
+            ("eventType" = 'served' AND "createdAt" > NOW() - INTERVAL '24 hours')
+            OR ("eventType" != 'served')
+          )
+        ORDER BY "createdAt" DESC
+        LIMIT 1000
+      ),
+      "CommentEvents" AS (
+        SELECT
+          "documentId",
+          MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) AS "lastServed",
+          MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" END) AS "lastViewed",
+          MAX(CASE WHEN "eventType" = 'expanded' THEN "createdAt" END) AS "lastInteracted"
+        FROM "RawUltraFeedEvents"
+        GROUP BY "documentId"
+      ),
+      "CandidatesWithEvents" AS (
+        SELECT
+          ic."commentId",
+          ic."threadTopLevelId",
+          ic."postId",
+          ic.sources,
+          ce."lastServed",
+          ce."lastViewed",
+          ce."lastInteracted"
+        FROM "InitialCandidates" ic
+        LEFT JOIN "CommentEvents" ce ON ic."commentId" = ce."documentId"
+      ),
+      "FilteredUnseenCandidates" AS (
+        -- Filter candidates: Keep only those NOT viewed, interacted with, OR served in the last 24 hours
+        SELECT
+          "commentId",
+          "threadTopLevelId",
+          "postId",
+          sources
+        FROM "CandidatesWithEvents"
+        WHERE "lastViewed" IS NULL 
+          AND "lastInteracted" IS NULL
+          AND ("lastServed" IS NULL OR "lastServed" < NOW() - INTERVAL '24 hours')
+      ),
+      "RelevantThreads" AS (
+        SELECT DISTINCT "threadTopLevelId" FROM "FilteredUnseenCandidates"
+      ),
+      "ValidTopLevelComments" AS (
+        SELECT
+          c._id AS "topLevelCommentId"
+        FROM "Comments" c
+        WHERE c._id IN (SELECT "threadTopLevelId" FROM "RelevantThreads")
+          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
+      ),
+      "AllCommentsForValidThreads" AS (
+        -- Fetch ALL valid comments (universal filter) belonging to threads whose top-level comment is valid
+        SELECT
+          c._id AS "commentId",
+          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
+          c."parentCommentId",
+          c."postId",
+          c."baseScore",
+          c."postedAt"
+        FROM "Comments" c
+        WHERE (
+                c."topLevelCommentId" IN (SELECT "topLevelCommentId" FROM "ValidTopLevelComments")
+                OR (c."topLevelCommentId" IS NULL AND c._id IN (SELECT "topLevelCommentId" FROM "ValidTopLevelComments"))
+              )
+          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
+      )
+      SELECT
+        ac."commentId",
+        ac."threadTopLevelId" AS "topLevelCommentId",
+        ac."parentCommentId",
+        ac."postId",
+        ac."baseScore",
+        ac."postedAt",
+        COALESCE(ic.sources, ARRAY[]::TEXT[]) AS "sources",
+        ce."lastServed",
+        ce."lastViewed",
+        ce."lastInteracted"
+      FROM "AllCommentsForValidThreads" ac
+      LEFT JOIN "CommentEvents" ce ON ac."commentId" = ce."documentId"
+      LEFT JOIN "InitialCandidates" ic ON ac."commentId" = ic."commentId"
+      ORDER BY ac."threadTopLevelId", ac."postedAt"
+      LIMIT $(maxTotalComments)
+    `, { userId, initialCandidateLimit, maxTotalComments, lookbackWindow });
+
+    return suggestedComments;
   }
 }
 

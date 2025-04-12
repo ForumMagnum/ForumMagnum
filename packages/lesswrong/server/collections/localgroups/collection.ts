@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
@@ -16,8 +15,6 @@ export const Localgroups: LocalgroupsCollection = createCollection({
     indexSet.addIndex('Localgroups', { isOnline: 1, inactive: 1, deleted: 1, name: 1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('Localgroups'),
-  logChanges: true,
 });
 
 

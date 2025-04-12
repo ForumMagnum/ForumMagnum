@@ -50,6 +50,7 @@ import { SurveySchedulesViews } from '../collections/surveySchedules/views';
 import { TagsViews } from '../collections/tags/views';
 import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
+import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
 import { UsersViews } from '../collections/users/views';
 import { UserEAGDetailsViews } from '../collections/userEAGDetails/views';
 import { UserJobAdsViews } from '../collections/userJobAds/views';
@@ -138,6 +139,7 @@ export const allViews = {
   TagRels: TagRelsViews,
   Tweets: new CollectionViewSet('Tweets', {}),
   TypingIndicators: new CollectionViewSet('TypingIndicators', {}),
+  UltraFeedEvents: UltraFeedEventsViews,
   Users: UsersViews,
   UserEAGDetails: UserEAGDetailsViews,
   UserJobAds: UserJobAdsViews,

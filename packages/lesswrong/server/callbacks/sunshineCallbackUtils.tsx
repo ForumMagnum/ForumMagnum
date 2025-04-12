@@ -1,7 +1,7 @@
 import moment from "moment";
-import { DOWNVOTED_COMMENT_ALERT } from "../../lib/collections/commentModeratorActions/schema";
+import { DOWNVOTED_COMMENT_ALERT } from "../../lib/collections/commentModeratorActions/newSchema";
 import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
-import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/schema";
+import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/newSchema";
 import { getWithLoader } from "../../lib/loaders";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";

@@ -4,13 +4,13 @@ export const DEFAULT_ID_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "String",
+    outputType: "String!",
     canRead: ["guests"],
     validation: {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;
 
 /** @deprecated There's no reason to add this field to new table schemas. */
 export const DEFAULT_SCHEMA_VERSION_FIELD = {
@@ -21,14 +21,14 @@ export const DEFAULT_SCHEMA_VERSION_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "Float",
+    outputType: "Float!",
     canRead: ["guests"],
     onUpdate: () => 1,
     validation: {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;
 
 export const DEFAULT_CREATED_AT_FIELD = {
   database: {
@@ -36,14 +36,14 @@ export const DEFAULT_CREATED_AT_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "Date",
+    outputType: "Date!",
     canRead: ["guests"],
     onCreate: () => new Date(),
     validation: {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;
 
 /**
  * Don't stick this field willy-nilly into new schemas unless/until it's actually needed;
@@ -67,11 +67,12 @@ export const DEFAULT_LEGACY_DATA_FIELD = {
   form: {
     hidden: true,
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;
 
 export const DEFAULT_LATEST_REVISION_ID_FIELD = {
   database: {
     type: "TEXT",
+    nullable: true,
   },
   graphql: {
     outputType: "String",
@@ -80,4 +81,4 @@ export const DEFAULT_LATEST_REVISION_ID_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<CollectionNameString>;
+} satisfies CollectionFieldSpecification<CollectionNameString>;

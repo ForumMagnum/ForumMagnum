@@ -1,6 +1,5 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
@@ -18,8 +17,6 @@ export const Sequences = createCollection({
     indexSet.addIndex('Sequences', augmentForDefaultView({ curatedOrder:-1 }));
     return indexSet;
   },
-  resolvers: getDefaultResolvers('Sequences'),
-  logChanges: true,
 })
 
 export default Sequences;

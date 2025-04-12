@@ -1,5 +1,4 @@
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 import { getVoteGraphql } from "@/server/votingGraphQL";
 
@@ -14,8 +13,6 @@ export const MultiDocuments = createCollection({
     indexSet.addCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin(pingbacks);`);
     return indexSet;
   },
-  resolvers: getDefaultResolvers('MultiDocuments'),
-  logChanges: true,
   voteable: {
     timeDecayScoresCronjob: false,
   },

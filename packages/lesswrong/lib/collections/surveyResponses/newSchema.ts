@@ -2,18 +2,6 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, 
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions.ts";
 
-const userEditableField = ({
-  nullable = false,
-}: {
-  nullable?: boolean;
-} = {}): CollectionFieldSpecification<"SurveyResponses"> => ({
-  canRead: [userOwns, "admins"],
-  canCreate: ["guests"],
-  canUpdate: [userOwns, "admins"],
-  optional: nullable,
-  nullable,
-});
-
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -119,6 +107,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"SurveyResponses">>;
+} satisfies Record<string, CollectionFieldSpecification<"SurveyResponses">>;
 
 export default schema;

@@ -1,6 +1,5 @@
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
@@ -25,7 +24,6 @@ export const LWEvents = createCollection({
     `);
     return indexSet;
   },
-  resolvers: getDefaultResolvers('LWEvents'),
 });
 
 export default LWEvents;

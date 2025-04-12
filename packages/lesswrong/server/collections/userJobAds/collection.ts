@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const UserJobAds: UserJobAdsCollection = createCollection({
@@ -14,8 +13,6 @@ export const UserJobAds: UserJobAdsCollection = createCollection({
     indexSet.addIndex('UserJobAds', { jobName: 1, adState: 1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('UserJobAds'),
-  logChanges: true,
 });
 
 

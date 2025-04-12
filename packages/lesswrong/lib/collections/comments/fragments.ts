@@ -91,6 +91,16 @@ export const CommentsListWithTopLevelComment = gql(`
   }
 `)
 
+export const UltraFeedComment = gql(`
+  fragment UltraFeedComment on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+      votingSystem
+    }
+  }
+`)
+
 export const ShortformComments = gql(`
   fragment ShortformComments on Comment {
     ...CommentsList

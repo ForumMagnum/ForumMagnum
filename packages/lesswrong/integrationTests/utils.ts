@@ -6,7 +6,6 @@ import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
 import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
-import { callbacksArePending } from '@/server/utils/callbackHooks';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from "@/server/sql/PgCollection";
 import { runQuery, setOnGraphQLError } from "../server/vulcan-lib/query";
 import { createPost } from '../server/collections/posts/mutations';
@@ -470,7 +469,7 @@ export const withNoLogs = async (fn: () => Promise<void>) => {
   //eslint-disable-next-line no-console
   console.log = console.warn = console.error = console.info = () => {}
   await fn();
-  await waitUntilCallbacksFinished();
+  await waitUntilPgQueriesFinished();
   console.log = log; //eslint-disable-line no-console
   console.warn = warn; //eslint-disable-line no-console
   console.error = error; //eslint-disable-line no-console
@@ -478,30 +477,17 @@ export const withNoLogs = async (fn: () => Promise<void>) => {
 }
 
 /**
- * Wait (in 20ms incremements) until there are no callbacks
- * in progress. Many database operations trigger asynchronous callbacks to do
- * things like generate notifications and add to search indexes; if you have a
- * unit test that depends on the results of these async callbacks, writing them
- * the naive way would create a race condition. But if you insert an
- * `await waitUntilCallbacksFinished()`, it will wait for all the background
- * processing to finish before proceeding with the rest of the test.
- *
- * This is NOT suitable for production (non-unit-test) use, because if other
- * threads/fibers are doing things which trigger callbacks, it could wait for
- * a long time. It DOES wait for callbacks that were triggered after
- * `waitUntilCallbacksFinished` was called, and that were triggered from
- * unrelated contexts.
- *
- * What this tracks specifically is that all callbacks which were registered
- * with `addCallback` and run with `runCallbacksAsync` have returned. Note that
- * it is possible for a callback to bypass this, by calling a function that
- * should have been await'ed without the await, effectively spawning a new
- * thread which isn't tracked.
+ * Wait (in 20ms incremements) until there are no Postgres queries
+ * in progress. Many operations trigger asynchronous queries which might
+ * get voided; if you have a unit test that depends on the results of these
+ * queries, writing them the naive way would create a race condition. But if
+ * you insert an `await waitUntilPgQueriesFinished()`, it will wait for all the
+ * background processing to finish before proceeding with the rest of the test.
  */
-export const waitUntilCallbacksFinished = () => {
+export const waitUntilPgQueriesFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending() || isAnyPostgresQueryPending()) {
+      if (isAnyPostgresQueryPending()) {
         setTimeout(finishOrWait, 20);
       } else {
         resolve();

@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const Collections: CollectionsCollection = createCollection({
@@ -11,8 +10,6 @@ export const Collections: CollectionsCollection = createCollection({
     indexSet.addIndex('Collections', { slug: "hashed" });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('Collections'),
-  logChanges: true,
 });
 
 

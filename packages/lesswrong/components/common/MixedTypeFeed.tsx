@@ -6,7 +6,7 @@ import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-const loadMoreDistance = 500;
+const defaultLoadMoreDistance = 500;
 
 export interface FeedRequest<CutoffType> {
   cutoff: CutoffType|null,
@@ -118,6 +118,9 @@ const MixedTypeFeed = (args: {
   disableLoadMore?: boolean,
 
   className?: string,
+
+  // Distance from bottom of viewport to trigger loading more items
+  loadMoreDistanceProp?: number,
 }) => {
   const {
     resolverName,
@@ -134,6 +137,7 @@ const MixedTypeFeed = (args: {
     hideLoading,
     disableLoadMore,
     className,
+    loadMoreDistanceProp = defaultLoadMoreDistance,
   } = args;
 
   // Reference to a bottom-marker used for checking scroll position.
@@ -175,7 +179,7 @@ const MixedTypeFeed = (args: {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (isClient
       && bottomRef?.current
-      && elementIsNearVisible(bottomRef?.current, loadMoreDistance)
+      && elementIsNearVisible(bottomRef?.current, loadMoreDistanceProp)
       && !reachedEnd
       && data)
     {

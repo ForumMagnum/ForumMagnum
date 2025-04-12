@@ -9,7 +9,6 @@ export const CurationEmails: CurationEmailsCollection = createCollection({
     indexSet.addIndex('CurationEmails', { userId: 1 }, { unique: true });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

@@ -472,9 +472,6 @@ export const UserAltAccountsFragment = gql(`
 
 export const SharedUserBooleans = gql(`
   fragment SharedUserBooleans on User {
-    walledGardenInvite
-    hideWalledGardenUI
-    walledGardenPortalOnboarded
     taggingDashboardCollapsed
     usernameUnset
   }

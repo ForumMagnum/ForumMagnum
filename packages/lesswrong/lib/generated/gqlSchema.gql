@@ -659,6 +659,7 @@ type RecentDiscussionFeedQueryResults {
   cutoff: Date
   endOffset: Int!
   results: [RecentDiscussionFeedEntryType!]
+  sessionId: String
 }
 
 type RecentDiscussionFeedEntryType {
@@ -1188,6 +1189,42 @@ extend type Mutation {
   increasePostViewCount(postId: String): Float
 }
 
+type FeedPost {
+  _id: String!
+  postMetaInfo: JSON
+  post: Post
+}
+
+type FeedCommentThread {
+  _id: String!
+  commentMetaInfos: JSON
+  comments: [Comment]
+  post: Post
+}
+
+type FeedSpotlightItem {
+  _id: String!
+  spotlight: Spotlight
+}
+
+type UltraFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [UltraFeedEntryType!]
+  sessionId: String
+}
+
+type UltraFeedEntryType {
+  type: String!
+  feedCommentThread: FeedCommentThread
+  feedPost: FeedPost
+  feedSpotlight: FeedSpotlightItem
+}
+
+extend type Query {
+  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON): UltraFeedQueryResults!
+}
+
 extend type Mutation {
   generateCoverImagesForPost(postId: String!, prompt: String): [ReviewWinnerArt]
 }
@@ -1197,9 +1234,9 @@ extend type Mutation {
 }
 
 type AdvisorRequest {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   user: User
@@ -1234,24 +1271,24 @@ extend type Query {
 }
 
 type ArbitalCaches {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type ArbitalTagContentRel {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  parentDocumentId: String
-  childDocumentId: String
-  parentCollectionName: String
-  childCollectionName: String
-  type: String
-  level: Float
-  isStrong: Boolean
+  parentDocumentId: String!
+  childDocumentId: String!
+  parentCollectionName: String!
+  childCollectionName: String!
+  type: String!
+  level: Float!
+  isStrong: Boolean!
 }
 
 input SingleArbitalTagContentRelInput {
@@ -1281,16 +1318,16 @@ extend type Query {
 }
 
 type Ban {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   expirationDate: Date
-  userId: String
+  userId: String!
   user: User
   ip: String
   reason: String
-  comment: String
+  comment: String!
   properties: JSON
 }
 
@@ -1321,9 +1358,9 @@ extend type Query {
 }
 
 type Book {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
@@ -1331,11 +1368,11 @@ type Book {
   title: String
   subtitle: String
   tocTitle: String
-  collectionId: String
+  collectionId: String!
   number: Float
-  postIds: [String]
+  postIds: [String!]!
   posts: [Post!]!
-  sequenceIds: [String]
+  sequenceIds: [String!]!
   sequences: [Sequence!]!
   displaySequencesAsGrid: Boolean
   hideProgressBar: Boolean
@@ -1369,9 +1406,9 @@ extend type Query {
 }
 
 type Chapter {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
@@ -1380,7 +1417,7 @@ type Chapter {
   number: Float
   sequenceId: String
   sequence: Sequence
-  postIds: [String]
+  postIds: [String!]!
   posts: [Post!]!
 }
 
@@ -1411,9 +1448,9 @@ extend type Query {
 }
 
 type CkEditorUserSession {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   documentId: String
   userId: String
@@ -1448,14 +1485,14 @@ extend type Query {
 }
 
 type ClientId {
-  _id: String
-  schemaVersion: Float
+  _id: String!
+  schemaVersion: Float!
   createdAt: Date
   legacyData: JSON
   clientId: String
   firstSeenReferrer: String
   firstSeenLandingPage: String
-  userIds: [String]
+  userIds: [String!]
   users: [User!]
   invalidated: Boolean
   lastSeenAt: Date
@@ -1489,23 +1526,23 @@ extend type Query {
 }
 
 type Collection {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  userId: String
+  userId: String!
   user: User
-  title: String
-  slug: String
+  title: String!
+  slug: String!
   books: [Book]
   postsCount: Int!
   readPostsCount: Int!
   gridImageId: String
-  firstPageLink: String
+  firstPageLink: String!
   hideStartReadingButton: Boolean
-  noindex: Boolean
+  noindex: Boolean!
 }
 
 input SingleCollectionInput {
@@ -1535,9 +1572,9 @@ extend type Query {
 }
 
 type CommentModeratorAction {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   commentId: String
   comment: Comment
@@ -1573,8 +1610,8 @@ extend type Query {
 }
 
 type Comment {
-  _id: String
-  schemaVersion: Float
+  _id: String!
+  schemaVersion: Float!
   createdAt: Date
   legacyData: JSON
   contents(version: String): Revision
@@ -1584,7 +1621,7 @@ type Comment {
   parentComment: Comment
   topLevelCommentId: String
   topLevelComment: Comment
-  postedAt: Date
+  postedAt: Date!
   lastEditedAt: Date
   author: String
   postId: String
@@ -1594,24 +1631,24 @@ type Comment {
   forumEventId: String
   forumEvent: ForumEvent
   forumEventMetadata: JSON
-  tagCommentType: String
+  tagCommentType: String!
   subforumStickyPriority: Float
   userId: String
   user: User
   userIP: String
   userAgent: String
   referrer: String
-  authorIsUnreviewed: Boolean
+  authorIsUnreviewed: Boolean!
   pageUrl: String
   pageUrlRelative: String
-  answer: Boolean
+  answer: Boolean!
   parentAnswerId: String
   parentAnswer: Comment
-  directChildrenCount: Float
-  descendentCount: Float
+  directChildrenCount: Float!
+  descendentCount: Float!
   latestChildren: [Comment]
   shortform: Boolean
-  shortformFrontpage: Boolean
+  shortformFrontpage: Boolean!
   nominatedForReview: String
   reviewingForReview: String
   lastSubthreadActivity: Date
@@ -1624,39 +1661,39 @@ type Comment {
   wordCount: Int
   htmlBody: String
   votingSystem: String!
-  legacy: Boolean
+  legacy: Boolean!
   legacyId: String
-  legacyPoll: Boolean
+  legacyPoll: Boolean!
   legacyParentId: String
-  retracted: Boolean
-  deleted: Boolean
-  deletedPublic: Boolean
+  retracted: Boolean!
+  deleted: Boolean!
+  deletedPublic: Boolean!
   deletedReason: String
   deletedDate: Date
   deletedByUserId: String
   deletedByUser: User
-  spam: Boolean
+  spam: Boolean!
   repliesBlockedUntil: Date
   needsReview: Boolean
   reviewedByUserId: String
   reviewedByUser: User
-  hideAuthor: Boolean
-  moderatorHat: Boolean
+  hideAuthor: Boolean!
+  moderatorHat: Boolean!
   hideModeratorHat: Boolean
-  isPinnedOnProfile: Boolean
+  isPinnedOnProfile: Boolean!
   title: String
-  relevantTagIds: [String]
+  relevantTagIds: [String!]!
   relevantTags: [Tag!]!
   debateResponse: Boolean
-  rejected: Boolean
+  rejected: Boolean!
   modGPTAnalysis: String
   modGPTRecommendation: String
   rejectedReason: String
   rejectedByUserId: String
   rejectedByUser: User
   emojiReactors: JSON
-  af: Boolean
-  suggestForAlignmentUserIds: [String]
+  af: Boolean!
+  suggestForAlignmentUserIds: [String!]!
   suggestForAlignmentUsers: [User!]!
   reviewForAlignmentUserId: String
   afDate: Date
@@ -1668,10 +1705,10 @@ type Comment {
   currentUserVote: String
   currentUserExtendedVote: JSON
   allVotes: [Vote]
-  voteCount: Float
+  voteCount: Float!
   baseScore: Float
   extendedScore: JSON
-  score: Float
+  score: Float!
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
@@ -1704,18 +1741,18 @@ extend type Query {
 }
 
 type Conversation {
-  _id: String
-  schemaVersion: Float
+  _id: String!
+  schemaVersion: Float!
   createdAt: Date
   legacyData: JSON
   title: String
-  participantIds: [String]
+  participantIds: [String!]
   participants: [User!]
   latestActivity: Date
   af: Boolean
-  messageCount: Float
+  messageCount: Float!
   moderator: Boolean
-  archivedByIds: [String]
+  archivedByIds: [String!]!
   archivedBy: [User!]!
   latestMessage: Message
   hasUnreadMessages: Boolean
@@ -1757,18 +1794,18 @@ type CronHistory {
 }
 
 type CurationEmail {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   postId: String
 }
 
 type CurationNotice {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
@@ -1808,23 +1845,23 @@ extend type Query {
 }
 
 type DatabaseMetadata {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type DebouncerEvents {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type DialogueCheck {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   targetUserId: String
@@ -1862,20 +1899,20 @@ extend type Query {
 }
 
 type DialogueMatchPreference {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   dialogueCheckId: String
   dialogueCheck: DialogueCheck
-  topicPreferences: [JSON]
+  topicPreferences: [JSON!]
   topicNotes: String
   syncPreference: String
   asyncPreference: String
   formatNotes: String
   calendlyLink: String
   generatedDialogueId: String
-  deleted: Boolean
+  deleted: Boolean!
 }
 
 input SingleDialogueMatchPreferenceInput {
@@ -1905,13 +1942,13 @@ extend type Query {
 }
 
 type DigestPost {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  digestId: String
+  digestId: String!
   digest: Digest!
-  postId: String
+  postId: String!
   post: Post
   emailDigestStatus: String
   onsiteDigestStatus: String
@@ -1944,12 +1981,12 @@ extend type Query {
 }
 
 type Digest {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  num: Float
-  startDate: Date
+  num: Float!
+  startDate: Date!
   endDate: Date
   publishedDate: Date
   onsiteImageId: String
@@ -1983,32 +2020,32 @@ extend type Query {
 }
 
 type ElectionCandidate {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  electionName: String
-  name: String
-  logoSrc: String
-  href: String
+  electionName: String!
+  name: String!
+  logoSrc: String!
+  href: String!
   fundraiserLink: String
   gwwcLink: String
   gwwcId: String
-  description: String
-  userId: String
+  description: String!
+  userId: String!
   user: User
-  postCount: Float
-  tagId: String
+  postCount: Float!
+  tagId: String!
   tag: Tag
-  isElectionFundraiser: Boolean
+  isElectionFundraiser: Boolean!
   amountRaised: Float
   targetAmount: Float
   currentUserVote: String
   currentUserExtendedVote: JSON
-  voteCount: Float
-  baseScore: Float
+  voteCount: Float!
+  baseScore: Float!
   extendedScore: JSON
-  score: Float
+  score: Float!
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
@@ -2041,9 +2078,9 @@ extend type Query {
 }
 
 type ElectionVote {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   electionName: String
   userId: String
@@ -2083,19 +2120,19 @@ extend type Query {
 }
 
 type ElicitQuestionPrediction {
-  _id: String
+  _id: String!
   predictionId: String
   prediction: Float
-  createdAt: Date
+  createdAt: Date!
   notes: String
-  creator: JSON
+  creator: JSON!
   userId: String
   user: User
   sourceUrl: String
   sourceId: String
-  binaryQuestionId: String
+  binaryQuestionId: String!
   question: ElicitQuestion!
-  isDeleted: Boolean
+  isDeleted: Boolean!
 }
 
 input SingleElicitQuestionPredictionInput {
@@ -2125,11 +2162,11 @@ extend type Query {
 }
 
 type ElicitQuestion {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  title: String
+  title: String!
   notes: String
   resolution: String
   resolvesBy: Date
@@ -2162,21 +2199,21 @@ extend type Query {
 }
 
 type EmailTokens {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type FeaturedResource {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  title: String
+  title: String!
   body: String
-  ctaText: String
-  ctaUrl: String
+  ctaText: String!
+  ctaUrl: String!
   expiresAt: Date
 }
 
@@ -2207,9 +2244,9 @@ extend type Query {
 }
 
 type FieldChange {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   user: User
@@ -2221,9 +2258,9 @@ type FieldChange {
 }
 
 type ForumEvent {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   frontpageDescription(version: String): Revision
   frontpageDescription_latest: String
@@ -2231,25 +2268,25 @@ type ForumEvent {
   frontpageDescriptionMobile_latest: String
   postPageDescription(version: String): Revision
   postPageDescription_latest: String
-  title: String
-  startDate: Date
-  endDate: Date
-  darkColor: String
-  lightColor: String
-  bannerTextColor: String
+  title: String!
+  startDate: Date!
+  endDate: Date!
+  darkColor: String!
+  lightColor: String!
+  bannerTextColor: String!
   contrastColor: String
   tagId: String
   tag: Tag
   postId: String
   post: Post
   bannerImageId: String
-  includesPoll: Boolean
-  eventFormat: String
+  includesPoll: Boolean!
+  eventFormat: String!
   pollQuestion(version: String): Revision
   pollQuestion_latest: String
   pollAgreeWording: String
   pollDisagreeWording: String
-  maxStickersPerUser: Float
+  maxStickersPerUser: Float!
   customComponent: String
   commentPrompt: String
   publicData: JSON
@@ -2283,25 +2320,25 @@ extend type Query {
 }
 
 type GardenCode {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
   pingbacks: JSON
-  slug: String
-  code: String
-  title: String
-  userId: String
+  slug: String!
+  code: String!
+  title: String!
+  userId: String!
   user: User
   startTime: Date
-  endTime: Date
+  endTime: Date!
   fbLink: String
-  type: String
-  hidden: Boolean
-  deleted: Boolean
-  afOnly: Boolean
+  type: String!
+  hidden: Boolean!
+  deleted: Boolean!
+  afOnly: Boolean!
 }
 
 input SingleGardenCodeInput {
@@ -2331,9 +2368,9 @@ extend type Query {
 }
 
 type GoogleServiceAccountSession {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   email: String
   refreshToken: String
@@ -2369,26 +2406,26 @@ extend type Query {
 }
 
 type Images {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type JargonTerm {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  postId: String
+  postId: String!
   post: Post
-  term: String
+  term: String!
   humansAndOrAIEdited: String
-  approved: Boolean
-  deleted: Boolean
-  altTerms: [String]
+  approved: Boolean!
+  deleted: Boolean!
+  altTerms: [String!]!
 }
 
 input SingleJargonTermInput {
@@ -2418,8 +2455,8 @@ extend type Query {
 }
 
 type LWEvent {
-  _id: String
-  schemaVersion: Float
+  _id: String!
+  schemaVersion: Float!
   createdAt: Date
   legacyData: JSON
   userId: String
@@ -2458,16 +2495,16 @@ extend type Query {
 }
 
 type LegacyData {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type LlmConversation {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   user: User
@@ -2507,9 +2544,9 @@ extend type Query {
 }
 
 type LlmMessage {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   conversationId: String
@@ -2518,20 +2555,20 @@ type LlmMessage {
 }
 
 type Localgroup {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
   name: String
   nameInAnotherLanguage: String
-  organizerIds: [String]
+  organizerIds: [String!]!
   organizers: [User!]!
   lastActivity: Date
-  types: [String]
-  categories: [String]
-  isOnline: Boolean
+  types: [String!]!
+  categories: [String!]
+  isOnline: Boolean!
   mongoLocation: JSON
   googleLocation: JSON
   location: String
@@ -2542,8 +2579,8 @@ type Localgroup {
   slackLink: String
   website: String
   bannerImageId: String
-  inactive: Boolean
-  deleted: Boolean
+  inactive: Boolean!
+  deleted: Boolean!
 }
 
 input SingleLocalgroupInput {
@@ -2573,21 +2610,21 @@ extend type Query {
 }
 
 type ManifoldProbabilitiesCache {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  marketId: String
-  probability: Float
-  isResolved: Boolean
-  year: Float
-  lastUpdated: Date
+  marketId: String!
+  probability: Float!
+  isResolved: Boolean!
+  year: Float!
+  lastUpdated: Date!
   url: String
 }
 
 type Message {
-  _id: String
-  schemaVersion: Float
+  _id: String!
+  schemaVersion: Float!
   createdAt: Date
   legacyData: JSON
   contents(version: String): Revision
@@ -2626,23 +2663,23 @@ extend type Query {
 }
 
 type Migration {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type ModerationTemplate {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  name: String
-  collectionName: String
-  order: Float
-  deleted: Boolean
+  name: String!
+  collectionName: String!
+  order: Float!
+  deleted: Boolean!
 }
 
 input SingleModerationTemplateInput {
@@ -2672,13 +2709,13 @@ extend type Query {
 }
 
 type ModeratorAction {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  userId: String
+  userId: String!
   user: User
-  type: String
+  type: String!
   endedAt: Date
   active: Boolean!
 }
@@ -2710,27 +2747,27 @@ extend type Query {
 }
 
 type MultiDocument {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
   pingbacks: JSON
-  slug: String
-  oldSlugs: [String]
+  slug: String!
+  oldSlugs: [String!]!
   title: String
   preview: String
-  tabTitle: String
+  tabTitle: String!
   tabSubtitle: String
-  userId: String
+  userId: String!
   user: User
-  parentDocumentId: String
+  parentDocumentId: String!
   parentTag: Tag
   parentLens: MultiDocument
-  collectionName: String
-  fieldName: String
-  index: Float
+  collectionName: String!
+  fieldName: String!
+  index: Float!
   tableOfContents(version: String): JSON
   contributors(limit: Int, version: String): TagContributorsList
   contributionStats: JSON
@@ -2738,13 +2775,13 @@ type MultiDocument {
   htmlWithContributorAnnotations: String
   summaries: [MultiDocument!]!
   textLastUpdatedAt: Date
-  deleted: Boolean
+  deleted: Boolean!
   currentUserVote: String
   currentUserExtendedVote: JSON
-  voteCount: Float
-  baseScore: Float
+  voteCount: Float!
+  baseScore: Float!
   extendedScore: JSON
-  score: Float
+  score: Float!
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
@@ -2777,8 +2814,8 @@ extend type Query {
 }
 
 type Notification {
-  _id: String
-  schemaVersion: Float
+  _id: String!
+  schemaVersion: Float!
   createdAt: Date
   legacyData: JSON
   userId: String
@@ -2822,18 +2859,18 @@ extend type Query {
 }
 
 type PageCacheEntry {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type PetrovDayAction {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  actionType: String
+  actionType: String!
   data: JSON
   userId: String
 }
@@ -2865,25 +2902,25 @@ extend type Query {
 }
 
 type PetrovDayLaunch {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  launchCode: String
+  launchCode: String!
   hashedLaunchCode: String
   userId: String
 }
 
 type PodcastEpisode {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  podcastId: String
+  podcastId: String!
   podcast: Podcast!
-  title: String
-  episodeLink: String
-  externalEpisodeId: String
+  title: String!
+  episodeLink: String!
+  externalEpisodeId: String!
 }
 
 input SinglePodcastEpisodeInput {
@@ -2913,11 +2950,11 @@ extend type Query {
 }
 
 type Podcast {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  title: String
+  title: String!
   applePodcastLink: String
   spotifyPodcastLink: String
 }
@@ -2949,16 +2986,16 @@ extend type Query {
 }
 
 type PostEmbedding {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   postId: String
   post: Post
   postHash: String
   lastGeneratedAt: Date
   model: String
-  embeddings: [Float]
+  embeddings: [Float!]
 }
 
 input SinglePostEmbeddingInput {
@@ -2988,9 +3025,9 @@ extend type Query {
 }
 
 type PostRecommendation {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   user: User
@@ -3005,14 +3042,14 @@ type PostRecommendation {
 }
 
 type PostRelation {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  type: String
-  sourcePostId: String
+  type: String!
+  sourcePostId: String!
   sourcePost: Post
-  targetPostId: String
+  targetPostId: String!
   targetPost: Post
   order: Float
 }
@@ -3044,9 +3081,9 @@ extend type Query {
 }
 
 type PostViewTime {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
@@ -3077,9 +3114,9 @@ extend type Query {
 }
 
 type PostViews {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
@@ -3110,8 +3147,8 @@ extend type Query {
 }
 
 type Post {
-  _id: String
-  schemaVersion: Float
+  _id: String!
+  schemaVersion: Float!
   createdAt: Date
   legacyData: JSON
   contents(version: String): Revision
@@ -3123,20 +3160,20 @@ type Post {
   moderationGuidelines_latest: String
   customHighlight(version: String): Revision
   customHighlight_latest: String
-  slug: String
-  postedAt: Date
+  slug: String!
+  postedAt: Date!
   modifiedAt: Date
   url: String
-  postCategory: String
-  title: String
+  postCategory: String!
+  title: String!
   viewCount: Float
   lastCommentedAt: Date
   clickCount: Float
-  deletedDraft: Boolean
-  status: Float
-  isFuture: Boolean
-  sticky: Boolean
-  stickyPriority: Int
+  deletedDraft: Boolean!
+  status: Float!
+  isFuture: Boolean!
+  sticky: Boolean!
+  stickyPriority: Int!
   userIP: String
   userAgent: String
   referrer: String
@@ -3152,58 +3189,58 @@ type Post {
   twitterShareUrl: String
   facebookShareUrl: String
   socialPreviewImageUrl: String
-  question: Boolean
-  authorIsUnreviewed: Boolean
+  question: Boolean!
+  authorIsUnreviewed: Boolean!
   readTimeMinutesOverride: Float
   readTimeMinutes: Int!
   wordCount: Int
   htmlBody: String
-  submitToFrontpage: Boolean
-  hiddenRelatedQuestion: Boolean
+  submitToFrontpage: Boolean!
+  hiddenRelatedQuestion: Boolean!
   originalPostRelationSourceId: String
   sourcePostRelations: [PostRelation!]!
   targetPostRelations: [PostRelation!]!
-  shortform: Boolean
+  shortform: Boolean!
   canonicalSource: String
-  nominationCount2018: Float
-  nominationCount2019: Float
-  reviewCount2018: Float
-  reviewCount2019: Float
-  reviewCount: Float
-  reviewVoteCount: Float
-  positiveReviewVoteCount: Float
+  nominationCount2018: Float!
+  nominationCount2019: Float!
+  reviewCount2018: Float!
+  reviewCount2019: Float!
+  reviewCount: Float!
+  reviewVoteCount: Float!
+  positiveReviewVoteCount: Float!
   manifoldReviewMarketId: String
   annualReviewMarketProbability: Float
   annualReviewMarketIsResolved: Boolean
   annualReviewMarketYear: Int
   annualReviewMarketUrl: String
   glossary: [JargonTerm!]!
-  reviewVoteScoreAF: Float
-  reviewVotesAF: [Float]
-  reviewVoteScoreHighKarma: Float
-  reviewVotesHighKarma: [Float]
-  reviewVoteScoreAllKarma: Float
-  reviewVotesAllKarma: [Float]
-  finalReviewVoteScoreHighKarma: Float
-  finalReviewVotesHighKarma: [Float]
-  finalReviewVoteScoreAllKarma: Float
-  finalReviewVotesAllKarma: [Float]
-  finalReviewVoteScoreAF: Float
-  finalReviewVotesAF: [Float]
+  reviewVoteScoreAF: Float!
+  reviewVotesAF: [Float!]!
+  reviewVoteScoreHighKarma: Float!
+  reviewVotesHighKarma: [Float!]!
+  reviewVoteScoreAllKarma: Float!
+  reviewVotesAllKarma: [Float!]!
+  finalReviewVoteScoreHighKarma: Float!
+  finalReviewVotesHighKarma: [Float!]!
+  finalReviewVoteScoreAllKarma: Float!
+  finalReviewVotesAllKarma: [Float!]!
+  finalReviewVoteScoreAF: Float!
+  finalReviewVotesAF: [Float!]!
   lastCommentPromotedAt: Date
   tagRel(tagId: String): TagRel
   tags: [Tag]
   tagRelevance: JSON
   lastPromotedComment: Comment
   bestAnswer: Comment
-  noIndex: Boolean
-  rsvps: [JSON]
+  noIndex: Boolean!
+  rsvps: [JSON!]
   rsvpCounts: JSON!
   activateRSVPs: Boolean
-  nextDayReminderSent: Boolean
-  onlyVisibleToLoggedIn: Boolean
-  onlyVisibleToEstablishedAccounts: Boolean
-  hideFromRecentDiscussions: Boolean
+  nextDayReminderSent: Boolean!
+  onlyVisibleToLoggedIn: Boolean!
+  onlyVisibleToEstablishedAccounts: Boolean!
+  hideFromRecentDiscussions: Boolean!
   currentUserReviewVote: ReviewVote
   reviewWinner: ReviewWinner
   spotlight: Spotlight
@@ -3211,10 +3248,10 @@ type Post {
   myEditorAccess: String!
   podcastEpisodeId: String
   podcastEpisode: PodcastEpisode
-  forceAllowType3Audio: Boolean
-  legacy: Boolean
+  forceAllowType3Audio: Boolean!
+  legacy: Boolean!
   legacyId: String
-  legacySpam: Boolean
+  legacySpam: Boolean!
   feedId: String
   feed: RSSFeed
   feedLink: String
@@ -3222,14 +3259,14 @@ type Post {
   isRead: Boolean
   curatedDate: Date
   metaDate: Date
-  suggestForCuratedUserIds: [String]
+  suggestForCuratedUserIds: [String!]
   suggestForCuratedUsernames: String
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON]
+  coauthorStatuses: [JSON!]
   coauthors: [User!]
-  hasCoauthorPermission: Boolean
+  hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
   socialPreview: JSON
@@ -3246,30 +3283,30 @@ type Post {
   nextPost(sequenceId: String): Post
   prevPost(sequenceId: String): Post
   sequence(sequenceId: String, prevOrNext: String): Sequence
-  unlisted: Boolean
-  disableRecommendation: Boolean
-  defaultRecommendation: Boolean
+  unlisted: Boolean!
+  disableRecommendation: Boolean!
+  defaultRecommendation: Boolean!
   hideFromPopularComments: Boolean
   draft: Boolean
   wasEverUndrafted: Boolean
-  meta: Boolean
-  hideFrontpageComments: Boolean
-  maxBaseScore: Float
+  meta: Boolean!
+  hideFrontpageComments: Boolean!
+  maxBaseScore: Float!
   scoreExceeded2Date: Date
   scoreExceeded30Date: Date
   scoreExceeded45Date: Date
   scoreExceeded75Date: Date
   scoreExceeded125Date: Date
   scoreExceeded200Date: Date
-  bannedUserIds: [String]
+  bannedUserIds: [String!]
   commentsLocked: Boolean
   commentsLockedToAccountsCreatedAfter: Date
-  organizerIds: [String]
+  organizerIds: [String!]
   organizers: [User!]
   groupId: String
   group: Localgroup
   eventType: String
-  isEvent: Boolean
+  isEvent: Boolean!
   reviewedByUserId: String
   reviewedByUser: User
   reviewForCuratedUserId: String
@@ -3279,8 +3316,8 @@ type Post {
   localEndTime: Date
   eventRegistrationLink: String
   joinEventLink: String
-  onlineEvent: Boolean
-  globalEvent: Boolean
+  onlineEvent: Boolean!
+  globalEvent: Boolean!
   mongoLocation: JSON
   googleLocation: JSON
   location: String
@@ -3289,36 +3326,36 @@ type Post {
   meetupLink: String
   website: String
   eventImageId: String
-  types: [String]
-  metaSticky: Boolean
+  types: [String!]
+  metaSticky: Boolean!
   sharingSettings: JSON
-  shareWithUsers: [String]
+  shareWithUsers: [String!]
   usersSharedWith: [User!]
   linkSharingKey: String
-  linkSharingKeyUsedBy: [String]
+  linkSharingKeyUsedBy: [String!]
   commentSortOrder: String
-  hideAuthor: Boolean
+  hideAuthor: Boolean!
   tableOfContents: JSON
   tableOfContentsRevision(version: String): JSON
   sideComments: JSON
   sideCommentsCache: SideCommentCache
   sideCommentVisibility: String
-  disableSidenotes: Boolean
+  disableSidenotes: Boolean!
   moderationStyle: String
   ignoreRateLimits: Boolean
-  hideCommentKarma: Boolean
-  commentCount: Float
-  topLevelCommentCount: Float
+  hideCommentKarma: Boolean!
+  commentCount: Float!
+  topLevelCommentCount: Float!
   recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment]
   languageModelSummary: String
-  debate: Boolean
-  collabEditorDialogue: Boolean
+  debate: Boolean!
+  collabEditorDialogue: Boolean!
   totalDialogueResponseCount: Int!
   mostRecentPublishedDialogueResponseDate: Date
   unreadDebateResponseCount: Int!
   emojiReactors: JSON
   commentEmojiReactors: JSON
-  rejected: Boolean
+  rejected: Boolean!
   rejectedReason: String
   rejectedByUserId: String
   rejectedByUser: User
@@ -3327,12 +3364,12 @@ type Post {
   firstVideoAttribsForPreview: JSON
   subforumTagId: String
   subforumTag: Tag
-  af: Boolean
+  af: Boolean!
   afDate: Date
-  afCommentCount: Float
+  afCommentCount: Float!
   afLastCommentedAt: Date
-  afSticky: Boolean
-  suggestForAlignmentUserIds: [String]
+  afSticky: Boolean!
+  suggestForAlignmentUserIds: [String!]!
   suggestForAlignmentUsers: [User!]!
   reviewForAlignmentUserId: String
   agentFoundationsId: String
@@ -3342,10 +3379,10 @@ type Post {
   reviews: [Comment]
   currentUserVote: String
   currentUserExtendedVote: JSON
-  voteCount: Float
-  baseScore: Float
+  voteCount: Float!
+  baseScore: Float!
   extendedScore: JSON
-  score: Float
+  score: Float!
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
@@ -3378,20 +3415,20 @@ extend type Query {
 }
 
 type RSSFeed {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  userId: String
+  userId: String!
   user: User
-  ownedByUser: Boolean
-  displayFullContent: Boolean
-  nickname: String
-  url: String
+  ownedByUser: Boolean!
+  displayFullContent: Boolean!
+  nickname: String!
+  url: String!
   status: String
-  rawFeed: JSON
-  setCanonicalUrl: Boolean
-  importAsDraft: Boolean
+  rawFeed: JSON!
+  setCanonicalUrl: Boolean!
+  importAsDraft: Boolean!
 }
 
 input SingleRSSFeedInput {
@@ -3421,16 +3458,16 @@ extend type Query {
 }
 
 type ReadStatus {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type RecommendationsCache {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   postId: String
@@ -3441,11 +3478,11 @@ type RecommendationsCache {
 }
 
 type Report {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  userId: String
+  userId: String!
   user: User
   reportedUserId: String
   reportedUser: User
@@ -3453,7 +3490,7 @@ type Report {
   comment: Comment
   postId: String
   post: Post
-  link: String
+  link: String!
   claimedUserId: String
   claimedUser: User
   description: String
@@ -3489,20 +3526,20 @@ extend type Query {
 }
 
 type ReviewVote {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  userId: String
+  userId: String!
   user: User
-  postId: String
+  postId: String!
   post: Post
-  qualitativeScore: Int
-  quadraticScore: Int
+  qualitativeScore: Int!
+  quadraticScore: Int!
   comment: String
-  year: String
-  dummy: Boolean
-  reactions: [String]
+  year: String!
+  dummy: Boolean!
+  reactions: [String!]
 }
 
 input SingleReviewVoteInput {
@@ -3532,13 +3569,13 @@ extend type Query {
 }
 
 type ReviewWinnerArt {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  postId: String
-  splashArtImagePrompt: String
-  splashArtImageUrl: String
+  postId: String!
+  splashArtImagePrompt: String!
+  splashArtImageUrl: String!
   activeSplashArtCoordinates: SplashArtCoordinate
 }
 
@@ -3569,18 +3606,18 @@ extend type Query {
 }
 
 type ReviewWinner {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  postId: String
+  postId: String!
   post: Post
   reviewWinnerArt: ReviewWinnerArt
   competitorCount: Int
-  reviewYear: Float
-  category: String
+  reviewYear: Float!
+  category: String!
   curatedOrder: Float
-  reviewRanking: Float
+  reviewRanking: Float!
   isAI: Boolean
 }
 
@@ -3611,16 +3648,16 @@ extend type Query {
 }
 
 type Revision {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   documentId: String
   collectionName: String
   fieldName: String
   editedAt: Date
   updateType: String
-  version: String
+  version: String!
   commitMessage: String
   userId: String
   user: User
@@ -3630,25 +3667,25 @@ type Revision {
   markdown: String
   draftJS: JSON
   ckEditorMarkup: String
-  wordCount: Float
+  wordCount: Float!
   htmlHighlight: String!
   htmlHighlightStartingAtHash(hash: String): String!
   plaintextDescription: String!
   plaintextMainText: String!
   hasFootnotes: Boolean
-  changeMetrics: JSON
+  changeMetrics: JSON!
   googleDocMetadata: JSON
-  skipAttributions: Boolean
+  skipAttributions: Boolean!
   tag: Tag
   post: Post
   lens: MultiDocument
   summary: MultiDocument
   currentUserVote: String
   currentUserExtendedVote: JSON
-  voteCount: Float
-  baseScore: Float
+  voteCount: Float!
+  baseScore: Float!
   extendedScore: JSON
-  score: Float
+  score: Float!
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
@@ -3681,31 +3718,31 @@ extend type Query {
 }
 
 type Sequence {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  lastUpdated: Date
-  userId: String
+  lastUpdated: Date!
+  userId: String!
   user: User
-  title: String
+  title: String!
   bannerImageId: String
   gridImageId: String
-  hideFromAuthorPage: Boolean
-  draft: Boolean
-  isDeleted: Boolean
+  hideFromAuthorPage: Boolean!
+  draft: Boolean!
+  isDeleted: Boolean!
   curatedOrder: Float
   userProfileOrder: Float
   canonicalCollectionSlug: String
   canonicalCollection: Collection
-  hidden: Boolean
-  noindex: Boolean
+  hidden: Boolean!
+  noindex: Boolean!
   postsCount: Int!
   readPostsCount: Int!
   chapters: [Chapter]
-  af: Boolean
+  af: Boolean!
 }
 
 input SingleSequenceInput {
@@ -3742,9 +3779,9 @@ type Session {
 }
 
 type SideCommentCache {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   postId: String
   annotatedHtml: String
@@ -3753,27 +3790,27 @@ type SideCommentCache {
 }
 
 type SplashArtCoordinate {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   reviewWinnerArtId: String
   reviewWinnerArt: ReviewWinnerArt
-  leftXPct: Float
-  leftYPct: Float
-  leftHeightPct: Float
-  leftWidthPct: Float
-  leftFlipped: Boolean
-  middleXPct: Float
-  middleYPct: Float
-  middleHeightPct: Float
-  middleWidthPct: Float
-  middleFlipped: Boolean
-  rightXPct: Float
-  rightYPct: Float
-  rightHeightPct: Float
-  rightWidthPct: Float
-  rightFlipped: Boolean
+  leftXPct: Float!
+  leftYPct: Float!
+  leftHeightPct: Float!
+  leftWidthPct: Float!
+  leftFlipped: Boolean!
+  middleXPct: Float!
+  middleYPct: Float!
+  middleHeightPct: Float!
+  middleWidthPct: Float!
+  middleFlipped: Boolean!
+  rightXPct: Float!
+  rightYPct: Float!
+  rightHeightPct: Float!
+  rightWidthPct: Float!
+  rightFlipped: Boolean!
 }
 
 input SingleSplashArtCoordinateInput {
@@ -3803,32 +3840,32 @@ extend type Query {
 }
 
 type Spotlight {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   description(version: String): Revision
   description_latest: String
-  documentId: String
+  documentId: String!
   document: Post
   post: Post
   sequence: Sequence
   tag: Tag
-  documentType: String
-  position: Float
-  duration: Float
+  documentType: String!
+  position: Float!
+  duration: Float!
   customTitle: String
   customSubtitle: String
   subtitleUrl: String
   headerTitle: String
   headerTitleLeftColor: String
   headerTitleRightColor: String
-  lastPromotedAt: Date
+  lastPromotedAt: Date!
   spotlightSplashImageUrl: String
-  draft: Boolean
-  deletedDraft: Boolean
-  showAuthor: Boolean
-  imageFade: Boolean
+  draft: Boolean!
+  deletedDraft: Boolean!
+  showAuthor: Boolean!
+  imageFade: Boolean!
   imageFadeColor: String
   spotlightImageId: String
   spotlightDarkImageId: String
@@ -3862,9 +3899,9 @@ extend type Query {
 }
 
 type Subscription {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   user: User
@@ -3902,15 +3939,15 @@ extend type Query {
 }
 
 type SurveyQuestion {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  surveyId: String
+  surveyId: String!
   survey: Survey!
-  question: String
-  format: String
-  order: Float
+  question: String!
+  format: String!
+  order: Float!
 }
 
 input SingleSurveyQuestionInput {
@@ -3940,9 +3977,9 @@ extend type Query {
 }
 
 type SurveyResponse {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   surveyId: String
   survey: Survey
@@ -3982,11 +4019,11 @@ extend type Query {
 }
 
 type SurveySchedule {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  surveyId: String
+  surveyId: String!
   survey: Survey!
   name: String
   impressionsLimit: Float
@@ -3997,7 +4034,7 @@ type SurveySchedule {
   startDate: Date
   endDate: Date
   deactivated: Boolean
-  clientIds: [String]
+  clientIds: [String!]
   clients: [ClientId!]
 }
 
@@ -4028,11 +4065,11 @@ extend type Query {
 }
 
 type Survey {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  name: String
+  name: String!
   questions: [SurveyQuestion!]!
 }
 
@@ -4063,15 +4100,15 @@ extend type Query {
 }
 
 type TagFlag {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  slug: String
-  name: String
-  deleted: Boolean
+  slug: String!
+  name: String!
+  deleted: Boolean!
   order: Float
 }
 
@@ -4102,26 +4139,26 @@ extend type Query {
 }
 
 type TagRel {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  tagId: String
+  tagId: String!
   tag: Tag
-  postId: String
+  postId: String!
   post: Post
-  deleted: Boolean
+  deleted: Boolean!
   userId: String
   user: User
   currentUserCanVote: Boolean!
   autoApplied: Boolean!
-  backfilled: Boolean
+  backfilled: Boolean!
   currentUserVote: String
   currentUserExtendedVote: JSON
-  voteCount: Float
-  baseScore: Float
+  voteCount: Float!
+  baseScore: Float!
   extendedScore: JSON
-  score: Float
+  score: Float!
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
@@ -4154,9 +4191,9 @@ extend type Query {
 }
 
 type Tag {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   description(version: String): Revision
   description_latest: String
@@ -4165,35 +4202,35 @@ type Tag {
   subforumWelcomeText_latest: String
   moderationGuidelines(version: String): Revision
   moderationGuidelines_latest: String
-  slug: String
-  oldSlugs: [String]
-  name: String
+  slug: String!
+  oldSlugs: [String!]!
+  name: String!
   shortName: String
   subtitle: String
-  core: Boolean
-  isPostType: Boolean
-  suggestedAsFilter: Boolean
-  defaultOrder: Float
-  descriptionTruncationCount: Float
-  postCount: Float
+  core: Boolean!
+  isPostType: Boolean!
+  suggestedAsFilter: Boolean!
+  defaultOrder: Float!
+  descriptionTruncationCount: Float!
+  postCount: Float!
   userId: String
   user: User
-  adminOnly: Boolean
-  canEditUserIds: [String]
+  adminOnly: Boolean!
+  canEditUserIds: [String!]
   charsAdded: Float
   charsRemoved: Float
-  deleted: Boolean
+  deleted: Boolean!
   lastCommentedAt: Date
   lastSubforumCommentAt: Date
-  needsReview: Boolean
+  needsReview: Boolean!
   reviewedByUserId: String
   reviewedByUser: User
-  wikiGrade: Int
+  wikiGrade: Int!
   recentComments(tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String): [Comment]
-  wikiOnly: Boolean
+  wikiOnly: Boolean!
   bannerImageId: String
   squareImageId: String
-  tagFlagsIds: [String]
+  tagFlagsIds: [String!]!
   tagFlags: [TagFlag!]!
   lesswrongWikiImportRevision: String
   lesswrongWikiImportSlug: String
@@ -4207,23 +4244,23 @@ type Tag {
   introSequenceId: String
   sequence: Sequence
   postsDefaultSortOrder: String
-  canVoteOnRels: [String]
-  isSubforum: Boolean
+  canVoteOnRels: [String!]
+  isSubforum: Boolean!
   subforumUnreadMessagesCount: Int
-  subforumModeratorIds: [String]
+  subforumModeratorIds: [String!]!
   subforumModerators: [User!]!
   subforumIntroPostId: String
   subforumIntroPost: Post
   parentTagId: String
   parentTag: Tag
-  subTagIds: [String]
+  subTagIds: [String!]!
   subTags: [Tag!]!
   autoTagModel: String
   autoTagPrompt: String
-  noindex: Boolean
+  noindex: Boolean!
   lenses(lensSlug: String, version: String): [MultiDocument!]!
   lensesIncludingDeleted(lensSlug: String, version: String): [MultiDocument!]!
-  isPlaceholderPage: Boolean
+  isPlaceholderPage: Boolean!
   summaries: [MultiDocument!]!
   textLastUpdatedAt: Date
   isArbitalImport: Boolean
@@ -4231,13 +4268,13 @@ type Tag {
   coreTagId: String
   maxScore: Int
   usersWhoLiked: [UserLikingTag!]!
-  forceAllowType3Audio: Boolean
+  forceAllowType3Audio: Boolean!
   currentUserVote: String
   currentUserExtendedVote: JSON
-  voteCount: Float
-  baseScore: Float
+  voteCount: Float!
+  baseScore: Float!
   extendedScore: JSON
-  score: Float
+  score: Float!
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
@@ -4270,16 +4307,16 @@ extend type Query {
 }
 
 type Tweet {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type TypingIndicator {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   documentId: String
@@ -4312,17 +4349,28 @@ extend type Query {
   typingIndicators(input: MultiTypingIndicatorInput): MultiTypingIndicatorOutput
 }
 
+type UltraFeedEvent {
+  _id: String!
+  createdAt: Date!
+  documentId: String
+  collectionName: String
+  eventType: String
+  userId: String
+  event: JSON
+  feedItemId: String
+}
+
 type UserActivity {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
 }
 
 type UserEAGDetail {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   user: User
@@ -4362,9 +4410,9 @@ extend type Query {
 }
 
 type UserJobAd {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   user: User
@@ -4401,9 +4449,9 @@ extend type Query {
 }
 
 type UserMostValuablePost {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   userId: String
   user: User
@@ -4439,16 +4487,16 @@ extend type Query {
 }
 
 type UserRateLimit {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  userId: String
+  userId: String!
   user: User
-  type: String
-  intervalUnit: String
-  intervalLength: Float
-  actionsPerInterval: Float
+  type: String!
+  intervalUnit: String!
+  intervalLength: Float!
+  actionsPerInterval: Float!
   endedAt: Date
 }
 
@@ -4479,13 +4527,13 @@ extend type Query {
 }
 
 type UserTagRel {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   tagId: String
   tag: Tag
-  userId: String
+  userId: String!
   user: User
   subforumShowUnreadInSidebar: Boolean
   subforumEmailNotifications: Boolean
@@ -4519,9 +4567,9 @@ extend type Query {
 }
 
 type User {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
   moderationGuidelines(version: String): Revision
   moderationGuidelines_latest: String
@@ -4529,20 +4577,20 @@ type User {
   howOthersCanHelpMe_latest: String
   howICanHelpOthers(version: String): Revision
   howICanHelpOthers_latest: String
-  slug: String
-  oldSlugs: [String]
+  slug: String!
+  oldSlugs: [String!]!
   biography(version: String): Revision
   biography_latest: String
   username: String
-  emails: [JSON]
-  isAdmin: Boolean
+  emails: [JSON!]
+  isAdmin: Boolean!
   services: JSON
   hasAuth0Id: Boolean
   displayName: String
   previousDisplayName: String
   email: String
-  noindex: Boolean
-  groups: [String]
+  noindex: Boolean!
+  groups: [String!]
   pageUrl: String
   pagePath: String
   editUrl: String
@@ -4557,18 +4605,18 @@ type User {
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
-  hideIntercom: Boolean
-  markDownPostEditor: Boolean
+  hideIntercom: Boolean!
+  markDownPostEditor: Boolean!
   hideElicitPredictions: Boolean
   hideAFNonMemberInitialWarning: Boolean
-  noSingleLineComments: Boolean
-  noCollapseCommentsPosts: Boolean
-  noCollapseCommentsFrontpage: Boolean
-  hideCommunitySection: Boolean
+  noSingleLineComments: Boolean!
+  noCollapseCommentsPosts: Boolean!
+  noCollapseCommentsFrontpage: Boolean!
+  hideCommunitySection: Boolean!
   expandedFrontpageSections: JSON
-  showCommunityInRecentDiscussion: Boolean
-  hidePostsRecommendations: Boolean
-  petrovOptOut: Boolean
+  showCommunityInRecentDiscussion: Boolean!
+  hidePostsRecommendations: Boolean!
+  petrovOptOut: Boolean!
   optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
   generateJargonForDrafts: Boolean
@@ -4590,28 +4638,28 @@ type User {
   draftsListShowArchived: Boolean
   draftsListShowShared: Boolean
   lastNotificationsCheck: Date
-  karma: Float
+  karma: Float!
   goodHeartTokens: Float
   moderationStyle: String
   moderatorAssistance: Boolean
   collapseModerationGuidelines: Boolean
-  bannedUserIds: [String]
-  bannedPersonalUserIds: [String]
-  bookmarkedPostsMetadata: [JSON]
+  bannedUserIds: [String!]
+  bannedPersonalUserIds: [String!]
+  bookmarkedPostsMetadata: [JSON!]
   bookmarkedPosts: [Post!]
-  hiddenPostsMetadata: [JSON]
+  hiddenPostsMetadata: [JSON!]
   hiddenPosts: [Post!]
   legacyId: String
-  deleted: Boolean
+  deleted: Boolean!
   permanentDeletionRequestedAt: Date
   voteBanned: Boolean
   nullifyVotes: Boolean
   deleteContent: Boolean
   banned: Date
   IPs: [String!]
-  auto_subscribe_to_my_posts: Boolean
-  auto_subscribe_to_my_comments: Boolean
-  autoSubscribeAsOrganizer: Boolean
+  auto_subscribe_to_my_posts: Boolean!
+  auto_subscribe_to_my_comments: Boolean!
+  autoSubscribeAsOrganizer: Boolean!
   notificationCommentsOnSubscribedPost: JSON
   notificationShortformContent: JSON
   notificationRepliesToMyComments: JSON
@@ -4657,9 +4705,9 @@ type User {
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
   hideHomeRHS: Boolean
-  frontpagePostCount: Float
-  sequenceCount: Float
-  sequenceDraftCount: Float
+  frontpagePostCount: Float!
+  sequenceCount: Float!
+  sequenceDraftCount: Float!
   mongoLocation: JSON
   googleLocation: JSON
   location: String
@@ -4668,7 +4716,7 @@ type User {
   mapLocationSet: Boolean
   mapMarkerText: String
   htmlMapMarkerText: String
-  nearbyEventsNotifications: Boolean
+  nearbyEventsNotifications: Boolean!
   nearbyEventsNotificationsLocation: JSON
   nearbyEventsNotificationsMongoLocation: JSON
   nearbyEventsNotificationsRadius: Float
@@ -4688,7 +4736,7 @@ type User {
   isReviewed: Boolean
   reviewedAt: Date
   spamRiskScore: Float!
-  afKarma: Float
+  afKarma: Float!
   voteCount: Float
   smallUpvoteCount: Float
   smallDownvoteCount: Float
@@ -4699,12 +4747,12 @@ type User {
   smallDownvoteReceivedCount: Float
   bigUpvoteReceivedCount: Float
   bigDownvoteReceivedCount: Float
-  usersContactedBeforeReview: [String]
+  usersContactedBeforeReview: [String!]
   fullName: String
   shortformFeedId: String
   shortformFeed: Post
   viewUnreviewedComments: Boolean
-  partiallyReadSequences: [JSON]
+  partiallyReadSequences: [JSON!]
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -4714,13 +4762,13 @@ type User {
   petrovLaunchCodeDate: Date
   defaultToCKEditor: Boolean
   signUpReCaptchaRating: Float
-  noExpandUnreadCommentsReview: Boolean
-  postCount: Float
-  maxPostCount: Float
+  noExpandUnreadCommentsReview: Boolean!
+  postCount: Float!
+  maxPostCount: Float!
   posts(limit: Int = 5): [Post]
-  commentCount: Float
-  maxCommentCount: Float
-  tagRevisionCount: Float
+  commentCount: Float!
+  maxCommentCount: Float!
+  tagRevisionCount: Float!
   abTestKey: String
   abTestOverrides: JSON
   reenableDraftJs: Boolean
@@ -4731,11 +4779,11 @@ type User {
   usernameUnset: Boolean
   paymentEmail: String
   paymentInfo: String
-  profileUpdatedAt: Date
+  profileUpdatedAt: Date!
   profileImageId: String
   jobTitle: String
   organization: String
-  careerStage: [String]
+  careerStage: [String!]
   website: String
   bio: String
   htmlBio: String!
@@ -4746,11 +4794,11 @@ type User {
   twitterProfileURL: String
   twitterProfileURLAdmin: String
   githubProfileURL: String
-  profileTagIds: [String]
+  profileTagIds: [String!]!
   profileTags: [Tag!]!
-  organizerOfGroupIds: [String]
+  organizerOfGroupIds: [String!]!
   organizerOfGroups: [Localgroup!]!
-  programParticipation: [String]
+  programParticipation: [String!]
   postingDisabled: Boolean
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
@@ -4763,12 +4811,12 @@ type User {
   subforumPreferredLayout: String
   hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
-  hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
-  afPostCount: Float
-  afCommentCount: Float
-  afSequenceCount: Float
-  afSequenceDraftCount: Float
+  hideFromPeopleDirectory: Boolean!
+  allowDatadogSessionReplay: Boolean!
+  afPostCount: Float!
+  afCommentCount: Float!
+  afSequenceCount: Float!
+  afSequenceDraftCount: Float!
   reviewForAlignmentForumUserId: String
   afApplicationText: String
   afSubmittedApplication: Boolean
@@ -4809,27 +4857,27 @@ extend type Query {
 }
 
 type Vote {
-  _id: String
-  schemaVersion: Float
-  createdAt: Date
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
   legacyData: JSON
-  documentId: String
-  collectionName: String
+  documentId: String!
+  collectionName: String!
   userId: String
-  authorIds: [String]
+  authorIds: [String!]
   authorId: String
-  voteType: String
+  voteType: String!
   extendedVoteType: JSON
   power: Float
   afPower: Float
-  cancelled: Boolean
-  isUnvote: Boolean
+  cancelled: Boolean!
+  isUnvote: Boolean!
   votedAt: Date
   tagRel: TagRel
   comment: Comment
   post: Post
-  documentIsAf: Boolean
-  silenceNotification: Boolean
+  documentIsAf: Boolean!
+  silenceNotification: Boolean!
 }
 
 input SingleVoteInput {
@@ -4969,8 +5017,8 @@ input CreateBookDataInput {
   tocTitle: String
   collectionId: String!
   number: Float
-  postIds: [String]
-  sequenceIds: [String]
+  postIds: [String!]
+  sequenceIds: [String!]
   displaySequencesAsGrid: Boolean
   hideProgressBar: Boolean
   showChapters: Boolean
@@ -4988,8 +5036,8 @@ input UpdateBookDataInput {
   tocTitle: String
   collectionId: String
   number: Float
-  postIds: [String]
-  sequenceIds: [String]
+  postIds: [String!]
+  sequenceIds: [String!]
   displaySequencesAsGrid: Boolean
   hideProgressBar: Boolean
   showChapters: Boolean
@@ -5016,7 +5064,7 @@ input CreateChapterDataInput {
   subtitle: String
   number: Float
   sequenceId: String
-  postIds: [String]!
+  postIds: [String!]!
 }
 
 input CreateChapterInput {
@@ -5030,7 +5078,7 @@ input UpdateChapterDataInput {
   subtitle: String
   number: Float
   sequenceId: String
-  postIds: [String]
+  postIds: [String!]
 }
 
 input UpdateChapterInput {
@@ -5048,7 +5096,7 @@ extend type Mutation {
 }
 
 input CreateCollectionDataInput {
-  createdAt: Date
+  createdAt: Date!
   legacyData: JSON
   contents: JSON
   title: String!
@@ -5159,7 +5207,7 @@ input CreateCommentDataInput {
   hideModeratorHat: Boolean
   isPinnedOnProfile: Boolean
   title: String
-  relevantTagIds: [String]
+  relevantTagIds: [String!]
   debateResponse: Boolean
   rejected: Boolean
   modGPTAnalysis: String
@@ -5208,7 +5256,7 @@ input UpdateCommentDataInput {
   hideModeratorHat: Boolean
   isPinnedOnProfile: Boolean
   title: String
-  relevantTagIds: [String]
+  relevantTagIds: [String!]
   debateResponse: Boolean
   rejected: Boolean
   modGPTAnalysis: String
@@ -5216,7 +5264,7 @@ input UpdateCommentDataInput {
   rejectedReason: String
   rejectedByUserId: String
   af: Boolean
-  suggestForAlignmentUserIds: [String]
+  suggestForAlignmentUserIds: [String!]
   reviewForAlignmentUserId: String
   afDate: Date
   moveToAlignmentUserId: String
@@ -5241,10 +5289,10 @@ extend type Mutation {
 input CreateConversationDataInput {
   legacyData: JSON
   title: String
-  participantIds: [String]
+  participantIds: [String!]
   af: Boolean
   moderator: Boolean
-  archivedByIds: [String]
+  archivedByIds: [String!]
 }
 
 input CreateConversationInput {
@@ -5254,10 +5302,10 @@ input CreateConversationInput {
 input UpdateConversationDataInput {
   legacyData: JSON
   title: String
-  participantIds: [String]
+  participantIds: [String!]
   af: Boolean
   moderator: Boolean
-  archivedByIds: [String]
+  archivedByIds: [String!]
 }
 
 input UpdateConversationInput {
@@ -5310,7 +5358,7 @@ extend type Mutation {
 input CreateDialogueMatchPreferenceDataInput {
   legacyData: JSON
   dialogueCheckId: String!
-  topicPreferences: [JSON]!
+  topicPreferences: [JSON!]!
   topicNotes: String!
   syncPreference: String!
   asyncPreference: String!
@@ -5327,7 +5375,7 @@ input CreateDialogueMatchPreferenceInput {
 input UpdateDialogueMatchPreferenceDataInput {
   legacyData: JSON
   dialogueCheckId: String
-  topicPreferences: [JSON]
+  topicPreferences: [JSON!]
   topicNotes: String
   syncPreference: String
   asyncPreference: String
@@ -5706,7 +5754,7 @@ input CreateJargonTermDataInput {
   term: String!
   approved: Boolean
   deleted: Boolean
-  altTerms: [String]!
+  altTerms: [String!]!
 }
 
 input CreateJargonTermInput {
@@ -5719,7 +5767,7 @@ input UpdateJargonTermDataInput {
   term: String
   approved: Boolean
   deleted: Boolean
-  altTerms: [String]
+  altTerms: [String!]
 }
 
 input UpdateJargonTermInput {
@@ -5796,10 +5844,10 @@ input CreateLocalgroupDataInput {
   contents: JSON
   name: String!
   nameInAnotherLanguage: String
-  organizerIds: [String]!
+  organizerIds: [String!]!
   lastActivity: Date
-  types: [String]!
-  categories: [String]
+  types: [String!]!
+  categories: [String!]
   isOnline: Boolean
   googleLocation: JSON
   location: String
@@ -5823,10 +5871,10 @@ input UpdateLocalgroupDataInput {
   contents: JSON
   name: String
   nameInAnotherLanguage: String
-  organizerIds: [String]
+  organizerIds: [String!]
   lastActivity: Date
-  types: [String]
-  categories: [String]
+  types: [String!]
+  categories: [String!]
   isOnline: Boolean
   googleLocation: JSON
   location: String
@@ -6078,7 +6126,7 @@ input CreatePostEmbeddingDataInput {
   postHash: String!
   lastGeneratedAt: Date!
   model: String!
-  embeddings: [Float]!
+  embeddings: [Float!]
 }
 
 input CreatePostEmbeddingInput {
@@ -6091,7 +6139,7 @@ input UpdatePostEmbeddingDataInput {
   postHash: String
   lastGeneratedAt: Date
   model: String
-  embeddings: [Float]
+  embeddings: [Float!]
 }
 
 input UpdatePostEmbeddingInput {
@@ -6199,11 +6247,11 @@ input CreatePostDataInput {
   feedLink: String
   curatedDate: Date
   metaDate: Date
-  suggestForCuratedUserIds: [String]
+  suggestForCuratedUserIds: [String!]
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON]
+  coauthorStatuses: [JSON!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -6222,10 +6270,10 @@ input CreatePostDataInput {
   wasEverUndrafted: Boolean
   meta: Boolean
   hideFrontpageComments: Boolean
-  bannedUserIds: [String]
+  bannedUserIds: [String!]
   commentsLocked: Boolean
   commentsLockedToAccountsCreatedAfter: Date
-  organizerIds: [String]
+  organizerIds: [String!]
   groupId: String
   eventType: String
   isEvent: Boolean
@@ -6244,10 +6292,10 @@ input CreatePostDataInput {
   meetupLink: String
   website: String
   eventImageId: String
-  types: [String]
+  types: [String!]
   metaSticky: Boolean
   sharingSettings: JSON
-  shareWithUsers: [String]
+  shareWithUsers: [String!]
   commentSortOrder: String
   hideAuthor: Boolean
   sideCommentVisibility: String
@@ -6263,7 +6311,7 @@ input CreatePostDataInput {
   af: Boolean
   afDate: Date
   afSticky: Boolean
-  suggestForAlignmentUserIds: [String]
+  suggestForAlignmentUserIds: [String!]
   reviewForAlignmentUserId: String
   agentFoundationsId: String
   swrCachingEnabled: Boolean
@@ -6314,11 +6362,11 @@ input UpdatePostDataInput {
   feedLink: String
   curatedDate: Date
   metaDate: Date
-  suggestForCuratedUserIds: [String]
+  suggestForCuratedUserIds: [String!]
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON]
+  coauthorStatuses: [JSON!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -6337,10 +6385,10 @@ input UpdatePostDataInput {
   wasEverUndrafted: Boolean
   meta: Boolean
   hideFrontpageComments: Boolean
-  bannedUserIds: [String]
+  bannedUserIds: [String!]
   commentsLocked: Boolean
   commentsLockedToAccountsCreatedAfter: Date
-  organizerIds: [String]
+  organizerIds: [String!]
   groupId: String
   eventType: String
   isEvent: Boolean
@@ -6359,10 +6407,10 @@ input UpdatePostDataInput {
   meetupLink: String
   website: String
   eventImageId: String
-  types: [String]
+  types: [String!]
   metaSticky: Boolean
   sharingSettings: JSON
-  shareWithUsers: [String]
+  shareWithUsers: [String!]
   linkSharingKey: String
   commentSortOrder: String
   hideAuthor: Boolean
@@ -6379,7 +6427,7 @@ input UpdatePostDataInput {
   af: Boolean
   afDate: Date
   afSticky: Boolean
-  suggestForAlignmentUserIds: [String]
+  suggestForAlignmentUserIds: [String!]
   reviewForAlignmentUserId: String
   agentFoundationsId: String
   swrCachingEnabled: Boolean
@@ -6405,9 +6453,9 @@ input CreateRSSFeedDataInput {
   userId: String
   ownedByUser: Boolean
   displayFullContent: Boolean
-  nickname: String
-  url: String
-  rawFeed: JSON
+  nickname: String!
+  url: String!
+  rawFeed: JSON!
   setCanonicalUrl: Boolean
   importAsDraft: Boolean
 }
@@ -6782,7 +6830,7 @@ input CreateSurveyScheduleDataInput {
   startDate: Date
   endDate: Date
   deactivated: Boolean
-  clientIds: [String]!
+  clientIds: [String!]!
 }
 
 input CreateSurveyScheduleInput {
@@ -6801,7 +6849,7 @@ input UpdateSurveyScheduleDataInput {
   startDate: Date
   endDate: Date
   deactivated: Boolean
-  clientIds: [String]
+  clientIds: [String!]
 }
 
 input UpdateSurveyScheduleInput {
@@ -6927,21 +6975,21 @@ input CreateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
-  canEditUserIds: [String]
+  canEditUserIds: [String!]
   reviewedByUserId: String
   wikiGrade: Int
   wikiOnly: Boolean
   bannerImageId: String
   squareImageId: String
-  tagFlagsIds: [String]
+  tagFlagsIds: [String!]
   introSequenceId: String
   postsDefaultSortOrder: String
-  canVoteOnRels: [String]
+  canVoteOnRels: [String!]
   isSubforum: Boolean
-  subforumModeratorIds: [String]
+  subforumModeratorIds: [String!]
   subforumIntroPostId: String
   parentTagId: String
-  subTagIds: [String]
+  subTagIds: [String!]
   autoTagModel: String
   autoTagPrompt: String
   coreTagId: String
@@ -6967,7 +7015,7 @@ input UpdateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
-  canEditUserIds: [String]
+  canEditUserIds: [String!]
   deleted: Boolean
   needsReview: Boolean
   reviewedByUserId: String
@@ -6975,15 +7023,15 @@ input UpdateTagDataInput {
   wikiOnly: Boolean
   bannerImageId: String
   squareImageId: String
-  tagFlagsIds: [String]
+  tagFlagsIds: [String!]
   introSequenceId: String
   postsDefaultSortOrder: String
-  canVoteOnRels: [String]
+  canVoteOnRels: [String!]
   isSubforum: Boolean
-  subforumModeratorIds: [String]
+  subforumModeratorIds: [String!]
   subforumIntroPostId: String
   parentTagId: String
-  subTagIds: [String]
+  subTagIds: [String!]
   autoTagModel: String
   autoTagPrompt: String
   noindex: Boolean
@@ -7004,6 +7052,27 @@ type TagOutput {
 extend type Mutation {
   createTag(data: CreateTagDataInput!): TagOutput
   updateTag(selector: SelectorInput!, data: UpdateTagDataInput!): TagOutput
+}
+
+input CreateUltraFeedEventDataInput {
+  documentId: String!
+  collectionName: String!
+  eventType: String!
+  userId: String
+  event: JSON
+  feedItemId: String
+}
+
+input CreateUltraFeedEventInput {
+  data: CreateUltraFeedEventDataInput!
+}
+
+type UltraFeedEventOutput {
+  data: UltraFeedEvent
+}
+
+extend type Mutation {
+  createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
 }
 
 input CreateUserEAGDetailDataInput {
@@ -7190,7 +7259,7 @@ input CreateUserDataInput {
   displayName: String
   previousDisplayName: String
   email: String
-  groups: [String]
+  groups: [String!]
   theme: JSON
   lastUsedTimezone: String
   whenConfirmationEmailSent: Date
@@ -7230,8 +7299,8 @@ input CreateUserDataInput {
   moderationStyle: String
   moderatorAssistance: Boolean
   collapseModerationGuidelines: Boolean
-  bannedUserIds: [String]
-  bannedPersonalUserIds: [String]
+  bannedUserIds: [String!]
+  bannedPersonalUserIds: [String!]
   legacyId: String
   voteBanned: Boolean
   nullifyVotes: Boolean
@@ -7305,7 +7374,7 @@ input CreateUserDataInput {
   profileUpdatedAt: Date
   jobTitle: String
   organization: String
-  careerStage: [String]
+  careerStage: [String!]
   website: String
   fmCrosspostUserId: String
   linkedinProfileURL: String
@@ -7314,9 +7383,9 @@ input CreateUserDataInput {
   twitterProfileURL: String
   twitterProfileURLAdmin: String
   githubProfileURL: String
-  profileTagIds: [String]
-  organizerOfGroupIds: [String]
-  programParticipation: [String]
+  profileTagIds: [String!]
+  organizerOfGroupIds: [String!]
+  programParticipation: [String!]
   postingDisabled: Boolean
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
@@ -7351,7 +7420,7 @@ input UpdateUserDataInput {
   previousDisplayName: String
   email: String
   noindex: Boolean
-  groups: [String]
+  groups: [String!]
   theme: JSON
   lastUsedTimezone: String
   whenConfirmationEmailSent: Date
@@ -7398,10 +7467,10 @@ input UpdateUserDataInput {
   moderationStyle: String
   moderatorAssistance: Boolean
   collapseModerationGuidelines: Boolean
-  bannedUserIds: [String]
-  bannedPersonalUserIds: [String]
-  bookmarkedPostsMetadata: [JSON]
-  hiddenPostsMetadata: [JSON]
+  bannedUserIds: [String!]
+  bannedPersonalUserIds: [String!]
+  bookmarkedPostsMetadata: [JSON!]
+  hiddenPostsMetadata: [JSON!]
   legacyId: String
   deleted: Boolean
   permanentDeletionRequestedAt: Date
@@ -7479,7 +7548,7 @@ input UpdateUserDataInput {
   fullName: String
   shortformFeedId: String
   viewUnreviewedComments: Boolean
-  partiallyReadSequences: [JSON]
+  partiallyReadSequences: [JSON!]
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -7501,7 +7570,7 @@ input UpdateUserDataInput {
   profileImageId: String
   jobTitle: String
   organization: String
-  careerStage: [String]
+  careerStage: [String!]
   website: String
   fmCrosspostUserId: String
   linkedinProfileURL: String
@@ -7510,9 +7579,9 @@ input UpdateUserDataInput {
   twitterProfileURL: String
   twitterProfileURLAdmin: String
   githubProfileURL: String
-  profileTagIds: [String]
-  organizerOfGroupIds: [String]
-  programParticipation: [String]
+  profileTagIds: [String!]
+  organizerOfGroupIds: [String!]
+  programParticipation: [String!]
   postingDisabled: Boolean
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean

@@ -437,6 +437,7 @@ interface RecentDiscussionFeedQueryResults {
   cutoff?: Date | null;
   endOffset: number;
   results?: Array<RecentDiscussionFeedEntryType> | null;
+  sessionId?: string | null;
 }
 
 interface RecentDiscussionFeedEntryType {
@@ -730,6 +731,38 @@ interface RssPostChangeInfo {
   htmlDiff: string;
 }
 
+interface FeedPost {
+  _id: string;
+  postMetaInfo?: any;
+  post?: UpdatePostDataInput | null;
+}
+
+interface FeedCommentThread {
+  _id: string;
+  commentMetaInfos?: any;
+  comments?: Array<UpdateCommentDataInput | null> | null;
+  post?: UpdatePostDataInput | null;
+}
+
+interface FeedSpotlightItem {
+  _id: string;
+  spotlight?: UpdateSpotlightDataInput | null;
+}
+
+interface UltraFeedQueryResults {
+  cutoff?: Date | null;
+  endOffset: number;
+  results?: Array<UltraFeedEntryType> | null;
+  sessionId?: string | null;
+}
+
+interface UltraFeedEntryType {
+  type: string;
+  feedCommentThread?: FeedCommentThread | null;
+  feedPost?: FeedPost | null;
+  feedSpotlight?: FeedSpotlightItem | null;
+}
+
 interface SingleAdvisorRequestInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -752,9 +785,9 @@ interface MultiAdvisorRequestOutput {
 }
 
 interface ArbitalCaches {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
   legacyData?: any;
 }
 
@@ -990,16 +1023,16 @@ interface MultiCurationNoticeOutput {
 }
 
 interface DatabaseMetadata {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
   legacyData?: any;
 }
 
 interface DebouncerEvents {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
   legacyData?: any;
 }
 
@@ -1172,9 +1205,9 @@ interface MultiElicitQuestionOutput {
 }
 
 interface EmailTokens {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
   legacyData?: any;
 }
 
@@ -1263,9 +1296,9 @@ interface MultiGoogleServiceAccountSessionOutput {
 }
 
 interface Images {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
   legacyData?: any;
 }
 
@@ -1312,9 +1345,9 @@ interface MultiLWEventOutput {
 }
 
 interface LegacyData {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
   legacyData?: any;
 }
 
@@ -1466,9 +1499,9 @@ interface MultiNotificationOutput {
 }
 
 interface PageCacheEntry {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
   legacyData?: any;
 }
 
@@ -1599,9 +1632,9 @@ interface MultiPostViewTimeOutput {
 }
 
 interface PostViews {
-  _id?: string | null;
-  schemaVersion?: number | null;
-  createdAt?: Date | null;
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
   legacyData?: any;
 }
 
@@ -2268,8 +2301,8 @@ interface CreateBookDataInput {
   tocTitle?: string | null;
   collectionId: string;
   number?: number | null;
-  postIds?: Array<string | null> | null;
-  sequenceIds?: Array<string | null> | null;
+  postIds?: Array<string> | null;
+  sequenceIds?: Array<string> | null;
   displaySequencesAsGrid?: boolean | null;
   hideProgressBar?: boolean | null;
   showChapters?: boolean | null;
@@ -2287,8 +2320,8 @@ interface UpdateBookDataInput {
   tocTitle?: string | null;
   collectionId?: string | null;
   number?: number | null;
-  postIds?: Array<string | null> | null;
-  sequenceIds?: Array<string | null> | null;
+  postIds?: Array<string> | null;
+  sequenceIds?: Array<string> | null;
   displaySequencesAsGrid?: boolean | null;
   hideProgressBar?: boolean | null;
   showChapters?: boolean | null;
@@ -2310,7 +2343,7 @@ interface CreateChapterDataInput {
   subtitle?: string | null;
   number?: number | null;
   sequenceId?: string | null;
-  postIds: Array<string | null>;
+  postIds: Array<string>;
 }
 
 interface CreateChapterInput {
@@ -2324,7 +2357,7 @@ interface UpdateChapterDataInput {
   subtitle?: string | null;
   number?: number | null;
   sequenceId?: string | null;
-  postIds?: Array<string | null> | null;
+  postIds?: Array<string> | null;
 }
 
 interface UpdateChapterInput {
@@ -2337,7 +2370,7 @@ interface ChapterOutput {
 }
 
 interface CreateCollectionDataInput {
-  createdAt?: Date | null;
+  createdAt: Date;
   legacyData?: any;
   contents?: any;
   title: string;
@@ -2438,7 +2471,7 @@ interface CreateCommentDataInput {
   hideModeratorHat?: boolean | null;
   isPinnedOnProfile?: boolean | null;
   title?: string | null;
-  relevantTagIds?: Array<string | null> | null;
+  relevantTagIds?: Array<string> | null;
   debateResponse?: boolean | null;
   rejected?: boolean | null;
   modGPTAnalysis?: string | null;
@@ -2487,7 +2520,7 @@ interface UpdateCommentDataInput {
   hideModeratorHat?: boolean | null;
   isPinnedOnProfile?: boolean | null;
   title?: string | null;
-  relevantTagIds?: Array<string | null> | null;
+  relevantTagIds?: Array<string> | null;
   debateResponse?: boolean | null;
   rejected?: boolean | null;
   modGPTAnalysis?: string | null;
@@ -2495,7 +2528,7 @@ interface UpdateCommentDataInput {
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;
   af?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string | null> | null;
+  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   afDate?: Date | null;
   moveToAlignmentUserId?: string | null;
@@ -2515,10 +2548,10 @@ interface CommentOutput {
 interface CreateConversationDataInput {
   legacyData?: any;
   title?: string | null;
-  participantIds?: Array<string | null> | null;
+  participantIds?: Array<string> | null;
   af?: boolean | null;
   moderator?: boolean | null;
-  archivedByIds?: Array<string | null> | null;
+  archivedByIds?: Array<string> | null;
 }
 
 interface CreateConversationInput {
@@ -2528,10 +2561,10 @@ interface CreateConversationInput {
 interface UpdateConversationDataInput {
   legacyData?: any;
   title?: string | null;
-  participantIds?: Array<string | null> | null;
+  participantIds?: Array<string> | null;
   af?: boolean | null;
   moderator?: boolean | null;
-  archivedByIds?: Array<string | null> | null;
+  archivedByIds?: Array<string> | null;
 }
 
 interface UpdateConversationInput {
@@ -2925,7 +2958,7 @@ interface CreateJargonTermDataInput {
   term: string;
   approved?: boolean | null;
   deleted?: boolean | null;
-  altTerms: Array<string | null>;
+  altTerms: Array<string>;
 }
 
 interface CreateJargonTermInput {
@@ -2938,7 +2971,7 @@ interface UpdateJargonTermDataInput {
   term?: string | null;
   approved?: boolean | null;
   deleted?: boolean | null;
-  altTerms?: Array<string | null> | null;
+  altTerms?: Array<string> | null;
 }
 
 interface UpdateJargonTermInput {
@@ -3001,10 +3034,10 @@ interface CreateLocalgroupDataInput {
   contents?: any;
   name: string;
   nameInAnotherLanguage?: string | null;
-  organizerIds: Array<string | null>;
+  organizerIds: Array<string>;
   lastActivity?: Date | null;
-  types: Array<string | null>;
-  categories?: Array<string | null> | null;
+  types: Array<string>;
+  categories?: Array<string> | null;
   isOnline?: boolean | null;
   googleLocation?: any;
   location?: string | null;
@@ -3028,10 +3061,10 @@ interface UpdateLocalgroupDataInput {
   contents?: any;
   name?: string | null;
   nameInAnotherLanguage?: string | null;
-  organizerIds?: Array<string | null> | null;
+  organizerIds?: Array<string> | null;
   lastActivity?: Date | null;
-  types?: Array<string | null> | null;
-  categories?: Array<string | null> | null;
+  types?: Array<string> | null;
+  categories?: Array<string> | null;
   isOnline?: boolean | null;
   googleLocation?: any;
   location?: string | null;
@@ -3244,7 +3277,7 @@ interface CreatePostEmbeddingDataInput {
   postHash: string;
   lastGeneratedAt: Date;
   model: string;
-  embeddings: Array<number | null>;
+  embeddings?: Array<number> | null;
 }
 
 interface CreatePostEmbeddingInput {
@@ -3257,7 +3290,7 @@ interface UpdatePostEmbeddingDataInput {
   postHash?: string | null;
   lastGeneratedAt?: Date | null;
   model?: string | null;
-  embeddings?: Array<number | null> | null;
+  embeddings?: Array<number> | null;
 }
 
 interface UpdatePostEmbeddingInput {
@@ -3350,7 +3383,7 @@ interface CreatePostDataInput {
   feedLink?: string | null;
   curatedDate?: Date | null;
   metaDate?: Date | null;
-  suggestForCuratedUserIds?: Array<string | null> | null;
+  suggestForCuratedUserIds?: Array<string> | null;
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
@@ -3373,10 +3406,10 @@ interface CreatePostDataInput {
   wasEverUndrafted?: boolean | null;
   meta?: boolean | null;
   hideFrontpageComments?: boolean | null;
-  bannedUserIds?: Array<string | null> | null;
+  bannedUserIds?: Array<string> | null;
   commentsLocked?: boolean | null;
   commentsLockedToAccountsCreatedAfter?: Date | null;
-  organizerIds?: Array<string | null> | null;
+  organizerIds?: Array<string> | null;
   groupId?: string | null;
   eventType?: string | null;
   isEvent?: boolean | null;
@@ -3395,10 +3428,10 @@ interface CreatePostDataInput {
   meetupLink?: string | null;
   website?: string | null;
   eventImageId?: string | null;
-  types?: Array<string | null> | null;
+  types?: Array<string> | null;
   metaSticky?: boolean | null;
   sharingSettings?: any;
-  shareWithUsers?: Array<string | null> | null;
+  shareWithUsers?: Array<string> | null;
   commentSortOrder?: string | null;
   hideAuthor?: boolean | null;
   sideCommentVisibility?: string | null;
@@ -3414,7 +3447,7 @@ interface CreatePostDataInput {
   af?: boolean | null;
   afDate?: Date | null;
   afSticky?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string | null> | null;
+  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   agentFoundationsId?: string | null;
   swrCachingEnabled?: boolean | null;
@@ -3465,7 +3498,7 @@ interface UpdatePostDataInput {
   feedLink?: string | null;
   curatedDate?: Date | null;
   metaDate?: Date | null;
-  suggestForCuratedUserIds?: Array<string | null> | null;
+  suggestForCuratedUserIds?: Array<string> | null;
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
@@ -3488,10 +3521,10 @@ interface UpdatePostDataInput {
   wasEverUndrafted?: boolean | null;
   meta?: boolean | null;
   hideFrontpageComments?: boolean | null;
-  bannedUserIds?: Array<string | null> | null;
+  bannedUserIds?: Array<string> | null;
   commentsLocked?: boolean | null;
   commentsLockedToAccountsCreatedAfter?: Date | null;
-  organizerIds?: Array<string | null> | null;
+  organizerIds?: Array<string> | null;
   groupId?: string | null;
   eventType?: string | null;
   isEvent?: boolean | null;
@@ -3510,10 +3543,10 @@ interface UpdatePostDataInput {
   meetupLink?: string | null;
   website?: string | null;
   eventImageId?: string | null;
-  types?: Array<string | null> | null;
+  types?: Array<string> | null;
   metaSticky?: boolean | null;
   sharingSettings?: any;
-  shareWithUsers?: Array<string | null> | null;
+  shareWithUsers?: Array<string> | null;
   linkSharingKey?: string | null;
   commentSortOrder?: string | null;
   hideAuthor?: boolean | null;
@@ -3530,7 +3563,7 @@ interface UpdatePostDataInput {
   af?: boolean | null;
   afDate?: Date | null;
   afSticky?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string | null> | null;
+  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   agentFoundationsId?: string | null;
   swrCachingEnabled?: boolean | null;
@@ -3551,8 +3584,8 @@ interface CreateRSSFeedDataInput {
   userId?: string | null;
   ownedByUser?: boolean | null;
   displayFullContent?: boolean | null;
-  nickname?: string | null;
-  url?: string | null;
+  nickname: string;
+  url: string;
   rawFeed?: any;
   setCanonicalUrl?: boolean | null;
   importAsDraft?: boolean | null;
@@ -3885,7 +3918,7 @@ interface CreateSurveyScheduleDataInput {
   startDate?: Date | null;
   endDate?: Date | null;
   deactivated?: boolean | null;
-  clientIds: Array<string | null>;
+  clientIds: Array<string>;
 }
 
 interface CreateSurveyScheduleInput {
@@ -3904,7 +3937,7 @@ interface UpdateSurveyScheduleDataInput {
   startDate?: Date | null;
   endDate?: Date | null;
   deactivated?: boolean | null;
-  clientIds?: Array<string | null> | null;
+  clientIds?: Array<string> | null;
 }
 
 interface UpdateSurveyScheduleInput {
@@ -4010,21 +4043,21 @@ interface CreateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
-  canEditUserIds?: Array<string | null> | null;
+  canEditUserIds?: Array<string> | null;
   reviewedByUserId?: string | null;
   wikiGrade?: number | null;
   wikiOnly?: boolean | null;
   bannerImageId?: string | null;
   squareImageId?: string | null;
-  tagFlagsIds?: Array<string | null> | null;
+  tagFlagsIds?: Array<string> | null;
   introSequenceId?: string | null;
   postsDefaultSortOrder?: string | null;
-  canVoteOnRels?: Array<string | null> | null;
+  canVoteOnRels?: Array<string> | null;
   isSubforum?: boolean | null;
-  subforumModeratorIds?: Array<string | null> | null;
+  subforumModeratorIds?: Array<string> | null;
   subforumIntroPostId?: string | null;
   parentTagId?: string | null;
-  subTagIds?: Array<string | null> | null;
+  subTagIds?: Array<string> | null;
   autoTagModel?: string | null;
   autoTagPrompt?: string | null;
   coreTagId?: string | null;
@@ -4050,7 +4083,7 @@ interface UpdateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
-  canEditUserIds?: Array<string | null> | null;
+  canEditUserIds?: Array<string> | null;
   deleted?: boolean | null;
   needsReview?: boolean | null;
   reviewedByUserId?: string | null;
@@ -4058,15 +4091,15 @@ interface UpdateTagDataInput {
   wikiOnly?: boolean | null;
   bannerImageId?: string | null;
   squareImageId?: string | null;
-  tagFlagsIds?: Array<string | null> | null;
+  tagFlagsIds?: Array<string> | null;
   introSequenceId?: string | null;
   postsDefaultSortOrder?: string | null;
-  canVoteOnRels?: Array<string | null> | null;
+  canVoteOnRels?: Array<string> | null;
   isSubforum?: boolean | null;
-  subforumModeratorIds?: Array<string | null> | null;
+  subforumModeratorIds?: Array<string> | null;
   subforumIntroPostId?: string | null;
   parentTagId?: string | null;
-  subTagIds?: Array<string | null> | null;
+  subTagIds?: Array<string> | null;
   autoTagModel?: string | null;
   autoTagPrompt?: string | null;
   noindex?: boolean | null;
@@ -4082,6 +4115,23 @@ interface UpdateTagInput {
 
 interface TagOutput {
   data?: UpdateTagDataInput | null;
+}
+
+interface CreateUltraFeedEventDataInput {
+  documentId: string;
+  collectionName: string;
+  eventType: string;
+  userId?: string | null;
+  event?: any;
+  feedItemId?: string | null;
+}
+
+interface CreateUltraFeedEventInput {
+  data: CreateUltraFeedEventDataInput;
+}
+
+interface UltraFeedEventOutput {
+  data?: UpdateUltraFeedEventDataInput | null;
 }
 
 interface CreateUserEAGDetailDataInput {
@@ -4243,7 +4293,7 @@ interface CreateUserDataInput {
   displayName?: string | null;
   previousDisplayName?: string | null;
   email?: string | null;
-  groups?: Array<string | null> | null;
+  groups?: Array<string> | null;
   theme?: any;
   lastUsedTimezone?: string | null;
   whenConfirmationEmailSent?: Date | null;
@@ -4283,8 +4333,8 @@ interface CreateUserDataInput {
   moderationStyle?: string | null;
   moderatorAssistance?: boolean | null;
   collapseModerationGuidelines?: boolean | null;
-  bannedUserIds?: Array<string | null> | null;
-  bannedPersonalUserIds?: Array<string | null> | null;
+  bannedUserIds?: Array<string> | null;
+  bannedPersonalUserIds?: Array<string> | null;
   legacyId?: string | null;
   voteBanned?: boolean | null;
   nullifyVotes?: boolean | null;
@@ -4358,7 +4408,7 @@ interface CreateUserDataInput {
   profileUpdatedAt?: Date | null;
   jobTitle?: string | null;
   organization?: string | null;
-  careerStage?: Array<string | null> | null;
+  careerStage?: Array<string> | null;
   website?: string | null;
   fmCrosspostUserId?: string | null;
   linkedinProfileURL?: string | null;
@@ -4367,9 +4417,9 @@ interface CreateUserDataInput {
   twitterProfileURL?: string | null;
   twitterProfileURLAdmin?: string | null;
   githubProfileURL?: string | null;
-  profileTagIds?: Array<string | null> | null;
-  organizerOfGroupIds?: Array<string | null> | null;
-  programParticipation?: Array<string | null> | null;
+  profileTagIds?: Array<string> | null;
+  organizerOfGroupIds?: Array<string> | null;
+  programParticipation?: Array<string> | null;
   postingDisabled?: boolean | null;
   allCommentingDisabled?: boolean | null;
   commentingOnOtherUsersDisabled?: boolean | null;
@@ -4404,7 +4454,7 @@ interface UpdateUserDataInput {
   previousDisplayName?: string | null;
   email?: string | null;
   noindex?: boolean | null;
-  groups?: Array<string | null> | null;
+  groups?: Array<string> | null;
   theme?: any;
   lastUsedTimezone?: string | null;
   whenConfirmationEmailSent?: Date | null;
@@ -4451,8 +4501,8 @@ interface UpdateUserDataInput {
   moderationStyle?: string | null;
   moderatorAssistance?: boolean | null;
   collapseModerationGuidelines?: boolean | null;
-  bannedUserIds?: Array<string | null> | null;
-  bannedPersonalUserIds?: Array<string | null> | null;
+  bannedUserIds?: Array<string> | null;
+  bannedPersonalUserIds?: Array<string> | null;
   bookmarkedPostsMetadata?: Array<any> | null;
   hiddenPostsMetadata?: Array<any> | null;
   legacyId?: string | null;
@@ -4554,7 +4604,7 @@ interface UpdateUserDataInput {
   profileImageId?: string | null;
   jobTitle?: string | null;
   organization?: string | null;
-  careerStage?: Array<string | null> | null;
+  careerStage?: Array<string> | null;
   website?: string | null;
   fmCrosspostUserId?: string | null;
   linkedinProfileURL?: string | null;
@@ -4563,9 +4613,9 @@ interface UpdateUserDataInput {
   twitterProfileURL?: string | null;
   twitterProfileURLAdmin?: string | null;
   githubProfileURL?: string | null;
-  profileTagIds?: Array<string | null> | null;
-  organizerOfGroupIds?: Array<string | null> | null;
-  programParticipation?: Array<string | null> | null;
+  profileTagIds?: Array<string> | null;
+  organizerOfGroupIds?: Array<string> | null;
+  programParticipation?: Array<string> | null;
   postingDisabled?: boolean | null;
   allCommentingDisabled?: boolean | null;
   commentingOnOtherUsersDisabled?: boolean | null;
@@ -4708,6 +4758,11 @@ interface GraphQLTypeMap {
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   RssPostChangeInfo: RssPostChangeInfo;
+  FeedPost: FeedPost;
+  FeedCommentThread: FeedCommentThread;
+  FeedSpotlightItem: FeedSpotlightItem;
+  UltraFeedQueryResults: UltraFeedQueryResults;
+  UltraFeedEntryType: UltraFeedEntryType;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
   MultiAdvisorRequestInput: MultiAdvisorRequestInput;
@@ -5212,6 +5267,9 @@ interface GraphQLTypeMap {
   UpdateTagDataInput: UpdateTagDataInput;
   UpdateTagInput: UpdateTagInput;
   TagOutput: TagOutput;
+  CreateUltraFeedEventDataInput: CreateUltraFeedEventDataInput;
+  CreateUltraFeedEventInput: CreateUltraFeedEventInput;
+  UltraFeedEventOutput: UltraFeedEventOutput;
   CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
   CreateUserEAGDetailInput: CreateUserEAGDetailInput;
   UpdateUserEAGDetailDataInput: UpdateUserEAGDetailDataInput;
@@ -5291,6 +5349,7 @@ interface CreateInputsByCollectionName {
   TagFlags: CreateTagFlagInput;
   TagRels: CreateTagRelInput;
   Tags: CreateTagInput;
+  UltraFeedEvents: CreateUltraFeedEventInput;
   UserEAGDetails: CreateUserEAGDetailInput;
   UserJobAds: CreateUserJobAdInput;
   UserMostValuablePosts: CreateUserMostValuablePostInput;
@@ -5420,6 +5479,7 @@ interface UpdateInputsByCollectionName {
   Subscriptions: never;
   Tweets: never;
   TypingIndicators: never;
+  UltraFeedEvents: never;
   UserActivities: never;
   Votes: never;
 }

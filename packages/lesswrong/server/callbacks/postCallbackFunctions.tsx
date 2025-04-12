@@ -22,7 +22,7 @@ import { fetchFragmentSingle } from "../fetchFragment";
 import { googleVertexApi } from "../google-vertex/client";
 import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
-import type { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
+import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { createNotifications, getSubscribedUsers, getUsersWhereLocationIsInNotificationRadius } from "../notificationCallbacksHelpers";
 import { getDefaultPostLocationFields, getDialogueResponseIds } from "../posts/utils";

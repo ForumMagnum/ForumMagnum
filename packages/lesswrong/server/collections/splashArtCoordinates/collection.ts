@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const SplashArtCoordinates: SplashArtCoordinatesCollection = createCollection({ 
@@ -10,7 +9,6 @@ export const SplashArtCoordinates: SplashArtCoordinatesCollection = createCollec
     indexSet.addIndex('SplashArtCoordinates', { reviewWinnerArtId: 1, createdAt: 1 });
     return indexSet;
   },
-  resolvers: getDefaultResolvers('SplashArtCoordinates'),
 });
 
 

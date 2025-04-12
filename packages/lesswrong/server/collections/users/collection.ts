@@ -1,12 +1,9 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import gql from 'graphql-tag';
 
 export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  resolvers: getDefaultResolvers('Users'),
-  logChanges: true,
   dependencies: [
     {type: "extension", name: "pg_trgm"},
   ],

@@ -29,8 +29,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -52,8 +51,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -72,8 +70,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -92,8 +89,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -106,8 +102,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -132,6 +127,6 @@ const schema = {
       control: "datetime",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"UserRateLimits">>;
+} satisfies Record<string, CollectionFieldSpecification<"UserRateLimits">>;
 
 export default schema;

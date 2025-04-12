@@ -403,7 +403,8 @@ export const createReviewWinners = async () => {
 // (This is similar but not identical to the updateCuratedOrder function in ReviewWinnersRepo,
 // which handles a similar case for the curatedOrder field, although only one post at a time)
 export const updateReviewWinnerRankings = async (year: number) => {
-  
+  const context = createAdminContext();
+  const { ReviewWinners } = context;
   const reviewWinners = await ReviewWinners.find({reviewYear: year}).fetch()
   const postIds = reviewWinners.map(winner => winner.postId)
   const posts = await Posts.find({ _id: { $in: postIds } }).fetch()
