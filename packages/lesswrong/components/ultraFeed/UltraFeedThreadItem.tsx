@@ -216,7 +216,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                 <div key={cId} className={classes.commentItem}>
                   <UltraFeedCommentItem
                     comment={item}
-                    displayStatus={commentDisplayStatuses[cId]}
+                    metaInfo={commentMetaInfos?.[cId]}
                     onPostTitleClick={() => setPostExpanded(true)}
                     onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
                     showInLineCommentThreadTitle={isFirstItem}

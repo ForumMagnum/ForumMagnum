@@ -26,7 +26,7 @@ export interface FeedPostMetaInfo {
 }
 export interface FeedCommentMetaInfo {
   sources: FeedItemSourceType[] | null;
-  siblingCount: number | null;
+  directDescendentCount: number;
   lastServed: Date | null;
   lastViewed: Date | null;
   lastInteracted: Date | null;

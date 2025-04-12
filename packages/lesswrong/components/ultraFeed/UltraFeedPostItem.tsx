@@ -237,7 +237,7 @@ const UltraFeedPostItem = ({
           onExpand={handleContentExpand}
         />
       )}
-      <UltraFeedItemFooter document={post} collectionName="Posts" className={classes.footer} />
+      <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
     </AnalyticsContext>
   );

@@ -6,7 +6,7 @@ import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
-
+import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
@@ -154,7 +154,7 @@ const UltraFeedCompressedCommentsItemComponent = registerComponent("UltraFeedCom
 
 export interface UltraFeedCommentItemProps {
   comment: UltraFeedComment;
-  displayStatus: "expanded" | "collapsed" | "hidden";
+  metaInfo: FeedCommentMetaInfo;
   onChangeDisplayStatus: (newStatus: "expanded" | "collapsed" | "hidden") => void;
   showInLineCommentThreadTitle?: boolean;
   highlight?: boolean;
@@ -166,7 +166,7 @@ export interface UltraFeedCommentItemProps {
 
 const UltraFeedCommentItem = ({
   comment,
-  displayStatus,
+  metaInfo,
   onChangeDisplayStatus,
   showInLineCommentThreadTitle,
   highlight = false,
@@ -180,6 +180,7 @@ const UltraFeedCommentItem = ({
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { post } = comment;
+  const { displayStatus } = metaInfo;
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -281,10 +282,15 @@ const UltraFeedCommentItem = ({
             nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
             clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
             onExpand={handleContentExpand}
-            hideSuffix={!expanded}
+            hideSuffix={false}
           />
         </div>
-        <UltraFeedItemFooter document={comment} collectionName="Comments" className={classes.footer}/>
+        <UltraFeedItemFooter
+          document={comment}
+          collectionName="Comments"
+          metaInfo={metaInfo}
+          className={classes.footer}
+        />
       </div>
     </div>
     </AnalyticsContext>
