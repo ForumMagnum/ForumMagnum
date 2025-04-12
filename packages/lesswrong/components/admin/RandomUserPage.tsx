@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { gql, useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
-
+import { gql } from '@/lib/generated/gql-codegen/gql';
 const styles = (theme: ThemeType) => ({
   root: {
     marginTop: -theme.spacing.mainLayoutPaddingTop,
@@ -29,28 +28,22 @@ const RandomUserPage = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const [newTabKeyHeld, setNewTabKeyHeld] = useState(false);
-  const [recievedNewResults, setRecievedNewResults] = useState(false);
-  const [getRandomUser, {loading, data}] = useLazyQuery(gql`
+  const [alreadyRedirected, setAlreadyRedirected] = useState(false);
+  const [getRandomUser, {loading, data }] = useLazyQuery(gql(`
     query randomUser($userIsAuthor: String!) {
       GetRandomUser(userIsAuthor: $userIsAuthor) {
         ...UsersMinimumInfo
       }
     }
-    ${fragmentTextForQuery('UsersMinimumInfo')}
-  `, {
-    onCompleted: (data) => {
-      if (!data.GetRandomUser) return;
-      // You might imagine we could redirect here, but we don't have the status
-      // of the new tab key, so we use the useEffect below
-      setRecievedNewResults(true);
-    },
+  `), {
     fetchPolicy: "no-cache",
   });
+
   // Redirect to the user page
   // useEffect combined with recievedNewResults ensures that we only redirect once
   useEffect(() => {
-    if (recievedNewResults) {
-      const user: UsersMinimumInfo|undefined = data?.GetRandomUser;
+    if (data?.GetRandomUser && !alreadyRedirected) {
+      const user = data?.GetRandomUser
       if (!user) {
         // eslint-disable-next-line no-console
         console.error("No user found");
@@ -63,10 +56,10 @@ const RandomUserPage = ({classes}: {
       } else {
         window.location.href = url;
       }
-      setRecievedNewResults(false);
       setNewTabKeyHeld(false);
+      setAlreadyRedirected(true);
     }
-  }, [recievedNewResults, data, newTabKeyHeld]);
+  }, [data, newTabKeyHeld, alreadyRedirected]);
   
   const { SingleColumnSection, SectionTitle, Typography, Error404, Loading } = Components;
   

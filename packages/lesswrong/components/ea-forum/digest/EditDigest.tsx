@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useMessages } from '../../common/withMessages';
@@ -12,7 +13,6 @@ import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -172,7 +172,7 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const digest = results?.[0]
 
   // get the list of posts eligible for this digest
-  const { data } = useQuery(gql`
+  const { data } = useQuery(gql(`
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {
@@ -186,8 +186,7 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
         rating
       }
     }
-    ${fragmentTextForQuery("PostsListWithVotes")}
-    `, {
+  `), {
       ssr: true,
       skip: !digest,
       variables: {digestId: digest?._id, startDate: digest?.startDate, endDate: digest?.endDate},

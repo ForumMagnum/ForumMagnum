@@ -3,14 +3,14 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import moment from "moment";
 import { useLocation } from "@/lib/routeUtil";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import { useCurrentUser } from "../common/withUser";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -181,14 +181,13 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const digest = results?.[0]
   
   // get the list of posts in this digest
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQuery(gql(`
     query getDigestPosts($num: Int) {
       DigestPosts(num: $num) {
         ...PostsListWithVotes
       }
     }
-    ${fragmentTextForQuery('PostsListWithVotes')}
-  `, {
+  `), {
     ssr: true,
     skip: !digestNum || !digest,
     variables: {num: digestNum},

@@ -11,7 +11,7 @@ import { typeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
 import * as typescriptPlugin from '@graphql-codegen/typescript'
 import { generate } from '@graphql-codegen/cli'
 import { parse, print } from 'graphql';
-
+import graphqlCodegenConfig from '@/../../codegen.ts';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -154,42 +154,8 @@ function generateGraphQLSchemaFile(): string {
 }
 
 async function generateGraphQLCodegenTypes(): Promise<void> {
-  const fileOutputs = await generate({
-    overwrite: true,
-    schema: "./packages/lesswrong/lib/generated/gqlSchema.gql",
-    documents: "./packages/lesswrong/",
-    generates: {
-      "./packages/lesswrong/lib/generated/gql-codegen/": {
-        preset: "client",
-        plugins: [
-          {
-            typescript: {
-              avoidOptionals: true,
-            }
-          }
-        ],
-        config: {
-          scalars: {
-            Date: "String",
-          }
-        },
-        presetConfig: {
-          gqlTagName: 'gql',
-        }
-      },
-      './packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts': {
-        plugins: [
-          {
-            typescript: {
-              avoidOptionals: true,
-            }
-          }
-        ]
-      }
-    }
-  })
-  // Write the files to disk
+  const fileOutputs = await generate(graphqlCodegenConfig)
   for (const fileOutput of fileOutputs) {
-    fs.writeFileSync(fileOutput.filename, fileOutput.content);
+    fs.writeFileSync(fileOutput.filename, fileOutput.content.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined"));
   }
 }

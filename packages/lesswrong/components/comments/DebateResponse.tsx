@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
 import type { ContentItemBody } from '../common/ContentItemBody';
+import { CommentsListFragment, PostsWithNavigationAndRevisionFragment, PostsWithNavigationFragment } from '@/lib/generated/gql-codegen/graphql';
 
 const styles = (theme: ThemeType) => ({
   innerDebateComment: {
@@ -84,13 +85,13 @@ const getParticipantBorderStyle = (
 
 export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
   classes: ClassesType<typeof styles>,
-  comment: CommentsList,
-  replies: CommentsList[],
+  comment: CommentsListFragment,
+  replies: CommentsListFragment[],
   idx: number,
   responseCount: number,
   orderedParticipantList: string[],
   responses: DebateResponseWithReplies[],
-  post: PostsWithNavigation | PostsWithNavigationAndRevision,
+  post: PostsWithNavigationFragment | PostsWithNavigationAndRevisionFragment,
 }) => {
     const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, HoveredReactionContextProvider } = Components;
 

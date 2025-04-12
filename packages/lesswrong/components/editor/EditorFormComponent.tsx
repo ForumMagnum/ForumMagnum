@@ -8,7 +8,8 @@ import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorConten
   EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
-import { gql, useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
@@ -22,7 +23,6 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from './CKEditorPortalProvider';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -165,11 +165,11 @@ export const EditorFormComponent = ({
     })
   }
   
-  const [checkPostIsCriticism] = useLazyQuery(gql`
+  const [checkPostIsCriticism] = useLazyQuery(gql(`
     query getPostIsCriticism($args: JSON) {
       PostIsCriticism(args: $args)
     }
-    `, {
+    `), {
       onCompleted: (data) => {
         // SC 2024-09-18: We are temporarily hiding the user-facing card,
         // as we are testing using gpt-4o-mini directly instead of a fine-tuned model.
@@ -264,14 +264,13 @@ export const EditorFormComponent = ({
     }
   }, [getLocalStorageHandlers, currentEditorType, document, fieldName]);
 
-  const [autosaveRevision] = useMutation(gql`
+  const [autosaveRevision] = useMutation(gql(`
     mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {
       autosaveRevision(postId: $postId, contents: $contents) {
         ...RevisionEdit
       }
     }
-    ${fragmentTextForQuery('RevisionEdit')}
-  `);
+  `));
 
   // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
   const saveRemoteBackup = useCallback(async (newContents: EditorContents): Promise<void> => {

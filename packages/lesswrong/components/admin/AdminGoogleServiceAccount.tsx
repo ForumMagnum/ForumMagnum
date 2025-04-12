@@ -3,7 +3,8 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { makeAbsolute } from "../../lib/vulcan-lib/utils";
 
@@ -37,11 +38,11 @@ const AdminGoogleServiceAccount = ({classes}: {
 
   const { flash } = useMessages()
 
-  const [revokeMutation] = useMutation(gql`
+  const [revokeMutation] = useMutation(gql(`
     mutation revokeGoogleServiceAccountTokens {
       revokeGoogleServiceAccountTokens
     }
-  `,
+  `),
     {
       onCompleted: () => {
         flash("Successfully revoked access tokens");

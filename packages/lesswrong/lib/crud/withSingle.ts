@@ -4,7 +4,7 @@ import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 import { apolloSSRFlag } from '../helpers';
 import type { PrimitiveGraphQLType } from './types';
 import { getSingleResolverName } from './utils';
-
+import { print } from 'graphql';
 
 /**
  * Given terms/etc for a useSingle query, generate corresponding GraphQL. Exported
@@ -19,6 +19,7 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
   extraVariables?: Record<string, PrimitiveGraphQLType>,
 }) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
+  console.log({fragmentName, fragment})
   const typeName = collectionNameToTypeName[collectionName];
 
   // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
@@ -36,8 +37,8 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
         __typename
       }
     }
-    ${fragment}
-  `
+    ${print(fragment)}
+    `
 
   const query = gql`${queryText}`;
   

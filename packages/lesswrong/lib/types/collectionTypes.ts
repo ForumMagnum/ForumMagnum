@@ -280,7 +280,7 @@ interface VoteableType extends HasIdType {
 }
 
 interface VoteableTypeClient extends VoteableType {
-  currentUserVote: string|null
+  currentUserVote?: string|null
   currentUserExtendedVote?: any,
 }
 

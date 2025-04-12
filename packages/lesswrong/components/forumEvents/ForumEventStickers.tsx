@@ -137,7 +137,7 @@ const ForumEventStickers: FC<{
       RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
     }
   `);
-  const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
+  const {moderateCommentMutation} = useModerateComment();
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length
   const allowAddingSticker = currentUserStickerCount < (currentForumEvent?.maxStickersPerUser ?? 0)

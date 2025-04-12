@@ -15,7 +15,8 @@ import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/PostsEditForm';
@@ -454,11 +455,11 @@ const CKPostEditor = ({
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
 
-  const [sendNewDialogueMessageNotification] = useMutation(gql`
+  const [sendNewDialogueMessageNotification] = useMutation(gql(`
     mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
       sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)
     }
-  `);
+  `));
 
   const dialogueParticipantNotificationCallback = async () => {
     const editorContents =  editorRef?.current?.editor?.getData()

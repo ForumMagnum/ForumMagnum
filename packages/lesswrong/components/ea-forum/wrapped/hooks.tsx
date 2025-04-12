@@ -10,7 +10,8 @@ import React, {
 } from "react";
 import { Components } from "@/lib/vulcan-lib/components.tsx";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
@@ -112,7 +113,7 @@ type WrappedDataQueryResult = {
 };
 
 export const useForumWrapped = ({ userId, year }: { userId?: string | null; year: number }) => {
-  const { data, loading } = useQuery<WrappedDataQueryResult>(gql`
+  const { data, loading } = useQuery<WrappedDataQueryResult>(gql(`
     query getWrappedData($userId: String!, $year: Int!) {
       UserWrappedDataByYear(userId: $userId, year: $year) {
         engagementPercentile
@@ -187,7 +188,7 @@ export const useForumWrapped = ({ userId, year }: { userId?: string | null; year
         personality
       }
     }
-  `, {
+  `), {
     variables: {
       userId,
       year,

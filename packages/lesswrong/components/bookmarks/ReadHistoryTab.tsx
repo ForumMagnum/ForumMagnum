@@ -1,10 +1,11 @@
-import React, {useState} from 'react'
-import {AnalyticsContext} from '../../lib/analyticsEvents'
-import {useCurrentUser} from '../common/withUser'
-import {gql, NetworkStatus, useQuery} from '@apollo/client'
+import { useCurrentUser } from '@/components/common/withUser'
 import moment from 'moment'
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { AnalyticsContext } from '@/lib/analyticsEvents'
+import { gql } from '@/lib/generated/gql-codegen/gql'
+import { Components, registerComponent } from "@/lib/vulcan-lib/components"
+import { NetworkStatus, useQuery } from '@apollo/client'
+import React, { useState } from 'react'
+import { PostsListWithVotesFragment, UsersCurrentFragment } from '@/lib/generated/gql-codegen/graphql'
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -26,14 +27,14 @@ export interface FilterPostsForReview {
 }
 
 const useUserReadHistory = ({currentUser, limit, filter, sort}: {
-  currentUser: UsersCurrent | null,
+  currentUser: UsersCurrentFragment | null,
   limit: number,
   filter?: FilterPostsForReview,
   sort?: {
     karma?: boolean,
   },
 }) => {
-  const {data, loading, fetchMore, networkStatus} = useQuery(gql`
+  const {data, loading, fetchMore, networkStatus} = useQuery(gql(`
       query getReadHistory($limit: Int, $filter: PostReviewFilter, $sort: PostReviewSort) {
         UserReadHistory(limit: $limit, filter: $filter, sort: $sort) {
           posts {
@@ -42,8 +43,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
           }
         }
       }
-      ${fragmentTextForQuery('PostsListWithVotes')}
-    `,
+    `),
     {
       ssr: true,
       fetchPolicy: 'cache-and-network',
@@ -82,7 +82,7 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
 
   const {SectionTitle, Loading, PostsItem, LoadMore, Typography} = Components
   
-  const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
+  const readHistory = (data?.UserReadHistory?.posts ?? []) as (PostsListWithVotesFragment & {lastVisitedAt: string})[]
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />

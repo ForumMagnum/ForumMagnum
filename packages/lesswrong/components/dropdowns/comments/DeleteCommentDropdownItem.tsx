@@ -17,9 +17,7 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
-  const {moderateCommentMutation} = useModerateComment({
-    fragmentName: "CommentsList",
-  });
+  const {moderateCommentMutation} = useModerateComment();
 
   const showDeleteDialog = () => {
     openDialog({

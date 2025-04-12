@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { gql, useApolloClient, useQuery } from '@apollo/client';
+import { useApolloClient, useQuery } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
@@ -77,7 +78,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   // Query to get a diff between the post HTML and the HTML seen in the RSS feed
   // (see server/rss-integration/cron). HTML returned from this is already
   // sanitized.
-  const { data, loading, error } = useQuery(gql`
+  const { data, loading, error } = useQuery(gql(`
     query getRssPostChanges($postId: String!) {
       RssPostChanges(postId: $postId) {
         isChanged
@@ -85,7 +86,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
         htmlDiff
       }
     }
-  `, {
+  `), {
     variables: {
       postId: post._id,
     },

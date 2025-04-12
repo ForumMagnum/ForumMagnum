@@ -1,8 +1,10 @@
+import { UsersCurrentFragment } from "@/lib/generated/gql-codegen/graphql";
+
 export type VoteCallback<T extends VoteableTypeClient> = (props: {
   document: T,
   voteType: string | null,
   extendedVote?: AnyBecauseHard,
-  currentUser: UsersCurrent,
+  currentUser: UsersCurrentFragment,
 }) => Promise<void>;
 
 export interface VotingProps<T extends VoteableTypeClient> {

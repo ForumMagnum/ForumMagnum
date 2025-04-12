@@ -1,21 +1,15 @@
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen/gql';
 
 
-export const useModerateComment = ({fragmentName}: {
-  fragmentName: FragmentName,
-}) => {
-  // Factored out because GraphQL syntax checking is not happy with dynamically inserted fragment name
-  const gqlString = `
+export const useModerateComment = () => {
+  const [moderateComment] = useMutation(gql(`
     mutation moderateComment($commentId: String, $deleted: Boolean, $deletedReason: String, $deletedPublic: Boolean) {
       moderateComment(commentId: $commentId, deleted: $deleted, deletedReason: $deletedReason, deletedPublic: $deletedPublic) {
-        ...${fragmentName}
+        ...CommentsList
       }
     }
-    ${fragmentTextForQuery(fragmentName)}
-  `
-
-  const [moderateComment] = useMutation(gql`${gqlString}`);
+  `));
   
   async function mutate(args: {commentId: string, deleted: boolean, deletedReason: string, deletedPublic?: boolean}) {
     return await moderateComment({

@@ -5,8 +5,9 @@ import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
 import { isDialogueParticipant } from '@/lib/collections/posts/helpers';
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { print as gqlPrint } from 'graphql';
 import { registerComponent } from "../../lib/vulcan-lib/components";
+import { TypingIndicatorInfo } from '@/lib/collections/typingIndicators/fragments';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,14 +26,14 @@ export const DebateTypingIndicator = ({classes, post}: {
   const [typingIndicators, setTypingIndicators] = useState<TypingIndicatorInfo[]>([]);
   const currentUser = useCurrentUser();
 
-  const [upsertTypingIndicator] = useMutation(gql`
+  const [upsertTypingIndicator] = useMutation(gql(`
     mutation upsertUserTypingIndicator($documentId: String!) {
       upsertUserTypingIndicator(documentId: $documentId) {
         ...TypingIndicatorInfo
       }
     }
-    ${fragmentTextForQuery("TypingIndicatorInfo")}
-  `)
+    ${gqlPrint(TypingIndicatorInfo)}
+  `))
 
   useGlobalKeydown(throttle(() => {
     // Note, ideally we'd have a more specific trigger for the typing indicator
