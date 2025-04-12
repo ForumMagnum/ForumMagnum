@@ -15,7 +15,6 @@ import gql from 'graphql-tag';
 import { UltraFeedEvents } from '../collections/ultraFeedEvents/collection';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
-import shuffle from 'lodash/shuffle';
 import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { recombeeApi, recombeeRequestHelpers } from '@/server/recombee/client';
 import { HybridRecombeeConfiguration } from '@/lib/collections/users/recommendationSettings';
@@ -477,7 +476,7 @@ async function getUltraFeedPostThreads(
     console.warn("UltraFeedResolver: No Recombee user found. Cannot fetch hybrid recommendations.");
   } else {
     const settings: HybridRecombeeConfiguration = {
-      hybridScenarios: { fixed: 'hacker-news', configurable: 'recombee-lesswrong-custom' },
+      hybridScenarios: { fixed: 'forum-classic', configurable: 'recombee-lesswrong-custom' },
       excludedPostIds: Array.from(servedPostIds),
       filterSettings: currentUser?.frontpageFilterSettings,
     };
@@ -514,15 +513,17 @@ async function getUltraFeedPostThreads(
             scenario = 'hacker-news';
           }
         }
+
+        const { post, recommId, generatedAt } = item;
         
-        const recommInfo = (item.recommId && item.generatedAt) ? {
-          recommId: item.recommId,
+        const recommInfo = (recommId && generatedAt) ? {
+          recommId,
           scenario: scenario || 'unknown',
-          generatedAt: item.generatedAt,
+          generatedAt,
         } : undefined;
 
         return {
-          post: item.post,
+          post,
           postMetaInfo: {
             sources: [scenario as FeedItemSourceType],
             displayStatus: 'expanded',
