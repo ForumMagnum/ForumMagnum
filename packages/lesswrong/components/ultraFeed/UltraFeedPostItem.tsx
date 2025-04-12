@@ -155,7 +155,7 @@ const UltraFeedPostItem = ({
   showKarma,
   settings = DEFAULT_SETTINGS,
 }: {
-  post: PostsListWithVotes,
+  post: UltraFeedPostFragment,
   postMetaInfo: FeedPostMetaInfo,
   index: number,
   showKarma?: boolean,
@@ -192,6 +192,16 @@ const UltraFeedPostItem = ({
     });
   }, [trackExpansion, post._id, captureEvent]);
 
+  if (
+    !post?._id 
+    || !post.contents
+    || !post.contents.html
+    || !post.contents.wordCount
+    || post.contents.wordCount <= 0
+  ) {
+     return null; 
+  }
+
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
     <div ref={elementRef} className={classes.root}>
@@ -225,18 +235,16 @@ const UltraFeedPostItem = ({
         </div>
       </div>
 
-      {post.contents && (
-        <FeedContentBody
-          post={post}
-          html={post.contents.htmlHighlight ?? ""}
-          breakpoints={settings.postTruncationBreakpoints}
-          initialExpansionLevel={0}
-          wordCount={post.contents.wordCount ?? 0}
-          linkToDocumentOnFinalExpand={true}
-          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-          onExpand={handleContentExpand}
-        />
-      )}
+      <FeedContentBody
+        post={post}
+        html={post.contents.html}
+        breakpoints={settings.postTruncationBreakpoints}
+        initialExpansionLevel={0}
+        wordCount={post.contents.wordCount}
+        linkToDocumentOnFinalExpand={true}
+        nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+        onExpand={handleContentExpand}
+      />
       <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
     </AnalyticsContext>

@@ -82,14 +82,12 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
 }));
 
-// Define the three possible configurations
 type PostProps = { post: PostsList; comment?: never; tag?: never };
 type CommentProps = { post?: never; comment: CommentsList; tag?: never };
 type TagProps = { post?: never; comment?: never; tag: TagBasicInfo };
 
 type DocumentProps = PostProps | CommentProps | TagProps;
 
-// Main component props
 interface BaseFeedContentBodyProps {
   html: string;
   breakpoints: number[];
@@ -130,7 +128,6 @@ const FeedContentBody = ({
   
   const isMaxLevel = expansionLevel >= breakpoints.length - 1;
   const currentWordLimit = breakpoints[expansionLevel];
-  const isFirstLevel = expansionLevel === 0;
   
   let documentType: 'post' | 'comment' | 'tag';
   if (post) {
@@ -153,8 +150,8 @@ const FeedContentBody = ({
   };
   
   const handleExpand = useCallback(() => {
-    if (isMaxLevel && linkToDocumentOnFinalExpand) {
-        return;
+    if (isMaxLevel) {
+        return; 
     }
 
     const newLevel = Math.min(expansionLevel + 1, breakpoints.length - 1);
@@ -167,27 +164,23 @@ const FeedContentBody = ({
     breakpoints.length,
     onExpand,
     isMaxLevel,
-    linkToDocumentOnFinalExpand,
     wordCount,
   ]);
   
-  // Handle clicks on the content area
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
 
-    // If the user clicking on a link, allow default navigation and don't expand.
-    if (target.tagName === 'A' || target.parentElement?.tagName === 'A') {
+    // If the user clicking on ANY link, allow default navigation and DO NOT expand.
+    if (target.closest('a')) { 
       return;
     }
 
-    // Otherwise, it's a click on general content. Trigger expansion.
     handleExpand();
 
-  }, [handleExpand]); // Remove isFirstLevel from dependency array
+  }, [handleExpand]); 
   
   const usingLineClamp = clampOverride !== undefined && clampOverride > 0;
   
-  // Helper function to calculate truncation state
   const calculateTruncationState = () => {
     let truncatedHtml = html;
     let wasTruncated = false;
@@ -195,43 +188,40 @@ const FeedContentBody = ({
 
     if (!usingLineClamp) {
       const createReadMoreSuffix = () => {
-        if (hideSuffix) {
-          return '...';
+        if (hideSuffix || (isMaxLevel && linkToDocumentOnFinalExpand)) {
+           return '...';
         }
-        if (isMaxLevel && linkToDocumentOnFinalExpand) {
-          return '...';
-        }
-        return `...<span class="read-more-button" data-expansion-level="${expansionLevel}">(read more)</span>`;
+        const suffixContent = `...<span class="read-more-suffix">(read more)</span>`; 
+        return suffixContent;
       };
-
+      
       const result = truncateWithGrace(
         html,
         currentWordLimit,
-        20,
+        20, 
         wordCount,
         createReadMoreSuffix()
       );
 
       truncatedHtml = result.truncatedHtml;
       wasTruncated = result.wasTruncated;
-      wordsLeft = result.wordsLeft;
-
-      // Ensure truncation is correctly identified
-      if (wordCount > currentWordLimit && !wasTruncated) {
-        wasTruncated = true;
-        wordsLeft = wordCount - currentWordLimit;
+      
+      if (wasTruncated) {
+         wordsLeft = Math.max(0, wordCount - currentWordLimit); 
+      } else {
+         wordsLeft = 0;
       }
+
     } else {
-      // Estimate truncation for line clamp mode
-      wasTruncated = wordCount > currentWordLimit; // Simple estimate
-      wordsLeft = wasTruncated ? wordCount - currentWordLimit : 0;
-      // truncatedHtml remains the original html for line clamp
+      // Line clamp mode
+      wasTruncated = wordCount > currentWordLimit; // Estimate needed for clickability/link display
+      wordsLeft = wasTruncated ? Math.max(0, wordCount - currentWordLimit) : 0;
+      truncatedHtml = html; 
     }
 
     return { truncatedHtml, wasTruncated, wordsLeft };
   };
 
-  // Calculate the truncation state
   const { truncatedHtml, wasTruncated, wordsLeft } = calculateTruncationState();
   
   const getLineClampClass = () => {
@@ -254,15 +244,16 @@ const FeedContentBody = ({
   };
   
   const showContinueReadingLink = isMaxLevel && wasTruncated && linkToDocumentOnFinalExpand;
+  const isClickableForExpansion = wasTruncated && !isMaxLevel; 
 
   return (
     <div 
       className={classNames(
         classes.root, 
         className,
-        (wasTruncated && isFirstLevel) && classes.clickableContent
+        isClickableForExpansion && classes.clickableContent 
       )}
-      onClick={handleContentClick}
+      onClick={handleContentClick} 
     >
       <Components.ContentStyles contentType="ultraFeed">
         <Components.ContentItemBody
@@ -271,8 +262,8 @@ const FeedContentBody = ({
           nofollow={nofollow}
           className={classNames({
             [classes.maxHeight]: !isMaxLevel && wasTruncated && !usingLineClamp,
-            [classes.lineClamp]: usingLineClamp,
-            [getLineClampClass()]: usingLineClamp,
+            [classes.lineClamp]: usingLineClamp && wasTruncated, 
+            [getLineClampClass()]: usingLineClamp && wasTruncated,
           })}
         />
         
