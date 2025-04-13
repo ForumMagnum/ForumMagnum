@@ -16,6 +16,7 @@ export const ForumEventsMinimumInfo = () => frag`
     eventFormat
     customComponent
     commentPrompt
+    isGlobal
 
     pollAgreeWording
     pollDisagreeWording

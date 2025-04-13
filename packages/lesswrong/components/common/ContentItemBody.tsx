@@ -11,6 +11,7 @@ import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBl
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
+import { usePostsPageContext, WithPostsPageContext, WithPostsPageContext, withPostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 interface ExternalProps {
   /**
@@ -84,7 +85,7 @@ export type ContentReplacedSubstringComponentInfo = {
   props: AnyBecauseHard
 };
 
-interface ContentItemBodyProps extends ExternalProps, WithTrackingProps {}
+interface ContentItemBodyProps extends ExternalProps, WithTrackingProps, WithPostsPageContext {}
 interface ContentItemBodyState {
   updatedElements: boolean,
   renderIndex: number
@@ -435,18 +436,22 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   replaceForumEventPollPlaceholders = (element: HTMLElement) => {
     const pollPlaceholders = element.getElementsByClassName('ck-poll');
 
+    const postId = this.props.fullPost?._id ?? this.props.postPreload?._id
+
+    if (!postId) return;
+
     const {ForumEventPostPagePollSection} = Components;
 
     for (let i = 0; i < pollPlaceholders.length; i++) {
       const placeholder = pollPlaceholders[i];
 
       const forumEventId = placeholder.getAttribute('data-internal-id');
-      if (forumEventId) {
-        // Create the poll element with styling and context
-        const pollElement = <ForumEventPostPagePollSection postId={'WLpTp92n6rDybiSgH'} forumEventId={forumEventId} />;
+      if (!forumEventId) continue;
 
-        this.replaceElement(placeholder, pollElement);
-      }
+      // Create the poll element with styling and context
+      const pollElement = <ForumEventPostPagePollSection  id={forumEventId} postId={postId} forumEventId={forumEventId} />;
+
+      this.replaceElement(placeholder, pollElement);
     }
   }
 
@@ -655,7 +660,7 @@ const addNofollowToHTML = (html: string): string => {
 }
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  hocs: [withTracking],
+  hocs: [withTracking, withPostsPageContext],
   
   // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
   allowRef: true,

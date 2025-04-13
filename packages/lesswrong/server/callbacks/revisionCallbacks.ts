@@ -108,6 +108,7 @@ async function upsertPoll({ _id, question, user, postId }: { _id: string; questi
         lightColor: "#ffffff",
         bannerTextColor: "#ffffff",
         postId, // Set the postId on the new forumEvent
+        isGlobal: false
       },
       validate: false,
       currentUser: user,

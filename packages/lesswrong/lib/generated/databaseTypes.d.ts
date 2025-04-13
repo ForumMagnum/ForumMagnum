@@ -193,6 +193,7 @@ interface DbComment extends DbObject {
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
     } | null,
   } | null
   hideAuthor: boolean
@@ -521,6 +522,7 @@ interface DbForumEvent extends DbObject {
   frontpageDescriptionMobile_latest: string | null
   frontpageDescription_latest: string | null
   includesPoll: boolean
+  isGlobal: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   lightColor: string
   maxStickersPerUser: number

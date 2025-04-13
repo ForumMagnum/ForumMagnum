@@ -10,6 +10,7 @@ import { POLL_MAX_WIDTH, getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import { useCurrentUser } from "../common/withUser";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,9 +20,14 @@ const styles = (theme: ThemeType) => ({
     padding: 24,
     borderRadius: theme.borderRadius.default,
     marginBottom: 40,
+    scrollMarginTop: '100px',
+    // TODO make it not disappear on mobile
     [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
       display: 'none'
     }
+  },
+  rootEmbedded: {
+    padding: 6
   },
   heading: {
     fontSize: 24,
@@ -60,16 +66,14 @@ const announcementPostUrl = '/posts/9ad4C4YknLM5fGG4v/announcing-animal-welfare-
  * and allow users to update their vote to show that the post changed their minds.
  * This uses the theme name to set the root element's colors so you should NoSSR it.
  */
-export const ForumEventPostPagePollSection = ({postId, forumEventId, classes}: {
+export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ...divProps}: {
   postId: string,
   forumEventId?: string,
   classes: ClassesType<typeof styles>,
-}) => {
+} & React.HTMLAttributes<HTMLDivElement>) => {
   const {params} = useLocation();
 
   const isGlobalEvent = !forumEventId;
-
-  console.log({forumEventId})
 
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   const { document: eventFromId } = useSingle({
@@ -88,13 +92,11 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes}: {
     collectionName: "Posts",
     fragmentName: "PostsDetails",
     documentId: params._id,
-    // TODO skip if forumEventId
     skip: !!forumEventId || !hasForumEvents || !params._id || !event?.tagId || event.eventFormat !== "POLL",
   });
 
   // Only show this section for forum events that have a poll
   if ((!event || event.eventFormat !== "POLL") || (isGlobalEvent && !post)) {
-    console.log("Returning null", {eventFormat: event?.eventFormat, event, post})
     return null;
   }
 
@@ -122,24 +124,33 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes}: {
 
   return (
     <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
-      <div className={classes.root} style={
-        themeOptions.name === 'dark' ? {background: darkColor, color: lightColor} : {background: lightColor, color: darkColor}
-      }>
-        {isGlobalEvent && <>
-          <h2 className={classes.heading}>
-            {!hasVoted ? 'Have you voted yet?' : 'Did this post change your mind?'}
-          </h2>
-          <div className={classes.description}>
-            This post is part of <Link to={announcementPostUrl}>{event.title}</Link>.{" "}
-            {!hasVoted ? <>
-              Click and drag your avatar to vote on the debate statement. Votes are non-anonymous, and you can change your mind.
-            </> : <>
-              If it changed your mind, click and drag your avatar to move your vote below.
-            </>}
-          </div>
-        </>}
+      <div
+        className={classNames(classes.root, { [classes.rootEmbedded]: !isGlobalEvent })}
+        style={
+          themeOptions.name === "dark"
+            ? { background: darkColor, color: lightColor }
+            : { background: lightColor, color: darkColor }
+        }
+        {...divProps}
+      >
+        {isGlobalEvent && (
+          <>
+            <h2 className={classes.heading}>{!hasVoted ? "Have you voted yet?" : "Did this post change your mind?"}</h2>
+            <div className={classes.description}>
+              This post is part of <Link to={announcementPostUrl}>{event.title}</Link>.{" "}
+              {!hasVoted ? (
+                <>
+                  Click and drag your avatar to vote on the debate statement. Votes are non-anonymous, and you can
+                  change your mind.
+                </>
+              ) : (
+                <>If it changed your mind, click and drag your avatar to move your vote below.</>
+              )}
+            </div>
+          </>
+        )}
         <div className={classes.pollArea} style={pollAreaStyle}>
-          <ForumEventPoll postId={postId} forumEventId={forumEventId} hideViewResults={isGlobalEvent} />
+          <ForumEventPoll postId={postId} overrideForumEvent={eventFromId} hideViewResults={isGlobalEvent} />
         </div>
       </div>
     </AnalyticsContext>

@@ -105,6 +105,7 @@ const schema = {
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
+      // TODO deal with permissions generally
       canUpdate: ["admins"],
       canCreate: ["admins"],
       editableFieldOptions: { pingbacks: false, normalized: false },
@@ -398,6 +399,28 @@ const schema = {
     graphql: {
       outputType: "Boolean",
       canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+    form: {
+      control: "FormComponentCheckbox",
+      hidden: true,
+    },
+  },
+  isGlobal: {
+    database: {
+      type: "BOOL",
+      defaultValue: true,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["guests"],
+      // TODO deal with perms specifically for this case
       canUpdate: ["admins"],
       canCreate: ["admins"],
       validation: {

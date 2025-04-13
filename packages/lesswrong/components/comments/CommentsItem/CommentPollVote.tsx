@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
+import { postGetPollUrl } from "@/lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,12 +26,16 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
-  const { document: forumEvent, loading } = useSingle({
+  const { document: forumEvent } = useSingle({
     documentId: comment.forumEventId,
     collectionName: "ForumEvents",
     fragmentName: 'ForumEventsMinimumInfo',
     skip: !comment.forumEventId
   });
+
+  // TODO infer whether this is a global event from something on the forum event
+  const isGlobal = forumEvent?.isGlobal;
+  const pollLink = '#4EMWuknMt5H2gMhRc'
 
   const agreeWording = forumEvent?.pollAgreeWording || "agree";
   const disagreeWording = forumEvent?.pollDisagreeWording || "disagree";
@@ -49,8 +54,10 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const showStartAgreement = startAgreement !== endAgreement;
   const showStartPercentage = showStartAgreement || endPercentage !== startPercentage;
 
+  const RootTag = isGlobal ? 'span' : 'a';
+
   return (
-    <span className={classes.root}>
+    <RootTag className={classes.root} href={pollLink}>
       {showStartPercentage && (
         <span className={classNames(startAgreement ? classes.agreePollVote : classes.disagreePollVote)}>
           <LWTooltip title="Vote when comment was posted" placement="top" popperClassName={classes.tooltip}>
@@ -67,7 +74,7 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
         {endPercentage}
         {endAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`}
       </span>
-    </span>
+    </RootTag>
   );
 };
 

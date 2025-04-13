@@ -487,27 +487,21 @@ export const ForumEventPoll = ({
   postId,
   hideViewResults,
   classes,
-  forumEventId,
+  overrideForumEvent,
 }: {
   postId?: string;
   hideViewResults?: boolean;
   classes: ClassesType<typeof styles>;
-  forumEventId?: string;
+  overrideForumEvent?: ForumEventsDisplay;
 }) => {
   const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
-  // TODO remove
-  const { document: eventFromId } = useSingle({
-    collectionName: "ForumEvents",
-    fragmentName: "ForumEventsDisplay",
-    documentId: forumEventId,
-    skip: !forumEventId,
-  });
+  const isGlobal = !overrideForumEvent;
 
-  const event = eventFromId || currentForumEvent;
+  const event = overrideForumEvent || currentForumEvent;
 
   const initialUserVotePos: number | null = getForumEventVoteForUser(
     event,
@@ -769,7 +763,8 @@ export const ForumEventPoll = ({
       sticker: null,
       poll: {
         voteWhenPublished: currentUserVote,
-        latestVote: null
+        latestVote: null,
+        pollQuestionWhenPublished: event.pollQuestion?._id ?? null
       }
     },
   } : {};
@@ -901,9 +896,9 @@ export const ForumEventPoll = ({
                       subtitle={(post, comment) => (<>
                         <div>
                           Your response will appear as a comment on{" "}
-                          <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
+                          {isGlobal ? <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
                             this Debate Week post
-                          </Link>
+                          </Link> : 'this post'}
                           , and show next to your avatar on this banner.
                         </div>
                       </>)}

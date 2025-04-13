@@ -139,6 +139,27 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   }
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
+interface PostGetPollUrlParams {
+  post: PostsMinimumForGetPageUrl;
+  isAbsolute?: boolean;
+  sequenceId?: string | null;
+  forumEventId?: string | null;
+}
+
+export const postGetPollUrl = ({
+  post,
+  isAbsolute = false,
+  sequenceId = null,
+  forumEventId,
+}: {
+  post: PostsMinimumForGetPageUrl;
+  isAbsolute?: boolean;
+  sequenceId?: string | null;
+  forumEventId: string;
+}): string => {
+  const baseUrl = postGetPageUrl(post, isAbsolute, sequenceId);
+  return `${baseUrl}#${forumEventId}`;
+};
 
 export const postGetCommentsUrl = (
   post: PostsMinimumForGetPageUrl,
