@@ -1124,6 +1124,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   eventFormat
   customComponent
   commentPrompt
+  isGlobal
 
   pollAgreeWording
   pollDisagreeWording

@@ -77,6 +77,8 @@ async function upsertPoll({ _id, question, user, postId }: { _id: string; questi
       documentId: existingPoll._id,
       data: {
         eventFormat: "POLL",
+        // TODO fix
+        // @ts-ignore
         pollQuestion: {
           originalContents: {
             data: `<p>${question}</p>`,
@@ -96,6 +98,8 @@ async function upsertPoll({ _id, question, user, postId }: { _id: string; questi
         _id,
         title: `New Poll for ${_id}`,
         eventFormat: "POLL",
+        // TODO fix
+        // @ts-ignore
         pollQuestion: {
           originalContents: {
             data: `<p>${question}</p>`,
@@ -107,7 +111,7 @@ async function upsertPoll({ _id, question, user, postId }: { _id: string; questi
         darkColor: "#000000",
         lightColor: "#ffffff",
         bannerTextColor: "#ffffff",
-        postId, // Set the postId on the new forumEvent
+        postId,
         isGlobal: false
       },
       validate: false,

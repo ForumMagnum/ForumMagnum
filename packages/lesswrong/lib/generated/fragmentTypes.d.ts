@@ -1065,6 +1065,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string | null,
   readonly commentPrompt: string | null,
+  readonly isGlobal: boolean,
   readonly pollAgreeWording: string | null,
   readonly pollDisagreeWording: string | null,
   readonly maxStickersPerUser: number,

@@ -52,6 +52,7 @@ export const ForumEventsDisplay = () => frag`
     pollQuestion {
       _id
       html
+      plaintextMainText
     }
   }
 `

@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib/component
 import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
 import { postGetPollUrl } from "@/lib/collections/posts/helpers";
+import { parseDocumentFromString } from "@/lib/domParser";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,6 +21,22 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+/**
+ * Removes any footnotes and converts what remains to plain text
+ */
+function stripFootnotes(html: string): string {
+  const { document } = parseDocumentFromString(html);
+
+  // Remove every footnote reference
+  document.querySelectorAll(".footnote-reference").forEach(ref => ref.remove());
+
+  // Remove the entire .footnotes block (where the list of footnotes usually lives)
+  const footnotesBlock = document.querySelector(".footnotes");
+  footnotesBlock?.remove();
+
+  return (document.body.textContent || "").trim();
+}
+
 const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes: ClassesType<typeof styles> }) => {
   const { LWTooltip } = Components;
 
@@ -29,13 +46,14 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const { document: forumEvent } = useSingle({
     documentId: comment.forumEventId,
     collectionName: "ForumEvents",
-    fragmentName: 'ForumEventsMinimumInfo',
-    skip: !comment.forumEventId
+    fragmentName: 'ForumEventsDisplay',
+    skip: !comment.forumEventId,
+    ssr: false
   });
 
-  // TODO infer whether this is a global event from something on the forum event
-  const isGlobal = forumEvent?.isGlobal;
-  const pollLink = '#4EMWuknMt5H2gMhRc'
+  const isGlobal = forumEvent?.isGlobal !== false;
+  // TODO make this act like the "see in context" button on comments
+  const pollLink = (!isGlobal && forumEvent) ? `#${forumEvent._id}` : undefined;
 
   const agreeWording = forumEvent?.pollAgreeWording || "agree";
   const disagreeWording = forumEvent?.pollDisagreeWording || "disagree";
@@ -54,12 +72,15 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const showStartAgreement = startAgreement !== endAgreement;
   const showStartPercentage = showStartAgreement || endPercentage !== startPercentage;
 
-  const RootTag = isGlobal ? 'span' : 'a';
+  const CurrentVoteTag = isGlobal ? 'span' : 'a';
+
+  const questionWording = forumEvent?.pollQuestion?.html && stripFootnotes(forumEvent.pollQuestion.html);
 
   return (
-    <RootTag className={classes.root} href={pollLink}>
+    <span className={classes.root}>
       {showStartPercentage && (
         <span className={classNames(startAgreement ? classes.agreePollVote : classes.disagreePollVote)}>
+          {/* TODO note that I would prefer to remove this */}
           <LWTooltip title="Vote when comment was posted" placement="top" popperClassName={classes.tooltip}>
             <s>
               {startPercentage}
@@ -70,11 +91,17 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
           &nbsp;&#10132;&nbsp;
         </span>
       )}
-      <span className={endAgreement ? classes.agreePollVote : classes.disagreePollVote}>
-        {endPercentage}
-        {endAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`}
-      </span>
-    </RootTag>
+      <LWTooltip
+        title={questionWording && <span>With the question "{questionWording}"</span>}
+        placement="top"
+        popperClassName={classes.tooltip}
+      >
+        <CurrentVoteTag className={endAgreement ? classes.agreePollVote : classes.disagreePollVote} href={pollLink}>
+          {endPercentage}
+          {endAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`}
+        </CurrentVoteTag>
+      </LWTooltip>
+    </span>
   );
 };
 
