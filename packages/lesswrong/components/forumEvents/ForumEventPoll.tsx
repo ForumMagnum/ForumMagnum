@@ -340,7 +340,7 @@ const clusterForumEventVotes = ({
 }: {
   voters: UsersMinimumInfo[];
   comments: ShortformComments[] | undefined;
-  event: ForumEventsDisplay | null;
+  event: ForumEventsDisplay | null | undefined;
   currentUser: UsersCurrent | null;
 }): ForumEventVoteDisplayCluster[] => {
   if (!voters || !event || !event.publicData) return [];
