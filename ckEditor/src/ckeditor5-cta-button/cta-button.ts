@@ -2,7 +2,7 @@ import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
 import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
 import Widget from "@ckeditor/ckeditor5-widget/src/widget";
-import PollForm from "./cta-button-form";
+import CTAButtonForm from "./cta-button-form";
 
 import buttonIcon from "./ckeditor5-cta-button.svg";
 
@@ -15,7 +15,7 @@ const CENTERED_CLASS = "ck-cta-button-centered";
  */
 export default class CTAButton extends Plugin {
   static get requires() {
-    return [Widget, PollForm];
+    return [Widget, CTAButtonForm];
   }
 
   init() {

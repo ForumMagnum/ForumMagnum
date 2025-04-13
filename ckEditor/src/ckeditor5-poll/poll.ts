@@ -9,6 +9,7 @@ import { randomId } from "../random";
 
 const CTA_CLASS = "ck-poll";
 
+// TODO update all of this to say poll
 /**
  * Plugin for the CTA button element itself, the form for editing the text and link
  * is defined in a separate plugin, PollForm
@@ -31,7 +32,7 @@ export default class PollPlugin extends Plugin {
       const toolbarButton = new ButtonView(locale);
 
       toolbarButton.isEnabled = true;
-      toolbarButton.label = editor.t("Insert button");
+      toolbarButton.label = editor.t("Insert poll");
       toolbarButton.icon = buttonIcon;
       toolbarButton.tooltip = true;
 
