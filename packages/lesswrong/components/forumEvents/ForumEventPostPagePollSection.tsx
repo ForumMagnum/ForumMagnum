@@ -73,8 +73,6 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const {params} = useLocation();
 
-  const isGlobalEvent = !forumEventId;
-
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   const { document: eventFromId } = useSingle({
     collectionName: "ForumEvents",
@@ -82,7 +80,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
     documentId: forumEventId,
     skip: !forumEventId,
   });
-  const event = isGlobalEvent ? currentForumEvent : eventFromId;
+  const event = forumEventId ? eventFromId : currentForumEvent;
 
   const currentUser = useCurrentUser()
   const hasVoted = getForumEventVoteForUser(event, currentUser) !== null
@@ -96,7 +94,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
   });
 
   // Only show this section for forum events that have a poll
-  if ((!event || event.eventFormat !== "POLL") || (isGlobalEvent && !post)) {
+  if ((!event || event.eventFormat !== "POLL") || (event.isGlobal && !post)) {
     return null;
   }
 
@@ -125,7 +123,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
   return (
     <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
       <div
-        className={classNames(classes.root, { [classes.rootEmbedded]: !isGlobalEvent })}
+        className={classNames(classes.root, { [classes.rootEmbedded]: !event.isGlobal })}
         style={
           themeOptions.name === "dark"
             ? { background: darkColor, color: lightColor }
@@ -133,7 +131,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
         }
         {...divProps}
       >
-        {isGlobalEvent && (
+        {event.isGlobal && (
           <>
             <h2 className={classes.heading}>{!hasVoted ? "Have you voted yet?" : "Did this post change your mind?"}</h2>
             <div className={classes.description}>
@@ -150,7 +148,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
           </>
         )}
         <div className={classes.pollArea} style={pollAreaStyle}>
-          <ForumEventPoll postId={postId} overrideForumEvent={eventFromId} hideViewResults={isGlobalEvent} />
+          <ForumEventPoll postId={postId} forumEventId={forumEventId} hideViewResults={event.isGlobal} />
         </div>
       </div>
     </AnalyticsContext>

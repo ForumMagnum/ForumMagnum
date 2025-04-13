@@ -19,6 +19,7 @@ import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
 import { PartialDeep } from "type-fest";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import { useMessages } from "../common/withMessages";
+import { useSingle } from "@/lib/crud/withSingle";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
@@ -473,22 +474,28 @@ export const ForumEventPoll = ({
   postId,
   hideViewResults,
   classes,
-  overrideForumEvent,
+  forumEventId,
 }: {
   postId?: string;
   hideViewResults?: boolean;
   classes: ClassesType<typeof styles>;
-  overrideForumEvent?: ForumEventsDisplay;
+  forumEventId?: string;
 }) => {
-  const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
+  const { currentForumEvent, refetch: refectCurrentEvent } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
-  const isGlobal = !overrideForumEvent;
+  const { document: eventFromId, refetch: refetchOverrideEvent } = useSingle({
+    collectionName: "ForumEvents",
+    fragmentName: "ForumEventsDisplay",
+    documentId: forumEventId,
+    skip: !forumEventId,
+  });
 
-  const event = overrideForumEvent || currentForumEvent;
+  const event = forumEventId ? eventFromId : currentForumEvent;
+  const refetch = forumEventId ? refetchOverrideEvent : refectCurrentEvent;
   const votingOpen = event ? new Date(event.endDate) > new Date() : false;
 
   const displayHtml = useMemo(
@@ -797,14 +804,14 @@ export const ForumEventPoll = ({
                     "Voting has now closed, "
                   )}
                   <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
-                    view results
+                    view results.
                   </button>
                 </> : <button
                   className={classNames(classes.viewResultsButton, classes.hideResultsButton)}
                   onClick={() => setResultsVisible(false)}
                 >
                   Hide results
-                </button>}.
+                </button>}
               </div>
             )}
           </DeferRender>
@@ -915,7 +922,7 @@ export const ForumEventPoll = ({
                       subtitle={(post, comment) => (<>
                         <div>
                           Your response will appear as a comment on{" "}
-                          {isGlobal ? <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
+                          {event.isGlobal ? <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
                             this Debate Week post
                           </Link> : 'this post'}
                           , and show next to your avatar on this banner.
