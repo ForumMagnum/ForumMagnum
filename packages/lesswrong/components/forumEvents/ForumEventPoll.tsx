@@ -17,6 +17,8 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
 import { useSingle } from "@/lib/crud/withSingle";
+import { PartialDeep } from "type-fest";
+import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
@@ -503,6 +505,15 @@ export const ForumEventPoll = ({
 
   const event = overrideForumEvent || currentForumEvent;
 
+  const displayHtml = useMemo(
+    () => (event?.pollQuestion?.html ? footnotesToTooltips({ html: event.pollQuestion.html, event, classes }) : null),
+    [event, classes]
+  );
+  const plaintextQuestion = useMemo(
+    () => (event?.pollQuestion?.html ? stripFootnotes(event.pollQuestion.html) : null),
+    [event?.pollQuestion?.html]
+  );
+
   const initialUserVotePos: number | null = getForumEventVoteForUser(
     event,
     currentUser
@@ -757,7 +768,7 @@ export const ForumEventPoll = ({
 
   if (!event) return null;
 
-  const commentPrefilledProps: Partial<DbComment> = !currentUserComment && currentUserVote !== null ? {
+  const commentPrefilledProps: PartialDeep<DbComment> = !currentUserComment && currentUserVote !== null ? {
     forumEventMetadata: {
       eventFormat: "POLL",
       sticker: null,
@@ -767,12 +778,20 @@ export const ForumEventPoll = ({
         pollQuestionWhenPublished: event.pollQuestion?._id ?? null
       }
     },
+    ...(!event.isGlobal && {
+      contents: {
+        originalContents: {
+          type: "ckEditorMarkup",
+          data: `<blockquote>${plaintextQuestion}</blockquote><p></p>`,
+        }
+      }
+    }),
   } : {};
 
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
       <div className={classes.root}>
-        <PollQuestion event={event} classes={classes} />
+        {displayHtml && <div className={classes.question}>{displayHtml}</div>}
         <div className={classes.votePromptWrapper}>
           <DeferRender ssr={false}>
             {!hideViewResults && (

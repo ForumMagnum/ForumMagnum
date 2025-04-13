@@ -4,6 +4,7 @@ import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
 import { postGetPollUrl } from "@/lib/collections/posts/helpers";
 import { parseDocumentFromString } from "@/lib/domParser";
+import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,25 +18,9 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.warning.main,
   },
   tooltip: {
-    marginBottom: 6,
+    transform: "translateY(-10px)",
   },
 });
-
-/**
- * Removes any footnotes and converts what remains to plain text
- */
-function stripFootnotes(html: string): string {
-  const { document } = parseDocumentFromString(html);
-
-  // Remove every footnote reference
-  document.querySelectorAll(".footnote-reference").forEach(ref => ref.remove());
-
-  // Remove the entire .footnotes block (where the list of footnotes usually lives)
-  const footnotesBlock = document.querySelector(".footnotes");
-  footnotesBlock?.remove();
-
-  return (document.body.textContent || "").trim();
-}
 
 const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes: ClassesType<typeof styles> }) => {
   const { LWTooltip } = Components;

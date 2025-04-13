@@ -442,14 +442,16 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
     const {ForumEventPostPagePollSection} = Components;
 
-    for (let i = 0; i < pollPlaceholders.length; i++) {
-      const placeholder = pollPlaceholders[i];
+    const forumEventIds = Array.from(pollPlaceholders).map(placeholder => ({
+      placeholder,
+      forumEventId: placeholder.getAttribute('data-internal-id')
+    }));
 
-      const forumEventId = placeholder.getAttribute('data-internal-id');
+    for (const { placeholder, forumEventId } of forumEventIds) {
       if (!forumEventId) continue;
 
       // Create the poll element with styling and context
-      const pollElement = <ForumEventPostPagePollSection  id={forumEventId} postId={postId} forumEventId={forumEventId} />;
+      const pollElement = <ForumEventPostPagePollSection id={forumEventId} postId={postId} forumEventId={forumEventId} />;
 
       this.replaceElement(placeholder, pollElement);
     }
