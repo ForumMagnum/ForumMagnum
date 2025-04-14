@@ -386,6 +386,7 @@ export const sanitize = function(s: string): string {
         'viewpoints-preview',
         'ck-cta-button',
         'ck-cta-button-centered',
+        'ck-poll',
         'detailsBlockContent',
         'calendly-preview',
         'conditionallyVisibleBlock',

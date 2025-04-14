@@ -78,6 +78,12 @@ export const CommentsList = () => frag`
     originalDialogueId
 
     forumEventId
+    forumEvent {
+      pollQuestion {
+        _id
+        html
+      }
+    }
     forumEventMetadata
   }
 `

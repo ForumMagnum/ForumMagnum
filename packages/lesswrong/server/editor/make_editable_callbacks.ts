@@ -286,6 +286,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const newRevisionDoc = await createMutator({
       collection: Revisions,
       document: newRevision,
+      currentUser, // TODO check if there was any reason this wasn't set to begin with
       validate: false
     });
 

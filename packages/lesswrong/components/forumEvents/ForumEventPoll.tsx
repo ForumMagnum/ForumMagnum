@@ -16,6 +16,10 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
+import { PartialDeep } from "type-fest";
+import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
+import { useMessages } from "../common/withMessages";
+import { useSingle } from "@/lib/crud/withSingle";
 
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
@@ -282,6 +286,9 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
+  currentUserVoteClosed: {
+    cursor: "default",
+  },
   currentUserVoteDragging: {
     cursor: "grabbing",
   },
@@ -333,7 +340,7 @@ const clusterForumEventVotes = ({
 }: {
   voters: UsersMinimumInfo[];
   comments: ShortformComments[] | undefined;
-  event: ForumEventsDisplay | null;
+  event: ForumEventsDisplay | null | undefined;
   currentUser: UsersCurrent | null;
 }): ForumEventVoteDisplayCluster[] => {
   if (!voters || !event || !event.publicData) return [];
@@ -455,25 +462,6 @@ function footnotesToTooltips({
   return resultArray;
 }
 
-function PollQuestion({
-  event,
-  classes,
-}: {
-  event: ForumEventsDisplay;
-  classes: ClassesType<typeof styles>;
-}) {
-  const { pollQuestion } = event;
-
-  const displayHtml = useMemo(
-    () => (pollQuestion?.html ? footnotesToTooltips({ html: pollQuestion.html, event, classes }) : null),
-    [pollQuestion?.html, event, classes]
-  );
-
-  if (!displayHtml) return null;
-
-  return <div className={classes.question}>{displayHtml}</div>;
-}
-
 /**
  * This component is for forum events that have a poll.
  * Displays the question, a slider where the user can vote on a scale from "Disagree" to "Agree",
@@ -486,16 +474,38 @@ export const ForumEventPoll = ({
   postId,
   hideViewResults,
   classes,
+  forumEventId,
 }: {
   postId?: string;
   hideViewResults?: boolean;
   classes: ClassesType<typeof styles>;
+  forumEventId?: string;
 }) => {
-  const { currentForumEvent: event, refetch } = useCurrentAndRecentForumEvents();
+  const { currentForumEvent, refetch: refectCurrentEvent } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
-
   const { captureEvent } = useTracking();
+  const { flash } = useMessages();
+
+  const { document: eventFromId, refetch: refetchOverrideEvent } = useSingle({
+    collectionName: "ForumEvents",
+    fragmentName: "ForumEventsDisplay",
+    documentId: forumEventId,
+    skip: !forumEventId,
+  });
+
+  const event = forumEventId ? eventFromId : currentForumEvent;
+  const refetch = forumEventId ? refetchOverrideEvent : refectCurrentEvent;
+  const votingOpen = event ? new Date(event.endDate) > new Date() : false;
+
+  const displayHtml = useMemo(
+    () => (event?.pollQuestion?.html ? footnotesToTooltips({ html: event.pollQuestion.html, event, classes }) : null),
+    [event, classes]
+  );
+  const plaintextQuestion = useMemo(
+    () => (event?.pollQuestion?.html ? stripFootnotes(event.pollQuestion.html) : null),
+    [event?.pollQuestion?.html]
+  );
 
   const initialUserVotePos: number | null = getForumEventVoteForUser(
     event,
@@ -571,7 +581,7 @@ export const ForumEventPoll = ({
   }
 
   const voteClusters = useMemo(
-    () => clusterForumEventVotes({ voters: votersRef.current, comments, event, currentUser }),
+    () => clusterForumEventVotes({ voters: votersRef.current, comments, event: event, currentUser }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [votersRef.current, event, currentUser, comments]
   );
@@ -597,24 +607,21 @@ export const ForumEventPoll = ({
    */
   const clearVote = useCallback(
     async (e?: React.PointerEvent) => {
-      e?.stopPropagation();
-      setCurrentBucketIndex(DEFAULT_VOTE_INDEX);
-      setCurrentUserVote(null);
-      if (currentUser && event) {
-        setVoteCount((count) => count - 1);
-        await removeVote({ variables: { forumEventId: event._id } });
-        setCommentFormOpen(false);
-        refetch?.();
+      try {
+        if (currentUser && event) {
+          await removeVote({ variables: { forumEventId: event._id } });
+          setVoteCount((count) => count - 1);
+          setCommentFormOpen(false);
+          refetch?.();
+        }
+        e?.stopPropagation();
+        setCurrentBucketIndex(DEFAULT_VOTE_INDEX);
+        setCurrentUserVote(null);
+      } catch (e) {
+        flash(e.message)
       }
     },
-    [
-      setCurrentBucketIndex,
-      setCurrentUserVote,
-      currentUser,
-      removeVote,
-      event,
-      refetch,
-    ]
+    [currentUser, event, removeVote, refetch, flash]
   );
 
   /**
@@ -622,10 +629,11 @@ export const ForumEventPoll = ({
    */
   const startDragVote = useCallback(
     (e: React.PointerEvent) => {
+      if (!votingOpen) return;
       e.preventDefault();
       isDragging.current = true;
     },
-    []
+    [votingOpen]
   );
 
   /**
@@ -633,7 +641,7 @@ export const ForumEventPoll = ({
    */
   const updateVotePos = useCallback(
     (e: PointerEvent) => {
-      if (!isDragging.current || !sliderRef.current) return;
+      if (!isDragging.current || !sliderRef.current || !votingOpen) return;
 
       const sliderRect = sliderRef.current.getBoundingClientRect();
       const sliderWidth = sliderRect.right - sliderRect.left;
@@ -649,7 +657,7 @@ export const ForumEventPoll = ({
       const bucketIndex = Math.round(rawVotePos * (NUM_TICKS - 1));
       setCurrentBucketIndex(bucketIndex);
     },
-    []
+    [votingOpen]
   );
   useEventListener("pointermove", updateVotePos);
 
@@ -661,13 +669,19 @@ export const ForumEventPoll = ({
    * - Otherwise (we're on the home page), open the post selection modal
    */
   const saveVotePos = useCallback(async () => {
-    if (!isDragging.current || !event) return;
+    if (!isDragging.current || !event || !votingOpen) return;
 
     isDragging.current = false;
     const newVotePos = currentBucketIndex / (NUM_TICKS - 1);
 
     // When a logged-in user is done dragging their vote, attempt to save it
-    if (currentUser) {
+    if (!currentUser) {
+      onSignup()
+      void clearVote()
+      return;
+    }
+
+    try {
       const voteData: ForumEventVoteData = {
         forumEventId: event._id,
         x: newVotePos,
@@ -676,12 +690,12 @@ export const ForumEventPoll = ({
         if (event.post) {
           setCommentFormOpen(true);
         }
-
+  
         setVoteCount((count) => count + 1);
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
         refetch?.();
-
+  
         return;
       }
       const delta =
@@ -697,23 +711,26 @@ export const ForumEventPoll = ({
         });
         refetch?.();
       }
-    // When a logged-out user tries to vote, just show the login modal
-    } else {
-      onSignup()
-      void clearVote()
+    } catch (e) {
+      setCurrentBucketIndex(initialBucketIndex);
+      setCurrentUserVote(initialUserVotePos);
+      flash(e.message);
     }
   }, [
+    event,
+    votingOpen,
     currentBucketIndex,
     currentUser,
-    addVote,
-    event,
-    currentUserVote,
-    postId,
-    setCurrentUserVote,
     onSignup,
     clearVote,
-    refetch,
     hasVoted,
+    currentUserVote,
+    addVote,
+    refetch,
+    postId,
+    initialBucketIndex,
+    initialUserVotePos,
+    flash
   ]);
   useEventListener("pointerup", saveVotePos);
 
@@ -751,31 +768,44 @@ export const ForumEventPoll = ({
 
   if (!event) return null;
 
-  const commentPrefilledProps: Partial<DbComment> = !currentUserComment && currentUserVote !== null ? {
+  const commentPrefilledProps: PartialDeep<DbComment> = !currentUserComment && currentUserVote !== null ? {
     forumEventMetadata: {
       eventFormat: "POLL",
       sticker: null,
       poll: {
         voteWhenPublished: currentUserVote,
-        latestVote: null
+        latestVote: null,
+        pollQuestionWhenPublished: event.pollQuestion?._id ?? null
       }
     },
+    ...(!event.isGlobal && {
+      contents: {
+        originalContents: {
+          type: "ckEditorMarkup",
+          data: `<blockquote>${plaintextQuestion}</blockquote><p></p>`,
+        }
+      }
+    }),
   } : {};
 
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
       <div className={classes.root}>
-        <PollQuestion event={event} classes={classes} />
+        {displayHtml && <div className={classes.question}>{displayHtml}</div>}
         <div className={classes.votePromptWrapper}>
           <DeferRender ssr={false}>
             {!hideViewResults && (
               <div className={classes.votePrompt}>
                 {!resultsVisible ? <>
-                  {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
-                {hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "}
-                <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
-                  view results.
-                </button>
+                  {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
+                  {votingOpen ? (
+                    hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "
+                  ) : (
+                    "Voting has now closed, "
+                  )}
+                  <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
+                    view results.
+                  </button>
                 </> : <button
                   className={classNames(classes.viewResultsButton, classes.hideResultsButton)}
                   onClick={() => setResultsVisible(false)}
@@ -833,6 +863,7 @@ export const ForumEventPoll = ({
                     className={classNames(
                       classes.userVote,
                       classes.currentUserVote,
+                      !votingOpen && classes.currentUserVoteClosed,
                       isDragging.current && classes.currentUserVoteDragging,
                       hasVoted && classes.currentUserVoteActive
                     )}
@@ -859,12 +890,14 @@ export const ForumEventPoll = ({
                       ) : (
                         <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
                       )}
-                      <div
-                        className={classNames(classes.iconButton, classes.clearVote)}
-                        onPointerDown={clearVote}
-                      >
-                        <ForumIcon icon="Close" />
-                      </div>
+                      {votingOpen && (
+                        <div
+                          className={classNames(classes.iconButton, classes.clearVote)}
+                          onPointerDown={clearVote}
+                        >
+                          <ForumIcon icon="Close" />
+                        </div>
+                      )}
                       {event.post && <div
                         className={classNames(classes.iconButton, classes.toggleCommentForm)}
                         onClick={toggleCommentFormOpen}
@@ -889,9 +922,9 @@ export const ForumEventPoll = ({
                       subtitle={(post, comment) => (<>
                         <div>
                           Your response will appear as a comment on{" "}
-                          <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
+                          {event.isGlobal ? <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
                             this Debate Week post
-                          </Link>
+                          </Link> : 'this post'}
                           , and show next to your avatar on this banner.
                         </div>
                       </>)}

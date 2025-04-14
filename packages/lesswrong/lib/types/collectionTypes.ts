@@ -415,7 +415,9 @@ type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'],
 type DbInsertion<T extends DbObject> = Omit<
   ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>,
   "_id"
->
+> & {
+  _id?: T["_id"];
+};
 
 type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
 interface SpotlightFirstPost {

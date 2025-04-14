@@ -127,7 +127,7 @@ export default class CTAButton extends Plugin {
     editor.conversion.for("upcast").elementToElement({
       view: {
         name: "a",
-        classes: "ck-cta-button",
+        classes: CTA_CLASS,
       },
       model: (viewElement, { writer: modelWriter }) => {
         const ctaButton = modelWriter.createElement("ctaButton");

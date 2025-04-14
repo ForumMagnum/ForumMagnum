@@ -960,6 +960,7 @@ CREATE TABLE "ForumEvents" (
   "postId" VARCHAR(27),
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
+  "isGlobal" BOOL NOT NULL DEFAULT TRUE,
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
   "pollQuestion_latest" TEXT,
   "pollAgreeWording" TEXT,

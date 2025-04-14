@@ -11,6 +11,7 @@ import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBl
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
+import { withPostsPageContext, WithPostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 interface ExternalProps {
   /**
@@ -84,7 +85,7 @@ export type ContentReplacedSubstringComponentInfo = {
   props: AnyBecauseHard
 };
 
-interface ContentItemBodyProps extends ExternalProps, WithTrackingProps {}
+interface ContentItemBodyProps extends ExternalProps, WithTrackingProps, WithPostsPageContext {}
 interface ContentItemBodyState {
   updatedElements: boolean,
   renderIndex: number
@@ -157,6 +158,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
 
       this.addCTAButtonEventListeners(element);
+      this.replaceForumEventPollPlaceholders(element);
 
       this.markScrollableBlocks(element);
       this.collapseFootnotes(element);
@@ -430,7 +432,31 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       })
     }
   }
-  
+
+  replaceForumEventPollPlaceholders = (element: HTMLElement) => {
+    const pollPlaceholders = element.getElementsByClassName('ck-poll');
+
+    const postId = this.props.fullPost?._id ?? this.props.postPreload?._id
+
+    if (!postId) return;
+
+    const {ForumEventPostPagePollSection} = Components;
+
+    const forumEventIds = Array.from(pollPlaceholders).map(placeholder => ({
+      placeholder,
+      forumEventId: placeholder.getAttribute('data-internal-id')
+    }));
+
+    for (const { placeholder, forumEventId } of forumEventIds) {
+      if (!forumEventId) continue;
+
+      // Create the poll element with styling and context
+      const pollElement = <ForumEventPostPagePollSection id={forumEventId} postId={postId} forumEventId={forumEventId} />;
+
+      this.replaceElement(placeholder, pollElement);
+    }
+  }
+
   replaceSubstrings = (
     element: HTMLElement,
     replacedSubstrings: ContentReplacedSubstringComponentInfo[],
@@ -636,7 +662,7 @@ const addNofollowToHTML = (html: string): string => {
 }
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  hocs: [withTracking],
+  hocs: [withTracking, withPostsPageContext],
   
   // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
   allowRef: true,

@@ -1,5 +1,6 @@
 import { captureEvent } from '@/lib/analyticsEvents';
 import gql from 'graphql-tag';
+import ForumEvents from '../collections/forumEvents/collection';
 
 export const forumEventGqlMutations = {
   AddForumEventVote: async (
@@ -8,10 +9,18 @@ export const forumEventGqlMutations = {
     {currentUser, repos}: ResolverContext
   ) => {
     if (!currentUser) {
-      throw new Error("Permission denied");
+      throw new Error("Not logged in");
     }
-    
-    const oldVote = await repos.forumEvents.getUserVote(forumEventId, currentUser._id)
+
+    const [event, oldVote] = await Promise.all([
+      ForumEvents.findOne({ _id: forumEventId }),
+      repos.forumEvents.getUserVote(forumEventId, currentUser._id)
+    ]);
+
+    if (event?.endDate && new Date(event.endDate) < new Date()) {
+      throw new Error("Cannot edit vote after voting has closed");
+    }
+
     const voteData = {
       x,
       points: oldVote?.points ?? {}
@@ -41,6 +50,12 @@ export const forumEventGqlMutations = {
     if (!currentUser) {
       throw new Error("Not logged in");
     }
+    const event = await ForumEvents.findOne({ _id: forumEventId });
+
+    if (event?.endDate && new Date(event.endDate) < new Date()) {
+      throw new Error("Cannot edit vote after voting has closed");
+    }
+
     await Promise.all([
       repos.forumEvents.removeVote(forumEventId, currentUser._id),
       repos.comments.setLatestPollVote({ forumEventId, latestVote: null, userId: currentUser._id })

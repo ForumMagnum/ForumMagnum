@@ -2,6 +2,9 @@ import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
+import { postGetPollUrl } from "@/lib/collections/posts/helpers";
+import { parseDocumentFromString } from "@/lib/domParser";
+import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.warning.main,
   },
   tooltip: {
-    marginBottom: 6,
+    transform: "translateY(-10px)",
   },
 });
 
@@ -25,12 +28,17 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
-  const { document: forumEvent, loading } = useSingle({
+  const { document: forumEvent } = useSingle({
     documentId: comment.forumEventId,
     collectionName: "ForumEvents",
-    fragmentName: 'ForumEventsMinimumInfo',
-    skip: !comment.forumEventId
+    fragmentName: 'ForumEventsDisplay',
+    skip: !comment.forumEventId,
+    ssr: false
   });
+
+  const isGlobal = forumEvent?.isGlobal !== false;
+  // TODO make this act like the "see in context" button on comments
+  const pollLink = (!isGlobal && forumEvent) ? `#${forumEvent._id}` : undefined;
 
   const agreeWording = forumEvent?.pollAgreeWording || "agree";
   const disagreeWording = forumEvent?.pollDisagreeWording || "disagree";
@@ -49,10 +57,15 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const showStartAgreement = startAgreement !== endAgreement;
   const showStartPercentage = showStartAgreement || endPercentage !== startPercentage;
 
+  const CurrentVoteTag = isGlobal ? 'span' : 'a';
+
+  const questionWording = forumEvent?.pollQuestion?.html && stripFootnotes(forumEvent.pollQuestion.html);
+
   return (
     <span className={classes.root}>
       {showStartPercentage && (
         <span className={classNames(startAgreement ? classes.agreePollVote : classes.disagreePollVote)}>
+          {/* TODO note that I would prefer to remove this */}
           <LWTooltip title="Vote when comment was posted" placement="top" popperClassName={classes.tooltip}>
             <s>
               {startPercentage}
@@ -63,10 +76,16 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
           &nbsp;&#10132;&nbsp;
         </span>
       )}
-      <span className={endAgreement ? classes.agreePollVote : classes.disagreePollVote}>
-        {endPercentage}
-        {endAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`}
-      </span>
+      <LWTooltip
+        title={questionWording && <span>With the question "{questionWording}"</span>}
+        placement="top"
+        popperClassName={classes.tooltip}
+      >
+        <CurrentVoteTag className={endAgreement ? classes.agreePollVote : classes.disagreePollVote} href={pollLink}>
+          {endPercentage}
+          {endAgreement ? ` ${agreeWording}` : ` ${disagreeWording}`}
+        </CurrentVoteTag>
+      </LWTooltip>
     </span>
   );
 };

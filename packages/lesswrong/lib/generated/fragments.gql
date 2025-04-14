@@ -550,6 +550,12 @@ fragment CommentsList on Comment {
   originalDialogueId
 
   forumEventId
+  forumEvent {
+    pollQuestion {
+      _id
+      html
+    }
+  }
   forumEventMetadata
 }
 
@@ -1070,6 +1076,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   postId
   bannerImageId
   includesPoll
+  isGlobal
   eventFormat
   pollQuestion_latest
   pollAgreeWording
@@ -1140,6 +1147,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   eventFormat
   customComponent
   commentPrompt
+  isGlobal
 
   pollAgreeWording
   pollDisagreeWording

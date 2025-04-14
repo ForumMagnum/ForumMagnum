@@ -16,6 +16,7 @@ export const ForumEventsMinimumInfo = () => frag`
     eventFormat
     customComponent
     commentPrompt
+    isGlobal
 
     pollAgreeWording
     pollDisagreeWording
@@ -51,6 +52,7 @@ export const ForumEventsDisplay = () => frag`
     pollQuestion {
       _id
       html
+      plaintextMainText
     }
   }
 `

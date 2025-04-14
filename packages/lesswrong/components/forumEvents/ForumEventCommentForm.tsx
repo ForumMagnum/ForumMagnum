@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { State } from '@popperjs/core/lib/types';
+import { PartialDeep } from 'type-fest';
 
 const WIDTH = 350;
 
@@ -126,7 +127,7 @@ const ForumEventCommentForm = ({
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   successMessage?: string;
-  prefilledProps?: Partial<DbComment>;
+  prefilledProps?: PartialDeep<DbComment>;
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
@@ -161,7 +162,7 @@ const ForumEventCommentForm = ({
     };
   }, []);
 
-  const prefilledProps: Partial<DbComment> = {
+  const prefilledProps: PartialDeep<DbComment> = {
     forumEventId: forumEvent._id,
     ...extraPrefilledProps
   };
