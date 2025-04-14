@@ -244,6 +244,7 @@ const UltraFeedPostItem = ({
         linkToDocumentOnFinalExpand={true}
         nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
         onExpand={handleContentExpand}
+        hideSuffix={false}
       />
       <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
