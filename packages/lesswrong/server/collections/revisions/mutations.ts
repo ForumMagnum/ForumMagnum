@@ -3,7 +3,7 @@ import schema from "@/lib/collections/revisions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { recomputeWhenSkipAttributionChanged } from "@/server/callbacks/revisionCallbacks";
+import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributionsDueToRev } from "@/server/callbacks/revisionCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -34,6 +34,12 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
   let documentWithId = afterCreateProperties.document;
+
+  await updateDenormalizedHtmlAttributionsDueToRev({
+    revision: documentWithId,
+    skipDenormalizedAttributions: documentWithId.skipAttributions,
+    context
+  })
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
