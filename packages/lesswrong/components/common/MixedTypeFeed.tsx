@@ -5,6 +5,7 @@ import { isClient } from '../../lib/executionEnvironment';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useTracking } from '@/lib/analyticsEvents';
 
 const defaultLoadMoreDistance = 500;
 
@@ -17,6 +18,22 @@ export interface FeedResponse<CutoffType, ResultType> {
   error: any,
   cutoff: CutoffType|null,
 }
+
+const logFeedResultStats = (resolverArgsValues: any, orderedResults: any[], captureEvent: (type: string | undefined, trackingProps: Record<string, any>) => void) => {
+  const stats = {
+    sessionId: resolverArgsValues?.sessionId,
+    sourceWeights: (JSON.parse(resolverArgsValues?.settings ?? '{}'))?.sourceWeights,
+    orderedResultsByType: orderedResults.reduce((acc: Record<string, number>, result: Record<string, number>) => {
+      const type = result.type;
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {}),
+  };
+  // eslint-disable-next-line no-console
+  console.log("Feed Result Stats", stats);
+  captureEvent('mixedTypeFeedResultsGenerated', {stats});
+};
+
 
 const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers}: {
   resolverName: string,
@@ -56,7 +73,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
 
 interface FeedRenderer<FragmentName extends keyof FragmentTypes> {
   fragmentName: FragmentName,
-  render: (result: FragmentTypes[FragmentName]) => React.ReactNode,
+  render: (result: FragmentTypes[FragmentName], index?: number) => React.ReactNode,
 }
 
 // An infinitely scrolling feed of elements, which may be of multiple types.
@@ -145,6 +162,7 @@ const MixedTypeFeed = (args: {
   // because it's accessed from inside callbacks, where the timing of state
   // updates would be a problem.
   const queryIsPending = useRef(false);
+  const {captureEvent} = useTracking();
   
   const {Loading} = Components;
   
@@ -226,10 +244,13 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
+
+  logFeedResultStats(resolverArgsValues, orderedResults, captureEvent);
+
   return <div className={className}>
-    {orderedResults.map((result) =>
+    {orderedResults.map((result, index) =>
       <div key={keyFunc(result)}>
-        <RenderFeedItem renderers={renderers} item={result}/>
+        <RenderFeedItem renderers={renderers} item={result} index={index}/>
       </div>
     )}
 
@@ -242,12 +263,13 @@ const MixedTypeFeed = (args: {
 // Render an item in a mixed-type feed. This component is mainly just here to
 // have a React.memo wrapper around it, so that users of the component don't
 // have to carefully memoize every feed item type individually.
-const RenderFeedItem = React.memo(({renderers, item}: {
+const RenderFeedItem = React.memo(({renderers, item, index}: {
   renderers: any,
-  item: any
+  item: any,
+  index?: number
 }) => {
   const renderFn = renderers[item.type]?.render;
-  return renderFn ? renderFn(item[item.type]) : item[item.type];
+  return renderFn ? renderFn(item[item.type], index) : item[item.type];
 });
 
 // Returns whether an element, which is presumed to be either visible or below

@@ -4121,7 +4121,7 @@ interface CreateUltraFeedEventDataInput {
   documentId: string;
   collectionName: string;
   eventType: string;
-  userId: string;
+  userId?: string | null;
   event?: any;
   feedItemId?: string | null;
 }

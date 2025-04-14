@@ -89,6 +89,7 @@ const schema = {
   name: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
       outputType: "String",
@@ -155,6 +156,7 @@ const schema = {
     database: {
       type: "TIMESTAMPTZ",
       denormalized: true,
+      nullable: false,
     },
     graphql: {
       outputType: "Date",

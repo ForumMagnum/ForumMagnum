@@ -69,7 +69,7 @@ const schema = {
   expiresAt: {
     database: {
       type: "TIMESTAMPTZ",
-      nullable: true,
+      nullable: false,
     },
     graphql: {
       outputType: "Date",

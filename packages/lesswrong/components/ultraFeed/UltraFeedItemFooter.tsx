@@ -7,6 +7,8 @@ import { useVote } from "../votes/withVote";
 import { VotingProps } from "../votes/votingProps";
 import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttachedReactions";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
+import { useNavigate } from "@/lib/routeUtil";
+import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -19,22 +21,16 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "space-between",
-    color: `${theme.palette.text.dim3} !important`,
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: "1.3rem !important",
-    "& *": {
-      color: `${theme.palette.text.dim3} !important`,
-    },
-    "& svg": {
-      color: `${theme.palette.text.dim3} !important`,
-    },
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: `${theme.palette.linkHover.dim} !important`,
     },
   },
   commentCount: {
+    color: `${theme.palette.ultraFeed.dim} !important`,
     display: "flex",
     alignItems: "center",
     paddingBottom: 2,
@@ -52,6 +48,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     marginLeft: 4,
   },
   addReactionButton: {
+    color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'flex',
     margin: '0 6px',
     alignItems: 'center',
@@ -71,11 +68,21 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     marginTop: -2
   },
   bookmarkButton: {
+    "& svg": {
+      color: `${theme.palette.ultraFeed.dim} !important`,
+    },
     marginBottom: -2,
   },
+  overallVoteButtons: {
+    color: `${theme.palette.ultraFeed.dim} !important`,
+    "& .VoteArrowIconSolid-root": {
+      // color: 'red', //`${theme.palette.ultraFeed.dim} !important`,
+    }
+  },
   agreementButtons: {
+    color: `${theme.palette.ultraFeed.dim} !important`,
     marginLeft: -8 // necessary to counter baked-in left margin from AgreementVoteAxis.tsx
-  }
+  },
 }));
 
 interface UltraFeedItemFooterCoreProps {
@@ -105,9 +112,7 @@ const UltraFeedItemFooterCore = ({
   const commentCountIcon = (
     <div
       onClick={onClickComments}
-      className={classNames(classes.commentCount, {
-        [classes.commentCountClickable]: false // TODO: Implement this
-      })}
+      className={classNames(classes.commentCount, { [classes.commentCountClickable]: !!onClickComments })}
     >
       <CommentIcon />
       <span className={classes.commentCountText}>
@@ -122,15 +127,17 @@ const UltraFeedItemFooterCore = ({
 
       {showVoteButtons && voteProps.document && (
         <>
-          <OverallVoteAxis
-            document={voteProps.document}
-            hideKarma={hideKarma}
-            voteProps={voteProps}
-            verticalArrows
-            largeArrows
-            size="large"
-            hideAfScore={true}
-          />
+          <div className={classes.overallVoteButtons}>
+            <OverallVoteAxis
+              document={voteProps.document}
+              hideKarma={hideKarma}
+              voteProps={voteProps}
+              verticalArrows
+              largeArrows
+              size="large"
+              hideAfScore={true}
+            />
+          </div>
           <div className={classes.agreementButtons}>
             <AgreementVoteAxis
               document={voteProps.document}
@@ -163,14 +170,16 @@ const UltraFeedItemFooterCore = ({
 };
 
 
-const UltraFeedPostFooter = ({ post, className }: { post: PostsListWithVotes, className?: string }) => {
+const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string }) => {
+  const navigate = useNavigate();
+
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
   const voteProps = useVote(post, "Posts", votingSystem);
   const reacts = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
   const reactionCount = reacts ? Object.keys(reacts).length : 0;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions";
   const commentCount = post.commentCount ?? 0;
-  const onClickComments = () => {};
+  const onClickComments = () => navigate(`/posts/${post._id}#comments`)
 
   return (
     <UltraFeedItemFooterCore
@@ -187,7 +196,9 @@ const UltraFeedPostFooter = ({ post, className }: { post: PostsListWithVotes, cl
 }
 
 
-const UltraFeedCommentFooter = ({ comment, className }: { comment: UltraFeedComment, className?: string }) => {
+const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string }) => {
+  const navigate = useNavigate();
+
   const parentPost = comment.post;
   const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
   const voteProps = useVote(comment, "Comments", votingSystem);
@@ -195,8 +206,8 @@ const UltraFeedCommentFooter = ({ comment, className }: { comment: UltraFeedComm
   const reactionCount = reacts ? Object.keys(reacts).length : 0;
   const hideKarma = !!parentPost?.hideCommentKarma;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !hideKarma;
-  const commentCount = comment.descendentCount ?? 0;
-  const onClickComments = () => {};
+  const commentCount = metaInfo.directDescendentCount;
+  const onClickComments = () => navigate(`/posts/${comment?.postId}?commentId=${comment._id}`)
 
   const bookmarkDocument = parentPost;
 
@@ -215,17 +226,27 @@ const UltraFeedCommentFooter = ({ comment, className }: { comment: UltraFeedComm
 }
 
 
-interface UltraFeedItemFooterProps {
-  document: PostsListWithVotes | UltraFeedComment;
-  collectionName: "Posts" | "Comments";
+interface UltraFeedPostFooterProps {
+  document: PostsListWithVotes;
+  collectionName: "Posts";
+  metaInfo: FeedPostMetaInfo;
   className?: string;
 }
 
-const UltraFeedItemFooter = ({ document, collectionName, className }: UltraFeedItemFooterProps) => {
+interface UltraFeedCommentFooterProps {
+  document: UltraFeedComment;
+  collectionName: "Comments";
+  metaInfo: FeedCommentMetaInfo;
+  className?: string;
+}
+
+type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
+
+const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
-    return <UltraFeedPostFooter post={document as PostsListWithVotes} className={className} />;
+    return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} />;
   } else if (collectionName === "Comments") {
-    return <UltraFeedCommentFooter comment={document as UltraFeedComment} className={className} />;
+    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} />;
   }
   return null;
 };

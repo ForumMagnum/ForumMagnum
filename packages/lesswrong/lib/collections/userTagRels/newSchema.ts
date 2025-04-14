@@ -11,6 +11,7 @@ const schema = {
     database: {
       type: "VARCHAR(27)",
       foreignKey: "Tags",
+      nullable: false,
     },
     graphql: {
       outputType: "String",

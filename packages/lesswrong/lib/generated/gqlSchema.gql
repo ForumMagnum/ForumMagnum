@@ -4584,6 +4584,7 @@ type User {
   username: String
   emails: [JSON!]
   isAdmin: Boolean!
+  profile: JSON
   services: JSON
   hasAuth0Id: Boolean
   displayName: String
@@ -7058,7 +7059,7 @@ input CreateUltraFeedEventDataInput {
   documentId: String!
   collectionName: String!
   eventType: String!
-  userId: String!
+  userId: String
   event: JSON
   feedItemId: String
 }

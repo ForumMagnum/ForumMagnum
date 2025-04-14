@@ -856,9 +856,21 @@ const schema = {
       group: () => adminGroup,
     },
   },
+  // A mostly-legacy field. For OAuth users, includes information that was
+  // submitted with the OAuth login; for users imported from old LW, includes
+  // a link.
   profile: {
     database: {
       type: "JSONB",
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: ["guests"],
+      // GraphQL resolver is provided for API back-compat (issarice's reader
+      // has it in its user fragment), but only returns an empty object.
+      resolver: (user, args, context) => ({
+        fieldNoLongerSupported: true
+      }),
     },
     form: {
       hidden: true,
@@ -2219,7 +2231,11 @@ const schema = {
     graphql: {
       outputType: "[Post!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      resolver: generateIdResolverMulti({ foreignCollectionName: "Posts", fieldName: "hiddenPostsMetadata" }),
+      resolver: generateIdResolverMulti({
+        foreignCollectionName: "Posts",
+        fieldName: "hiddenPostsMetadata",
+        getKey: (obj) => obj.postId
+      }),
     },
   },
   // Legacy ID: ID used in the original LessWrong database
