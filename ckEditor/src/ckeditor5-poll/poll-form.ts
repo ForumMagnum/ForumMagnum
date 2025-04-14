@@ -292,12 +292,8 @@ export default class PollForm extends Plugin {
     // Show panel when a CTA button is clicked
     this.listenTo(viewDocument, "click", (evt, data) => {
       const selectedElement = this._getSelectedCTAButton();
-      const domTarget = data.domTarget;
-      // isTargetCTAButton is here to make clicking away to exit work better, because clicks not quite
-      // on the button can select it
-      const isTargetCTAButton = domTarget && domTarget.classList && domTarget.classList.contains('ck-poll');
 
-      if (selectedElement && isTargetCTAButton) {
+      if (selectedElement && selectedElement.name === "poll") {
         this._showUI(selectedElement);
       }
     });

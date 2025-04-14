@@ -3,13 +3,11 @@ import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
 import Widget from "@ckeditor/ckeditor5-widget/src/widget";
 import PollForm from "./poll-form";
-
 import buttonIcon from "./ckeditor5-cta-button.svg";
 import { randomId } from "../random";
 
-const CTA_CLASS = "ck-poll";
+const POLL_CLASS = "ck-poll";
 
-// TODO update all of this to say poll
 /**
  * Plugin for the CTA button element itself, the form for editing the text and link
  * is defined in a separate plugin, PollForm
@@ -21,13 +19,10 @@ export default class PollPlugin extends Plugin {
 
   init() {
     const editor = this.editor;
-
-    // Define the properties of the poll element to allow in the model
     this._defineSchema();
-    // Define the conversions from model -> data view, model -> editing view, editing view -> model
     this._defineConverters();
+    this._defineStyles();
 
-    // Add the toolbar item for inserting a cta button
     editor.ui.componentFactory.add("pollToolbarItem", (locale) => {
       const toolbarButton = new ButtonView(locale);
 
@@ -36,34 +31,26 @@ export default class PollPlugin extends Plugin {
       toolbarButton.icon = buttonIcon;
       toolbarButton.tooltip = true;
 
-      // When creating the CTA button, you no longer need to append the text node directly
       toolbarButton.on("execute", () => {
         const model = editor.model;
 
         model.change((writer) => {
-          // Generate a unique ID for the poll element
           const uniqueId = randomId();
-
-          // Insert the button as a new block after the current block
           const selection = editor.model.document.selection;
           const currentElement = selection.getFirstPosition().parent;
           let insertPosition;
 
-          // Check if the current block has any content
           if (currentElement.childCount > 0) {
-            // If there is content, insert after the current block
             insertPosition = writer.createPositionAfter(currentElement as AnyBecauseTodo);
           } else {
-            // If there is no content, use the current block itself
             insertPosition = writer.createPositionAt(currentElement, 0);
           }
 
-          const buttonElement = writer.createElement("poll", { id: uniqueId });
-          const buttonText = writer.createText("My poll question");
-          writer.append(buttonText, buttonElement);
+          const pollElement = writer.createElement("poll", { id: uniqueId });
+          const pollText = writer.createText("My poll question");
+          writer.append(pollText, pollElement);
 
-          // Insert the 'poll' element at the calculated position
-          model.insertContent(buttonElement, insertPosition);
+          model.insertContent(pollElement, insertPosition);
         });
       });
 
@@ -75,74 +62,164 @@ export default class PollPlugin extends Plugin {
     const schema = this.editor.model.schema;
 
     schema.register("poll", {
-      allowWhere: "$block", // Allow where block elements (e.g. paragraphs) are allowed
+      allowWhere: "$block",
       isBlock: true,
-      isObject: true, // Required to make the whole block selectable (to delete) and the text content non-editable
+      isObject: true,
       allowContentOf: "$text",
       allowIn: "$root",
-      allowAttributes: ["id", "class", "href"],
+      allowAttributes: ["id", "votes"],
     });
+  }
+
+  _defineStyles() {
+    // Inject styles into the document head
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .${POLL_CLASS} {
+        text-align: center;
+        padding: 20px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        margin: 10px 0;
+      }
+      .${POLL_CLASS}-question {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .${POLL_CLASS}-slider {
+        position: relative;
+        height: 2px;
+        background: #333;
+        margin: 40px 60px;
+      }
+      .${POLL_CLASS}-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #666;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 2px solid #333;
+      }
+      .${POLL_CLASS}-labels {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 40px;
+      }
+      .${POLL_CLASS}-label {
+        font-weight: 500;
+        color: #333;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   _defineConverters() {
     const editor = this.editor;
 
-    // Model -> Editing view
     editor.conversion.for("editingDowncast").elementToElement({
       model: "poll",
       view: (modelElement, { writer: viewWriter }) => {
-        const existingClasses = (modelElement.getAttribute("class") || "").toString();
-        const div = viewWriter.createContainerElement("div", {
-          class: [CTA_CLASS, ...existingClasses.split(" ")].join(" "),
-          href: modelElement.getAttribute("href") || "",
+        const container = viewWriter.createContainerElement("div", {
+          class: POLL_CLASS,
           "data-internal-id": modelElement.getAttribute("id") || "",
         });
 
-        return toWidget(div, viewWriter, {});
-      },
+        // Create question container
+        const questionContainer = viewWriter.createContainerElement("div", {
+          class: `${POLL_CLASS}-question`
+        });
+        viewWriter.insert(
+          viewWriter.createPositionAt(questionContainer, 0),
+          viewWriter.createText((modelElement.getChild(0) as unknown as Text).data)
+        );
+
+        // Create slider container
+        const sliderContainer = viewWriter.createContainerElement("div", {
+          class: `${POLL_CLASS}-slider`
+        });
+
+        // Create circle
+        const circle = viewWriter.createEmptyElement("div", {
+          class: `${POLL_CLASS}-circle`
+        });
+
+        // Create labels container
+        const labelsContainer = viewWriter.createContainerElement("div", {
+          class: `${POLL_CLASS}-labels`
+        });
+
+        // Create disagree label
+        const disagreeLabel = viewWriter.createContainerElement("div", {
+          class: `${POLL_CLASS}-label`
+        });
+        viewWriter.insert(
+          viewWriter.createPositionAt(disagreeLabel, 0),
+          viewWriter.createText("Disagree")
+        );
+
+        // Create agree label
+        const agreeLabel = viewWriter.createContainerElement("div", {
+          class: `${POLL_CLASS}-label`
+        });
+        viewWriter.insert(
+          viewWriter.createPositionAt(agreeLabel, 0),
+          viewWriter.createText("Agree")
+        );
+
+        // Assemble the widget
+        viewWriter.insert(viewWriter.createPositionAt(container, 'end'), questionContainer);
+        viewWriter.insert(viewWriter.createPositionAt(sliderContainer, 'end'), circle);
+        viewWriter.insert(viewWriter.createPositionAt(container, 'end'), sliderContainer);
+        viewWriter.insert(viewWriter.createPositionAt(labelsContainer, 'end'), disagreeLabel);
+        viewWriter.insert(viewWriter.createPositionAt(labelsContainer, 'end'), agreeLabel);
+        viewWriter.insert(viewWriter.createPositionAt(container, 'end'), labelsContainer);
+
+        return toWidget(container, viewWriter, {
+          label: "Poll widget"
+        });
+      }
     });
 
-    // Model -> Data view
     editor.conversion.for("dataDowncast").elementToElement({
       model: "poll",
       view: (modelElement, { writer: viewWriter }) => {
-        // Note: I'm using a div rather than a plain <a> element because the
-        // href on the <a> element appears to also get picked up by another plugin which
-        // breaks things. I'm also using a div instead of a <button> to simplify what we
-        // allow in `sanitize()` (see packages/lesswrong/lib/vulcan-lib/utils.ts)
-        const existingClasses = (modelElement.getAttribute("class") || "").toString();
-        const div = viewWriter.createContainerElement("a", {
-          class: [CTA_CLASS, ...existingClasses.split(" ")].join(" "),
-          // The href on the <a> element appears to also get picked up by another plugin, which
-          // breaks things, so use data-href and map it to href in ContentItemBody
-          "data-href": modelElement.getAttribute("href") || "",
-          // Make the link open in a new tab to ensure we can capture analytics
-          target: "_blank",
-          rel: "noopener noreferrer",
+        const container = viewWriter.createContainerElement("div", {
+          class: POLL_CLASS,
           "data-internal-id": modelElement.getAttribute("id") || "",
         });
-        return div;
-      },
+        
+        const text = (modelElement.getChild(0) as unknown as Text).data;
+        viewWriter.insert(
+          viewWriter.createPositionAt(container, 0),
+          viewWriter.createText(text)
+        );
+        
+        return container;
+      }
     });
 
-    // Editing view -> model
     editor.conversion.for("upcast").elementToElement({
       view: {
-        name: "a",
-        classes: CTA_CLASS,
+        name: "div",
+        classes: POLL_CLASS,
       },
       model: (viewElement, { writer: modelWriter }) => {
         const poll = modelWriter.createElement("poll");
-        modelWriter.setAttribute("href", viewElement.getAttribute("data-href") || "", poll);
-        modelWriter.setAttribute("id", viewElement.getAttribute("data-internal-id") || "", poll);
-
-        // Map the text nodes from the view to the model
-        const innerText = (viewElement.getChild(0) as AnyBecauseTodo).data;
-        const textNode = modelWriter.createText(innerText);
-        modelWriter.append(textNode, poll);
-
+        const internalId = viewElement.getAttribute("data-internal-id");
+        if (internalId) {
+          modelWriter.setAttribute("id", internalId, poll);
+        }
+        const text = viewElement.getChild(0) as unknown as Text;
+        modelWriter.append(
+          modelWriter.createText(text.data),
+          poll
+        );
         return poll;
-      },
+      }
     });
   }
 }
