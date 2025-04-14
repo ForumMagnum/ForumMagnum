@@ -5,8 +5,18 @@ import Widget from "@ckeditor/ckeditor5-widget/src/widget";
 import PollForm from "./poll-form";
 import buttonIcon from "./ckeditor5-cta-button.svg";
 import { randomId } from "../random";
+import { POLL_CLASS, PollProps } from "./constants";
+import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
+import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
+import DowncastWriter from '@ckeditor/ckeditor5-engine/src/view/downcastwriter';
+import Item from '@ckeditor/ckeditor5-engine/src/model/item';
+import { RootElement } from "@ckeditor/ckeditor5-engine";
 
-const POLL_CLASS = "ck-poll";
+const DEFAULT_PROPS: PollProps = {
+  question: "Ask a question",
+  // 1 day in ms
+  endDt: 24 * 60 * 60 * 1000
+}
 
 /**
  * Plugin for the CTA button element itself, the form for editing the text and link
@@ -46,9 +56,7 @@ export default class PollPlugin extends Plugin {
             insertPosition = writer.createPositionAt(currentElement, 0);
           }
 
-          const pollElement = writer.createElement("poll", { id: uniqueId });
-          const pollText = writer.createText("My poll question");
-          writer.append(pollText, pollElement);
+          const pollElement = writer.createElement("poll", { id: uniqueId, props: { ...DEFAULT_PROPS } });
 
           model.insertContent(pollElement, insertPosition);
         });
@@ -67,7 +75,7 @@ export default class PollPlugin extends Plugin {
       isObject: true,
       allowContentOf: "$text",
       allowIn: "$root",
-      allowAttributes: ["id", "votes"],
+      allowAttributes: ["id", "props"],
     });
   }
 
@@ -123,9 +131,13 @@ export default class PollPlugin extends Plugin {
     editor.conversion.for("editingDowncast").elementToElement({
       model: "poll",
       view: (modelElement, { writer: viewWriter }) => {
+        console.log("Downcasting")
+        const id: string = modelElement.getAttribute("id") as string;
+        const props: PollProps = modelElement.getAttribute("props") as PollProps;
+
         const container = viewWriter.createContainerElement("div", {
           class: POLL_CLASS,
-          "data-internal-id": modelElement.getAttribute("id") || "",
+          "data-internal-id": id,
         });
 
         // Create question container
@@ -134,7 +146,7 @@ export default class PollPlugin extends Plugin {
         });
         viewWriter.insert(
           viewWriter.createPositionAt(questionContainer, 0),
-          viewWriter.createText((modelElement.getChild(0) as unknown as Text).data)
+          viewWriter.createText(props.question)
         );
 
         // Create slider container
@@ -184,6 +196,45 @@ export default class PollPlugin extends Plugin {
       }
     });
 
+    editor.conversion.for("editingDowncast").attributeToElement({
+      model: {
+        key: 'props',
+        name: 'poll'
+      },
+      view: (props, { writer: viewWriter }, data) => {
+        console.log({props, viewWriter, data})
+        if (!props) return;
+
+        const pollModelElement = (data.item as unknown as ModelElement);
+        console.log({pollElement: pollModelElement})
+        if (!pollModelElement) return;
+
+        // Find the question container within the poll element
+        const viewPollElement = editor.editing.mapper.toViewElement(pollModelElement);
+        console.log({viewPollElement})
+        if (!viewPollElement) return;
+
+        // TODO make a more generic utility for doing this
+        const questionContainer = Array.from(viewPollElement.getChildren() as unknown as ViewElement[]).find(
+          child => child.hasClass(`${POLL_CLASS}-question`)
+        );
+        console.log({questionContainer})
+        if (!questionContainer) return;
+
+        // Update the question text
+        const questionText = questionContainer.getChild(0);
+        console.log({questionText})
+        if (questionText) {
+          viewWriter.remove(questionText);
+        }
+        viewWriter.insert(
+          viewWriter.createPositionAt(questionContainer, 0),
+          viewWriter.createText(props.question)
+        );
+        console.log("Completed")
+      }
+    });
+
     editor.conversion.for("dataDowncast").elementToElement({
       model: "poll",
       view: (modelElement, { writer: viewWriter }) => {
@@ -192,11 +243,11 @@ export default class PollPlugin extends Plugin {
           "data-internal-id": modelElement.getAttribute("id") || "",
         });
         
-        const text = (modelElement.getChild(0) as unknown as Text).data;
-        viewWriter.insert(
-          viewWriter.createPositionAt(container, 0),
-          viewWriter.createText(text)
-        );
+        // const text = (modelElement.getChild(0) as unknown as Text).data;
+        // viewWriter.insert(
+        //   viewWriter.createPositionAt(container, 0),
+        //   viewWriter.createText(text)
+        // );
         
         return container;
       }

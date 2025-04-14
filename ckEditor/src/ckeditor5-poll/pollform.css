@@ -3,7 +3,7 @@
  * requireCssVar("palette", "fonts", "sansSerifStack") being called somewhere in the
  * main code. This is done in stylePiping.ts.
  */
-
+/* 
 .ck-poll {
     display: block;
     font-family: var(--palette-fonts-sansSerifStack);
@@ -43,7 +43,7 @@
     background-color: var(--palette-buttons-alwaysPrimary);
     color: var(--palette-text-alwaysWhite);
     opacity: 0.5;
-}
+} */
 
 .ck.ck-cta-form {
 	border-radius: 6px;

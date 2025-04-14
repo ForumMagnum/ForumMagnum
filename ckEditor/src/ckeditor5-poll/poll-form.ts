@@ -13,16 +13,17 @@ import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
 
 import type { Editor } from "@ckeditor/ckeditor5-core";
 import type { Locale } from "@ckeditor/ckeditor5-utils";
-import type { Element } from "@ckeditor/ckeditor5-engine";
+import type { Element, RootElement } from "@ckeditor/ckeditor5-engine";
 import type Writer from "@ckeditor/ckeditor5-engine/src/model/writer";
 
 import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 
 import './pollform.css';
+import { POLL_CLASS, PollProps } from "./constants";
 
 class MainFormView extends View {
   editor: Editor
-  selectedElement: AnyBecauseTodo
+  selectedElement: (Element | RootElement)
   questionView: AnyBecauseTodo
   previewEnabled: AnyBecauseTodo
   _focusables: AnyBecauseTodo
@@ -145,13 +146,16 @@ class MainFormView extends View {
       model.change((writer: Writer) => {
         if (!selectedElement) return;
 
+        const props = this.selectedElement.getAttribute("props") as PollProps;
         const inputValue = questionView.element.value.trim();
-
-        const range = writer.createRangeIn(selectedElement);
-        writer.remove(range);
-
-        const newText = writer.createText(inputValue);
-        writer.insert(newText, writer.createPositionAt(selectedElement, 0));
+        
+        writer.setAttribute("props", {...props, question: inputValue}, this.selectedElement);
+        
+        // Add a temporary marker to force refresh
+        const range = writer.createRangeOn(this.selectedElement);
+        const markerId = `poll-refresh-${Date.now()}`;
+        writer.addMarker(markerId, {range, usingOperation: true, affectsData: true});
+        writer.removeMarker(markerId);
       });
     });
 
@@ -238,9 +242,8 @@ export default class PollForm extends Plugin {
     this.formView.questionView.select();
     this.formView.selectedElement = selectedElement;
 
-    // Set question to the text content of selectedElement
-    const question = (selectedElement.getChild(0) as AnyBecauseTodo).data;
-    this.formView.question = question;
+    const pollProps = selectedElement.getAttribute("props") as PollProps;
+    this.formView.question = pollProps.question;
   }
 
   _closeFormView() {
@@ -272,9 +275,9 @@ export default class PollForm extends Plugin {
   }
 
   /**
-   * Check if the current selected element is a CTA button and return it if so
+   * Check if the current selected element is a poll and return it if so
    */
-  _getSelectedCTAButton() {
+  _getSelectedPoll() {
     const selection = this.editor.model.document.selection;
     const selectedElement = selection.getSelectedElement();
     if (selectedElement && selectedElement.is("element", "poll")) {
@@ -289,11 +292,15 @@ export default class PollForm extends Plugin {
   _enableUserBalloonInteractions() {
     const viewDocument = this.editor.editing.view.document;
 
-    // Show panel when a CTA button is clicked
+    // Show panel when a poll is clicked
     this.listenTo(viewDocument, "click", (evt, data) => {
-      const selectedElement = this._getSelectedCTAButton();
+      const selectedElement = this._getSelectedPoll();
+      const domTarget = data.domTarget;
+      // isTargetPoll is here to make clicking away to exit work better, because clicks not quite
+      // on the poll can select it
+      const isTargetPoll = domTarget && domTarget.classList && domTarget.classList.contains(POLL_CLASS);
 
-      if (selectedElement && selectedElement.name === "poll") {
+      if (selectedElement && isTargetPoll) {
         this._showUI(selectedElement);
       }
     });
