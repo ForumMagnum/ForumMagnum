@@ -369,7 +369,6 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
   const defaultData = {
     _id: randomId(),
     userId: user._id,
-    inactive: false,
     editedAt: new Date(Date.now()),
     version: "1.0.0",
     wordCount: 0,

@@ -934,7 +934,7 @@ interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
   readonly body: string | null,
   readonly ctaText: string,
   readonly ctaUrl: string,
-  readonly expiresAt: Date | null,
+  readonly expiresAt: Date,
 }
 
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
@@ -943,7 +943,7 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly body: string | null,
   readonly ctaText: string,
   readonly ctaUrl: string,
-  readonly expiresAt: Date | null,
+  readonly expiresAt: Date,
 }
 
 interface FeedCommentThreadFragment { // fragment on non-collection type
@@ -3869,7 +3869,7 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
   readonly intervalLength: number,
   readonly createdAt: Date,
-  readonly endedAt: Date | null,
+  readonly endedAt: Date,
 }
 
 interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
@@ -3882,7 +3882,7 @@ interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
   readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
   readonly intervalLength: number,
   readonly actionsPerInterval: number,
-  readonly endedAt: Date | null,
+  readonly endedAt: Date,
 }
 
 interface UserTagRelDetails { // fragment on UserTagRels
