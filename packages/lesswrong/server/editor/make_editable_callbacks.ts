@@ -270,10 +270,17 @@ async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: 
     const updatedRevision = await Revisions.findOne({_id: revisionID});
 
     if (updatedRevision) {
-      await upvoteOwnTagRevision({
-        revision: updatedRevision,
-        context
-      });
+      await Promise.all([
+        upvoteOwnTagRevision({
+          revision: updatedRevision,
+          context
+        }),
+        updateDenormalizedHtmlAttributionsDueToRev({
+          revision: updatedRevision,
+          skipDenormalizedAttributions: updatedRevision.skipAttributions,
+          context
+        })
+      ]);
     }
   }
   return newDoc;
