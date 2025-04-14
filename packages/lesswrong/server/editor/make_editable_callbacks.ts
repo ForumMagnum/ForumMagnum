@@ -11,7 +11,7 @@ import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCal
 import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
 import { createRevision } from '../collections/revisions/mutations'
 import { buildRevision } from './conversionUtils'
-import { updateDenormalizedHtmlAttributionsDueToRev } from '../callbacks/revisionCallbacks'
+import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
   doc: CreateInputsByCollectionName[N]['data'];
@@ -269,11 +269,17 @@ async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: 
     );
     const updatedRevision = await Revisions.findOne({_id: revisionID});
     if (updatedRevision) {
-      await updateDenormalizedHtmlAttributionsDueToRev({
-        revision: updatedRevision,
-        skipDenormalizedAttributions: updatedRevision.skipAttributions,
-        context
-      });
+      await Promise.all([
+        upvoteOwnTagRevision({
+          revision: updatedRevision,
+          context
+        }),
+        updateDenormalizedHtmlAttributionsDueToRev({
+          revision: updatedRevision,
+          skipDenormalizedAttributions: updatedRevision.skipAttributions,
+          context
+        })
+      ]);
     }
   }
   return newDoc;

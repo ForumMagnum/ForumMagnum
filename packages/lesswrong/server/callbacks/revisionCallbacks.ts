@@ -3,10 +3,6 @@ import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalize
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 
-// TODO: Now that the make_editable callbacks use createMutator to create
-// revisions, we can now add these to the regular ${collection}.create.after
-// callbacks
-
 // Users upvote their own tag-revisions
 export async function upvoteOwnTagRevision({revision, context}: {revision: DbRevision, context: ResolverContext}) {
   const { Revisions, Users } = context;
