@@ -5846,7 +5846,7 @@ input CreateLocalgroupDataInput {
   name: String!
   nameInAnotherLanguage: String
   organizerIds: [String!]!
-  lastActivity: Date!
+  lastActivity: Date
   types: [String!]!
   categories: [String!]
   isOnline: Boolean

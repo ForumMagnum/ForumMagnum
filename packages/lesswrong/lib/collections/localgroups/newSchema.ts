@@ -159,6 +159,7 @@ const schema = {
     },
     graphql: {
       outputType: "Date!",
+      inputType: "Date",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],

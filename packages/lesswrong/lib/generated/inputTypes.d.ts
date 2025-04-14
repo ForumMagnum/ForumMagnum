@@ -3035,7 +3035,7 @@ interface CreateLocalgroupDataInput {
   name: string;
   nameInAnotherLanguage?: string | null;
   organizerIds: Array<string>;
-  lastActivity: Date;
+  lastActivity?: Date | null;
   types: Array<string>;
   categories?: Array<string> | null;
   isOnline?: boolean | null;
