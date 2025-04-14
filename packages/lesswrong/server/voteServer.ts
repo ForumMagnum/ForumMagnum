@@ -27,6 +27,7 @@ import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 import { isElasticEnabled } from "../lib/instanceSettings";
 import { capitalize } from '@/lib/vulcan-lib/utils';
+import { getSchema } from '@/lib/schema/allSchemas';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -63,13 +64,18 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     ...document,
     ...(await recalculateDocumentScores(document, collection.collectionName, context)),
   }
+
+  const schema = getSchema(collection.collectionName);
+  const inactiveFieldUpdate = schema.inactive
+    ? { inactive: false }
+    : {};
   
   // update document score & set item as active
   await collection.rawUpdateOne(
     {_id: document._id},
     {
       $set: {
-        inactive: false,
+        ...inactiveFieldUpdate,
         baseScore: newDocument.baseScore,
         score: newDocument.score,
         extendedScore: newDocument.extendedScore,

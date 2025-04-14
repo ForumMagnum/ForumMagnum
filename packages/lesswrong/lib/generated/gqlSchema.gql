@@ -11182,7 +11182,7 @@ type RecentDiscussionFeedEntryType {
 }
 
 extend type Query {
-  RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean, sessionId: String): RecentDiscussionFeedQueryResults!
+  RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): RecentDiscussionFeedQueryResults!
 }
 
 type SubscribedPostAndComments {
@@ -11732,7 +11732,7 @@ type UltraFeedEntryType {
 }
 
 extend type Query {
-  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String): UltraFeedQueryResults!
+  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON): UltraFeedQueryResults!
 }
 
 extend type Mutation {
