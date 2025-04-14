@@ -357,8 +357,9 @@ export function prepareCommentThreadForResolver(
 
 
   const finalComments = thread.map((comment): PreDisplayFeedComment => {
-    // Highlight if not viewed AND not interacted with
-    const shouldHighlight = !comment.metaInfo?.lastViewed && !comment.metaInfo?.lastInteracted;
+    // Highlight if not viewed AND not interacted with AND postedAt is within last 7 days
+    const postedAtRecently = comment.metaInfo?.postedAt && comment.metaInfo?.postedAt > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
+    const shouldHighlight = !comment.metaInfo?.lastViewed && !comment.metaInfo?.lastInteracted && postedAtRecently;
     const displayStatus = expandedCommentIds.has(comment.commentId) ? 'expanded' : 'collapsed';
 
     const newMetaInfo: FeedCommentMetaInfo = {
@@ -369,7 +370,7 @@ export function prepareCommentThreadForResolver(
       lastInteracted: comment.metaInfo?.lastInteracted ?? null,
       postedAt: comment.metaInfo?.postedAt ?? null,
       displayStatus: displayStatus,
-      highlight: shouldHighlight,
+      highlight: shouldHighlight ?? false,
     };
 
     return {
