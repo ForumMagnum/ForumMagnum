@@ -1,12 +1,12 @@
 import React from "react";
-import { hasDigests } from "@/lib/betas";
+import { hasDigests, hasNewsletter } from "@/lib/betas";
 import Conversations from "@/server/collections/conversations/collection";
 import Messages from "@/server/collections/messages/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recombeeEnabledSetting } from "@/lib/publicSettings";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from "@/lib/publicSettings";
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@sentry/core";
@@ -329,18 +329,23 @@ export async function changeDisplayNameRateLimit(validationErrors: CallbackValid
 // slugUpdateBeforeCallbackFunction-Users
 
 /**
- * Handle subscribing/unsubscribing in mailchimp when `subscribedToDigest` is changed, including cases where this
- * happens implicitly due to changing another field
+ * Handle subscribing/unsubscribing in mailchimp when either
+ * `subscribedToDigest` or `subscribedToMailchimp` is changed, including cases
+ * where this happens implicitly due to changing another field
  */
 export async function updateDigestSubscription(data: Partial<DbUser>, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
-  // Handle cases which force you to unsubscribe from the digest:
-  // - When a user explicitly unsubscribes from all emails. If they want they can then explicitly re-subscribe
-  // to the digest while keeping "unsubscribeFromAll" checked
+  // Handle cases which force you to unsubscribe from both:
+  // - When a user explicitly unsubscribes from all emails. If they want they
+  //   can then explicitly re-subscribe while keeping "unsubscribeFromAll"
+  //   checked
   // - When a user deactivates their account
   const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
   const deactivatedAccount = data.deleted && !oldDocument.deleted
   if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToDigest = false
+  }
+  if (hasNewsletter && (unsubscribedFromAll || deactivatedAccount)) {
+    data.subscribedToNewsletter = false
   }
 
   const handleErrorCase = (errorMessage: string) => {
@@ -352,12 +357,13 @@ export async function updateDigestSubscription(data: Partial<DbUser>, {oldDocume
       throw err
     }
     data.subscribedToDigest = false
+    data.subscribedToNewsletter = false
     return data;
   }
 
   if (
     isAnyTest ||
-    !hasDigests ||
+    !(hasDigests || hasNewsletter) ||
     data.subscribedToDigest === undefined || // When a mutation doesn't reference subscribedToDigest
     data.subscribedToDigest === oldDocument.subscribedToDigest
   ) {
@@ -366,45 +372,52 @@ export async function updateDigestSubscription(data: Partial<DbUser>, {oldDocume
 
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
-  if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
-    return handleErrorCase("Error updating digest subscription: Mailchimp not configured")
+  const mailchimpEANewsletterListId = mailchimpEAForumNewsletterListIdSetting.get();
+  if (!mailchimpAPIKey || !(mailchimpForumDigestListId || mailchimpEANewsletterListId)) {
+    return handleErrorCase("Error updating subscription: Mailchimp not configured")
   }
 
   const email = getUserEmail(newDocument)
   if (!email) {
-    return handleErrorCase(`Error updating digest subscription: no email for user ${data.displayName}`)
+    return handleErrorCase(`Error updating subscription: no email for user ${data.displayName}`)
   }
 
   const { lat: latitude, lng: longitude, known } = userGetLocation(newDocument);
-  const status = data.subscribedToDigest ? 'subscribed' : 'unsubscribed';
+  const digestStatus = data.subscribedToDigest ? 'subscribed' : 'unsubscribed';
+  const newsletterStatus = data.subscribedToNewsletter ? 'subscribed' : 'unsubscribed';
   const emailHash = md5(email!.toLowerCase());
 
-  const res = await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      email_address: email,
-      email_type: 'html', 
-      ...(known && {location: {
-        latitude,
-        longitude,
-      }}),
-      merge_fields: {
-        FNAME: data.displayName,
+  const updates = [
+    {listId: mailchimpForumDigestListId, status: digestStatus},
+    {listId: mailchimpEANewsletterListId, status: newsletterStatus}
+  ].filter((u) => !!u.listId)
+  for (const update of updates) {
+    const res = await fetch(`https://us8.api.mailchimp.com/3.0/lists/${update.listId}/members/${emailHash}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        email_address: email,
+        email_type: 'html',
+        ...(known && {location: {
+          latitude,
+          longitude,
+        }}),
+        merge_fields: {
+          FNAME: data.displayName,
+        },
+        status: update.status,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `API_KEY ${mailchimpAPIKey}`,
       },
-      status,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `API_KEY ${mailchimpAPIKey}`,
-    },
-  });
-
-  if (res?.status === 200) {
-    return data;
+    });
+    if (res.status !== 200) {
+      const json = await res.json()
+      return handleErrorCase(`Error updating subscription: ${json.detail || res?.statusText || 'Unknown error'}`)
+    }
   }
 
-  const json = await res.json()
-  return handleErrorCase(`Error updating digest subscription: ${json.detail || res?.statusText || 'Unknown error'}`)
+  return data;
 }
 
 export async function updateDisplayName(data: Partial<DbUser>, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
@@ -758,4 +771,3 @@ export async function reindexDeletedUserContent(newUser: DbUser, oldUser: DbUser
     ]);
   }
 }
-

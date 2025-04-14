@@ -2289,6 +2289,7 @@ interface DbUser extends DbObject {
   sortDraftsBy: string | null
   subforumPreferredLayout: "card" | "list" | null
   subscribedToDigest: boolean
+  subscribedToNewsletter: boolean
   sunshineFlagged: boolean
   sunshineNotes: string
   sunshineSnoozed: boolean

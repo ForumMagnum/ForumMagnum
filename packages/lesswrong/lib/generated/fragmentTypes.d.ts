@@ -4682,6 +4682,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly karmaChangeBatchStart: Date,
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
+  readonly subscribedToNewsletter: boolean,
   readonly unsubscribeFromAll: boolean,
   readonly hideSubscribePoke: boolean,
   readonly hideMeetupsPoke: boolean,
