@@ -361,19 +361,22 @@ export async function updateDigestSubscription(data: Partial<DbUser>, {oldDocume
     return data;
   }
 
-  if (
-    isAnyTest ||
-    !(hasDigests || hasNewsletter) ||
-    data.subscribedToDigest === undefined || // When a mutation doesn't reference subscribedToDigest
+  const noDigestUpdate = !hasDigests ||
+    data.subscribedToDigest === undefined ||
     data.subscribedToDigest === oldDocument.subscribedToDigest
-  ) {
+  const noNewsletterUpdate = !hasNewsletter ||
+    data.subscribedToNewsletter === undefined ||
+    data.subscribedToNewsletter === oldDocument.subscribedToNewsletter
+  if (isAnyTest || (noDigestUpdate && noNewsletterUpdate)) {
     return data;
   }
 
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
   const mailchimpEANewsletterListId = mailchimpEAForumNewsletterListIdSetting.get();
-  if (!mailchimpAPIKey || !(mailchimpForumDigestListId || mailchimpEANewsletterListId)) {
+  const digestUpdateButNoListId = hasDigests && !mailchimpForumDigestListId
+  const newsletterUpdateButNoListId = hasNewsletter && !mailchimpEANewsletterListId
+  if (!mailchimpAPIKey || digestUpdateButNoListId || newsletterUpdateButNoListId) {
     return handleErrorCase("Error updating subscription: Mailchimp not configured")
   }
 
@@ -388,10 +391,13 @@ export async function updateDigestSubscription(data: Partial<DbUser>, {oldDocume
   const emailHash = md5(email!.toLowerCase());
 
   const updates = [
-    {listId: mailchimpForumDigestListId, status: digestStatus},
-    {listId: mailchimpEANewsletterListId, status: newsletterStatus}
+    {noUpdate: noDigestUpdate, listId: mailchimpForumDigestListId, status: digestStatus},
+    {noUpdate: noNewsletterUpdate, listId: mailchimpEANewsletterListId, status: newsletterStatus}
   ].filter((u) => !!u.listId)
   for (const update of updates) {
+    if (update.noUpdate) {
+      continue;
+    }
     const res = await fetch(`https://us8.api.mailchimp.com/3.0/lists/${update.listId}/members/${emailHash}`, {
       method: 'PUT',
       body: JSON.stringify({

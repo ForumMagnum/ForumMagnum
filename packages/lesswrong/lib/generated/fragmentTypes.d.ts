@@ -4856,6 +4856,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
+  readonly subscribedToNewsletter: boolean,
   readonly unsubscribeFromAll: boolean,
   readonly hasAuth0Id: boolean|null,
   readonly moderatorAssistance: boolean,

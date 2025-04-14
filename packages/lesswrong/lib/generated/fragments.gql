@@ -4897,6 +4897,7 @@ fragment UsersEdit on User {
   whenConfirmationEmailSent
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   hasAuth0Id
 

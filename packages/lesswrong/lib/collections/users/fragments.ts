@@ -528,6 +528,7 @@ export const UsersEdit = () => frag`
     whenConfirmationEmailSent
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     hasAuth0Id
 
