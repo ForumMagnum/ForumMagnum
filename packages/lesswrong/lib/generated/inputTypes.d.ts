@@ -3035,7 +3035,7 @@ interface CreateLocalgroupDataInput {
   name: string;
   nameInAnotherLanguage?: string | null;
   organizerIds: Array<string>;
-  lastActivity?: Date | null;
+  lastActivity: Date;
   types: Array<string>;
   categories?: Array<string> | null;
   isOnline?: boolean | null;
@@ -4226,7 +4226,7 @@ interface CreateUserRateLimitDataInput {
   intervalUnit: string;
   intervalLength: number;
   actionsPerInterval: number;
-  endedAt?: Date | null;
+  endedAt: Date;
 }
 
 interface CreateUserRateLimitInput {

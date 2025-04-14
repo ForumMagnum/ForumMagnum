@@ -2214,7 +2214,7 @@ type FeaturedResource {
   body: String
   ctaText: String!
   ctaUrl: String!
-  expiresAt: Date
+  expiresAt: Date!
 }
 
 input SingleFeaturedResourceInput {
@@ -2561,11 +2561,11 @@ type Localgroup {
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
-  name: String
+  name: String!
   nameInAnotherLanguage: String
   organizerIds: [String!]!
   organizers: [User!]!
-  lastActivity: Date
+  lastActivity: Date!
   types: [String!]!
   categories: [String!]
   isOnline: Boolean!
@@ -4497,7 +4497,7 @@ type UserRateLimit {
   intervalUnit: String!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date
+  endedAt: Date!
 }
 
 input SingleUserRateLimitInput {
@@ -4531,7 +4531,7 @@ type UserTagRel {
   schemaVersion: Float!
   createdAt: Date!
   legacyData: JSON
-  tagId: String
+  tagId: String!
   tag: Tag
   userId: String!
   user: User
@@ -5846,7 +5846,7 @@ input CreateLocalgroupDataInput {
   name: String!
   nameInAnotherLanguage: String
   organizerIds: [String!]!
-  lastActivity: Date
+  lastActivity: Date!
   types: [String!]!
   categories: [String!]
   isOnline: Boolean
@@ -7183,7 +7183,7 @@ input CreateUserRateLimitDataInput {
   intervalUnit: String!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date
+  endedAt: Date!
 }
 
 input CreateUserRateLimitInput {
