@@ -476,7 +476,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <div className={classes.checkboxContainer}>
         <Checkbox
           className={classes.generationFlagCheckbox}
-          checked={document?.generateDraftJargon}
+          checked={document?.generateDraftJargon ?? undefined}
           onChange={(e) => updatePostAutoGenerate(e.target.checked)}
         />
         <MetaInfo>Autogenerate</MetaInfo>

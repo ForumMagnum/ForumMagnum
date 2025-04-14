@@ -143,7 +143,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
           >
             <span className={classes.versionNumber}>{rev.version}</span>
             <ChangeMetricsDisplay changeMetrics={rev.changeMetrics}/>
-            <span className={classes.editedAt}><FormatDate date={rev.editedAt}/></span>
+            {rev.editedAt && <span className={classes.editedAt}><FormatDate date={rev.editedAt}/></span>}
           </div>
         )}
         <div className={classes.loadMore}>
@@ -173,7 +173,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
           }
         </div>}
         {revision && <ContentItemBody
-          dangerouslySetInnerHTML={{__html: revision.html}}
+          dangerouslySetInnerHTML={{__html: revision.html ?? ''}}
           description="TagVersionHistory revision"
         />}
       </div>

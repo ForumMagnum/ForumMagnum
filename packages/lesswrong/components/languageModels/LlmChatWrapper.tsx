@@ -275,7 +275,8 @@ const LlmChatWrapper = ({children}: {
       }
       updatedMessages.push(newMessage);
   
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation: LlmConversation = { ...streamConversation, deleted: false };
+      updatedConversation.messages = updatedMessages;
       
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -310,7 +311,8 @@ const LlmChatWrapper = ({children}: {
       }
       updatedMessages.push(newMessage);
   
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation = { ...streamConversation };
+      updatedConversation.messages = updatedMessages;
       
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -337,7 +339,8 @@ const LlmChatWrapper = ({children}: {
       };
 
       updatedMessages.push(newMessage);
-      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      const updatedConversation = { ...streamConversation };
+      updatedConversation.messages = updatedMessages;
 
       return { ...conversations, [updatedConversation._id]: updatedConversation };
     });
@@ -486,7 +489,8 @@ const LlmChatWrapper = ({children}: {
       // We don't send the role to the server
       const newClientMessage: NewLlmMessage = { ...preSaveMessage, role: 'user' };
       const updatedMessages = [...displayedConversation.messages ?? [], newClientMessage];
-      const conversationWithNewUserMessage: LlmConversation = { ...displayedConversation, messages: updatedMessages };
+      const conversationWithNewUserMessage: LlmConversation = { ...displayedConversation };
+      conversationWithNewUserMessage.messages = updatedMessages;
 
       return { ...conversations, [conversationWithNewUserMessage._id]: conversationWithNewUserMessage };
     });

@@ -105,8 +105,8 @@ const InitialFallback: FC<{
 });
 
 export type UserWithProfileImage = {
-  displayName: string,
-  profileImageId?: string,
+  displayName: string | null,
+  profileImageId?: string | null,
 }
 
 const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {

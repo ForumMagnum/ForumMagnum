@@ -245,9 +245,9 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
                   </span>
                 </LWTooltip>
                 <ChangeMetricsDisplay changeMetrics={rev.changeMetrics} />
-                <span className={classes.editedAt}>
+                {rev.editedAt && <span className={classes.editedAt}>
                   <FormatDate date={rev.editedAt} />
-                </span>
+                </span>}
               </div>
             ))}
           <div className={classes.loadMore}>
@@ -284,7 +284,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
                 </div>
               )}
               <ContentItemBody
-                dangerouslySetInnerHTML={{ __html: revision.html }}
+                dangerouslySetInnerHTML={{ __html: revision.html ?? '' }}
                 description="PostVersionHistory revision"
               />
             </>

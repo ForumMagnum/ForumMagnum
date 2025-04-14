@@ -126,7 +126,7 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     if (post.user) {
       const author = post.user;
       const authorUrl = userGetProfileUrl(author);
-      const authorLink = `=HYPERLINK("${authorUrl.startsWith('http') ? authorUrl : makeAbsolute(authorUrl)}", "${author.displayName.replace(/"/g, '""')}")`;
+      const authorLink = `=HYPERLINK("${authorUrl.startsWith('http') ? authorUrl : makeAbsolute(authorUrl)}", "${author.displayName?.replace(/"/g, '""')}")`;
       return authorLink;
     }
     return 'Unknown';

@@ -202,7 +202,7 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
       {error && <div className={classes.error}>Error: {error}</div>}
       {!error && isCrosspost &&
         <FMCrosspostAuth
-          fmCrosspostUserId={document?.fmCrosspostUserId}
+          fmCrosspostUserId={document?.fmCrosspostUserId ?? undefined}
           loading={loading}
           onClickLogin={onClickLogin}
           onClickUnlink={onClickUnlink}
