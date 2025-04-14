@@ -410,6 +410,8 @@ const transformItemsForResolver = (
   }));
 };
 
+type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId' > & { event?: { sessionId: string; itemIndex: number; commentIndex?: number } };
+
 /**
  * Create UltraFeed events for tracking served items
  */
@@ -420,37 +422,38 @@ const createUltraFeedEvents = (
 ): UltraFeedEventInsertData[] => {
   const eventsToCreate: UltraFeedEventInsertData[] = [];
   
-  results.forEach(item => {
+  results.forEach((item, index) => {
     if (item.type === "feedSpotlight" && item.feedSpotlight?.spotlight?._id) {
       eventsToCreate.push({
         userId,
         eventType: "served",
         collectionName: "Spotlights",
         documentId: item.feedSpotlight.spotlight._id,
-        feedItemId: sessionId
+        event: { sessionId, itemIndex: index }
       });
     } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
         const threadData = item.feedCommentThread;
         const comments = threadData?.comments;
-        const postId = comments?.[0]?.postId;
-        if (postId) {
-          eventsToCreate.push({ userId, eventType: "served", collectionName: "Posts", documentId: postId, feedItemId: sessionId });
-        }
-        comments?.forEach((comment: DbComment) => {
+        comments?.forEach((comment: DbComment, commentIndex) => {
           if (comment?._id) {
-             eventsToCreate.push({ userId, eventType: "served", collectionName: "Comments", documentId: comment._id, feedItemId: sessionId });
+             eventsToCreate.push({ 
+               userId, 
+               eventType: "served", 
+               collectionName: "Comments", 
+               documentId: comment._id, 
+               event: { sessionId, itemIndex: index, commentIndex }
+              });
           }
         });
     } else if (item.type === "feedPost" && item.feedPost?.post?._id) {
       const feedItem = item.feedPost;
-      // Explicitly check post._id again to satisfy stricter type checking
       if (feedItem.post._id) { 
         eventsToCreate.push({ 
           userId, 
           eventType: "served", 
           collectionName: "Posts", 
           documentId: feedItem.post._id,
-          feedItemId: sessionId
+          event: { sessionId, itemIndex: index }
         });
       }
     }
@@ -549,8 +552,6 @@ interface UltraFeedArgs {
   settings: string;
 }
 
-type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId' | 'feedItemId'>;
-
 /**
  * UltraFeed resolver
  */
@@ -642,8 +643,7 @@ export const ultraFeedGraphQLQueries = {
       // Return response
       const response = {
         __typename: "UltraFeedQueryResults",
-        cutoff: new Date(),
-        hasMoreResults: true,
+        cutoff: results.length > 0 ? new Date() : null,
         endOffset: (offset ?? 0) + results.length,
         results,
         sessionId

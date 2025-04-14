@@ -108,6 +108,12 @@ interface ExpandedEventData {
   wordCount: number;
 }
 
+interface ServedEventData {
+  sessionId: string;    // The session ID for the feed load
+  itemIndex: number;    // The index of the item in the served results array
+  commentIndex?: number; // The index of the comment within a thread, if applicable
+}
+
 // Use Pick on the generated DB type (adjust type name 'DbUltraFeedEvent' if needed)
 type UltraFeedEventBase = Pick<DbUltraFeedEvent, '_id' | 'createdAt' | 'userId' | 'documentId' | 'collectionName' | 'feedItemId'>;
 
@@ -115,7 +121,7 @@ type UltraFeedEventBase = Pick<DbUltraFeedEvent, '_id' | 'createdAt' | 'userId' 
 export type UltraFeedEvent =
   | (UltraFeedEventBase & {
       eventType: "served";
-      event?: null | Record<string, never>;
+      event?: ServedEventData | null;
     })
   | (UltraFeedEventBase & {
       eventType: "viewed";
