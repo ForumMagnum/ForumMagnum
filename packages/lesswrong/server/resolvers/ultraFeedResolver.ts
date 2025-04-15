@@ -403,18 +403,21 @@ type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 
 const createUltraFeedEvents = (
   results: UltraFeedResolverType[],
   userId: string,
-  sessionId: string
+  sessionId: string,
+  offset: number
 ): UltraFeedEventInsertData[] => {
   const eventsToCreate: UltraFeedEventInsertData[] = [];
   
   results.forEach((item, index) => {
+    const actualItemIndex = offset + index;
+    
     if (item.type === "feedSpotlight" && item.feedSpotlight?.spotlight?._id) {
       eventsToCreate.push({
         userId,
         eventType: "served",
         collectionName: "Spotlights",
         documentId: item.feedSpotlight.spotlight._id,
-        event: { sessionId, itemIndex: index }
+        event: { sessionId, itemIndex: actualItemIndex }
       });
     } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
         const threadData = item.feedCommentThread;
@@ -426,7 +429,7 @@ const createUltraFeedEvents = (
                eventType: "served", 
                collectionName: "Comments", 
                documentId: comment._id, 
-               event: { sessionId, itemIndex: index, commentIndex }
+               event: { sessionId, itemIndex: actualItemIndex, commentIndex }
               });
           }
         });
@@ -438,7 +441,7 @@ const createUltraFeedEvents = (
           eventType: "served", 
           collectionName: "Posts", 
           documentId: feedItem.post._id,
-          event: { sessionId, itemIndex: index }
+          event: { sessionId, itemIndex: actualItemIndex }
         });
       }
     }
@@ -620,7 +623,8 @@ export const ultraFeedGraphQLQueries = {
       const results = transformItemsForResolver(sampledItems, spotlightsById, commentsById);
       
       // Create events for tracking served items
-      const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId);
+      const currentOffset = offset ?? 0;
+      const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
       if (eventsToCreate.length > 0) {
         void bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]);
       }
