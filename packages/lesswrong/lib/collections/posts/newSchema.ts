@@ -2155,7 +2155,13 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: ({ document }) => (('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string)) ? document.votingSystem : getDefaultVotingSystem()),
+      onCreate: ({ document }) => {
+        const votingSystem = ('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string))
+          ? document.votingSystem
+          : getDefaultVotingSystem();
+
+        return votingSystem;
+      },
       validation: {
         optional: true,
       },
