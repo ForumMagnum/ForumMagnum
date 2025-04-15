@@ -4,7 +4,7 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 
 
-export async function createArbitalTagContentRel({ data }: CreateArbitalTagContentRelInput, context: ResolverContext) {
+export async function createArbitalTagContentRel({ data }: { data: Partial<DbArbitalTagContentRel> }, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('ArbitalTagContentRels', {
@@ -25,19 +25,3 @@ export async function createArbitalTagContentRel({ data }: CreateArbitalTagConte
   return documentWithId;
 }
 
-export async function updateArbitalTagContentRel({ selector, data }: UpdateArbitalTagContentRelInput, context: ResolverContext) {
-  const { currentUser, ArbitalTagContentRels } = context;
-
-  const {
-    documentSelector: arbitaltagcontentrelSelector,
-    updateCallbackProperties,
-  } = await getLegacyUpdateCallbackProps('ArbitalTagContentRels', { selector, context, data, schema });
-
-  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
-
-  let updatedDocument = await updateAndReturnDocument(data, ArbitalTagContentRels, arbitaltagcontentrelSelector, context);
-
-  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ArbitalTagContentRels', updatedDocument, updateCallbackProperties.oldDocument);
-
-  return updatedDocument;
-}

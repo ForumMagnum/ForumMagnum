@@ -1,33 +1,12 @@
 
 import schema from "@/lib/collections/dialogueMatchPreferences/newSchema";
-import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyUpdateCallbackProps, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
 // TODO: deprecate this collection entirely?
-export async function createDialogueMatchPreference({ data }: CreateDialogueMatchPreferenceInput, context: ResolverContext) {
-  const { currentUser } = context;
-
-  const callbackProps = await getLegacyCreateCallbackProps('DialogueMatchPreferences', {
-    context,
-    data,
-    schema,
-  });
-
-  data = callbackProps.document;
-
-  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
-
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'DialogueMatchPreferences', callbackProps);
-  let documentWithId = afterCreateProperties.document;
-
-  await updateCountOfReferencesOnOtherCollectionsAfterCreate('DialogueMatchPreferences', documentWithId);
-
-  return documentWithId;
-}
-
-export async function updateDialogueMatchPreference({ selector, data }: UpdateDialogueMatchPreferenceInput, context: ResolverContext) {
+export async function updateDialogueMatchPreference({ selector, data }: { selector: SelectorInput, data: Partial<DbDialogueMatchPreference> }, context: ResolverContext) {
   const { currentUser, DialogueMatchPreferences } = context;
 
   // Save the original mutation (before callbacks add more changes to it) for

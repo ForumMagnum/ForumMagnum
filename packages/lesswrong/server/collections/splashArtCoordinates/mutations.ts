@@ -2,10 +2,10 @@
 import schema from "@/lib/collections/splashArtCoordinates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null) {
@@ -31,23 +31,6 @@ export async function createSplashArtCoordinate({ data }: CreateSplashArtCoordin
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('SplashArtCoordinates', documentWithId);
 
   return documentWithId;
-}
-
-export async function updateSplashArtCoordinate({ selector, data }: UpdateSplashArtCoordinateInput, context: ResolverContext) {
-  const { currentUser, SplashArtCoordinates } = context;
-
-  const {
-    documentSelector: splashartcoordinateSelector,
-    updateCallbackProperties,
-  } = await getLegacyUpdateCallbackProps('SplashArtCoordinates', { selector, context, data, schema });
-
-  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
-
-  let updatedDocument = await updateAndReturnDocument(data, SplashArtCoordinates, splashartcoordinateSelector, context);
-
-  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('SplashArtCoordinates', updatedDocument, updateCallbackProperties.oldDocument);
-
-  return updatedDocument;
 }
 
 export const createSplashArtCoordinateGqlMutation = makeGqlCreateMutation('SplashArtCoordinates', createSplashArtCoordinate, {
