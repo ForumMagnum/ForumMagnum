@@ -94,7 +94,7 @@ export const generateDataLoaders = (): {
 };
 
 
-export function requestIsFromUserAgent(req?: Request, userAgentPrefix: string): boolean {
+export function requestIsFromUserAgent(req: Request, userAgentPrefix: string): boolean {
   if (!req) return false;
   const userAgent = req.headers?.["user-agent"];
   if (!userAgent) return false;
@@ -103,10 +103,12 @@ export function requestIsFromUserAgent(req?: Request, userAgentPrefix: string): 
 }
 
 export function requestIsFromGreaterWrong(req?: Request): boolean {
+  if (!req) return false;
   return requestIsFromUserAgent(req, "Dexador");
 }
 
 export function requestIsFromIssaRiceReader(req?: Request): boolean {
+  if (!req) return false;
   return requestIsFromUserAgent(req, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
 }
 
