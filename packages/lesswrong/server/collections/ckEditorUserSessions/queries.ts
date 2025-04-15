@@ -23,6 +23,7 @@ export const graphqlCkEditorUserSessionQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiCkEditorUserSessionOutput {

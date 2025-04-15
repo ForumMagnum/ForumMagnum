@@ -23,6 +23,7 @@ export const graphqlUserRateLimitQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiUserRateLimitOutput {

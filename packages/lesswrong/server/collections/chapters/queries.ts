@@ -23,6 +23,7 @@ export const graphqlChapterQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiChapterOutput {

@@ -23,6 +23,7 @@ export const graphqlTagFlagQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiTagFlagOutput {

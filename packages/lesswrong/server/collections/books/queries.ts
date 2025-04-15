@@ -23,6 +23,7 @@ export const graphqlBookQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiBookOutput {
