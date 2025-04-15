@@ -23,6 +23,7 @@ export const graphqlSpotlightQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiSpotlightOutput {

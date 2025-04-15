@@ -23,6 +23,7 @@ export const graphqlReviewWinnerArtQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiReviewWinnerArtOutput {

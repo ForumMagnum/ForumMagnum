@@ -23,6 +23,7 @@ export const graphqlUserMostValuablePostQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiUserMostValuablePostOutput {

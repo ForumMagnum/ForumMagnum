@@ -23,6 +23,7 @@ export const graphqlElicitQuestionPredictionQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiElicitQuestionPredictionOutput {

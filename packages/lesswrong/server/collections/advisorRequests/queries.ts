@@ -23,6 +23,7 @@ export const graphqlAdvisorRequestQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiAdvisorRequestOutput {

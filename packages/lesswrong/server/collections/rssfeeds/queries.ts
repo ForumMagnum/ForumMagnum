@@ -23,6 +23,7 @@ export const graphqlRSSFeedQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiRSSFeedOutput {

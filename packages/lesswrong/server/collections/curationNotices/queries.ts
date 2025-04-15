@@ -23,6 +23,7 @@ export const graphqlCurationNoticeQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiCurationNoticeOutput {

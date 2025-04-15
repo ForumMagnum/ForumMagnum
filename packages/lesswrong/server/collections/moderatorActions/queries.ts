@@ -23,6 +23,7 @@ export const graphqlModeratorActionQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiModeratorActionOutput {

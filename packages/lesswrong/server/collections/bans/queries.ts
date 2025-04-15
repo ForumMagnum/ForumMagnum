@@ -23,6 +23,7 @@ export const graphqlBanQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiBanOutput {

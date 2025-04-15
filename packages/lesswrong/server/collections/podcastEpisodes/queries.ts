@@ -23,6 +23,7 @@ export const graphqlPodcastEpisodeQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiPodcastEpisodeOutput {

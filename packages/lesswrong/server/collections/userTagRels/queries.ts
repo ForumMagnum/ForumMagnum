@@ -23,6 +23,7 @@ export const graphqlUserTagRelQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiUserTagRelOutput {
