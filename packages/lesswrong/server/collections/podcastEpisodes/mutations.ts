@@ -3,16 +3,12 @@ import schema from "@/lib/collections/podcastEpisodes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userIsPodcaster } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null) {
-  return userIsAdmin(user) || userIsPodcaster(user);
-}
-
-function editCheck(user: DbUser | null) {
   return userIsAdmin(user) || userIsPodcaster(user);
 }
 
@@ -59,12 +55,6 @@ export const createPodcastEpisodeGqlMutation = makeGqlCreateMutation('PodcastEpi
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context)
 });
 
-export const updatePodcastEpisodeGqlMutation = makeGqlUpdateMutation('PodcastEpisodes', updatePodcastEpisode, {
-  editCheck,
-  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context)
-});
-
-
 
 
 export const graphqlPodcastEpisodeTypeDefs = gql`
@@ -76,21 +66,11 @@ export const graphqlPodcastEpisodeTypeDefs = gql`
     data: CreatePodcastEpisodeDataInput!
   }
   
-  input UpdatePodcastEpisodeDataInput {
-    ${getUpdatableGraphQLFields(schema)}
-  }
-
-  input UpdatePodcastEpisodeInput {
-    selector: SelectorInput!
-    data: UpdatePodcastEpisodeDataInput!
-  }
-  
   type PodcastEpisodeOutput {
     data: PodcastEpisode
   }
 
   extend type Mutation {
     createPodcastEpisode(data: CreatePodcastEpisodeDataInput!): PodcastEpisodeOutput
-    updatePodcastEpisode(selector: SelectorInput!, data: UpdatePodcastEpisodeDataInput!): PodcastEpisodeOutput
   }
 `;
