@@ -198,6 +198,7 @@ function calculateThreadScore(
       break;
     default:
       // Fallback or error handling
+      // eslint-disable-next-line no-console
       console.warn(`Unknown thread score aggregation method: ${aggregation}. Falling back to sum.`);
       score = scores.reduce((acc, s) => acc + s, 0);
       break;
