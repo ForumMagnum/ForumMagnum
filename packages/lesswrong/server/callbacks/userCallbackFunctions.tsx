@@ -333,7 +333,7 @@ export async function changeDisplayNameRateLimit(validationErrors: CallbackValid
  * `subscribedToDigest` or `subscribedToMailchimp` is changed, including cases
  * where this happens implicitly due to changing another field
  */
-export async function updateDigestSubscription(data: Partial<DbUser>, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
+export async function updateMailchimpSubscription(data: Partial<DbUser>, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
   // Handle cases which force you to unsubscribe from both:
   // - When a user explicitly unsubscribes from all emails. If they want they
   //   can then explicitly re-subscribe while keeping "unsubscribeFromAll"

@@ -3181,7 +3181,7 @@ const schema = {
       },
     },
     form: {
-      label: "Subscribe to the EA Forum Digest emails",
+      label: "Subscribe to the EA Forum Digest emails — once a week curated posts from the Forum",
       hidden: !isEAForum,
       group: () => formGroups.emails,
     },

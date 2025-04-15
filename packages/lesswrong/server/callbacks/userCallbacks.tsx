@@ -1,5 +1,5 @@
 import { type CallbackValidationErrors, type CreateCallbackProperties, type AfterCreateCallbackProperties, type UpdateCallbackProperties, getCollectionHooks } from "../mutationCallbacks";
-import { changeDisplayNameRateLimit, clearKarmaChangeBatchOnSettingsChange, createRecombeeUser, makeFirstUserAdminAndApproved, maybeSendVerificationEmail, sendWelcomingPM, subscribeOnSignup, subscribeToEAForumAudience, syncProfileUpdatedAt, updateDigestSubscription, updateDisplayName, userEditDeleteContentCallbacksAsync, updateUserMayTriggerReview, usersEditCheckEmail, reindexDeletedUserContent, newAlignmentUserMoveShortform, newAlignmentUserSendPMAsync, userEditChangeDisplayNameCallbacksAsync, updatingPostAudio, handleSetShortformPost, approveUnreviewedSubmissions, newSubforumMemberNotifyMods, userEditBannedCallbacksAsync } from "./userCallbackFunctions";
+import { changeDisplayNameRateLimit, clearKarmaChangeBatchOnSettingsChange, createRecombeeUser, makeFirstUserAdminAndApproved, maybeSendVerificationEmail, sendWelcomingPM, subscribeOnSignup, subscribeToEAForumAudience, syncProfileUpdatedAt, updateMailchimpSubscription, updateDisplayName, userEditDeleteContentCallbacksAsync, updateUserMayTriggerReview, usersEditCheckEmail, reindexDeletedUserContent, newAlignmentUserMoveShortform, newAlignmentUserSendPMAsync, userEditChangeDisplayNameCallbacksAsync, updatingPostAudio, handleSetShortformPost, approveUnreviewedSubmissions, newSubforumMemberNotifyMods, userEditBannedCallbacksAsync } from "./userCallbackFunctions";
 
 async function userCreateValidate(validationErrors: CallbackValidationErrors, props: CreateCallbackProperties<'Users'>): Promise<CallbackValidationErrors> {
   return validationErrors;
@@ -52,7 +52,7 @@ async function userUpdateValidate(validationErrors: CallbackValidationErrors, pr
 async function userUpdateBefore(user: Partial<DbUser>, props: UpdateCallbackProperties<'Users'>): Promise<Partial<DbUser>> {
   // slugUpdateBeforeCallbackFunction-Users
 
-  await updateDigestSubscription(user, props);
+  await updateMailchimpSubscription(user, props);
   await updateDisplayName(user, props);
 
   // 4x editorSerializationEdit

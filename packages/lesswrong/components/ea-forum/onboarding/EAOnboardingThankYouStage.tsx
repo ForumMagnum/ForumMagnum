@@ -99,7 +99,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
 }) => {
   const {currentStage, goToNextStage, currentUser, updateCurrentUser, captureOnboardingEvent, viewAsAdmin} = useEAOnboarding();
   const [subscribedToDigest, setSubscribedToDigest] = useState(true);
-  const [subscribedToNewsletter, setsubscribedToNewsletter] = useState(false);
+  const [subscribedToNewsletter, setSubscribedToNewsletter] = useState(false);
 
   useEffect(() => {
     // Default to subscribing to the digest (unless this is an admin testing)
@@ -120,10 +120,12 @@ export const EAOnboardingThankYouStage = ({classes}: {
     captureOnboardingEvent("toggleDigest", {subscribed: value});
   }, [updateCurrentUser, captureOnboardingEvent, viewAsAdmin]);
 
-  const setSubscribedToNewsletter = useCallback((value: boolean) => {
+  const toggleSubscribedToNewsletter = useCallback((value: boolean) => {
     setSubscribedToNewsletter(value);
-    // TODO;
-    // mutation
+    !viewAsAdmin && void updateCurrentUser({
+      subscribedToNewsletter: value,
+    });
+    captureOnboardingEvent("toggleNewsletter", {subscribed: value});
   }, [updateCurrentUser, captureOnboardingEvent, viewAsAdmin]);
 
   const onComplete = useCallback(() => {
@@ -180,7 +182,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
           </div>
           <ToggleSwitch
             value={subscribedToNewsletter}
-            setValue={setSubscribedToNewsletter}
+            setValue={toggleSubscribedToNewsletter}
             className={classes.toggle}
           />
         </div>
