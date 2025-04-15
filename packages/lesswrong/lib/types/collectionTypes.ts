@@ -335,6 +335,7 @@ interface ResolverContext extends CollectionsByName {
   locale: string,
   isSSR: boolean,
   isGreaterWrong: boolean,
+  isIssaRiceReader: boolean,
   /**
    * This means that the request originated from the other FM instance's servers
    *
