@@ -8,12 +8,11 @@ import { randomId } from "../random";
 import { POLL_CLASS, PollProps } from "./constants";
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
-import DowncastWriter from '@ckeditor/ckeditor5-engine/src/view/downcastwriter';
-import Item from '@ckeditor/ckeditor5-engine/src/model/item';
-import { RootElement } from "@ckeditor/ckeditor5-engine";
 
 const DEFAULT_PROPS: PollProps = {
   question: "Ask a question",
+  agreeWording: "agree",
+  disagreeWording: "disagree",
   // 1 day in ms
   endDt: 24 * 60 * 60 * 1000
 }

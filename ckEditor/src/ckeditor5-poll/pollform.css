@@ -56,6 +56,11 @@
 	gap: 12px;
 }
 
+.ck-cta-form-row {
+	display: flex;
+	gap: 12px;
+}
+
 .ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-label {
 	text-transform: uppercase;
 	font-size: 11px;

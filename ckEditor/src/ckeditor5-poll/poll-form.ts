@@ -25,6 +25,8 @@ class MainFormView extends View {
   editor: Editor
   selectedElement: (Element | RootElement)
   questionView: AnyBecauseTodo
+  agreeWordingView: AnyBecauseTodo
+  disagreeWordingView: AnyBecauseTodo
   previewEnabled: AnyBecauseTodo
   _focusables: AnyBecauseTodo
   focusTracker: AnyBecauseTodo
@@ -41,8 +43,10 @@ class MainFormView extends View {
 
     this.selectedElement = null;
 
-    const { questionView } = this._createInputs();
+    const { questionView, agreeWordingView, disagreeWordingView } = this._createInputs();
     this.questionView = questionView;
+    this.agreeWordingView = agreeWordingView;
+    this.disagreeWordingView = disagreeWordingView;
 
     this.previewEnabled = true;
 
@@ -66,6 +70,40 @@ class MainFormView extends View {
             },
             questionView
           ]
+        },
+        {
+          tag: "div",
+          attributes: {
+            class: ["ck-cta-form-row"],
+          },
+          children: [
+            {
+              tag: "div",
+              children: [
+                {
+                  tag: "div",
+                  attributes: {
+                    class: ["ck-cta-form-label"],
+                  },
+                  children: ["Agree wording"],
+                },
+                agreeWordingView
+              ]
+            },
+            {
+              tag: "div",
+              children: [
+                {
+                  tag: "div",
+                  attributes: {
+                    class: ["ck-cta-form-label"],
+                  },
+                  children: ["Disagree wording"],
+                },
+                disagreeWordingView
+              ]
+            }
+          ]
         }
       ],
     });
@@ -82,7 +120,7 @@ class MainFormView extends View {
       view: this,
     });
 
-    const childViews = [this.questionView];
+    const childViews = [this.questionView, this.agreeWordingView, this.disagreeWordingView];
 
     childViews.forEach((v) => {
       this._focusables.add(v);
@@ -150,17 +188,78 @@ class MainFormView extends View {
         const inputValue = questionView.element.value.trim();
         
         writer.setAttribute("props", {...props, question: inputValue}, this.selectedElement);
-        
-        // Add a temporary marker to force refresh
-        const range = writer.createRangeOn(this.selectedElement);
-        const markerId = `poll-refresh-${Date.now()}`;
-        writer.addMarker(markerId, {range, usingOperation: true, affectsData: true});
-        writer.removeMarker(markerId);
+      });
+    });
+
+    // Create agree wording input
+    const agreeWordingView = new InputTextView(this.locale);
+    const agreeWordingBind = agreeWordingView.bindTemplate;
+    agreeWordingView.setTemplate({
+      tag: "input",
+      attributes: {
+        type: "text",
+        class: ["ck-cta-form-input", agreeWordingBind.if("hasError", "ck-error")],
+        id: agreeWordingBind.to("id"),
+        readonly: false,
+        "aria-invalid": agreeWordingBind.if("hasError", true),
+        "aria-describedby": agreeWordingBind.to("ariaDescribedById"),
+      },
+      on: {
+        input: agreeWordingBind.to("input"),
+      },
+    });
+    (agreeWordingView as AnyBecauseTodo).label = "Right label";
+    agreeWordingView.on("input", () => {
+      const model = this.editor.model;
+      const selectedElement = this.selectedElement;
+
+      model.change((writer: Writer) => {
+        if (!selectedElement) return;
+
+        const props = this.selectedElement.getAttribute("props") as PollProps;
+        const inputValue = agreeWordingView.element.value.trim();
+
+        writer.setAttribute("props", {...props, agreeWording: inputValue}, this.selectedElement);
+      });
+    });
+
+    // Create disagree wording input
+    const disagreeWordingView = new InputTextView(this.locale);
+    const disagreeWordingBind = disagreeWordingView.bindTemplate;
+    disagreeWordingView.setTemplate({
+      tag: "input",
+      attributes: {
+        type: "text",
+        class: ["ck-cta-form-input", disagreeWordingBind.if("hasError", "ck-error")],
+        id: disagreeWordingBind.to("id"),
+        readonly: false,
+        "aria-invalid": disagreeWordingBind.if("hasError", true),
+        "aria-describedby": disagreeWordingBind.to("ariaDescribedById"),
+      },
+      on: {
+        input: disagreeWordingBind.to("input"),
+      },
+    });
+    // TODO clean up unecessary things here
+    (disagreeWordingView as AnyBecauseTodo).label = "Left label";
+    disagreeWordingView.on("input", () => {
+      const model = this.editor.model;
+      const selectedElement = this.selectedElement;
+
+      model.change((writer: Writer) => {
+        if (!selectedElement) return;
+
+        const props = this.selectedElement.getAttribute("props") as PollProps;
+        const inputValue = disagreeWordingView.element.value.trim();
+
+        writer.setAttribute("props", {...props, disagreeWording: inputValue}, this.selectedElement);
       });
     });
 
     return {
       questionView,
+      agreeWordingView,
+      disagreeWordingView,
     };
   }
 }
@@ -243,7 +342,9 @@ export default class PollForm extends Plugin {
     this.formView.selectedElement = selectedElement;
 
     const pollProps = selectedElement.getAttribute("props") as PollProps;
-    this.formView.question = pollProps.question;
+    this.formView.questionView.element.value = pollProps.question;
+    this.formView.agreeWordingView.element.value = pollProps.agreeWording;
+    this.formView.disagreeWordingView.element.value = pollProps.disagreeWording;
   }
 
   _closeFormView() {
