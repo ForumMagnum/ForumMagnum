@@ -199,7 +199,7 @@ const UltraFeedPostItem = ({
     || !post.contents.wordCount
     || post.contents.wordCount <= 0
   ) {
-     return null; 
+     return <div>No post content found for post with id: {post._id}</div>; 
   }
 
   return (
