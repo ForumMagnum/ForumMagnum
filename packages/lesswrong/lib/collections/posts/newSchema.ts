@@ -31,7 +31,7 @@ import { formGroups } from "./formGroups";
 import SimpleSchema from "simpl-schema";
 import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/newSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { getVotingSystems } from '../../voting/getVotingSystem';
+import { getVotingSystems, getVotingSystemByName } from '../../voting/getVotingSystem';
 import {
   eaFrontpageDateDefault, fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum,
   isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting
@@ -2155,7 +2155,7 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: ({ document }) => ('votingSystem' in document && document.votingSystem) ?? getDefaultVotingSystem(),
+      onCreate: ({ document }) => (('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string)) ? document.votingSystem : getDefaultVotingSystem()),
       validation: {
         optional: true,
       },
