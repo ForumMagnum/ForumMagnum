@@ -23,6 +23,7 @@ export const graphqlCollectionQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiCollectionOutput {

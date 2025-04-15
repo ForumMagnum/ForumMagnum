@@ -23,6 +23,7 @@ export const graphqlDialogueMatchPreferenceQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiDialogueMatchPreferenceOutput {

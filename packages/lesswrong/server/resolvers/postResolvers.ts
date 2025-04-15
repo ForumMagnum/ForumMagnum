@@ -389,7 +389,13 @@ export const postGqlMutations = {
 
     if (postId) {
       const previousRev = await getLatestRev(postId, "contents", context)
-      const revisionType = "major"
+      // Revision type controls whether we increase the major or minor version
+      // number; if we increase the major version number it flags it to
+      // end-users and shows a version-history dropdown. This was built
+      // specifically for Sequences posts which had an editing pass long after
+      // the fact and doesn't make sense for Docs import, which usually happens
+      // before the post is undrafted for the first time.
+      const revisionType = "minor"
 
       const newRevision: Partial<DbRevision> = {
         ...(await buildRevision({

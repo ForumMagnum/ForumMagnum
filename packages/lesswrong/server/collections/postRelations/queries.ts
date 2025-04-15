@@ -23,6 +23,7 @@ export const graphqlPostRelationQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiPostRelationOutput {
