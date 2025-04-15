@@ -88,6 +88,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"UserJobAds">>;
+} satisfies Record<string, CollectionFieldSpecification<"UserJobAds">>;
 
 export default schema;

@@ -13,7 +13,8 @@ import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 import { slugify } from '@/lib/utils/slugify';
-import { createMutator } from "../vulcan-lib/mutators";
+import { createUser } from '../collections/users/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 const postgresImportDetails = {
   host: 'localhost',
@@ -243,20 +244,12 @@ const bulkUpdateUsers = async (users: AnyBecauseObsolete, userMap: AnyBecauseObs
 const insertUser = async (user: DbUser) => {
   // console.log("insertUser", user);
   try {
-    await createMutator({
-      collection: Users,
-      document: user,
-      validate: false
-    })
+    await createUser({ data: user }, createAnonymousContext());
   } catch(err) {
     if (err.code === 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        await createMutator({
-          collection: Users,
-          document: newUser,
-          validate: false
-        })
+        await createUser({ data: newUser }, createAnonymousContext());
       } catch(err) {
         //eslint-disable-next-line no-console
         console.error("User Import failed", err, user);

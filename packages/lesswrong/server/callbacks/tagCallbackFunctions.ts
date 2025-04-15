@@ -1,6 +1,5 @@
 import { taggingNameSetting } from "@/lib/instanceSettings";
-import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
-import { updateMutator } from "../vulcan-lib/mutators";
+import { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { elasticSyncDocument } from "../search/elastic/elasticCallbacks";
 import { userCanUseTags } from "@/lib/betas";
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
@@ -10,6 +9,7 @@ import { createNotifications, getSubscribedUsers } from "../notificationCallback
 import { postIsPublic } from "@/lib/collections/posts/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import _ from "underscore";
+import { updateTag } from "../collections/tags/mutations";
 
 const utils = {
   isValidTagName: (name: string) => {
@@ -30,7 +30,7 @@ const utils = {
 /* TAG CALLBACKS */
 
 /* CREATE VALIDATE */
-export async function validateTagCreate(validationErrors: CallbackValidationErrors, { document: tag, context }: CreateCallbackProperties<'Tags'>): Promise<CallbackValidationErrors> {
+export async function validateTagCreate(tag: CreateTagDataInput, context: ResolverContext): Promise<boolean> {
   const { Tags } = context;
 
   if (!tag.name || !tag.name.length)
@@ -51,31 +51,12 @@ export async function validateTagCreate(validationErrors: CallbackValidationErro
   const existing = await Tags.find({name: normalizedName, deleted:false}).fetch();
   if (existing.length > 0)
     throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
-  
-  return validationErrors;
+
+  return true;
 }
 
-/* CREATE BEFORE */
-
-// slugCreateBeforeCallbackFunction-Tags
-// 3x editorSerializationBeforeCreate
-
-/* NEW SYNC */
-
-/* CREATE AFTER */
-
-// 3x (editorSerializationAfterCreate, notifyUsersAboutMentions)
-
-/* CREATE ASYNC */
-
-// elasticSyncDocument
-
-/* NEW ASYNC */
-
-// 3x convertImagesInObject
-
 /* UPDATE VALIDATE */
-export async function validateTagUpdate(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, context }: UpdateCallbackProperties<'Tags'>): Promise<CallbackValidationErrors> {
+export async function validateTagUpdate(oldDocument: DbTag, newDocument: DbTag, context: ResolverContext): Promise<boolean> {
   const { Tags } = context;
 
   if (!utils.isValidTagName(newDocument.name))
@@ -93,16 +74,9 @@ export async function validateTagUpdate(validationErrors: CallbackValidationErro
       ...newDocument, name: newName
     }
   }
-  
-  return validationErrors;
+
+  return true;
 }
-
-/* UPDATE BEFORE */
-
-// slugUpdateBeforeCallbackFunction-Tags
-// 3x editorSerializationEdit
-
-/* EDIT SYNC */
 
 /* UPDATE AFTER */
 export async function cascadeSoftDeleteToTagRels(newDoc: DbTag, { oldDocument, context }: UpdateCallbackProperties<'Tags'>): Promise<DbTag> {
@@ -125,24 +99,18 @@ export async function updateParentTagSubTagIds(newDoc: DbTag, { oldDocument, con
   // Remove this tag from the subTagIds of the old parent
   if (oldDocument.parentTagId) {
     const oldParent = await Tags.findOne(oldDocument.parentTagId);
-    await updateMutator({
-      collection: Tags,
-      documentId: oldDocument.parentTagId,
-      // TODO change to $pull (reverse of $addToSet) once it is implemented in postgres
-      set: {subTagIds: [...(oldParent?.subTagIds || []).filter((id: string) => id !== newDoc._id)]},
-      validate: false,
-    })
+    await updateTag({
+      data: {subTagIds: [...(oldParent?.subTagIds || []).filter((id: string) => id !== newDoc._id)]},
+      selector: { _id: oldDocument.parentTagId }
+    }, context)
   }
   // Add this tag to the subTagIds of the new parent
   if (newDoc.parentTagId) {
     const newParent = await Tags.findOne(newDoc.parentTagId);
-    await updateMutator({
-      collection: Tags,
-      documentId: newDoc.parentTagId,
-      // TODO change to $addToSet once it is implemented in postgres
-      set: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
-      validate: false,
-    })
+    await updateTag({
+      data: {subTagIds: [...(newParent?.subTagIds || []), newDoc._id]},
+      selector: { _id: newDoc.parentTagId }
+    }, context)
   }
   return newDoc;
 }
@@ -167,40 +135,22 @@ export async function reexportProfileTagUsersToElastic(newDocument: DbTag, { old
   return newDocument;
 }
 
-// 3x notifyUsersAboutMentions
-
-/* UPDATE ASYNC */
-
-/* EDIT ASYNC */
-
-// 3x convertImagesInObject
-// elasticSyncDocument
-
-
 
 /* TAG REL CALLBACKS */
 
 /* CREATE BEFORE */
-export async function validateTagRelCreate(newDocument: DbInsertion<DbTagRel>, { currentUser, context }: CreateCallbackProperties<'TagRels'>): Promise<DbInsertion<DbTagRel>> {
-  const { Posts } = context;
-
+export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTagRel>>, { currentUser, context }: CreateCallbackProperties<'TagRels'>) {
   const {tagId, postId} = newDocument;
 
-  if (!userCanUseTags(currentUser) || !currentUser || !tagId) {
+  if (!userCanUseTags(currentUser) || !currentUser || !tagId || !postId) {
     throw new Error(`You do not have permission to add this ${taggingNameSetting.get()}`);
   }
 
-  const canVoteOnTag = await canVoteOnTagAsync(currentUser, tagId, postId, context, newDocument.baseScore >= 0 ? "smallUpvote" : "smallDownvote");
+  const canVoteOnTag = await canVoteOnTagAsync(currentUser, tagId, postId, context, (newDocument.baseScore ?? 0) >= 0 ? "smallUpvote" : "smallDownvote");
   if (canVoteOnTag.fail) {
     throw new Error(`You do not have permission to add this ${taggingNameSetting.get()}`);
   }
-
-  return newDocument;
 }
-
-/* CREATE AFTER */
-
-// 1x countOfReferenceCallbacks
 
 /* NEW AFTER */
 export async function voteForTagWhenCreated(tagRel: DbTagRel, { context }: AfterCreateCallbackProperties<'TagRels'>): Promise<DbTagRel> {
@@ -243,11 +193,3 @@ export async function taggedPostNewNotifications(tagRel: DbTagRel, { context }: 
     await createNotifications({userIds: tagSubscriberIdsToNotify, notificationType: 'newTagPosts', documentType: 'tagRel', documentId: tagRel._id});
   }
 }
-
-/* UPDATE AFTER */
-
-// 1x countOfReferenceCallbacks
-
-/* DELETE ASYNC */
-
-// 1x countOfReferenceCallbacks

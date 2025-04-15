@@ -64,6 +64,6 @@ const schema = {
       forceIncludeInExecutableSchema: true,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"SideCommentCaches">>;
+} satisfies Record<string, CollectionFieldSpecification<"SideCommentCaches">>;
 
 export default schema;

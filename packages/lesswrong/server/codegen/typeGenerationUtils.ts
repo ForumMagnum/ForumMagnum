@@ -21,7 +21,7 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
-export function isFieldNullable(fieldSpec: Pick<NewCollectionFieldSpecification<any>, "database" | "graphql">, dbGenContext?: boolean) {
+export function isFieldNullable(fieldSpec: Pick<CollectionFieldSpecification<any>, "database" | "graphql">, dbGenContext?: boolean) {
   const coalescedValue = fieldSpec.database?.nullable ?? fieldSpec.graphql?.validation?.optional;
   // The implicit default value of `nullable` in the context of database type codegen is `true`, so we need to explicitly rule out `false`, not `undefined`
   if (dbGenContext) {
@@ -34,7 +34,7 @@ function getAllowedValuesUnionTypeString(allowedValues: string[]) {
   return allowedValues?.map(v => `"${v}"`).join(' | ');
 }
 
-export function generateAllowedValuesTypeString(allowedValues: string[], fieldSchema: NewCollectionFieldSpecification<any>, dbGenContext?: boolean) {
+export function generateAllowedValuesTypeString(allowedValues: string[], fieldSchema: CollectionFieldSpecification<any>, dbGenContext?: boolean) {
   const unionType = getAllowedValuesUnionTypeString(allowedValues);
   const nullable = isFieldNullable(fieldSchema, dbGenContext);
   const arrayField = typeof fieldSchema.graphql?.outputType === 'string' && fieldSchema.graphql.outputType.startsWith('[');
@@ -43,7 +43,7 @@ export function generateAllowedValuesTypeString(allowedValues: string[], fieldSc
 }
 
 export function simplSchemaTypeToTypescript(
-  schema: DerivedSimpleSchemaType<NewSchemaType<CollectionNameString>>,
+  schema: DerivedSimpleSchemaType<SchemaType<CollectionNameString>>,
   fieldName: string,
   simplSchemaType: DerivedSimpleSchemaFieldType['type'],
   indent = 2,

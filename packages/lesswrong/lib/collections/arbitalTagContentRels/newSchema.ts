@@ -11,8 +11,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
@@ -23,8 +22,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
@@ -35,8 +33,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["admins"],
       validation: {
@@ -50,8 +47,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["admins"],
       validation: {
@@ -75,8 +71,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["admins"],
       validation: {
@@ -97,8 +92,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
@@ -111,12 +105,11 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
-      inputType: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ArbitalTagContentRels">>;
+} satisfies Record<string, CollectionFieldSpecification<"ArbitalTagContentRels">>;
 
 export default schema;

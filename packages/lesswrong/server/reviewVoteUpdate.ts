@@ -6,10 +6,9 @@ import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
 import { userBigVotePower } from "@/lib/voting/voteTypes";
-import ReviewWinners from "@/server/collections/reviewWinners/collection";
 import { Tags } from "@/server/collections/tags/collection";
 import { createAdminContext } from "./vulcan-lib/createContexts";
-import { createMutator } from "./vulcan-lib/mutators";
+import { createReviewWinner as createReviewWinnerMutator } from "@/server/collections/reviewWinners/mutations";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -359,18 +358,14 @@ export const createReviewWinnerFromId = async (postId: string, idx: number, cate
 }
 
 const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWinnerCategory, adminContext: ResolverContext) => { 
-  return createMutator({
-    collection: ReviewWinners,
-    document: {
+  return createReviewWinnerMutator({
+    data: {
       postId: post._id,
       reviewYear: REVIEW_YEAR,    
       reviewRanking: idx,
       category,
     },
-    context: adminContext,
-    currentUser: adminContext.currentUser,
-    validate: false
-  })
+  }, adminContext);
 }
 
 // This is for manually checking what the default assignments for post categories are, 
@@ -407,7 +402,8 @@ export const createReviewWinners = async () => {
 // (This is similar but not identical to the updateCuratedOrder function in ReviewWinnersRepo,
 // which handles a similar case for the curatedOrder field, although only one post at a time)
 export const updateReviewWinnerRankings = async (year: number) => {
-  
+  const context = createAdminContext();
+  const { ReviewWinners } = context;
   const reviewWinners = await ReviewWinners.find({reviewYear: year}).fetch()
   const postIds = reviewWinners.map(winner => winner.postId)
   const posts = await Posts.find({ _id: { $in: postIds } }).fetch()

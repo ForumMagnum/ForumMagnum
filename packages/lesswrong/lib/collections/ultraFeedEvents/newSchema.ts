@@ -59,7 +59,7 @@ const schema = {
     },
     graphql: {
       outputType: "String", 
-      inputType: "String!",
+      inputType: "String",
       canRead: ["admins"], 
       canCreate: ["members"],
     },
@@ -98,7 +98,7 @@ const schema = {
     },
   },
 
-} satisfies Record<string, NewCollectionFieldSpecification<"UltraFeedEvents">>;
+} satisfies Record<string, CollectionFieldSpecification<"UltraFeedEvents">>;
 
 export default schema;
 

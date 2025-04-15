@@ -12,7 +12,7 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { allCollections } from '../../collections/allCollections';
+import { getAllCollections, getAllCollectionsByName } from '../../collections/allCollections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import * as _ from 'underscore';
@@ -80,12 +80,12 @@ export const generateDataLoaders = (): {
   loaders: Record<CollectionNameString, DataLoader<string,any>>
   extraLoaders: Record<string,any>
 } => {
-  const loaders = _.mapObject(allCollections, (collection,name) =>
-    new DataLoader(
+  const loaders = Object.fromEntries(getAllCollections().map((collection) =>
+    [collection.collectionName, new DataLoader(
       (ids: Array<string>) => findByIds(collection, ids),
       { cache: true, }
-    )
-  ) as Record<CollectionNameString, DataLoader<string,any>>;
+    )] as const
+  )) as Record<CollectionNameString, DataLoader<string,any>>;
   
   return {
     loaders,
@@ -117,7 +117,7 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
   }
   
   let context: ResolverContext = {
-    ...allCollections,
+    ...getAllCollectionsByName(),
     ...generateDataLoaders(),
     req: req as any,
     res,

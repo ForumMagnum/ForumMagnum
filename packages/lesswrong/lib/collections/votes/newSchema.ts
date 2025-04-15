@@ -32,8 +32,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -44,8 +43,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -67,8 +65,8 @@ const schema = {
       type: "VARCHAR(27)[]",
     },
     graphql: {
-      outputType: "[String]",
-      inputType: "[String]!",
+      outputType: "[String!]",
+      inputType: "[String!]!",
       canRead: ["guests"],
     },
   },
@@ -93,8 +91,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       validation: {
         allowedValues: ["bigDownvote", "bigUpvote", "neutral", "smallDownvote", "smallUpvote"],
@@ -167,8 +164,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
-      inputType: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
     },
   },
@@ -181,8 +177,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
-      inputType: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
     },
   },
@@ -253,8 +248,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
-      inputType: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
     },
   },
@@ -268,13 +262,14 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       validation: {
         optional: true,
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Votes">>;
+} satisfies Record<string, CollectionFieldSpecification<"Votes">>;
 
 export default schema;

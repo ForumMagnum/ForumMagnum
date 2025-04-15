@@ -63,11 +63,14 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
+      canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["TagFlags"],
-        getTitle: (tf) => tf.name,
+        getTitle: (tf) => tf.name!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
       },
@@ -82,8 +85,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["members", "admins", "sunshineRegiment"],
       canCreate: ["members", "admins", "sunshineRegiment"],
@@ -100,7 +102,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -128,6 +131,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"TagFlags">>;
+} satisfies Record<string, CollectionFieldSpecification<"TagFlags">>;
 
 export default schema;

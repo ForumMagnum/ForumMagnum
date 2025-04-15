@@ -10,6 +10,7 @@ const schema = {
     database: DEFAULT_CREATED_AT_FIELD.database,
     graphql: {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
+      outputType: "Date",
       canRead: ["members"],
     },
   },
@@ -118,6 +119,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Messages">>;
+} satisfies Record<string, CollectionFieldSpecification<"Messages">>;
 
 export default schema;

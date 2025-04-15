@@ -11,7 +11,6 @@ export const Sessions: SessionsCollection = createCollection({
     indexSet.addIndex('Sessions', {expires: 1});
     return indexSet;
   },
-  logChanges: false,
 });
 
 export default Sessions;

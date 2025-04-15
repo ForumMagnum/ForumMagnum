@@ -1,11 +1,15 @@
-import Messages from '../../server/collections/messages/collection';
-import { ModeratorActions } from '../../server/collections/moderatorActions/collection';
 import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/newSchema';
 import { loggerConstructor } from '../../lib/utils/logging';
-import Users from '../../server/collections/users/collection';
-import { getCollectionHooks } from '../mutationCallbacks';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
+import { createNotifications } from '../notificationCallbacksHelpers';
+import difference from 'lodash/difference';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { createModeratorAction } from '../collections/moderatorActions/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { createMessage } from '../collections/messages/mutations';
+import { updateUser } from '../collections/users/mutations';
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -16,17 +20,18 @@ import { getAdminTeamAccount } from '../utils/adminTeamAccount';
  * In the case where a user should be blocked, this will throw an error, so we
  * should make sure to handle that on the frontend.
  */
-async function flagOrBlockUserOnManyDMs({
+export async function flagOrBlockUserOnManyDMs({
   currentConversation,
   oldConversation,
   currentUser,
   context,
 }: {
-  currentConversation: Partial<DbConversation>,
+  currentConversation: CreateConversationDataInput | UpdateConversationDataInput,
   oldConversation?: DbConversation,
   currentUser: DbUser|null,
   context: ResolverContext,
 }): Promise<void> {
+  const { ModeratorActions, Users } = context;
   const logger = loggerConstructor('callbacks-conversations');
   logger('flagOrBlockUserOnManyDMs()')
   if (!currentUser) {
@@ -46,11 +51,11 @@ async function flagOrBlockUserOnManyDMs({
   // currentUser.usersContactedBeforeReview, but we will try to be robust to
   // the case where it's not
   logger('previous usersContactedBeforeReview', currentUser.usersContactedBeforeReview)
-  const allUsersEverContacted = [...(new Set([
+  const allUsersEverContacted = filterNonnull([...(new Set([
     ...currentConversation.participantIds,
     ...(oldConversation?.participantIds ?? []),
     ...(currentUser.usersContactedBeforeReview ?? [])
-  ]))].filter(id => id !== currentUser._id)
+  ]))].filter(id => id !== currentUser._id))
   logger(
     'new allUsersEverContacted', allUsersEverContacted,
     '(length: ', allUsersEverContacted.length, ')'
@@ -58,26 +63,21 @@ async function flagOrBlockUserOnManyDMs({
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG && !currentUser.reviewedAt) {
     // Flag users that have sent N+ DMs if they've never been reviewed
     logger('Flagging user')
-    void createMutator({
-      collection: ModeratorActions,
-      context,
-      currentUser: null,
-      validate: false,
-      document: {
+    void createModeratorAction({
+      data: {
         userId: currentUser._id,
         type: FLAGGED_FOR_N_DMS,
       },
-    });
+    }, context);
   }
+  
   // Always update the numUsersContacted field, for denormalization
-  void updateMutator({
-    collection: Users,
-    documentId: currentUser._id,
-    set: {
+  void updateUser({
+    data: {
       usersContactedBeforeReview: allUsersEverContacted,
     },
-    validate: false,
-  });
+    selector: { _id: currentUser._id }
+  }, createAnonymousContext());
   
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
     logger('Blocking user')
@@ -87,17 +87,9 @@ async function flagOrBlockUserOnManyDMs({
   logger('flagOrBlockUserOnManyDMs() return')
 }
 
-getCollectionHooks("Conversations").createBefore.add(async function flagUserOnManyDMsCreate(document, properties) {
-  await flagOrBlockUserOnManyDMs({currentConversation: document, currentUser: properties.currentUser, context: properties.context});
-  return document;
-});
+export async function sendUserLeavingConversationNotication({newDocument, oldDocument, context}: UpdateCallbackProperties<'Conversations'>) {
+  const { Messages, Users } = context;
 
-getCollectionHooks("Conversations").updateBefore.add(async function flagUserOnManyDMsCreate(data, properties) {
-  await flagOrBlockUserOnManyDMs({currentConversation: data, oldConversation: properties.oldDocument, currentUser: properties.currentUser, context: properties.context});
-  return data;
-});
-
-getCollectionHooks("Conversations").updateAsync.add(async function leavingNotication({newDocument, oldDocument, context}) {
   const usersWhoLeft = (oldDocument?.participantIds ?? [])
     .filter(id => !newDocument.participantIds?.includes(id))
   if (usersWhoLeft.length === 0) return;
@@ -108,9 +100,10 @@ getCollectionHooks("Conversations").updateAsync.add(async function leavingNotica
   }
   for (const userId of usersWhoLeft) {
     const leavingUser = (await Users.findOne(userId));
-    await createMutator({
-      collection: Messages,
-      document: {
+    const adminAccountContext = await computeContextFromUser({ user: adminAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+
+    await createMessage({
+      data: {
         userId: adminAccount._id,
         contents: {
           originalContents: {
@@ -122,9 +115,30 @@ getCollectionHooks("Conversations").updateAsync.add(async function leavingNotica
         },
         conversationId: newDocument._id,
         noEmail: true,
-      },
-      currentUser: adminAccount,
-      validate: false,
-    })
+      }
+    }, adminAccountContext);
   }
-})
+}
+
+export async function conversationEditNotification(
+  conversation: DbConversation,
+  oldConversation: DbConversation,
+  currentUser: DbUser | null,
+  context: ResolverContext,
+) {
+  const { Messages } = context;
+
+  // Filter out the new participant if the user added themselves (which can
+  // happen with mods)
+  const newParticipantIds = difference(
+    conversation.participantIds || [],
+    oldConversation.participantIds || [],
+  ).filter((id) => id !== currentUser?._id);
+
+  if (newParticipantIds.length) {
+    // Notify newly added users of the most recent message
+    const mostRecentMessage = await Messages.findOne({conversationId: conversation._id}, {sort: {createdAt: -1}});
+    if (mostRecentMessage) // don't notify if there are no messages, they will still be notified when they receive the first message
+      await createNotifications({userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
+  }
+}

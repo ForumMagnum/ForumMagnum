@@ -46,7 +46,6 @@ export const UserActivities: UserActivitiesCollection = createCollection({
     indexSet.addIndex('UserActivities', { visitorId: 1, type: 1 });
     return indexSet;
   },
-  logChanges: true,
 });
 
 

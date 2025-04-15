@@ -1,4 +1,3 @@
-import Notifications from '../server/collections/notifications/collection';
 import { messageGetLink } from '../lib/helpers';
 import Subscriptions from '../server/collections/subscriptions/collection';
 import Users from '../server/collections/users/collection';
@@ -10,12 +9,11 @@ import {getDocument, getNotificationTypeByName, NotificationDocument} from '../l
 import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings, legacyToNewNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings } from '../lib/collections/users/newSchema';
 import * as _ from 'underscore';
-import { createMutator } from './vulcan-lib/mutators';
 import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
-
+import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
 /**
  * Return a list of users (as complete user objects) subscribed to a given
  * document. This is the union of users who have subscribed to it explicitly,
@@ -202,41 +200,37 @@ export const createNotification = async ({
 
   const { onsite, email } = notificationTypeSettings;
   if (onsite.enabled) {
-    const createdNotification = await createMutator({
-      collection: Notifications,
-      document: {
+    const createdNotification = await createNotificationMutator({
+      data: {
         ...notificationData,
         emailed: false,
         waitingForBatch: onsite.batchingFrequency !== "realtime",
-      },
-      currentUser: user,
-      validate: false
-    });
+      }
+    }, context);
+
     if (onsite.batchingFrequency !== "realtime") {
       await notificationDebouncers[notificationType]!.recordEvent({
         key: {notificationType, userId},
-        data: createdNotification.data._id,
+        data: createdNotification._id,
         timing: getNotificationTiming(onsite),
         af: false, //TODO: Handle AF vs non-AF notifications
       });
     }
   }
   if (email.enabled && !noEmail) {
-    const createdNotification = await createMutator({
-      collection: Notifications,
-      document: {
+    const createdNotification = await createNotificationMutator({
+      data: {
         ...notificationData,
         emailed: true,
         waitingForBatch: true,
-      },
-      currentUser: user,
-      validate: false
-    });
+      }
+    }, context);
+
     if (!notificationDebouncers[notificationType])
       throw new Error(`Invalid notification type: ${notificationType}`);
     await notificationDebouncers[notificationType]!.recordEvent({
       key: {notificationType, userId},
-      data: createdNotification.data._id,
+      data: createdNotification._id,
       timing: getNotificationTiming(email),
       af: false, //TODO: Handle AF vs non-AF notifications
     });

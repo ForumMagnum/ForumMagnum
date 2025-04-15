@@ -9,7 +9,7 @@ import {
 } from '../server/testingSqlClient';
 import { getAllCollections } from '../server/collections/allCollections';
 import PgCollection from '../server/sql/PgCollection';
-import { waitUntilCallbacksFinished } from './utils';
+import { waitUntilPgQueriesFinished } from './utils';
 import "@/lib"
 import { runServerOnStartupFunctions } from '@/server/serverMain';
 
@@ -74,7 +74,7 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  await waitUntilCallbacksFinished();
+  await waitUntilPgQueriesFinished();
 });
 
 afterAll(async () => {
@@ -82,7 +82,7 @@ afterAll(async () => {
   // - There may be some dead time between callbacks where waitUntilCallbacksFinished resolves, but actually another callback is about to run
   // - Some async functions may not be caught by waitUntilCallbacksFinished at all
   for (let i = 0; i < 10; i++) {
-    await waitUntilCallbacksFinished();
+    await waitUntilPgQueriesFinished();
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
