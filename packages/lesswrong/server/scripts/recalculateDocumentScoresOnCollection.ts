@@ -8,6 +8,7 @@ export async function recalculateDocumentScoresOnCollection(collectionName: Vote
   const context = createAnonymousContext();
   await forEachDocumentBatchInCollection({
     collection: getCollection(collectionName),
+    batchSize: 100,
     callback: async (batch) => {
       await executePromiseQueue(batch.map(doc => async () => {
         await recalculateDocumentScores(doc, collectionName, context)
