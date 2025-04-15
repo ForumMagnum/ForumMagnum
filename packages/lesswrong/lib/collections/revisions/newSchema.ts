@@ -141,6 +141,7 @@ const schema = {
       outputType: "String!",
       inputType: "String",
       canRead: ["guests"],
+      resolver: ({ version }) => version ?? '1.0.0',
       validation: {
         optional: true,
       },
@@ -275,6 +276,7 @@ const schema = {
       outputType: "Float!",
       inputType: "Float",
       canRead: ["guests"],
+      resolver: ({ wordCount }) => wordCount ?? 0,
       validation: {
         optional: true,
       },
@@ -399,6 +401,7 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
+      resolver: ({ skipAttributions }) => skipAttributions ?? false,
       canUpdate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
