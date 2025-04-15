@@ -1,3 +1,4 @@
+import { FeedItemDisplayStatus } from "@/components/ultraFeed/ultraFeedTypes";
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 
 const ALLOWED_COLLECTION_NAMES = ["Posts", "Comments", "Spotlights"];
@@ -112,6 +113,7 @@ interface ServedEventData {
   sessionId: string;    // The session ID for the feed load
   itemIndex: number;    // The index of the item in the served results array
   commentIndex?: number; // The index of the comment within a thread, if applicable
+  displayStatus?: FeedItemDisplayStatus;
 }
 
 // Use Pick on the generated DB type (adjust type name 'DbUltraFeedEvent' if needed)

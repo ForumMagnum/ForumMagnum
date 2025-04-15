@@ -8,7 +8,8 @@ import {
   FeedPostResolverType,
   feedPostSourceTypesArray,
   feedCommentSourceTypesArray,
-  feedSpotlightSourceTypesArray
+  feedSpotlightSourceTypesArray,
+  FeedItemDisplayStatus
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
@@ -395,7 +396,12 @@ const transformItemsForResolver = (
   }));
 };
 
-type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId' > & { event?: { sessionId: string; itemIndex: number; commentIndex?: number } };
+type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId' > & { event?: { 
+  sessionId: string;
+  itemIndex: number;
+  commentIndex?: number;
+  displayStatus?: FeedItemDisplayStatus;
+} };
 
 /**
  * Create UltraFeed events for tracking served items
@@ -422,14 +428,16 @@ const createUltraFeedEvents = (
     } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
         const threadData = item.feedCommentThread;
         const comments = threadData?.comments;
+        const commentMetaInfos = threadData?.commentMetaInfos;
         comments?.forEach((comment: DbComment, commentIndex) => {
           if (comment?._id) {
-             eventsToCreate.push({ 
+            const displayStatus = commentMetaInfos?.[comment._id]?.displayStatus;
+            eventsToCreate.push({ 
                userId, 
                eventType: "served", 
                collectionName: "Comments", 
                documentId: comment._id, 
-               event: { sessionId, itemIndex: actualItemIndex, commentIndex }
+               event: { sessionId, itemIndex: actualItemIndex, commentIndex, displayStatus }
               });
           }
         });
