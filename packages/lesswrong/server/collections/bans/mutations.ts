@@ -6,7 +6,7 @@ import { assignUserIdToData, getLegacyCreateCallbackProps, getLegacyUpdateCallba
 import cloneDeep from "lodash/cloneDeep";
 
 
-export async function createBan({ data }: CreateBanInput, context: ResolverContext) {
+export async function createBan({ data }: { data: Partial<DbBan> }, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('Bans', {
@@ -29,7 +29,7 @@ export async function createBan({ data }: CreateBanInput, context: ResolverConte
   return documentWithId;
 }
 
-export async function updateBan({ selector, data }: UpdateBanInput, context: ResolverContext) {
+export async function updateBan({ selector, data }: { selector: SelectorInput, data: Partial<DbBan> }, context: ResolverContext) {
   const { currentUser, Bans } = context;
 
   // Save the original mutation (before callbacks add more changes to it) for

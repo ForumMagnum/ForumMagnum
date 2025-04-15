@@ -139,7 +139,7 @@ export async function reexportProfileTagUsersToElastic(newDocument: DbTag, { old
 /* TAG REL CALLBACKS */
 
 /* CREATE BEFORE */
-export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTagRel>>, { currentUser, context }: CreateCallbackProperties<'TagRels'>) {
+export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTagRel>>, { currentUser, context }: CreateCallbackProperties<'TagRels', Partial<DbInsertion<DbTagRel>>>) {
   const {tagId, postId} = newDocument;
 
   if (!userCanUseTags(currentUser) || !currentUser || !tagId || !postId) {

@@ -5,7 +5,7 @@ import { taggedPostNewNotifications, validateTagRelCreate, voteForTagWhenCreated
 import { assignUserIdToData, getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 
 
-export async function createTagRel({ data }: CreateTagRelInput, context: ResolverContext) {
+export async function createTagRel({ data }: { data: Partial<DbInsertion<DbTagRel>> }, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('TagRels', {
@@ -34,7 +34,7 @@ export async function createTagRel({ data }: CreateTagRelInput, context: Resolve
   return documentWithId;
 }
 
-export async function updateTagRel({ selector, data }: UpdateTagRelInput, context: ResolverContext) {
+export async function updateTagRel({ selector, data }: { selector: SelectorInput, data: Partial<DbTagRel> }, context: ResolverContext) {
   const { currentUser, TagRels } = context;
 
   const {

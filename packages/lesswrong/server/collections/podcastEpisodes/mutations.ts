@@ -2,10 +2,10 @@
 import schema from "@/lib/collections/podcastEpisodes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userIsPodcaster } from "@/lib/vulcan-users/permissions";
-import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null) {
@@ -31,23 +31,6 @@ export async function createPodcastEpisode({ data }: CreatePodcastEpisodeInput, 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('PodcastEpisodes', documentWithId);
 
   return documentWithId;
-}
-
-export async function updatePodcastEpisode({ selector, data }: UpdatePodcastEpisodeInput, context: ResolverContext) {
-  const { currentUser, PodcastEpisodes } = context;
-
-  const {
-    documentSelector: podcastepisodeSelector,
-    updateCallbackProperties,
-  } = await getLegacyUpdateCallbackProps('PodcastEpisodes', { selector, context, data, schema });
-
-  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
-
-  let updatedDocument = await updateAndReturnDocument(data, PodcastEpisodes, podcastepisodeSelector, context);
-
-  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PodcastEpisodes', updatedDocument, updateCallbackProperties.oldDocument);
-
-  return updatedDocument;
 }
 
 export const createPodcastEpisodeGqlMutation = makeGqlCreateMutation('PodcastEpisodes', createPodcastEpisode, {

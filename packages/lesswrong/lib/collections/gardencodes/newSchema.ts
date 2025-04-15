@@ -192,8 +192,8 @@ const schema = {
       inputType: "Date",
       canRead: ["guests"],
       canUpdate: ["admins"],
-      onCreate: ({ document: gardenCode }) => {
-        return moment(gardenCode.startTime).add(12, "hours").toDate();
+      onCreate: () => {
+        return moment(new Date()).add(12, "hours").toDate();
       },
       validation: {
         optional: true,

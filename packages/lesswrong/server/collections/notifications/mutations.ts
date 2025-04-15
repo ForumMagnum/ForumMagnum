@@ -17,7 +17,7 @@ function editCheck(user: DbUser | null, document: DbNotification | null) {
     : userCanDo(user, `notifications.edit.all`)
 }
 
-export async function createNotification({ data }: CreateNotificationInput & { data: { emailed?: boolean | null; waitingForBatch?: boolean | null } }, context: ResolverContext) {
+export async function createNotification({ data }: { data: Partial<DbNotification> }, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('Notifications', {

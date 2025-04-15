@@ -49,7 +49,7 @@ export async function createLWEvent({ data }: CreateLWEventInput, context: Resol
   return documentWithId;
 }
 
-export async function updateLWEvent({ selector, data }: UpdateLWEventInput, context: ResolverContext) {
+export async function updateLWEvent({ selector, data }: { selector: SelectorInput, data: Partial<DbLWEvent> }, context: ResolverContext) {
   const { currentUser, LWEvents } = context;
 
   const {
