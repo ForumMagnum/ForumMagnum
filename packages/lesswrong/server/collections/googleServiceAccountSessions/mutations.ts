@@ -4,7 +4,7 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 
 
-export async function createGoogleServiceAccountSession({ data }: CreateGoogleServiceAccountSessionInput, context: ResolverContext) {
+export async function createGoogleServiceAccountSession({ data }: { data: Partial<DbGoogleServiceAccountSession> }, context: ResolverContext) {
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('GoogleServiceAccountSessions', {
@@ -25,7 +25,7 @@ export async function createGoogleServiceAccountSession({ data }: CreateGoogleSe
   return documentWithId;
 }
 
-export async function updateGoogleServiceAccountSession({ selector, data }: UpdateGoogleServiceAccountSessionInput, context: ResolverContext) {
+export async function updateGoogleServiceAccountSession({ selector, data }: { selector: SelectorInput, data: Partial<DbGoogleServiceAccountSession> }, context: ResolverContext) {
   const { currentUser, GoogleServiceAccountSessions } = context;
 
   const {
