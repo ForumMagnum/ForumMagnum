@@ -198,7 +198,7 @@ const UltraFeedContent = () => {
                 sortKeyType="Date"
                 resolverArgs={{ sessionId: "String", settings: "JSON" }}
                 firstPageSize={15}
-                pageSize={15}
+                pageSize={30}
                 refetchRef={refetchSubscriptionContentRef}
                 resolverArgsValues={{ sessionId, settings: JSON.stringify(settings) }}
                 loadMoreDistanceProp={1000}

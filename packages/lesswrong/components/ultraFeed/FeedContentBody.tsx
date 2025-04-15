@@ -44,7 +44,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     overflow: 'hidden !important',
     // textOverflow: 'ellipsis !important', // might want to reenable
     maxHeight: 'none !important',
-    // paddingBottom: '0.25em !important', // might want to reenable
+    paddingBottom: '0.1em !important',
 
     // Hide first blockquote when line clamping is active
     '& blockquote:first-child': {

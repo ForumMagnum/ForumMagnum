@@ -5,32 +5,37 @@
 import { FeedItemSourceType } from './ultraFeedTypes';
 
 export interface UltraFeedSettingsType {
-  postTruncationBreakpoints: number[];
-  commentTruncationBreakpoints: number[];
   collapsedCommentTruncation: number;
   lineClampNumberOfLines: number;
+  postTruncationBreakpoints: number[];
+  commentTruncationBreakpoints: number[];
   sourceWeights: Record<FeedItemSourceType, number>;
+  commentDecayFactor: number;
+  commentDecayBiasHours: number;
+  commentSeenPenalty: number;
+  quickTakeBoost: number;
 }
 
-// Default source weights (matching the original resolver weights)
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
-  'recombee-lesswrong-custom': 10,
-  'hacker-news': 10,
-  'quickTakes': 20,
-  'topComments': 20,
+  'hacker-news': 5,
+  'recombee-lesswrong-custom': 5,
   'spotlights': 2,
+  'recentComments': 10,
   'curated': 0,
-  'stickied': 0, // Stickied posts probably shouldn't have weight affecting sampling
+  'stickied': 0,
   'welcome-post': 0,
 };
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
-  postTruncationBreakpoints: [100, 500, 1000],
-  commentTruncationBreakpoints: [50, 300, 600],
-  collapsedCommentTruncation: 50,
-  lineClampNumberOfLines: 2,
-  sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS },
+  collapsedCommentTruncation: 70,
+  lineClampNumberOfLines: 0,
+  postTruncationBreakpoints: [70, 250],
+  commentTruncationBreakpoints: [100, 250],
+  sourceWeights: DEFAULT_SOURCE_WEIGHTS,
+  commentDecayFactor: 1.8, 
+  commentDecayBiasHours: 2, 
+  commentSeenPenalty: 0.6,
+  quickTakeBoost: 1.5,
 };
 
-// Constants for localStorage
 export const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings'; 

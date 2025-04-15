@@ -163,11 +163,11 @@ const calculateFetchLimits = (
   totalLimit: number,
   bufferMultiplier = 2
 ) => {
-  const totalWeight = Object.values(sourceWeights).reduce((sum, weight) => sum + weight, 0);
+  const totalWeight = Object.values(sourceWeights).reduce((sum: number, weight) => sum + weight, 0);
   
-  const totalPostWeight = feedPostSourceTypesArray.reduce((sum, type) => sum + (sourceWeights[type] || 0), 0);
-  const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum, type) => sum + (sourceWeights[type] || 0), 0);
-  const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum, type) => sum + (sourceWeights[type] || 0), 0);
+  const totalPostWeight = feedPostSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
+  const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
+  const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
 
   return {
     totalWeight,
@@ -207,15 +207,17 @@ const createSourcesMap = (
   spotlightItems: FeedSpotlight[]
 ): Record<FeedItemSourceType, WeightedSource> => {
   const sources = {} as Record<FeedItemSourceType, WeightedSource>;
+  const commentSourceType: FeedItemSourceType = 'recentComments';
   
-  // Initialize sources with empty item arrays
+  // Initialize sources with empty item arrays based on sourceWeights
   Object.entries(sourceWeights).forEach(([source, weight]) => {
     const sourceType = source as FeedItemSourceType;
-    let renderAsType: FeedItemRenderType;
+    if (weight <= 0) return;
 
+    let renderAsType: FeedItemRenderType;
     if ((feedPostSourceTypesArray as readonly string[]).includes(sourceType)) {
       renderAsType = 'feedPost';
-    } else if ((feedCommentSourceTypesArray as readonly string[]).includes(sourceType)) {
+    } else if (sourceType === commentSourceType) {
       renderAsType = 'feedCommentThread';
     } else if ((feedSpotlightSourceTypesArray as readonly string[]).includes(sourceType)) {
       renderAsType = 'feedSpotlight';
@@ -227,17 +229,14 @@ const createSourcesMap = (
 
     sources[sourceType] = {
       weight,
-      items: [], // Initialize with empty items
+      items: [], 
       renderAsType
     };
   });
 
   // Add spotlight items
-  if (sources.spotlights) {
+  if (sources.spotlights && spotlightItems.length > 0) {
     sources.spotlights.items = spotlightItems;
-  } else if (spotlightItems.length > 0) {
-     // eslint-disable-next-line no-console
-     console.warn("UltraFeedResolver: Fetched spotlights but 'spotlights' source is not defined in sourceWeights.");
   }
 
   // Add post items to their sources
@@ -253,28 +252,14 @@ const createSourcesMap = (
     }
   });
 
-  // Add comment items to their sources
-  commentThreadsItems.forEach(commentThread => {
-    let foundSources = false;
-    // Find the first comment that *has* source info
-    for (const comment of commentThread.comments) {
-      const itemSources = comment?.metaInfo?.sources;
-      if (Array.isArray(itemSources) && itemSources.length > 0) {
-        itemSources.forEach(source => {
-          const sourceType = source as FeedItemSourceType;
-          if (sources[sourceType]) {
-            sources[sourceType].items.push(commentThread);
-            foundSources = true;
-          }
-        });
-        if (foundSources) {
-          break;
-        }
-      }
-    }
-  });
+  // Add ALL prepared comment threads to the single 'recentComments' bucket if it exists
+  if (sources[commentSourceType]) {
+    sources[commentSourceType].items = commentThreadsItems; 
+  } else if (commentThreadsItems.length > 0) {
+      // eslint-disable-next-line no-console
+      console.warn(`UltraFeedResolver: Prepared ${commentThreadsItems.length} comment threads, but '${commentSourceType}' source is not defined or has zero weight in sourceWeights.`);
+  }
 
-  // Filter out sources with no items
   return Object.entries(sources).reduce((acc, [key, value]) => {
     if (value.items.length > 0) {
       acc[key as FeedItemSourceType] = value;
@@ -592,7 +577,7 @@ export const ultraFeedGraphQLQueries = {
       // Fetch content from all sources
       const [postThreadsItems, commentThreadsItems, spotlightItems] = await Promise.all([
         postFetchLimit > 0 ? getUltraFeedPostThreads(context, postFetchLimit, servedPostIds) : Promise.resolve([]),
-        commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit) : Promise.resolve([]),
+        commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit, parsedSettings) : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([])
       ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[]];
 

@@ -11,6 +11,7 @@
  * - Building comment threads from raw comment data
  */
 
+import { UltraFeedSettingsType } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
   PreDisplayFeedCommentThread, 
@@ -19,7 +20,6 @@ import {
   FeedCommentFromDb,
   FeedItemSourceType
 } from '../../components/ultraFeed/ultraFeedTypes';
-import CommentsRepo from '../../server/repos/CommentsRepo';
 
 // Define local parameters for UltraFeed time decay which is same formula as HN to down-weight older threads
 const ULTRAFEED_SCORE_BIAS = 3; // Similar to SCORE_BIAS elsewhere, adjusts starting decay
@@ -493,31 +493,282 @@ export function buildDistinctLinearThreads(
   return buildCommentThreads(topLevelId);
 }
 
+// Type definition for a comment after initial scoring
+interface IntermediateScoredComment extends FeedCommentFromDb {
+  score: number;
+}
+
+// Type definition for a comment after thread building (includes metaInfo)
+interface FinalScoredComment extends IntermediateScoredComment {
+  metaInfo: FeedCommentMetaInfo | null;
+}
+
+// Type definition for a thread composed of final scored comments
+interface FinalScoredCommentThread extends Array<FinalScoredComment> {}
+
+// Type definition for a prioritized thread containing final scored comments
+interface PrioritizedThread {
+  thread: FinalScoredCommentThread;
+  score: number;
+  topLevelId: string;
+}
+
+// Add a type for the prepared thread that includes a primary source
+interface PreparedFeedCommentsThread extends FeedCommentsThread {
+  primarySource: FeedItemSourceType | null; // Add a field for the representative source
+}
+
 /**
- * Builds comment threads for the UltraFeed using raw comment data
+ * Calculates the score for an individual comment based on decay and seen status,
+ * using provided settings.
+ */
+function calculateCommentScore(
+  comment: FeedCommentFromDb,
+  settings: Pick<UltraFeedSettingsType, 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost'>
+): number {
+  if (!comment.postedAt) {
+    return 0; // Cannot score without a timestamp
+  }
+
+  const ageMillis = new Date().getTime() - comment.postedAt.getTime();
+  const ageHours = Math.max(0, ageMillis / (1000 * 60 * 60));
+  const baseScore = comment.baseScore ?? 0;
+
+  // Calculate HN-style time decay using settings
+  const denominator = Math.pow(ageHours + settings.commentDecayBiasHours, settings.commentDecayFactor);
+  let decayedScore = 0;
+  if (denominator > 0 && Number.isFinite(denominator)) {
+    decayedScore = (baseScore + 1) / denominator;
+  }
+
+  // Apply quick take boost if applicable
+  const boost = comment.shortform ? settings.quickTakeBoost : 1.0;
+  const boostedScore = decayedScore * boost;
+
+  // Apply seen penalty
+  const hasBeenSeen = comment.lastViewed !== null;
+  const finalScore = boostedScore * (hasBeenSeen ? settings.commentSeenPenalty : 1.0);
+
+  return Number.isFinite(finalScore) && finalScore >= 0 ? finalScore : 0;
+}
+
+/**
+ * Scores a list of comments using the current algorithm.
+ */
+function scoreComments(
+  comments: FeedCommentFromDb[],
+  settings: Pick<UltraFeedSettingsType, 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost'>
+): IntermediateScoredComment[] { 
+  return comments.map(comment => ({
+    ...comment,
+    score: calculateCommentScore(comment, settings),
+  }));
+}
+
+/**
+ * Builds all linear threads from scored comments and calculates a score for each thread.
+ */
+function buildAndScoreThreads(
+  scoredComments: IntermediateScoredComment[]
+): PrioritizedThread[] { 
+  // Group comments by their effective top-level ID
+  const groups: Record<string, IntermediateScoredComment[]> = {};
+  for (const comment of scoredComments) {
+    const topId = comment.topLevelCommentId ?? comment.commentId;
+    if (!groups[topId]) {
+      groups[topId] = [];
+    }
+    groups[topId].push(comment);
+  }
+
+  const allPossibleFinalThreads: FinalScoredCommentThread[] = []; // Use Final type
+  // Map uses Intermediate type
+  const commentsById = new Map<string, IntermediateScoredComment>(scoredComments.map(c => [c.commentId, c])); 
+
+  for (const [_topLevelId, groupComments] of Object.entries(groups)) {
+    if (!groupComments || groupComments.length === 0) continue;
+
+    // Call the existing function to build pre-display threads
+    const generatedPreDisplayThreads = buildDistinctLinearThreads(groupComments);
+
+    // Map the result back to FinalScoredCommentThread format, merging metaInfo
+    for (const preDisplayThread of generatedPreDisplayThreads) {
+      // Map to FinalScoredComment[]
+      const finalScoredThread: FinalScoredComment[] = preDisplayThread
+        .map(preDisplayComment => {
+          const originalScoredCommentBase = commentsById.get(preDisplayComment.commentId);
+          if (!originalScoredCommentBase) {
+            // eslint-disable-next-line no-console
+            console.warn(`buildDistinctLinearThreads returned comment ${preDisplayComment.commentId} not found in original map. Filtering out.`);
+            return null; 
+          }
+          // Create FinalScoredComment with metaInfo
+          return { 
+            ...originalScoredCommentBase, 
+            metaInfo: preDisplayComment.metaInfo
+          } as FinalScoredComment; // Assert type here after merging
+        })
+        .filter(Boolean) as FinalScoredComment[];
+      
+      if (finalScoredThread.length > 0) {
+        allPossibleFinalThreads.push(finalScoredThread);
+      }
+    }
+  }
+
+  // Calculate score for each valid thread path
+  const scoredThreads: PrioritizedThread[] = allPossibleFinalThreads.map(thread => {
+    const threadScore = thread.reduce((sum, comment) => sum + comment.score, 0);
+    const topLevelId = thread[0].topLevelCommentId ?? thread[0].commentId;
+    return { thread, score: threadScore, topLevelId }; 
+  });
+
+  return scoredThreads;
+}
+
+/**
+ * Selects the highest-scoring thread for each top-level discussion and sorts them.
+ */
+function selectBestThreads(
+  allScoredThreads: PrioritizedThread[]
+): PrioritizedThread[] {
+  // Group by topLevelId to select the best path
+  const groupedByTopLevel: Record<string, PrioritizedThread[]> = {};
+  for (const scoredThread of allScoredThreads) {
+    if (!groupedByTopLevel[scoredThread.topLevelId]) {
+      groupedByTopLevel[scoredThread.topLevelId] = [];
+    }
+    groupedByTopLevel[scoredThread.topLevelId].push(scoredThread);
+  }
+
+  // Select the best thread (highest score) from each group
+  const representativeThreads: PrioritizedThread[] = [];
+  for (const topLevelId in groupedByTopLevel) {
+    const group = groupedByTopLevel[topLevelId];
+    if (group.length === 0) continue;
+
+    const bestInGroup = group.reduce((best, current) => {
+      return current.score > best.score ? current : best;
+    });
+    representativeThreads.push(bestInGroup);
+  }
+
+  // Sort the representative threads by score (descending)
+  const finalRankedThreads = representativeThreads.sort((a, b) => b.score - a.score);
+  
+  return finalRankedThreads;
+}
+
+/**
+ * Prepares a single ranked thread for display by determining expansion and highlighting.
+ * Also determines a primary source for the thread.
+ */
+function prepareThreadForDisplay(
+  rankedThreadInfo: PrioritizedThread
+): PreparedFeedCommentsThread | null { // Return new type
+  const thread = rankedThreadInfo.thread;
+  const numComments = thread.length;
+  if (numComments === 0) return null;
+
+  // Determine primary source (e.g., from the first comment)
+  // If the first comment has no source, the thread gets no primary source.
+  const firstCommentSource = thread[0]?.sources?.[0] as FeedItemSourceType | undefined;
+  const primarySource = firstCommentSource ?? null; // Use first source or null
+
+  const expandedCommentIds = new Set<string>();
+
+  // 1. Identify unviewed comments and sort by BASE SCORE (karma) descending
+  const unviewedComments = thread
+    .filter(comment => !comment.lastViewed && !comment.lastInteracted) 
+    .sort((a, b) => (b.baseScore ?? 0) - (a.baseScore ?? 0)); 
+
+  // 2. Determine if the first comment is unviewed
+  const firstComment = thread[0];
+  const isFirstCommentUnviewed = firstComment && !firstComment.lastViewed && !firstComment.lastInteracted;
+
+  // 3. Apply expansion rules (similar to original)
+  if (unviewedComments.length > 0) {
+    const highestKarmaUnviewed = unviewedComments[0];
+    expandedCommentIds.add(highestKarmaUnviewed.commentId);
+
+    if (isFirstCommentUnviewed && firstComment.commentId !== highestKarmaUnviewed.commentId && expandedCommentIds.size < 2) {
+      expandedCommentIds.add(firstComment.commentId);
+    } else if (unviewedComments.length > 1 && expandedCommentIds.size < 2) {
+      expandedCommentIds.add(unviewedComments[1].commentId);
+    }
+  }
+  
+  // 4. Map to final comment structure with display status and highlight
+  const finalComments: PreDisplayFeedComment[] = thread.map((comment): PreDisplayFeedComment => {
+    const postedAtRecently = comment.postedAt && comment.postedAt > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
+    const shouldHighlight = !comment.lastViewed && !comment.lastInteracted && postedAtRecently;
+    const displayStatus = expandedCommentIds.has(comment.commentId) ? 'expanded' : 'collapsed';
+
+    // Construct the MetaInfo needed for display
+    const newMetaInfo: FeedCommentMetaInfo = {
+      sources: comment.sources as FeedItemSourceType[],
+      directDescendentCount: comment.metaInfo?.directDescendentCount ?? 0, 
+      lastServed: comment.lastServed, 
+      lastViewed: comment.lastViewed,
+      lastInteracted: comment.lastInteracted,
+      postedAt: comment.postedAt,
+      displayStatus: displayStatus,
+      highlight: shouldHighlight ?? false,
+    };
+
+    return {
+      commentId: comment.commentId,
+      postId: comment.postId,
+      baseScore: comment.baseScore,
+      topLevelCommentId: comment.topLevelCommentId,
+      metaInfo: newMetaInfo,
+    };
+  });
+
+  return {
+    comments: finalComments,
+    primarySource: primarySource, // Include the primary source
+  };
+}
+
+/**
+ * Builds comment threads for the UltraFeed using the current algorithm.
+ * Fetches data, scores comments, builds threads, ranks threads, prepares for display.
  */
 export async function getUltraFeedCommentThreads(
   context: ResolverContext,
   limit = 20,
-): Promise<FeedCommentsThread[]> {
+  settings: UltraFeedSettingsType
+): Promise<PreparedFeedCommentsThread[]> { // Return array of new type
   const userId = context.userId;
-
   if (!userId) {
-    // eslint-disable-next-line no-console
-    console.warn("getUltraFeedCommentThreads: No user ID provided. Returning empty array.");
     return [];
   }
 
-  const commentsRepo = context.repos.comments
+  // --- Step 1: Fetch Data ---
+  const commentsRepo = context.repos.comments;
+  const rawCommentsData = await commentsRepo.getCommentsForFeed(userId, 1000);
 
-  const candidates = await commentsRepo.getCommentsForFeed(userId, 500);
-  const threads = getAllCommentThreads(candidates);
-  const prioritizedThreadInfos = prioritizeThreads(threads);
+  // --- Step 2: Score Individual Comments ---
+  const relevantSettings = { 
+    commentDecayFactor: settings.commentDecayFactor, 
+    commentDecayBiasHours: settings.commentDecayBiasHours, 
+    commentSeenPenalty: settings.commentSeenPenalty,
+    quickTakeBoost: settings.quickTakeBoost 
+  };
+  const scoredComments = scoreComments(rawCommentsData, relevantSettings); 
 
-  const displayThreads = prioritizedThreadInfos
-    .slice(0, limit * 2)
-    .map(info => prepareCommentThreadForResolver(info))
-    .filter(thread => thread.comments.length > 0);
+  // --- Steps 3 & 4a: Build and Score Threads --- 
+  const allScoredThreads = buildAndScoreThreads(scoredComments); 
 
-  return displayThreads.slice(0, limit);
+  // --- Step 4b: Select Best Threads --- 
+  const finalRankedThreads = selectBestThreads(allScoredThreads); 
+
+  // --- Step 5: Prepare for Display --- 
+  const displayThreads = finalRankedThreads
+    .slice(0, limit) 
+    .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo))
+    .filter(Boolean) as PreparedFeedCommentsThread[];
+
+  return displayThreads;
 } 
