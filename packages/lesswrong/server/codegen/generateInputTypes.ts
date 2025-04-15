@@ -27,6 +27,8 @@ function convertParsedTypeNodeToTypescriptType(parsedType: ParsedType): string {
       return 'any';
     default: {
       if (isValidCollectionName(graphqlTypeToCollectionName(parsedType.type))) {
+        // TODO: this isn't the right type to assign, since we won't always have an update mutation
+        // for the given collection and thus won't have an input type for it
         return `Update${parsedType.type}DataInput${nullableSuffix}`;
       } else {
         return parsedType.type + nullableSuffix;
@@ -88,7 +90,7 @@ export function generateInputTypes() {
   });
 
   const nonCollectionTypes = inputTypes.filter(t => !isValidCollectionName(graphqlTypeToCollectionName(t.astNode.name.value)));
-  const inputTypeDefinitions = inputTypes.map(t => generateInputType(t.astNode));
+  const inputTypeDefinitions = nonCollectionTypes.map(t => generateInputType(t.astNode));
   const inputTypesString = inputTypeDefinitions.filter(t => t.interfaceString !== 'never').map(t => t.interfaceString).join('\n\n');
   const typeNames = inputTypeDefinitions.map(t => t.typeName);
 
