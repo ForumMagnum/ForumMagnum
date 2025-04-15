@@ -154,7 +154,7 @@ type AlgorithmFieldValidationRules = Pick<UltraFeedSettingsType,
 >;
 
 // Rename state type to reflect new field names
-type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'incognitoMode'> & {
+type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'incognitoMode' | 'threadScoreAggregation' | 'threadScoreFirstN'> & {
   lineClampNumberOfLines: number | '';
   postTruncationBreakpoints: (number | '')[];
   commentTruncationBreakpoints: (number | '')[];
@@ -164,6 +164,8 @@ type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'p
   commentSeenPenalty: number | '';
   quickTakeBoost: number | '';
   incognitoMode: boolean;
+  threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
+  threadScoreFirstN: number | '';
 };
 
 const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, onClose }: UltraFeedSettingsComponentProps) => {
@@ -171,7 +173,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   const classes = useStyles(styles);
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
     // Use new field names
-    const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost, incognitoMode } = settings;
+    const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost, incognitoMode, threadScoreAggregation, threadScoreFirstN } = settings;
 
     return {
       lineClampNumberOfLines,
@@ -183,6 +185,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       commentSeenPenalty,
       quickTakeBoost,
       incognitoMode,
+      threadScoreAggregation,
+      threadScoreFirstN,
     };
   });
 
@@ -203,6 +207,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       commentSeenPenalty: settings.commentSeenPenalty,
       quickTakeBoost: settings.quickTakeBoost,
       incognitoMode: settings.incognitoMode,
+      threadScoreAggregation: settings.threadScoreAggregation,
+      threadScoreFirstN: settings.threadScoreFirstN,
     });
   }, [settings]);
 
@@ -221,6 +227,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       commentSeenPenalty: false,
       quickTakeBoost: false,
       incognitoMode: false,
+      threadScoreAggregation: false,
+      threadScoreFirstN: false,
     }
   });
 
@@ -332,7 +340,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
 
   // Rename handler and update keys
   const handleNumericSettingChange = useCallback(( 
-    key: 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'lineClampNumberOfLines',
+    key: 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'lineClampNumberOfLines' | 'threadScoreFirstN',
     value: string,
     min?: number,
     max?: number
@@ -363,6 +371,19 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     // No error handling needed for a simple boolean checkbox
   }, []);
 
+  // Handler for select dropdowns
+  const handleSelectChange = useCallback((key: 'threadScoreAggregation', value: string) => {
+    // Basic validation assuming value is one of the allowed types
+    const validValues: Array<UltraFeedSettingsType['threadScoreAggregation']> = ['sum', 'max', 'logSum', 'avg'];
+    if (validValues.includes(value as any)) {
+      setFormValues(prev => ({ ...prev, [key]: value as UltraFeedSettingsType['threadScoreAggregation'] }));
+      setErrors(prev => ({ ...prev, [key]: false })); // Reset error if valid selection
+    } else {
+      // Handle invalid selection if necessary, though standard select shouldn't allow it
+      setErrors(prev => ({ ...prev, [key]: true }));
+    }
+  }, []);
+
   const hasErrors = useMemo(() => {
     const sourceWeightErrors = Object.entries(errors.sourceWeights).some(([key, hasError]) => {
       return hasError && String(formValues.sourceWeights[key as FeedItemSourceType]) !== '';
@@ -375,7 +396,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
            errors.commentDecayFactor ||
            errors.commentDecayBiasHours ||
            errors.commentSeenPenalty ||
-           errors.quickTakeBoost;
+           errors.quickTakeBoost ||
+           errors.threadScoreFirstN;
   }, [errors, formValues.sourceWeights]);
 
   const handleSave = useCallback(() => {
@@ -407,8 +429,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       else { validatedValues[arrKey] = validArr; }
     });
     
-    ['lineClampNumberOfLines'].forEach(key => {
-       const numKey = key as 'lineClampNumberOfLines';
+    ['lineClampNumberOfLines', 'threadScoreFirstN'].forEach(key => {
+       const numKey = key as 'lineClampNumberOfLines' | 'threadScoreFirstN';
        const val: number | string = formValues[numKey];
        const numVal = parseInt(String(val), 10);
       if (isNaN(numVal)) {
@@ -486,6 +508,9 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       }
     });
 
+    // Add threadScoreAggregation directly - validation handled by select
+    validatedValues.threadScoreAggregation = formValues.threadScoreAggregation;
+
     // Add incognitoMode directly - no validation needed
     validatedValues.incognitoMode = formValues.incognitoMode;
 
@@ -520,6 +545,12 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }
     if (validatedValues.incognitoMode !== undefined) {
       finalSettingsToUpdate.incognitoMode = validatedValues.incognitoMode;
+    }
+    if (validatedValues.threadScoreAggregation !== undefined) {
+      finalSettingsToUpdate.threadScoreAggregation = validatedValues.threadScoreAggregation;
+    }
+    if (validatedValues.threadScoreFirstN !== undefined) {
+      finalSettingsToUpdate.threadScoreFirstN = validatedValues.threadScoreFirstN;
     }
 
     if (Object.keys(finalSettingsToUpdate).length > 0) {
@@ -719,6 +750,51 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
            </p>
            {errors.quickTakeBoost && ( 
              <p className={classes.errorMessage}>Must be a number greater than 0.</p>
+           )}
+        </div>
+      </div>
+      
+      {/* Thread Scoring Section */}
+      <div className={classes.settingGroup}>
+        <h3 className={classes.groupTitle}>Thread Scoring</h3>
+        <div className={classes.groupDescription}>
+          Parameters for calculating the overall score of a comment thread.
+        </div>
+
+        <div className={classes.inputContainer}>
+          <label className={classes.inputLabel} htmlFor="threadScoreAggregationSelect">Aggregation Method:</label>
+          <select
+            id="threadScoreAggregationSelect"
+            className={classes.selectInput}
+            value={formValues.threadScoreAggregation}
+            onChange={(e) => handleSelectChange('threadScoreAggregation', e.target.value)}
+          >
+            <option value="sum">Sum of comment scores</option>
+            <option value="max">Max comment score</option>
+            <option value="logSum">Log of Sum (log(sum + 1))</option>
+            <option value="avg">Average comment score</option>
+          </select>
+          <p className={classes.inputDescription}>
+            How to combine individual comment scores into a thread score.
+          </p>
+        </div>
+
+        <div className={classes.inputContainer}>
+           <label className={classes.inputLabel} htmlFor="threadScoreFirstNInput">Use First N Comments:</label>
+           <input
+             type="number"
+             id="threadScoreFirstNInput"
+             className={classNames(classes.numberInput, { [classes.invalidInput]: errors.threadScoreFirstN })}
+             value={formValues.threadScoreFirstN}
+             onChange={(e) => handleNumericSettingChange('threadScoreFirstN', e.target.value, 0)} 
+             min={0}
+             step={1}
+           />
+           <p className={classes.inputDescription}>
+             Aggregate scores from only the top N comments (by score). Set to 0 to use all comments in the thread.
+           </p>
+           {errors.threadScoreFirstN && ( 
+             <p className={classes.errorMessage}>Must be a non-negative whole number.</p>
            )}
         </div>
       </div>

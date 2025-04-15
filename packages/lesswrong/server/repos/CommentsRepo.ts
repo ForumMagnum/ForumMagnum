@@ -486,7 +486,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `;
 
     const feedCommentsData: any[] = await db.manyOrNone(`
-      -- CommentsRepo.getCommentsForFeed (Optimized v2)
+      -- CommentsRepo.getCommentsForFeed
       WITH "InitialCandidates" AS (
           -- Find top candidate comments based on recency or shortform status
           SELECT
@@ -515,29 +515,36 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             c."parentCommentId",
             c.shortform,
             c."postedAt"
-            -- No need for c.sources here, as it's hardcoded later
           FROM "Comments" c
           JOIN "CandidateThreadTopLevelIds" ct
               ON c."topLevelCommentId" = ct."threadTopLevelId"
               OR (c._id = ct."threadTopLevelId" AND c."topLevelCommentId" IS NULL)
           WHERE
-              -- Apply filters again here for safety, though index scan might cover some
               ${getUniversalCommentFilterClause('c')}
       ),
+      "UsersEvents" AS (
+         -- Fetch latest interaction/view/served events for the relevant comments for the specific user
+         SELECT
+             ue."documentId",
+             ue."createdAt",
+             ue."eventType"
+         FROM "UltraFeedEvents" ue
+         WHERE 1=1
+         AND ue."collectionName" = 'Comments'
+         AND "userId" = $(userId) -- Parameterized userId
+         AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '48 hours')
+         AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
+         ORDER BY (CASE WHEN ue."eventType" = 'served' THEN 1 ELSE 0 END) ASC
+         LIMIT 5000
+      ),
       "CommentEvents" AS (
-          -- Fetch latest interaction/view/served events for the relevant comments for the specific user
+          -- Aggregate the user's latest events for each comment
           SELECT
               ce."documentId",
               MAX(CASE WHEN ce."eventType" = 'viewed' THEN ce."createdAt" ELSE NULL END) AS "lastViewed",
               MAX(CASE WHEN ce."eventType" <> 'viewed' AND ce."eventType" <> 'served' THEN ce."createdAt" ELSE NULL END) AS "lastInteracted",
               MAX(CASE WHEN ce."eventType" = 'served' THEN ce."createdAt" ELSE NULL END) AS "lastServed"
-          FROM "UltraFeedEvents" ce
-          WHERE
-              ce."userId" = $(userId)
-              AND ce."collectionName" = 'Comments'
-              -- Optimization: Only look for events related to comments we are actually fetching
-              AND ce."documentId" IN (SELECT _id FROM "AllRelevantComments")
-              -- Consider a time window for events if needed, e.g.: AND ce."createdAt" > NOW() - INTERVAL '30 days'
+         FROM "UsersEvents" ce
           GROUP BY ce."documentId"
       )
       -- Final Selection and Ordering
@@ -554,11 +561,10 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           ce."lastInteracted"
       FROM "AllRelevantComments" c
       LEFT JOIN "CommentEvents" ce ON c._id = ce."documentId"
-      ORDER BY COALESCE(c."topLevelCommentId", c._id), c."postedAt" -- Keep original sort order
+      ORDER BY COALESCE(c."topLevelCommentId", c._id), c."postedAt"
       LIMIT $(maxTotalComments) -- Apply final limit
     `, { userId, initialCandidateLimit, maxTotalComments });
 
-    // Map the raw data to the FeedCommentFromDb type
     return feedCommentsData.map((comment): FeedCommentFromDb => ({
       commentId: comment.commentId,
       topLevelCommentId: comment.topLevelCommentId,

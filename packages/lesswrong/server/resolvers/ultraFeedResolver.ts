@@ -566,6 +566,7 @@ export const ultraFeedGraphQLQueries = {
 
     try {
       const spotlightsRepo = context.repos.spotlights;
+      const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
 
       // Calculate fetch limits for different content types
       const { totalWeight, postFetchLimit, commentFetchLimit, spotlightFetchLimit } = 
@@ -583,13 +584,14 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      // Fetch previously served post IDs
       const servedPostIds = await getServedPostIds(currentUser._id);
+      // theoretically this could be done in parallel within the getUltraFeedCommentThreads call, but it's very fast
+      const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id, sessionId);
 
       // Fetch content from all sources
       const [postThreadsItems, commentThreadsItems, spotlightItems] = await Promise.all([
         postFetchLimit > 0 ? getUltraFeedPostThreads(context, postFetchLimit, servedPostIds) : Promise.resolve([]),
-        commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit, parsedSettings) : Promise.resolve([]),
+        commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit, parsedSettings, servedCommentThreadHashes) : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([])
       ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[]];
 

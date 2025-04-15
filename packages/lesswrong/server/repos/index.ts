@@ -32,6 +32,7 @@ import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
 import TweetsRepo from "./TweetsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
+import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
 import LWEventsRepo from "./LWEventsRepo";
@@ -83,6 +84,7 @@ const allRepos = {
   tags: TagsRepo,
   tweets: TweetsRepo,
   typingIndicators: TypingIndicatorsRepo,
+  ultraFeedEvents: UltraFeedEventsRepo,
   users: UsersRepo,
   votes: VotesRepo,
 } as const;

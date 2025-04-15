@@ -14,13 +14,15 @@ export interface UltraFeedSettingsType {
   commentSeenPenalty: number;
   quickTakeBoost: number;
   incognitoMode: boolean;
+  threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
+  threadScoreFirstN: number;
 }
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'hacker-news': 5,
   'recombee-lesswrong-custom': 5,
-  'spotlights': 2,
   'recentComments': 10,
+  'spotlights': 2,
   'curated': 0,
   'stickied': 0,
   'welcome-post': 0,
@@ -36,6 +38,8 @@ export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
   commentSeenPenalty: 0.6,
   quickTakeBoost: 1.5,
   incognitoMode: false,
+  threadScoreAggregation: 'logSum',
+  threadScoreFirstN: 0,
 };
 
 export const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings'; 
