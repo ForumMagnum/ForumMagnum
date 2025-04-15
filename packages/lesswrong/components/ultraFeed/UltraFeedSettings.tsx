@@ -154,7 +154,7 @@ type AlgorithmFieldValidationRules = Pick<UltraFeedSettingsType,
 >;
 
 // Rename state type to reflect new field names
-type FormValuesState = Omit<UltraFeedSettingsType, 'collapsedCommentTruncation' | 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost'> & {
+type FormValuesState = Omit<UltraFeedSettingsType, 'collapsedCommentTruncation' | 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'incognitoMode'> & {
   collapsedCommentTruncation: number | '';
   lineClampNumberOfLines: number | '';
   postTruncationBreakpoints: (number | '')[];
@@ -164,6 +164,7 @@ type FormValuesState = Omit<UltraFeedSettingsType, 'collapsedCommentTruncation' 
   commentDecayBiasHours: number | '';
   commentSeenPenalty: number | '';
   quickTakeBoost: number | '';
+  incognitoMode: boolean;
 };
 
 const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, onClose }: UltraFeedSettingsComponentProps) => {
@@ -171,7 +172,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   const classes = useStyles(styles);
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
     // Use new field names
-    const { collapsedCommentTruncation, lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost } = settings;
+    const { collapsedCommentTruncation, lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost, incognitoMode } = settings;
 
     return {
       collapsedCommentTruncation,
@@ -183,6 +184,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       commentDecayBiasHours,
       commentSeenPenalty,
       quickTakeBoost,
+      incognitoMode,
     };
   });
 
@@ -203,6 +205,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       commentDecayBiasHours: settings.commentDecayBiasHours,
       commentSeenPenalty: settings.commentSeenPenalty,
       quickTakeBoost: settings.quickTakeBoost,
+      incognitoMode: settings.incognitoMode,
     });
   }, [settings]);
 
@@ -221,6 +224,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       commentDecayBiasHours: false,
       commentSeenPenalty: false,
       quickTakeBoost: false,
+      incognitoMode: false,
     }
   });
 
@@ -357,6 +361,12 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }
   }, []);
 
+  // Handler for boolean checkboxes
+  const handleBooleanChange = useCallback((key: 'incognitoMode', checked: boolean) => {
+    setFormValues(prev => ({ ...prev, [key]: checked }));
+    // No error handling needed for a simple boolean checkbox
+  }, []);
+
   const hasErrors = useMemo(() => {
     const sourceWeightErrors = Object.entries(errors.sourceWeights).some(([key, hasError]) => {
       return hasError && String(formValues.sourceWeights[key as FeedItemSourceType]) !== '';
@@ -481,6 +491,9 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       }
     });
 
+    // Add incognitoMode directly - no validation needed
+    validatedValues.incognitoMode = formValues.incognitoMode;
+
     if (hasValidationErrors) {
       return; 
     }
@@ -512,6 +525,9 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }
     if (validatedValues.quickTakeBoost !== undefined) {
       finalSettingsToUpdate.quickTakeBoost = validatedValues.quickTakeBoost;
+    }
+    if (validatedValues.incognitoMode !== undefined) {
+      finalSettingsToUpdate.incognitoMode = validatedValues.incognitoMode;
     }
 
     if (Object.keys(finalSettingsToUpdate).length > 0) {
@@ -735,6 +751,26 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
              <p className={classes.errorMessage}>Must be a number greater than 0.</p>
            )}
         </div>
+      </div>
+      
+      {/* Incognito Mode Section */}
+      <div className={classes.settingGroup}>
+        <h3 className={classes.groupTitle}>Privacy</h3>
+        <div className={classes.inputContainer} style={{flexWrap: 'nowrap'}}> 
+          <input 
+            type="checkbox" 
+            id="incognitoModeCheckbox" 
+            checked={formValues.incognitoMode}
+            onChange={(e) => handleBooleanChange('incognitoMode', e.target.checked)}
+            style={{marginRight: '8px'}}
+          />
+          <label htmlFor="incognitoModeCheckbox" className={classes.inputLabel} style={{flex: '1 1 auto', cursor: 'pointer'}}>
+            Incognito Mode
+          </label>
+        </div>
+        <p className={classes.inputDescription} style={{paddingLeft: 0}}>
+          When enabled, no history (servings, views, expansions, etc.) is recorded for your account.
+        </p>
       </div>
       
       <div className={classes.buttonRow}>

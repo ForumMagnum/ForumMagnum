@@ -554,6 +554,7 @@ export const ultraFeedGraphQLQueries = {
 
     const parsedSettings = parseUltraFeedSettings(settingsJson);
     const sourceWeights = parsedSettings.sourceWeights;
+    const incognitoMode = parsedSettings.incognitoMode;
 
     try {
       const spotlightsRepo = context.repos.spotlights;
@@ -622,11 +623,12 @@ export const ultraFeedGraphQLQueries = {
       // Transform sampled items into final results
       const results = transformItemsForResolver(sampledItems, spotlightsById, commentsById);
       
-      // Create events for tracking served items
-      const currentOffset = offset ?? 0;
-      const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
-      if (eventsToCreate.length > 0) {
-        void bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]);
+      if (!incognitoMode) {
+        const currentOffset = offset ?? 0; 
+        const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
+        if (eventsToCreate.length > 0) {
+          void bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]);
+        }
       }
 
       // Return response

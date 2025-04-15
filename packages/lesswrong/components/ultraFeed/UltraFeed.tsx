@@ -177,7 +177,7 @@ const UltraFeedContent = () => {
       </div>
       
       {ultraFeedEnabled && <>
-        <UltraFeedObserverProvider>
+        <UltraFeedObserverProvider incognitoMode={settings.incognitoMode}>
           <SingleColumnSection>
             {/* place this higher than top feed so it properly scrolls into view */}
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />

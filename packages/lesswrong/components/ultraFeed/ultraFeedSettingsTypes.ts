@@ -14,6 +14,7 @@ export interface UltraFeedSettingsType {
   commentDecayBiasHours: number;
   commentSeenPenalty: number;
   quickTakeBoost: number;
+  incognitoMode: boolean;
 }
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
@@ -27,15 +28,16 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
 };
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
-  collapsedCommentTruncation: 70,
-  lineClampNumberOfLines: 0,
-  postTruncationBreakpoints: [70, 250],
-  commentTruncationBreakpoints: [100, 250],
   sourceWeights: DEFAULT_SOURCE_WEIGHTS,
-  commentDecayFactor: 1.8, 
-  commentDecayBiasHours: 2, 
+  collapsedCommentTruncation: 50,
+  lineClampNumberOfLines: 2,
+  postTruncationBreakpoints: [50, 200, 5000],
+  commentTruncationBreakpoints: [200, 1000],
+  commentDecayFactor: 1.8,
+  commentDecayBiasHours: 2,
   commentSeenPenalty: 0.6,
   quickTakeBoost: 1.5,
+  incognitoMode: false,
 };
 
 export const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings'; 
