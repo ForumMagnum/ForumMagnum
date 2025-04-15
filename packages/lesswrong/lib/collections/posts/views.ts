@@ -63,6 +63,8 @@ declare global {
     curatedAfter?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
+    /** Fetch exactly these postIds and apply no other filters (apart from permissions checks) */
+    exactPostIds?: Array<string>,
     notPostIds?: Array<string>,
     reviewYear?: number,
     reviewPhase?: ReviewPhase,
@@ -221,7 +223,13 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObjec
   if (terms.curatedAfter) {
     params.selector.curatedDate = {$gte: moment(terms.curatedAfter).toDate()}
   }
-  
+
+  // If we want only the exact postIds, remove all other selector fields. Access
+  // filtering will still be applied by defaultResolvers.ts
+  if (terms.exactPostIds) {
+    params.selector = { _id: { $in: terms.exactPostIds } };
+  }
+
   return params;
 }
 
