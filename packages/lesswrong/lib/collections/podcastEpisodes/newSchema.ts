@@ -13,7 +13,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canCreate: ["podcasters", "admins"],
       validation: {
@@ -34,8 +35,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["podcasters", "admins"],
     },
@@ -46,8 +46,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["podcasters", "admins"],
     },
@@ -58,12 +57,11 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["podcasters", "admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PodcastEpisodes">>;
+} satisfies Record<string, CollectionFieldSpecification<"PodcastEpisodes">>;
 
 export default schema;

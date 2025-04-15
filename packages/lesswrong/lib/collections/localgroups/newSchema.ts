@@ -92,8 +92,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -132,8 +131,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
-      inputType: "[String]!",
+      outputType: "[String!]!",
+      inputType: "[String!]!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -159,7 +158,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
+      inputType: "Date",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -180,8 +180,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
-      inputType: "[String]!",
+      outputType: "[String!]!",
+      inputType: "[String!]!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -199,7 +199,7 @@ const schema = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -222,7 +222,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -437,7 +438,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -457,7 +459,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -477,6 +480,6 @@ const schema = {
       nullable: true,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Localgroups">>;
+} satisfies Record<string, CollectionFieldSpecification<"Localgroups">>;
 
 export default schema;

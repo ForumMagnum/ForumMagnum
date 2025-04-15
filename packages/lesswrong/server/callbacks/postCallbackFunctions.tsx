@@ -2,7 +2,7 @@ import React from "react";
 import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/newSchema";
 import { Posts } from "@/server/collections/posts/collection";
-import { postStatuses } from "@/lib/collections/posts/constants";
+import { TOS_NOT_ACCEPTED_ERROR, postStatuses } from "@/lib/collections/posts/constants";
 import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
@@ -13,18 +13,16 @@ import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { isWeekend } from "@/lib/utils/timeUtil";
 import { Components } from '@/lib/vulcan-lib/components';
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { generateLinkSharingKey } from "../ckEditor/ckEditorCallbacks";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
 import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/resolvers";
 import { googleVertexApi } from "../google-vertex/client";
 import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
-import type { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
+import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { createNotifications, getSubscribedUsers, getUsersWhereLocationIsInNotificationRadius } from "../notificationCallbacksHelpers";
 import { getDefaultPostLocationFields, getDialogueResponseIds } from "../posts/utils";
@@ -35,14 +33,22 @@ import { moveImageToCloudinary } from "../scripts/convertImagesToCloudinary";
 import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import { cheerioParse } from "../utils/htmlUtil";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
-import { getRejectionMessage } from "./commentCallbackFunctions";
+import { getRejectionMessage, generateLinkSharingKey } from "./helpers";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createConversation } from "../collections/conversations/mutations";
+import { createMessage } from "../collections/messages/mutations";
+import { createModeratorAction } from "../collections/moderatorActions/mutations";
+import { createPostRelation } from "../collections/postRelations/mutations";
+import { updatePost } from "../collections/posts/mutations";
+import { updateDialogueMatchPreference } from "../collections/dialogueMatchPreferences/mutations";
+import { updateDialogueCheck } from "../collections/dialogueChecks/mutations";
+import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 
@@ -118,7 +124,7 @@ const onPublishUtils = {
     }
   },
 
-  ensureNonzeroRevisionVersionsAfterUndraft: async (post: DbPost, context: ResolverContext) => {
+  ensureNonzeroRevisionVersionsAfterUndraft: async (post: { _id: string }, context: ResolverContext) => {
     // When a post is published, ensure that the version number of its contents
     // revision does not have `draft` set or an 0.x version number (which would
     // affect permissions).
@@ -156,15 +162,14 @@ const utils = {
     }
   },
 
-  postHasUnconfirmedCoauthors: (post: DbPost) => {
+  postHasUnconfirmedCoauthors: (post: CreatePostDataInput | UpdatePostDataInput | DbPost) => {
     return !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
   },
 
-  scheduleCoauthoredPost: <T extends Partial<DbPost>>(post: T): T => {
+  scheduleCoauthoredPost: <T extends CreatePostDataInput | UpdatePostDataInput>(post: T) => {
     const now = new Date();
     post.postedAt = new Date(now.setDate(now.getDate() + 1));
-    post.isFuture = true;
-    return post;
+    return { ...post, isFuture: true };
   },
 
   bulkApplyPostTags: async ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) => {
@@ -204,7 +209,7 @@ const utils = {
     await Promise.all(tagRels.map(clearOneTag))
   },
 
-  applyAutoTags: async (post: DbPost, context: ResolverContext) => {
+  applyAutoTags: async (post: Pick<DbPost, '_id' | 'title' | 'isEvent' | 'submitToFrontpage' | 'draft'>, context: ResolverContext) => {
     const api = await getOpenAI();
     if (!api) {
       if (!isAnyTest && !isE2E) {
@@ -277,16 +282,13 @@ const utils = {
     );
   
     if (autoFrontpageReview) {
-      await updateMutator({
-        collection: Posts,
-        documentId: post._id,
+      await updatePost({
         data: {
           frontpageDate: defaultFrontpageHide ? new Date() : null,
           autoFrontpage: defaultFrontpageHide ? "show" : "hide"
         },
-        currentUser: context.currentUser,
-        context,
-      });
+        selector: { _id: post._id }
+      }, context);
     }
   },
 
@@ -296,27 +298,19 @@ const utils = {
     const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
     if (dialogueCheck) {
       await Promise.all([
-        updateMutator({ // reset check
-          collection: DialogueChecks,
-          documentId: dialogueCheck._id,
-          set: { checked: false, hideInRecommendations: false },
-          currentUser: adminContext.currentUser,
-          context: adminContext,
-          validate: false
-        }),
-        updateMutator({ // soft delete topic form
-          collection: DialogueMatchPreferences,
-          documentId: matchForm._id,
-          set: { deleted: true },
-          currentUser: adminContext.currentUser,
-          context: adminContext,
-          validate: false
-        })
+        updateDialogueCheck({
+          data: { checked: false, hideInRecommendations: false },
+          selector: { _id: dialogueCheck._id }
+        }, adminContext),
+        updateDialogueMatchPreference({
+          data: { deleted: true },
+          selector: { _id: matchForm._id }
+        }, adminContext)
       ]);
     }
   },
 
-  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbPost) => {
+  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbInsertion<DbPost>) => {
     const oldLocation = oldPost.googleLocation?.geometry?.location;
     const newLocation = newPost.googleLocation?.geometry?.location;
     if (!!oldLocation !== !!newLocation) {
@@ -367,20 +361,17 @@ const utils = {
     noEmail: boolean,
     context: ResolverContext,
   }) => {
-    const { Conversations, Messages } = context;
-  
-    const conversationData: CreateMutatorParams<"Conversations">['document'] = {
+    const conversationData: CreateConversationDataInput = {
       participantIds: [post.userId, lwAccount._id],
       title: `Your post ${post.title} was rejected`,
       moderator: true
     };
-  
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false
-    });
+
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+
+    const conversation = await createConversation({
+      data: conversationData,
+    }, lwAccountContext);
   
     const messageData = {
       userId: lwAccount._id,
@@ -390,16 +381,13 @@ const utils = {
           data: messageContents
         }
       },
-      conversationId: conversation.data._id,
+      conversationId: conversation._id,
       noEmail: noEmail
     };
   
-    await createMutator({
-      collection: Messages,
-      document: messageData,
-      currentUser: lwAccount,
-      validate: false
-    });
+    await createMessage({
+      data: messageData,
+    }, lwAccountContext);
   
     if (!isAnyTest) {
       // eslint-disable-next-line no-console
@@ -411,23 +399,14 @@ const utils = {
 
 
 /* CREATE VALIDATE */
-export function debateMustHaveCoauthor(validationErrors: CallbackValidationErrors, { document }: CreateCallbackProperties<'Posts'>): CallbackValidationErrors {
-  if (document.debate && !document.coauthorStatuses?.length) {
-    throw new Error('Dialogue must have at least one co-author!');
-  }
-
-  return validationErrors;
-}
-
-export async function postsNewRateLimit(validationErrors: CallbackValidationErrors, { newDocument: post, currentUser, context }: CreateCallbackProperties<'Posts'>): Promise<CallbackValidationErrors> {
+export async function postsNewRateLimit(post: CreatePostDataInput, currentUser: DbUser, context: ResolverContext): Promise<void> {
   if (!post.draft && !post.isEvent) {
     await utils.enforcePostRateLimit(currentUser!, context);
   }
-  return validationErrors;
 }
 
 /* CREATE BEFORE */
-export function addReferrerToPost(post: DbInsertion<DbPost>, properties: CreateCallbackProperties<'Posts'>): DbInsertion<DbPost> | undefined {
+export function addReferrerToPost(post: CreatePostDataInput, properties: CreateCallbackProperties<'Posts'>) {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
     let userAgent = properties.context.headers["user-agent"];
@@ -438,30 +417,32 @@ export function addReferrerToPost(post: DbInsertion<DbPost>, properties: CreateC
       userAgent: userAgent,
     };
   }
+
+  return post;
 }
 
 
 /* NEW SYNC */
-export function checkTosAccepted<T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T {
+export function checkTosAccepted<T extends CreatePostDataInput | UpdatePostDataInput>(currentUser: DbUser | null, post: T): T {
   if (post.draft === false && !post.shortform && !currentUser?.acceptedTos) {
     throw new Error(TOS_NOT_ACCEPTED_ERROR);
   }
   return post;
 }
 
-export function assertPostTitleHasNoEmojis(post: Partial<DbPost>) {
+export function assertPostTitleHasNoEmojis(post: CreatePostDataInput | UpdatePostDataInput) {
   if (/\p{Extended_Pictographic}/u.test(post.title ?? '')) {
     throw new Error("Post titles cannot contain emojis");
   }
 }
 
-export async function checkRecentRepost(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function checkRecentRepost<T extends CreatePostDataInput | Partial<DbPost>>(post: T, user: DbUser | null, context: ResolverContext) {
   const { Posts } = context;
 
   if (!post.draft) {
     const oneHourAgo = new Date(Date.now() - (60 * 60 * 1000));
     const existing = await Posts.findOne({
-      _id: {$ne: post._id},
+      ...('_id' in post ? {_id: {$ne: post._id}} : {}),
       title: post.title,
       userId: post.userId,
       draft: {$ne: true},
@@ -475,14 +456,14 @@ export async function checkRecentRepost(post: DbPost, user: DbUser | null, conte
   return post;
 }
 
-export async function postsNewDefaultLocation(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function postsNewDefaultLocation(post: CreatePostDataInput, user: DbUser | null, context: ResolverContext): Promise<CreatePostDataInput> {
   return {
     ...post,
     ...(await getDefaultPostLocationFields(post, context))
   };
 }
 
-export async function postsNewDefaultTypes(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function postsNewDefaultTypes(post: CreatePostDataInput, user: DbUser | null, context: ResolverContext): Promise<CreatePostDataInput> {
   const { Localgroups } = context;
 
   if (post.isEvent && post.groupId && !post.types) {
@@ -497,7 +478,7 @@ export async function postsNewDefaultTypes(post: DbPost, user: DbUser | null, co
 
 const MINIMUM_APPROVAL_KARMA = 5;
 
-export async function postsNewUserApprovedStatus(post: DbPost, user: DbUser | null, context: ResolverContext): Promise<DbPost> {
+export async function postsNewUserApprovedStatus(post: CreatePostDataInput, user: DbUser | null, context: ResolverContext): Promise<CreatePostDataInput> {
   const { Users } = context;
   const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
@@ -506,7 +487,7 @@ export async function postsNewUserApprovedStatus(post: DbPost, user: DbUser | nu
   return post;
 }
 
-export async function fixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
+export async function fixEventStartAndEndTimes(post: CreatePostDataInput): Promise<CreatePostDataInput> {
   // make sure courses/programs have no end time
   // (we don't want them listed for the length of the course, just until the application deadline / start time)
   if (post.eventType === 'course') {
@@ -539,14 +520,14 @@ export async function fixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
   return post;
 }
 
-export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: DbPost): Promise<DbPost> {
+export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: CreatePostDataInput): Promise<CreatePostDataInput> {
   if (utils.postHasUnconfirmedCoauthors(post) && !post.draft) {
-    post = utils.scheduleCoauthoredPost(post);
+    return utils.scheduleCoauthoredPost(post);
   }
   return post;
 }
 
-export function addLinkSharingKey(post: DbPost): DbPost {
+export function addLinkSharingKey(post: CreatePostDataInput) {
   return {
     ...post,
     linkSharingKey: generateLinkSharingKey()
@@ -568,7 +549,7 @@ export async function applyNewPostTags(post: DbPost, props: AfterCreateCallbackP
   return post;
 }
 
-export async function createNewJargonTermsCallback(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
+export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'generateDraftJargon' | 'userId'>>(post: T, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
   const { context } = callbackProperties;
   const { currentUser, loaders, JargonTerms } = context;
   const oldPost = 'oldDocument' in callbackProperties ? callbackProperties.oldDocument as DbPost : null;
@@ -602,38 +583,9 @@ export async function createNewJargonTermsCallback(post: DbPost, callbackPropert
   return post;
 }
 
-export async function updateFirstDebateCommentPostId(newDoc: DbPost, { context, currentUser }: AfterCreateCallbackProperties<'Posts'>) {
-  const { Comments } = context;
-
-  const isFirstDebatePostComment = 'debate' in newDoc
-      ? !!newDoc.debate
-      : false;
-
-  if (currentUser && isFirstDebatePostComment) {
-    // With the editable callback refactoring, this might now be missing a documentId,
-    // but we should really just get rid of this code anyways since debates are deprecated.
-    const revision = await getLatestContentsRevision(newDoc, context);
-    if (!revision?.html) {
-      return newDoc;
-    }
-
-    await createMutator({
-      collection: Comments,
-      document: {
-        userId: currentUser._id,
-        postId: newDoc._id,
-        contents: revision as EditableFieldInsertion,
-        debateResponse: true,
-      },
-      context,
-      currentUser,
-    });
-  }
-  return newDoc;
-}
 
 /* NEW AFTER */
-export async function sendCoauthorRequestNotifications(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
+export async function sendCoauthorRequestNotifications<T extends Pick<DbPost, '_id' | 'coauthorStatuses' | 'hasCoauthorPermission'>>(post: T, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
   const { context: { Posts } } = callbackProperties;
   const { _id, coauthorStatuses, hasCoauthorPermission } = post;
 
@@ -669,25 +621,21 @@ export async function lwPostsNewUpvoteOwnPost(post: DbPost, callbackProperties: 
   return {...post, ...votedPost} as DbPost;
 }
 
-export function postsNewPostRelation(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
-  const { context: { PostRelations } } = callbackProperties;
-  
+export function postsNewPostRelation(post: DbPost, { context }: AfterCreateCallbackProperties<'Posts'>) {
   if (post.originalPostRelationSourceId) {
-    void createMutator({
-      collection: PostRelations,
-      document: {
+    void createPostRelation({
+      data: {
         type: "subQuestion",
         sourcePostId: post.originalPostRelationSourceId,
         targetPostId: post._id,
-      },
-      validate: false,
-    })
+      }
+    }, context);
   }
   return post
 }
 
 // Use the first image in the post as the social preview image
-export async function extractSocialPreviewImage(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>) {
+export async function extractSocialPreviewImage(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
   const { context } = callbackProperties;
   const { Posts } = context;
   
@@ -751,18 +699,17 @@ export async function sendUsersSharedOnPostNotifications(post: DbPost) {
 }
 
 /* UPDATE VALIDATE */
-export async function postsUndraftRateLimit(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, currentUser, context }: UpdateCallbackProperties<'Posts'>) {
+export async function postsUndraftRateLimit(oldDocument: DbPost, newDocument: DbPost, currentUser: DbUser, context: ResolverContext) {
   // Only undrafting is rate limited, not other edits
   if (oldDocument.draft && !newDocument.draft && !newDocument.isEvent) {
     await utils.enforcePostRateLimit(currentUser!, context);
   }
-  return validationErrors;
 }
 
 /* UPDATE BEFORE */
 
 // TODO: check the order of this function in the updateBefore callbacks
-export function onEditAddLinkSharingKey(data: Partial<DbPost>, { oldDocument }: UpdateCallbackProperties<'Posts'>): Partial<DbPost> {
+export function onEditAddLinkSharingKey(data: UpdatePostDataInput, { oldDocument }: UpdateCallbackProperties<'Posts'>): UpdatePostDataInput {
   if (!oldDocument.linkSharingKey) {
     return {
       ...data,
@@ -773,7 +720,7 @@ export function onEditAddLinkSharingKey(data: Partial<DbPost>, { oldDocument }: 
   }
 }
 
-export function setPostUndraftedFields(data: Partial<DbPost>, { oldDocument: post }: UpdateCallbackProperties<'Posts'>) {
+export function setPostUndraftedFields(data: UpdatePostDataInput, { oldDocument: post }: UpdateCallbackProperties<'Posts'>) {
   // Set postedAt and wasEverUndrafted when a post is moved out of drafts.
   // If the post has previously been published then moved to drafts, and now
   // it's being republished then we shouldn't reset the `postedAt` date.
@@ -786,7 +733,7 @@ export function setPostUndraftedFields(data: Partial<DbPost>, { oldDocument: pos
 }
 
 // TODO: this, plus the scheduleCoauthoredPost function, should probably be converted to one of the on-publish callbacks?
-export function scheduleCoauthoredPostWhenUndrafted(post: Partial<DbPost>, {oldDocument: oldPost, newDocument: newPost}: UpdateCallbackProperties<"Posts">) {
+export function scheduleCoauthoredPostWhenUndrafted(post: UpdatePostDataInput, {oldDocument: oldPost, newDocument: newPost}: UpdateCallbackProperties<"Posts">) {
   // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
   // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
   // NOTE: EA FORUM: this used to use `post` rather than `newPost`, but `post` is merely the diff, which isn't what you want to pass into those
@@ -797,7 +744,7 @@ export function scheduleCoauthoredPostWhenUndrafted(post: Partial<DbPost>, {oldD
 }
 
 /* EDIT SYNC */
-export function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): MongoModifier<DbPost> {
+export function clearCourseEndTime(modifier: MongoModifier, post: DbPost): MongoModifier {
   // make sure courses/programs have no end time
   // (we don't want them listed for the length of the course, just until the application deadline / start time)
   if (post.eventType === 'course') {
@@ -807,7 +754,7 @@ export function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost
   return modifier
 }
 
-export function removeFrontpageDate(modifier: MongoModifier<DbPost>, _post: DbPost): MongoModifier<DbPost> {
+export function removeFrontpageDate(modifier: MongoModifier, _post: DbPost): MongoModifier {
   if (
     modifier.$set?.submitToFrontpage === false ||
     modifier.$set?.submitToFrontpage === null ||
@@ -819,7 +766,7 @@ export function removeFrontpageDate(modifier: MongoModifier<DbPost>, _post: DbPo
   return modifier;
 }
 
-export function resetPostApprovedDate(modifier: MongoModifier<DbPost>, post: DbPost): MongoModifier<DbPost> {
+export function resetPostApprovedDate(modifier: MongoModifier, post: DbPost): MongoModifier {
   if (modifier.$set && postIsApproved(modifier.$set) && !postIsApproved(post)) {
     modifier.$set.postedAt = new Date();
   }
@@ -827,7 +774,7 @@ export function resetPostApprovedDate(modifier: MongoModifier<DbPost>, post: DbP
 }
 
 /* UPDATE AFTER */
-export async function syncTagRelevance(post: DbPost, props: UpdateCallbackProperties<'Posts'>) {
+export async function syncTagRelevance<T extends Pick<DbPost, '_id' | 'tagRelevance'>>(post: T, props: UpdateCallbackProperties<'Posts'>) {
   const { currentUser, context } = props;
   const { TagRels } = context;
   if (!currentUser) return post; // Shouldn't happen, but just in case
@@ -856,7 +803,7 @@ export async function syncTagRelevance(post: DbPost, props: UpdateCallbackProper
   return post;
 }
 
-export async function resetDialogueMatches(post: DbPost, props: UpdateCallbackProperties<'Posts'>) {
+export async function resetDialogueMatches<T extends Pick<DbPost, '_id' | 'collabEditorDialogue' | 'draft'>>(post: T, props: UpdateCallbackProperties<'Posts'>) {
   const { oldDocument: oldPost } = props;
 
   const adminContext = createAdminContext();
@@ -870,7 +817,7 @@ export async function resetDialogueMatches(post: DbPost, props: UpdateCallbackPr
 }
 
 /* UPDATE ASYNC */
-export async function eventUpdatedNotifications({document: newPost, oldDocument: oldPost, context}: UpdateCallbackProperties<'Posts'>) {
+export async function eventUpdatedNotifications({newDocument: newPost, oldDocument: oldPost, context}: UpdateCallbackProperties<'Posts'>) {
   const { Users } = context;
   // don't bother notifying people about past or unscheduled events
   const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
@@ -926,7 +873,7 @@ export async function autoTagUndraftedPost({oldDocument, newDocument, context}: 
   }
 }
 
-export async function updatePostEmbeddingsOnChange(newPost: DbPost, oldPost?: DbPost) {
+export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'deletedDraft' | 'status'>, oldPost?: DbPost) {
   const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
   if (hasChanged &&
     !newPost.draft &&
@@ -950,16 +897,16 @@ export async function updatePostEmbeddingsOnChange(newPost: DbPost, oldPost?: Db
 //   await updateEmbeddings(document, oldDocument);
 // }
 
-export async function updatedPostMaybeTriggerReview({document, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
-  if (document.draft || document.rejected) return
+export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
+  if (newDocument.draft || newDocument.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId, context)
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,
   // then we consider this "publishing" the post
-  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await onPostPublished(document, context);
+  if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
+    await onPostPublished(newDocument, context);
   }
 }
 
@@ -994,33 +941,27 @@ export async function sendRejectionPM({ newDocument: post, oldDocument: oldPost,
  * Creates a moderator action when an admin sets one of the user's posts back to draft
  * This also adds a note to a user's sunshineNotes
  */
-export async function updateUserNotesOnPostDraft({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
-  if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
-        userId: document.userId,
+export async function updateUserNotesOnPostDraft({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
+  if (!oldDocument.draft && newDocument.draft && userIsAdmin(currentUser)) {
+    void createModeratorAction({
+      data: {
+        userId: newDocument.userId,
         type: MOVED_POST_TO_DRAFT,
         endedAt: new Date()
-      }
-    });
+      },
+    }, context);
   }
 }
 
-export async function updateUserNotesOnPostRejection({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
-  if (!oldDocument.rejected && document.rejected) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
-        userId: document.userId,
+export async function updateUserNotesOnPostRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
+  if (!oldDocument.rejected && newDocument.rejected) {
+    void createModeratorAction({
+      data: {
+        userId: newDocument.userId,
         type: REJECTED_POST,
         endedAt: new Date()
-      }
-    });
+      },
+    }, context);
   }
 }
 
@@ -1045,7 +986,7 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
 }
 
 /* EDIT ASYNC */
-export function sendPostApprovalNotifications(post: DbPost, oldPost: DbPost) {
+export function sendPostApprovalNotifications(post: Pick<DbPost, '_id' | 'userId' | 'status'>, oldPost: DbPost) {
   if (postIsApproved(post) && !postIsApproved(oldPost)) {
     void createNotifications({userIds: [post.userId], notificationType: 'postApproved', documentType: 'post', documentId: post._id});
   }
@@ -1079,7 +1020,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
   }
 }
 
-export async function removeRedraftNotifications(newPost: DbPost, oldPost: DbPost, context: ResolverContext) {
+export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | 'draft' | 'status'>, oldPost: DbPost, context: ResolverContext) {
   const { Notifications, TagRels } = context;
 
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
@@ -1088,23 +1029,13 @@ export async function removeRedraftNotifications(newPost: DbPost, oldPost: DbPos
 
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
-    postNotifications.forEach(notification => void updateMutator({
-      collection: Notifications,
-      documentId: notification._id,
-      data: { deleted: true },
-      validate: false
-    }));
+    postNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context));
 
     // delete tagRel notifications (note this deletes them even if the TagRel itself has `deleted: true`)
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
     await asyncForeachSequential(tagRels, async (tagRel) => {
       const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()
-      tagRelNotifications.forEach(notification => void updateMutator({
-        collection: Notifications,
-        documentId: notification._id,
-        data: { deleted: true },
-        validate: false
-      }));
+      tagRelNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context));
     });
   }
 }
@@ -1191,18 +1122,6 @@ export async function sendPostSharedWithUserNotifications(newPost: DbPost, oldPo
     // TODO: probably fix that, such that users can see when they've lost access to post. [but, eh, I'm not sure this matters that much]
     const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
     await createNotifications({userIds: sharedUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: newPost._id})
-  }
-}
-
-export async function sendAlignmentSubmissionApprovalNotifications(newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) {
-  const newlyAF = newDocument.af && !oldDocument.af
-  const userSubmitted = oldDocument.suggestForAlignmentUserIds && oldDocument.suggestForAlignmentUserIds.includes(oldDocument.userId)
-  const reviewed = !!newDocument.reviewForAlignmentUserId
-  
-  const documentType = newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
-  
-  if (newlyAF && userSubmitted && reviewed) {
-    await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
 

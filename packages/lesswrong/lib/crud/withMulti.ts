@@ -50,7 +50,6 @@ export interface UseMultiOptions<
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
-  enableCache?: boolean,
   extraVariables?: Record<string, PrimitiveGraphQLType>,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
@@ -61,7 +60,6 @@ export interface UseMultiOptions<
   skip?: boolean,
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
-  createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
   ssr?: boolean,
 }
 
@@ -113,7 +111,6 @@ export function useMulti<
   extraVariablesValues,
   pollInterval = 0, //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
-  enableCache = false,
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
@@ -124,7 +121,6 @@ export function useMulti<
   skip = false,
   queryLimitName,
   alwaysShowLoadMore = false,
-  createIfMissing,
   ssr = true,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
@@ -146,11 +142,10 @@ export function useMulti<
   const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
-      resolverArgs: extraVariablesValues,
-      enableCache, enableTotal, createIfMissing
+      resolverArgs: extraVariablesValues, enableTotal
     },
     ...extraVariablesValues
-  }), [terms, defaultLimit, enableCache, enableTotal, createIfMissing, extraVariablesValues]);
+  }), [terms, defaultLimit, enableTotal, extraVariablesValues]);
 
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {

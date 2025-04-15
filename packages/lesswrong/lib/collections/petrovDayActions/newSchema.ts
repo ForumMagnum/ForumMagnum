@@ -28,8 +28,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -77,6 +76,6 @@ const schema = {
       canCreate: ["members"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PetrovDayActions">>;
+} satisfies Record<string, CollectionFieldSpecification<"PetrovDayActions">>;
 
 export default schema;

@@ -34,7 +34,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true,
 };
 
-function isCommentOnPost(data: Partial<DbComment>) {
+function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
 }
 
@@ -63,6 +63,7 @@ const schema = {
     database: DEFAULT_CREATED_AT_FIELD.database,
     graphql: {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
+      outputType: "Date",
       canRead: ["admins"],
     },
   },
@@ -332,7 +333,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -432,7 +434,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -470,7 +473,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -524,7 +528,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -547,7 +552,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -599,7 +605,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members", "admins"],
@@ -725,11 +732,11 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      onUpdate: async ({ data, document, oldDocument }) => {
+      onUpdate: async ({ data, oldDocument, newDocument }) => {
         if (data?.promoted && !oldDocument.promoted) {
           return new Date();
         }
-        if (!document.promoted && oldDocument.promoted) {
+        if (!newDocument.promoted && oldDocument.promoted) {
           return null;
         }
       },
@@ -809,7 +816,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -848,7 +856,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -888,7 +897,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -911,7 +921,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -932,7 +943,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -993,7 +1005,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
-      onUpdate: ({ modifier, document, currentUser }) => {
+      onUpdate: ({ modifier, currentUser }) => {
         if (modifier.$set && (modifier.$set.deletedPublic || modifier.$set.deleted) && currentUser) {
           return modifier.$set.deletedByUserId || currentUser._id;
         }
@@ -1023,7 +1035,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -1107,7 +1120,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       validation: {
@@ -1126,7 +1140,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -1171,7 +1186,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1216,7 +1232,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members", "admins", "sunshineRegiment"],
@@ -1272,7 +1289,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -1350,7 +1368,7 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-      onUpdate: ({ modifier, document, currentUser }) => {
+      onUpdate: ({ modifier, currentUser }) => {
         if (modifier.$set?.rejected && currentUser) {
           return modifier.$set.rejectedByUserId || currentUser._id;
         }
@@ -1393,7 +1411,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["alignmentForum", "admins"],
       canCreate: ["alignmentForum", "admins"],
@@ -1414,7 +1433,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["members", "alignmentForum", "alignmentForumAdmins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -1564,6 +1584,7 @@ const schema = {
     ...DEFAULT_BASE_SCORE_FIELD,
     graphql: {
       ...DEFAULT_BASE_SCORE_FIELD.graphql,
+      outputType: "Float",
       canRead: [customBaseScoreReadAccess],
     },
   },
@@ -1591,6 +1612,6 @@ const schema = {
     },
   },
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
-} satisfies Record<string, NewCollectionFieldSpecification<"Comments">>;
+} satisfies Record<string, CollectionFieldSpecification<"Comments">>;
 
 export default schema;

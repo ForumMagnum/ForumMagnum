@@ -1,7 +1,7 @@
 import { loadByIds } from "@/lib/loaders";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { updateMutator } from "../vulcan-lib/mutators";
 import gql from "graphql-tag";
+import { updateMultiDocument, editCheck as editMultiDocumentCheck } from "../collections/multiDocuments/mutations";
 
 
 export const multiDocumentTypeDefs = gql`
@@ -12,7 +12,7 @@ export const multiDocumentTypeDefs = gql`
 
 export const multiDocumentMutations = {
   async reorderSummaries(root: void, { parentDocumentId, parentDocumentCollectionName, summaryIds }: { parentDocumentId: string, parentDocumentCollectionName: string, summaryIds: string[] }, context: ResolverContext) {
-    const { currentUser, loaders, MultiDocuments } = context;
+    const { currentUser, loaders } = context;
     if (!currentUser) {
       throw new Error('Must be logged in to reorder summaries');
     }
@@ -40,22 +40,14 @@ export const multiDocumentMutations = {
 
     // Check that the user has permission to edit at least the first summary
     // (permissions should be the same for all summaries, since they are all summaries of the same parent document)
-    if (MultiDocuments.options.mutations?.update?.check) {
-      const canEditFirstSummary = await MultiDocuments.options.mutations?.update?.check(currentUser, summaries[0], context);
-      if (!canEditFirstSummary) {
-        throw new Error('User does not have permission to edit summaries for this document');
-      }
+    const canEditFirstSummary = await editMultiDocumentCheck(currentUser, summaries[0], context);
+    if (!canEditFirstSummary) {
+      throw new Error('User does not have permission to edit summaries for this document');
     }
 
     // This is not even remotely safe, but lol.
     for (const [index, summaryId] of summaryIds.entries()) {
-      await updateMutator({
-        collection: MultiDocuments,
-        documentId: summaryId,
-        set: { index },
-        currentUser,
-        context,
-      });
+      await updateMultiDocument({ data: { index }, selector: { _id: summaryId } }, context);
     }
 
     return true;

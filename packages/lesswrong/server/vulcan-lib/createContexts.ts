@@ -1,5 +1,5 @@
 import { localeSetting } from "@/lib/publicSettings";
-import { allCollections } from "../collections/allCollections";
+import { getAllCollectionsByName } from "../collections/allCollections";
 import { getAllRepos } from "../repos";
 import { generateDataLoaders } from "./apollo-server/context";
 
@@ -14,7 +14,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     isSSR: false,
     isGreaterWrong: false,
     repos: getAllRepos(),
-    ...allCollections,
+    ...getAllCollectionsByName(),
     ...generateDataLoaders(),
     ...options,
   };

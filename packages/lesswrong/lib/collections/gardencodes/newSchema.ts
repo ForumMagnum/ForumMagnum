@@ -88,11 +88,14 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
+      canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["GardenCodes"],
-        getTitle: (gc) => gc.title,
+        getTitle: (gc) => gc.title!,
         onCollision: "newDocumentGetsSuffix",
         includesOldSlugs: false,
       },
@@ -107,7 +110,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       onCreate: () => {
         return generateCode(4);
@@ -125,8 +129,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -143,7 +146,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       onCreate: ({ currentUser }) => currentUser?._id,
       validation: {
@@ -184,7 +188,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
+      inputType: "Date",
       canRead: ["guests"],
       canUpdate: ["admins"],
       onCreate: ({ document: gardenCode }) => {
@@ -226,7 +231,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -249,7 +255,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {
@@ -269,7 +276,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {
@@ -288,7 +296,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["alignmentForum"],
@@ -302,6 +311,6 @@ const schema = {
       control: "checkbox",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"GardenCodes">>;
+} satisfies Record<string, CollectionFieldSpecification<"GardenCodes">>;
 
 export default schema;

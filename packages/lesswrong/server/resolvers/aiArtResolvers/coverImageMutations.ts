@@ -1,7 +1,5 @@
 import { generateCoverImagesForPost } from '@/server/scripts/generativeModels/coverImages-2023Review';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection';
-import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection';
 import { gql } from 'apollo-server';
 
 export const generateCoverImagesForPostGraphQLTypeDefs = gql`
@@ -36,6 +34,8 @@ export const flipSplashArtImageGraphQLTypeDefs = gql`
 
 export const flipSplashArtImageGraphQLMutations = {
   flipSplashArtImage: async (root: void, { reviewWinnerArtId }: { reviewWinnerArtId: string }, context: ResolverContext) => {
+    const { SplashArtCoordinates, ReviewWinnerArts } = context;
+    
     const [currentSplashCoordinates, reviewWinnerArt] = await Promise.all([
       SplashArtCoordinates.findOne({ reviewWinnerArtId }, { sort: { createdAt: -1 } }),
       ReviewWinnerArts.findOne({ _id: reviewWinnerArtId })
