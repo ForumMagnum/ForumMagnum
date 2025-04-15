@@ -154,8 +154,7 @@ type AlgorithmFieldValidationRules = Pick<UltraFeedSettingsType,
 >;
 
 // Rename state type to reflect new field names
-type FormValuesState = Omit<UltraFeedSettingsType, 'collapsedCommentTruncation' | 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'incognitoMode'> & {
-  collapsedCommentTruncation: number | '';
+type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'incognitoMode'> & {
   lineClampNumberOfLines: number | '';
   postTruncationBreakpoints: (number | '')[];
   commentTruncationBreakpoints: (number | '')[];
@@ -172,10 +171,9 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   const classes = useStyles(styles);
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
     // Use new field names
-    const { collapsedCommentTruncation, lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost, incognitoMode } = settings;
+    const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost, incognitoMode } = settings;
 
     return {
-      collapsedCommentTruncation,
       lineClampNumberOfLines,
       postTruncationBreakpoints,
       commentTruncationBreakpoints,
@@ -196,7 +194,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       
     setFormValues({
       ...settings,
-      collapsedCommentTruncation: settings.collapsedCommentTruncation,
       lineClampNumberOfLines: settings.lineClampNumberOfLines,
       postTruncationBreakpoints: settings.postTruncationBreakpoints,
       commentTruncationBreakpoints: settings.commentTruncationBreakpoints,
@@ -217,7 +214,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     return {
       postTruncationBreakpoints: [] as number[],
       commentTruncationBreakpoints: [] as number[],
-      collapsedCommentTruncation: false,
       lineClampNumberOfLines: false,
       sourceWeights: initialErrors,
       commentDecayFactor: false,
@@ -279,7 +275,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   }, []);
 
   const handleNumberChange = useCallback((
-    key: 'collapsedCommentTruncation' | 'lineClampNumberOfLines',
+    key: 'lineClampNumberOfLines',
     value: string
   ) => {
     if (value === '') {
@@ -336,7 +332,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
 
   // Rename handler and update keys
   const handleNumericSettingChange = useCallback(( 
-    key: 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'collapsedCommentTruncation' | 'lineClampNumberOfLines',
+    key: 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'lineClampNumberOfLines',
     value: string,
     min?: number,
     max?: number
@@ -374,7 +370,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     
     return errors.postTruncationBreakpoints.length > 0 ||
            errors.commentTruncationBreakpoints.length > 0 ||
-           errors.collapsedCommentTruncation ||
            errors.lineClampNumberOfLines ||
            sourceWeightErrors ||
            errors.commentDecayFactor ||
@@ -412,8 +407,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       else { validatedValues[arrKey] = validArr; }
     });
     
-    ['collapsedCommentTruncation', 'lineClampNumberOfLines'].forEach(key => {
-       const numKey = key as 'collapsedCommentTruncation' | 'lineClampNumberOfLines';
+    ['lineClampNumberOfLines'].forEach(key => {
+       const numKey = key as 'lineClampNumberOfLines';
        const val: number | string = formValues[numKey];
        const numVal = parseInt(String(val), 10);
       if (isNaN(numVal)) {
@@ -504,9 +499,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }
     if (validatedValues.commentTruncationBreakpoints !== undefined) {
       finalSettingsToUpdate.commentTruncationBreakpoints = validatedValues.commentTruncationBreakpoints;
-    }
-    if (validatedValues.collapsedCommentTruncation !== undefined) {
-      finalSettingsToUpdate.collapsedCommentTruncation = validatedValues.collapsedCommentTruncation;
     }
     if (validatedValues.lineClampNumberOfLines !== undefined) {
       finalSettingsToUpdate.lineClampNumberOfLines = validatedValues.lineClampNumberOfLines;
@@ -623,28 +615,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
             </p>
             {errors.lineClampNumberOfLines && (
               <p className={classes.errorMessage}>Field must contain a valid number between 0 and 10</p>
-            )}
-          </div>
-        </div>
-        <div className={classes.inputContainer}>
-          <div>
-            <label className={classes.inputLabel} style={{ display: 'block', marginBottom: '4px' }}>Collapsed comment:</label>
-            <div className={classes.arrayInput}>
-              <input
-                type="number"
-                className={classNames(classes.numberInput, {
-                  [classes.invalidInput]: errors.collapsedCommentTruncation
-                })}
-                value={formValues.collapsedCommentTruncation}
-                onChange={(e) => handleNumberChange('collapsedCommentTruncation', e.target.value)}
-                min={1}
-              />
-            </div>
-            <p className={classes.inputDescription} style={{ paddingLeft: 0, marginTop: '4px' }}>
-              Only applies if line clamp set to 0. Default: {DEFAULT_SETTINGS.collapsedCommentTruncation} words
-            </p>
-            {errors.collapsedCommentTruncation && (
-              <p className={classes.errorMessage}>Field must contain a valid number</p>
             )}
           </div>
         </div>

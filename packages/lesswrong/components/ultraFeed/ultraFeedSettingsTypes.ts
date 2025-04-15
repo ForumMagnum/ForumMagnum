@@ -5,7 +5,6 @@
 import { FeedItemSourceType } from './ultraFeedTypes';
 
 export interface UltraFeedSettingsType {
-  collapsedCommentTruncation: number;
   lineClampNumberOfLines: number;
   postTruncationBreakpoints: number[];
   commentTruncationBreakpoints: number[];
@@ -29,10 +28,9 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
   sourceWeights: DEFAULT_SOURCE_WEIGHTS,
-  collapsedCommentTruncation: 50,
   lineClampNumberOfLines: 2,
   postTruncationBreakpoints: [50, 200, 5000],
-  commentTruncationBreakpoints: [200, 1000],
+  commentTruncationBreakpoints: [50, 300, 1000],
   commentDecayFactor: 1.8,
   commentDecayBiasHours: 2,
   commentSeenPenalty: 0.6,
