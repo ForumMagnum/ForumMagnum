@@ -8,7 +8,6 @@
  * - Preparing threads for display (expansion/highlighting)
  */
 
-import UltraFeedEventsRepo from '@/server/repos/UltraFeedEventsRepo';
 import { UltraFeedSettingsType } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
@@ -18,6 +17,24 @@ import {
   FeedCommentFromDb,
   FeedItemSourceType
 } from '../../components/ultraFeed/ultraFeedTypes';
+
+import * as crypto from 'crypto';
+
+  /**
+   * Generates a stable hash ID for a comment thread based on its comment IDs (sensitive to sort order).
+   * This MUST match the hash generation logic used in the resolver when checking against served threads.
+   */
+  export function generateThreadHash(commentIds: string[]): string {
+    if (!commentIds || commentIds.length === 0) {
+      // Return a consistent identifier for empty/invalid threads
+      return 'empty_thread_hash';
+    }
+
+    const hash = crypto.createHash('sha256');
+    hash.update(commentIds.join(','));
+    return hash.digest('hex');
+  }
+
 
 /**
  * Builds distinct linear comment threads from a set of comments
@@ -259,7 +276,7 @@ function buildAndScoreThreads(
             metaInfo: preDisplayComment.metaInfo
           } as FinalScoredComment;
         })
-        .filter(Boolean) as FinalScoredComment[];
+        .filter(finalScoredComment => !!finalScoredComment);
       
       if (finalScoredThread.length > 0) {
         allPossibleFinalThreads.push(finalScoredThread);
@@ -424,14 +441,14 @@ export async function getUltraFeedCommentThreads(
     const thread = rankedThreadInfo.thread;
     if (!thread || thread.length === 0) return false;
     const commentIds = thread.map(c => c.commentId);
-    const threadHash = UltraFeedEventsRepo.generateThreadHash(commentIds); // Use static method
+    const threadHash = generateThreadHash(commentIds);
     return !servedThreadHashes.has(threadHash);
   });
   
   const displayThreads = unservedRankedThreads
     .slice(0, limit) 
     .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo))
-    .filter(Boolean) as PreparedFeedCommentsThread[];
+    .filter(rankedThreadInfo => !!rankedThreadInfo);
 
   return displayThreads;
 } 

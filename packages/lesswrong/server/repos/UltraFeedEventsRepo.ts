@@ -1,27 +1,12 @@
-import crypto from 'crypto';
 import AbstractRepo from './AbstractRepo';
 import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
 import groupBy from 'lodash/groupBy';
 import { recordPerfMetrics } from './perfMetricWrapper';
+import { generateThreadHash } from '@/lib/ultraFeed/ultraFeedThreadHelpers';
 
 class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   constructor() {
     super(UltraFeedEvents);
-  }
-
-  /**
-   * Generates a stable hash ID for a comment thread based on its comment IDs (sensitive to sort order).
-   * This MUST match the hash generation logic used in the resolver when checking against served threads.
-   */
-  public static generateThreadHash(commentIds: string[]): string {
-    if (!commentIds || commentIds.length === 0) {
-      // Return a consistent identifier for empty/invalid threads
-      return 'empty_thread_hash';
-    }
-    // const sortedIds = [...commentIds].sort(); // Remove sorting step
-    const hash = crypto.createHash('sha256');
-    hash.update(commentIds.join(',')); // Hash based on the provided order
-    return hash.digest('hex');
   }
 
   /**
@@ -72,7 +57,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
       // Sort by commentIndex again here just to be absolutely sure before hashing
       const sortedComments = commentsInGroup.sort((a, b) => (a.commentIndex ?? Infinity) - (b.commentIndex ?? Infinity));
       const commentIds = sortedComments.map(event => event.documentId);
-      const threadHash = UltraFeedEventsRepo.generateThreadHash(commentIds);
+      const threadHash = generateThreadHash(commentIds);
       servedThreadHashes.add(threadHash);
     }
 
