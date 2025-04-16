@@ -319,8 +319,8 @@ export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => 
 }
 
 type UserMaybeWithEmail = {
-  email: string | null
-  emails: UsersCurrent["emails"] | null
+  email?: string | null
+  emails?: UsersCurrent["emails"] | null
 }
 
 export function getUserEmail (user: UserMaybeWithEmail|null): string | undefined {

@@ -8,7 +8,7 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
 import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
-import gql from 'graphql-tag';
+import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -92,6 +92,7 @@ export type AnalyticsProps = {
   forumEventId?: string,
   sequenceId?: string,
   commentId?: string,
+  spotlightId?: string,
   tagId?: string,
   tagName?: string,
   tagSlug?: string,
@@ -111,6 +112,10 @@ export type AnalyticsProps = {
   viewType?: string,
   searchQuery?: string,
   componentName?: string,
+  ultraFeedContext?: UltraFeedAnalyticsContext,
+  ultraFeedElementType?: FeedItemType,
+  ultraFeedCardId?: string,
+  ultraFeedCardIndex?: number,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */

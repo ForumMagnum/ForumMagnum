@@ -2,7 +2,6 @@ import { getOpenAI } from './languageModelIntegration';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
-import { updateMutator } from '../vulcan-lib/mutators';
 import Comments from '../../server/collections/comments/collection';
 import { dataToHTML } from '../editor/conversionUtils';
 import OpenAI from 'openai';
@@ -10,7 +9,7 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
 import { FetchedFragment } from '../fetchFragment';
-
+import { updateComment } from '../collections/comments/mutations';
 
 export const modGPTPrompt = `
   You are an advisor to the moderation team for the EA Forum. Your job is to make recommendations to the moderation team about whether they should intervene and moderate a comment.
@@ -152,15 +151,13 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
     
     const matches = topResult.match(/^Recommendation: (.+)/)
     const rec = (matches?.length && matches.length > 1) ? matches[1] : undefined
-    await updateMutator({
-      collection: Comments,
-      documentId: comment._id,
-      set: {
+    await updateComment({
+      data: {
         modGPTAnalysis: topResult,
         modGPTRecommendation: rec
       },
-      validate: false,
-    })
+      selector: { _id: comment._id }
+    }, context)
     captureEvent("modGPTResponse", {
       ...analyticsData,
       comment: commentText,
@@ -234,15 +231,7 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
         error: error.message
       })
       // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        unset: {
-          modGPTAnalysis: 1,
-          modGPTRecommendation: 1
-        },
-        validate: false,
-      })
+      await updateComment({ data: { modGPTAnalysis: null, modGPTRecommendation: null }, selector: { _id: comment._id } }, context)
     } else {
       //eslint-disable-next-line no-console
       console.error(error)

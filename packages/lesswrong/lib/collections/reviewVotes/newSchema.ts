@@ -15,7 +15,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       onCreate: ({ currentUser }) => currentUser?._id,
       validation: {
@@ -37,8 +38,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -57,7 +57,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Int",
+      outputType: "Int!",
+      inputType: "Int",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -72,7 +73,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Int",
+      outputType: "Int!",
+      inputType: "Int",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -99,8 +101,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -112,8 +113,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
-      inputType: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
     },
   },
@@ -122,11 +122,11 @@ const schema = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String]",
-      inputType: "[String]!",
+      outputType: "[String!]",
+      inputType: "[String!]!",
       canRead: ["guests"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ReviewVotes">>;
+} satisfies Record<string, CollectionFieldSpecification<"ReviewVotes">>;
 
 export default schema;

@@ -66,6 +66,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"UserMostValuablePosts">>;
+} satisfies Record<string, CollectionFieldSpecification<"UserMostValuablePosts">>;
 
 export default schema;

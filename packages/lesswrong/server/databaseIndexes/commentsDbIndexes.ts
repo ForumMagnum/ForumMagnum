@@ -115,7 +115,6 @@ export function getDbIndexesOnComments() {
     ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
     WHERE ("baseScore" >= 15)
   `);
-  
   indexSet.addIndex("Comments",
     augmentForDefaultView({ reviewForAlignmentUserId:1, af:1, suggestForAlignmentUserIds:1, postedAt:1, }),
     {

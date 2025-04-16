@@ -1,8 +1,7 @@
-import { Comments } from "@/server/collections/comments/collection.ts";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { updateMutator } from "../vulcan-lib/mutators";
+import { updateComment } from "../collections/comments/mutations";
 
 export default registerMigration({
   name: "rewriteOldReviewBotComments",
@@ -37,11 +36,7 @@ export default registerMigration({
 
       if (newContent === comment.contents.html) continue;
 
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        currentUser: reviewBotUser,
-        context,
+      await updateComment({
         data: {
           contents: {
             originalContents: {
@@ -49,8 +44,8 @@ export default registerMigration({
               data: newContent,
             }
           },
-        }
-      })
+        }, selector: { _id: comment._id }
+      }, context)
     }
   },
 });

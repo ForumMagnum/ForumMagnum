@@ -12,13 +12,13 @@ import { getCreateMutationName } from './utils';
  * with some metadata about the status of that create operation if it's been
  * started.
  */
-export const useCreate = <CollectionName extends CollectionNameString>({
+export const useCreate = <CollectionName extends CollectionNameString, Fragment extends FragmentName>({
   collectionName,
   fragmentName: fragmentNameArg, fragment: fragmentArg,
   ignoreResults=false,
 }: {
   collectionName: CollectionName,
-  fragmentName?: FragmentName,
+  fragmentName?: Fragment,
   fragment?: any,
   ignoreResults?: boolean,
 }): {
@@ -26,7 +26,7 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,
-  data?: ObjectsByCollectionName[CollectionName],
+  data?: FragmentTypes[Fragment],
 } => {
   const logger = useMemo(() => {
     return loggerConstructor(`mutations-${collectionName.toLowerCase()}`);

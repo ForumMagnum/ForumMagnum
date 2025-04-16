@@ -38,7 +38,7 @@ const BookmarkButton = ({
   className,
   classes,
 }: {
-  post: PostsBase,
+  post: PostsMinimumInfo,
   withText?: boolean,
   placement?: TooltipProps["placement"],
   className?: string,

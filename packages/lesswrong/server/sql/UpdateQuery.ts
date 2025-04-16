@@ -21,7 +21,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
   constructor(
     table: Table<T>,
     selector: string | MongoSelector<T>,
-    modifier: MongoModifier<T>,
+    modifier: MongoModifier,
     options?: MongoUpdateOptions<T>, // TODO: What can options be?
     updateOptions?: UpdateOptions,
   ) {

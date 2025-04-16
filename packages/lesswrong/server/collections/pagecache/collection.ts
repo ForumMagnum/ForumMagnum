@@ -14,7 +14,6 @@ export const PageCache: PageCacheCollection = createCollection({
     `);
     return indexSet;
   },
-  logChanges: false,
   writeAheadLogged: false,
 });
 

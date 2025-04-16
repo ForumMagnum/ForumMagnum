@@ -2,10 +2,11 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { Components } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EventUpdatedEmail", (theme: ThemeType) => ({
   root: {
     marginBottom: 40
   },
@@ -35,13 +36,14 @@ const styles = (theme: ThemeType) => ({
   },
   data: {
     fontSize: 18,
-  }
-});
+  },
+  onlineEventLocation: {},
+}));
 
-const EventUpdatedEmail = ({postId, classes}: {
+export const EventUpdatedEmail = ({postId}: {
   postId: string,
-  classes: any,
 }) => {
+  const classes = useStyles(styles);
   const { document: post, loading } = useSingle({
     documentId: postId,
     collectionName: "Posts",
@@ -84,12 +86,4 @@ const EventUpdatedEmail = ({postId, classes}: {
       <div className={classes.data}>{eventLocation}</div>
     </p>
   </div>
-}
-
-const EventUpdatedEmailComponent = registerComponent("EventUpdatedEmail", EventUpdatedEmail, {styles});
-
-declare global {
-  interface ComponentTypes {
-    EventUpdatedEmail: typeof EventUpdatedEmailComponent
-  }
 }

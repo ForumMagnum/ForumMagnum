@@ -72,6 +72,6 @@ const schema = {
       canCreate: [userHasLlmChat, "admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"LlmMessages">>;
+} satisfies Record<string, CollectionFieldSpecification<"LlmMessages">>;
 
 export default schema;

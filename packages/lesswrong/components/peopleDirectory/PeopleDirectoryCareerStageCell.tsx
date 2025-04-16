@@ -1,6 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { CAREER_STAGES } from "../../lib/collections/users/schema";
+import { CAREER_STAGES } from "../../lib/collections/users/newSchema";
 import {
   EMPTY_TEXT_PLACEHOLDER,
   emptyTextCellStyles,

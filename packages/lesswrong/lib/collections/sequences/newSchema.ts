@@ -6,7 +6,7 @@ import {
 import { getWithCustomLoader } from "../../loaders";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 
 const formGroups = {
   adminOptions: {
@@ -73,7 +73,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
+      inputType: "Date",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members"],
@@ -94,7 +95,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -121,8 +123,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members"],
@@ -179,7 +180,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members"],
@@ -199,7 +201,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members"],
@@ -219,7 +222,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members"],
@@ -311,7 +315,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -332,7 +337,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -405,7 +411,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["alignmentVoters"],
       canCreate: ["alignmentVoters"],
@@ -417,6 +424,6 @@ const schema = {
       label: "Alignment Forum",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Sequences">>;
+} satisfies Record<string, CollectionFieldSpecification<"Sequences">>;
 
 export default schema;

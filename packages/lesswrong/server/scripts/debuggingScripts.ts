@@ -9,8 +9,8 @@ import {
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations';
 import moment from 'moment';
 import * as _ from 'underscore';
-import { createMutator } from '../vulcan-lib/mutators';
-import Subscriptions from '../collections/subscriptions/collection';
+import { createSubscription } from '../collections/subscriptions/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
 
 /**
@@ -23,23 +23,14 @@ import Subscriptions from '../collections/subscriptions/collection';
  */
 export const performSubscriptionAction = async (action: "subscribe"|"unsubscribe", collection: CollectionBase<any>, itemId: string, user: DbUser) => {
   const collectionName = collection.collectionName
-  const newSubscription: Partial<DbSubscription> = {
+  const newSubscription = {
     state: action === "subscribe" ? 'subscribed' : 'suppressed',
     documentId: itemId,
     collectionName,
     type: (defaultSubscriptionTypeTable as any)[collectionName]
-  }
-  await createMutator({
-    collection: Subscriptions,
-    document: newSubscription,
-    validate: true,
-    currentUser: user,
-    // HACK: Make a shitty pretend context
-    context: {
-      currentUser: user,
-      Users: Users,
-    } as any,
-  })
+  } as const;
+
+  await createSubscription({ data: newSubscription }, await computeContextFromUser({ user, isSSR: false }));
 };
 
 export const populateNotifications = async ({username, messageNotifications = 3, postNotifications = 3, commentNotifications = 3, replyNotifications = 3}: {

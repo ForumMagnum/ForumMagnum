@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components } from '../lib/vulcan-lib/components';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
@@ -13,11 +12,6 @@ import keyBy from 'lodash/keyBy';
 import Users from '../server/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
-import './emailComponents/EmailComment';
-import './emailComponents/PrivateMessagesEmail';
-import './emailComponents/EventUpdatedEmail';
-import './emailComponents/EmailUsernameByID';
-import './emailComponents/SequenceNewPostsEmail';
 import {getDocumentSummary, taggedPostMessage, NotificationDocument, getDocument} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
@@ -27,8 +21,15 @@ import Tags from '../server/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
-import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
+import { DialogueMessageEmailInfo, NewDialogueMessagesEmail } from './emailComponents/NewDialogueMessagesEmail';
 import Sequences from '../server/collections/sequences/collection';
+import { PostsEmail } from './emailComponents/PostsEmail';
+import { EmailCommentBatch } from './emailComponents/EmailComment';
+import { PostNominatedEmail } from './emailComponents/PostNominatedEmail';
+import { SequenceNewPostsEmail } from './emailComponents/SequenceNewPostsEmail';
+import { PrivateMessagesEmail } from './emailComponents/PrivateMessagesEmail';
+import { EventUpdatedEmail } from './emailComponents/EventUpdatedEmail';
+import { EmailUsernameByID } from './emailComponents/EmailUsernameByID';
 
 interface ServerNotificationType {
   name: string,
@@ -39,26 +40,16 @@ interface ServerNotificationType {
   emailSubject: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<string>,
   emailBody: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<React.ReactNode>,
 }
-// A default skip function is added in serverRegisterNotificationType so it is optional when registering a notification type
+// A default skip function is added in createServerNotificationType so it is optional when registering a notification type
 type ServerRegisterNotificationType = Omit<ServerNotificationType, 'skip'> & Partial<Pick<ServerNotificationType, 'skip'>>
 
-const notificationTypes: Record<string, ServerNotificationType> = {};
-
-export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
-  if (name in notificationTypes)
-    return notificationTypes[name];
-  else
-    throw new Error(`Invalid notification type: ${name}`);
-}
-
-const serverRegisterNotificationType = ({skip = async () => false, ...notificationTypeClass}: ServerRegisterNotificationType): ServerNotificationType => {
+const createServerNotificationType = ({skip = async () => false, ...notificationTypeClass}: ServerRegisterNotificationType): ServerNotificationType => {
   const notificationType = {skip, ...notificationTypeClass};
   const name = notificationType.name;
-  notificationTypes[name] = notificationType;
   return notificationType;
 }
 
-export const NewPostNotification = serverRegisterNotificationType({
+export const NewPostNotification = createServerNotificationType({
   name: "newPost",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -82,12 +73,12 @@ export const NewPostNotification = serverRegisterNotificationType({
       return true;
     }))) as string[];
 
-    return <Components.PostsEmail postIds={postIds}/>
+    return <PostsEmail postIds={postIds}/>
   },
 });
 
 // Vulcan notification that we don't really use
-export const PostApprovedNotification = serverRegisterNotificationType({
+export const PostApprovedNotification = createServerNotificationType({
   name: "postApproved",
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return "LessWrong notification";
@@ -95,7 +86,7 @@ export const PostApprovedNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => null
 });
 
-export const NewEventNotification = serverRegisterNotificationType({
+export const NewEventNotification = createServerNotificationType({
   name: "newEvent",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -106,11 +97,11 @@ export const NewEventNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event post to generate body for: ${postId}`)
-    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
+    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
-export const NewGroupPostNotification = serverRegisterNotificationType({
+export const NewGroupPostNotification = createServerNotificationType({
   name: "newGroupPost",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -121,11 +112,11 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find group post to generate body for: ${postId}`)
-    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
+    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
-export const NominatedPostNotification = serverRegisterNotificationType({
+export const NominatedPostNotification = createServerNotificationType({
   name: "postNominated",
   canCombineEmails: false,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
@@ -134,11 +125,11 @@ export const NominatedPostNotification = serverRegisterNotificationType({
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find nominated post to generate body for: ${postId}`)
-    return <Components.PostNominatedEmail documentId={postId} />
+    return <PostNominatedEmail documentId={postId} />
   }
 })
 
-export const NewShortformNotification = serverRegisterNotificationType({
+export const NewShortformNotification = createServerNotificationType({
   name: "newShortform",
   canCombineEmails: true,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
@@ -161,11 +152,11 @@ export const NewShortformNotification = serverRegisterNotificationType({
     const comments = await Comments.find({_id: {$in: commentIds}}).fetch();
     if (!comments.length) throw Error(`Can't find comments for comment email notification: ${notifications}`);
 
-    return <Components.EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments}/>;
   }
 })
 
-export const NewTagPostsNotification = serverRegisterNotificationType({
+export const NewTagPostsNotification = createServerNotificationType({
   name: "newTagPosts",
   canCombineEmails: false,
   emailSubject: async ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -176,12 +167,12 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
     const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
-      return <Components.PostsEmail postIds={ [tagRel.postId] }/>
+      return <PostsEmail postIds={ [tagRel.postId] }/>
     }
   }
 })
 
-export const NewSequencePostsNotification = serverRegisterNotificationType({
+export const NewSequencePostsNotification = createServerNotificationType({
   name: "newSequencePosts",
   canCombineEmails: false,
   emailSubject: async ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -203,11 +194,11 @@ export const NewSequencePostsNotification = serverRegisterNotificationType({
     
     if (!posts.length) throw Error(`No valid new posts for notification: ${notifications[0]}`)
     
-    return <Components.SequenceNewPostsEmail sequence={sequence} posts={posts} />;
+    return <SequenceNewPostsEmail sequence={sequence} posts={posts} />;
   }
 })
 
-export const NewCommentNotification = serverRegisterNotificationType({
+export const NewCommentNotification = createServerNotificationType({
   name: "newComment",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -226,11 +217,11 @@ export const NewCommentNotification = serverRegisterNotificationType({
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
-    return <Components.EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments}/>;
   },
 });
 
-export const NewUserCommentNotification = serverRegisterNotificationType({
+export const NewUserCommentNotification = createServerNotificationType({
   name: "newUserComment",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -249,11 +240,11 @@ export const NewUserCommentNotification = serverRegisterNotificationType({
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
-    return <Components.EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments}/>;
   },
 });
 
-export const NewSubforumCommentNotification = serverRegisterNotificationType({
+export const NewSubforumCommentNotification = createServerNotificationType({
   name: "newSubforumComment",
   canCombineEmails: true,
   skip: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -283,11 +274,11 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
-    return <Components.EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments}/>;
   },
 });
 
-export const NewDialogueMessageNotification = serverRegisterNotificationType({
+export const NewDialogueMessageNotification = createServerNotificationType({
   name: "newDialogueMessages",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -305,7 +296,7 @@ export const NewDialogueMessageNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId!; // We skip notifications without a documentId in the skip function
     const dialogueMessageEmailInfo = getDialogueMessageEmailInfo(notifications[0].extraData)
-    return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
+    return <NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
   },
   skip: async ({ notifications }: {notifications: DbNotification[]}) => {
     return !notifications[0].documentId
@@ -320,7 +311,7 @@ function getDialogueMessageEmailInfo(extraData?: AnyBecauseHard): DialogueMessag
   return { messageContents, messageAuthorId }
 }
 
-export const NewDialogueMessageBatchNotification = serverRegisterNotificationType({
+export const NewDialogueMessageBatchNotification = createServerNotificationType({
   name: "newDialogueBatchMessages",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -331,12 +322,12 @@ export const NewDialogueMessageBatchNotification = serverRegisterNotificationTyp
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find dialogue to generate body for: ${postId}`)
-    return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id}/>;
+    return <NewDialogueMessagesEmail documentId={postId} userId={user._id}/>;
   },
 });
 
 //subscriber notification for dialogues
-export const NewPublishedDialogueMessageNotification = serverRegisterNotificationType({
+export const NewPublishedDialogueMessageNotification = createServerNotificationType({
   name: "newPublishedDialogueMessages",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -347,11 +338,11 @@ export const NewPublishedDialogueMessageNotification = serverRegisterNotificatio
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find dialogue to generate body for: ${postId}`)
-    return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id}/>;
+    return <NewDialogueMessagesEmail documentId={postId} userId={user._id}/>;
   },
 });
 
-export const NewDebateCommentNotification = serverRegisterNotificationType({
+export const NewDebateCommentNotification = createServerNotificationType({
   name: "newDebateComment",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -370,11 +361,11 @@ export const NewDebateCommentNotification = serverRegisterNotificationType({
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
-    return <Components.EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments}/>;
   },
 });
 
-export const NewDebateReplyNotification = serverRegisterNotificationType({
+export const NewDebateReplyNotification = createServerNotificationType({
   name: "newDebateReply",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -393,11 +384,11 @@ export const NewDebateReplyNotification = serverRegisterNotificationType({
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
-    return <Components.EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments}/>;
   },
 });
 
-export const NewReplyNotification = serverRegisterNotificationType({
+export const NewReplyNotification = createServerNotificationType({
   name: "newReply",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -416,11 +407,11 @@ export const NewReplyNotification = serverRegisterNotificationType({
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
-    return <Components.EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments}/>;
   },
 });
 
-export const NewReplyToYouNotification = serverRegisterNotificationType({
+export const NewReplyToYouNotification = createServerNotificationType({
   name: "newReplyToYou",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -441,12 +432,12 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
     
-    return <Components.EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments}/>;
   },
 });
 
 // Vulcan notification that we don't really use
-export const NewUserNotification = serverRegisterNotificationType({
+export const NewUserNotification = createServerNotificationType({
   name: "newUser",
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return "LessWrong notification";
@@ -460,7 +451,7 @@ const newMessageEmails: ForumOptions<string | null> = {
 }
 const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined
 
-export const NewMessageNotification = serverRegisterNotificationType({
+export const NewMessageNotification = createServerNotificationType({
   name: "newMessage",
   from: forumNewMessageEmail, // passing in undefined will lead to default behavior
   loadData: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
@@ -494,7 +485,7 @@ export const NewMessageNotification = serverRegisterNotificationType({
   emailBody: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
     const { conversations, messages, participantsById } = await this.loadData!({ user, notifications, context });
     
-    return <Components.PrivateMessagesEmail
+    return <PrivateMessagesEmail
       conversations={conversations}
       messages={messages}
       participantsById={participantsById}
@@ -502,7 +493,7 @@ export const NewMessageNotification = serverRegisterNotificationType({
   },
 });
 
-export const WrappedNotification = serverRegisterNotificationType({
+export const WrappedNotification = createServerNotificationType({
   name: "wrapped",
   emailSubject: async function() {
     return 'Your 2024 EA Forum Wrapped';
@@ -528,7 +519,7 @@ export const WrappedNotification = serverRegisterNotificationType({
 
 // This notification type should never be emailed (but is displayed in the
 // on-site UI).
-export const EmailVerificationRequiredNotification = serverRegisterNotificationType({
+export const EmailVerificationRequiredNotification = createServerNotificationType({
   name: "emailVerificationRequired",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -539,7 +530,7 @@ export const EmailVerificationRequiredNotification = serverRegisterNotificationT
   },
 });
 
-export const PostSharedWithUserNotification = serverRegisterNotificationType({
+export const PostSharedWithUserNotification = createServerNotificationType({
   name: "postSharedWithUser",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -559,7 +550,7 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   },
 });
 
-export const PostAddedAsCoauthorNotification = serverRegisterNotificationType({
+export const PostAddedAsCoauthorNotification = createServerNotificationType({
   name: "addedAsCoauthor",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -587,7 +578,7 @@ export const isComment = (document: DbPost | DbComment): document is DbComment =
   return false
 }
 
-export const AlignmentSubmissionApprovalNotification = serverRegisterNotificationType({
+export const AlignmentSubmissionApprovalNotification = createServerNotificationType({
   name: "alignmentSubmissionApproved",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -616,7 +607,7 @@ export const AlignmentSubmissionApprovalNotification = serverRegisterNotificatio
   },
 });
 
-export const NewEventInRadiusNotification = serverRegisterNotificationType({
+export const NewEventInRadiusNotification = createServerNotificationType({
   name: "newEventInRadius",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -627,11 +618,11 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event to generate body for: ${postId}`)
-    return <Components.PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
+    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
   },
 });
 
-export const EditedEventInRadiusNotification = serverRegisterNotificationType({
+export const EditedEventInRadiusNotification = createServerNotificationType({
   name: "editedEventInRadius",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -642,12 +633,12 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId= notifications[0].documentId
     if (!postId) throw Error(`Can't find event to generate body for: ${postId}`)
-    return <Components.EventUpdatedEmail postId={postId} />
+    return <EventUpdatedEmail postId={postId} />
   },
 });
 
 
-export const NewRSVPNotification = serverRegisterNotificationType({
+export const NewRSVPNotification = createServerNotificationType({
   name: "newRSVP",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -669,7 +660,7 @@ export const NewRSVPNotification = serverRegisterNotificationType({
   },
 });
 
-export const KarmaPowersGainedNotification = serverRegisterNotificationType({
+export const KarmaPowersGainedNotification = createServerNotificationType({
   name: "karmaPowersGained",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -682,7 +673,7 @@ export const KarmaPowersGainedNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewGroupOrganizerNotification = serverRegisterNotificationType({
+export const NewGroupOrganizerNotification = createServerNotificationType({
   name: "newGroupOrganizer",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -713,7 +704,7 @@ export const NewGroupOrganizerNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewCommentOnDraftNotification = serverRegisterNotificationType({
+export const NewCommentOnDraftNotification = createServerNotificationType({
   name: "newCommentOnDraft",
   canCombineEmails: true,
   
@@ -737,7 +728,6 @@ export const NewCommentOnDraftNotification = serverRegisterNotificationType({
     const post = await Posts.findOne({_id: firstNotification.documentId});
     const postTitle = post?.title;
     const postLink = postGetEditUrl(firstNotification.documentId, true, firstNotification.extraData?.linkSharingKey);
-    const { EmailUsernameByID } = Components;
     
     return <div>
       {notifications.map((notification,i) => <div key={i}>
@@ -750,7 +740,7 @@ export const NewCommentOnDraftNotification = serverRegisterNotificationType({
   }
 });
 
-export const PostCoauthorRequestNotification = serverRegisterNotificationType({
+export const PostCoauthorRequestNotification = createServerNotificationType({
   name: "coauthorRequestNotification",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -776,7 +766,7 @@ export const PostCoauthorRequestNotification = serverRegisterNotificationType({
   },
 });
 
-export const PostCoauthorAcceptNotification = serverRegisterNotificationType({
+export const PostCoauthorAcceptNotification = createServerNotificationType({
   name: "coauthorAcceptNotification",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -800,7 +790,7 @@ export const PostCoauthorAcceptNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewSubforumMemberNotification = serverRegisterNotificationType({
+export const NewSubforumMemberNotification = createServerNotificationType({
   name: "newSubforumMember",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
@@ -829,7 +819,7 @@ export const NewSubforumMemberNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewMentionNotification = serverRegisterNotificationType({
+export const NewMentionNotification = createServerNotificationType({
   name: "newMention",
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
     const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId, context);
@@ -856,3 +846,50 @@ export const NewMentionNotification = serverRegisterNotificationType({
     );
   },
 });
+
+const serverNotificationTypesArray: ServerNotificationType[] = [
+  NewPostNotification,
+  PostApprovedNotification,
+  NewEventNotification,
+  NewGroupPostNotification,
+  NominatedPostNotification,
+  NewShortformNotification,
+  NewTagPostsNotification,
+  NewSequencePostsNotification,
+  NewCommentNotification,
+  NewUserCommentNotification,
+  NewSubforumCommentNotification,
+  NewDialogueMessageNotification,
+  NewDialogueMessageBatchNotification,
+  NewPublishedDialogueMessageNotification,
+  NewDebateCommentNotification,
+  NewDebateReplyNotification,
+  NewReplyNotification,
+  NewReplyToYouNotification,
+  NewUserNotification,
+  NewMessageNotification,
+  WrappedNotification,
+  EmailVerificationRequiredNotification,
+  PostSharedWithUserNotification,
+  PostAddedAsCoauthorNotification,
+  AlignmentSubmissionApprovalNotification,
+  NewEventInRadiusNotification,
+  EditedEventInRadiusNotification,
+  NewRSVPNotification,
+  KarmaPowersGainedNotification,
+  NewGroupOrganizerNotification,
+  NewCommentOnDraftNotification,
+  PostCoauthorRequestNotification,
+  PostCoauthorAcceptNotification,
+  NewSubforumMemberNotification,
+  NewMentionNotification,
+];
+const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
+
+
+export const getNotificationTypeByNameServer = (name: string): ServerNotificationType => {
+  if (name in serverNotificationTypes)
+    return serverNotificationTypes[name];
+  else
+    throw new Error(`Invalid notification type: ${name}`);
+}

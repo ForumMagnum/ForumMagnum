@@ -1,11 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components } from '../../lib/vulcan-lib/components';
 import { useMulti } from '@/lib/crud/withMulti';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
 import { LocationContext, NavigationContext } from '@/lib/vulcan-core/appContext';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { EmailPostAuthors } from './EmailPostAuthors';
+import { EmailContentItemBody } from './EmailContentItemBody';
+import { EmailFooterRecommendations } from './EmailFooterRecommendations';
+import { EmailPostDate } from './EmailPostDate';
 
 const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -67,7 +72,7 @@ const getTruncatedHtml = (html: string) => {
   }
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
   heading: {
     textAlign: "center",
     color: theme.palette.primary.main,
@@ -104,26 +109,25 @@ const styles = (theme: ThemeType) => ({
     marginTop: 30,
     marginBottom: 30,
   },
-});
+}));
 
 function PostsEmailInner({
   postIds,
   reason,
   hideRecommendations,
-  classes,
 }: {
   postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
-  classes: ClassesType<typeof styles>;
 }) {
+  const classes = useStyles(styles);
   const { results: posts } = useMulti({
     collectionName: "Posts",
     fragmentName: "PostsRevision",
     terms: { postIds },
   });
 
-  const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, ContentStyles, EmailFooterRecommendations } = Components;
+  const { ContentStyles } = Components;
 
   if (!posts || posts.length === 0) {
     return null;
@@ -214,12 +218,12 @@ function PostsEmailInner({
   );
 }
 
-const PostsEmail = ({ postIds, reason, hideRecommendations, classes }: {
+export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
   postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   return (
     // Providers are required for useMulti
     <LocationContext.Provider
@@ -256,19 +260,8 @@ const PostsEmail = ({ postIds, reason, hideRecommendations, classes }: {
           postIds={postIds}
           reason={reason}
           hideRecommendations={hideRecommendations}
-          classes={classes}
         />
       </NavigationContext.Provider>
     </LocationContext.Provider>
   );
 };
-
-const PostsEmailComponent = registerComponent("PostsEmail", PostsEmail, { styles });
-
-declare global {
-  interface ComponentTypes {
-    PostsEmail: typeof PostsEmailComponent;
-  }
-}
-
-export default PostsEmailComponent;
