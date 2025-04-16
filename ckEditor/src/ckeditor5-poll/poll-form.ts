@@ -18,7 +18,7 @@ import type Writer from "@ckeditor/ckeditor5-engine/src/model/writer";
 
 import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 
-import './pollform.css';
+import './poll.css';
 import { POLL_CLASS, PollProps } from "./constants";
 
 class MainFormView extends View {

@@ -84,9 +84,8 @@ export default class PollPlugin extends Plugin {
     style.innerHTML = `
       .${POLL_CLASS} {
         text-align: center;
-        padding: 20px;
         background: #f5f5f5;
-        border-radius: 8px;
+        border-radius: calc(var(--borderRadius-default) * 1px);
         margin: 10px 0;
       }
       .${POLL_CLASS}-question {
