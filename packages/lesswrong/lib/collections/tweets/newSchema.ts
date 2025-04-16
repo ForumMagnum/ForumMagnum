@@ -23,6 +23,6 @@ const schema = {
       nullable: false,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Tweets">>;
+} satisfies Record<string, CollectionFieldSpecification<"Tweets">>;
 
 export default schema;

@@ -44,7 +44,11 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
 
 const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   root: {
-    ...postPageTitleStyles(theme)
+    ...postPageTitleStyles(theme),
+    ...(isFriendlyUI && {
+      lineHeight: 1.25,
+      fontWeight: 700
+    }),
   },
   draft: {
     color: theme.palette.text.dim4

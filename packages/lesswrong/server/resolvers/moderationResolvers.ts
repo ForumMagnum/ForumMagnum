@@ -2,10 +2,10 @@ import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
 import { Comments } from '../../server/collections/comments/collection';
-import { updateMutator } from '../vulcan-lib/mutators';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
 import gql from 'graphql-tag';
+import { updateComment } from '../collections/comments/mutations';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -43,14 +43,11 @@ export const moderationGqlMutations = {
     
     // Mark them all as replies-locked
     await Promise.all(commentsInThread.map(async (comment) => {
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        set: {
+      await updateComment({
+        data: {
           repliesBlockedUntil: expiryDate,
-        },
-        context,
-      });
+        }, selector: { _id: comment._id }
+      }, context);
     }));
     
     return true;
@@ -88,14 +85,7 @@ export const moderationGqlMutations = {
 
     // Unmark them all as replies-locked
     await Promise.all(commentsInThread.map(async (comment) => {
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        unset: {
-          repliesBlockedUntil: 1,
-        },
-        context,
-      });
+      await updateComment({ data: { repliesBlockedUntil: null }, selector: { _id: comment._id } }, context);
     }));
 
     return true;

@@ -259,8 +259,9 @@ export const createNewGroup = async ({
     INSERT INTO "Localgroups" (
       "_id",
       "name",
-      "organizerIds"
-    ) VALUES ($1, $2, $3)
+      "organizerIds",
+      "lastActivity"
+    ) VALUES ($1, $2, $3, NOW())
   `, [_id, name, organizerIds]);
 
   return {

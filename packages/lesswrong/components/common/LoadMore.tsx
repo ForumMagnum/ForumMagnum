@@ -7,6 +7,7 @@ import { LoadMoreCallback } from '../../lib/crud/withMulti';
 import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isAF } from '@/lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,6 +23,9 @@ const styles = (theme: ThemeType) => ({
         lineHeight: "24px",
       }
       : {}),
+    ...(isAF && {
+      fontWeight: 500,
+    }),
   },
   afterPostsListMarginTop: {
     marginTop: 6,

@@ -12,6 +12,7 @@ export function countInstancesOfJargon(
   const isWordChar = (char: string) => /[\p{L}\p{N}'-]/u.test(char);
   
   const countMatches = (term: string): number => {
+    if (!term) return 0;
     let count = 0;
     let index = postText.indexOf(term);
     

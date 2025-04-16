@@ -576,6 +576,9 @@ const ReactionOverviewButton = ({voteProps, classes}: {
   </LWTooltip>
 }
 
+
+const AddReactionButtonComponent = registerComponent('AddReactionButton', AddReactionButton, {styles});
+
 const NamesAttachedReactionsVoteOnCommentComponent = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnComment, {
   styles,
   hocs: [withErrorBoundary]
@@ -590,6 +593,7 @@ declare global {
   interface ComponentTypes {
     NamesAttachedReactionsVoteOnComment: typeof NamesAttachedReactionsVoteOnCommentComponent
     NamesAttachedReactionsCommentBottom: typeof NamesAttachedReactionsCommentBottomComponent
+    AddReactionButton: typeof AddReactionButtonComponent
   }
 }
 

@@ -10,8 +10,9 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
 import type { Placement as PopperPlacementType } from "popper.js"
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   moreReactions: {
     paddingLeft: 12,
     paddingRight: 12,
@@ -69,7 +70,7 @@ const styles = (theme: ThemeType) => ({
     width: 350,
     maxHeight: 305,
     overflowY: "scroll",
-    marginTop: 12
+    marginTop: 12,
   },
   tooltipIcon: {
     marginRight: 12,
@@ -140,16 +141,16 @@ const styles = (theme: ThemeType) => ({
     marginTop: "1em",
     marginBottom: "1em",
   }
-})
+}));
 
 type paletteView = "listView"|"gridView";
 
-const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
+const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
   quote: QuoteLocator|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { ReactionIcon, LWTooltip, Row, ReactionDescription, MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
@@ -367,7 +368,9 @@ function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: st
   );
 }
 
-const ReactionsPaletteComponent = registerComponent('ReactionsPalette', ReactionsPalette, {styles});
+const ReactionsPaletteComponent = registerComponent('ReactionsPalette', ReactionsPalette);
+
+export default ReactionsPaletteComponent;
 
 declare global {
   interface ComponentTypes {

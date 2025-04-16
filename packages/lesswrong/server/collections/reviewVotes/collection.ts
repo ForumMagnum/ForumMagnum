@@ -1,5 +1,4 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const ReviewVotes: ReviewVotesCollection = createCollection({
@@ -13,7 +12,6 @@ export const ReviewVotes: ReviewVotesCollection = createCollection({
     indexSet.addIndex('ReviewVotes', {year: 1, dummy: 1, createdAt: -1});
     return indexSet;
   },
-  resolvers: getDefaultResolvers('ReviewVotes'),
 });
 
 export default ReviewVotes;

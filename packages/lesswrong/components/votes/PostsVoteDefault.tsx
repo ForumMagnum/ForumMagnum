@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
+import { isAF, isLW } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
@@ -33,6 +33,13 @@ const styles = (theme: ThemeType) => ({
   },
   voteScores: {
     margin:"15%",
+    
+    ...(isLW && {
+      margin: "25% 15% 15% 15%"
+    }),
+    ...(isAF && {
+      fontVariantNumeric: "lining-nums",
+    }),
   },
   voteScoresHorizontal: {
     margin: '0 12px'
@@ -43,6 +50,15 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: isFriendlyUI ? '50%' : '55%',
+    
+    ...(isFriendlyUI && {
+      paddingTop:4,
+      paddingBottom:2,
+      paddingLeft:1,
+      paddingRight:0,
+      fontSize: '50%',
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   voteScoreFooter: {
     fontSize: 18,

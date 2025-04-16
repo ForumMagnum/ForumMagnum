@@ -91,6 +91,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
           fontWeight: 600
         }
       },
+      ultraFeedMobileStyle: {
+        fontSize: "1.3rem !important",
+      },
       errorStyle: {
         color: palette.error.main,
         fontFamily: sansSerifStack
@@ -110,11 +113,6 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      PostsVoteDefault: {
-        voteScores: {
-          margin: "25% 15% 15% 15%"
-        }
-      },
       MuiMenuItem: {
         root: {
           fontFamily: sansSerifStack,

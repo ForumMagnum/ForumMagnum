@@ -7,12 +7,12 @@ import ReviewWinners from '@/server/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { fal } from '@fal-ai/client';
-import { createMutator } from '../../vulcan-lib/mutators.ts';
 import sample from 'lodash/sample';
-import SplashArtCoordinates from '@/server/collections/splashArtCoordinates/collection.ts';
 import { falApiKey } from '@/lib/instanceSettings.ts';
 import { artPrompt } from '@/components/review/GenerateImagesButton.tsx';
 import { createAdminContext } from '@/server/vulcan-lib/createContexts.ts';
+import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
+import { createSplashArtCoordinate } from '@/server/collections/splashArtCoordinates/mutations.ts';
 
 /*
 This script makes AI-generated images for Best of LessWrong posts.
@@ -103,23 +103,19 @@ const saveImageAsReviewWinnerArt = async (prompt: string, essay: Essay, url: str
     console.error("Failed to upload image to cloudinary", {prompt, essay})
     return
   }
-  const reviewWinnerArt = await createMutator({
-    collection: ReviewWinnerArts,
-    context: createAdminContext(),
-    document: {
+  const reviewWinnerArt = await createReviewWinnerArt({
+    data: {
       postId: essay.post._id, 
       splashArtImagePrompt: prompt,
       splashArtImageUrl: newUrl
     }
-  })
+  }, createAdminContext());
 
   // Add coordinates for the new art
-  if (reviewWinnerArt.data) {
-    await createMutator({
-      collection: SplashArtCoordinates,
-      context: createAdminContext(),
-      document: {
-        reviewWinnerArtId: reviewWinnerArt.data._id,
+  if (reviewWinnerArt) {
+    await createSplashArtCoordinate({
+      data: {
+        reviewWinnerArtId: reviewWinnerArt._id,
         leftXPct: 0,
         leftYPct: 0,
         leftWidthPct: .33,
@@ -136,7 +132,7 @@ const saveImageAsReviewWinnerArt = async (prompt: string, essay: Essay, url: str
         rightHeightPct: 1, 
         rightFlipped: false,
       }
-    });
+    }, createAdminContext());
   }
   
   return reviewWinnerArt
@@ -284,7 +280,7 @@ const getArtForEssay = async (openAiClient: OpenAI, essay: Essay, prompt?: strin
   const promptsTotal = prompts.flatMap(p => Array(promptCount).fill(p))
   const results = Promise.all(promptsTotal.map(async (prompt) => {
     const image = await generateHighResImage(essay, prompt, sample(promptImageUrls)!)
-    const reviewWinnerArt = (await saveImageAsReviewWinnerArt(prompt, essay, image))?.data
+    const reviewWinnerArt = (await saveImageAsReviewWinnerArt(prompt, essay, image))
     return {title: essay.title, prompt, imageUrl: image, reviewWinnerArt}
   }))
   return results

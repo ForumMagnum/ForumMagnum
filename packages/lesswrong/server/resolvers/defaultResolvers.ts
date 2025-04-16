@@ -8,9 +8,11 @@ import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { captureException } from "@sentry/core";
 import isEqual from "lodash/isEqual";
-import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections.ts";
-import { convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils.ts";
+import { convertDocumentIdToIdInSelector, CamelCaseify } from "@/lib/vulcan-lib/utils";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
+import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
+import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
+import type { Pluralize } from "@/lib/vulcan-lib/pluralize";
 import { print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 
 export interface DefaultResolverOptions {
@@ -68,22 +70,28 @@ const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInf
   };
 };
 
+type DefaultSingleResolverHandler<N extends CollectionNameString> = {
+  [k in N as `${CamelCaseify<typeof collectionNameToTypeName[k]>}`]: (_root: void, { input }: { input: AnyBecauseTodo; }, context: ResolverContext, info: GraphQLResolveInfo) => Promise<{ result: Partial<ObjectsByCollectionName[N]> | null; }>
+};
+
+type DefaultMultiResolverHandler<N extends CollectionNameString> = {
+  [k in N as `${CamelCaseify<Pluralize<typeof collectionNameToTypeName[k]>>}`]: (_root: void, { input }: { input: AnyBecauseTodo; }, context: ResolverContext, info: GraphQLResolveInfo) => Promise<{ results: Partial<ObjectsByCollectionName[N]>[]; totalCount: number; }>
+};
+
 export const getDefaultResolvers = <N extends CollectionNameString>(
   collectionName: N, 
   collectionOptions?: Partial<DefaultResolverOptions>,
-) => {
+): DefaultSingleResolverHandler<N> & DefaultMultiResolverHandler<N> => {
   type T = ObjectsByCollectionName[N];
   const resolverOptions = {...defaultOptions, ...collectionOptions};
-  const typeName = collectionNameToGraphQLType(collectionName);
+  const typeName = collectionNameToTypeName[collectionName];
 
   const multiResolver = async (
     root: void,
     args: {
       input?: {
         terms: ViewTermsBase & Record<string, unknown>,
-        enableCache?: boolean,
         enableTotal?: boolean,
-        createIfMissing?: Partial<T>,
         resolverArgs?: Record<string, unknown>
       },
       [resolverArgKeys: string]: unknown
@@ -92,9 +100,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     info: GraphQLResolveInfo,
   ) => {
     const collection = context[collectionName] as CollectionBase<N>;
-    // const startResolve = Date.now()
     const { input } = args ?? { input: {} };
-    const { terms = {}, enableCache = false, enableTotal = false, createIfMissing, resolverArgs = {} } = input ?? {};
+    const { terms = {}, enableTotal = false, resolverArgs = {} } = input ?? {};
     const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
     logger('multi resolver()')
     logger('multi terms', terms)
@@ -139,12 +146,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       throw new Error("Exceeded maximum value for skip");
     }
 
-    const {cacheControl} = info;
-    if (cacheControl && enableCache) {
-      const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
-      cacheControl.setCacheHint({ maxAge });
-    }
-
     // get currentUser and Users collection from context
     const { currentUser }: {currentUser: DbUser|null} = context;
 
@@ -166,7 +167,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         {...resolverArgs, ...terms},
         parameters.selector,
         parameters.syntheticFields,
-        parameters.options,
+        {
+          ...parameters.options,
+          skip: terms.offset,
+        }
       );
       const compiledQuery = query.compile();
       const db = getSqlClientOrThrow();
@@ -179,11 +183,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       );
     }
     let docs = await fetchDocs();
-    // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
-    if (createIfMissing && docs.length === 0) {
-      await collection.options.mutations?.create?.mutation(root, {data: createIfMissing}, context)
-      docs = await fetchDocs();
-    }
 
     // Were there enough results to reach the limit specified in the query?
     const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
@@ -212,9 +211,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       }
     }
 
-    // const timeElapsed = Date.now() - startResolve;
-    // Temporarily disabled to investigate performance issues
-    // captureEvent("resolveMultiCompleted", {documentIds: restrictedDocs.map((d: DbObject) => d._id), collectionName, timeElapsed, terms}, true);
     // return results
     return data;
   };
@@ -226,8 +222,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     info: GraphQLResolveInfo,
   ) => {
     const collection = context[collectionName] as CollectionBase<N>;
-    // const startResolve = Date.now();
-    const {enableCache = false, allowNull = false, resolverArgs} = input;
+    const {allowNull = false, resolverArgs} = input;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
     // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
     // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
@@ -242,12 +237,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     );
     logger(`Options: ${JSON.stringify(resolverOptions)}`);
     logger(`Selector: ${JSON.stringify(selector)}`);
-
-    const {cacheControl} = info;
-    if (cacheControl && enableCache) {
-      const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
-      cacheControl.setCacheHint({ maxAge });
-    }
 
     const { currentUser }: {currentUser: DbUser|null} = context;
 
@@ -318,24 +307,17 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
     logger('');
 
-    // const timeElapsed = Date.now() - startResolve;
-    // Temporarily disabled to investigate performance issues
-    // captureEvent("resolveSingleCompleted", {documentId: restrictedDoc._id, collectionName, timeElapsed}, true);
-
     // filter out disallowed properties and return resulting document
     return { result: restrictedDoc };
   };
 
+  const singleResolverName: CamelCaseify<typeof collectionNameToTypeName[N]> = getSingleResolverName(typeName);
+  const multiResolverName: CamelCaseify<Pluralize<typeof collectionNameToTypeName[N]>> = getMultiResolverName(typeName);
+
   return {
-    single: {
-      description: `A single ${typeName} document fetched by ID or slug`,
-      resolver: singleResolver,
-    },
-    multi: {
-      description: `A list of ${typeName} documents matching a set of query terms`,
-      resolver: multiResolver,
-    },
-  }
+    [singleResolverName]: singleResolver,
+    [multiResolverName]: multiResolver,
+  } as DefaultSingleResolverHandler<N> & DefaultMultiResolverHandler<N>;
 };
 
 export const performQueryFromViewParameters = async <N extends CollectionNameString>(

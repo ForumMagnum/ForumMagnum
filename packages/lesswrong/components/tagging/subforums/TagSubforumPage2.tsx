@@ -17,6 +17,7 @@ import { getTagStructuredData } from '../TagPageRouter';
 import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { useCreate } from '@/lib/crud/withCreate';
 
 export const styles = (theme: ThemeType) => ({
   tabRow: {
@@ -185,17 +186,33 @@ const TagSubforumPage2 = ({classes}: {
     skip: !query.flagId
   })
 
-  const { results: userTagRelResults } = useMulti({
+  const skipUserTagRel = !tag || !currentUser
+
+  const { results: userTagRelResults, loading: userTagRelLoading } = useMulti({
     terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
     collectionName: "UserTagRels",
     fragmentName: "UserTagRelDetails",
-    // Create a new UserTagRel if none exists. The check for the existence of tagId and userId is
-    // in principle redundant because of `skip`, but it would be bad to create a UserTagRel with
-    // a null tagId or userId so be extra careful.
-    createIfMissing: tag?._id && currentUser?._id ? { tagId: tag?._id, userId: currentUser?._id } : undefined,
-    skip: !tag || !currentUser
+    skip: skipUserTagRel
   });
-  const userTagRel = userTagRelResults?.[0];
+
+  const { create: createUserTagRel, data: createdUserTagRelData, called: createUserTagRelCalled } = useCreate({
+    collectionName: "UserTagRels",
+    fragmentName: "UserTagRelDetails",
+  })
+
+  useEffect(() => {
+    // Create a new UserTagRel if none exists.  This is replacing the previous behavior of
+    // the legacy (since removed) `createIfMissing` in the `useMulti` call above.
+    // It's a bit slower than implementing a custom resolver that does both but
+    // I don't think subforums are even a thing right now; if the EA forum wants me to do that I can.
+    if (userTagRelResults?.length === 0 && !userTagRelLoading && !skipUserTagRel && !createUserTagRelCalled) {
+      void createUserTagRel({
+        data: { tagId: tag._id, userId: currentUser._id },
+      });
+    }
+  }, [userTagRelResults, userTagRelLoading, createUserTagRel, createUserTagRelCalled, tag, currentUser, skipUserTagRel]);
+
+  const userTagRel = createdUserTagRelData ?? userTagRelResults?.[0];
 
   // "feed" -> "card" for backwards compatibility, TODO remove after a month or so
   if (query.layout === "feed") {

@@ -1,7 +1,7 @@
 import { DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle, getForeignKeySqlResolver } from "@/lib/utils/schemaUtils";
 
-export const testSchema: NewSchemaType<CollectionNameString> = {
+export const testSchema: SchemaType<CollectionNameString> = {
   _id: DEFAULT_ID_FIELD,
   a: {
     database: {
@@ -51,7 +51,7 @@ export const testSchema: NewSchemaType<CollectionNameString> = {
   },
 };
 
-export const testSchema2: NewSchemaType<CollectionNameString> = {
+export const testSchema2: SchemaType<CollectionNameString> = {
   _id: DEFAULT_ID_FIELD,
   data: {
     database: {
@@ -73,7 +73,7 @@ export const testSchema2: NewSchemaType<CollectionNameString> = {
   },
 };
 
-export const testSchema3: NewSchemaType<CollectionNameString> = {
+export const testSchema3: SchemaType<CollectionNameString> = {
   _id: DEFAULT_ID_FIELD,
   notNullData: {
     database: {
@@ -81,7 +81,7 @@ export const testSchema3: NewSchemaType<CollectionNameString> = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
     },
   },
@@ -92,7 +92,7 @@ export const testSchema3: NewSchemaType<CollectionNameString> = {
   }
 };
 
-export const testSchema4: NewSchemaType<CollectionNameString> = {
+export const testSchema4: SchemaType<CollectionNameString> = {
   _id: DEFAULT_ID_FIELD,
   testCollection3Id: {
     database: {
@@ -149,7 +149,7 @@ export const testSchema4: NewSchemaType<CollectionNameString> = {
   },
 };
 
-export const testSchema5: NewSchemaType<CollectionNameString> = {
+export const testSchema5: SchemaType<CollectionNameString> = {
   _id: DEFAULT_ID_FIELD,
   jsonField: {
     database: {

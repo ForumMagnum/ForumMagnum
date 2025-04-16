@@ -9,6 +9,10 @@ export const styles = defineStyles("MuiPaper", theme => {
   theme.shadows.forEach((shadow, index) => {
     elevations[`elevation${index}`] = {
       boxShadow: shadow,
+
+      ...(theme.themeOptions.name === "dark" && {
+        boxShadow: "none",
+      }),
     };
   });
 

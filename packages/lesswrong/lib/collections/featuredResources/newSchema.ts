@@ -11,8 +11,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -43,8 +42,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -59,8 +57,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -72,10 +69,10 @@ const schema = {
   expiresAt: {
     database: {
       type: "TIMESTAMPTZ",
-      nullable: true,
+      nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -87,6 +84,6 @@ const schema = {
       control: "datetime",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"FeaturedResources">>;
+} satisfies Record<string, CollectionFieldSpecification<"FeaturedResources">>;
 
 export default schema;
