@@ -17,7 +17,6 @@ import { CollapseClassKey } from '../Collapse';
 import { CssBaselineClassKey } from '../CssBaseline';
 import { DialogClassKey } from '../Dialog';
 import { DividerClassKey } from '../Divider';
-import { DrawerClassKey } from '../Drawer';
 import { ExpansionPanelActionsClassKey } from '../ExpansionPanelActions';
 import { ExpansionPanelClassKey } from '../ExpansionPanel';
 import { ExpansionPanelDetailsClassKey } from '../ExpansionPanelDetails';
@@ -109,7 +108,6 @@ export interface ComponentNameToClassKey {
   MuiCssBaseline: CssBaselineClassKey;
   MuiDialog: DialogClassKey;
   MuiDivider: DividerClassKey;
-  MuiDrawer: DrawerClassKey;
   MuiExpansionPanel: ExpansionPanelClassKey;
   MuiExpansionPanelActions: ExpansionPanelActionsClassKey;
   MuiExpansionPanelDetails: ExpansionPanelDetailsClassKey;

@@ -103,7 +103,6 @@ export interface ComponentsPropsList {
   MuiCssBaseline: CssBaselineProps;
   MuiDialog: DialogProps;
   MuiDivider: DividerProps;
-  MuiDrawer: DrawerProps;
   MuiExpansionPanel: ExpansionPanelProps;
   MuiExpansionPanelActions: ExpansionPanelActionsProps;
   MuiExpansionPanelDetails: ExpansionPanelDetailsProps;
