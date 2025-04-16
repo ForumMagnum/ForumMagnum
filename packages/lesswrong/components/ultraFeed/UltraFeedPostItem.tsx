@@ -30,28 +30,36 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    marginBottom: 4,
+    marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 4,
+    },
   },
   titleContainer: {
     flexGrow: 1,
     paddingRight: 8,
-    marginBottom: 4,
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.6rem',
+    fontSize: '1.4rem',
     fontWeight: 600,
     opacity: 0.8,
     lineHeight: 1.15,
     textWrap: 'balance',
     width: '100%',
+    marginBottom: 4,
     '&:hover': {
       opacity: 0.9,
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.6rem',
     },
   },
   headerRightSection: {
     display: "flex",
     flexGrow: 0,
+    marginRight: -8,
+    marginTop: -10,
   },
   tripleDotMenu: {
     padding: 5,
@@ -209,7 +217,23 @@ const UltraFeedPostItem = ({
         <div className={classes.titleRow}>
           <div className={classes.titleContainer}>
             <Link to={postGetLink(post)} className={classes.title}>{post.title}</Link>
+            <div className={classes.metaRoot}>
+              <span className={classes.metaLeftSection}>
+                {showKarma && !post.rejected && <span className={classes.metaKarma}>
+                  {postGetKarma(post)}
+                </span>}
+                <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
+                {post.postedAt && (
+                  <span className={classes.metaDateContainer}>
+                    <FormatDate date={post.postedAt} />
+                  </span>
+                )}
+              </span>
+            </div>
           </div>
+
+
+
           <span className={classes.headerRightSection}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
               <PostActionsButton
@@ -220,19 +244,8 @@ const UltraFeedPostItem = ({
             </AnalyticsContext>
           </span>
         </div>
-        <div className={classes.metaRoot}>
-          <span className={classes.metaLeftSection}>
-            {showKarma && !post.rejected && <span className={classes.metaKarma}>
-              {postGetKarma(post)}
-            </span>}
-            <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
-            {post.postedAt && (
-              <span className={classes.metaDateContainer}>
-                <FormatDate date={post.postedAt} />
-              </span>
-            )}
-          </span>
-        </div>
+
+
       </div>
 
       <FeedContentBody

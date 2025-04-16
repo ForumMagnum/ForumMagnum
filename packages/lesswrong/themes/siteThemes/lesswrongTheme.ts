@@ -91,6 +91,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
           fontWeight: 600
         }
       },
+      ultraFeedMobileStyle: {
+        fontSize: "1.3rem !important",
+      },
       errorStyle: {
         color: palette.error.main,
         fontFamily: sansSerifStack

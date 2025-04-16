@@ -15,15 +15,16 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     position: "relative",
     paddingLeft: 8,
     paddingRight: 8,
-    // paddingTop: 8,
-    // paddingBottom: 8,
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "space-between",
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "1.3rem !important",
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      ...theme.typography.ultraFeedMobileStyle,
+    },
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: `${theme.palette.linkHover.dim} !important`,
@@ -33,9 +34,13 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: "flex",
     alignItems: "center",
-    paddingBottom: 2,
     "& svg": {
-      height: 22,
+      height: 18,
+      marginBottom: 2,
+      [theme.breakpoints.down('sm')]: {
+        height: 22,
+        paddingBottom: 2,
+      },
     },
   },
   commentCountClickable: {
@@ -57,8 +62,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     },
     '& svg': {
       filter: 'opacity(1) !important',
-      height: 22,
-      width: 22,
+      [theme.breakpoints.down('sm')]: {
+        height: 22,
+        width: 22,
+      },
     }
   },
   reactionIcon: {
@@ -70,8 +77,15 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   bookmarkButton: {
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
+      height: 20,
+      [theme.breakpoints.down('sm')]: {
+        height: 22,
+      },
     },
-    marginBottom: -2,
+    marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: -2,
+    },
   },
   overallVoteButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
@@ -82,6 +96,34 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   agreementButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
     marginLeft: -8 // necessary to counter baked-in left margin from AgreementVoteAxis.tsx
+  },
+  // Styles to override OverallVoteAxis children, applied only on small screens
+  footerVoteScoreOverride: {
+    // Default style for this class (applies on large screens)
+    fontSize: `${theme.typography.body2.fontSize}px !important`, 
+    margin: '0 7px !important', // Use default small margin for large screens
+
+    // Override for small screens
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.3rem !important',
+      margin: '0 7px !important',
+    }
+  },
+  hideSecondaryScoreOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none !important',
+    }
+  },
+  // Styles to override AgreementVoteAxis score when used in footer
+  footerAgreementScoreOverride: {
+    // Default style for this class (applies on large screens)
+    fontSize: `${theme.typography.body2.fontSize}px !important`,
+    margin: '0 7px !important',
+    // Override for small screens
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.3rem !important',
+      margin: '0 7px !important', // Keep same margin for small screens based on user change above
+    }
   },
 }));
 
@@ -134,7 +176,8 @@ const UltraFeedItemFooterCore = ({
               voteProps={voteProps}
               verticalArrows
               largeArrows
-              size="large"
+              voteScoreClassName={classes.footerVoteScoreOverride}
+              secondaryScoreClassName={classes.hideSecondaryScoreOnMobile}
               hideAfScore={true}
             />
           </div>
@@ -143,7 +186,7 @@ const UltraFeedItemFooterCore = ({
               document={voteProps.document}
               hideKarma={hideKarma}
               voteProps={voteProps}
-              size="large"
+              agreementScoreClassName={classes.footerAgreementScoreOverride}
             />
           </div>
         </>
