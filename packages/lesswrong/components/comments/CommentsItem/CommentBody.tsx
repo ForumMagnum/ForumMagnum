@@ -70,7 +70,7 @@ const CommentBody = ({
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
   if (collapsed) { return null }
 
-  const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
+  const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : (html ?? '')
 
   let contentType: ContentStyleType;
   if (comment.answer) {

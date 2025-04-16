@@ -169,13 +169,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
   const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, CoreTagIcon } = Components
 
-  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
-  const renderHighlight = (comment.baseScore > -5) && !comment.deleted
+  const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
+  const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
   const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
   
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
   
-  const deempphasizeComment = !!deemphasizeCommentsExcludingUserIds && !deemphasizeCommentsExcludingUserIds.has(comment.userId)
+  const deempphasizeComment = !!deemphasizeCommentsExcludingUserIds && !deemphasizeCommentsExcludingUserIds.has(comment.userId ?? '')
 
   return (
     <div className={classes.root} {...eventHandlers}>

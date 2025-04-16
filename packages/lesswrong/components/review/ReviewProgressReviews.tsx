@@ -61,7 +61,7 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
   if (!reviewsResults) return null
 
   const totalReviews = totalCount || 0
-  const totalHighlightedReviews = reviewsResults.filter(review => review.baseScore >= 10).length
+  const totalHighlightedReviews = reviewsResults.filter(review => review.baseScore && review.baseScore >= 10).length
   const reviewCountMessage = totalHighlightedReviews ? `(${totalHighlightedReviews} of your reviews got 10+ karma)` : "(None with 10+ karma yet)"
 
   const uncheckedBoxes = TARGET_NUM - Math.min(totalReviews, TARGET_NUM)

@@ -62,7 +62,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
     userId: userId ?? currentUser?._id,
     limit,
     sortDraftsBy: currentSorting,
-    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
+    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : !!currentUser?.draftsListShowArchived,
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }
   

@@ -29,7 +29,7 @@ export const EditUserJargonSettings = ({classes}: {
         <div className={classes.checkboxContainer}>
           <Checkbox
             className={classes.generationFlagCheckbox}
-            checked={currentUser?.generateJargonForDrafts}
+            checked={currentUser?.generateJargonForDrafts ?? undefined}
             onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
           />
           <MetaInfo>Autogen for all my drafts</MetaInfo>
@@ -39,7 +39,7 @@ export const EditUserJargonSettings = ({classes}: {
         <div className={classes.checkboxContainer}>
           <Checkbox
             className={classes.generationFlagCheckbox}
-            checked={currentUser?.generateJargonForPublishedPosts}
+            checked={currentUser?.generateJargonForPublishedPosts ?? undefined}
             onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
           />
           <MetaInfo>Autogen for all my published posts</MetaInfo>

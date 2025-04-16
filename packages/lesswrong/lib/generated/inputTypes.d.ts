@@ -3969,7 +3969,7 @@ interface CreateUserDataInput {
   biography?: any;
   username?: string | null;
   isAdmin?: boolean | null;
-  displayName?: string | null;
+  displayName: string;
   previousDisplayName?: string | null;
   email?: string | null;
   groups?: Array<string> | null;

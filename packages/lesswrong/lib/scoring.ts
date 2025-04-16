@@ -86,7 +86,7 @@ export const recalculateScore = (item: VoteableType) => {
 
     return newScore;
   } else {
-    return item.baseScore;
+    return item.baseScore ?? 0;
   }
 };
 

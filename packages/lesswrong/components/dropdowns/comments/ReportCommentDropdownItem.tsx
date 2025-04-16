@@ -25,7 +25,7 @@ const ReportCommentDropdownItem = ({comment, post}: {
       contents: ({onClose}) => <Components.ReportForm
         onClose={onClose}
         commentId={comment._id}
-        postId={comment.postId}
+        postId={comment.postId ?? undefined}
         link={"/posts/" + comment.postId + "/a/" + comment._id}
         userId={currentUser._id}
       />

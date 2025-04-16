@@ -77,9 +77,9 @@ const describePost = async (post: PostsPage) =>
 // meant to be handled by a person) includes the title/author/karma of the
 // post and a list of broken things within it.
 const checkPost = async (post: PostsPage) => {
-  const { html = "" } = post.contents || {}
-  const images = getImagesInHtml(html);
-  const links = getLinksInHtml(html);
+  const { html } = post.contents || {}
+  const images = getImagesInHtml(html ?? "");
+  const links = getLinksInHtml(html ?? "");
   
   let brokenImages: Array<string> = [];
   let offsiteImages: Array<string> = [];

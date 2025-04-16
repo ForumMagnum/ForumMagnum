@@ -213,6 +213,10 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: FieldNo
         fieldType = fieldSimpleSchema.typescriptType;
       } else if (fieldSchema.graphql?.validation?.allowedValues) {
         fieldType = generateAllowedValuesTypeString(fieldSchema.graphql.validation.allowedValues, fieldSchema);
+      } else if (fieldSchema.graphql?.validation?.simpleSchema) {
+        fieldType = simplSchemaTypeToTypescript(simpleSchema, fieldName, fieldSimpleSchema.type);
+      } else if (fieldSchema.graphql?.outputType) {
+        fieldType = graphqlTypeToTypescript(fieldSchema.graphql?.outputType);
       } else {
         fieldType = simplSchemaTypeToTypescript(simpleSchema, fieldName, fieldSimpleSchema.type);
       }

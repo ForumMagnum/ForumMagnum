@@ -77,7 +77,7 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  const curatedDate = curatedResults ? new Date(curatedResults[0]?.curatedDate) : new Date();
+  const curatedDate = curatedResults ? new Date(curatedResults[0]?.curatedDate ?? 0) : new Date();
   const twoAndAHalfDaysAgo = new Date(new Date().getTime()-(2.5*24*60*60*1000));
   const timeForCuration = curatedDate <= twoAndAHalfDaysAgo;
 

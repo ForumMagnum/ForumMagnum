@@ -16,9 +16,10 @@ export const ProfileShortform = ({classes, user}: {
   const { PostsItem } = Components
 
   const { document } = useSingle({
-    documentId: user.shortformFeedId,
+    documentId: user.shortformFeedId!,
     collectionName: "Posts",
     fragmentName: "PostsListWithVotes",
+    skip: !user.shortformFeedId,
   });
 
   return <div className={classes.root}>

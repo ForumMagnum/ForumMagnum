@@ -88,7 +88,7 @@ export function getABTestsMetadata(): Record<string,ABTest> {
 
 export function getUserABTestKey(abKeyInfo: ABKeyInfo): string | undefined {
   if ('user' in abKeyInfo) {
-    return abKeyInfo.user.abTestKey;
+    return abKeyInfo.user.abTestKey ?? undefined;
   } else {
     return abKeyInfo.clientId;
   }

@@ -36,7 +36,7 @@ ${post.contents?.markdown}`.trim();
 }
 
 const getCommentBodyFormatted = (comment: CommentsForAutocomplete) => {
-  const dateString = formatRelative(new Date(comment.createdAt), new Date(), false)
+  const dateString = formatRelative(new Date(comment.createdAt ?? 0), new Date(), false)
   return `Comment on ${comment.post?.title}
 ${comment.user?.displayName} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
 ${comment.contents?.markdown}`.trim();

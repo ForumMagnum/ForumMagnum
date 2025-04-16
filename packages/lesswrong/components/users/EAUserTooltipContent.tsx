@@ -73,7 +73,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const formatRole = (jobTitle?: string, organization?: string): string =>
+export const formatRole = (jobTitle?: string | null, organization?: string | null): string =>
   jobTitle && organization
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";

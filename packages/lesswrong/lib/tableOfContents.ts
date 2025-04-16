@@ -199,15 +199,15 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
   if (!post.question) return []
 
   const answerSections: ToCSection[] = answers.map((answer: CommentType): ToCSection => {
-    const { html = "" } = answer.contents || {};
+    const { html } = answer.contents || {};
     const highlight = truncate(html, 900);
-    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));
+    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html ?? ""));
     const author = ("user" in answer ? answer.user?.displayName : answer.author) ?? null;
 
     return {
       title: `${answer.baseScore} ${author}`,
       answer: {
-        baseScore: answer.baseScore,
+        baseScore: answer.baseScore ?? 0,
         voteCount: answer.voteCount,
         postedAt: answer.postedAt,
         author: author,

@@ -270,7 +270,7 @@ interface HasUserIdType {
 
 interface VoteableType extends HasIdType {
   score: number
-  baseScore: number
+  baseScore: number | null
   extendedScore: any,
   voteCount: number
   af?: boolean

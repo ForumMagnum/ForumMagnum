@@ -184,7 +184,7 @@ const AltAccountsNodeUser = ({user, classes}: {
             <div>Client IDs</div>
             <ul>
               {user.associatedClientIds.map(clientId => <li key={clientId.clientId}>
-                <AltAccountsNodeClientID clientId={clientId.clientId} classes={classes}/>
+                <AltAccountsNodeClientID clientId={clientId.clientId!} classes={classes}/>
               </li>)}
             </ul>
           </li>
@@ -233,7 +233,7 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
     {clientIdInfo && <div>
       <div>First seen referrer: {clientIdInfo.firstSeenReferrer}</div>
       <div>First seen landing page: {clientIdInfo.firstSeenLandingPage}</div>
-      <div>First seen: <FormatDate date={clientIdInfo.createdAt}/></div>
+      <div>First seen: <FormatDate date={clientIdInfo.createdAt!}/></div>
       <ul>
         {expanded
           ? <li className={classes.openListItem}>

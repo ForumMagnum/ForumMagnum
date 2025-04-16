@@ -57,7 +57,7 @@ const AFSuggestCommentsItem = ({comment, classes}: {
   if (!currentUser) return null;
 
   const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
-  const userHasSelfSuggested = comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId)
+  const userHasSelfSuggested = comment.suggestForAlignmentUsers && comment.userId && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId)
 
   return (
     <span {...eventHandlers}>

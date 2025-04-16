@@ -39,7 +39,7 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
     enableTotal: false,
   });
   const sortedReviews = sortBy(reviews, obj => {
-    if (sortReviews === "top") return -obj.baseScore
+    if (sortReviews === "top") return -(obj.baseScore ?? 0)
     if (sortReviews === "new") return -obj.postedAt 
   })
   

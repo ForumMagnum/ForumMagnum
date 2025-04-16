@@ -164,7 +164,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
           </div>
         </PostsItemTooltipWrapper>
         <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
-        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name}>
+        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name ?? undefined}>
           <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
         </div>}
         <div className={classes.addToCal}>

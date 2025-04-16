@@ -37,7 +37,7 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
         name: "AFNonMemberSuccessPopup",
         contents: ({onClose}) => <Components.AFNonMemberSuccessPopup
           _id={document._id}
-          postId={document.postId}
+          postId={document.postId ?? undefined}
           onClose={onClose}
         />,
       })

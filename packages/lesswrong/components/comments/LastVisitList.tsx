@@ -37,7 +37,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   for (let visit of results) {
     if (filteredVisits.length) {
       const prevVisit = filteredVisits[filteredVisits.length-1];
-      const timeSince = new Date(prevVisit.createdAt).getTime() - new Date(visit.createdAt).getTime(); //in milliseconds
+      const timeSince = new Date(prevVisit.createdAt!).getTime() - new Date(visit.createdAt!).getTime(); //in milliseconds
       if (timeSince > MINIMUM_TIME_BETWEEN) {
         filteredVisits.push(visit);
       }
@@ -50,7 +50,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
     filteredVisits = _.take(filteredVisits, VISITS_TO_SHOW);
   
   return <>{filteredVisits.map((visit) =>
-    <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt)}>Visit at:&nbsp;<Components.CalendarDate date={visit.createdAt}/> </MenuItem>
+    <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt!)}>Visit at:&nbsp;<Components.CalendarDate date={visit.createdAt!}/> </MenuItem>
   )}</>
 }
 

@@ -28,7 +28,7 @@ const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
     if (!currentUser) return;
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on all your personal blog posts?")) {
-      const commentUserId = comment.userId
+      const commentUserId = comment.userId ?? '';
       let bannedPersonalUserIds = clone(currentUser.bannedPersonalUserIds) || []
       if (!bannedPersonalUserIds.includes(commentUserId)) {
         bannedPersonalUserIds.push(commentUserId)

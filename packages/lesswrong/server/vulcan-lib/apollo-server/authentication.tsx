@@ -23,6 +23,7 @@ import gql from 'graphql-tag';
 import { createLWEvent } from '@/server/collections/lwevents/mutations';
 import { computeContextFromUser } from './context';
 import { createUser } from '@/server/collections/users/mutations';
+import { createDisplayName } from '@/lib/collections/users/newSchema';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -264,26 +265,33 @@ export const loginDataGraphQLMutations = {
     }
 
     const { req, res } = context
+
+    const userData = {
+      email,
+      services: {
+        password: {
+          bcrypt: await createPasswordHash(password)
+        },
+        resume: {
+          loginTokens: []
+        }
+      },
+      emails: [{
+        address: email, verified: false
+      }],
+      username: username,
+      emailSubscribedToCurated: subscribeToCurated,
+      signUpReCaptchaRating: recaptchaScore,
+      abTestKey,
+    };
+
+    const displayName = createDisplayName(userData);
     
     const user = await createUser({
       data: {
-        email,
-        services: {
-          password: {
-            bcrypt: await createPasswordHash(password)
-          },
-          resume: {
-            loginTokens: []
-          }
-        },
-        emails: [{
-          address: email, verified: false
-        }],
-        username: username,
-        emailSubscribedToCurated: subscribeToCurated,
-        signUpReCaptchaRating: recaptchaScore,
-        abTestKey,
-      } as CreateUserDataInput // We need the cast because `services` isn't accepted in the create API.  That also means we need to skip validation.
+        ...userData,
+        displayName,
+      },
     }, context);
 
     const token = await createAndSetToken(req, res, user)

@@ -42,7 +42,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
   displayTitle: boolean,
-  reviewedAt: Date
+  reviewedAt?: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
   const { LWPopper, CommentsNode, FormatDate } = Components
@@ -50,7 +50,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
   if (!comment) return null 
 
   return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
-    <Link className={classNames({[classes.highlight]: comment.postedAt > reviewedAt, [classes.deleted]: comment.deleted, [classes.default]: !comment.deleted})}
+    <Link className={classNames({[classes.highlight]: !reviewedAt || comment.postedAt > reviewedAt, [classes.deleted]: comment.deleted, [classes.default]: !comment.deleted})}
       to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}
     >
       {displayTitle && <span className={classes.scoreTitleFormat}>

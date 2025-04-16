@@ -37,7 +37,7 @@ const getTagVotingGroups = async (tagId: string, context: ResolverContext) => {
 export const canVoteOnTag = (
   tagGroups: string[]|null|undefined,
   user: PermissionableUser|DbUser|null,
-  post: {userId?: string} & CoauthoredPost|null,
+  post: {userId?: string|null} & CoauthoredPost|null,
   voteType: string,
 ): PermissionResult => {
   // If the tag has no voting groups, then anyone can vote on it

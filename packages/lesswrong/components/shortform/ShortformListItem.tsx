@@ -124,7 +124,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   const karma = comment.baseScore ?? 0;
   const commentCount = comment.descendentCount ?? 0;
   const primaryTag = comment.relevantTags?.[0];
-  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile();
+  const displayHoverOver = hover && (karma > -5) && !isMobile();
 
   return (
     <div

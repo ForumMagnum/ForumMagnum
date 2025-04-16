@@ -132,13 +132,13 @@ const CommentsNode = ({
   const shouldExpandAndScrollTo = !noDOMId && !noAutoScroll && comment && scrollToCommentId === comment._id
 
   const beginCollapsed = useCallback(() => {
-    return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold)
+    return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < karmaCollapseThreshold)
   }, [comment.baseScore, comment.deleted, forceUnCollapsed, karmaCollapseThreshold, shouldUncollapseForAutoScroll])
 
   const beginSingleLine = useCallback((): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
     const mostRecent = lastCommentId === comment._id
-    const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
+    const lowKarmaOrCondensed = ((comment.baseScore ?? 0) < 10 || !!condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
 

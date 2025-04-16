@@ -41,7 +41,7 @@ const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
 
   if (!commentResults?.length) return null
   const comment = commentResults[0]
-  if (!comment.post) return null
+  if (!comment.post || !comment.postId) return null
 
   const href = commentGetPageUrlFromIds({
     postId: comment.postId,

@@ -28,7 +28,7 @@ const BanUserFromAllPostsDropdownItem = ({comment, post}: {
     event.preventDefault();
     if (!currentUser) return;
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {
-      const commentUserId = comment.userId
+      const commentUserId = comment.userId ?? '';
       let bannedUserIds = clone(currentUser.bannedUserIds) || []
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)

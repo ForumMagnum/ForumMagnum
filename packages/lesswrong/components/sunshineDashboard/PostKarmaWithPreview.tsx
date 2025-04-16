@@ -37,7 +37,7 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
   classes: ClassesType<typeof styles>,
   displayTitle: boolean,
-  reviewedAt: Date
+  reviewedAt?: Date
 }) => {
   const {PostsTooltip, FormatDate} = Components;
   return (
@@ -51,7 +51,7 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
       })}>
         <Link
           className={classNames({
-            [classes.highlight]: post.postedAt > reviewedAt,
+            [classes.highlight]: !reviewedAt || post.postedAt > reviewedAt,
             [classes.draft]: post.draft,
             [classes.default]: !post.draft,
           })}

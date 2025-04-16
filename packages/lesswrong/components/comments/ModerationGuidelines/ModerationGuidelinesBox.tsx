@@ -92,8 +92,8 @@ const getPostModerationGuidelines = (
 }
 
 const getSubforumModerationGuidelines = (tag: TagFragment) => {
-  const { html = "" } = tag.moderationGuidelines || {}
-  const combinedGuidelines = html
+  const { html } = tag.moderationGuidelines || {}
+  const combinedGuidelines = html ?? ''
   const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
   return { combinedGuidelines, truncatedGuidelines }
 }

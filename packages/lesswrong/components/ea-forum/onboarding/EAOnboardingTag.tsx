@@ -95,7 +95,7 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   return (
     <div onClick={toggleSubscribed} className={classes.root}>
       <CloudinaryImage2
-        publicId={squareImageId ?? bannerImageId}
+        publicId={squareImageId ?? bannerImageId ?? ''}
         width={TAG_SIZE}
         height={TAG_SIZE}
         imgProps={{

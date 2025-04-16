@@ -294,7 +294,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
-  if (newDocument.baseScore < reviewMarketCreationMinimumKarmaSetting.get()) return;
+  if ((newDocument.baseScore ?? 0) < reviewMarketCreationMinimumKarmaSetting.get()) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post || post.draft || post.deletedDraft) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed

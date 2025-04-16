@@ -363,7 +363,7 @@ const TagSubforumPage2 = ({classes}: {
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout
         titleComponent={titleComponent}
-        bannerImageId={tag.bannerImageId}
+        bannerImageId={tag.bannerImageId!}
         headerComponent={headerComponent}
         sidebarComponents={rightSidebarComponents[tab]}
       >

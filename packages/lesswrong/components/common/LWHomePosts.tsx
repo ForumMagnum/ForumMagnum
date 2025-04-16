@@ -28,6 +28,7 @@ import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -478,7 +479,7 @@ const LWHomePosts = ({ children, classes }: {
         fragmentName: "SubscribedPostAndCommentsFeed",
         render: (postCommented: SubscribedPostAndCommentsFeed) => {
           const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
-          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(userSubscriptions.map(({ documentId }) => documentId)) : undefined;
+          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(filterNonnull(userSubscriptions.map(({ documentId }) => documentId))) : undefined;
           return <Components.FeedPostCommentsCard
             key={postCommented.post._id}
             post={postCommented.post}

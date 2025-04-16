@@ -601,9 +601,10 @@ const schema = {
     database: {
       type: "TIMESTAMPTZ",
       denormalized: true,
+      nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
       canRead: ["guests"],
       onCreate: ({ document: post }) => post.postedAt || new Date(),
       validation: {
@@ -4143,7 +4144,7 @@ const schema = {
 
         if (cacheIsValid) {
           unfilteredResult = {
-            annotatedHtml: cache.annotatedHtml,
+            annotatedHtml: cache.annotatedHtml ?? "",
             commentsByBlock: cache.commentsByBlock,
           };
         } else {

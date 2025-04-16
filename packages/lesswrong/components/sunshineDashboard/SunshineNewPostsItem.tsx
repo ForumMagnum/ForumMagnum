@@ -184,7 +184,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
             </div>}
             {(modGuidelinesHtml || userGuidelinesHtml) && <div>
               <MetaInfo>
-                <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
+                <span dangerouslySetInnerHTML={{__html: (modGuidelinesHtml || userGuidelinesHtml) ?? ''}}/>
                 {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
               </MetaInfo>
             </div>}

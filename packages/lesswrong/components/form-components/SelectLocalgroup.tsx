@@ -38,7 +38,7 @@ const SelectLocalgroup = (props: SelectLocalgroupProps) => {
 
   if (props.multiselect) {
     const options = groups?.map(group => {
-      return {value: group._id, label: group.name}
+      return {value: group._id, label: group.name ?? ''}
     })
     return <Components.FormComponentMultiSelect {...props} options={options || []} />
   }

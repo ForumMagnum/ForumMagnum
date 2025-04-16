@@ -69,7 +69,7 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
         Edited by
         {" "}
         <span className={classes.username}>
-          <UsersName documentId={revision.userId}/>
+          <UsersName documentId={revision.userId ?? undefined}/>
         </span>
         {" "}
         <ChangeMetricsDisplay

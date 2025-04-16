@@ -105,7 +105,7 @@ const OverallVoteAxis = ({
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
 
-  let moveToAlignnmentUserId = ""
+  let moveToAlignnmentUserId: string | null = "";
   let documentTypeName = "comment";
   if (collectionName === "Comments") {
     const comment = document as CommentsList

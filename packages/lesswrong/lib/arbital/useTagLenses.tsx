@@ -51,7 +51,7 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     tabSubtitle: null,
     slug: 'main',
     oldSlugs: [],
-    userId: tag.userId,
+    userId: tag.userId ?? '',
     deleted: tag.deleted,
     createdAt: tag.createdAt,
     legacyData: {},

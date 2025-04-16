@@ -64,13 +64,13 @@ const TagVoteActivityRow = ({vote, classes}: {
   
   return (
     <tr key={vote._id} className={classes.voteRow}>
-      <td><UsersName documentId={vote.userId}/></td>
+      <td><UsersName documentId={vote.userId ?? undefined}/></td>
       <td className={classes.postCell}> <TagSmallPostLink hideMeta post={vote.tagRel?.post}/> </td>
       <td className={classes.tagCell}>
         <FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} hideScore smallText hoverable={true} />
       </td>
       <td className={classes.smallCell}>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</td>
-      <td className={classes.smallCell}><FormatDate date={vote.votedAt}/></td>
+      <td className={classes.smallCell}><FormatDate date={vote.votedAt!}/></td>
       <td className={classes.votingCell}>
         <div className={classes.voteButtons}>
           <OverallVoteButton

@@ -135,7 +135,7 @@ function PostsEmailInner({
 
   // Reusable piece to render each post. We take a "truncated" boolean flag:
   const renderPost = ({ post, truncated }: { post: PostsRevision; truncated: boolean; }) => {
-    let eventLocation: string | JSX.Element = post.location;
+    let eventLocation: string | JSX.Element = post.location ?? "";
     if (post.onlineEvent) {
       eventLocation = post.joinEventLink ? (
         <a href={post.joinEventLink} target="_blank" rel="noopener noreferrer">

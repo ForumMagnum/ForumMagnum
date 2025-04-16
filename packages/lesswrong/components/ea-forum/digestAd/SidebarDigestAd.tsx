@@ -118,7 +118,7 @@ const SidebarDigestAd = ({className, classes}: {
     </form>
   ) : (
     <div className={classes.form}>
-      <input value={currentUser.email} className={classes.formInput} disabled={true} required={true} />
+      <input value={currentUser.email ?? undefined} className={classes.formInput} disabled={true} required={true} />
       <EAButton onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
         {arrow}
       </EAButton>

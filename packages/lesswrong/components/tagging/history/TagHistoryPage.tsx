@@ -152,7 +152,7 @@ const TagHistoryPage = () => {
         lensRevision: {
           fragmentName: "RevisionHistoryEntry",
           render: (revision: RevisionHistoryEntry) => {
-            if (!settings.showEdits)
+            if (!settings.showEdits || !revision.documentId)
               return null;
             const lens = lensesById[revision.documentId];
             return <div>
@@ -217,7 +217,7 @@ const TagHistoryPage = () => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
             ><div>
-              <UsersName documentId={metadataChanges.userId}/>
+              <UsersName documentId={metadataChanges.userId ?? undefined}/>
               {" changed "}{metadataChanges.fieldName}
               {" from "}{""+metadataChanges.oldValue}
               {" to "}{""+metadataChanges.newValue}
@@ -230,7 +230,7 @@ const TagHistoryPage = () => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
             ><div>
-              <UsersName documentId={metadataChanges.userId}/>
+              <UsersName documentId={metadataChanges.userId ?? undefined}/>
               {" changed "}{metadataChanges.fieldName}
               {" from "}{""+metadataChanges.oldValue}
               {" to "}{""+metadataChanges.newValue}

@@ -166,7 +166,7 @@ const LLMChatMessage = ({message, classes}: {
         [classes.userMessage]: role === 'user',
         [classes.errorMessage]: role === 'error'
       })}
-      dangerouslySetInnerHTML={{__html: content}}
+      dangerouslySetInnerHTML={{__html: content ?? ''}}
     />
   </ContentStyles>
 }
@@ -353,7 +353,7 @@ export const ChatInterface = ({classes}: {
     // Content of the last message changed (e.g., streaming)
     else if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      const currentLastMessageLength = lastMessage.content.length;
+      const currentLastMessageLength = lastMessage.content?.length ?? 0;
 
       if (currentLastMessageLength !== lastMessageLengthRef.current) {
         lastMessageLengthRef.current = currentLastMessageLength;

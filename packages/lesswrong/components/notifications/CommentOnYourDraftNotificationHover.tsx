@@ -18,13 +18,14 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const { UsersName, Loading } = Components;
-  const postId = notification.documentId;
+  const postId = notification.documentId ?? undefined;
   const postEditUrl = `/editPost?postId=${postId}`
   const currentUser = useCurrentUser()
   const { document: post, loading: loadingPost } = useSingle({
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "PostsMinimumInfo",
+    skip: !postId,
   });
   
   const senderUserId = notification.extraData?.senderUserID;

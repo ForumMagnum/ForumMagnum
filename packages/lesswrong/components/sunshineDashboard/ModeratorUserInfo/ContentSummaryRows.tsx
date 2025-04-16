@@ -60,7 +60,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
   const getAverageBaseScore = (list: Array<SunshinePostsList|CommentsListWithParentMetadata>) => { 
-    const average = list.reduce((sum, item) => item.baseScore + sum, 0) / list.length
+    const average = list.reduce((sum, item) => (item.baseScore ?? 0) + sum, 0) / list.length
     return average.toFixed(1) 
   }
 
@@ -110,7 +110,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
           <DescriptionIcon className={classes.hoverPostIcon}/>
         </span>
       </LWTooltip>
-      {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} reviewedAt={user.reviewedAt} displayTitle={contentDisplay === "titles"}/>)}
+      {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} reviewedAt={user.reviewedAt ?? undefined} displayTitle={contentDisplay === "titles"}/>)}
       { hiddenPostCount ? <span> ({hiddenPostCount} drafted or rejected)</span> : null}
       {averagePostKarma}
     </div>
@@ -122,7 +122,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
           <MessageIcon className={classes.icon}/>
         </span>
       </LWTooltip>
-      {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={user.reviewedAt} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
+      {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={user.reviewedAt ?? undefined} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
       { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted or rejected)</span> : null}
       {averageCommentKarma}
       </div>
