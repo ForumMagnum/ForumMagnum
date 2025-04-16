@@ -522,20 +522,39 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHERE
               ${getUniversalCommentFilterClause('c')}
       ),
+      "ReadStatusViews" AS (
+        -- Generate implied view events from ReadStatuses table
+        SELECT
+          c._id AS "documentId",
+          rs."lastUpdated" AS "createdAt",
+          'viewed' AS "eventType"
+        FROM "AllRelevantComments" c
+        JOIN "ReadStatuses" rs ON c."postId" = rs."postId"
+        WHERE rs."userId" = $(userId)
+          AND rs."isRead" = TRUE
+          AND c."postedAt" < rs."lastUpdated"
+      ),
       "UsersEvents" AS (
-         -- Fetch latest interaction/view/served events for the relevant comments for the specific user
-         SELECT
-             ue."documentId",
-             ue."createdAt",
-             ue."eventType"
-         FROM "UltraFeedEvents" ue
-         WHERE 1=1
-         AND ue."collectionName" = 'Comments'
-         AND "userId" = $(userId) -- Parameterized userId
-         AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '48 hours')
-         AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
-         ORDER BY (CASE WHEN ue."eventType" = 'served' THEN 1 ELSE 0 END) ASC
-         LIMIT 5000
+        -- Select from the combined and ordered events
+        SELECT * FROM (
+          -- Combine both real events and implied events from read statuses
+          SELECT
+            ue."documentId",
+            ue."createdAt",
+            ue."eventType"
+          FROM "UltraFeedEvents" ue
+          WHERE ue."collectionName" = 'Comments'
+            AND "userId" = $(userId)
+            AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '48 hours')
+            AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
+          
+          UNION ALL
+          
+          -- Add the implied view events from ReadStatuses
+          SELECT * FROM "ReadStatusViews"
+        ) AS CombinedEvents -- Treat the UNION result as a derived table
+        ORDER BY (CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) ASC
+        LIMIT 5000
       ),
       "CommentEvents" AS (
           -- Aggregate the user's latest events for each comment
