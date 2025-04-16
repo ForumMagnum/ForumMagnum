@@ -155,3 +155,19 @@ export async function updateDenormalizedContributorsList(options: UpdateDenormal
 
   return contributionStats;
 }
+
+export async function recomputeContributorScoresFor(votedRevision: DbRevision, context: ResolverContext) {
+  const { Tags, MultiDocuments } = context;
+  
+  if (votedRevision.collectionName !== "Tags" && votedRevision.collectionName !== "MultiDocuments") return;
+
+  if (votedRevision.collectionName === "Tags") {
+    const tag = await Tags.findOne({_id: votedRevision.documentId});
+    if (!tag) return;
+    await updateDenormalizedContributorsList({ document: tag, collectionName: 'Tags', fieldName: 'description', context });
+  } else if (votedRevision.collectionName === "MultiDocuments") {
+    const multiDocument = await MultiDocuments.findOne({_id: votedRevision.documentId});
+    if (!multiDocument) return;
+    await updateDenormalizedContributorsList({ document: multiDocument, collectionName: 'MultiDocuments', fieldName: 'contents', context });
+  }
+}

@@ -484,7 +484,7 @@ interface DbFeaturedResource extends DbObject {
   createdAt: Date
   ctaText: string
   ctaUrl: string
-  expiresAt: Date | null
+  expiresAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   title: string
 }
@@ -663,12 +663,12 @@ interface DbLocalgroup extends DbObject {
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   inactive: boolean
   isOnline: boolean
-  lastActivity: Date | null
+  lastActivity: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   location: string | null
   meetupLink: string | null
   mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  name: string | null
+  name: string
   nameInAnotherLanguage: string | null
   organizerIds: Array<string>
   salesforceId: string | null
@@ -1252,7 +1252,6 @@ interface DbRevision extends DbObject {
   fieldName: string | null
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   html: string | null
-  inactive: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   originalContents: {
     type: string,
@@ -1557,6 +1556,19 @@ interface DbTypingIndicator extends DbObject {
   userId: string
 }
 
+type UltraFeedEventsCollection = CollectionBase<"UltraFeedEvents">;
+
+interface DbUltraFeedEvent extends DbObject {
+  __collectionName?: "UltraFeedEvents"
+  collectionName: "Posts" | "Comments" | "Spotlights"
+  createdAt: Date
+  documentId: string
+  event: any /*{"definitions":[{"blackbox":true}]}*/
+  eventType: "served" | "viewed" | "expanded"
+  feedItemId: string | null
+  userId: string
+}
+
 type UserActivitiesCollection = CollectionBase<"UserActivities">;
 
 interface DbUserActivity extends DbObject {
@@ -1616,7 +1628,7 @@ interface DbUserRateLimit extends DbObject {
   __collectionName?: "UserRateLimits"
   actionsPerInterval: number
   createdAt: Date
-  endedAt: Date | null
+  endedAt: Date
   intervalLength: number
   intervalUnit: "minutes" | "hours" | "days" | "weeks"
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1634,7 +1646,7 @@ interface DbUserTagRel extends DbObject {
   subforumHideIntroPost: boolean
   subforumLastVisitedAt: Date | null
   subforumShowUnreadInSidebar: boolean
-  tagId: string | null
+  tagId: string
   userId: string
 }
 
@@ -2209,7 +2221,7 @@ interface DbUser extends DbObject {
   postGlossariesPinned: boolean
   postingDisabled: boolean | null
   previousDisplayName: string | null
-  profile: any
+  profile: any /*{"definitions":[{}]}*/
   profileImageId: string | null
   profileTagIds: Array<string>
   profileUpdatedAt: Date
@@ -2403,6 +2415,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   Tweets: TweetsCollection
   TypingIndicators: TypingIndicatorsCollection
+  UltraFeedEvents: UltraFeedEventsCollection
   UserActivities: UserActivitiesCollection
   UserEAGDetails: UserEAGDetailsCollection
   UserJobAds: UserJobAdsCollection
@@ -2493,6 +2506,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   Tweets: DbTweet
   TypingIndicators: DbTypingIndicator
+  UltraFeedEvents: DbUltraFeedEvent
   UserActivities: DbUserActivity
   UserEAGDetails: DbUserEAGDetail
   UserJobAds: DbUserJobAd
@@ -2583,6 +2597,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   Tweet: DbTweet
   TypingIndicator: DbTypingIndicator
+  UltraFeedEvent: DbUltraFeedEvent
   UserActivity: DbUserActivity
   UserEAGDetail: DbUserEAGDetail
   UserJobAd: DbUserJobAd

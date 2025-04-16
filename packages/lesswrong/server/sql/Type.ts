@@ -1,35 +1,6 @@
 import { ID_LENGTH } from "@/lib/random";
 import { DeferredForumSelect } from "@/lib/forumTypeUtils";
 import { ForumTypeString } from "@/lib/instanceSettings";
-import { editableFieldIsNormalized } from "@/lib/editor/make_editable";
-import GraphQLJSON from "graphql-type-json";
-import SimpleSchema from "simpl-schema";
-
-const forceNonResolverFields = [
-  "contents",
-  "moderationGuidelines",
-  "customHighlight",
-  "originalContents",
-  "description",
-  "subforumWelcomeText",
-  "howOthersCanHelpMe",
-  "howICanHelpOthers",
-  "biography",
-  "frontpageDescription",
-  "frontpageDescriptionMobile",
-  "postPageDescription",
-];
-
-export const isResolverOnly = <N extends CollectionNameString>(
-  collectionName: N,
-  fieldName: string,
-  schema: CollectionFieldSpecification<N>,
-) => {
-  if (editableFieldIsNormalized(collectionName, fieldName)) {
-    return true;
-  }
-  return schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
-}
 
 export function isArrayTypeString<T extends DatabaseBaseType>(typeString: T | `${T}[]`): typeString is `${T}[]` {
   return typeString.endsWith('[]');
@@ -150,74 +121,6 @@ export abstract class Type {
     }
 
     return getBaseTypeInstance(databaseSpec.type, databaseSpec.foreignKey);
-  }
-
-  static fromOldSchema<N extends CollectionNameString>(
-    collectionName: N,
-    fieldName: string,
-    schema: CollectionFieldSpecification<N>,
-    indexSchema: CollectionFieldSpecification<N> | undefined,
-    forumType: ForumTypeString,
-  ): Type {
-    if (isResolverOnly(collectionName, fieldName, schema)) {
-      throw new Error("Can't generate type for resolver-only field");
-    }
-
-    if (schema.defaultValue !== undefined && schema.defaultValue !== null) {
-      const {defaultValue, ...rest} = schema;
-      const value = defaultValue instanceof DeferredForumSelect
-        ? defaultValue.get(forumType)
-        : defaultValue;
-      return new DefaultValueType(
-        Type.fromOldSchema(collectionName, fieldName, rest, indexSchema, forumType),
-        value,
-      );
-    }
-
-    if (schema.optional === false || schema.nullable === false) {
-      const newSchema = {...schema, optional: true, nullable: true};
-      return new NotNullType(
-        Type.fromOldSchema(collectionName, fieldName, newSchema, indexSchema, forumType),
-      );
-    }
-
-    switch (schema.type) {
-      case String:
-        return typeof schema.foreignKey === "string"
-          ? new IdType()
-          : new StringType(typeof schema.max === "number" ? schema.max : undefined);
-      case Boolean:
-        return new BoolType();
-      case Date:
-        return fieldName === "createdAt"
-          ? new DefaultValueType(new DateType(), "CURRENT_TIMESTAMP")
-          : new DateType();
-      case Number:
-        return new FloatType();
-      case "SimpleSchema.Integer":
-        return new IntType();
-      case Object: case GraphQLJSON:
-        return new JsonType();
-      case Array:
-        if (!indexSchema) {
-          throw new Error("No schema type provided for array member");
-        }
-        if (schema.vectorSize) {
-          if (indexSchema.type !== Number) {
-            throw new Error("Vector items must be of type `Number`");
-          }
-          return new VectorType(schema.vectorSize);
-        }
-        return new ArrayType(
-          Type.fromOldSchema(collectionName, fieldName + ".$", indexSchema, undefined, forumType),
-        );
-    }
-
-    if (schema.type instanceof SimpleSchema) {
-      return new JsonType();
-    }
-
-    throw new Error(`Unrecognized schema: ${JSON.stringify(schema)}`);
   }
 }
 

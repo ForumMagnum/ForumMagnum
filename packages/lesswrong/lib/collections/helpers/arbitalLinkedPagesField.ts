@@ -1,4 +1,3 @@
-import { resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '@/lib/loaders';
 import range from 'lodash/range';
 import gql from 'graphql-tag';
@@ -259,12 +258,3 @@ export function getArbitalLinkedPagesFieldResolver<N extends CollectionNameStrin
     };
   }
 }
-
-export function arbitalLinkedPagesField<N extends CollectionNameString>(options: ArbitalLinkedPagesFieldOptions<N>) {
-  return resolverOnlyField<N>({
-    type: 'ArbitalLinkedPages',
-    graphQLtype: 'ArbitalLinkedPages',
-    canRead: ['guests'],
-    resolver: getArbitalLinkedPagesFieldResolver(options),
-  });
-} 

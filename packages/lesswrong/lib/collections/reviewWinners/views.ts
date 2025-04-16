@@ -28,7 +28,7 @@ function bestOfLessWrongAnnouncement() {
       _id: {
         // the top 3 winners of each category, for the most recent year
         $in: [
-          'J8NJ2P3BZ7kFipJRq', 'ZLDe6fkJujBi82uni', '2ZjiwMBKbwnLugpkt', 'xmaEheyR38b4uvukZ', 'WF4K3gfSSQvnHos7v', 'pwZwZ9MKS9GbhAYT7', '4Z4nA4zcc782nx3A8', 'ZLjciCktgoqGiNB29', 'xnKryiM7ZCpvdvniL', 'S8pM7Abj3MzdSjFE4', '3G52nqBHmbgqTsS5M', 'tcPKsGv5W3FNbmHAi', 'aXkdhqNe97P54tqaw', 'KTcyhwZXrDjwrHno6', 'jQbrebZtMvBueLaDQ', 'cccL2hK8zbJJdPc4b', '4gQcQ4uJ2chZRADiZ', 'sD4mr92qrmckK9hE8'
+          'J8NJ2P3BZ7kFipJRq', 'ZLDe6fkJujBi82uni', '2ZjiwMBKbwnLugpkt', 'xmaEheyR38b4uvukZ', 'sg764fMCcucPALosr', '4Z4nA4zcc782nx3A8', 'ZLjciCktgoqGiNB29', 'xnKryiM7ZCpvdvniL', 'S8pM7Abj3MzdSjFE4', '3G52nqBHmbgqTsS5M', 'tcPKsGv5W3FNbmHAi', 'aXkdhqNe97P54tqaw', 'KTcyhwZXrDjwrHno6', 'jQbrebZtMvBueLaDQ', 'cccL2hK8zbJJdPc4b', '4gQcQ4uJ2chZRADiZ', 'sD4mr92qrmckK9hE8', 'pwZwZ9MKS9GbhAYT7'
         ]
       }
     },

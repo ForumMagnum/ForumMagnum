@@ -215,11 +215,7 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
     return null;
   }
 
-  if (!userCanViewJargonTerms(currentUser)) {
-    return null;
-  }
-
-  if (approvedTermsCount === 0 && unapprovedTermsCount === 0) {
+  if (approvedTermsCount === 0) {
     return null;
   }
 

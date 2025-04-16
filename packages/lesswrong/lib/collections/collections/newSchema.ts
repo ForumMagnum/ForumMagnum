@@ -1,7 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { getWithCustomLoader } from "../../loaders";
 import { accessFilterMultiple, generateIdResolverSingle } from "../../utils/schemaUtils";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema = {
@@ -65,7 +65,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -85,8 +86,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -99,8 +99,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -188,7 +187,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -221,7 +221,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -231,6 +232,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Collections">>;
+} satisfies Record<string, CollectionFieldSpecification<"Collections">>;
 
 export default schema;

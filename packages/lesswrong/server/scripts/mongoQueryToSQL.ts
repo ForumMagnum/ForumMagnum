@@ -34,7 +34,7 @@ export const insertToSQL = <N extends CollectionNameString>({ tableName, data, o
   return { sql, args };
 };
 
-export const rawUpdateOneToSQL = ({ tableName, selector, modifier }: { tableName: CollectionNameString, selector: AnyBecauseTodo, modifier: MongoModifier<DbObject> }) => {
+export const rawUpdateOneToSQL = ({ tableName, selector, modifier }: { tableName: CollectionNameString, selector: AnyBecauseTodo, modifier: MongoModifier }) => {
   const table = Table.fromCollection(getCollection(tableName));
   const select = new UpdateQuery<DbObject>(table, selector, modifier);
   const { sql, args } = select.compile();
@@ -69,7 +69,7 @@ export const runInsertToSQL = async <N extends CollectionNameString>({ tableName
   return result;
 };
 
-export const runUpdateOneToSQL = async <N extends CollectionNameString>({ tableName, selector, modifier }: { tableName: N, selector: AnyBecauseTodo, modifier: MongoModifier<ObjectsByCollectionName[N]> }) => {
+export const runUpdateOneToSQL = async <N extends CollectionNameString>({ tableName, selector, modifier }: { tableName: N, selector: AnyBecauseTodo, modifier: MongoModifier }) => {
   const db = getSqlClientOrThrow();
 
   const { sql, args } = rawUpdateOneToSQL({ tableName, selector, modifier });

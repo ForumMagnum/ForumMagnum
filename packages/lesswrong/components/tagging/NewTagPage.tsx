@@ -2,11 +2,11 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { useSingle } from '@/lib/crud/withSingle';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { slugify } from '@/lib/utils/slugify';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { useTagBySlug } from './useTag';
 
 export const styles = (_theme: ThemeType) => ({
   root: {
@@ -34,15 +34,13 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { query } = useLocation();
   const createdType = ["tag","wiki"].includes(query.type) ? query.type : "tag";
   const prefillName = query.name ?? null;
-  
-  const { document: existingTag, loading: loadingExistingTag } = useSingle({
-    collectionName: "Tags",
-    fragmentName: "TagEditFragment",
-    slug: slugify(prefillName),
-    skip: !prefillName,
-    allowNull: true,
-  });
 
+  const { tag: existingTag, loading: loadingExistingTag } = useTagBySlug(
+    slugify(prefillName),
+    'TagEditFragment',
+    { skip: !prefillName }
+  );
+  
   if (!currentUser) {
     return (
       <SingleColumnSection>

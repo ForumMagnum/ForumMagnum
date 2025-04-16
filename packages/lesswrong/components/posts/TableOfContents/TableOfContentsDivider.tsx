@@ -1,7 +1,8 @@
 import React, { CSSProperties } from 'react';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TableOfContentsDivider", (theme: ThemeType) => ({
   divider: {
     width: 80,
     marginBottom:theme.spacing.unit,
@@ -10,16 +11,17 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: theme.spacing.unit,
     display:"block",
   }
-})
+}))
+export type TableOfContentsDividerStyles = typeof styles;
 
-const TableOfContentsDivider = ({ scaleStyling, classes }: {
+const TableOfContentsDivider = ({ scaleStyling }: {
   scaleStyling?: CSSProperties
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return <div className={classes.divider} style={scaleStyling}/>
 }
 
-const TableOfContentsDividerComponent = registerComponent('TableOfContentsDivider', TableOfContentsDivider, {styles});
+const TableOfContentsDividerComponent = registerComponent('TableOfContentsDivider', TableOfContentsDivider);
 
 declare global {
   interface ComponentTypes {

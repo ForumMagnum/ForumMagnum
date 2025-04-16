@@ -32,6 +32,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
+    ...(isFriendlyUI && {
+      top: 26,
+    })
   },
   navSidebarTransparent: {
     zIndex: 10,

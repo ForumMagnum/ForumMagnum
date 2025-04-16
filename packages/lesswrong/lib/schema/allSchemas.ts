@@ -85,6 +85,7 @@ import { default as TagRels } from '../collections/tagRels/newSchema';
 import { default as Tags } from '../collections/tags/newSchema';
 import { default as Tweets } from '../collections/tweets/newSchema';
 import { default as TypingIndicators } from '../collections/typingIndicators/newSchema';
+import { default as UltraFeedEvents } from '../collections/ultraFeedEvents/newSchema';
 import { default as UserEAGDetails } from '../collections/userEAGDetails/newSchema';
 import { default as UserJobAds } from '../collections/userJobAds/newSchema';
 import { default as UserMostValuablePosts } from '../collections/userMostValuablePosts/newSchema';
@@ -105,29 +106,20 @@ if (isAnyTest || isCodegen) {
 }
 
 export const allSchemas = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books,
-  Chapters, CkEditorUserSessions, ClientIds, Collections, CommentModeratorActions,
-  Comments, Conversations, CronHistories, CurationEmails, CurationNotices,
-  DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
-  DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions,
-  ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents, GardenCodes,
-  GoogleServiceAccountSessions, Images, JargonTerms, LegacyData, LlmConversations,
-  LlmMessages, Localgroups, LWEvents, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
-  PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts,
-  PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
-  Posts, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes,
-  ReviewWinnerArts, ReviewWinners, Revisions, RSSFeeds,
-  Sequences, Sessions, SideCommentCaches, SplashArtCoordinates,
-  Spotlights, Subscriptions, SurveyQuestions, SurveyResponses,
-  SurveySchedules, Surveys, TagFlags, TagRels, Tags,
-  Tweets, TypingIndicators, UserEAGDetails, UserJobAds,
-  UserMostValuablePosts, UserRateLimits, UserTagRels, UserActivities,
+  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books, Chapters, CkEditorUserSessions, ClientIds, Collections, CommentModeratorActions,
+  Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences, DigestPosts,
+  Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents, GardenCodes,
+  GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups, ManifoldProbabilitiesCaches, Messages,
+  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts,
+  PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports,
+  ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
+  SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents,
+  UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
   Users, Votes, ...testSchemas,
-} satisfies Record<CollectionNameString, Record<string, NewCollectionFieldSpecification<CollectionNameString>>>;
+} satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
 
-export function getSchema<N extends CollectionNameString>(collectionName: N): Record<string, NewCollectionFieldSpecification<N>> {
-  return allSchemas[collectionName] as Record<string, NewCollectionFieldSpecification<N>>;
+export function getSchema<N extends CollectionNameString>(collectionName: N): Record<string, CollectionFieldSpecification<N>> {
+  return allSchemas[collectionName] as Record<string, CollectionFieldSpecification<N>>;
 }
 
 
@@ -237,11 +229,11 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
   };
 }
 
-function isPlausiblyFormField(field: NewCollectionFieldSpecification<CollectionNameString>) {
+function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionNameString>) {
   return field.form || !!field.graphql?.canCreate?.length || !!field.graphql?.canUpdate?.length;
 }
 
-function getSchemaDefinition(schema: NewSchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
+function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
   return Object.entries(schema).reduce((acc, [key, value]) => {
     if (!value.graphql) {
       return acc;
@@ -306,7 +298,7 @@ const allSimpleSchemas: Record<CollectionNameString, SimpleSchema> = new Proxy({
   }
 });
 
-export function getSimpleSchema<N extends CollectionNameString>(collectionName: N): NewSimpleSchemaType<N> {
-  const simpleSchema = allSimpleSchemas[collectionName] as NewSimpleSchemaType<N>;
+export function getSimpleSchema<N extends CollectionNameString>(collectionName: N): SimpleSchemaType<N> {
+  const simpleSchema = allSimpleSchemas[collectionName] as SimpleSchemaType<N>;
   return simpleSchema;
 }

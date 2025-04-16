@@ -85,6 +85,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"FieldChanges">>;
+} satisfies Record<string, CollectionFieldSpecification<"FieldChanges">>;
 
 export default schema;

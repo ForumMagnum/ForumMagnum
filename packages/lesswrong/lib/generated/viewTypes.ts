@@ -53,7 +53,7 @@ type PostRecommendationsViewName = never
 type PostRelationsViewName = "allPostRelations";
 type PostViewTimesViewName = never
 type PostViewsViewName = never
-type PostsViewName = "2018reviewRecentDiscussionThreadsList"|"2019reviewRecentDiscussionThreadsList"|"afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"all_drafts"|"community"|"community-rss"|"communityResourcePosts"|"curated"|"curated-rss"|"daily"|"drafts"|"events"|"eventsInTimeRange"|"frontpage"|"frontpage-rss"|"frontpageReviewWidget"|"globalEvents"|"hasEverDialogued"|"legacyIdPost"|"magic"|"meta-rss"|"myBookmarkedPosts"|"nearbyEvents"|"new"|"nominatablePostsByVote"|"nominations2018"|"nominations2019"|"nonEventGroupPosts"|"old"|"pastEvents"|"pingbackPosts"|"postsWithBannedUsers"|"recentComments"|"recentDiscussionThreadsList"|"recentQuestionActivity"|"rejected"|"reviewFinalVoting"|"reviewQuickPage"|"reviewVoting"|"reviews2018"|"reviews2019"|"rss"|"scheduled"|"slugPost"|"stickied"|"sunshineCuratedSuggestions"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"tagRelevance"|"tbdEvents"|"timeframe"|"top"|"topQuestions"|"unlisted"|"upcomingEvents"|"userAFSubmissions"|"userPosts"|"voting2019";
+type PostsViewName = "2018reviewRecentDiscussionThreadsList"|"2019reviewRecentDiscussionThreadsList"|"afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"all_drafts"|"community"|"community-rss"|"communityResourcePosts"|"curated"|"curated-rss"|"currentOpenThread"|"daily"|"drafts"|"events"|"eventsInTimeRange"|"frontpage"|"frontpage-rss"|"frontpageReviewWidget"|"globalEvents"|"hasEverDialogued"|"legacyIdPost"|"magic"|"meta-rss"|"myBookmarkedPosts"|"nearbyEvents"|"new"|"nominatablePostsByVote"|"nominations2018"|"nominations2019"|"nonEventGroupPosts"|"old"|"pastEvents"|"pingbackPosts"|"postsWithBannedUsers"|"recentComments"|"recentDiscussionThreadsList"|"recentQuestionActivity"|"rejected"|"reviewFinalVoting"|"reviewQuickPage"|"reviewVoting"|"reviews2018"|"reviews2019"|"rss"|"scheduled"|"slugPost"|"stickied"|"sunshineCuratedSuggestions"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"tagRelevance"|"tbdEvents"|"timeframe"|"top"|"topQuestions"|"unlisted"|"upcomingEvents"|"userAFSubmissions"|"userPosts"|"voting2019";
 type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type RecommendationsCachesViewName = never
@@ -66,7 +66,7 @@ type SequencesViewName = "communitySequences"|"curatedSequences"|"userProfile"|"
 type SessionsViewName = never
 type SideCommentCachesViewName = never
 type SplashArtCoordinatesViewName = never
-type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsByDocumentIds"|"spotlightsPage"|"spotlightsPageDraft";
+type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsByDocumentIds"|"spotlightsById"|"spotlightsPage"|"spotlightsPageDraft";
 type SubscriptionsViewName = "membersOfGroup"|"subscriptionState"|"subscriptionsOfType";
 type SurveyQuestionsViewName = never
 type SurveyResponsesViewName = never
@@ -77,13 +77,14 @@ type TagRelsViewName = "postsWithTag"|"tagsOnPost";
 type TagsViewName = "allArbitalTags"|"allLWWikiTags"|"allPagesByNewest"|"allPublicTags"|"allTagsAlphabetical"|"allTagsHierarchical"|"coreAndSubforumTags"|"coreTags"|"currentUserSubforums"|"newTags"|"pingbackWikiPages"|"postTypeTags"|"suggestedFilterTags"|"tagBySlug"|"tagsBySlugs"|"tagsByTagFlag"|"tagsByTagIds"|"unprocessedLWWikiTags"|"unreviewedTags"|"userTags";
 type TweetsViewName = never
 type TypingIndicatorsViewName = never
+type UltraFeedEventsViewName = never
 type UserActivitiesViewName = never
 type UserEAGDetailsViewName = "dataByUser";
 type UserJobAdsViewName = "adsByUser";
 type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUserPost";
 type UserRateLimitsViewName = "activeUserRateLimits"|"userRateLimits";
 type UserTagRelsViewName = "single";
-type UsersViewName = "LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"alignmentSuggestedUsers"|"allUsers"|"recentlyActive"|"reviewAdminUsers"|"sunshineNewUsers"|"tagCommunityMembers"|"usersByUserIds"|"usersMapLocations"|"usersProfile"|"usersWithBannedUsers"|"usersWithOptedInToDialogueFacilitation"|"usersWithPaymentInfo"|"walledGardenInvitees";
+type UsersViewName = "LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"alignmentSuggestedUsers"|"allUsers"|"recentlyActive"|"reviewAdminUsers"|"sunshineNewUsers"|"tagCommunityMembers"|"usersByUserIds"|"usersMapLocations"|"usersProfile"|"usersWithBannedUsers"|"usersWithOptedInToDialogueFacilitation"|"usersWithPaymentInfo";
 type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 
 interface ViewTermsByCollectionName {
@@ -166,6 +167,7 @@ interface ViewTermsByCollectionName {
   Tags: TagsViewTerms
   Tweets: ViewTermsBase
   TypingIndicators: ViewTermsBase
+  UltraFeedEvents: ViewTermsBase
   UserActivities: ViewTermsBase
   UserEAGDetails: UserEAGDetailsViewTerms
   UserJobAds: UserJobAdsViewTerms

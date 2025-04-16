@@ -83,13 +83,12 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[Float]",
-      inputType: "[Float]!",
+      outputType: "[Float!]",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PostEmbeddings">>;
+} satisfies Record<string, CollectionFieldSpecification<"PostEmbeddings">>;
 
 export default schema;

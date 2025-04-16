@@ -1,6 +1,5 @@
-import { denormalizedCountOfReferences, accessFilterMultiple, schemaDefaultValue, getDenormalizedCountOfReferencesGetValue } from './utils/schemaUtils';
+import { accessFilterMultiple, getDenormalizedCountOfReferencesGetValue } from './utils/schemaUtils';
 import { getWithLoader } from './loaders';
-import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 
 export type PermissionResult = {
@@ -13,12 +12,6 @@ export type PermissionResult = {
 
 export interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
-  /**
-   * If set, the baseScore and extendedScore fields use this for permissions instead of their permissive default.
-   */
-  publicScoreOptions?: {
-    canRead?: FieldPermissions 
-  },
   userCanVoteOn?: (
     user: DbUser,
     document: DbVoteableType,
@@ -62,7 +55,7 @@ export const DEFAULT_CURRENT_USER_VOTE_FIELD = {
     },
     sqlResolver: currentUserVoteResolver,
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD = {
   graphql: {
@@ -75,7 +68,7 @@ export const DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD = {
     },
     sqlResolver: currentUserExtendedVoteResolver,
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 // This has an inlined collection name in the `getValue` filter function, so unfortunately it needs to be a function.
 export function defaultVoteCountField<N extends VoteableCollectionName>(collectionName: N) {
@@ -98,7 +91,7 @@ export function defaultVoteCountField<N extends VoteableCollectionName>(collecti
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -111,7 +104,7 @@ export function defaultVoteCountField<N extends VoteableCollectionName>(collecti
         optional: true,
       },
     },
-  } satisfies NewCollectionFieldSpecification<N>;
+  } satisfies CollectionFieldSpecification<N>;
 
   return fieldSpec;
 }
@@ -124,17 +117,18 @@ export const DEFAULT_BASE_SCORE_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "Float",
+    outputType: "Float!",
     canRead: ["guests"],
     validation: {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_EXTENDED_SCORE_FIELD = {
   database: {
     type: "JSONB",
+    nullable: true,
   },
   graphql: {
     outputType: GraphQLJSON,
@@ -143,7 +137,7 @@ export const DEFAULT_EXTENDED_SCORE_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_SCORE_FIELD = {
   database: {
@@ -153,13 +147,13 @@ export const DEFAULT_SCORE_FIELD = {
     nullable: false,
   },
   graphql: {
-    outputType: "Float",
+    outputType: "Float!",
     canRead: ["guests"],
     validation: {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_INACTIVE_FIELD = {
   database: {
@@ -168,11 +162,12 @@ export const DEFAULT_INACTIVE_FIELD = {
     canAutofillDefault: true,
     nullable: false,
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_AF_BASE_SCORE_FIELD = {
   database: {
     type: "DOUBLE PRECISION",
+    nullable: true,
   },
   graphql: {
     outputType: "Float",
@@ -184,11 +179,12 @@ export const DEFAULT_AF_BASE_SCORE_FIELD = {
   form: {
     label: "Alignment Base Score",
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_AF_EXTENDED_SCORE_FIELD = {
   database: {
     type: "JSONB",
+    nullable: true,
   },
   graphql: {
     outputType: GraphQLJSON,
@@ -197,11 +193,12 @@ export const DEFAULT_AF_EXTENDED_SCORE_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_AF_VOTE_COUNT_FIELD = {
   database: {
     type: "DOUBLE PRECISION",
+    nullable: true,
   },
   graphql: {
     outputType: "Float",
@@ -210,143 +207,7 @@ export const DEFAULT_AF_VOTE_COUNT_FIELD = {
       optional: true,
     },
   },
-} satisfies NewCollectionFieldSpecification<VoteableCollectionName>;
-
-export const getVoteableSchemaFields = <N extends VoteableCollectionName>(
-  collectionName: N,
-  options: Pick<CollectionVoteOptions, 'publicScoreOptions'> = {},
-): SchemaType<N> => {
-  options = options || {}
-  const { publicScoreOptions = {} } = options
-
-  return {
-    currentUserVote: {
-      type: String,
-      optional: true,
-      canRead: ['guests'],
-      resolveAs: {
-        type: 'String',
-        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<string|null> => {
-          const votes = await getCurrentUserVotes(document, context);
-          if (!votes.length) return null;
-          return votes[0].voteType ?? null;
-        },
-        sqlResolver: currentUserVoteResolver,
-      },
-    },
-    
-    currentUserExtendedVote: {
-      type: GraphQLJSON,
-      optional: true,
-      canRead: ['guests'],
-      resolveAs: {
-        type: GraphQLJSON,
-        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<string|null> => {
-          const votes = await getCurrentUserVotes(document, context);
-          if (!votes.length) return null;
-          return votes[0].extendedVoteType || null;
-        },
-        sqlResolver: currentUserExtendedVoteResolver,
-      },
-    },
-
-    /**
-     * @deprecated (but preserved for backwards compatibility): Returns an array
-     * of vote objects, if the user has voted (or an empty array otherwise).
-     */
-    currentUserVotes: {
-      type: Array,
-      optional: true,
-      canRead: ['guests'],
-      resolveAs: {
-        type: '[Vote]',
-        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<Partial<DbVote>[]> => {
-          return await getCurrentUserVotes(document, context);
-        },
-      }
-    },
-    'currentUserVotes.$': {
-      type: Object,
-      optional: true
-    },
-    
-    allVotes: {
-      type: Array,
-      optional: true,
-      canRead: ['guests'],
-      resolveAs: {
-        type: '[Vote]',
-        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<Partial<DbVote>[]> => {
-          const { currentUser } = context;
-          if (userIsAdminOrMod(currentUser)) {
-            return await getAllVotes(document, context);
-          } else {
-            return await getCurrentUserVotes(document, context);
-          }
-        },
-      }
-    },
-    'allVotes.$': {
-      type: Object,
-      optional: true
-    },
-    voteCount: {
-      ...denormalizedCountOfReferences({
-        fieldName: "voteCount",
-        collectionName: collectionName,
-        foreignCollectionName: "Votes",
-        foreignTypeName: "vote",
-        foreignFieldName: "documentId",
-        filterFn: (vote: DbVote) => !vote.cancelled && vote.voteType !== 'neutral' && vote.collectionName === collectionName
-      }),
-      canRead: ['guests'],
-    },
-    // The document's base score (not factoring in the document's age)
-    baseScore: {
-      type: Number,
-      optional: true,
-      canRead: ['guests'],
-      ...schemaDefaultValue(0),
-      ...publicScoreOptions,
-    },
-    extendedScore: {
-      type: GraphQLJSON,
-      optional: true,
-      canRead: ['guests'],
-      ...publicScoreOptions,
-    },
-    // The document's current score (factoring in age)
-    score: {
-      type: Number,
-      optional: true,
-      ...schemaDefaultValue(0),
-      canRead: ['guests'],
-    },
-    // Whether the document is inactive. Inactive documents see their score
-    // recalculated less often
-    inactive: {
-      type: Boolean,
-      optional: true,
-      ...schemaDefaultValue(false),
-    },
-    afBaseScore: {
-      type: Number,
-      optional: true,
-      label: "Alignment Base Score",
-      canRead: ['guests'],
-    },
-    afExtendedScore: {
-      type: GraphQLJSON,
-      optional: true,
-      canRead: ['guests'],
-    },
-    afVoteCount: {
-      type: Number,
-      optional: true,
-      canRead: ['guests'],
-    },
-  };
-}
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;

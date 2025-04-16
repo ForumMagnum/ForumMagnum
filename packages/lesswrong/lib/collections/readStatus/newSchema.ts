@@ -51,6 +51,6 @@ const schema = {
       nullable: false,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ReadStatuses">>;
+} satisfies Record<string, CollectionFieldSpecification<"ReadStatuses">>;
 
 export default schema;
