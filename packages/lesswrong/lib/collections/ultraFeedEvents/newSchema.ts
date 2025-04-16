@@ -127,7 +127,7 @@ export type UltraFeedEvent =
     })
   | (UltraFeedEventBase & {
       eventType: "viewed";
-      event?: null | Record<string, never>;
+      event: { durationMs: number } | null;
     })
   | (UltraFeedEventBase & {
       eventType: "expanded";

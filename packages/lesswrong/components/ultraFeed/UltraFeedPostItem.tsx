@@ -9,6 +9,8 @@ import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
+import { useRecordPostView } from "../hooks/useRecordPostView";
+import classnames from "classnames";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -52,6 +54,12 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       fontSize: '1.6rem',
+    },
+  },
+  titleIsRead: {
+    opacity: 0.5,
+    '&:hover': {
+      opacity: 0.9,
     },
   },
   headerRightSection: {
@@ -179,6 +187,8 @@ const UltraFeedPostItem = ({
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
   const { isAnon, authors } = usePostsUserAndCoauthors(post);
+  const { recordPostView, isRead } = useRecordPostView(post);
+  const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -202,7 +212,13 @@ const UltraFeedPostItem = ({
       maxLevelReached: maxReached,
       wordCount,
     });
-  }, [trackExpansion, post._id, captureEvent]);
+
+    if (!hasRecordedViewOnExpand) {
+      void recordPostView({ post, extraEventProperties: { type: 'ultraFeedExpansion' } });
+      setHasRecordedViewOnExpand(true);
+    }
+
+  }, [trackExpansion, post, captureEvent, recordPostView, hasRecordedViewOnExpand, setHasRecordedViewOnExpand]);
 
   if (
     !post?._id 
@@ -220,7 +236,9 @@ const UltraFeedPostItem = ({
       <div className={classes.header}>
         <div className={classes.titleRow}>
           <div className={classes.titleContainer}>
-            <Link to={postGetLink(post)} className={classes.title}>{post.title}</Link>
+            <Link to={postGetLink(post)} className={classnames(classes.title, { [classes.titleIsRead]: isRead })}>
+              {post.title}
+            </Link>
             <div className={classes.metaRoot}>
               <span className={classes.metaLeftSection}>
                 {showKarma && !post.rejected && <span className={classes.metaKarma}>
