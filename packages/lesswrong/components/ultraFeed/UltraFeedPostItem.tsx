@@ -89,6 +89,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       fontSize: "1.3rem",
+      marginTop: 0,
     },
   },
   metaLeftSection: {

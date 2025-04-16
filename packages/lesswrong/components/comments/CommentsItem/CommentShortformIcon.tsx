@@ -39,14 +39,12 @@ const CommentShortformIcon = ({comment, post, simple, iconClassName}: {
   // Top level shortform posts should show this icon/button, both to make shortform posts a bit more visually distinct, and to make it easier to grab permalinks for shortform posts.
   if (!comment.shortform || comment.topLevelCommentId || isEAForum) return null
   
-  const appliedIconClassName = classNames(classes.smallIcon, iconClassName);
-
-  if (simple) return <ForumIcon icon="Shortform" className={appliedIconClassName} />
+  if (simple) return <ForumIcon icon="Shortform" className={classNames(classes.smallIcon, iconClassName)} />
 
   return (
     <LWTooltip title="Shortform">
-      <Link to={commentGetPageUrlFromIds({postId:post._id, postSlug:post.slug, commentId: comment._id})} className={iconClassName}>
-        <ForumIcon icon="Shortform" className={appliedIconClassName} />
+      <Link to={commentGetPageUrlFromIds({postId:post._id, postSlug:post.slug, commentId: comment._id})}>
+        <ForumIcon icon="Shortform" className={classNames(classes.smallIcon, iconClassName)} />
       </Link>
     </LWTooltip>
   )
