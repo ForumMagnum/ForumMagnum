@@ -128,7 +128,6 @@ const FeedContentBody = ({
 
 
   const applyLineClamp = clampOverride !== undefined && clampOverride > 0 && expansionLevel === 0;
-  // -------------------------------------------------------------
 
   let documentType: 'post' | 'comment' | 'tag';
   if (post) {
@@ -239,7 +238,6 @@ const FeedContentBody = ({
         className,
         isClickableForExpansion && classes.clickableContent 
       )}
-      // Attach click handler if expansion is possible
       onClick={isClickableForExpansion ? handleContentClick : undefined}
     >
       <Components.ContentStyles contentType="ultraFeed">
@@ -248,11 +246,10 @@ const FeedContentBody = ({
               dangerouslySetInnerHTML={{ __html: truncatedHtml }}
               description={description || `${documentType} ${documentId}`}
               nofollow={nofollow}
-              // Apply styles based on applyLineClamp
               className={classNames({
-                [classes.maxHeight]: !applyLineClamp && !isMaxLevel && wasTruncated, // Max height for word trunc before max level
-                [classes.lineClamp]: applyLineClamp && wasTruncated, // Line clamp style only when active
-                [getLineClampClass()]: applyLineClamp && wasTruncated, // Specific line clamp class only when active
+                [classes.maxHeight]: !applyLineClamp && !isMaxLevel && wasTruncated,
+                [classes.lineClamp]: applyLineClamp && wasTruncated,
+                [getLineClampClass()]: applyLineClamp && wasTruncated,
               })}
             />
         </div>

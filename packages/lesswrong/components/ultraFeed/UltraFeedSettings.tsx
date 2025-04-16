@@ -153,7 +153,6 @@ type AlgorithmFieldValidationRules = Pick<UltraFeedSettingsType,
   'quickTakeBoost'
 >;
 
-// Rename state type to reflect new field names
 type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'incognitoMode' | 'threadScoreAggregation' | 'threadScoreFirstN'> & {
   lineClampNumberOfLines: number | '';
   postTruncationBreakpoints: (number | '')[];
@@ -172,7 +171,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
-    // Use new field names
     const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost, incognitoMode, threadScoreAggregation, threadScoreFirstN } = settings;
 
     return {
@@ -338,7 +336,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }));
   }, []);
 
-  // Rename handler and update keys
   const handleNumericSettingChange = useCallback(( 
     key: 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'lineClampNumberOfLines' | 'threadScoreFirstN',
     value: string,
@@ -349,7 +346,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       setFormValues(prev => ({ ...prev, [key]: '' })); 
       setErrors(prev => ({ ...prev, [key]: true }));
     } else {
-      // Use parseFloat for decayFactor, seenPenalty, quickTakeBoost, AND decayBiasHours
       const useFloat = key === 'commentDecayFactor' || key === 'commentSeenPenalty' || key === 'quickTakeBoost' || key === 'commentDecayBiasHours';
       const numValue = useFloat ? parseFloat(value) : parseInt(value, 10);
       const newValue = isNaN(numValue) ? '' : numValue;
@@ -365,21 +361,16 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }
   }, []);
 
-  // Handler for boolean checkboxes
   const handleBooleanChange = useCallback((key: 'incognitoMode', checked: boolean) => {
     setFormValues(prev => ({ ...prev, [key]: checked }));
-    // No error handling needed for a simple boolean checkbox
   }, []);
 
-  // Handler for select dropdowns
   const handleSelectChange = useCallback((key: 'threadScoreAggregation', value: string) => {
-    // Basic validation assuming value is one of the allowed types
     const validValues: Array<UltraFeedSettingsType['threadScoreAggregation']> = ['sum', 'max', 'logSum', 'avg'];
     if (validValues.includes(value as any)) {
       setFormValues(prev => ({ ...prev, [key]: value as UltraFeedSettingsType['threadScoreAggregation'] }));
-      setErrors(prev => ({ ...prev, [key]: false })); // Reset error if valid selection
+      setErrors(prev => ({ ...prev, [key]: false }));
     } else {
-      // Handle invalid selection if necessary, though standard select shouldn't allow it
       setErrors(prev => ({ ...prev, [key]: true }));
     }
   }, []);
@@ -474,14 +465,12 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
         validatedValues.sourceWeights = undefined; 
     }
 
-    // Validate Algorithm Fields
     const algorithmFields: (keyof AlgorithmFieldValidationRules)[] = [
       'commentDecayFactor', 
       'commentDecayBiasHours',
       'commentSeenPenalty',
       'quickTakeBoost'
     ];
-    // Use renamed specific type
     const algorithmFieldValidation: Record<keyof AlgorithmFieldValidationRules, {min?: number, max?: number}> = {
       commentDecayFactor: { min: 0.1 },
       commentDecayBiasHours: { min: 0 },
@@ -492,7 +481,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     algorithmFields.forEach(key => {
       const val = formValues[key];
       const validation = algorithmFieldValidation[key]; 
-      const numVal = parseFloat(String(val)); // Use parseFloat here
+      const numVal = parseFloat(String(val));
       let fieldError = isNaN(numVal);
 
       if (!fieldError && validation) {
@@ -508,10 +497,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       }
     });
 
-    // Add threadScoreAggregation directly - validation handled by select
     validatedValues.threadScoreAggregation = formValues.threadScoreAggregation;
 
-    // Add incognitoMode directly - no validation needed
     validatedValues.incognitoMode = formValues.incognitoMode;
 
     if (hasValidationErrors) {

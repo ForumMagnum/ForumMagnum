@@ -121,11 +121,8 @@ interface FinalScoredComment extends IntermediateScoredComment {
   metaInfo: FeedCommentMetaInfo | null;
 }
 
-// Type definition for a thread composed of final scored comments
-interface FinalScoredCommentThread extends Array<FinalScoredComment> {}
-
 interface PrioritizedThread {
-  thread: FinalScoredCommentThread;
+  thread: FinalScoredComment[];
   score: number;
   topLevelId: string;
 }
@@ -172,7 +169,7 @@ function calculateCommentScore(
  * Calculates the aggregate score for a thread based on settings.
  */
 function calculateThreadScore(
-  thread: FinalScoredCommentThread,
+  thread: FinalScoredComment[],
   aggregation: UltraFeedSettingsType['threadScoreAggregation'],
   firstN: number
 ): number {
@@ -254,7 +251,7 @@ function buildAndScoreThreads(
     groups[topId].push(comment);
   }
 
-  const allPossibleFinalThreads: FinalScoredCommentThread[] = [];
+  const allPossibleFinalThreads: FinalScoredComment[][] = [];
   const commentsById = new Map<string, IntermediateScoredComment>(scoredComments.map(c => [c.commentId, c])); 
 
   for (const [_topLevelId, groupComments] of Object.entries(groups)) {

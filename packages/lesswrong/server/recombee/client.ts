@@ -18,7 +18,7 @@ import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/createContexts';
 import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
-import { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
+import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
