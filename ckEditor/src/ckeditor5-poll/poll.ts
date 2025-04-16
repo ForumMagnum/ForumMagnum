@@ -3,7 +3,7 @@ import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
 import Widget from "@ckeditor/ckeditor5-widget/src/widget";
 import PollForm from "./poll-form";
-import buttonIcon from "./ckeditor5-cta-button.svg";
+import pollIcon from "./poll-icon.svg";
 import { randomId } from "../random";
 import { POLL_CLASS, PollProps } from "./constants";
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
@@ -37,7 +37,7 @@ export default class PollPlugin extends Plugin {
 
       toolbarButton.isEnabled = true;
       toolbarButton.label = editor.t("Insert poll");
-      toolbarButton.icon = buttonIcon;
+      toolbarButton.icon = pollIcon;
       toolbarButton.tooltip = true;
 
       toolbarButton.on("execute", () => {
