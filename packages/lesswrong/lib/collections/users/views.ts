@@ -219,19 +219,6 @@ export const hashedPetrovLaunchCodes = [
 })
 ensureIndex(Users, {petrovCodesEnteredHashed: 1})*/
 
-function walledGardenInvitees() {
-  return {
-    selector: {
-      walledGardenInvite: true
-    },
-    options: {
-      sort: {
-        displayName: 1
-      }
-    }
-  }
-}
-
 function usersWithOptedInToDialogueFacilitation(terms: UsersViewTerms) {
   return {
     selector: {
@@ -279,7 +266,6 @@ export const UsersViews = new CollectionViewSet('Users', {
   tagCommunityMembers,
   reviewAdminUsers,
   usersWithPaymentInfo,
-  walledGardenInvitees,
   usersWithOptedInToDialogueFacilitation,
   alignmentSuggestedUsers,
   // Commented out in the original code:

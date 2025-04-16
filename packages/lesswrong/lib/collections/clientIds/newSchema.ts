@@ -8,6 +8,7 @@ const schema = {
     database: DEFAULT_CREATED_AT_FIELD.database,
     graphql: {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
+      outputType: "Date",
       canRead: ["admins"],
     },
   },
@@ -52,8 +53,8 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "[String]",
-      inputType: "[String]!",
+      outputType: "[String!]",
+      inputType: "[String!]!",
       canRead: ["sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
     },
@@ -108,6 +109,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ClientIds">>;
+} satisfies Record<string, CollectionFieldSpecification<"ClientIds">>;
 
 export default schema;

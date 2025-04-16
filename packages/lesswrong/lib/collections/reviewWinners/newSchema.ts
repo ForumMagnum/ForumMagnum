@@ -14,8 +14,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -80,8 +79,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -95,8 +93,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -126,8 +123,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -148,6 +144,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ReviewWinners">>;
+} satisfies Record<string, CollectionFieldSpecification<"ReviewWinners">>;
 
 export default schema;

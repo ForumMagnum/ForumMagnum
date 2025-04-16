@@ -5,9 +5,9 @@ const FormNestedFoot = ({ addItem, label }: {
   addItem: () => void
   label?: string
 }) => (
-  <Components.Button size="small" variant="success" onClick={addItem} className="form-nested-button">
+  <button onClick={addItem} className="form-nested-button">
     <Components.IconAdd height={12} width={12} />
-  </Components.Button>
+  </button>
 );
 
 const FormNestedFootComponent = registerComponent('FormNestedFoot', FormNestedFoot);

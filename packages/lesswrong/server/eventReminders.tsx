@@ -5,9 +5,10 @@ import { postStatuses } from '../lib/collections/posts/constants';
 import { Users } from '../server/collections/users/collection';
 import { getUsersToNotifyAboutEvent } from './notificationCallbacks';
 import { addCronJob } from './cron/cronUtil';
-import { updateMutator } from './vulcan-lib/mutators';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import moment from '../lib/moment-timezone';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updatePost } from './collections/posts/mutations';
 import { EventTomorrowReminder } from './emailComponents/EventTomorrowReminder';
 
 async function checkAndSendUpcomingEventEmails() {
@@ -32,14 +33,10 @@ async function checkAndSendUpcomingEventEmails() {
     // Mark it as having had the reminders sent
     // (We do this before the actual sending, rather than after, so that if
     // something goes wrong we can't get into a resend-loop.)
-    await updateMutator({
-      collection: Posts,
-      documentId: upcomingEvent._id,
-      set: {
-        nextDayReminderSent: true,
-      },
-      validate: false,
-    });
+    await updatePost({
+      data: { nextDayReminderSent: true },
+      selector: { _id: upcomingEvent._id }
+    }, createAnonymousContext());
     
     // skip to the next event if this one has no RSVPs
     if (!upcomingEvent.rsvps) {

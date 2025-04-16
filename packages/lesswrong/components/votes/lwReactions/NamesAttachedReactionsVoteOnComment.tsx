@@ -13,7 +13,7 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
 import sumBy from 'lodash/sumBy';
-import Card from '@/lib/vendor/@material-ui/core/src/Card'
+import { Card } from "@/components/widgets/Paper";
 import FormatListBulletedIcon from "@/lib/vendor/@material-ui/icons/src/FormatListBulleted"
 import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
@@ -576,6 +576,9 @@ const ReactionOverviewButton = ({voteProps, classes}: {
   </LWTooltip>
 }
 
+
+const AddReactionButtonComponent = registerComponent('AddReactionButton', AddReactionButton, {styles});
+
 const NamesAttachedReactionsVoteOnCommentComponent = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnComment, {
   styles,
   hocs: [withErrorBoundary]
@@ -590,6 +593,7 @@ declare global {
   interface ComponentTypes {
     NamesAttachedReactionsVoteOnComment: typeof NamesAttachedReactionsVoteOnCommentComponent
     NamesAttachedReactionsCommentBottom: typeof NamesAttachedReactionsCommentBottomComponent
+    AddReactionButton: typeof AddReactionButtonComponent
   }
 }
 

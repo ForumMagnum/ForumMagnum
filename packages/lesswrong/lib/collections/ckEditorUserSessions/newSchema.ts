@@ -59,6 +59,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"CkEditorUserSessions">>;
+} satisfies Record<string, CollectionFieldSpecification<"CkEditorUserSessions">>;
 
 export default schema;

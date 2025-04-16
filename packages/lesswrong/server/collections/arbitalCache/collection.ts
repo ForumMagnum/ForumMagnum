@@ -13,7 +13,6 @@ export const ArbitalCaches: ArbitalCachesCollection = createCollection({
     indexSet.addIndex('ArbitalCaches', { fetchedAt: 1 })
     return indexSet;
   },
-  logChanges: true,
 });
 
 

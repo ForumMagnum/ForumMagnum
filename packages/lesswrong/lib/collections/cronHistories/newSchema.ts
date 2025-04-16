@@ -91,6 +91,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"CronHistories">>;
+} satisfies Record<string, CollectionFieldSpecification<"CronHistories">>;
 
 export default schema;

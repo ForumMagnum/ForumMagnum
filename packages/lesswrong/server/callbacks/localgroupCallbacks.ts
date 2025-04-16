@@ -1,40 +1,27 @@
-import { AfterCreateCallbackProperties, CallbackValidationErrors, CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
+import type { AfterCreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
 import difference from 'lodash/difference';
 import { createNotifications } from '../notificationCallbacksHelpers';
 
-// createValidate
-function localgroupCreateValidate(validationErrors: CallbackValidationErrors, {document: group}: CreateCallbackProperties<'Localgroups'>) {
+export function validateGroupIsOnlineOrHasLocation(group: CreateLocalgroupDataInput | DbLocalgroup) {
   if (!group.isOnline && !group.location)
     throw new Error("Location is required for local groups");
-  
-  return validationErrors;
 }
 
-// createAsync
-async function localgroupCreateAsync({document}: AfterCreateCallbackProperties<'Localgroups'>) {
+export async function createGroupNotifications({document}: AfterCreateCallbackProperties<'Localgroups'>) {
   await createNotifications({userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
 }
 
-// updateValidate
-function localgroupUpdateValidate(validationErrors: CallbackValidationErrors, {oldDocument, newDocument}: UpdateCallbackProperties<'Localgroups'>) {
-  if (!newDocument.isOnline && !newDocument.location)
-    throw new Error("Location is required for local groups");
-  
-  return validationErrors;
-}
-
-// updateAsync
-async function localgroupUpdateAsync({ document, oldDocument, context }: UpdateCallbackProperties<'Localgroups'>) {
+export async function handleOrganizerUpdates({ newDocument, oldDocument, context }: UpdateCallbackProperties<'Localgroups'>) {
   const { Users } = context;
 
   // notify new organizers that they have been added to this group
-  const newOrganizerIds = difference(document.organizerIds, oldDocument.organizerIds)
-  await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
+  const newOrganizerIds = difference(newDocument.organizerIds, oldDocument.organizerIds)
+  await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: newDocument._id})
   
   // if this group is being marked as inactive or deleted, remove it from the profile of all associated organizers
-  const groupIsBeingHidden = (!oldDocument.inactive && document.inactive) || (!oldDocument.deleted && document.deleted)
+  const groupIsBeingHidden = (!oldDocument.inactive && newDocument.inactive) || (!oldDocument.deleted && newDocument.deleted)
   // otherwise, remove this group from the profile of any organizers who have been removed
-  const removedOrganizerIds = groupIsBeingHidden ? oldDocument.organizerIds : difference(oldDocument.organizerIds, document.organizerIds)
+  const removedOrganizerIds = groupIsBeingHidden ? oldDocument.organizerIds : difference(oldDocument.organizerIds, newDocument.organizerIds)
 
   if (!removedOrganizerIds || !removedOrganizerIds.length) return
   const removedOrganizers = await Users.find({_id: {$in: removedOrganizerIds}}).fetch()
@@ -42,7 +29,7 @@ async function localgroupUpdateAsync({ document, oldDocument, context }: UpdateC
   removedOrganizers.forEach(organizer => {
     if (!organizer.organizerOfGroupIds) return
 
-    const newOrganizerOfGroupIds = difference(organizer.organizerOfGroupIds, [document._id])
+    const newOrganizerOfGroupIds = difference(organizer.organizerOfGroupIds, [newDocument._id])
     if (organizer.organizerOfGroupIds.length > newOrganizerOfGroupIds.length) {
       void Users.rawUpdateOne(
         {_id: organizer._id},
@@ -51,8 +38,3 @@ async function localgroupUpdateAsync({ document, oldDocument, context }: UpdateC
     }
   })
 }
-
-getCollectionHooks('Localgroups').createValidate.add(localgroupCreateValidate);
-getCollectionHooks('Localgroups').createAsync.add(localgroupCreateAsync);
-getCollectionHooks('Localgroups').updateValidate.add(localgroupUpdateValidate);
-getCollectionHooks('Localgroups').updateAsync.add(localgroupUpdateAsync);

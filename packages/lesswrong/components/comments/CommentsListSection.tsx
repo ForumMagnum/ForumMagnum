@@ -4,7 +4,6 @@ import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { Menu } from '@/components/widgets/Menu';
-import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
@@ -120,7 +119,7 @@ const CommentsListSection = ({
 
   const {
     LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row,
-    CommentsNewForm, QuickTakesEntry,
+    CommentsNewForm, QuickTakesEntry, SimpleDivider,
   } = Components;
 
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
@@ -202,7 +201,7 @@ const CommentsListSection = ({
             postId={post._id}
             currentUser={currentUser}
             clickCallback={handleDateChange}/>}
-          <Divider />
+          <SimpleDivider />
           {suggestedHighlightDates.map(date => {
             return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
               {date.calendar().toString()}

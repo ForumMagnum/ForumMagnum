@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from "@/lib/vendor/@material-ui/core/src/Card"
+import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import Fullscreen from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
 import FullscreenExit from '@/lib/vendor/@material-ui/icons/src/FullscreenExit';
@@ -102,7 +102,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
     setCookie(LLM_CHAT_EXPANDED, expanded ? "false" : "true", { path: "/"})
   }
 
-  return <Paper className={classNames(classes.root, {[classes.expanded]: expanded})}>
+  return <Card className={classNames(classes.root, {[classes.expanded]: expanded})}>
     <AnalyticsContext pageSectionContext='llmChatPopup'>
       <div className={classes.header}>
         <div className={classes.title}>
@@ -122,7 +122,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
         <LanguageModelChat />
       </div>
     </AnalyticsContext>
-  </Paper>
+  </Card>
 }
 
 const PopupLanguageModelChatComponent = registerComponent('PopupLanguageModelChat', PopupLanguageModelChat, {styles});
