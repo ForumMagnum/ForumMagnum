@@ -37,6 +37,8 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     cursor: 'pointer',
   },
   maxHeight: {
+    maxHeight: 1000,
+    //TODO: somehow check if this is being triggered and if so, display additional text/button for expansion
   },
   lineClamp: {
     display: '-webkit-box !important',
@@ -126,8 +128,7 @@ const FeedContentBody = ({
 
   const documentId = post?._id ?? comment?._id ?? tag?._id;
 
-
-  const applyLineClamp = clampOverride !== undefined && clampOverride > 0 && expansionLevel === 0;
+  const applyLineClamp = clampOverride && clampOverride > 0 && expansionLevel === 0;
 
   let documentType: 'post' | 'comment' | 'tag';
   if (post) {
@@ -139,9 +140,13 @@ const FeedContentBody = ({
   }
 
   const getDocumentUrl = () => {
-    if (post) return postGetPageUrl(post);
-    if (comment) return commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id });
-    if (tag) return `/tag/${tag._id}`;
+    if (post) {
+      return postGetPageUrl(post);
+    } else if (comment) {
+      return commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id });
+    } else if (tag) {
+      return `/tag/${tag._id}`;
+    }
     return '/';
   };
 
@@ -174,7 +179,7 @@ const FeedContentBody = ({
     let wordsLeft = 0;
 
     if (applyLineClamp) {
-      wasTruncated = true; // assume truncated when line clamp is active
+      wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
       wordsLeft = 0; // Not used when applyLineClamp is true, set to 0
       truncatedHtml = html; // Render full HTML for CSS clamping
     } else {

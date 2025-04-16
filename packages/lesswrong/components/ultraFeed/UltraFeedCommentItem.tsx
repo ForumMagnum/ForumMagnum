@@ -8,11 +8,17 @@ import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 
+const commentHeaderPaddingDesktop = 12;
+const commentHeaderPaddingMobile = 12;
+
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
-    paddingTop: 12,
+    paddingTop: commentHeaderPaddingDesktop,
     display: 'flex',
     flexDirection: 'row',
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: commentHeaderPaddingMobile,
+    },
   },
   compressedRoot: {
     display: 'flex',
@@ -28,18 +34,26 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginBottom: 8,
   },
   contentWrapper: {
+    paddingRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      paddingRight: 0,
+    },
   },
   numComments: {
     fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: theme.typography.body2.fontSize,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: 6,
-    fontSize: '1.3rem',
+    padding: 8,
     opacity: 0.5,
     cursor: "pointer",
     '&:hover': {
       opacity: 1,
+    },
+    [theme.breakpoints.down('sm')]: {
+      padding: 6,
+      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
   },
   inlineCommentThreadTitle: {
@@ -47,7 +61,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginBottom: 12,
     marginRight: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.3rem',
+    fontSize: theme.typography.body2.fontSize,
     fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
     width: '100%',
@@ -56,6 +70,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
     fontStyle: 'italic',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
+    },
   },
   inlineCommentThreadTitleLink: {
     background: 'none',
@@ -84,16 +101,23 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     width: 0,
     display: 'flex',
     justifyContent: 'center',
-    marginRight: 2,
-    marginTop: -12,
+    marginRight: 6,
+    marginTop: -commentHeaderPaddingDesktop,
     marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 2,
+      marginTop: -commentHeaderPaddingMobile,
+    },
   },
   verticalLineContainerCompressed: {
     width: 0,
     display: 'flex',
     justifyContent: 'center',
-    marginRight: 2,
+    marginRight: 6,
     marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 2,
+    },
   },
   verticalLine: {
     width: 0,
@@ -105,14 +129,23 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     borderLeft: `4px solid ${theme.palette.secondary.light}8c`,
   },
   verticalLineFirstComment: {
-    marginTop: 16,
+    marginTop: commentHeaderPaddingDesktop,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: commentHeaderPaddingMobile,
+    },
   },
   verticalLineLastComment: {
-    marginBottom: 16,
+    marginBottom: commentHeaderPaddingDesktop,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: commentHeaderPaddingMobile,
+    },
   },
   footer: {
-    paddingTop: 12,
+    paddingTop: 16,
     paddingBottom: 12,
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 12,
+    }
   },
 }));
 
