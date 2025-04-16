@@ -17,8 +17,8 @@ import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/createContexts';
-import util from 'util';
 import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
+import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -60,26 +60,6 @@ interface OnsitePostRecommendationsInfo {
   stickiedPostIds: string[],
   excludedPostFilter?: string,
 }
-
-export interface RecombeeRecommendedPost {
-  post: Partial<DbPost>,
-  scenario: string,
-  recommId: string,
-  generatedAt?: Date,
-  curated?: never,
-  stickied?: never,
-}
-
-interface NativeRecommendedPost {
-  post: Partial<DbPost>,
-  scenario?: never,
-  recommId?: never,
-  generatedAt?: never,
-  curated: boolean,
-  stickied: boolean,
-}
-
-export type RecommendedPost = RecombeeRecommendedPost | NativeRecommendedPost;
 
 interface PostFieldDependencies {
   title: 'title',

@@ -476,121 +476,108 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     lookbackWindow = '90 days'
   ): Promise<FeedCommentFromDb[]> {
     const db = this.getRawDb();
-    const initialCandidateLimit = 200; // Limit for the first pass
+    const initialCandidateLimit = 500;
 
-    const UNIVERSAL_COMMENT_FILTER_CLAUSE = `
-      c.deleted IS NOT TRUE
-      AND c.retracted IS NOT TRUE
-      AND c."postId" IS NOT NULL
-      AND ${getViewableCommentsSelector('c')}
+    const getUniversalCommentFilterClause = (alias: string) => `
+      ${alias}.deleted IS NOT TRUE
+      AND ${alias}.retracted IS NOT TRUE
+      AND ${alias}."postId" IS NOT NULL
+      AND ${getViewableCommentsSelector(alias)}
     `;
 
-    const suggestedComments: FeedCommentFromDb[] = await db.manyOrNone(`
+    const feedCommentsData: FeedCommentFromDb[] = await db.manyOrNone(`
       -- CommentsRepo.getCommentsForFeed
-      WITH
-      "InitialCandidates" AS (
-        SELECT
-          c._id AS "commentId",
-          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
-          c."postId",
-          CASE WHEN c."baseScore" > 10 THEN ARRAY['topComments'] ELSE ARRAY['quickTakes'] END AS sources
-        FROM "Comments" c
-        WHERE (c."baseScore" > 10 OR c.shortform IS TRUE)
-          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
-          AND c."postedAt" > NOW() - INTERVAL '${lookbackWindow}'
-        ORDER BY c."postedAt" DESC
-        LIMIT $(initialCandidateLimit)
+      WITH "InitialCandidates" AS (
+          -- Find top candidate comments based on recency or shortform status
+          SELECT
+              c._id AS "commentId",
+              c."postId",
+              COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
+              c."postedAt",
+              c.shortform
+          FROM "Comments" c
+          WHERE
+              ${getUniversalCommentFilterClause('c')}
+              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '7 days'))
+          ORDER BY c."postedAt" DESC
+          LIMIT $(initialCandidateLimit)
       ),
-      "RawUltraFeedEvents" AS (
-        SELECT * FROM "UltraFeedEvents"
-        WHERE "userId" = $(userId)
-          AND "collectionName" = 'Comments'
-          AND "documentId" IN (SELECT "commentId" FROM "InitialCandidates")
-          AND (
-            ("eventType" = 'served' AND "createdAt" > NOW() - INTERVAL '24 hours')
-            OR ("eventType" != 'served')
-          )
-        ORDER BY "createdAt" DESC
-        LIMIT 1000
+      "CandidateThreadTopLevelIds" AS (
+          SELECT DISTINCT "threadTopLevelId" FROM "InitialCandidates"
+      ),
+      "AllRelevantComments" AS (
+          -- Fetch all comments belonging to the candidate threads using the distinct IDs
+          SELECT
+            c._id,
+            c."postId",
+            c."baseScore",
+            c."topLevelCommentId",
+            c."parentCommentId",
+            c.shortform,
+            c."postedAt"
+          FROM "Comments" c
+          JOIN "CandidateThreadTopLevelIds" ct
+              ON c."topLevelCommentId" = ct."threadTopLevelId"
+              OR (c._id = ct."threadTopLevelId" AND c."topLevelCommentId" IS NULL)
+          WHERE
+              ${getUniversalCommentFilterClause('c')}
+      ),
+      "UsersEvents" AS (
+         -- Fetch latest interaction/view/served events for the relevant comments for the specific user
+         SELECT
+             ue."documentId",
+             ue."createdAt",
+             ue."eventType"
+         FROM "UltraFeedEvents" ue
+         WHERE 1=1
+         AND ue."collectionName" = 'Comments'
+         AND "userId" = $(userId) -- Parameterized userId
+         AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '48 hours')
+         AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
+         ORDER BY (CASE WHEN ue."eventType" = 'served' THEN 1 ELSE 0 END) ASC
+         LIMIT 5000
       ),
       "CommentEvents" AS (
-        SELECT
-          "documentId",
-          MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) AS "lastServed",
-          MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" END) AS "lastViewed",
-          MAX(CASE WHEN "eventType" = 'expanded' THEN "createdAt" END) AS "lastInteracted"
-        FROM "RawUltraFeedEvents"
-        GROUP BY "documentId"
-      ),
-      "CandidatesWithEvents" AS (
-        SELECT
-          ic."commentId",
-          ic."threadTopLevelId",
-          ic."postId",
-          ic.sources,
+          -- Aggregate the user's latest events for each comment
+          SELECT
+              ce."documentId",
+              MAX(CASE WHEN ce."eventType" = 'viewed' THEN ce."createdAt" ELSE NULL END) AS "lastViewed",
+              MAX(CASE WHEN ce."eventType" <> 'viewed' AND ce."eventType" <> 'served' THEN ce."createdAt" ELSE NULL END) AS "lastInteracted",
+              MAX(CASE WHEN ce."eventType" = 'served' THEN ce."createdAt" ELSE NULL END) AS "lastServed"
+         FROM "UsersEvents" ce
+          GROUP BY ce."documentId"
+      )
+      -- Final Selection and Ordering
+      SELECT
+          c._id AS "commentId",
+          c."postId",
+          c."baseScore",
+          COALESCE(c."topLevelCommentId", c._id) AS "topLevelCommentId", -- Ensure topLevelCommentId is always populated
+          c."parentCommentId",
+          c.shortform,
+          c."postedAt",
           ce."lastServed",
           ce."lastViewed",
           ce."lastInteracted"
-        FROM "InitialCandidates" ic
-        LEFT JOIN "CommentEvents" ce ON ic."commentId" = ce."documentId"
-      ),
-      "FilteredUnseenCandidates" AS (
-        -- Filter candidates: Keep only those NOT viewed, interacted with, OR served in the last 24 hours
-        SELECT
-          "commentId",
-          "threadTopLevelId",
-          "postId",
-          sources
-        FROM "CandidatesWithEvents"
-        WHERE "lastViewed" IS NULL 
-          AND "lastInteracted" IS NULL
-          AND ("lastServed" IS NULL OR "lastServed" < NOW() - INTERVAL '24 hours')
-      ),
-      "RelevantThreads" AS (
-        SELECT DISTINCT "threadTopLevelId" FROM "FilteredUnseenCandidates"
-      ),
-      "ValidTopLevelComments" AS (
-        SELECT
-          c._id AS "topLevelCommentId"
-        FROM "Comments" c
-        WHERE c._id IN (SELECT "threadTopLevelId" FROM "RelevantThreads")
-          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
-      ),
-      "AllCommentsForValidThreads" AS (
-        -- Fetch ALL valid comments (universal filter) belonging to threads whose top-level comment is valid
-        SELECT
-          c._id AS "commentId",
-          COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
-          c."parentCommentId",
-          c."postId",
-          c."baseScore",
-          c."postedAt"
-        FROM "Comments" c
-        WHERE (
-                c."topLevelCommentId" IN (SELECT "topLevelCommentId" FROM "ValidTopLevelComments")
-                OR (c."topLevelCommentId" IS NULL AND c._id IN (SELECT "topLevelCommentId" FROM "ValidTopLevelComments"))
-              )
-          AND ${UNIVERSAL_COMMENT_FILTER_CLAUSE}
-      )
-      SELECT
-        ac."commentId",
-        ac."threadTopLevelId" AS "topLevelCommentId",
-        ac."parentCommentId",
-        ac."postId",
-        ac."baseScore",
-        ac."postedAt",
-        COALESCE(ic.sources, ARRAY[]::TEXT[]) AS "sources",
-        ce."lastServed",
-        ce."lastViewed",
-        ce."lastInteracted"
-      FROM "AllCommentsForValidThreads" ac
-      LEFT JOIN "CommentEvents" ce ON ac."commentId" = ce."documentId"
-      LEFT JOIN "InitialCandidates" ic ON ac."commentId" = ic."commentId"
-      ORDER BY ac."threadTopLevelId", ac."postedAt"
-      LIMIT $(maxTotalComments)
-    `, { userId, initialCandidateLimit, maxTotalComments, lookbackWindow });
+      FROM "AllRelevantComments" c
+      LEFT JOIN "CommentEvents" ce ON c._id = ce."documentId"
+      ORDER BY COALESCE(c."topLevelCommentId", c._id), c."postedAt"
+      LIMIT $(maxTotalComments) -- Apply final limit
+    `, { userId, initialCandidateLimit, maxTotalComments });
 
-    return suggestedComments;
+    return feedCommentsData.map((comment): FeedCommentFromDb => ({
+      commentId: comment.commentId,
+      topLevelCommentId: comment.topLevelCommentId,
+      parentCommentId: comment.parentCommentId ?? null,
+      postId: comment.postId,
+      baseScore: comment.baseScore,
+      shortform: comment.shortform ?? null,
+      postedAt: comment.postedAt,
+      sources: ['recentComments'], // Assign fixed source
+      lastServed: null, 
+      lastViewed: comment.lastViewed ?? null,
+      lastInteracted: comment.lastInteracted ?? null,
+    }));
   }
 }
 

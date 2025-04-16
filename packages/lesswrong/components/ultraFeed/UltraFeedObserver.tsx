@@ -78,7 +78,7 @@ const documentTypeToCollectionName = {
   spotlight: "Spotlights"
 } satisfies Record<DocumentType, "Posts" | "Comments" | "Spotlights">;
 
-export const UltraFeedObserverProvider = ({ children }: { children: ReactNode }) => {
+export const UltraFeedObserverProvider = ({ children, incognitoMode }: { children: ReactNode, incognitoMode: boolean }) => {
   const currentUser = useCurrentUser();
   
   const { create: createUltraFeedEvent } = useCreate({
@@ -93,7 +93,7 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
   const viewedItemsRef = useRef<Set<string>>(new Set());
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-    if (!currentUser) return;
+    if (!currentUser || incognitoMode) return;
     
     entries.forEach((entry) => {
       const element = entry.target;
@@ -132,7 +132,7 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
         }
       }
     });
-  }, [createUltraFeedEvent, currentUser]);
+  }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
   useEffect(() => {
     // Capture current ref values inside the effect
@@ -177,7 +177,7 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
   }, []);
 
   const trackExpansion = useCallback((data: TrackExpansionData) => {
-    if (!currentUser) return;
+    if (!currentUser || incognitoMode) return;
     
     const eventData = {
       userId: currentUser._id,
@@ -194,7 +194,7 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
     void createUltraFeedEvent({
       data: eventData
     });
-  }, [createUltraFeedEvent, currentUser]);
+  }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
   const contextValue = { observe, unobserve, trackExpansion };
 

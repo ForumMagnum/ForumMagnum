@@ -4787,14 +4787,14 @@ type User {
   recommendationSettings: JSON
 }
 
-input UserSelectorInput {
+input UserSelectorUniqueInput {
   _id: String
   documentId: String
   slug: String
 }
 
 input SingleUserInput {
-  selector: UserSelectorInput
+  selector: UserSelectorUniqueInput
   resolverArgs: JSON
   allowNull: Boolean
 }

@@ -222,24 +222,8 @@ const UltraFeedCommentItem = ({
   const expanded = displayStatus === "expanded";
 
   const truncationBreakpoints = useMemo(() => {
-    if (!post) {
-      // eslint-disable-next-line no-console
-      console.log("Missing post data:", comment._id);
-      return null;
-    }
-
-    const fullBreakpoints = settings.commentTruncationBreakpoints || [];
-    const collapsedLimit = settings.collapsedCommentTruncation;
-
-    if (expanded) {
-      return fullBreakpoints;
-    } else {
-      // If collapsed, use the collapsed limit as the first breakpoint,
-      // followed by the rest of the standard breakpoints (skipping the first standard one).
-      const subsequentBreakpoints = fullBreakpoints.length > 1 ? fullBreakpoints.slice(1) : [];
-      return [collapsedLimit, ...subsequentBreakpoints];
-    }
-  }, [expanded, settings.commentTruncationBreakpoints, settings.collapsedCommentTruncation, post, comment._id]);
+    return settings.commentTruncationBreakpoints || [];
+  }, [settings.commentTruncationBreakpoints]);
 
   const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
 
