@@ -113,6 +113,120 @@ class MainFormView extends View {
               ]
             },
           ]
+        },
+        {
+          tag: "div",
+          attributes: {
+            class: ["ck-cta-form-row"],
+          },
+          children: [
+            {
+              tag: "div",
+              attributes: {
+                class: ["ck-cta-form-group"],
+              },
+              children: [
+                {
+                  tag: "div",
+                  attributes: {
+                    class: ["ck-cta-form-label"],
+                    style: "margin-bottom: 4px; font-weight: bold;"
+                  },
+                  children: ["Color"]
+                },
+                {
+                  tag: "div",
+                  attributes: {
+                    style: "display: flex; align-items: center;"
+                  },
+                  children: [
+                    {
+                      tag: "div",
+                      attributes: {
+                        style: "background-color: #9f85cc; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
+                      }
+                    },
+                    {
+                      tag: "div",
+                      attributes: {
+                        style: "background-color: #3185C4; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              tag: "div",
+              attributes: {
+                class: ["ck-cta-form-group"],
+                style: "margin-left: 20px;"
+              },
+              children: [
+                {
+                  tag: "div",
+                  attributes: {
+                    class: ["ck-cta-form-label"],
+                    style: "margin-bottom: 4px; font-weight: bold;"
+                  },
+                  children: ["Duration"]
+                },
+                {
+                  tag: "div",
+                  attributes: {
+                    style: "display: flex; align-items: center;"
+                  },
+                  children: [
+                    {
+                      tag: "input",
+                      attributes: {
+                        type: "number",
+                        min: "0",
+                        value: "1",
+                        style: "width: 50px; min-width: 50px; margin-right: 6px; padding: 4px 8px;",
+                        class: ["ck-cta-form-input"]
+                      }
+                    },
+                    {
+                      tag: "span",
+                      attributes: { style: "margin-right: 16px; font-weight: 500; color: var(--palette-grey-1000);" },
+                      children: ["days,"]
+                    },
+                    {
+                      tag: "input",
+                      attributes: {
+                        type: "number",
+                        min: "0",
+                        value: "0",
+                        style: "width: 50px; min-width: 50px; margin-right: 6px; padding: 4px 8px;",
+                        class: ["ck-cta-form-input"]
+                      }
+                    },
+                    {
+                      tag: "span",
+                      attributes: { style: "margin-right: 16px; font-weight: 500; color: var(--palette-grey-1000);" },
+                      children: ["hours,"]
+                    },
+                    {
+                      tag: "input",
+                      attributes: {
+                        type: "number",
+                        min: "0",
+                        value: "0",
+                        style: "width: 50px; min-width: 50px; margin-right: 6px; padding: 4px 8px;",
+                        class: ["ck-cta-form-input"]
+                      }
+                    },
+                    {
+                      tag: "span",
+                      attributes: { style: "font-weight: 500; color: var(--palette-grey-1000);" },
+                      children: ["minutes"]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ],
     });
