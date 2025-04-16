@@ -173,10 +173,19 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
     const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost, incognitoMode, threadScoreAggregation, threadScoreFirstN } = settings;
 
+    // Ensure arrays have length 3
+    const ensureLength3 = (arr: (number | '')[]) => {
+      const newArr = [...arr];
+      while (newArr.length < 3) {
+        newArr.push('');
+      }
+      return newArr.slice(0, 3);
+    };
+
     return {
       lineClampNumberOfLines,
-      postTruncationBreakpoints,
-      commentTruncationBreakpoints,
+      postTruncationBreakpoints: ensureLength3(postTruncationBreakpoints),
+      commentTruncationBreakpoints: ensureLength3(commentTruncationBreakpoints),
       sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) },
       commentDecayFactor,
       commentDecayBiasHours,
@@ -194,11 +203,19 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       ...(settings.sourceWeights || {}),
     };
       
+    const ensureLength3 = (arr: (number | '')[]) => {
+      const newArr = [...arr];
+      while (newArr.length < 3) {
+        newArr.push('');
+      }
+      return newArr.slice(0, 3);
+    };
+
     setFormValues({
       ...settings,
       lineClampNumberOfLines: settings.lineClampNumberOfLines,
-      postTruncationBreakpoints: settings.postTruncationBreakpoints,
-      commentTruncationBreakpoints: settings.commentTruncationBreakpoints,
+      postTruncationBreakpoints: ensureLength3(settings.postTruncationBreakpoints),
+      commentTruncationBreakpoints: ensureLength3(settings.commentTruncationBreakpoints),
       sourceWeights: updatedSourceWeights,
       commentDecayFactor: settings.commentDecayFactor,
       commentDecayBiasHours: settings.commentDecayBiasHours,
@@ -403,21 +420,35 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       const arrKey = key as 'postTruncationBreakpoints' | 'commentTruncationBreakpoints';
       const arr: (number|string)[] = formValues[arrKey]; 
       const validArr: number[] = [];
-      arr.forEach((val, index) => {
+      // Filter out empty strings *before* validation
+      const filteredArr = arr.filter(val => String(val) !== '');
+      
+      filteredArr.forEach((val, index) => {
         const numVal = parseInt(String(val), 10);
         if (isNaN(numVal)) {
            hasValidationErrors = true; 
            setErrors(prev => {
+             // Adjust error index if needed, though less critical now
             const fieldErrors = [...prev[arrKey]];
-            if (!fieldErrors.includes(index)) fieldErrors.push(index);
-            return { ...prev, [arrKey]: fieldErrors };
+            // Need to map original index to filtered index if precise error reporting is needed
+            // For now, just mark the whole field as having an error if any part fails
+            // A simpler approach might be to reset errors for the field and re-add if validation fails
+            // Let's simplify: indicate error on the field, not specific index
+            // This avoids complex index mapping after filtering
+            return { ...prev, [arrKey]: [0] }; // Indicate error without specific index
            });
         } else {
           validArr.push(numVal);
         }
       });
-      if (hasValidationErrors) { validatedValues[arrKey] = undefined } 
-      else { validatedValues[arrKey] = validArr; }
+
+      // Reset errors for the field if validation passed for all non-empty values
+      if (!hasValidationErrors) {
+        setErrors(prev => ({ ...prev, [arrKey]: [] }));
+      }
+      
+      // Always assign the validated array (which might be empty if all were empty or invalid)
+      validatedValues[arrKey] = validArr; 
     });
     
     ['lineClampNumberOfLines', 'threadScoreFirstN'].forEach(key => {
