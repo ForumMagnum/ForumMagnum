@@ -116,10 +116,10 @@ export const allSchemas = {
   SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents,
   UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
   Users, Votes, ...testSchemas,
-} satisfies Record<CollectionNameString, Record<string, NewCollectionFieldSpecification<CollectionNameString>>>;
+} satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
 
-export function getSchema<N extends CollectionNameString>(collectionName: N): Record<string, NewCollectionFieldSpecification<N>> {
-  return allSchemas[collectionName] as Record<string, NewCollectionFieldSpecification<N>>;
+export function getSchema<N extends CollectionNameString>(collectionName: N): Record<string, CollectionFieldSpecification<N>> {
+  return allSchemas[collectionName] as Record<string, CollectionFieldSpecification<N>>;
 }
 
 
@@ -229,11 +229,11 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
   };
 }
 
-function isPlausiblyFormField(field: NewCollectionFieldSpecification<CollectionNameString>) {
+function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionNameString>) {
   return field.form || !!field.graphql?.canCreate?.length || !!field.graphql?.canUpdate?.length;
 }
 
-function getSchemaDefinition(schema: NewSchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
+function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
   return Object.entries(schema).reduce((acc, [key, value]) => {
     if (!value.graphql) {
       return acc;
@@ -298,7 +298,7 @@ const allSimpleSchemas: Record<CollectionNameString, SimpleSchema> = new Proxy({
   }
 });
 
-export function getSimpleSchema<N extends CollectionNameString>(collectionName: N): NewSimpleSchemaType<N> {
-  const simpleSchema = allSimpleSchemas[collectionName] as NewSimpleSchemaType<N>;
+export function getSimpleSchema<N extends CollectionNameString>(collectionName: N): SimpleSchemaType<N> {
+  const simpleSchema = allSimpleSchemas[collectionName] as SimpleSchemaType<N>;
   return simpleSchema;
 }

@@ -108,7 +108,7 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
             <div className={classes.review}>
               Review by
               <div className={classes.reviewerName}>
-                <UsersNameDisplay user={review.user} />
+                <UsersNameDisplay noTooltip user={review.user} />
               </div>
             </div>
           </HashLink>

@@ -11,8 +11,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
@@ -23,8 +22,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
@@ -35,8 +33,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
-      inputType: "Boolean!",
+      outputType: "Boolean!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
@@ -47,8 +44,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      inputType: "Float!",
+      outputType: "Float!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
@@ -59,8 +55,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
-      inputType: "Date!",
+      outputType: "Date!",
       canRead: ["guests"],
       canCreate: ["admins"],
     },
@@ -79,6 +74,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ManifoldProbabilitiesCaches">>;
+} satisfies Record<string, CollectionFieldSpecification<"ManifoldProbabilitiesCaches">>;
 
 export default schema;

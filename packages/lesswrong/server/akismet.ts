@@ -2,7 +2,6 @@ import { postGetPageUrl } from '../lib/collections/posts/helpers'
 import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
 import { akismetKeySetting, akismetURLSetting } from './databaseSettings';
-import { getCollectionHooks } from './mutationCallbacks';
 import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
 
 
@@ -82,13 +81,11 @@ export async function checkForAkismetSpam({document, type, context}: AnyBecauseT
   }
 }
 
-getCollectionHooks("Reports").editAsync.add(
-  async function runReportCloseCallbacks(newReport: DbReport, oldReport: DbReport, currentUser, collection, { context }) {
-    if (newReport.closedAt && !oldReport.closedAt) {
-      await akismetReportSpamHam(newReport, context);
-    }
+export async function maybeSendAkismetReport(newReport: DbReport, oldReport: DbReport, context: ResolverContext) {
+  if (newReport.closedAt && !oldReport.closedAt) {
+    await akismetReportSpamHam(newReport, context);
   }
-);
+}
 
 
 async function akismetReportSpamHam(report: DbReport, context: ResolverContext) {

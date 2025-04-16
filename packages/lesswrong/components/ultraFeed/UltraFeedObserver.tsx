@@ -108,7 +108,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
           const timerId = setTimeout(() => {
             if (elementDataMapRef.current.has(element) && !viewedItemsRef.current.has(elementData.documentId)) {
               const eventData = {
-                userId: currentUser._id,
                 eventType: 'viewed' as const,
                 documentId: elementData.documentId,
                 collectionName: documentTypeToCollectionName[elementData.documentType],

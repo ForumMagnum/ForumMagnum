@@ -2,7 +2,6 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
-import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
 
 const formGroups = {
   pollEventOptions: {
@@ -18,28 +17,6 @@ const formGroups = {
     startCollapsed: true,
   },
 } satisfies Partial<Record<string, FormGroupType<"ForumEvents">>>;
-
-const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
-  optional: nullable,
-  nullable,
-  canRead: ["guests"],
-  canUpdate: ["admins"],
-  canCreate: ["admins"],
-});
-
-const defaultEditableProps: Pick<
-  MakeEditableOptions<"ForumEvents">,
-  "commentEditor" | "commentStyles" | "hideControls" | "permissions"
-> = {
-  commentEditor: true,
-  commentStyles: true,
-  hideControls: true,
-  permissions: {
-    canRead: ["guests"],
-    canUpdate: ["admins"],
-    canCreate: ["admins"],
-  },
-};
 
 function getDefaultEditorPlaceholder() {
   return defaultEditorPlaceholder;
@@ -191,8 +168,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -207,8 +183,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
-      inputType: "Date!",
+      outputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -224,8 +199,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
-      inputType: "Date!",
+      outputType: "Date!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -243,8 +217,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -264,8 +237,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -285,8 +257,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -396,7 +367,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -417,7 +389,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -518,7 +491,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -599,6 +573,6 @@ const schema = {
       resolver: ({ publicData }) => (publicData ? Object.keys(publicData).length : 0),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ForumEvents">>;
+} satisfies Record<string, CollectionFieldSpecification<"ForumEvents">>;
 
 export default schema;

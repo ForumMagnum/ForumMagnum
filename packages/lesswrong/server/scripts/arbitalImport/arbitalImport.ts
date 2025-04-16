@@ -15,7 +15,7 @@ import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils'
 import path from 'path';
 import { arbitalMarkdownToCkEditorMarkup } from './markdownService';
 import Revisions from '@/server/collections/revisions/collection';
-import { afterCreateRevisionCallback, buildRevision } from '@/server/editor/make_editable_callbacks';
+import { buildRevision } from '@/server/editor/conversionUtils';
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
 import { htmlToChangeMetrics } from '@/server/editor/utils';
@@ -37,8 +37,14 @@ import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { updateDenormalizedHtmlAttributions } from '@/server/tagging/updateDenormalizedHtmlAttributions';
 import { updateDenormalizedContributorsList } from '@/server/utils/contributorsUtil';
 import { createAdminContext } from "@/server/vulcan-lib/createContexts.ts";
-import { createMutator, updateMutator } from "@/server/vulcan-lib/mutators.ts";
 import { getCollection } from "@/server/collections/allCollections";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createTag, updateTag } from '@/server/collections/tags/mutations';
+import { createComment } from '@/server/collections/comments/mutations';
+import { createUser } from '@/server/collections/users/mutations';
+import { createRevision } from '@/server/collections/revisions/mutations';
+import { createMultiDocument, updateMultiDocument } from '@/server/collections/multiDocuments/mutations';
+import { createArbitalTagContentRel } from '@/server/collections/arbitalTagContentRels/mutations';
 
 export type ArbitalImportOptions = {
   /**
@@ -251,9 +257,8 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
       collectionName = "MultiDocuments";
     }
 
-    const summaryObj = (await createMutator({
-      collection: MultiDocuments,
-      document: {
+    const summaryObj = (await createMultiDocument({
+      data: {
         parentDocumentId,
         collectionName,
         fieldName: "summary",
@@ -272,11 +277,8 @@ async function createSummariesForPage({ pageId, importedRecordMaps, pageCreator,
           arbitalSummaryName: summary.name,
           arbitalPageId: summary.pageId,
         },
-      } as AnyBecauseHard,
-      context: resolverContext,
-      currentUser: pageCreator,
-      validate: false,
-    })).data;
+      } as CreateMultiDocumentDataInput
+    }, resolverContext));
 
     await Promise.all([
       backDateObj(MultiDocuments, summaryObj._id, liveRevision.createdAt),
@@ -771,9 +773,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           return;
         }
       } else {
-        wiki = (await createMutator({
-          collection: Tags,
-          document: {
+        wiki = (await createTag({
+          data: {
             name: title,
             slug: slug,
             oldSlugs,
@@ -788,11 +789,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
               "arbitalPageId": pageId,
               ...(lwWikiPage ? {mergedLWTagId: lwWikiPage._id} : {}),
             },
-          },
-          context: resolverContext,
-          currentUser: pageCreator,
-          validate: false, //causes the check for name collisions to be skipped
-        })).data;
+          } as CreateTagDataInput, // cast needed tolet through `oldSlugs`, and so we also disable validation
+        }, resolverContext));
         // Back-date it to when it was created on Arbital
         await Promise.all([
           backDateObj(Tags, wiki._id, pageInfo.createdAt),
@@ -806,10 +804,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
 
       const pageAlternatives = alternativesByPageId[pageId];
       if (pageAlternatives && Object.values(pageAlternatives).some(alternatives => alternatives.length > 0)) {
-        await updateMutator({
-          collection: Tags,
-          documentId: wiki._id,
-          set: {
+        await updateTag({
+          data: {
             legacyData: {
               ...wiki.legacyData,
               arbitalFasterAlternatives: pageAlternatives.faster ?? [],
@@ -817,10 +813,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
               arbitalMoreTechnicalAlternatives: pageAlternatives.more_technical ?? [],
               arbitalLessTechnicalAlternatives: pageAlternatives.less_technical ?? [],
             },
-          },
-          currentUser: pageCreator,
-          context: resolverContext,
-        });
+          }, selector: { _id: wiki._id }
+        }, resolverContext);
       }
 
       await createSummariesForPage({
@@ -895,9 +889,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
           return;
         }
 
-        const lwWikiLens = (await createMutator({
-          collection: MultiDocuments,
-          document: {
+        const lwWikiLens = (await createMultiDocument({
+          data: {
             parentDocumentId: wiki._id,
             collectionName: "Tags",
             fieldName: "description",
@@ -911,11 +904,8 @@ async function importWikiPages(database: WholeArbitalDatabase, conversionContext
             index: lwWikiLensIndex,
             legacyData: {
             },
-          } as Partial<DbMultiDocument>,
-          context: resolverContext,
-          currentUser: lwWikiPageCreator,
-          validate: false,
-        })).data;
+          } as CreateMultiDocumentDataInput
+        }, resolverContext));
 
         // Backdate the lens and the automatically-created revision to the
         // timestamp of the earliest revision on the LW wiki page, minus one second (to avoid potential ordering issues with the copied-over revisions)
@@ -1027,9 +1017,8 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
       "legacyData.arbitalPageId": wikiPageParentId,
       deleted: false,
     }))?._id : null;
-    const lwComment = (await createMutator({
-      collection: Comments,
-      document: {
+    const lwComment = (await createComment({
+      data: {
         contents: {
           originalContents: {
             type: "ckEditorMarkup",
@@ -1042,11 +1031,8 @@ async function importComments(database: WholeArbitalDatabase, conversionContext:
           arbitalPageId: commentId,
           arbitalMarkdown: livePublicRev.text,
         },
-      },
-      currentUser: commentUser,
-      context: resolverContext,
-      validate: false,
-    })).data;
+      }
+    }, resolverContext));
     lwCommentsById[commentId] = lwComment;
     commentIdsToReindexInElastic.push(lwComment._id);
 
@@ -1103,9 +1089,10 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
     
     // Create the page
     console.log(`Creating redlink placeholder page ${slug}: ${selectedTitle} (referenced from ${redLinksBySlug[slug].map(r=>r.referencedFromPage)})`);
-    await createMutator({
-      collection: Tags,
-      document: {
+    const userContext = await computeContextFromUser({ user: conversionContext.defaultUser, isSSR: false });
+
+    await createTag({
+      data: {
         name: capitalizedTitle,
         slug,
         description: {
@@ -1116,10 +1103,8 @@ async function createRedLinkPlaceholders(redLinks: RedLinksSet, conversionContex
         },
         isPlaceholderPage: true,
         wikiOnly: true,
-      },
-      currentUser: conversionContext.defaultUser,
-      validate: false,
-    });
+      } as CreateTagDataInput, // cast needed tolet through `isPlaceholderPage`, and so we also disable validation
+    }, userContext);
   }), conversionContext.options.parallelism ??1);
 }
 
@@ -1306,10 +1291,10 @@ async function importRevisions<N extends CollectionNameString>({
     const arbRevision = revisions[i];
     const ckEditorMarkup = ckEditorMarkupByRevisionIndex[i];
     const revisionCreator = conversionContext.matchedUsers[arbRevision.creatorId] ?? conversionContext.defaultUser;
+    const userContext = await computeContextFromUser({ user: revisionCreator, isSSR: false });
 
-    const lwRevision = (await createMutator({
-      collection: Revisions,
-      document: {
+    const lwRevision = (await createRevision({
+      data: {
         ...await buildRevision({
           originalContents: {
             type: "ckEditorMarkup",
@@ -1329,16 +1314,9 @@ async function importRevisions<N extends CollectionNameString>({
           "arbitalEditNumber": arbRevision.edit,
           "arbitalMarkdown": arbRevision.text,
         },
-      },
-      currentUser: revisionCreator,
-      validate: false,
-    })).data;
+      }
+    }, userContext));
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
-    await afterCreateRevisionCallback.runCallbacksAsync([{
-      revisionID: lwRevision._id,
-      skipDenormalizedAttributions: true,
-      context: resolverContext,
-    }]);
   }
   
   // Handle the last revision separately, as an edit-operation rather than a
@@ -1346,21 +1324,28 @@ async function importRevisions<N extends CollectionNameString>({
   const lastRevision = revisions[revisions.length-1];
   const lastRevCkEditorMarkup = ckEditorMarkupByRevisionIndex[revisions.length-1];
   const lastRevisionCreator = conversionContext.matchedUsers[lastRevision.creatorId] ?? conversionContext.defaultUser;
-  const modifiedObj = (await updateMutator<N>({
-    collection,
-    documentId,
-    set: {
-      [fieldName]: {
-        originalContents: {
-          type: "ckEditorMarkup",
-          data: lastRevCkEditorMarkup,
-        }
-      },
-    } as AnyBecauseHard,
-    currentUser: lastRevisionCreator,
-    context: resolverContext,
-    validate: false,
-  })).data;
+  const data = {
+    [fieldName]: {
+      originalContents: {
+        type: "ckEditorMarkup",
+        data: lastRevCkEditorMarkup,
+      }
+    },
+  };
+
+  const selector = { _id: documentId };
+
+  let modifiedObj: DbTag | DbMultiDocument;
+  if (collection.collectionName === "Tags") {
+    modifiedObj = await updateTag({
+      data, selector,
+    }, resolverContext);
+  } else {
+    modifiedObj = await updateMultiDocument({
+      data, selector
+    }, resolverContext);
+  }
+
   if (collection.collectionName === "Tags") {
     await backDateDenormalizedEditable(collection, documentId, fieldName, lastRevision.createdAt);
   }
@@ -1625,20 +1610,19 @@ export const createImportAccounts = async (csvFilename: string) => {
           username = `ArbitalImport-${slugify(arbitalName)}-${++i}`
         }
         userNamesUsed.add(username);
+        const userContext = await computeContextFromUser({ user: null, isSSR: false });
 
-        const lwUser = (await createMutator({
-          collection: Users,
-          document: {
+
+        const lwUser = (await createUser({
+          data: {
             username: username,
             displayName: arbitalName,
             emailSubscribedToCurated: false,
             legacyData: {
               arbitalUserId,
             },
-          },
-          validate: false,
-          currentUser: null,
-        })).data;
+          }
+        }, userContext));
         usersCreatedCount++;
         rewrittenCsvRows.push([
           arbitalUserId, arbitalEmail, arbitalName,
@@ -1878,13 +1862,7 @@ async function importPagePairs(
     for (let i = 0; i < arbitalTagContentRels.length; i += chunkSize) {
       const chunk = arbitalTagContentRels.slice(i, i + chunkSize);
       await Promise.all(chunk.map(rel => 
-        createMutator({
-          collection: ArbitalTagContentRels,
-          document: rel,
-          validate: false,
-          context: resolverContext,
-          currentUser: defaultUser,
-        })
+        createArbitalTagContentRel({ data: rel }, resolverContext)
       ));
       console.log(`Imported chunk ${Math.floor(i/chunkSize) + 1}/${Math.ceil(arbitalTagContentRels.length/chunkSize)}`);
     }
@@ -2197,9 +2175,8 @@ async function importSingleLens({conversionContext, lens, parentTagId, resolverC
   // Create the lens, with the oldest revision
   let lensObj: DbMultiDocument|null;
   if (!options.skipImportingPages) {
-    lensObj = (await createMutator({
-      collection: MultiDocuments,
-      document: {
+    lensObj = (await createMultiDocument({
+      data: {
         parentDocumentId: parentTagId,
         collectionName: "Tags",
         fieldName: "description",
@@ -2222,11 +2199,8 @@ async function importSingleLens({conversionContext, lens, parentTagId, resolverC
           arbitalPageId: lens.pageId,
           arbitalLensId: lens.lensId,
         },
-      } as Partial<DbMultiDocument>,
-      context: resolverContext,
-      currentUser: lensCreator,
-      validate: false,
-    })).data;
+      } as CreateMultiDocumentDataInput
+    }, resolverContext));
     await Promise.all([
       backDateObj(MultiDocuments, lensObj._id, lensFirstRevision.createdAt),
       backDateAndAddLegacyDataToRevision(lensObj.contents_latest!, lensFirstRevision.createdAt, {

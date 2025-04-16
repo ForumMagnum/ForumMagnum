@@ -15,7 +15,6 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
     indexSet.addIndex('ReadStatuses', { userId: 1, tagId: 1 });
     return indexSet;
   },
-  logChanges: false,
 });
 
 

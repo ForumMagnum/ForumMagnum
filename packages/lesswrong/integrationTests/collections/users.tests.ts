@@ -6,7 +6,7 @@ import {
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
   withNoLogs,
-  waitUntilCallbacksFinished,
+  waitUntilPgQueriesFinished,
 } from '../utils';
 
 describe('updateUser – ', () => {
@@ -20,7 +20,7 @@ describe('updateUser – ', () => {
       fieldName:'displayName',
       collectionType:'User',
     })
-    await waitUntilCallbacksFinished();
+    await waitUntilPgQueriesFinished();
     // Should hit the rate limit the second time
     await userUpdateFieldFails({
       user:user,

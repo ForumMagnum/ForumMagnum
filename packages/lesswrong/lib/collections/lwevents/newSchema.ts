@@ -8,6 +8,7 @@ const schema = {
     database: DEFAULT_CREATED_AT_FIELD.database,
     graphql: {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
+      outputType: "Date",
       canRead: ["members"],
     },
   },
@@ -101,6 +102,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"LWEvents">>;
+} satisfies Record<string, CollectionFieldSpecification<"LWEvents">>;
 
 export default schema;
