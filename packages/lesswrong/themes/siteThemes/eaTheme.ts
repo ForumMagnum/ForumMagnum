@@ -242,12 +242,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
       },
       overrides: {
-        MuiTooltip: {
-          tooltip: {
-            fontSize: 13,
-            padding: "9.1px",
-          }
-        },
         MuiSnackbarContent: {
           root: {
             backgroundColor: palette.lwTertiary.main
