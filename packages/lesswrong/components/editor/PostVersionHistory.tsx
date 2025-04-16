@@ -245,9 +245,9 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
                   </span>
                 </LWTooltip>
                 <ChangeMetricsDisplay changeMetrics={rev.changeMetrics} />
-                {rev.editedAt && <span className={classes.editedAt}>
+                <span className={classes.editedAt}>
                   <FormatDate date={rev.editedAt} />
-                </span>}
+                </span>
               </div>
             ))}
           <div className={classes.loadMore}>

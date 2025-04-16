@@ -371,16 +371,8 @@ const clusterForumEventVotes = ({
       if (a.comment && !b.comment) return 1;
       if (!a.comment && b.comment) return -1;
 
-      if (a.user.displayName === null && b.user.displayName === null) {
-        return 0;
-      } else if (b.user.displayName === null) {
-        return 1;
-      } else if (a.user.displayName === null) {
-        return -1;
-      }
-
       // Alphabetically by name
-      return a.user.displayName?.toLowerCase().localeCompare(b.user.displayName?.toLowerCase());
+      return a.user.displayName.toLowerCase().localeCompare(b.user.displayName.toLowerCase());
     });
   }
 

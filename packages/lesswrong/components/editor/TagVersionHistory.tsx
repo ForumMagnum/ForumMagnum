@@ -143,7 +143,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
           >
             <span className={classes.versionNumber}>{rev.version}</span>
             <ChangeMetricsDisplay changeMetrics={rev.changeMetrics}/>
-            {rev.editedAt && <span className={classes.editedAt}><FormatDate date={rev.editedAt}/></span>}
+            <span className={classes.editedAt}><FormatDate date={rev.editedAt}/></span>
           </div>
         )}
         <div className={classes.loadMore}>

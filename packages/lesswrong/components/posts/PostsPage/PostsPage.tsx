@@ -76,7 +76,7 @@ export const getPostDescription = (post: {
   customHighlight?: { plaintextDescription: string | null } | null;
   socialPreviewData?: { text: string | null } | null;
   shortform: boolean;
-  user: { displayName: string | null } | null;
+  user: { displayName: string } | null;
 }) => {
   if (post.socialPreviewData?.text) {
     return post.socialPreviewData.text;
@@ -121,7 +121,7 @@ export const getPostDescription = (post: {
   }
   if (post.shortform)
     return `A collection of shorter posts ${
-      post.user?.displayName ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ""
+      post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ""
     }`;
   return null;
 };
