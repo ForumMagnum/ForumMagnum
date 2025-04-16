@@ -934,7 +934,7 @@ interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
   readonly body: string|null,
   readonly ctaText: string,
   readonly ctaUrl: string,
-  readonly expiresAt: Date|null,
+  readonly expiresAt: Date,
 }
 
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
@@ -943,7 +943,7 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly body: string|null,
   readonly ctaText: string,
   readonly ctaUrl: string,
-  readonly expiresAt: Date|null,
+  readonly expiresAt: Date,
 }
 
 interface FeedCommentThreadFragment { // fragment on non-collection type
@@ -1277,10 +1277,10 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly createdAt: Date,
   readonly legacyData: any,
   readonly contents_latest: string|null,
-  readonly name: string|null,
+  readonly name: string,
   readonly nameInAnotherLanguage: string|null,
   readonly organizerIds: Array<string>,
-  readonly lastActivity: Date|null,
+  readonly lastActivity: Date,
   readonly types: Array<string>,
   readonly categories: Array<string>,
   readonly isOnline: boolean,
@@ -1793,7 +1793,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
 
 interface PostsBase_group { // fragment on Localgroups
   readonly _id: string,
-  readonly name: string|null,
+  readonly name: string,
   readonly organizerIds: Array<string>,
 }
 
@@ -3869,7 +3869,7 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
   readonly intervalLength: number,
   readonly createdAt: Date,
-  readonly endedAt: Date|null,
+  readonly endedAt: Date,
 }
 
 interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
@@ -3882,13 +3882,13 @@ interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
   readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
   readonly intervalLength: number,
   readonly actionsPerInterval: number,
-  readonly endedAt: Date|null,
+  readonly endedAt: Date,
 }
 
 interface UserTagRelDetails { // fragment on UserTagRels
   readonly _id: string,
   readonly userId: string,
-  readonly tagId: string|null,
+  readonly tagId: string,
   readonly subforumShowUnreadInSidebar: boolean|null,
   readonly subforumEmailNotifications: boolean|null,
   readonly subforumHideIntroPost: boolean|null,
@@ -3899,7 +3899,7 @@ interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly schemaVersion: number,
   readonly createdAt: Date,
   readonly legacyData: any,
-  readonly tagId: string|null,
+  readonly tagId: string,
   readonly userId: string,
   readonly subforumShowUnreadInSidebar: boolean|null,
   readonly subforumEmailNotifications: boolean|null,
@@ -4189,6 +4189,7 @@ interface UsersDefaultFragment { // fragment on Users
     verified: boolean,
   }>,
   readonly isAdmin: boolean,
+  readonly profile: any,
   readonly services: any,
   readonly displayName: string|null,
   readonly previousDisplayName: string|null,
@@ -5433,8 +5434,8 @@ interface localGroupsBase { // fragment on Localgroups
   readonly createdAt: Date,
   readonly organizerIds: Array<string>,
   readonly organizers: Array<UsersMinimumInfo>,
-  readonly lastActivity: Date|null,
-  readonly name: string|null,
+  readonly lastActivity: Date,
+  readonly name: string,
   readonly nameInAnotherLanguage: string|null,
   readonly isOnline: boolean,
   readonly location: string|null,
@@ -5463,7 +5464,7 @@ interface localGroupsHomeFragment extends localGroupsBase { // fragment on Local
 
 interface localGroupsIsOnline { // fragment on Localgroups
   readonly _id: string,
-  readonly name: string|null,
+  readonly name: string,
   readonly isOnline: boolean,
 }
 

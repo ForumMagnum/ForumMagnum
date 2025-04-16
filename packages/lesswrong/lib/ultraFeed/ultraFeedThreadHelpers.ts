@@ -363,7 +363,7 @@ export function prepareCommentThreadForResolver(
 
     const newMetaInfo: FeedCommentMetaInfo = {
       sources: comment.metaInfo?.sources ?? null,
-      siblingCount: comment.metaInfo?.siblingCount ?? null,
+      directDescendentCount: comment.metaInfo?.directDescendentCount ?? 0,
       lastServed: comment.metaInfo?.lastServed ?? null,
       lastViewed: comment.metaInfo?.lastViewed ?? null,
       lastInteracted: comment.metaInfo?.lastInteracted ?? null,
@@ -434,8 +434,7 @@ export function buildDistinctLinearThreads(
   }
 
   const enhancedCandidates: PreDisplayFeedComment[] = candidates.map(candidate => {
-    const parentId = candidate.parentCommentId ?? 'root';
-    const siblingCount = children[parentId] ? children[parentId].length - 1 : 0;
+    const directDescendentCount = children[candidate.commentId] ? children[candidate.commentId].length : 0;
 
     return {
       commentId: candidate.commentId,
@@ -444,7 +443,7 @@ export function buildDistinctLinearThreads(
       topLevelCommentId: candidate.topLevelCommentId,
       metaInfo: {
         sources: candidate.sources as FeedItemSourceType[],
-        siblingCount,
+        directDescendentCount,
         lastServed: candidate.lastServed,
         lastViewed: candidate.lastViewed,
         lastInteracted: candidate.lastInteracted,

@@ -23,6 +23,7 @@ export const graphqlReviewVoteQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiReviewVoteOutput {

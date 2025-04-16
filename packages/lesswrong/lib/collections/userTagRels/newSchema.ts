@@ -11,10 +11,10 @@ const schema = {
     database: {
       type: "VARCHAR(27)",
       foreignKey: "Tags",
+      nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },

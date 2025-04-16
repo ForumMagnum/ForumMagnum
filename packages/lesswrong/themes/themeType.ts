@@ -573,6 +573,10 @@ declare global {
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
+    ultraFeed: {
+      dim: ColorString,
+      cardSeparator: string,
+    }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   

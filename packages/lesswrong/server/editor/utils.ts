@@ -46,7 +46,12 @@ export async function getPrecedingRev(rev: DbRevision, context: ResolverContext)
 }
 
 export function getNextVersion(previousRevision: DbRevision | null, updateType: DbRevision['updateType'] = 'minor', isDraft: boolean) {
-  const { major, minor, patch } = extractVersionsFromSemver(previousRevision?.version || "1.0.0")
+  const version = previousRevision?.version || "1.0.0";
+  return getNextVersionAfterSemver(version, updateType, isDraft);
+}
+
+export function getNextVersionAfterSemver(previousRevision: string, updateType: "major"|"minor"|"patch"|"initial"|null, isDraft: boolean) {
+  const { major, minor, patch } = extractVersionsFromSemver(previousRevision)
   switch (updateType) {
     case "patch":
       return `${major}.${minor}.${patch + 1}`

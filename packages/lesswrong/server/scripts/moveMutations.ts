@@ -615,6 +615,7 @@ export const ${typeDefsVariableName} = gql\`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type ${multiOutputTypeName} {

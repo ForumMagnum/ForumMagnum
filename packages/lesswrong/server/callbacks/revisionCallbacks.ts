@@ -3,15 +3,12 @@ import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalize
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 
-// TODO: Now that the make_editable callbacks use createMutator to create
-// revisions, we can now add these to the regular ${collection}.create.after
-// callbacks
-
 // Users upvote their own tag-revisions
 export async function upvoteOwnTagRevision({revision, context}: {revision: DbRevision, context: ResolverContext}) {
   const { Revisions, Users } = context;
   if (revision.collectionName !== 'Tags') return;
-  if (!revision.documentId) throw new Error("Revision is missing documentID");
+  // This might be the first revision for a tag, in which case it doesn't have a documentId until later (and in that case we call this function in `updateRevisionDocumentId`)
+  if (!revision.documentId) return;
   
   const userId = revision.userId;
   const user = await Users.findOne({_id:userId});

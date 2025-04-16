@@ -9,6 +9,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const buildVerticalFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
@@ -200,10 +201,12 @@ const useSpotlightFeedItemStyles = defineStyles(
 
 const SpotlightFeedItem = ({
   spotlight,
+  index,
   showSubtitle=true,
   className,
 }: {
   spotlight: SpotlightDisplay,
+  index: number,
   showSubtitle?: boolean,
   className?: string,
 }) => {
@@ -238,6 +241,7 @@ const SpotlightFeedItem = ({
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
 
   return (
+    <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} ultraFeedCardIndex={index}>
     <div
       ref={elementRef}
       id={spotlight._id}
@@ -305,7 +309,9 @@ const SpotlightFeedItem = ({
         </div>
       </div>
     </div>
-  )}
+    </AnalyticsContext>
+  )
+}
 
 const SpotlightFeedItemComponent = registerComponent('SpotlightFeedItem', SpotlightFeedItem)
 

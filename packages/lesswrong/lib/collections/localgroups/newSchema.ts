@@ -89,10 +89,10 @@ const schema = {
   name: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -155,9 +155,11 @@ const schema = {
     database: {
       type: "TIMESTAMPTZ",
       denormalized: true,
+      nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
+      inputType: "Date",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],

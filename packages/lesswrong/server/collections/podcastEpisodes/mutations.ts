@@ -2,17 +2,13 @@
 import schema from "@/lib/collections/podcastEpisodes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userIsPodcaster } from "@/lib/vulcan-users/permissions";
-import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { updateCountOfReferencesOnOtherCollectionsAfterCreate } from "@/server/callbacks/countOfReferenceCallbacks";
+import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
+import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null) {
-  return userIsAdmin(user) || userIsPodcaster(user);
-}
-
-function editCheck(user: DbUser | null) {
   return userIsAdmin(user) || userIsPodcaster(user);
 }
 
@@ -37,33 +33,10 @@ export async function createPodcastEpisode({ data }: CreatePodcastEpisodeInput, 
   return documentWithId;
 }
 
-export async function updatePodcastEpisode({ selector, data }: UpdatePodcastEpisodeInput, context: ResolverContext) {
-  const { currentUser, PodcastEpisodes } = context;
-
-  const {
-    documentSelector: podcastepisodeSelector,
-    updateCallbackProperties,
-  } = await getLegacyUpdateCallbackProps('PodcastEpisodes', { selector, context, data, schema });
-
-  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
-
-  let updatedDocument = await updateAndReturnDocument(data, PodcastEpisodes, podcastepisodeSelector, context);
-
-  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('PodcastEpisodes', updatedDocument, updateCallbackProperties.oldDocument);
-
-  return updatedDocument;
-}
-
 export const createPodcastEpisodeGqlMutation = makeGqlCreateMutation('PodcastEpisodes', createPodcastEpisode, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context)
 });
-
-export const updatePodcastEpisodeGqlMutation = makeGqlUpdateMutation('PodcastEpisodes', updatePodcastEpisode, {
-  editCheck,
-  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context)
-});
-
 
 
 
@@ -76,21 +49,11 @@ export const graphqlPodcastEpisodeTypeDefs = gql`
     data: CreatePodcastEpisodeDataInput!
   }
   
-  input UpdatePodcastEpisodeDataInput {
-    ${getUpdatableGraphQLFields(schema)}
-  }
-
-  input UpdatePodcastEpisodeInput {
-    selector: SelectorInput!
-    data: UpdatePodcastEpisodeDataInput!
-  }
-  
   type PodcastEpisodeOutput {
     data: PodcastEpisode
   }
 
   extend type Mutation {
     createPodcastEpisode(data: CreatePodcastEpisodeDataInput!): PodcastEpisodeOutput
-    updatePodcastEpisode(selector: SelectorInput!, data: UpdatePodcastEpisodeDataInput!): PodcastEpisodeOutput
   }
 `;

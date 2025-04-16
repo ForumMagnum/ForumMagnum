@@ -4,6 +4,7 @@ import { UltraFeedSettingsType, DEFAULT_SETTINGS, DEFAULT_SOURCE_WEIGHTS } from 
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { FeedItemSourceType } from './ultraFeedTypes';
+import { useTracking } from '@/lib/analyticsEvents';
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
@@ -154,9 +155,9 @@ type FormValuesState = Omit<UltraFeedSettingsType, 'collapsedCommentTruncation' 
 };
 
 const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, onClose }: UltraFeedSettingsComponentProps) => {
+  const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
-
     const { collapsedCommentTruncation, lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints } = settings; 
 
     return {
@@ -421,9 +422,14 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     if (Object.keys(finalSettingsToUpdate).length > 0) {
        updateSettings(finalSettingsToUpdate);
     }
+
+    captureEvent("ultraFeedSettingsUpdated", {
+      oldSettings: settings,
+      newSettings: finalSettingsToUpdate
+    });
     
     
-  }, [formValues, updateSettings, setErrors]);
+  }, [formValues, updateSettings, setErrors, captureEvent, settings]);
   
   const handleReset = useCallback(() => {
     resetSettingsToDefault();

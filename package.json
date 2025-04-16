@@ -153,7 +153,7 @@
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^18.2.0",
     "@types/react-geosuggest": "^2.7.10",
-    "@types/react-helmet": "^5.0.15",
+    "@types/react-helmet": "^6.1.11",
     "@types/react-instantsearch": "^6.10.4",
     "@types/react-instantsearch-dom": "^6.10.4",
     "@types/react-map-gl": "^5.2.2",
@@ -312,7 +312,7 @@
     "turndown-plugin-gfm": "^1.0.2",
     "twitter-api-v2": "^1.17.1",
     "type-fest": "^1.1.1",
-    "typescript": "^5.0.0",
+    "typescript": "^5.8.3",
     "underscore": "^1.12.1",
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
@@ -373,7 +373,7 @@
     "ts-loader": "^8.0.5",
     "ts-morph": "^25.0.1",
     "tsconfig-paths": "^4.2.0",
-    "vite": "^5.4.16"
+    "vite": "^5.4.18"
   },
   "resolutions": {
     "esbuild": "^0.24.0",

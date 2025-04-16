@@ -141,6 +141,7 @@ const schema = {
       outputType: "String!",
       inputType: "String",
       canRead: ["guests"],
+      resolver: ({ version }) => version ?? '1.0.0',
       validation: {
         optional: true,
       },
@@ -275,6 +276,7 @@ const schema = {
       outputType: "Float!",
       inputType: "Float",
       canRead: ["guests"],
+      resolver: ({ wordCount }) => wordCount ?? 0,
       validation: {
         optional: true,
       },
@@ -399,6 +401,7 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
+      resolver: ({ skipAttributions }) => skipAttributions ?? false,
       canUpdate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
@@ -488,7 +491,6 @@ const schema = {
   baseScore: DEFAULT_BASE_SCORE_FIELD,
   extendedScore: DEFAULT_EXTENDED_SCORE_FIELD,
   score: DEFAULT_SCORE_FIELD,
-  inactive: DEFAULT_INACTIVE_FIELD,
   afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
   afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,

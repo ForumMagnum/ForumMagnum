@@ -127,11 +127,8 @@ import { graphqlPetrovDayActionQueryTypeDefs, petrovDayActionGqlQueryHandlers, p
 import { graphqlPetrovDayLaunchQueryTypeDefs, petrovDayLaunchGqlFieldResolvers } from "@/server/collections/petrovDayLaunchs/queries";
 import { graphqlPodcastEpisodeQueryTypeDefs, podcastEpisodeGqlQueryHandlers, podcastEpisodeGqlFieldResolvers } from "@/server/collections/podcastEpisodes/queries";
 import { graphqlPodcastQueryTypeDefs, podcastGqlQueryHandlers, podcastGqlFieldResolvers } from "@/server/collections/podcasts/queries";
-import { graphqlPostEmbeddingQueryTypeDefs, postEmbeddingGqlQueryHandlers, postEmbeddingGqlFieldResolvers } from "@/server/collections/postEmbeddings/queries";
 import { graphqlPostRecommendationQueryTypeDefs, postRecommendationGqlFieldResolvers } from "@/server/collections/postRecommendations/queries";
 import { graphqlPostRelationQueryTypeDefs, postRelationGqlQueryHandlers, postRelationGqlFieldResolvers } from "@/server/collections/postRelations/queries";
-import { graphqlPostViewTimeQueryTypeDefs, postViewTimeGqlQueryHandlers, postViewTimeGqlFieldResolvers } from "@/server/collections/postViewTimes/queries";
-import { graphqlPostViewsQueryTypeDefs, postViewsGqlQueryHandlers, postViewsGqlFieldResolvers } from "@/server/collections/postViews/queries";
 import { graphqlPostQueryTypeDefs, postGqlQueryHandlers, postGqlFieldResolvers } from "@/server/collections/posts/queries";
 import { graphqlRSSFeedQueryTypeDefs, rssfeedGqlQueryHandlers, rssfeedGqlFieldResolvers } from "@/server/collections/rssfeeds/queries";
 import { graphqlReadStatusQueryTypeDefs, readStatusGqlFieldResolvers } from "@/server/collections/readStatus/queries";
@@ -166,8 +163,6 @@ import { graphqlUserTagRelQueryTypeDefs, userTagRelGqlQueryHandlers, userTagRelG
 import { graphqlUserQueryTypeDefs, userGqlQueryHandlers, userGqlFieldResolvers } from "@/server/collections/users/queries";
 import { graphqlVoteQueryTypeDefs, voteGqlQueryHandlers, voteGqlFieldResolvers } from "@/server/collections/votes/queries";
 import { createAdvisorRequestGqlMutation, updateAdvisorRequestGqlMutation, graphqlAdvisorRequestTypeDefs } from "@/server/collections/advisorRequests/mutations";
-import { createArbitalTagContentRelGqlMutation, updateArbitalTagContentRelGqlMutation, graphqlArbitalTagContentRelTypeDefs } from "@/server/collections/arbitalTagContentRels/mutations";
-import { createBanGqlMutation, updateBanGqlMutation, graphqlBanTypeDefs } from "@/server/collections/bans/mutations";
 import { createBookGqlMutation, updateBookGqlMutation, graphqlBookTypeDefs } from "@/server/collections/books/mutations";
 import { createChapterGqlMutation, updateChapterGqlMutation, graphqlChapterTypeDefs } from "@/server/collections/chapters/mutations";
 import { createCollectionGqlMutation, updateCollectionGqlMutation, graphqlCollectionTypeDefs } from "@/server/collections/collections/mutations";
@@ -175,35 +170,29 @@ import { createCommentModeratorActionGqlMutation, updateCommentModeratorActionGq
 import { createCommentGqlMutation, updateCommentGqlMutation, graphqlCommentTypeDefs } from "@/server/collections/comments/mutations";
 import { createConversationGqlMutation, updateConversationGqlMutation, graphqlConversationTypeDefs } from "@/server/collections/conversations/mutations";
 import { createCurationNoticeGqlMutation, updateCurationNoticeGqlMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
-import { createDialogueMatchPreferenceGqlMutation, updateDialogueMatchPreferenceGqlMutation, graphqlDialogueMatchPreferenceTypeDefs } from "@/server/collections/dialogueMatchPreferences/mutations";
 import { createDigestPostGqlMutation, updateDigestPostGqlMutation, graphqlDigestPostTypeDefs } from "@/server/collections/digestPosts/mutations";
 import { createDigestGqlMutation, updateDigestGqlMutation, graphqlDigestTypeDefs } from "@/server/collections/digests/mutations";
 import { createElectionCandidateGqlMutation, updateElectionCandidateGqlMutation, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
 import { createElectionVoteGqlMutation, updateElectionVoteGqlMutation, graphqlElectionVoteTypeDefs } from "@/server/collections/electionVotes/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
 import { createForumEventGqlMutation, updateForumEventGqlMutation, graphqlForumEventTypeDefs } from "@/server/collections/forumEvents/mutations";
-import { createGardenCodeGqlMutation, updateGardenCodeGqlMutation, graphqlGardenCodeTypeDefs } from "@/server/collections/gardencodes/mutations";
-import { createGoogleServiceAccountSessionGqlMutation, updateGoogleServiceAccountSessionGqlMutation, graphqlGoogleServiceAccountSessionTypeDefs } from "@/server/collections/googleServiceAccountSessions/mutations";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
-import { createLWEventGqlMutation, updateLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
+import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
 import { updateLlmConversationGqlMutation, graphqlLlmConversationTypeDefs } from "@/server/collections/llmConversations/mutations";
 import { createLocalgroupGqlMutation, updateLocalgroupGqlMutation, graphqlLocalgroupTypeDefs } from "@/server/collections/localgroups/mutations";
 import { createMessageGqlMutation, updateMessageGqlMutation, graphqlMessageTypeDefs } from "@/server/collections/messages/mutations";
 import { createModerationTemplateGqlMutation, updateModerationTemplateGqlMutation, graphqlModerationTemplateTypeDefs } from "@/server/collections/moderationTemplates/mutations";
 import { createModeratorActionGqlMutation, updateModeratorActionGqlMutation, graphqlModeratorActionTypeDefs } from "@/server/collections/moderatorActions/mutations";
 import { createMultiDocumentGqlMutation, updateMultiDocumentGqlMutation, graphqlMultiDocumentTypeDefs } from "@/server/collections/multiDocuments/mutations";
-import { createNotificationGqlMutation, updateNotificationGqlMutation, graphqlNotificationTypeDefs } from "@/server/collections/notifications/mutations";
+import { updateNotificationGqlMutation, graphqlNotificationTypeDefs } from "@/server/collections/notifications/mutations";
 import { createPetrovDayActionGqlMutation, graphqlPetrovDayActionTypeDefs } from "@/server/collections/petrovDayActions/mutations";
-import { createPodcastEpisodeGqlMutation, updatePodcastEpisodeGqlMutation, graphqlPodcastEpisodeTypeDefs } from "@/server/collections/podcastEpisodes/mutations";
-import { createPostEmbeddingGqlMutation, updatePostEmbeddingGqlMutation, graphqlPostEmbeddingTypeDefs } from "@/server/collections/postEmbeddings/mutations";
-import { createPostViewTimeGqlMutation, updatePostViewTimeGqlMutation, graphqlPostViewTimeTypeDefs } from "@/server/collections/postViewTimes/mutations";
-import { createPostViewsGqlMutation, updatePostViewsGqlMutation, graphqlPostViewsTypeDefs } from "@/server/collections/postViews/mutations";
+import { createPodcastEpisodeGqlMutation, graphqlPodcastEpisodeTypeDefs } from "@/server/collections/podcastEpisodes/mutations";
 import { createPostGqlMutation, updatePostGqlMutation, graphqlPostTypeDefs } from "@/server/collections/posts/mutations";
 import { createRSSFeedGqlMutation, updateRSSFeedGqlMutation, graphqlRSSFeedTypeDefs } from "@/server/collections/rssfeeds/mutations";
 import { createReportGqlMutation, updateReportGqlMutation, graphqlReportTypeDefs } from "@/server/collections/reports/mutations";
 import { updateRevisionGqlMutation, graphqlRevisionTypeDefs } from "@/server/collections/revisions/mutations";
 import { createSequenceGqlMutation, updateSequenceGqlMutation, graphqlSequenceTypeDefs } from "@/server/collections/sequences/mutations";
-import { createSplashArtCoordinateGqlMutation, updateSplashArtCoordinateGqlMutation, graphqlSplashArtCoordinateTypeDefs } from "@/server/collections/splashArtCoordinates/mutations";
+import { createSplashArtCoordinateGqlMutation, graphqlSplashArtCoordinateTypeDefs } from "@/server/collections/splashArtCoordinates/mutations";
 import { createSpotlightGqlMutation, updateSpotlightGqlMutation, graphqlSpotlightTypeDefs } from "@/server/collections/spotlights/mutations";
 import { createSubscriptionGqlMutation, graphqlSubscriptionTypeDefs } from "@/server/collections/subscriptions/mutations";
 import { createSurveyQuestionGqlMutation, updateSurveyQuestionGqlMutation, graphqlSurveyQuestionTypeDefs } from "@/server/collections/surveyQuestions/mutations";
@@ -211,9 +200,8 @@ import { createSurveyResponseGqlMutation, updateSurveyResponseGqlMutation, graph
 import { createSurveyScheduleGqlMutation, updateSurveyScheduleGqlMutation, graphqlSurveyScheduleTypeDefs } from "@/server/collections/surveySchedules/mutations";
 import { createSurveyGqlMutation, updateSurveyGqlMutation, graphqlSurveyTypeDefs } from "@/server/collections/surveys/mutations";
 import { createTagFlagGqlMutation, updateTagFlagGqlMutation, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
-import { createTagRelGqlMutation, updateTagRelGqlMutation, graphqlTagRelTypeDefs } from "@/server/collections/tagRels/mutations";
 import { createTagGqlMutation, updateTagGqlMutation, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
-import { graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
+import { createUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
 import { createUserEAGDetailGqlMutation, updateUserEAGDetailGqlMutation, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
 import { createUserJobAdGqlMutation, updateUserJobAdGqlMutation, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
 import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMutation, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
@@ -362,11 +350,8 @@ export const typeDefs = gql`
   ${graphqlPetrovDayLaunchQueryTypeDefs}
   ${graphqlPodcastEpisodeQueryTypeDefs}
   ${graphqlPodcastQueryTypeDefs}
-  ${graphqlPostEmbeddingQueryTypeDefs}
   ${graphqlPostRecommendationQueryTypeDefs}
   ${graphqlPostRelationQueryTypeDefs}
-  ${graphqlPostViewTimeQueryTypeDefs}
-  ${graphqlPostViewsQueryTypeDefs}
   ${graphqlPostQueryTypeDefs}
   ${graphqlRSSFeedQueryTypeDefs}
   ${graphqlReadStatusQueryTypeDefs}
@@ -402,8 +387,6 @@ export const typeDefs = gql`
   ${graphqlVoteQueryTypeDefs}
   ## CRUD Mutation and input typedefs
   ${graphqlAdvisorRequestTypeDefs}
-  ${graphqlArbitalTagContentRelTypeDefs}
-  ${graphqlBanTypeDefs}
   ${graphqlBookTypeDefs}
   ${graphqlChapterTypeDefs}
   ${graphqlCollectionTypeDefs}
@@ -411,15 +394,12 @@ export const typeDefs = gql`
   ${graphqlCommentTypeDefs}
   ${graphqlConversationTypeDefs}
   ${graphqlCurationNoticeTypeDefs}
-  ${graphqlDialogueMatchPreferenceTypeDefs}
   ${graphqlDigestPostTypeDefs}
   ${graphqlDigestTypeDefs}
   ${graphqlElectionCandidateTypeDefs}
   ${graphqlElectionVoteTypeDefs}
   ${graphqlElicitQuestionTypeDefs}
   ${graphqlForumEventTypeDefs}
-  ${graphqlGardenCodeTypeDefs}
-  ${graphqlGoogleServiceAccountSessionTypeDefs}
   ${graphqlJargonTermTypeDefs}
   ${graphqlLWEventTypeDefs}
   ${graphqlLlmConversationTypeDefs}
@@ -431,9 +411,6 @@ export const typeDefs = gql`
   ${graphqlNotificationTypeDefs}
   ${graphqlPetrovDayActionTypeDefs}
   ${graphqlPodcastEpisodeTypeDefs}
-  ${graphqlPostEmbeddingTypeDefs}
-  ${graphqlPostViewTimeTypeDefs}
-  ${graphqlPostViewsTypeDefs}
   ${graphqlPostTypeDefs}
   ${graphqlRSSFeedTypeDefs}
   ${graphqlReportTypeDefs}
@@ -447,7 +424,6 @@ export const typeDefs = gql`
   ${graphqlSurveyScheduleTypeDefs}
   ${graphqlSurveyTypeDefs}
   ${graphqlTagFlagTypeDefs}
-  ${graphqlTagRelTypeDefs}
   ${graphqlTagTypeDefs}
   ${graphqlUltraFeedEventTypeDefs}
   ${graphqlUserEAGDetailTypeDefs}
@@ -538,10 +514,7 @@ export const resolvers = {
     ...petrovDayActionGqlQueryHandlers,
     ...podcastEpisodeGqlQueryHandlers,
     ...podcastGqlQueryHandlers,
-    ...postEmbeddingGqlQueryHandlers,
     ...postRelationGqlQueryHandlers,
-    ...postViewTimeGqlQueryHandlers,
-    ...postViewsGqlQueryHandlers,
     ...postGqlQueryHandlers,
     ...rssfeedGqlQueryHandlers,
     ...reportGqlQueryHandlers,
@@ -621,10 +594,6 @@ export const resolvers = {
     // CRUD Mutation Handlers
     createAdvisorRequest: createAdvisorRequestGqlMutation,
     updateAdvisorRequest: updateAdvisorRequestGqlMutation,
-    createArbitalTagContentRel: createArbitalTagContentRelGqlMutation,
-    updateArbitalTagContentRel: updateArbitalTagContentRelGqlMutation,
-    createBan: createBanGqlMutation,
-    updateBan: updateBanGqlMutation,
     createBook: createBookGqlMutation,
     updateBook: updateBookGqlMutation,
     createChapter: createChapterGqlMutation,
@@ -639,8 +608,6 @@ export const resolvers = {
     updateConversation: updateConversationGqlMutation,
     createCurationNotice: createCurationNoticeGqlMutation,
     updateCurationNotice: updateCurationNoticeGqlMutation,
-    createDialogueMatchPreference: createDialogueMatchPreferenceGqlMutation,
-    updateDialogueMatchPreference: updateDialogueMatchPreferenceGqlMutation,
     createDigestPost: createDigestPostGqlMutation,
     updateDigestPost: updateDigestPostGqlMutation,
     createDigest: createDigestGqlMutation,
@@ -653,14 +620,9 @@ export const resolvers = {
     updateElicitQuestion: updateElicitQuestionGqlMutation,
     createForumEvent: createForumEventGqlMutation,
     updateForumEvent: updateForumEventGqlMutation,
-    createGardenCode: createGardenCodeGqlMutation,
-    updateGardenCode: updateGardenCodeGqlMutation,
-    createGoogleServiceAccountSession: createGoogleServiceAccountSessionGqlMutation,
-    updateGoogleServiceAccountSession: updateGoogleServiceAccountSessionGqlMutation,
     createJargonTerm: createJargonTermGqlMutation,
     updateJargonTerm: updateJargonTermGqlMutation,
     createLWEvent: createLWEventGqlMutation,
-    updateLWEvent: updateLWEventGqlMutation,
     updateLlmConversation: updateLlmConversationGqlMutation,
     createLocalgroup: createLocalgroupGqlMutation,
     updateLocalgroup: updateLocalgroupGqlMutation,
@@ -672,17 +634,9 @@ export const resolvers = {
     updateModeratorAction: updateModeratorActionGqlMutation,
     createMultiDocument: createMultiDocumentGqlMutation,
     updateMultiDocument: updateMultiDocumentGqlMutation,
-    createNotification: createNotificationGqlMutation,
     updateNotification: updateNotificationGqlMutation,
     createPetrovDayAction: createPetrovDayActionGqlMutation,
     createPodcastEpisode: createPodcastEpisodeGqlMutation,
-    updatePodcastEpisode: updatePodcastEpisodeGqlMutation,
-    createPostEmbedding: createPostEmbeddingGqlMutation,
-    updatePostEmbedding: updatePostEmbeddingGqlMutation,
-    createPostViewTime: createPostViewTimeGqlMutation,
-    updatePostViewTime: updatePostViewTimeGqlMutation,
-    createPostViews: createPostViewsGqlMutation,
-    updatePostViews: updatePostViewsGqlMutation,
     createPost: createPostGqlMutation,
     updatePost: updatePostGqlMutation,
     createRSSFeed: createRSSFeedGqlMutation,
@@ -693,7 +647,6 @@ export const resolvers = {
     createSequence: createSequenceGqlMutation,
     updateSequence: updateSequenceGqlMutation,
     createSplashArtCoordinate: createSplashArtCoordinateGqlMutation,
-    updateSplashArtCoordinate: updateSplashArtCoordinateGqlMutation,
     createSpotlight: createSpotlightGqlMutation,
     updateSpotlight: updateSpotlightGqlMutation,
     createSubscription: createSubscriptionGqlMutation,
@@ -707,10 +660,9 @@ export const resolvers = {
     updateSurvey: updateSurveyGqlMutation,
     createTagFlag: createTagFlagGqlMutation,
     updateTagFlag: updateTagFlagGqlMutation,
-    createTagRel: createTagRelGqlMutation,
-    updateTagRel: updateTagRelGqlMutation,
     createTag: createTagGqlMutation,
     updateTag: updateTagGqlMutation,
+    createUltraFeedEvent: createUltraFeedEventGqlMutation,
     createUserEAGDetail: createUserEAGDetailGqlMutation,
     updateUserEAGDetail: updateUserEAGDetailGqlMutation,
     createUserJobAd: createUserJobAdGqlMutation,
@@ -777,11 +729,8 @@ export const resolvers = {
   ...petrovDayLaunchGqlFieldResolvers,
   ...podcastEpisodeGqlFieldResolvers,
   ...podcastGqlFieldResolvers,
-  ...postEmbeddingGqlFieldResolvers,
   ...postRecommendationGqlFieldResolvers,
   ...postRelationGqlFieldResolvers,
-  ...postViewTimeGqlFieldResolvers,
-  ...postViewsGqlFieldResolvers,
   ...postGqlFieldResolvers,
   ...rssfeedGqlFieldResolvers,
   ...readStatusGqlFieldResolvers,

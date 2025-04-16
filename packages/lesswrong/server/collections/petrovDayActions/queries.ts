@@ -23,6 +23,7 @@ export const graphqlPetrovDayActionQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiPetrovDayActionOutput {

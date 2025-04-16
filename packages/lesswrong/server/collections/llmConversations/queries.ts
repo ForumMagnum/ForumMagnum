@@ -23,6 +23,7 @@ export const graphqlLlmConversationQueryTypeDefs = gql`
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
+    enableCache: Boolean
   }
   
   type MultiLlmConversationOutput {

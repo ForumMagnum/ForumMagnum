@@ -777,6 +777,7 @@ interface MultiAdvisorRequestInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiAdvisorRequestOutput {
@@ -805,6 +806,7 @@ interface MultiArbitalTagContentRelInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiArbitalTagContentRelOutput {
@@ -826,6 +828,7 @@ interface MultiBanInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiBanOutput {
@@ -847,6 +850,7 @@ interface MultiBookInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiBookOutput {
@@ -868,6 +872,7 @@ interface MultiChapterInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiChapterOutput {
@@ -889,6 +894,7 @@ interface MultiCkEditorUserSessionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiCkEditorUserSessionOutput {
@@ -910,6 +916,7 @@ interface MultiClientIdInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiClientIdOutput {
@@ -931,6 +938,7 @@ interface MultiCollectionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiCollectionOutput {
@@ -952,6 +960,7 @@ interface MultiCommentModeratorActionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiCommentModeratorActionOutput {
@@ -973,6 +982,7 @@ interface MultiCommentInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiCommentOutput {
@@ -994,6 +1004,7 @@ interface MultiConversationInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiConversationOutput {
@@ -1015,6 +1026,7 @@ interface MultiCurationNoticeInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiCurationNoticeOutput {
@@ -1050,6 +1062,7 @@ interface MultiDialogueCheckInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiDialogueCheckOutput {
@@ -1071,6 +1084,7 @@ interface MultiDialogueMatchPreferenceInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiDialogueMatchPreferenceOutput {
@@ -1092,6 +1106,7 @@ interface MultiDigestPostInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiDigestPostOutput {
@@ -1113,6 +1128,7 @@ interface MultiDigestInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiDigestOutput {
@@ -1134,6 +1150,7 @@ interface MultiElectionCandidateInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiElectionCandidateOutput {
@@ -1155,6 +1172,7 @@ interface MultiElectionVoteInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiElectionVoteOutput {
@@ -1176,6 +1194,7 @@ interface MultiElicitQuestionPredictionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiElicitQuestionPredictionOutput {
@@ -1197,6 +1216,7 @@ interface MultiElicitQuestionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiElicitQuestionOutput {
@@ -1225,6 +1245,7 @@ interface MultiFeaturedResourceInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiFeaturedResourceOutput {
@@ -1246,6 +1267,7 @@ interface MultiForumEventInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiForumEventOutput {
@@ -1267,6 +1289,7 @@ interface MultiGardenCodeInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiGardenCodeOutput {
@@ -1288,6 +1311,7 @@ interface MultiGoogleServiceAccountSessionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiGoogleServiceAccountSessionOutput {
@@ -1316,6 +1340,7 @@ interface MultiJargonTermInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiJargonTermOutput {
@@ -1337,6 +1362,7 @@ interface MultiLWEventInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiLWEventOutput {
@@ -1365,6 +1391,7 @@ interface MultiLlmConversationInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiLlmConversationOutput {
@@ -1386,6 +1413,7 @@ interface MultiLocalgroupInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiLocalgroupOutput {
@@ -1407,6 +1435,7 @@ interface MultiMessageInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiMessageOutput {
@@ -1428,6 +1457,7 @@ interface MultiModerationTemplateInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiModerationTemplateOutput {
@@ -1449,6 +1479,7 @@ interface MultiModeratorActionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiModeratorActionOutput {
@@ -1470,6 +1501,7 @@ interface MultiMultiDocumentInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiMultiDocumentOutput {
@@ -1491,6 +1523,7 @@ interface MultiNotificationInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiNotificationOutput {
@@ -1519,6 +1552,7 @@ interface MultiPetrovDayActionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiPetrovDayActionOutput {
@@ -1540,6 +1574,7 @@ interface MultiPodcastEpisodeInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiPodcastEpisodeOutput {
@@ -1561,31 +1596,11 @@ interface MultiPodcastInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiPodcastOutput {
   results?: Array<UpdatePodcastDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePostEmbeddingInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  allowNull?: boolean | null;
-}
-
-interface SinglePostEmbeddingOutput {
-  result?: UpdatePostEmbeddingDataInput | null;
-}
-
-interface MultiPostEmbeddingInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-}
-
-interface MultiPostEmbeddingOutput {
-  results?: Array<UpdatePostEmbeddingDataInput | null> | null;
   totalCount?: number | null;
 }
 
@@ -1603,59 +1618,11 @@ interface MultiPostRelationInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiPostRelationOutput {
   results?: Array<UpdatePostRelationDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface SinglePostViewTimeInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  allowNull?: boolean | null;
-}
-
-interface SinglePostViewTimeOutput {
-  result?: UpdatePostViewTimeDataInput | null;
-}
-
-interface MultiPostViewTimeInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-}
-
-interface MultiPostViewTimeOutput {
-  results?: Array<UpdatePostViewTimeDataInput | null> | null;
-  totalCount?: number | null;
-}
-
-interface PostViews {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData?: any;
-}
-
-interface SinglePostViewsInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-  allowNull?: boolean | null;
-}
-
-interface SinglePostViewsOutput {
-  result?: PostViews | null;
-}
-
-interface MultiPostViewsInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-}
-
-interface MultiPostViewsOutput {
-  results?: Array<PostViews | null> | null;
   totalCount?: number | null;
 }
 
@@ -1673,6 +1640,7 @@ interface MultiPostInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiPostOutput {
@@ -1694,6 +1662,7 @@ interface MultiRSSFeedInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiRSSFeedOutput {
@@ -1715,6 +1684,7 @@ interface MultiReportInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiReportOutput {
@@ -1736,6 +1706,7 @@ interface MultiReviewVoteInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiReviewVoteOutput {
@@ -1757,6 +1728,7 @@ interface MultiReviewWinnerArtInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiReviewWinnerArtOutput {
@@ -1778,6 +1750,7 @@ interface MultiReviewWinnerInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiReviewWinnerOutput {
@@ -1799,6 +1772,7 @@ interface MultiRevisionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiRevisionOutput {
@@ -1820,6 +1794,7 @@ interface MultiSequenceInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiSequenceOutput {
@@ -1841,6 +1816,7 @@ interface MultiSplashArtCoordinateInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiSplashArtCoordinateOutput {
@@ -1862,6 +1838,7 @@ interface MultiSpotlightInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiSpotlightOutput {
@@ -1883,6 +1860,7 @@ interface MultiSubscriptionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiSubscriptionOutput {
@@ -1904,6 +1882,7 @@ interface MultiSurveyQuestionInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiSurveyQuestionOutput {
@@ -1925,6 +1904,7 @@ interface MultiSurveyResponseInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiSurveyResponseOutput {
@@ -1946,6 +1926,7 @@ interface MultiSurveyScheduleInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiSurveyScheduleOutput {
@@ -1967,6 +1948,7 @@ interface MultiSurveyInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiSurveyOutput {
@@ -1988,6 +1970,7 @@ interface MultiTagFlagInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiTagFlagOutput {
@@ -2009,6 +1992,7 @@ interface MultiTagRelInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiTagRelOutput {
@@ -2030,6 +2014,7 @@ interface MultiTagInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiTagOutput {
@@ -2051,6 +2036,7 @@ interface MultiTypingIndicatorInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiTypingIndicatorOutput {
@@ -2072,6 +2058,7 @@ interface MultiUserEAGDetailInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiUserEAGDetailOutput {
@@ -2093,6 +2080,7 @@ interface MultiUserJobAdInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiUserJobAdOutput {
@@ -2114,6 +2102,7 @@ interface MultiUserMostValuablePostInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiUserMostValuablePostOutput {
@@ -2135,6 +2124,7 @@ interface MultiUserRateLimitInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiUserRateLimitOutput {
@@ -2156,6 +2146,7 @@ interface MultiUserTagRelInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiUserTagRelOutput {
@@ -2177,6 +2168,7 @@ interface MultiUserInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiUserOutput {
@@ -2198,6 +2190,7 @@ interface MultiVoteInput {
   terms?: any;
   resolverArgs?: any;
   enableTotal?: boolean | null;
+  enableCache?: boolean | null;
 }
 
 interface MultiVoteOutput {
@@ -2230,67 +2223,6 @@ interface UpdateAdvisorRequestInput {
 
 interface AdvisorRequestOutput {
   data?: UpdateAdvisorRequestDataInput | null;
-}
-
-interface CreateArbitalTagContentRelDataInput {
-  legacyData?: any;
-  parentDocumentId: string;
-  childDocumentId: string;
-  parentCollectionName: string;
-  childCollectionName: string;
-  type: string;
-  level: number;
-  isStrong: boolean;
-}
-
-interface CreateArbitalTagContentRelInput {
-  data: CreateArbitalTagContentRelDataInput;
-}
-
-interface UpdateArbitalTagContentRelDataInput {
-  legacyData?: any;
-}
-
-interface UpdateArbitalTagContentRelInput {
-  selector: SelectorInput;
-  data: UpdateArbitalTagContentRelDataInput;
-}
-
-interface ArbitalTagContentRelOutput {
-  data?: UpdateArbitalTagContentRelDataInput | null;
-}
-
-interface CreateBanDataInput {
-  legacyData?: any;
-  expirationDate: Date;
-  userId?: string | null;
-  ip?: string | null;
-  reason?: string | null;
-  comment?: string | null;
-  properties?: any;
-}
-
-interface CreateBanInput {
-  data: CreateBanDataInput;
-}
-
-interface UpdateBanDataInput {
-  legacyData?: any;
-  expirationDate?: Date | null;
-  userId?: string | null;
-  ip?: string | null;
-  reason?: string | null;
-  comment?: string | null;
-  properties?: any;
-}
-
-interface UpdateBanInput {
-  selector: SelectorInput;
-  data: UpdateBanDataInput;
-}
-
-interface BanOutput {
-  data?: UpdateBanDataInput | null;
 }
 
 interface CreateBookDataInput {
@@ -2604,45 +2536,6 @@ interface CurationNoticeOutput {
   data?: UpdateCurationNoticeDataInput | null;
 }
 
-interface CreateDialogueMatchPreferenceDataInput {
-  legacyData?: any;
-  dialogueCheckId: string;
-  topicPreferences: Array<any>;
-  topicNotes: string;
-  syncPreference: string;
-  asyncPreference: string;
-  formatNotes: string;
-  calendlyLink?: string | null;
-  generatedDialogueId?: string | null;
-  deleted?: boolean | null;
-}
-
-interface CreateDialogueMatchPreferenceInput {
-  data: CreateDialogueMatchPreferenceDataInput;
-}
-
-interface UpdateDialogueMatchPreferenceDataInput {
-  legacyData?: any;
-  dialogueCheckId?: string | null;
-  topicPreferences?: Array<any> | null;
-  topicNotes?: string | null;
-  syncPreference?: string | null;
-  asyncPreference?: string | null;
-  formatNotes?: string | null;
-  calendlyLink?: string | null;
-  generatedDialogueId?: string | null;
-  deleted?: boolean | null;
-}
-
-interface UpdateDialogueMatchPreferenceInput {
-  selector: SelectorInput;
-  data: UpdateDialogueMatchPreferenceDataInput;
-}
-
-interface DialogueMatchPreferenceOutput {
-  data?: UpdateDialogueMatchPreferenceDataInput | null;
-}
-
 interface CreateDigestPostDataInput {
   legacyData?: any;
   digestId: string;
@@ -2882,75 +2775,6 @@ interface ForumEventOutput {
   data?: UpdateForumEventDataInput | null;
 }
 
-interface CreateGardenCodeDataInput {
-  legacyData?: any;
-  contents?: any;
-  slug?: string | null;
-  title: string;
-  startTime?: Date | null;
-  fbLink?: string | null;
-  type?: string | null;
-  afOnly?: boolean | null;
-}
-
-interface CreateGardenCodeInput {
-  data: CreateGardenCodeDataInput;
-}
-
-interface UpdateGardenCodeDataInput {
-  legacyData?: any;
-  contents?: any;
-  slug?: string | null;
-  title?: string | null;
-  startTime?: Date | null;
-  endTime?: Date | null;
-  fbLink?: string | null;
-  type?: string | null;
-  hidden?: boolean | null;
-  deleted?: boolean | null;
-  afOnly?: boolean | null;
-}
-
-interface UpdateGardenCodeInput {
-  selector: SelectorInput;
-  data: UpdateGardenCodeDataInput;
-}
-
-interface GardenCodeOutput {
-  data?: UpdateGardenCodeDataInput | null;
-}
-
-interface CreateGoogleServiceAccountSessionDataInput {
-  legacyData?: any;
-  email: string;
-  refreshToken: string;
-  estimatedExpiry: Date;
-  active: boolean;
-  revoked: boolean;
-}
-
-interface CreateGoogleServiceAccountSessionInput {
-  data: CreateGoogleServiceAccountSessionDataInput;
-}
-
-interface UpdateGoogleServiceAccountSessionDataInput {
-  legacyData?: any;
-  email?: string | null;
-  refreshToken?: string | null;
-  estimatedExpiry?: Date | null;
-  active?: boolean | null;
-  revoked?: boolean | null;
-}
-
-interface UpdateGoogleServiceAccountSessionInput {
-  selector: SelectorInput;
-  data: UpdateGoogleServiceAccountSessionDataInput;
-}
-
-interface GoogleServiceAccountSessionOutput {
-  data?: UpdateGoogleServiceAccountSessionDataInput | null;
-}
-
 interface CreateJargonTermDataInput {
   legacyData?: any;
   contents?: any;
@@ -2995,16 +2819,6 @@ interface CreateLWEventDataInput {
 
 interface CreateLWEventInput {
   data: CreateLWEventDataInput;
-}
-
-interface UpdateLWEventDataInput {
-  legacyData?: any;
-  important?: boolean | null;
-}
-
-interface UpdateLWEventInput {
-  selector: SelectorInput;
-  data: UpdateLWEventDataInput;
 }
 
 interface LWEventOutput {
@@ -3208,15 +3022,6 @@ interface MultiDocumentOutput {
   data?: UpdateMultiDocumentDataInput | null;
 }
 
-interface CreateNotificationDataInput {
-  legacyData?: any;
-  viewed?: boolean | null;
-}
-
-interface CreateNotificationInput {
-  data: CreateNotificationDataInput;
-}
-
 interface UpdateNotificationDataInput {
   legacyData?: any;
   viewed?: boolean | null;
@@ -3258,90 +3063,8 @@ interface CreatePodcastEpisodeInput {
   data: CreatePodcastEpisodeDataInput;
 }
 
-interface UpdatePodcastEpisodeDataInput {
-  legacyData?: any;
-}
-
-interface UpdatePodcastEpisodeInput {
-  selector: SelectorInput;
-  data: UpdatePodcastEpisodeDataInput;
-}
-
 interface PodcastEpisodeOutput {
   data?: UpdatePodcastEpisodeDataInput | null;
-}
-
-interface CreatePostEmbeddingDataInput {
-  legacyData?: any;
-  postId: string;
-  postHash: string;
-  lastGeneratedAt: Date;
-  model: string;
-  embeddings?: Array<number> | null;
-}
-
-interface CreatePostEmbeddingInput {
-  data: CreatePostEmbeddingDataInput;
-}
-
-interface UpdatePostEmbeddingDataInput {
-  legacyData?: any;
-  postId?: string | null;
-  postHash?: string | null;
-  lastGeneratedAt?: Date | null;
-  model?: string | null;
-  embeddings?: Array<number> | null;
-}
-
-interface UpdatePostEmbeddingInput {
-  selector: SelectorInput;
-  data: UpdatePostEmbeddingDataInput;
-}
-
-interface PostEmbeddingOutput {
-  data?: UpdatePostEmbeddingDataInput | null;
-}
-
-interface CreatePostViewTimeDataInput {
-  legacyData?: any;
-}
-
-interface CreatePostViewTimeInput {
-  data: CreatePostViewTimeDataInput;
-}
-
-interface UpdatePostViewTimeDataInput {
-  legacyData?: any;
-}
-
-interface UpdatePostViewTimeInput {
-  selector: SelectorInput;
-  data: UpdatePostViewTimeDataInput;
-}
-
-interface PostViewTimeOutput {
-  data?: UpdatePostViewTimeDataInput | null;
-}
-
-interface CreatePostViewsDataInput {
-  legacyData?: any;
-}
-
-interface CreatePostViewsInput {
-  data: CreatePostViewsDataInput;
-}
-
-interface UpdatePostViewsDataInput {
-  legacyData?: any;
-}
-
-interface UpdatePostViewsInput {
-  selector: SelectorInput;
-  data: UpdatePostViewsDataInput;
-}
-
-interface PostViewsOutput {
-  data?: PostViews | null;
 }
 
 interface CreatePostDataInput {
@@ -3741,31 +3464,6 @@ interface CreateSplashArtCoordinateInput {
   data: CreateSplashArtCoordinateDataInput;
 }
 
-interface UpdateSplashArtCoordinateDataInput {
-  legacyData?: any;
-  reviewWinnerArtId?: string | null;
-  leftXPct?: number | null;
-  leftYPct?: number | null;
-  leftHeightPct?: number | null;
-  leftWidthPct?: number | null;
-  leftFlipped?: boolean | null;
-  middleXPct?: number | null;
-  middleYPct?: number | null;
-  middleHeightPct?: number | null;
-  middleWidthPct?: number | null;
-  middleFlipped?: boolean | null;
-  rightXPct?: number | null;
-  rightYPct?: number | null;
-  rightHeightPct?: number | null;
-  rightWidthPct?: number | null;
-  rightFlipped?: boolean | null;
-}
-
-interface UpdateSplashArtCoordinateInput {
-  selector: SelectorInput;
-  data: UpdateSplashArtCoordinateDataInput;
-}
-
 interface SplashArtCoordinateOutput {
   data?: UpdateSplashArtCoordinateDataInput | null;
 }
@@ -4003,31 +3701,6 @@ interface TagFlagOutput {
   data?: UpdateTagFlagDataInput | null;
 }
 
-interface CreateTagRelDataInput {
-  legacyData?: any;
-  tagId: string;
-  postId: string;
-  userId: string;
-}
-
-interface CreateTagRelInput {
-  data: CreateTagRelDataInput;
-}
-
-interface UpdateTagRelDataInput {
-  legacyData?: any;
-  deleted?: boolean | null;
-}
-
-interface UpdateTagRelInput {
-  selector: SelectorInput;
-  data: UpdateTagRelDataInput;
-}
-
-interface TagRelOutput {
-  data?: UpdateTagRelDataInput | null;
-}
-
 interface CreateTagDataInput {
   legacyData?: any;
   description?: any;
@@ -4226,7 +3899,7 @@ interface CreateUserRateLimitDataInput {
   intervalUnit: string;
   intervalLength: number;
   actionsPerInterval: number;
-  endedAt?: Date | null;
+  endedAt: Date;
 }
 
 interface CreateUserRateLimitInput {
@@ -4914,23 +4587,10 @@ interface GraphQLTypeMap {
   SinglePodcastOutput: SinglePodcastOutput;
   MultiPodcastInput: MultiPodcastInput;
   MultiPodcastOutput: MultiPodcastOutput;
-  SinglePostEmbeddingInput: SinglePostEmbeddingInput;
-  SinglePostEmbeddingOutput: SinglePostEmbeddingOutput;
-  MultiPostEmbeddingInput: MultiPostEmbeddingInput;
-  MultiPostEmbeddingOutput: MultiPostEmbeddingOutput;
   SinglePostRelationInput: SinglePostRelationInput;
   SinglePostRelationOutput: SinglePostRelationOutput;
   MultiPostRelationInput: MultiPostRelationInput;
   MultiPostRelationOutput: MultiPostRelationOutput;
-  SinglePostViewTimeInput: SinglePostViewTimeInput;
-  SinglePostViewTimeOutput: SinglePostViewTimeOutput;
-  MultiPostViewTimeInput: MultiPostViewTimeInput;
-  MultiPostViewTimeOutput: MultiPostViewTimeOutput;
-  PostViews: PostViews;
-  SinglePostViewsInput: SinglePostViewsInput;
-  SinglePostViewsOutput: SinglePostViewsOutput;
-  MultiPostViewsInput: MultiPostViewsInput;
-  MultiPostViewsOutput: MultiPostViewsOutput;
   SinglePostInput: SinglePostInput;
   SinglePostOutput: SinglePostOutput;
   MultiPostInput: MultiPostInput;
@@ -5040,16 +4700,6 @@ interface GraphQLTypeMap {
   UpdateAdvisorRequestDataInput: UpdateAdvisorRequestDataInput;
   UpdateAdvisorRequestInput: UpdateAdvisorRequestInput;
   AdvisorRequestOutput: AdvisorRequestOutput;
-  CreateArbitalTagContentRelDataInput: CreateArbitalTagContentRelDataInput;
-  CreateArbitalTagContentRelInput: CreateArbitalTagContentRelInput;
-  UpdateArbitalTagContentRelDataInput: UpdateArbitalTagContentRelDataInput;
-  UpdateArbitalTagContentRelInput: UpdateArbitalTagContentRelInput;
-  ArbitalTagContentRelOutput: ArbitalTagContentRelOutput;
-  CreateBanDataInput: CreateBanDataInput;
-  CreateBanInput: CreateBanInput;
-  UpdateBanDataInput: UpdateBanDataInput;
-  UpdateBanInput: UpdateBanInput;
-  BanOutput: BanOutput;
   CreateBookDataInput: CreateBookDataInput;
   CreateBookInput: CreateBookInput;
   UpdateBookDataInput: UpdateBookDataInput;
@@ -5085,11 +4735,6 @@ interface GraphQLTypeMap {
   UpdateCurationNoticeDataInput: UpdateCurationNoticeDataInput;
   UpdateCurationNoticeInput: UpdateCurationNoticeInput;
   CurationNoticeOutput: CurationNoticeOutput;
-  CreateDialogueMatchPreferenceDataInput: CreateDialogueMatchPreferenceDataInput;
-  CreateDialogueMatchPreferenceInput: CreateDialogueMatchPreferenceInput;
-  UpdateDialogueMatchPreferenceDataInput: UpdateDialogueMatchPreferenceDataInput;
-  UpdateDialogueMatchPreferenceInput: UpdateDialogueMatchPreferenceInput;
-  DialogueMatchPreferenceOutput: DialogueMatchPreferenceOutput;
   CreateDigestPostDataInput: CreateDigestPostDataInput;
   CreateDigestPostInput: CreateDigestPostInput;
   UpdateDigestPostDataInput: UpdateDigestPostDataInput;
@@ -5120,16 +4765,6 @@ interface GraphQLTypeMap {
   UpdateForumEventDataInput: UpdateForumEventDataInput;
   UpdateForumEventInput: UpdateForumEventInput;
   ForumEventOutput: ForumEventOutput;
-  CreateGardenCodeDataInput: CreateGardenCodeDataInput;
-  CreateGardenCodeInput: CreateGardenCodeInput;
-  UpdateGardenCodeDataInput: UpdateGardenCodeDataInput;
-  UpdateGardenCodeInput: UpdateGardenCodeInput;
-  GardenCodeOutput: GardenCodeOutput;
-  CreateGoogleServiceAccountSessionDataInput: CreateGoogleServiceAccountSessionDataInput;
-  CreateGoogleServiceAccountSessionInput: CreateGoogleServiceAccountSessionInput;
-  UpdateGoogleServiceAccountSessionDataInput: UpdateGoogleServiceAccountSessionDataInput;
-  UpdateGoogleServiceAccountSessionInput: UpdateGoogleServiceAccountSessionInput;
-  GoogleServiceAccountSessionOutput: GoogleServiceAccountSessionOutput;
   CreateJargonTermDataInput: CreateJargonTermDataInput;
   CreateJargonTermInput: CreateJargonTermInput;
   UpdateJargonTermDataInput: UpdateJargonTermDataInput;
@@ -5137,8 +4772,6 @@ interface GraphQLTypeMap {
   JargonTermOutput: JargonTermOutput;
   CreateLWEventDataInput: CreateLWEventDataInput;
   CreateLWEventInput: CreateLWEventInput;
-  UpdateLWEventDataInput: UpdateLWEventDataInput;
-  UpdateLWEventInput: UpdateLWEventInput;
   LWEventOutput: LWEventOutput;
   UpdateLlmConversationDataInput: UpdateLlmConversationDataInput;
   UpdateLlmConversationInput: UpdateLlmConversationInput;
@@ -5168,8 +4801,6 @@ interface GraphQLTypeMap {
   UpdateMultiDocumentDataInput: UpdateMultiDocumentDataInput;
   UpdateMultiDocumentInput: UpdateMultiDocumentInput;
   MultiDocumentOutput: MultiDocumentOutput;
-  CreateNotificationDataInput: CreateNotificationDataInput;
-  CreateNotificationInput: CreateNotificationInput;
   UpdateNotificationDataInput: UpdateNotificationDataInput;
   UpdateNotificationInput: UpdateNotificationInput;
   NotificationOutput: NotificationOutput;
@@ -5178,24 +4809,7 @@ interface GraphQLTypeMap {
   PetrovDayActionOutput: PetrovDayActionOutput;
   CreatePodcastEpisodeDataInput: CreatePodcastEpisodeDataInput;
   CreatePodcastEpisodeInput: CreatePodcastEpisodeInput;
-  UpdatePodcastEpisodeDataInput: UpdatePodcastEpisodeDataInput;
-  UpdatePodcastEpisodeInput: UpdatePodcastEpisodeInput;
   PodcastEpisodeOutput: PodcastEpisodeOutput;
-  CreatePostEmbeddingDataInput: CreatePostEmbeddingDataInput;
-  CreatePostEmbeddingInput: CreatePostEmbeddingInput;
-  UpdatePostEmbeddingDataInput: UpdatePostEmbeddingDataInput;
-  UpdatePostEmbeddingInput: UpdatePostEmbeddingInput;
-  PostEmbeddingOutput: PostEmbeddingOutput;
-  CreatePostViewTimeDataInput: CreatePostViewTimeDataInput;
-  CreatePostViewTimeInput: CreatePostViewTimeInput;
-  UpdatePostViewTimeDataInput: UpdatePostViewTimeDataInput;
-  UpdatePostViewTimeInput: UpdatePostViewTimeInput;
-  PostViewTimeOutput: PostViewTimeOutput;
-  CreatePostViewsDataInput: CreatePostViewsDataInput;
-  CreatePostViewsInput: CreatePostViewsInput;
-  UpdatePostViewsDataInput: UpdatePostViewsDataInput;
-  UpdatePostViewsInput: UpdatePostViewsInput;
-  PostViewsOutput: PostViewsOutput;
   CreatePostDataInput: CreatePostDataInput;
   CreatePostInput: CreatePostInput;
   UpdatePostDataInput: UpdatePostDataInput;
@@ -5221,8 +4835,6 @@ interface GraphQLTypeMap {
   SequenceOutput: SequenceOutput;
   CreateSplashArtCoordinateDataInput: CreateSplashArtCoordinateDataInput;
   CreateSplashArtCoordinateInput: CreateSplashArtCoordinateInput;
-  UpdateSplashArtCoordinateDataInput: UpdateSplashArtCoordinateDataInput;
-  UpdateSplashArtCoordinateInput: UpdateSplashArtCoordinateInput;
   SplashArtCoordinateOutput: SplashArtCoordinateOutput;
   CreateSpotlightDataInput: CreateSpotlightDataInput;
   CreateSpotlightInput: CreateSpotlightInput;
@@ -5257,11 +4869,6 @@ interface GraphQLTypeMap {
   UpdateTagFlagDataInput: UpdateTagFlagDataInput;
   UpdateTagFlagInput: UpdateTagFlagInput;
   TagFlagOutput: TagFlagOutput;
-  CreateTagRelDataInput: CreateTagRelDataInput;
-  CreateTagRelInput: CreateTagRelInput;
-  UpdateTagRelDataInput: UpdateTagRelDataInput;
-  UpdateTagRelInput: UpdateTagRelInput;
-  TagRelOutput: TagRelOutput;
   CreateTagDataInput: CreateTagDataInput;
   CreateTagInput: CreateTagInput;
   UpdateTagDataInput: UpdateTagDataInput;
@@ -5304,8 +4911,6 @@ interface GraphQLTypeMap {
 
 interface CreateInputsByCollectionName {
   AdvisorRequests: CreateAdvisorRequestInput;
-  ArbitalTagContentRels: CreateArbitalTagContentRelInput;
-  Bans: CreateBanInput;
   Books: CreateBookInput;
   Chapters: CreateChapterInput;
   Collections: CreateCollectionInput;
@@ -5313,15 +4918,12 @@ interface CreateInputsByCollectionName {
   Comments: CreateCommentInput;
   Conversations: CreateConversationInput;
   CurationNotices: CreateCurationNoticeInput;
-  DialogueMatchPreferences: CreateDialogueMatchPreferenceInput;
   DigestPosts: CreateDigestPostInput;
   Digests: CreateDigestInput;
   ElectionCandidates: CreateElectionCandidateInput;
   ElectionVotes: CreateElectionVoteInput;
   ElicitQuestions: CreateElicitQuestionInput;
   ForumEvents: CreateForumEventInput;
-  GardenCodes: CreateGardenCodeInput;
-  GoogleServiceAccountSessions: CreateGoogleServiceAccountSessionInput;
   JargonTerms: CreateJargonTermInput;
   LWEvents: CreateLWEventInput;
   Localgroups: CreateLocalgroupInput;
@@ -5329,12 +4931,8 @@ interface CreateInputsByCollectionName {
   ModerationTemplates: CreateModerationTemplateInput;
   ModeratorActions: CreateModeratorActionInput;
   MultiDocuments: CreateMultiDocumentInput;
-  Notifications: CreateNotificationInput;
   PetrovDayActions: CreatePetrovDayActionInput;
   PodcastEpisodes: CreatePodcastEpisodeInput;
-  PostEmbeddings: CreatePostEmbeddingInput;
-  PostViewTimes: CreatePostViewTimeInput;
-  PostViews: CreatePostViewsInput;
   Posts: CreatePostInput;
   RSSFeeds: CreateRSSFeedInput;
   Reports: CreateReportInput;
@@ -5347,7 +4945,6 @@ interface CreateInputsByCollectionName {
   SurveySchedules: CreateSurveyScheduleInput;
   Surveys: CreateSurveyInput;
   TagFlags: CreateTagFlagInput;
-  TagRels: CreateTagRelInput;
   Tags: CreateTagInput;
   UltraFeedEvents: CreateUltraFeedEventInput;
   UserEAGDetails: CreateUserEAGDetailInput;
@@ -5357,6 +4954,8 @@ interface CreateInputsByCollectionName {
   UserTagRels: CreateUserTagRelInput;
   Users: CreateUserInput;
   ArbitalCaches: never;
+  ArbitalTagContentRels: never;
+  Bans: never;
   CkEditorUserSessions: never;
   ClientIds: never;
   CronHistories: never;
@@ -5364,21 +4963,28 @@ interface CreateInputsByCollectionName {
   DatabaseMetadata: never;
   DebouncerEvents: never;
   DialogueChecks: never;
+  DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
   EmailTokens: never;
   FeaturedResources: never;
   FieldChanges: never;
+  GardenCodes: never;
+  GoogleServiceAccountSessions: never;
   Images: never;
   LegacyData: never;
   LlmConversations: never;
   LlmMessages: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
+  Notifications: never;
   PageCache: never;
   PetrovDayLaunchs: never;
   Podcasts: never;
+  PostEmbeddings: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostViewTimes: never;
+  PostViews: never;
   ReadStatuses: never;
   RecommendationsCaches: never;
   ReviewVotes: never;
@@ -5387,6 +4993,7 @@ interface CreateInputsByCollectionName {
   Revisions: never;
   Sessions: never;
   SideCommentCaches: never;
+  TagRels: never;
   Tweets: never;
   TypingIndicators: never;
   UserActivities: never;
@@ -5395,8 +5002,6 @@ interface CreateInputsByCollectionName {
 
 interface UpdateInputsByCollectionName {
   AdvisorRequests: UpdateAdvisorRequestInput;
-  ArbitalTagContentRels: UpdateArbitalTagContentRelInput;
-  Bans: UpdateBanInput;
   Books: UpdateBookInput;
   Chapters: UpdateChapterInput;
   Collections: UpdateCollectionInput;
@@ -5404,17 +5009,13 @@ interface UpdateInputsByCollectionName {
   Comments: UpdateCommentInput;
   Conversations: UpdateConversationInput;
   CurationNotices: UpdateCurationNoticeInput;
-  DialogueMatchPreferences: UpdateDialogueMatchPreferenceInput;
   DigestPosts: UpdateDigestPostInput;
   Digests: UpdateDigestInput;
   ElectionCandidates: UpdateElectionCandidateInput;
   ElectionVotes: UpdateElectionVoteInput;
   ElicitQuestions: UpdateElicitQuestionInput;
   ForumEvents: UpdateForumEventInput;
-  GardenCodes: UpdateGardenCodeInput;
-  GoogleServiceAccountSessions: UpdateGoogleServiceAccountSessionInput;
   JargonTerms: UpdateJargonTermInput;
-  LWEvents: UpdateLWEventInput;
   LlmConversations: UpdateLlmConversationInput;
   Localgroups: UpdateLocalgroupInput;
   Messages: UpdateMessageInput;
@@ -5422,23 +5023,17 @@ interface UpdateInputsByCollectionName {
   ModeratorActions: UpdateModeratorActionInput;
   MultiDocuments: UpdateMultiDocumentInput;
   Notifications: UpdateNotificationInput;
-  PodcastEpisodes: UpdatePodcastEpisodeInput;
-  PostEmbeddings: UpdatePostEmbeddingInput;
-  PostViewTimes: UpdatePostViewTimeInput;
-  PostViews: UpdatePostViewsInput;
   Posts: UpdatePostInput;
   RSSFeeds: UpdateRSSFeedInput;
   Reports: UpdateReportInput;
   Revisions: UpdateRevisionInput;
   Sequences: UpdateSequenceInput;
-  SplashArtCoordinates: UpdateSplashArtCoordinateInput;
   Spotlights: UpdateSpotlightInput;
   SurveyQuestions: UpdateSurveyQuestionInput;
   SurveyResponses: UpdateSurveyResponseInput;
   SurveySchedules: UpdateSurveyScheduleInput;
   Surveys: UpdateSurveyInput;
   TagFlags: UpdateTagFlagInput;
-  TagRels: UpdateTagRelInput;
   Tags: UpdateTagInput;
   UserEAGDetails: UpdateUserEAGDetailInput;
   UserJobAds: UpdateUserJobAdInput;
@@ -5447,6 +5042,8 @@ interface UpdateInputsByCollectionName {
   UserTagRels: UpdateUserTagRelInput;
   Users: UpdateUserInput;
   ArbitalCaches: never;
+  ArbitalTagContentRels: never;
+  Bans: never;
   CkEditorUserSessions: never;
   ClientIds: never;
   CronHistories: never;
@@ -5454,11 +5051,15 @@ interface UpdateInputsByCollectionName {
   DatabaseMetadata: never;
   DebouncerEvents: never;
   DialogueChecks: never;
+  DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
   EmailTokens: never;
   FeaturedResources: never;
   FieldChanges: never;
+  GardenCodes: never;
+  GoogleServiceAccountSessions: never;
   Images: never;
+  LWEvents: never;
   LegacyData: never;
   LlmMessages: never;
   ManifoldProbabilitiesCaches: never;
@@ -5466,9 +5067,13 @@ interface UpdateInputsByCollectionName {
   PageCache: never;
   PetrovDayActions: never;
   PetrovDayLaunchs: never;
+  PodcastEpisodes: never;
   Podcasts: never;
+  PostEmbeddings: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostViewTimes: never;
+  PostViews: never;
   ReadStatuses: never;
   RecommendationsCaches: never;
   ReviewVotes: never;
@@ -5476,7 +5081,9 @@ interface UpdateInputsByCollectionName {
   ReviewWinners: never;
   Sessions: never;
   SideCommentCaches: never;
+  SplashArtCoordinates: never;
   Subscriptions: never;
+  TagRels: never;
   Tweets: never;
   TypingIndicators: never;
   UltraFeedEvents: never;
