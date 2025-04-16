@@ -58,8 +58,6 @@ import { PopoverClassKey } from '../Popover';
 import { RadioClassKey } from '../Radio';
 import { RadioGroupClassKey } from '../RadioGroup';
 import { SelectClassKey } from '../Select';
-import { SnackbarClassKey } from '../Snackbar';
-import { SnackbarContentClassKey } from '../SnackbarContent';
 import { StepButtonClasskey } from '../StepButton';
 import { StepClasskey } from '../Step';
 import { StepConnectorClasskey } from '../StepConnector';
@@ -147,8 +145,6 @@ export interface ComponentNameToClassKey {
   MuiPopover: PopoverClassKey;
   MuiRadio: RadioClassKey;
   MuiSelect: SelectClassKey;
-  MuiSnackbar: SnackbarClassKey;
-  MuiSnackbarContent: SnackbarContentClassKey;
   MuiStep: StepClasskey;
   MuiStepButton: StepButtonClasskey;
   MuiStepConnector: StepConnectorClasskey;

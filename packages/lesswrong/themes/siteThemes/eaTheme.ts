@@ -242,11 +242,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
       },
       overrides: {
-        MuiSnackbarContent: {
-          root: {
-            backgroundColor: palette.lwTertiary.main
-          }
-        },
         MuiListItemIcon: {
           root: {
             color: palette.grey[700],

@@ -138,8 +138,6 @@ export interface ComponentsPropsList {
   MuiPopover: PopoverProps;
   MuiRadio: RadioProps;
   MuiSelect: SelectProps;
-  MuiSnackbar: SnackbarProps;
-  MuiSnackbarContent: SnackbarContentProps;
   MuiStep: StepProps;
   MuiStepButton: StepButtonProps;
   MuiStepConnector: StepConnectorProps;
