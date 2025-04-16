@@ -83,41 +83,49 @@ export default class PollPlugin extends Plugin {
     const style = document.createElement('style');
     style.innerHTML = `
       .${POLL_CLASS} {
+        font-family: var(--palette-fonts-sansSerifStack);
         text-align: center;
-        background: #f5f5f5;
+        background: var(--debug-fe-background);
         border-radius: calc(var(--borderRadius-default) * 1px);
         margin: 10px 0;
+        padding: 20px;
+        --debug-fe-background: #3185C4;
+        --debug-fe-banner-text: #FFF;
+        --debug-fe-foreground: #FFf;
       }
       .${POLL_CLASS}-question {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 20px;
+        color: var(--debug-fe-banner-text);
       }
       .${POLL_CLASS}-slider {
         position: relative;
         height: 2px;
-        background: #333;
-        margin: 40px 60px;
+        background: var(--debug-fe-foreground);
+        margin: 40px 40px 0px 40px;
       }
       .${POLL_CLASS}-circle {
         width: 34px;
         height: 34px;
         border-radius: 50%;
-        background: #666;
+        background: black;
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        border: 2px solid #333;
+        border: 2px solid var(--debug-fe-foreground);
+        opacity: 0.3;
       }
       .${POLL_CLASS}-labels {
         display: flex;
         justify-content: space-between;
+        color: var(--debug-fe-banner-text);
         margin: 10px 40px;
       }
       .${POLL_CLASS}-label {
         font-weight: 500;
-        color: #333;
+        color: var(--debug-fe-banner-text);
       }
     `;
     document.head.appendChild(style);
@@ -168,7 +176,7 @@ export default class PollPlugin extends Plugin {
         });
         viewWriter.insert(
           viewWriter.createPositionAt(disagreeLabel, 0),
-          viewWriter.createText("Disagree")
+          viewWriter.createText("disagree")
         );
 
         // Create agree label
@@ -177,7 +185,7 @@ export default class PollPlugin extends Plugin {
         });
         viewWriter.insert(
           viewWriter.createPositionAt(agreeLabel, 0),
-          viewWriter.createText("Agree")
+          viewWriter.createText("agree")
         );
 
         // Assemble the widget
