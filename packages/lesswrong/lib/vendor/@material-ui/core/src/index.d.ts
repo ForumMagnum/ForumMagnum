@@ -182,7 +182,6 @@ export { default as StepIcon } from './StepIcon';
 export { default as StepLabel } from './StepLabel';
 export { default as Stepper } from './Stepper';
 export { default as SvgIcon } from './SvgIcon';
-export { default as SwipeableDrawer } from './SwipeableDrawer';
 export { default as Switch } from './Switch';
 export { default as Tab } from './Tab';
 export { default as Table } from './Table';

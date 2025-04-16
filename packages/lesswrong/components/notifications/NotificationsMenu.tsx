@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import SwipeableDrawer from '@/lib/vendor/@material-ui/core/src/SwipeableDrawer';
 import { Badge } from "@/components/widgets/Badge";
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
@@ -11,11 +10,11 @@ import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
-import classNames from 'classnames';
-import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Drawer } from '@/components/material-ui/Drawer'
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
     verticalAlign: "top",
@@ -68,14 +67,14 @@ const styles = (theme: ThemeType) => ({
     minWidth: "auto",
     width: 24,
   },
-});
+}));
 
-const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
+const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {unreadPrivateMessages} = useUnreadNotifications();
   const [tab,setTab] = useState(0);
@@ -119,14 +118,11 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
-        {open && <SwipeableDrawer
+        {open && <Drawer
           open={open}
           anchor="right"
           onClose={() => setIsOpen(false)}
-          onOpen={() => setIsOpen(true)}
-          classes={{
-            paper: classes.drawerPaper,
-          }}
+          paperClassName={classes.drawerPaper}
           variant="persistent"
         >
           { hasOpened && <div className="notifications-menu-content">
@@ -164,14 +160,13 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
             <ClearIcon className={classes.cancel} onClick={() => setIsOpen(false)} />
             <Components.NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
           </div>}
-        </SwipeableDrawer>}
+        </Drawer>}
       </Components.ErrorBoundary>
     </div>
   )
 };
 
 const NotificationsMenuComponent = registerComponent('NotificationsMenu', NotificationsMenu, {
-  styles,
   hocs: [withErrorBoundary]
 });
 
