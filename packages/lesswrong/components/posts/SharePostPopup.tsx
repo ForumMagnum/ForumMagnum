@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState } from "react";
-import Popper from "@/lib/vendor/@material-ui/core/src/Popper";
-import Paper from "@/lib/vendor/@material-ui/core/src/Paper";
+import { Paper }from '@/components/widgets/Paper';
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useRerenderOnce } from "../hooks/useFirstRender";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -210,7 +209,7 @@ const SharePostPopup = ({
   const { flash } = useMessages();
   const [isClosing, setIsClosing] = useState(false);
 
-  const { Typography, ForumIcon, SocialMediaIcon } = Components;
+  const { LWPopper, Typography, ForumIcon, SocialMediaIcon } = Components;
 
   const urlHostname = new URL(getSiteUrl()).hostname;
 
@@ -298,7 +297,7 @@ const SharePostPopup = ({
   }, [onClose]);
 
   return (
-    <Popper open={true} anchorEl={anchorEl.current} placement="top-end" className={classes.popper} transition>
+    <LWPopper open={true} anchorEl={anchorEl.current} placement="top-end" className={classes.popper}>
       <Paper>
         <div className={classNames(classes.root, {[classes.rootAnimateOut]: isClosing})}>
           <div className={classes.closeButtonRow}>
@@ -328,7 +327,7 @@ const SharePostPopup = ({
           </div>
         </div>
       </Paper>
-    </Popper>
+    </LWPopper>
   );
 };
 

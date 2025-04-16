@@ -2,9 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type { TooltipProps } from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import type { Placement as PopperPlacementType } from "popper.js"
 
 const styles = (theme: ThemeType) => ({
   container: {
@@ -40,7 +40,7 @@ const BookmarkButton = ({
 }: {
   post: PostsMinimumInfo,
   withText?: boolean,
-  placement?: TooltipProps["placement"],
+  placement?: PopperPlacementType,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
