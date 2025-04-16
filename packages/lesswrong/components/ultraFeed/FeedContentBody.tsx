@@ -10,17 +10,12 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   root: {
     position: 'relative',
-    '& .read-more-button': {
+    '& .read-more-suffix': {
       fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.text.dim60,
+      color: theme.palette.ultraFeed.dim,
       cursor: 'pointer',
-      opacity: 0.8,
       display: 'inline',
       marginLeft: 0,
-      '&:hover': {
-        opacity: 1,
-        textDecoration: 'none',
-      },
     },
   },
   readMoreButton: {
@@ -42,6 +37,8 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     cursor: 'pointer',
   },
   maxHeight: {
+    maxHeight: 1000,
+    //TODO: somehow check if this is being triggered and if so, display additional text/button for expansion
   },
   lineClamp: {
     display: '-webkit-box !important',
@@ -49,7 +46,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     overflow: 'hidden !important',
     // textOverflow: 'ellipsis !important', // might want to reenable
     maxHeight: 'none !important',
-    // paddingBottom: '0.25em !important', // might want to reenable
+    paddingBottom: '0.1em !important',
 
     // Hide first blockquote when line clamping is active
     '& blockquote:first-child': {
@@ -82,14 +79,12 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
 }));
 
-// Define the three possible configurations
 type PostProps = { post: PostsList; comment?: never; tag?: never };
 type CommentProps = { post?: never; comment: CommentsList; tag?: never };
 type TagProps = { post?: never; comment?: never; tag: TagBasicInfo };
 
 type DocumentProps = PostProps | CommentProps | TagProps;
 
-// Main component props
 interface BaseFeedContentBodyProps {
   html: string;
   breakpoints: number[];
@@ -130,8 +125,11 @@ const FeedContentBody = ({
   
   const isMaxLevel = expansionLevel >= breakpoints.length - 1;
   const currentWordLimit = breakpoints[expansionLevel];
-  const isFirstLevel = expansionLevel === 0;
-  
+
+  const documentId = post?._id ?? comment?._id ?? tag?._id;
+
+  const applyLineClamp = clampOverride && clampOverride > 0 && expansionLevel === 0;
+
   let documentType: 'post' | 'comment' | 'tag';
   if (post) {
     documentType = 'post';
@@ -140,103 +138,85 @@ const FeedContentBody = ({
   } else {
     documentType = 'tag';
   }
-  const documentId = post?._id ?? comment?._id ?? tag?._id;
-  
+
   const getDocumentUrl = () => {
-    if (post) return postGetPageUrl(post);
-    if (comment) return commentGetPageUrlFromIds({
-      postId: comment.postId,
-      commentId: comment._id
-    });
-    if (tag) return `/tag/${tag._id}`;
+    if (post) {
+      return postGetPageUrl(post);
+    } else if (comment) {
+      return commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id });
+    } else if (tag) {
+      return `/tag/${tag._id}`;
+    }
     return '/';
   };
-  
+
   const handleExpand = useCallback(() => {
-    if (isMaxLevel && linkToDocumentOnFinalExpand) {
-        return;
+    if (isMaxLevel) {
+        return; 
     }
 
     const newLevel = Math.min(expansionLevel + 1, breakpoints.length - 1);
     const newMaxReached = newLevel >= breakpoints.length - 1;
     setExpansionLevel(newLevel);
     onExpand?.(newLevel, newMaxReached, wordCount);
+  }, [ expansionLevel, breakpoints.length, onExpand, isMaxLevel, wordCount ]);
 
-  }, [
-    expansionLevel,
-    breakpoints.length,
-    onExpand,
-    isMaxLevel,
-    linkToDocumentOnFinalExpand,
-    wordCount,
-  ]);
-  
-  // Handle clicks on the content area
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
 
-    // If the user clicking on a link, allow default navigation and don't expand.
-    if (target.tagName === 'A' || target.parentElement?.tagName === 'A') {
+    // if clicking on a link, don't expand, just allow default navigation
+    if (target.closest('a')) {
       return;
     }
-
-    // Otherwise, it's a click on general content. Trigger expansion.
     handleExpand();
+  }, [handleExpand]);
 
-  }, [handleExpand]); // Remove isFirstLevel from dependency array
-  
-  const usingLineClamp = clampOverride !== undefined && clampOverride > 0;
-  
-  // Helper function to calculate truncation state
+  const readMoreSuffixText = '(read more)';
+
   const calculateTruncationState = () => {
     let truncatedHtml = html;
     let wasTruncated = false;
     let wordsLeft = 0;
 
-    if (!usingLineClamp) {
+    if (applyLineClamp) {
+      wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
+      wordsLeft = 0; // Not used when applyLineClamp is true, set to 0
+      truncatedHtml = html; // Render full HTML for CSS clamping
+    } else {
+      // Word count truncation logic (applies if no clampOverride OR expansionLevel > 0)
       const createReadMoreSuffix = () => {
-        if (hideSuffix) {
-          return '...';
+        if (hideSuffix || (isMaxLevel && linkToDocumentOnFinalExpand)) { 
+           return '...';
         }
-        if (isMaxLevel && linkToDocumentOnFinalExpand) {
-          return '...';
-        }
-        return `...<span class="read-more-button" data-expansion-level="${expansionLevel}">(read more)</span>`;
+        const suffixContent = `...<span class="read-more-suffix">${readMoreSuffixText}</span>`;
+        return suffixContent;
       };
 
       const result = truncateWithGrace(
         html,
         currentWordLimit,
-        20,
+        20, 
         wordCount,
         createReadMoreSuffix()
       );
 
       truncatedHtml = result.truncatedHtml;
       wasTruncated = result.wasTruncated;
-      wordsLeft = result.wordsLeft;
 
-      // Ensure truncation is correctly identified
-      if (wordCount > currentWordLimit && !wasTruncated) {
-        wasTruncated = true;
-        wordsLeft = wordCount - currentWordLimit;
+      if (wasTruncated) {
+         wordsLeft = Math.max(0, wordCount - currentWordLimit);
+      } else {
+         wordsLeft = 0;
       }
-    } else {
-      // Estimate truncation for line clamp mode
-      wasTruncated = wordCount > currentWordLimit; // Simple estimate
-      wordsLeft = wasTruncated ? wordCount - currentWordLimit : 0;
-      // truncatedHtml remains the original html for line clamp
     }
 
     return { truncatedHtml, wasTruncated, wordsLeft };
   };
 
-  // Calculate the truncation state
   const { truncatedHtml, wasTruncated, wordsLeft } = calculateTruncationState();
-  
+
   const getLineClampClass = () => {
-    if (!usingLineClamp || !clampOverride) return "";
-    
+    if (!applyLineClamp || !clampOverride) return ""; 
     switch (clampOverride) {
       case 1: return classes.lineClamp1;
       case 2: return classes.lineClamp2;
@@ -252,37 +232,41 @@ const FeedContentBody = ({
         return classes.lineClamp4;
     }
   };
-  
-  const showContinueReadingLink = isMaxLevel && wasTruncated && linkToDocumentOnFinalExpand;
+
+  const showContinueReadingLink = !applyLineClamp && isMaxLevel && wasTruncated && linkToDocumentOnFinalExpand;
+  const isClickableForExpansion = !isMaxLevel;
 
   return (
-    <div 
+    <div
       className={classNames(
-        classes.root, 
+        classes.root,
         className,
-        (wasTruncated && isFirstLevel) && classes.clickableContent
+        isClickableForExpansion && classes.clickableContent 
       )}
-      onClick={handleContentClick}
+      onClick={isClickableForExpansion ? handleContentClick : undefined}
     >
       <Components.ContentStyles contentType="ultraFeed">
-        <Components.ContentItemBody
-          dangerouslySetInnerHTML={{ __html: truncatedHtml }}
-          description={description || `${documentType} ${documentId}`}
-          nofollow={nofollow}
-          className={classNames({
-            [classes.maxHeight]: !isMaxLevel && wasTruncated && !usingLineClamp,
-            [classes.lineClamp]: usingLineClamp,
-            [getLineClampClass()]: usingLineClamp,
-          })}
-        />
-        
+        <div>
+            <Components.ContentItemBody
+              dangerouslySetInnerHTML={{ __html: truncatedHtml }}
+              description={description || `${documentType} ${documentId}`}
+              nofollow={nofollow}
+              className={classNames({
+                [classes.maxHeight]: !applyLineClamp && !isMaxLevel && wasTruncated,
+                [classes.lineClamp]: applyLineClamp && wasTruncated,
+                [getLineClampClass()]: applyLineClamp && wasTruncated,
+              })}
+            />
+        </div>
+
         {showContinueReadingLink && <div className={classes.continueReadingLinkContainer}>
-            <Link 
-              to={getDocumentUrl()} 
+            <Link
+              to={getDocumentUrl()}
               className={classes.readMoreButton}
               eventProps={{intent: `expand${documentType.charAt(0).toUpperCase() + documentType.slice(1)}`}}
-          >
-            (Continue Reading – {wordsLeft} words more)
+              onClick={(e) => e.stopPropagation()}
+            >
+            {`(Continue Reading – ${wordsLeft} words more)`}
           </Link>
       </div>}
       </Components.ContentStyles>

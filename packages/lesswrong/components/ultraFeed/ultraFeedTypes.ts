@@ -1,11 +1,10 @@
 // Define source type arrays
 export const feedPostSourceTypesArray = ['recombee-lesswrong-custom', 'hacker-news', 'welcome-post', 'curated', 'stickied'] as const;
-export const feedCommentSourceTypesArray = ['quickTakes', 'topComments'] as const;
+export const feedCommentSourceTypesArray = [ 'recentComments', ] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 
-// Derive types from arrays
 export type FeedPostSourceType = typeof feedPostSourceTypesArray[number];
-export type FeedCommentSourceType = typeof feedCommentSourceTypesArray[number];
+export type FeedCommentSourceType = 'recentComments';
 export type FeedSpotlightSourceType = typeof feedSpotlightSourceTypesArray[number];
 
 export type FeedItemSourceType = FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
@@ -38,9 +37,10 @@ export interface FeedCommentMetaInfo {
 export interface FeedCommentFromDb {
   commentId: string;
   topLevelCommentId: string;
-  parentCommentId: string;
   postId: string;
+  parentCommentId: string | null;
   baseScore: number;
+  shortform: boolean | null;
   sources: string[];
   lastServed: Date | null;
   lastViewed: Date | null;

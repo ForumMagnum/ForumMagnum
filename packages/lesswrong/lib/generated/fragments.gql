@@ -1016,7 +1016,7 @@ fragment FeedPostFragment on FeedPost {
   _id
   postMetaInfo
   post {
-    ...PostsListWithVotes
+    ...UltraFeedPostFragment
   }
 }
 
@@ -4105,6 +4105,18 @@ fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
   userId
   event
   feedItemId
+}
+
+fragment UltraFeedPostFragment on Post {
+  ...PostsListWithVotes
+  contents {
+    _id
+    html
+    htmlHighlight
+    plaintextDescription
+    wordCount
+    version
+  }
 }
 
 fragment UnclaimedReportsList on Report {

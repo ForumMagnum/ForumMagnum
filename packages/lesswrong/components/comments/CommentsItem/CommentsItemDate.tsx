@@ -65,9 +65,10 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
 type CommentsItemDateProps = UseCommentLinkProps & {
   comment: CommentsList,
   preventDateFormatting?: boolean,
+  className?: string,
 };
 
-const CommentsItemDate = ({comment, preventDateFormatting, ...rest}: CommentsItemDateProps) => {
+const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
   const { FormatDate, LWTooltip } = Components
   const classes = useStyles(styles);
   
@@ -100,6 +101,7 @@ const CommentsItemDate = ({comment, preventDateFormatting, ...rest}: CommentsIte
       classes.root,
       !comment.answer && classes.date,
       comment.answer && classes.answerDate,
+      className,
     )}>
       <DeferRender ssr={!isLWorAF} fallback={linkContents}>
         <LinkWrapper>

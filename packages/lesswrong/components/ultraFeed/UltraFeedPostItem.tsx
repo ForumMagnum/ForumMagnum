@@ -30,28 +30,36 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    marginBottom: 4,
+    marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 4,
+    },
   },
   titleContainer: {
     flexGrow: 1,
     paddingRight: 8,
-    marginBottom: 4,
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.6rem',
+    fontSize: '1.4rem',
     fontWeight: 600,
     opacity: 0.8,
     lineHeight: 1.15,
     textWrap: 'balance',
     width: '100%',
+    marginBottom: 4,
     '&:hover': {
       opacity: 0.9,
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.6rem',
     },
   },
   headerRightSection: {
     display: "flex",
     flexGrow: 0,
+    marginRight: -8,
+    marginTop: -10,
   },
   tripleDotMenu: {
     padding: 5,
@@ -155,7 +163,7 @@ const UltraFeedPostItem = ({
   showKarma,
   settings = DEFAULT_SETTINGS,
 }: {
-  post: PostsListWithVotes,
+  post: UltraFeedPostFragment,
   postMetaInfo: FeedPostMetaInfo,
   index: number,
   showKarma?: boolean,
@@ -192,6 +200,16 @@ const UltraFeedPostItem = ({
     });
   }, [trackExpansion, post._id, captureEvent]);
 
+  if (
+    !post?._id 
+    || !post.contents
+    || !post.contents.html
+    || !post.contents.wordCount
+    || post.contents.wordCount <= 0
+  ) {
+     return <div>No post content found for post with id: {post._id}</div>; 
+  }
+
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
     <div ref={elementRef} className={classes.root}>
@@ -199,7 +217,23 @@ const UltraFeedPostItem = ({
         <div className={classes.titleRow}>
           <div className={classes.titleContainer}>
             <Link to={postGetLink(post)} className={classes.title}>{post.title}</Link>
+            <div className={classes.metaRoot}>
+              <span className={classes.metaLeftSection}>
+                {showKarma && !post.rejected && <span className={classes.metaKarma}>
+                  {postGetKarma(post)}
+                </span>}
+                <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
+                {post.postedAt && (
+                  <span className={classes.metaDateContainer}>
+                    <FormatDate date={post.postedAt} />
+                  </span>
+                )}
+              </span>
+            </div>
           </div>
+
+
+
           <span className={classes.headerRightSection}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
               <PostActionsButton
@@ -210,33 +244,21 @@ const UltraFeedPostItem = ({
             </AnalyticsContext>
           </span>
         </div>
-        <div className={classes.metaRoot}>
-          <span className={classes.metaLeftSection}>
-            {showKarma && !post.rejected && <span className={classes.metaKarma}>
-              {postGetKarma(post)}
-            </span>}
-            <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
-            {post.postedAt && (
-              <span className={classes.metaDateContainer}>
-                <FormatDate date={post.postedAt} />
-              </span>
-            )}
-          </span>
-        </div>
+
+
       </div>
 
-      {post.contents && (
-        <FeedContentBody
-          post={post}
-          html={post.contents.htmlHighlight ?? ""}
-          breakpoints={settings.postTruncationBreakpoints}
-          initialExpansionLevel={0}
-          wordCount={post.contents.wordCount ?? 0}
-          linkToDocumentOnFinalExpand={true}
-          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-          onExpand={handleContentExpand}
-        />
-      )}
+      <FeedContentBody
+        post={post}
+        html={post.contents.html}
+        breakpoints={settings.postTruncationBreakpoints}
+        initialExpansionLevel={0}
+        wordCount={post.contents.wordCount}
+        linkToDocumentOnFinalExpand={true}
+        nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+        onExpand={handleContentExpand}
+        hideSuffix={false}
+      />
       <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
     </AnalyticsContext>
