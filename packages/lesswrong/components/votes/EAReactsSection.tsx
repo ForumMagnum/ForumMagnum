@@ -14,7 +14,7 @@ import {
   getEmojiMutuallyExclusivePartner,
 } from "../../lib/voting/eaEmojiPalette";
 import type { VotingProps } from "./votingProps";
-import Menu from "@/lib/vendor/@material-ui/core/src/Menu";
+import { Menu } from '@/components/widgets/Menu';
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 
@@ -351,15 +351,6 @@ const EAReactsSection: FC<{
         onClick={onCloseMenu}
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
-        getContentAnchorEl={null}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
         className={classes.menu}
       >
         {everOpened && <EAEmojiPalette onSelectEmoji={onSelectEmoji} />}

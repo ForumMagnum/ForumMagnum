@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
-import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
+import { Menu } from '@/components/widgets/Menu';
 import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import moment from '../../../lib/moment-timezone';
 
