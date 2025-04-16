@@ -60,6 +60,9 @@ class MainFormView extends View {
       children: [
         {
           tag: "div",
+          attributes: {
+            class: ["ck-cta-form-group"],
+          },
           children: [
             {
               tag: "div",
@@ -79,6 +82,25 @@ class MainFormView extends View {
           children: [
             {
               tag: "div",
+              attributes: {
+                class: ["ck-cta-form-group"],
+              },
+              children: [
+                {
+                  tag: "div",
+                  attributes: {
+                    class: ["ck-cta-form-label"],
+                  },
+                  children: ["Disagree wording"],
+                },
+                disagreeWordingView
+              ]
+            },
+            {
+              tag: "div",
+              attributes: {
+                class: ["ck-cta-form-group"],
+              },
               children: [
                 {
                   tag: "div",
@@ -90,19 +112,6 @@ class MainFormView extends View {
                 agreeWordingView
               ]
             },
-            {
-              tag: "div",
-              children: [
-                {
-                  tag: "div",
-                  attributes: {
-                    class: ["ck-cta-form-label"],
-                  },
-                  children: ["Disagree wording"],
-                },
-                disagreeWordingView
-              ]
-            }
           ]
         }
       ],
@@ -120,7 +129,7 @@ class MainFormView extends View {
       view: this,
     });
 
-    const childViews = [this.questionView, this.agreeWordingView, this.disagreeWordingView];
+    const childViews = [this.questionView, this.disagreeWordingView,  this.agreeWordingView];
 
     childViews.forEach((v) => {
       this._focusables.add(v);
@@ -162,7 +171,7 @@ class MainFormView extends View {
     const questionView = new InputTextView(this.locale);
     const questionBind = questionView.bindTemplate;
     questionView.setTemplate({
-      tag: "input",
+      tag: "textarea",
       attributes: {
         type: "text",
         class: ["ck-cta-form-input", questionBind.if("hasError", "ck-error")],
