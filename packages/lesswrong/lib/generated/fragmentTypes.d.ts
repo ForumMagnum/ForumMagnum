@@ -670,7 +670,7 @@ interface DeletedCommentsMetaData { // fragment on Comments
 
 interface DeletedCommentsMetaData_deletedByUser { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
 }
 
 interface DeletedCommentsModerationLog extends DeletedCommentsMetaData { // fragment on Comments
@@ -1723,7 +1723,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly lastVisitedAt: Date|null,
   readonly isFuture: boolean,
   readonly isRead: boolean|null,
-  readonly lastCommentedAt: Date|null,
+  readonly lastCommentedAt: Date,
   readonly lastCommentPromotedAt: Date|null,
   readonly canonicalCollectionSlug: string|null,
   readonly curatedDate: Date|null,
@@ -1834,7 +1834,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
   readonly viewCount: number|null,
-  readonly lastCommentedAt: Date|null,
+  readonly lastCommentedAt: Date,
   readonly clickCount: number|null,
   readonly deletedDraft: boolean,
   readonly status: number,
@@ -2261,7 +2261,7 @@ interface PostsModerationGuidelines extends PostsMinimumInfo { // fragment on Po
 
 interface PostsModerationGuidelines_user { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly moderationStyle: string|null,
 }
 
@@ -2570,7 +2570,7 @@ interface RevisionDisplay { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
   readonly updateType: "initial" | "patch" | "minor" | "major" | null,
-  readonly editedAt: Date|null,
+  readonly editedAt: Date,
   readonly userId: string|null,
   readonly html: string|null,
   readonly commitMessage: string|null,
@@ -2583,7 +2583,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
   readonly updateType: "initial" | "patch" | "minor" | "major" | null,
-  readonly editedAt: Date|null,
+  readonly editedAt: Date,
   readonly userId: string|null,
   readonly originalContents: any,
   readonly html: string|null,
@@ -2633,7 +2633,7 @@ interface RevisionHistorySummaryEdit_summary_parentLens { // fragment on MultiDo
 interface RevisionMetadata { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
-  readonly editedAt: Date|null,
+  readonly editedAt: Date,
   readonly commitMessage: string|null,
   readonly userId: string|null,
   readonly score: number,
@@ -2662,7 +2662,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly documentId: string|null,
   readonly collectionName: string|null,
   readonly fieldName: string|null,
-  readonly editedAt: Date|null,
+  readonly editedAt: Date,
   readonly updateType: "initial" | "patch" | "minor" | "major" | null,
   readonly version: string,
   readonly commitMessage: string|null,
@@ -2851,7 +2851,7 @@ interface SpotlightDisplay_post extends PostsMinimumInfo { // fragment on Posts
 
 interface SpotlightDisplay_post_user { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly slug: string,
 }
 
@@ -2863,7 +2863,7 @@ interface SpotlightDisplay_sequence { // fragment on Sequences
 
 interface SpotlightDisplay_sequence_user { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly slug: string,
 }
 
@@ -2876,7 +2876,7 @@ interface SpotlightDisplay_tag { // fragment on Tags
 
 interface SpotlightDisplay_tag_user { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly slug: string,
 }
 
@@ -3011,7 +3011,7 @@ interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
 
 interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
 }
 
 interface SuggestAlignmentPost extends PostsList { // fragment on Posts
@@ -3020,7 +3020,7 @@ interface SuggestAlignmentPost extends PostsList { // fragment on Posts
 
 interface SuggestAlignmentPost_suggestForAlignmentUsers { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
 }
 
 interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
@@ -3360,7 +3360,7 @@ interface TagFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly version: string,
-  readonly editedAt: Date|null,
+  readonly editedAt: Date,
 }
 
 interface TagFullContributorsList { // fragment on Tags
@@ -3535,7 +3535,7 @@ interface TagRevisionFragment_description { // fragment on Revisions
   readonly html: string|null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
-  readonly editedAt: Date|null,
+  readonly editedAt: Date,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -3750,7 +3750,7 @@ interface UnclaimedReportsList_comment extends CommentsList { // fragment on Com
 
 interface UnclaimedReportsList_claimedUser { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly username: string|null,
   readonly slug: string,
 }
@@ -3845,7 +3845,7 @@ interface UserMostValuablePostsDefaultFragment { // fragment on UserMostValuable
 
 interface UserOnboardingAuthor { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly profileImageId: string|null,
   readonly karma: number,
   readonly jobTitle: string|null,
@@ -3928,7 +3928,7 @@ interface UsersAdmin { // fragment on Users
   readonly username: string|null,
   readonly createdAt: Date,
   readonly isAdmin: boolean,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly email: string|null,
   readonly slug: string,
   readonly groups: Array<string>,
@@ -3947,7 +3947,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 interface UsersBannedFromUsersModerationLog { // fragment on Users
   readonly _id: string,
   readonly slug: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
 }
@@ -4191,7 +4191,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly isAdmin: boolean,
   readonly profile: any,
   readonly services: any,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly previousDisplayName: string|null,
   readonly email: string|null,
   readonly noindex: boolean,
@@ -4867,7 +4867,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly deleteContent: boolean|null,
   readonly banned: Date|null,
   readonly username: string|null,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly fullName: string|null,
   readonly mongoLocation: any,
   readonly googleLocation: any,
@@ -5192,7 +5192,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
 
 interface UsersMapEntry { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly username: string|null,
   readonly fullName: string|null,
   readonly slug: string,
@@ -5206,7 +5206,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly slug: string,
   readonly createdAt: Date,
   readonly username: string|null,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly profileImageId: string|null,
   readonly previousDisplayName: string|null,
   readonly fullName: string|null,
@@ -5229,7 +5229,7 @@ interface UsersMinimumInfo { // fragment on Users
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
@@ -5293,7 +5293,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
 interface UsersProfileEdit { // fragment on Users
   readonly _id: string,
   readonly slug: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly jobTitle: string|null,
   readonly organization: string|null,
   readonly careerStage: Array<string>,
@@ -5528,7 +5528,7 @@ interface reviewAdminDashboard { // fragment on ReviewVotes
 
 interface reviewAdminDashboard_user { // fragment on Users
   readonly _id: string,
-  readonly displayName: string|null,
+  readonly displayName: string,
   readonly karma: number,
 }
 

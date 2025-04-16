@@ -479,7 +479,7 @@ const LlmChatWrapper = ({children}: {
       : preSaveConversation;
 
     // Sent to the server to create a new message
-    const preSaveMessage: PreSaveLlmMessage = {
+    const preSaveMessage = {
       conversationId: currentConversation?._id,
       userId: currentUser._id,
       content: query

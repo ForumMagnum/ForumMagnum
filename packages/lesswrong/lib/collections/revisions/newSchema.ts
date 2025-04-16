@@ -93,9 +93,10 @@ const schema = {
   editedAt: {
     database: {
       type: "TIMESTAMPTZ",
+      nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
       canRead: ["guests"],
       validation: {
         optional: true,

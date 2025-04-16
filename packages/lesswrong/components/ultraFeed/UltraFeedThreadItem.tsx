@@ -144,7 +144,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const [ postExpanded, setPostExpanded ] = useState(false);
 
   const { document: post, loading } = useSingle({
-    documentId: comments[0].postId,
+    documentId: comments[0].postId ?? undefined,
     collectionName: 'Posts',
     fragmentName: 'PostsListWithVotes',
     skip: !comments[0].postId || !postExpanded,

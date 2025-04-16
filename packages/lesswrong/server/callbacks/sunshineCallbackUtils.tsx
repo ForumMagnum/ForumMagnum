@@ -41,7 +41,7 @@ function hasMultipleDownvotes<T extends DbVoteableType>({ votes }: VoteableAutom
  */
 function isDownvotedBelowBar<T extends DbVoteableType>(bar: number) {
   return ({ voteableItem }: { voteableItem: T }) => {
-    return voteableItem.baseScore <= bar && voteableItem.voteCount > 0;
+    return (voteableItem.baseScore ?? 0) <= bar && voteableItem.voteCount > 0;
   }
 }
 
