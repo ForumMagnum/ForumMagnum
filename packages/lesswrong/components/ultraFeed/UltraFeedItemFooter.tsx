@@ -9,6 +9,19 @@ import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttac
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { useNavigate } from "@/lib/routeUtil";
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
+import { useCurrentUser } from "../common/withUser";
+import { useMutation, gql } from "@apollo/client";
+
+// Define the mutation for creating an UltraFeedEvent
+const CREATE_ULTRA_FEED_EVENT = gql`
+  mutation CreateUltraFeedEvent($data: CreateUltraFeedEventDataInput!) {
+    createUltraFeedEvent(data: $data) {
+      data {
+        _id
+      }
+    }
+  }
+`;
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -150,10 +163,36 @@ const UltraFeedItemFooterCore = ({
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const { BookmarkButton, OverallVoteAxis, AgreementVoteAxis, AddReactionButton } = Components;
+  const currentUser = useCurrentUser();
+
+  const [logInteractionEvent] = useMutation(CREATE_ULTRA_FEED_EVENT, {
+    ignoreResults: true,
+  });
+
+  // TODO:the wrapping approach does not work with votes as click-handlers inside the vote bottons prevent an onClick at this level from firing
+  const handleInteractionLog = (interactionType: 'bookmarkClicked' | 'commentsClicked') => {
+    if (!currentUser || !voteProps.document) return;
+
+    const eventData = {
+      userId: currentUser._id,
+      eventType: 'interacted' as const,
+      documentId: voteProps.document._id,
+      collectionName: voteProps.collectionName as "Posts" | "Comments" | "Spotlights", 
+      event: { interactionType },
+    };
+    void logInteractionEvent({ variables: { data: eventData } });
+  };
+
+  const handleCommentsClick = () => {
+    if (onClickComments) {
+      handleInteractionLog('commentsClicked');
+      onClickComments();
+    }
+  };
 
   const commentCountIcon = (
     <div
-      onClick={onClickComments}
+      onClick={handleCommentsClick}
       className={classNames(classes.commentCount, { [classes.commentCountClickable]: !!onClickComments })}
     >
       <CommentIcon />
@@ -204,7 +243,7 @@ const UltraFeedItemFooterCore = ({
       )}
       
       { bookmarkDocument && (
-        <div className={classes.bookmarkButton}>
+        <div className={classes.bookmarkButton} onClick={() => handleInteractionLog('bookmarkClicked')}>
           <BookmarkButton post={bookmarkDocument} />
         </div>
       )}

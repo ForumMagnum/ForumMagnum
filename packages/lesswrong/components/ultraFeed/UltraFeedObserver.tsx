@@ -41,8 +41,19 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { useCreate } from '../../lib/crud/withCreate';
+import { useMutation, gql } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
+
+// Define the mutation for creating an UltraFeedEvent
+const CREATE_ULTRA_FEED_EVENT = gql`
+  mutation CreateUltraFeedEvent($data: CreateUltraFeedEventDataInput!) {
+    createUltraFeedEvent(data: $data) {
+      data { 
+        _id
+      } 
+    }
+  }
+`;
 
 type DocumentType = 'post' | 'comment' | 'spotlight';
 
@@ -82,9 +93,9 @@ const documentTypeToCollectionName = {
 export const UltraFeedObserverProvider = ({ children, incognitoMode }: { children: ReactNode, incognitoMode: boolean }) => {
   const currentUser = useCurrentUser();
   
-  const { create: createUltraFeedEvent } = useCreate({
-    collectionName: 'UltraFeedEvents',
-    fragmentName: 'UltraFeedEventsDefaultFragment',
+  // Replace useCreate with useMutation
+  const [logUltraFeedEvent] = useMutation(CREATE_ULTRA_FEED_EVENT, { 
+    ignoreResults: true, 
   });
   
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -105,8 +116,8 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         durationMs: durationMs
       }
     };
-    void createUltraFeedEvent({ data: eventPayload });
-  }, [createUltraFeedEvent, currentUser, incognitoMode]);
+    void logUltraFeedEvent({ variables: { data: eventPayload } });
+  }, [logUltraFeedEvent, currentUser, incognitoMode]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
     if (!currentUser || incognitoMode) return;
@@ -221,11 +232,8 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         wordCount: data.wordCount,
       },
     };
-
-    void createUltraFeedEvent({
-      data: eventData
-    });
-  }, [createUltraFeedEvent, currentUser, incognitoMode]);
+    void logUltraFeedEvent({ variables: { data: eventData } });
+  }, [logUltraFeedEvent, currentUser, incognitoMode]);
 
   const contextValue = { observe, unobserve, trackExpansion };
 

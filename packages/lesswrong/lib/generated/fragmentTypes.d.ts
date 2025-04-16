@@ -3718,7 +3718,7 @@ interface UltraFeedEventsDefaultFragment { // fragment on UltraFeedEvents
   readonly createdAt: Date,
   readonly documentId: string,
   readonly collectionName: "Posts" | "Comments" | "Spotlights",
-  readonly eventType: "served" | "viewed" | "expanded",
+  readonly eventType: "served" | "viewed" | "expanded" | "interacted",
   readonly userId: string,
   readonly event: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly feedItemId: string | null,
