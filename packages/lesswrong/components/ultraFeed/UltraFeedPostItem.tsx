@@ -47,7 +47,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     lineHeight: 1.15,
     textWrap: 'balance',
     width: '100%',
-    marginBottom: 4,
     '&:hover': {
       opacity: 0.9,
     },
@@ -72,6 +71,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     }
   },
   metaRoot: {
+    marginTop: 4,
     position: "relative",
     display: "flex",
     flexWrap: "wrap",
@@ -79,13 +79,17 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "1.3rem",
+    fontSize: theme.typography.body2.fontSize,
     "& > *": {
       marginRight: 5,
     },
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: `${theme.palette.linkHover.dim} !important`,
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "1.3rem",
+      marginTop: 0,
     },
   },
   metaLeftSection: {
