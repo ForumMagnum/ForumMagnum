@@ -485,7 +485,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       AND ${getViewableCommentsSelector(alias)}
     `;
 
-    const feedCommentsData: any[] = await db.manyOrNone(`
+    const feedCommentsData: FeedCommentFromDb[] = await db.manyOrNone(`
       -- CommentsRepo.getCommentsForFeed
       WITH "InitialCandidates" AS (
           -- Find top candidate comments based on recency or shortform status
