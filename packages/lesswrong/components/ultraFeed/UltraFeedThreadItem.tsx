@@ -155,7 +155,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
 
   const postMetaInfo = {
     sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],
-    displayStatus: "expanded" as FeedItemDisplayStatus
+    displayStatus: "expanded" as FeedItemDisplayStatus,
   }
 
   const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos);

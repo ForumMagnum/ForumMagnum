@@ -37,8 +37,6 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     cursor: 'pointer',
   },
   maxHeight: {
-    maxHeight: 1000,
-    //TODO: somehow check if this is being triggered and if so, display additional text/button for expansion
   },
   lineClamp: {
     display: '-webkit-box !important',
