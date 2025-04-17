@@ -53,7 +53,6 @@ const getUsedMuiStyles = () => {
     MuiTabs: require("@/lib/vendor/@material-ui/core/src/Tabs/Tabs").styles,
     MuiTextField: require("@/lib/vendor/@material-ui/core/src/TextField/TextField").styles,
     MuiToolbar: require("@/lib/vendor/@material-ui/core/src/Toolbar/Toolbar").styles,
-    MuiTooltip: require("@/lib/vendor/@material-ui/core/src/Tooltip/Tooltip").styles,
   };
 
   // Filter out components that don't have any styles
