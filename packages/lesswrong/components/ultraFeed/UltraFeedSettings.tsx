@@ -149,18 +149,18 @@ interface UltraFeedSettingsComponentProps {
 type AlgorithmFieldValidationRules = Pick<UltraFeedSettingsType, 
   'commentDecayFactor' | 
   'commentDecayBiasHours' | 
-  'commentSeenPenalty' | 
+  'ultraFeedSeenPenalty' | 
   'quickTakeBoost'
 >;
 
-type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'incognitoMode' | 'threadScoreAggregation' | 'threadScoreFirstN'> & {
+type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'incognitoMode' | 'threadScoreAggregation' | 'threadScoreFirstN'> & {
   lineClampNumberOfLines: number | '';
   postTruncationBreakpoints: (number | '')[];
   commentTruncationBreakpoints: (number | '')[];
   sourceWeights: Record<FeedItemSourceType, number | '' >;
   commentDecayFactor: number | '';
   commentDecayBiasHours: number | '';
-  commentSeenPenalty: number | '';
+  ultraFeedSeenPenalty: number | '';
   quickTakeBoost: number | '';
   incognitoMode: boolean;
   threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
@@ -171,7 +171,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
-    const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, commentSeenPenalty, quickTakeBoost, incognitoMode, threadScoreAggregation, threadScoreFirstN } = settings;
+    const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, ultraFeedSeenPenalty, quickTakeBoost, incognitoMode, threadScoreAggregation, threadScoreFirstN } = settings;
 
     // Ensure arrays have length 3
     const ensureLength3 = (arr: (number | '')[]) => {
@@ -189,7 +189,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) },
       commentDecayFactor,
       commentDecayBiasHours,
-      commentSeenPenalty,
+      ultraFeedSeenPenalty,
       quickTakeBoost,
       incognitoMode,
       threadScoreAggregation,
@@ -219,7 +219,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       sourceWeights: updatedSourceWeights,
       commentDecayFactor: settings.commentDecayFactor,
       commentDecayBiasHours: settings.commentDecayBiasHours,
-      commentSeenPenalty: settings.commentSeenPenalty,
+      ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty,
       quickTakeBoost: settings.quickTakeBoost,
       incognitoMode: settings.incognitoMode,
       threadScoreAggregation: settings.threadScoreAggregation,
@@ -239,7 +239,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       sourceWeights: initialErrors,
       commentDecayFactor: false,
       commentDecayBiasHours: false,
-      commentSeenPenalty: false,
+      ultraFeedSeenPenalty: false,
       quickTakeBoost: false,
       incognitoMode: false,
       threadScoreAggregation: false,
@@ -354,7 +354,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   }, []);
 
   const handleNumericSettingChange = useCallback(( 
-    key: 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost' | 'lineClampNumberOfLines' | 'threadScoreFirstN',
+    key: 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'lineClampNumberOfLines' | 'threadScoreFirstN',
     value: string,
     min?: number,
     max?: number
@@ -363,7 +363,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       setFormValues(prev => ({ ...prev, [key]: '' })); 
       setErrors(prev => ({ ...prev, [key]: true }));
     } else {
-      const useFloat = key === 'commentDecayFactor' || key === 'commentSeenPenalty' || key === 'quickTakeBoost' || key === 'commentDecayBiasHours';
+      const useFloat = key === 'commentDecayFactor' || key === 'ultraFeedSeenPenalty' || key === 'quickTakeBoost' || key === 'commentDecayBiasHours';
       const numValue = useFloat ? parseFloat(value) : parseInt(value, 10);
       const newValue = isNaN(numValue) ? '' : numValue;
       let isValid = !isNaN(numValue);
@@ -403,7 +403,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
            sourceWeightErrors ||
            errors.commentDecayFactor ||
            errors.commentDecayBiasHours ||
-           errors.commentSeenPenalty ||
+           errors.ultraFeedSeenPenalty ||
            errors.quickTakeBoost ||
            errors.threadScoreFirstN;
   }, [errors, formValues.sourceWeights]);
@@ -499,13 +499,13 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     const algorithmFields: (keyof AlgorithmFieldValidationRules)[] = [
       'commentDecayFactor', 
       'commentDecayBiasHours',
-      'commentSeenPenalty',
+      'ultraFeedSeenPenalty',
       'quickTakeBoost'
     ];
     const algorithmFieldValidation: Record<keyof AlgorithmFieldValidationRules, {min?: number, max?: number}> = {
       commentDecayFactor: { min: 0.1 },
       commentDecayBiasHours: { min: 0 },
-      commentSeenPenalty: { min: 0.0, max: 1.0 },
+      ultraFeedSeenPenalty: { min: 0.0, max: 1.0 },
       quickTakeBoost: { min: 0.1 }
     };
 
@@ -555,8 +555,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     if (validatedValues.commentDecayBiasHours !== undefined) {
       finalSettingsToUpdate.commentDecayBiasHours = validatedValues.commentDecayBiasHours;
     }
-    if (validatedValues.commentSeenPenalty !== undefined) {
-      finalSettingsToUpdate.commentSeenPenalty = validatedValues.commentSeenPenalty;
+    if (validatedValues.ultraFeedSeenPenalty !== undefined) {
+      finalSettingsToUpdate.ultraFeedSeenPenalty = validatedValues.ultraFeedSeenPenalty;
     }
     if (validatedValues.quickTakeBoost !== undefined) {
       finalSettingsToUpdate.quickTakeBoost = validatedValues.quickTakeBoost;
@@ -735,20 +735,20 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
         </div>
 
         <div className={classes.inputContainer}>
-           <label className={classes.inputLabel}>Comment Seen Penalty:</label>
+           <label className={classes.inputLabel}>Seen Penalty:</label>
            <input
              type="number"
              step="0.05"
-             className={classNames(classes.numberInput, { [classes.invalidInput]: errors.commentSeenPenalty })}
-             value={formValues.commentSeenPenalty}
-             onChange={(e) => handleNumericSettingChange('commentSeenPenalty', e.target.value, 0.0, 1.0)}
+             className={classNames(classes.numberInput, { [classes.invalidInput]: errors.ultraFeedSeenPenalty })}
+             value={formValues.ultraFeedSeenPenalty}
+             onChange={(e) => handleNumericSettingChange('ultraFeedSeenPenalty', e.target.value, 0.0, 1.0)}
              min={0.0}
              max={1.0}
            />
            <p className={classes.inputDescription}>
-             Multiplier applied to comment score if viewed (e.g., 0.6 means 60% score retained). Range 0.0 - 1.0.
+             Multiplier applied to item score if viewed (e.g., 0.6 means 60% score retained). Range 0.0 - 1.0.
            </p>
-           {errors.commentSeenPenalty && (
+           {errors.ultraFeedSeenPenalty && (
              <p className={classes.errorMessage}>Must be a number between 0.0 and 1.0.</p>
            )}
         </div>
