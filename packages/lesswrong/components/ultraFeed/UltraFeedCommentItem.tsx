@@ -123,10 +123,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     width: 0,
     borderLeft: `4px solid ${theme.palette.grey[300]}`,
     flex: 1,
-    marginLeft: -10
+    marginLeft: -10,
+    transition: 'border-left-color 1.0s ease-in-out',
   },
   verticalLineHighlighted: {
-    borderLeft: `4px solid ${theme.palette.secondary.light}8c`,
+    borderLeft: `4px solid ${theme.palette.secondary.light}ac`,
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
@@ -207,10 +208,14 @@ const UltraFeedCommentItem = ({
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
-  const { observe, trackExpansion } = useUltraFeedObserver();
+  const { observe, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { post } = comment;
   const { displayStatus } = metaInfo;
+
+  const [isHighlighted, setIsHighlighted] = useState(() => 
+    highlight && !hasBeenLongViewed(comment._id)
+  );
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -222,6 +227,31 @@ const UltraFeedCommentItem = ({
       });
     }
   }, [observe, comment._id, comment.postId]);
+
+  // Effect to subscribe/unsubscribe to long view events from the observer
+  useEffect(() => {
+    // Update local state if the prop changes or if it was already long-viewed
+    const initialHighlight = highlight && !hasBeenLongViewed(comment._id);
+    setIsHighlighted(initialHighlight);
+
+    // Callback to turn off highlight when long view occurs
+    const handleLongView = () => {
+      setIsHighlighted(false);
+    };
+
+    // Subscribe only if the component should currently be highlighted
+    if (initialHighlight) {
+      subscribeToLongView(comment._id, handleLongView);
+    }
+
+    // Cleanup: Unsubscribe when component unmounts or dependencies change
+    return () => {
+      // Check initialHighlight again ensures we only unsubscribe if we initially subscribed
+      if (initialHighlight) { 
+        unsubscribeFromLongView(comment._id, handleLongView);
+      }
+    };
+  }, [highlight, comment._id, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
     trackExpansion({
@@ -264,7 +294,7 @@ const UltraFeedCommentItem = ({
         <div className={classNames(
           classes.verticalLine,
           { 
-            [classes.verticalLineHighlighted]: highlight,
+            [classes.verticalLineHighlighted]: isHighlighted,
             [classes.verticalLineFirstComment]: isFirstComment,
             [classes.verticalLineLastComment]: isLastComment
           }

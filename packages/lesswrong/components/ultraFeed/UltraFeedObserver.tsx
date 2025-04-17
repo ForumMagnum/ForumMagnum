@@ -40,8 +40,8 @@ import React, {
   useEffect,
   useCallback,
   ReactNode,
+  useMemo,
 } from 'react';
-import { gql } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "../../lib/crud/withCreate";
 
@@ -66,12 +66,15 @@ interface UltraFeedObserverContextType {
   observe: (element: Element, data: ObserveData) => void;
   unobserve: (element: Element) => void;
   trackExpansion: (data: TrackExpansionData) => void;
+  subscribeToLongView: (documentId: string, callback: () => void) => void;
+  unsubscribeFromLongView: (documentId: string, callback: () => void) => void;
+  hasBeenLongViewed: (documentId: string) => boolean;
 }
 
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
 
 const VIEW_THRESHOLD_MS = 300;
-const LONG_VIEW_THRESHOLD_MS = 2000;
+const LONG_VIEW_THRESHOLD_MS = 2500;
 const INTERSECTION_THRESHOLD = 0.5;
 
 const documentTypeToCollectionName = {
@@ -94,6 +97,9 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   const elementDataMapRef = useRef<Map<Element, ObserveData>>(new Map());
   const longViewedItemsRef = useRef<Set<string>>(new Set());
   const shortViewedItemsRef = useRef<Set<string>>(new Set());
+
+  // New: Ref to store subscription callbacks for long view events
+  const longViewSubscriptionsRef = useRef<Map<string, Set<() => void>>>(new Map());
 
   const logViewEvent = useCallback((elementData: ObserveData, durationMs: number) => {
     if (!currentUser || incognitoMode || !elementData) return;
@@ -124,6 +130,9 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
 
       if (entry.isIntersecting && entry.intersectionRatio >= INTERSECTION_THRESHOLD) {
         if (!timerMapRef.current.has(element)) {
+          // Ensure elementData exists before proceeding
+          if (!elementData) return;
+          
           let shortTimerId: NodeJS.Timeout | null = null;
           if (!shortViewedItemsRef.current.has(elementData.documentId)) {
             shortTimerId = setTimeout(() => {
@@ -140,8 +149,23 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
 
           const longTimerId = setTimeout(() => {
              if (elementDataMapRef.current.has(element)) {
-               logViewEvent(elementData, LONG_VIEW_THRESHOLD_MS);
-               longViewedItemsRef.current.add(elementData.documentId);
+               // Ensure elementData exists before proceeding
+               const currentElementData = elementDataMapRef.current.get(element);
+               if (!currentElementData) return;
+
+               logViewEvent(currentElementData, LONG_VIEW_THRESHOLD_MS);
+               const documentId = currentElementData.documentId;
+               longViewedItemsRef.current.add(documentId);
+
+               // New: Notify subscribers for this documentId
+               const subscriptions = longViewSubscriptionsRef.current.get(documentId);
+               if (subscriptions) {
+                 subscriptions.forEach(callback => callback());
+                 // clear subscriptions after notifying, if desired:
+                 longViewSubscriptionsRef.current.delete(documentId);
+               }
+               
+               // Original logic: stop observing, clear maps
                observerRef.current?.unobserve(element);
                elementDataMapRef.current.delete(element);
                timerMapRef.current.delete(element);
@@ -210,6 +234,30 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
     }
   }, []);
 
+  // New: Check if an item has been long-viewed
+  const hasBeenLongViewed = useCallback((documentId: string): boolean => {
+    return longViewedItemsRef.current.has(documentId);
+  }, []);
+
+  // New: Subscribe to long view event for a specific documentId
+  const subscribeToLongView = useCallback((documentId: string, callback: () => void) => {
+    if (!longViewSubscriptionsRef.current.has(documentId)) {
+      longViewSubscriptionsRef.current.set(documentId, new Set());
+    }
+    longViewSubscriptionsRef.current.get(documentId)!.add(callback);
+  }, []);
+
+  // New: Unsubscribe from long view event
+  const unsubscribeFromLongView = useCallback((documentId: string, callback: () => void) => {
+    if (longViewSubscriptionsRef.current.has(documentId)) {
+      const subscriptions = longViewSubscriptionsRef.current.get(documentId)!;
+      subscriptions.delete(callback);
+      if (subscriptions.size === 0) {
+        longViewSubscriptionsRef.current.delete(documentId);
+      }
+    }
+  }, []);
+
   const trackExpansion = useCallback((data: TrackExpansionData) => {
     if (!currentUser || incognitoMode) return;
     
@@ -229,7 +277,14 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
     void createUltraFeedEvent(eventData);
   }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
-  const contextValue = { observe, unobserve, trackExpansion };
+  const contextValue = useMemo(() => ({ 
+    observe, 
+    unobserve, 
+    trackExpansion, 
+    subscribeToLongView, 
+    unsubscribeFromLongView, 
+    hasBeenLongViewed 
+  }), [observe, unobserve, trackExpansion, subscribeToLongView, unsubscribeFromLongView, hasBeenLongViewed]);
 
   return (
     <UltraFeedObserverContext.Provider value={contextValue}>
