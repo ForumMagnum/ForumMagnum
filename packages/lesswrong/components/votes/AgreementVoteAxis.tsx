@@ -4,8 +4,10 @@ import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingProps } from './votingProps';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import classNames from 'classnames';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   root: {
   },
   agreementSection: {
@@ -20,23 +22,23 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
   },
   agreementScore: {
-    fontSize: "1.1rem",
-    marginLeft: 3,
     lineHeight: 1,
-    marginRight: 3,
+    fontSize: "1.1rem",
+    margin: '0 3px',
   },
   tooltip: {
     transform: "translateY(-10px)",
   },
-});
+}));
 
-const AgreementVoteAxis = ({ hideKarma=false, voteProps, classes }: {
+const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScoreClassName, }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>,
+  agreementScoreClassName?: string,
 }) => {
   const { AxisVoteButton, LWTooltip } = Components;
+  const classes = useStyles(styles);
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
   const karma = voteProps.document?.extendedScore?.agreement || 0;
   const currentUser = useCurrentUser();
@@ -94,7 +96,7 @@ const AgreementVoteAxis = ({ hideKarma=false, voteProps, classes }: {
         />
       </TooltipIfEnabled>
 
-      <span className={classes.agreementScore}>
+      <span className={classNames(classes.agreementScore, agreementScoreClassName)}>
         <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
           {hideKarma
             ? <span>{' '}</span>
@@ -122,7 +124,9 @@ const AgreementVoteAxis = ({ hideKarma=false, voteProps, classes }: {
 }
 
 
-const AgreementVoteAxisComponent = registerComponent('AgreementVoteAxis', AgreementVoteAxis, {styles});
+const AgreementVoteAxisComponent = registerComponent('AgreementVoteAxis', AgreementVoteAxis);
+
+export default AgreementVoteAxisComponent;
 
 declare global {
   interface ComponentTypes {

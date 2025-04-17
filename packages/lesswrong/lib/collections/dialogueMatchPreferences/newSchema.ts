@@ -55,8 +55,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[JSON]",
-      inputType: "[JSON]!",
+      outputType: "[JSON!]",
+      inputType: "[JSON!]!",
       canRead: ["members", "admins"],
       canUpdate: ["members", "admins"],
       canCreate: ["members", "admins"],
@@ -165,7 +165,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -174,6 +175,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"DialogueMatchPreferences">>;
+} satisfies Record<string, CollectionFieldSpecification<"DialogueMatchPreferences">>;
 
 export default schema;

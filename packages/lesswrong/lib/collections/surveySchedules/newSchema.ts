@@ -1,18 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
-const commonFields = ({
-  nullable = false,
-}: {
-  nullable?: boolean;
-} = {}): CollectionFieldSpecification<"SurveySchedules"> => ({
-  canRead: ["admins"],
-  canCreate: ["admins"],
-  canUpdate: ["admins"],
-  optional: nullable,
-  nullable,
-});
-
 const surveyScheduleTargets = [
   { value: "allUsers", label: "All users" },
   { value: "loggedInOnly", label: "Logged-in users only" },
@@ -33,8 +21,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -217,8 +204,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
-      inputType: "[String]!",
+      outputType: "[String!]",
+      inputType: "[String!]!",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -235,6 +222,6 @@ const schema = {
       resolver: generateIdResolverMulti({ foreignCollectionName: "ClientIds", fieldName: "clientIds" }),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"SurveySchedules">>;
+} satisfies Record<string, CollectionFieldSpecification<"SurveySchedules">>;
 
 export default schema;

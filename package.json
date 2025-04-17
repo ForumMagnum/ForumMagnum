@@ -153,7 +153,7 @@
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^18.2.0",
     "@types/react-geosuggest": "^2.7.10",
-    "@types/react-helmet": "^5.0.15",
+    "@types/react-helmet": "^6.1.11",
     "@types/react-instantsearch": "^6.10.4",
     "@types/react-instantsearch-dom": "^6.10.4",
     "@types/react-map-gl": "^5.2.2",
@@ -238,6 +238,7 @@
     "json-stringify-deterministic": "^1.0.8",
     "jsonwebtoken": "^9.0.0",
     "juice": "^7.0.0",
+    "keycode": "^2.2.1",
     "later": "^1.2.0",
     "linkedom": "^0.16.11",
     "logrocket": "^1.0.0",
@@ -278,7 +279,6 @@
     "raf": "3.4.1",
     "react": "^18.2.0",
     "react-autosuggest": "^9.4.0",
-    "react-bootstrap": "1.0.0-beta.14",
     "react-confetti": "^6.2.2",
     "react-cookie": "^4.0.1",
     "react-copy-to-clipboard": "^5.1.0",
@@ -312,12 +312,13 @@
     "turndown-plugin-gfm": "^1.0.2",
     "twitter-api-v2": "^1.17.1",
     "type-fest": "^1.1.1",
-    "typescript": "^5.0.0",
+    "typescript": "^5.8.3",
     "underscore": "^1.12.1",
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
     "url": "^0.11.0",
     "uuid": "^7.0.0",
+    "warning": "^4.0.3",
     "zod": "^3.22.3",
     "zod-to-json-schema": "^3.23.5"
   },
@@ -373,7 +374,7 @@
     "ts-loader": "^8.0.5",
     "ts-morph": "^25.0.1",
     "tsconfig-paths": "^4.2.0",
-    "vite": "^5.4.16"
+    "vite": "^5.4.18"
   },
   "resolutions": {
     "esbuild": "^0.24.0",

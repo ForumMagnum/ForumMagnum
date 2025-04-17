@@ -417,7 +417,7 @@ async function main() {
     entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
     tsconfig: "./tsconfig-client.json",
     bundle: true,
-    target: "es6",
+    target: "es2018",
     sourcemap: true,
     metafile: true,
     sourcesContent: true,

@@ -1,9 +1,10 @@
-import { Posts } from '../server/collections/posts/collection';
 import { createNotification } from './notificationCallbacksHelpers';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import sortBy from 'lodash/sortBy';
-import { updateMutator } from "./vulcan-lib/mutators";
 import gql from 'graphql-tag';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updatePost } from './collections/posts/mutations';
+
 const responseSortOrder = {
   yes: 1,
   maybe: 2,
@@ -48,17 +49,15 @@ export const rsvpToEventsMutations = {
       rsvps = [...rsvps, newRSVP]
     }
     
-    const updatedPost = (await updateMutator({
-      collection: Posts,
-      documentId: postId,
-      set: {
+    const updatedPost = await updatePost({
+      data: {
         // This creates a race condition where two users could sign up at the
         // same time, and only one would be rsvped, but this should be rare,
         // and the user will immediately not see their name and try again
-        rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0 )
+        rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0)
       },
-      validate: false
-    })).data
+      selector: { _id: postId }
+    }, createAnonymousContext());
 
     await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id, context})
     return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
@@ -77,15 +76,13 @@ async CancelRSVPToEvent(root: void, {postId, name, userId}: {postId: string, nam
 
     const rsvps = post.rsvps.filter(rsvp => rsvp.name !== name)
 
-    const updatedPost = (await updateMutator({
-      collection: Posts,
-      documentId: postId,
-      set: {
+    const updatedPost = await updatePost({
+      data: {
         // maybe analagous race condition? See RSVPToEvent comments- Ray
-        rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0 )
+        rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0)
       },
-      validate: false
-    })).data
+      selector: { _id: postId }
+    }, createAnonymousContext());
 
     await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id, context})
     return accessFilterSingle(currentUser, 'Posts', updatedPost, context);

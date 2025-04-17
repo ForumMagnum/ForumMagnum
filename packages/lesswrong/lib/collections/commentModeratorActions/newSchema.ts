@@ -92,6 +92,6 @@ const schema = {
       resolver: (doc) => isCommentActionActive(doc),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"CommentModeratorActions">>;
+} satisfies Record<string, CollectionFieldSpecification<"CommentModeratorActions">>;
 
 export default schema;

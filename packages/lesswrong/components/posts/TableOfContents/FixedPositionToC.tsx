@@ -17,6 +17,9 @@ import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { getClassName } from '@/components/hooks/useStyles';
+import type { TableOfContentsRowStyles } from './TableOfContentsRow';
+import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -128,7 +131,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     paddingTop: 22,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
-    '& .TableOfContentsRow-title': {
+    [`& .${getClassName<TableOfContentsRowStyles>("TableOfContentsRow", "title")}`]: {
       borderBottom: "none",
     },
     wordBreak: 'break-word',
@@ -226,7 +229,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
-    '& .TableOfContentsDivider-divider': {
+    [`& .${getClassName<TableOfContentsDividerStyles>("TableOfContentsDivider", "divider")}`]: {
       marginLeft: 4,
     },
   },

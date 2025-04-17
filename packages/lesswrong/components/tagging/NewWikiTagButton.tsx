@@ -1,5 +1,5 @@
 import React from 'react';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';

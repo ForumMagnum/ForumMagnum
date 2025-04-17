@@ -993,17 +993,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: 'Bookmarks',
     },
     {
-      name: 'Walled Garden',
-      path: '/walledGarden',
-      componentName: 'WalledGardenHome',
-      title: "Walled Garden",
-    },
-    {
-      name: 'Walled Garden Portal',
-      path: '/walledGardenPortal',
-      redirect: () => `/walledGarden`,
-    },
-    {
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
       componentName: 'PostsSingleSlug',
@@ -1065,12 +1054,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/allCommentsWithReacts',
       componentName: 'AllReactedCommentsPage',
       title: "All Comments with Reacts"
-    },
-    {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
     },
     {
       name: 'nominations2018-old',
@@ -1192,13 +1175,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Meta',
       path: '/meta',
       redirect: () => `/tag/site-meta`,
-    },
-    // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
-    {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
     },
     {
       name: 'nominations2018-old',

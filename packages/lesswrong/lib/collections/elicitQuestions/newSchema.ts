@@ -21,8 +21,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members", "sunshineRegiment"],
@@ -73,6 +72,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ElicitQuestions">>;
+} satisfies Record<string, CollectionFieldSpecification<"ElicitQuestions">>;
 
 export default schema;

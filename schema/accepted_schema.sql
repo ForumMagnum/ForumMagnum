@@ -908,7 +908,7 @@ CREATE TABLE "FeaturedResources" (
   "body" TEXT,
   "ctaText" TEXT NOT NULL,
   "ctaUrl" TEXT NOT NULL,
-  "expiresAt" TIMESTAMPTZ
+  "expiresAt" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_FeaturedResources_schemaVersion"
@@ -1155,10 +1155,10 @@ CREATE TABLE "Localgroups" (
   "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
-  "name" TEXT,
+  "name" TEXT NOT NULL,
   "nameInAnotherLanguage" TEXT,
   "organizerIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "lastActivity" TIMESTAMPTZ,
+  "lastActivity" TIMESTAMPTZ NOT NULL,
   "types" TEXT[] NOT NULL DEFAULT '{''LW''}',
   "categories" TEXT[],
   "isOnline" BOOL NOT NULL DEFAULT FALSE,
@@ -2589,7 +2589,6 @@ CREATE TABLE "Revisions" (
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
   "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
   "afVoteCount" DOUBLE PRECISION
@@ -3097,6 +3096,21 @@ CREATE INDEX IF NOT EXISTS "idx_TypingIndicators_schemaVersion" ON "TypingIndica
 -- Index "idx_TypingIndicators_documentId_userId"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "TypingIndicators" USING btree ("documentId", "userId");
 
+-- Table "UltraFeedEvents"
+CREATE TABLE "UltraFeedEvents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "eventType" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "event" JSONB,
+  "feedItemId" TEXT
+);
+
+-- Index "idx_ultraFeedEvents_document_user_event_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_document_user_event_createdAt" ON "UltraFeedEvents" USING btree ("documentId", "userId", "eventType", "createdAt");
+
 -- Table "UserActivities"
 CREATE TABLE "UserActivities" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3194,7 +3208,7 @@ CREATE TABLE "UserRateLimits" (
   "intervalUnit" TEXT NOT NULL,
   "intervalLength" DOUBLE PRECISION NOT NULL,
   "actionsPerInterval" DOUBLE PRECISION NOT NULL,
-  "endedAt" TIMESTAMPTZ
+  "endedAt" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_UserRateLimits_schemaVersion"
@@ -3209,7 +3223,7 @@ CREATE TABLE "UserTagRels" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "tagId" VARCHAR(27),
+  "tagId" VARCHAR(27) NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
   "subforumLastVisitedAt" TIMESTAMPTZ,
   "subforumShowUnreadInSidebar" BOOL NOT NULL DEFAULT TRUE,
@@ -3221,7 +3235,7 @@ CREATE TABLE "UserTagRels" (
 CREATE INDEX IF NOT EXISTS "idx_UserTagRels_schemaVersion" ON "UserTagRels" USING btree ("schemaVersion");
 
 -- Index "idx_UserTagRels_tagId_userId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree (COALESCE("tagId", ''), "userId");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree ("tagId", "userId");
 
 -- Table "Users"
 CREATE TABLE "Users" (
@@ -3581,9 +3595,6 @@ CREATE INDEX IF NOT EXISTS "idx_Users_profileTagIds_deleted_deleteContent_karma"
   "deleteContent",
   "karma"
 );
-
--- Index "idx_Users_walledGardenInvite"
-CREATE INDEX IF NOT EXISTS "idx_Users_walledGardenInvite" ON "Users" USING btree ("walledGardenInvite");
 
 -- Index "idx_Users_optedInToDialogueFacilitation_karma"
 CREATE INDEX IF NOT EXISTS "idx_Users_optedInToDialogueFacilitation_karma" ON "Users" USING btree ("optedInToDialogueFacilitation", "karma");

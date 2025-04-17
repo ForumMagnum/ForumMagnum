@@ -206,6 +206,12 @@ export const LLM_CHAT_EXPANDED = registerCookie({
   description: "Whether the LLM chat has expanded size",
 })
 
+export const ULTRA_FEED_ENABLED_COOKIE = registerCookie({
+  name: 'ultra_feed_enabled',
+  type: "functional",
+  description: "Whether the ultra feed mode is enabled, which hides QuickTakes and Popular Comments",
+})
+
 
 // Third party cookies
 

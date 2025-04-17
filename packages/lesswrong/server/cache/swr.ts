@@ -3,7 +3,6 @@ import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections
 import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";
 import { DatabaseServerSetting } from "../databaseSettings";
-import { getCollectionHooks } from "../mutationCallbacks";
 import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront";
 
 export const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching.enabled', false)

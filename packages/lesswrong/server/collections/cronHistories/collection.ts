@@ -11,7 +11,6 @@ export const CronHistories: CronHistoriesCollection = createCollection({
     indexSet.addIndex('CronHistories', {intendedAt: 1, name: 1}, {unique: true});
     return indexSet;
   },
-  logChanges: false,
 });
 
 export default CronHistories;
