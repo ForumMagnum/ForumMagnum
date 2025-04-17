@@ -17,7 +17,7 @@ const styles = defineStyles('TanStackMuiTextField', (theme: ThemeType) => ({
   }
 }));
 
-interface MuiTextFieldProps {
+interface TanStackMuiTextFieldProps {
   field: TypedFieldApi<string | number>;
   label?: string;
   children?: ReactNode;
@@ -31,7 +31,6 @@ interface MuiTextFieldProps {
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
 }
 
-// Use the generic type TValue
 export function TanStackMuiTextField({
   field,
   label,
@@ -44,7 +43,7 @@ export function TanStackMuiTextField({
   type,
   disabled = false,
   InputLabelProps,
-}: MuiTextFieldProps) {
+}: TanStackMuiTextFieldProps) {
   const classes = useStyles(styles);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const value = type === 'number' ? (event.target as HTMLInputElement).valueAsNumber : event.target.value;
@@ -82,30 +81,3 @@ export function TanStackMuiTextField({
   );
 };
 
-// Removed registerComponent call and global interface declaration
-// You would typically register this component in your createFormHook setup:
-/*
-import { MuiTextField } from './path/to/MuiTextField';
-// ... other imports
-
-const { useAppForm } = createFormHook({
-  // ... other options
-  fieldComponents: {
-    MuiTextField,
-    // ... other field components
-  }
-});
-*/
-
-// Example Usage within a form component using useAppForm:
-/*
-<form.AppField
-  name="yourFieldName" // This name must match a key in your defaultValues/validators
-  children={(field) => (
-    <field.MuiTextField // Access registered component via field
-      label="Your Label"
-      // ... other props for MuiTextField
-    />
-  )}
-/>
-*/

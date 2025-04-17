@@ -4,7 +4,7 @@ import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { DatabasePublicSetting, mapsAPIKeySetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
@@ -102,8 +102,6 @@ const styles = (theme: ThemeType) => ({
     },
   },
 });
-
-export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
 
 let mapsLoadingState: "unloaded"|"loading"|"loaded" = "unloaded";
 let onMapsLoaded: Array<() => void> = [];

@@ -41,7 +41,7 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,
-  data: ObjectsByCollectionName[CollectionName],
+  data: FragmentTypes[F],
 }=> {
   const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 

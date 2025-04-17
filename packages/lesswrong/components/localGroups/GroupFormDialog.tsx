@@ -1,20 +1,28 @@
-/* eslint-disable react/no-children-prop */
 import { useMessages } from '../common/withMessages';
-import React from 'react';
+import React, { useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useAppForm } from '../tanstack-form-components/BaseAppForm';
 import { useForm } from '@tanstack/react-form';
-// import { zodValidator } from '@tanstack/zod-form-adapter';
 import { z } from 'zod';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-// import Box from '@/lib/vendor/@material-ui/core/src/Card';
-// import { UserType } from '@/lib/users/types';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
 import { useSingle } from '@/lib/crud/withSingle';
+import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
+import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
+import { isEAForum, isLW } from '@/lib/instanceSettings';
+import { TanStackMultiSelectButtons } from '../tanstack-form-components/TanStackMultiSelectButtons';
+import { TanStackMultiSelect } from '../tanstack-form-components/TanStackMultiSelect';
+import { GROUP_CATEGORIES } from '@/lib/collections/localgroups/newSchema';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { TanStackUserMultiselect } from '../tanstack-form-components/TanStackUserMultiSelect';
+import { TanStackLocation } from '../tanstack-form-components/TanStackLocation';
+import { TanStackImageUpload } from '../tanstack-form-components/TanStackImageUpload';
+import { TanStackEditor } from '../tanstack-form-components/TanStackEditor';
+import { useCreate } from '@/lib/crud/withCreate';
+import { useUpdate } from '@/lib/crud/withUpdate';
+import { TanStackGroupFormSubmit } from './TanStackGroupFormSubmit';
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {
@@ -44,6 +52,7 @@ const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
     },
   },
   fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
   },
 }));
@@ -71,275 +80,308 @@ const groupValidationSchema = z.object({
 type GroupFormValues = z.infer<typeof groupValidationSchema>;
 
 const TanStackGroupForm = ({
-  documentId,
   initialData,
   isOnline: initialIsOnline,
   currentUser,
   onSuccess,
 }: {
-  documentId?: string;
-  initialData?: Omit<localGroupsEdit, '_id' | 'createdAt' | 'organizers' | 'lastActivity' | 'deleted' | 'mongoLocation' | 'inactive'>;
+  initialData?: localGroupsEdit;
   isOnline?: boolean;
   currentUser: UsersCurrent;
   onSuccess: (group: any) => void;
 }) => {
   const classes = useStyles(styles);
 
+  const { LWTooltip, Error404 } = Components;
+
+  const formType = initialData ? 'edit' : 'new';
+
+  const { create } = useCreate({
+    collectionName: 'Localgroups',
+    fragmentName: 'localGroupsHomeFragment',
+  });
+
+  const { mutate } = useUpdate({
+    collectionName: 'Localgroups',
+    fragmentName: 'localGroupsHomeFragment',
+  });
+
+  const onSubmitCallback = useRef<((submission: typeof form.state.values) => Promise<typeof form.state.values>)>();
+  const onSuccessCallback = useRef<((result: localGroupsHomeFragment, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => localGroupsHomeFragment)>();
+
+  const addOnSubmitCallback = (cb: (submission: typeof form.state.values) => Promise<typeof form.state.values>) => {
+    onSubmitCallback.current = cb;
+    return () => {
+      onSubmitCallback.current = undefined;
+    };
+  };
+
+  const addOnSuccessCallback = (cb: (result: localGroupsHomeFragment, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => localGroupsHomeFragment) => {
+    onSuccessCallback.current = cb;
+    return () => {
+      onSuccessCallback.current = undefined;
+    };
+  };
+
   const form = useForm({
-    validators: {
-      onChange: groupValidationSchema,
+    // validators: {
+    //   onChange: groupValidationSchema,
+    // },
+    defaultValues: {
+      ...initialData,
+      types: initialData?.types ?? ["LW"],
+      isOnline: initialIsOnline ?? initialData?.isOnline ?? false,
+      organizerIds: initialData ? initialData.organizerIds : [currentUser._id],
     },
-    // validatorAdapter: zodValidator,
-    defaultValues: initialData,
-    // defaultValues: {
-    //   name: initialData?.name ?? '',
-    //   // nameInAnotherLanguage: initialData?.nameInAnotherLanguage ?? undefined, // ?? '',
-    //   organizerIds: initialData?.organizerIds ?? (currentUser?._id ? [currentUser._id] : []),
-    //   types: initialData?.types ?? ['LW'],
-    //   ...(initialData?.categories ? { categories: initialData.categories } : {}),
-    //   // categories: initialData?.categories ?? undefined,
-    //   isOnline: initialData?.isOnline ?? initialIsOnline ?? false,
-    //   googleLocation: initialData?.googleLocation ?? null,
-    //   location: initialData?.location ?? '',
-    //   // contents: initialData?.contents?.database ?? null,
-    //   contactInfo: initialData?.contactInfo ?? '',
-    //   facebookLink: initialData?.facebookLink ?? '',
-    //   facebookPageLink: initialData?.facebookPageLink ?? '',
-    //   meetupLink: initialData?.meetupLink ?? '',
-    //   slackLink: initialData?.slackLink ?? '',
-    //   website: initialData?.website ?? '',
-    //   bannerImageId: initialData?.bannerImageId ?? '',
-    //   deleted: initialData?.deleted ?? false,
-    // } satisfies GroupFormValues,
     onSubmit: async ({ value }) => {
-      console.log('Form Submitted:', value);
-      const mockResult = { ...value, _id: documentId || 'new-id-' + Date.now(), name: value.name };
-      onSuccess(mockResult);
+      if (onSubmitCallback.current) {
+        value = await onSubmitCallback.current(value);
+      }
+
+      let result: localGroupsHomeFragment;
+      if (formType === 'new') {
+        const { data } = await create({ data: value });
+        result = data?.createLocalgroup.data;
+      } else {
+        const { data } = await mutate({
+          selector: { _id: initialData?._id },
+          data: value,
+        });
+        result = data?.updateLocalgroup.data;
+      }
+
+      if (onSuccessCallback.current) {
+        result = onSuccessCallback.current(result, {});
+      }
+
+      onSuccess(result);
     },
   });
 
-  // const isOnline = form.store.useStore(state => state.values.isOnline);
-
+  if (formType === 'edit' && !initialData) {
+    return <Error404 />;
+  }
 
   return (
-    <form onSubmit={(e) => {
+    <form className='vulcan-form' onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
-      form.handleSubmit();
+      void form.handleSubmit();
     }}>
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="name"
-          children={(field) => (
+        <form.Field name="name">
+          {(field) => (
             <TanStackMuiTextField
               field={field}
               label="Group Name"
-              fullWidth
             />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="nameInAnotherLanguage"
-          children={(field) => (
+        <form.Field name="nameInAnotherLanguage">
+          {(field) => (
             <TanStackMuiTextField
               field={field}
               label="Group name in another language (optional)"
-              fullWidth
             />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="organizerIds"
-          children={(field) => (
-            <div>TODO: Replace with TanStackFormUserMultiselect for 'organizerIds'</div>
+        <form.Field name="organizerIds">
+          {(field) => (
+            <TanStackUserMultiselect
+              field={field}
+              label={preferredHeadingCase("Add Organizers")}
+            />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="types"
-          children={(field) => (
-            <div>TODO: Replace with TanStackMultiSelectButtons for 'types'</div>
+        <form.Field name="contents">
+          {(field) => (
+            <TanStackEditor<typeof form.state.values, localGroupsHomeFragment>
+              field={field}
+              editorType={formType}
+              fieldName='contents'
+              name='contents'
+              commentEditor
+              commentStyles
+              collectionName='Localgroups'
+              formType={formType}
+              document={form.state.values}
+              hintText='Short description'
+              addOnSubmitCallback={addOnSubmitCallback}
+              addOnSuccessCallback={addOnSuccessCallback}
+            />
           )}
-        />
+        </form.Field>
       </div>
 
-      <div className={classes.fieldWrapper}>
-        <form.Field
-          name="categories"
-          children={(field) => (
-            <div>TODO: Replace with TanStackFormComponentMultiSelect for 'categories'</div>
+      {isLW && <div className={classes.fieldWrapper}>
+        <form.Field name="types">
+          {(field) => (
+            <TanStackMultiSelectButtons
+              field={field}
+              label='Group Type:'
+              options={localGroupTypeFormOptions}
+            />
           )}
-        />
-      </div>
+        </form.Field>
+      </div>}
+
+      {isEAForum && <div className={classes.fieldWrapper}>
+        <form.Field name="categories">
+          {(field) => (
+            <TanStackMultiSelect
+              field={field}
+              label='Group type / intended audience:'
+              options={GROUP_CATEGORIES}
+              placeholder='Select all that apply'
+            />
+          )}
+        </form.Field>
+      </div>}
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="isOnline"
-          children={(field) => (
-            <div>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.checked)}
-                  onBlur={field.handleBlur}
+        <form.Field name="isOnline">
+          {(field) => (
+            <TanStackCheckbox
+              field={field}
+              label="This is an online group"
+            />
+          )}
+        </form.Field>
+      </div>
+
+      <form.Subscribe selector={(state) => [state.values.isOnline]}>
+        {([isOnline]) => {
+          if (isOnline) {
+            return null;
+          }
+
+          return <div className={classes.fieldWrapper}>
+            <form.Field name="googleLocation">
+              {(field) => (
+                <TanStackLocation
+                  field={field}
+                  label={isFriendlyUI ? "Group location" : "Group Location"}
                 />
-                {'This is an online group'}
-              </label>
-              {field.state.meta.errors?.[0] && <p style={{ color: 'red' }}>{field.state.meta.errors[0]}</p>}
-            </div>
-          )}
-        />
-      </div>
+              )}
+            </form.Field>
+          </div>;
+        }}
+      </form.Subscribe>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="googleLocation"
-          children={(field) => (
-            <div>TODO: Replace with TanStackLocationForm for 'googleLocation'</div>
-          )}
-        />
-      </div>
-
-      <div className={classes.fieldWrapper}>
-        <form.Field
-          name="contents"
-          children={(field) => (
-            <div>TODO: Replace with TanStackEditorForm for 'contents'</div>
-          )}
-        />
-      </div>
-
-      <div className={classes.fieldWrapper}>
-        <form.Field
-          name="contactInfo"
-          children={(field) => (
+        <form.Field name="contactInfo">
+          {(field) => (
             <TanStackMuiTextField
               field={field}
               label="Contact Info"
-              fullWidth
             />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="facebookLink"
-          children={(field) => (
+        <form.Field name="facebookLink">
+          {(field) => (
             <TanStackMuiTextField
               field={field}
               label="Facebook Group"
-              fullWidth
             />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="facebookPageLink"
-          children={(field) => (
+        <form.Field name="facebookPageLink">
+          {(field) => (
             <TanStackMuiTextField
               field={field}
               label="Facebook Page"
-              fullWidth
             />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="meetupLink"
-          children={(field) => (
+        <form.Field name="meetupLink">
+          {(field) => (
             <TanStackMuiTextField
               field={field}
               label="Meetup.com Group"
-              fullWidth
             />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="slackLink"
-          children={(field) => (
+        <form.Field name="slackLink">
+          {(field) => (
             <TanStackMuiTextField
               field={field}
               label="Slack Workspace"
-              fullWidth
             />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="website"
-          children={(field) => (
+        <form.Field name="website">
+          {(field) => (
             <TanStackMuiTextField
               field={field}
               label="Website"
-              fullWidth
             />
           )}
-        />
+        </form.Field>
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field
-          name="bannerImageId"
-          children={(field) => (
-            <div>TODO: Replace with TanStackImageUpload for 'bannerImageId'</div>
+        <form.Field name="bannerImageId">
+          {(field) => (
+            <LWTooltip inlineBlock={false} placement="left-start" title='Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)'>
+              <TanStackImageUpload
+                field={field}
+                label={isFriendlyUI ? "Banner image" : "Banner Image"}
+                croppingAspectRatio={1.91}
+              />
+            </LWTooltip>
           )}
-        />
+        </form.Field>
       </div>
 
-      <div className={classes.fieldWrapper}>
-        <form.Field
-          name="deleted"
-          children={(field) => (
-            <div>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.checked)}
-                  onBlur={field.handleBlur}
-                />
-                Delete Group
-              </label>
-              {field.state.meta.errors?.[0] && <p style={{ color: 'red' }}>{field.state.meta.errors[0]}</p>}
-            </div>
-          )}
-        />
-      </div>
+      {/* Made a deliberate choice to get rid of the form group surrounding this single field */}
+      {formType === 'edit' && (
+        <div className={classes.fieldWrapper}>
+          <form.Field name="deleted">
+            {(field) => (
+              <TanStackCheckbox
+                field={field}
+                label="Delete Group"
+              />
+            )}
+          </form.Field>
+        </div>
+      )}
 
-      <div className={classes.formSubmit}>
-        <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={!canSubmit || isSubmitting}
-            >
-              {isSubmitting ? 'Saving...' : (documentId ? 'Update Group' : 'Create Group')}
-            </Button>
+      {/* <div className={classes.formSubmit}> */}
+        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
+            <TanStackGroupFormSubmit
+              formApi={form}
+              document={form.state.values}
+              formType={formType}
+            />
           )}
-        />
-      </div>
+        </form.Subscribe>
+      {/* </div> */}
     </form>
   );
 };
@@ -349,23 +391,20 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   documentId?: string,
   isOnline?: boolean
 }) => {
-  const { LWDialog } = Components;
+  const { LWDialog, Loading } = Components;
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const navigate = useNavigate();
   const classes = useStyles(styles);
-  
-  const { document: initialData } = useSingle({
+
+  const { document: initialData, loading } = useSingle({
     documentId,
     collectionName: 'Localgroups',
     fragmentName: 'localGroupsEdit',
     skip: !documentId,
   });
 
-  // const initialData: Partial<DbLocalgroup> | undefined = documentId ? { name: "Fetched Group Name" } : undefined;
-  const isLoading = false;
-
-  const handleSuccess = (group: any) => {
+  const handleSuccess = (group: localGroupsHomeFragment) => {
     onClose();
     if (documentId) {
       flash({ messageString: "Successfully edited local group " + group.name });
@@ -375,12 +414,8 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
     }
   };
 
-  if (documentId && isLoading) {
-    return (
-      <LWDialog open={true} onClose={onClose}>
-        <DialogContent>Loading group data...</DialogContent>
-      </LWDialog>
-    );
+  if (loading && documentId) {
+    return <Loading />;
   }
 
   return <LWDialog
@@ -389,7 +424,6 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   >
     <DialogContent className={classes.localGroupForm}>
       <TanStackGroupForm
-        documentId={documentId}
         initialData={initialData}
         isOnline={isOnline}
         currentUser={currentUser!}

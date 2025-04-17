@@ -213,3 +213,5 @@ export const auth0FacebookLoginEnabled = new DatabasePublicSetting<boolean>(
   'auth0FacebookLoginEnabled',
   new Date() < new Date('2025-04-07')
 );
+
+export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null);
