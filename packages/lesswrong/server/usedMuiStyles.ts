@@ -47,7 +47,6 @@ const getUsedMuiStyles = () => {
     MuiRadioGroup: require("@/lib/vendor/@material-ui/core/src/RadioGroup/RadioGroup").styles,
     MuiSelect: require("@/lib/vendor/@material-ui/core/src/Select/Select").styles,
     MuiSlide: require("@/lib/vendor/@material-ui/core/src/Slide/Slide").styles,
-    MuiSvgIcon: require("@/lib/vendor/@material-ui/core/src/SvgIcon/SvgIcon").styles,
     MuiSwitchBase: require("@/lib/vendor/@material-ui/core/src/internal/SwitchBase").styles,
     MuiSwitch: require("@/lib/vendor/@material-ui/core/src/Switch/Switch").styles,
     MuiTab: require("@/lib/vendor/@material-ui/core/src/Tab/Tab").styles,

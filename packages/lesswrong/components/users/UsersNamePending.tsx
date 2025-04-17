@@ -17,6 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     transform: "translateY(4px)",
+    fontSize: 20,
   },
 });
 
@@ -34,7 +35,7 @@ const UsersNamePending = ({ user, classes }: {
   return (
     <LWTooltip title={tooltip} placement="right">
       <Link to={userGetProfileUrl(user)} className={classes.userName}>
-        {name} <ErrorIcon fontSize="small" className={classes.icon} />
+        {name} <ErrorIcon className={classes.icon} />
       </Link>
     </LWTooltip>
   );
