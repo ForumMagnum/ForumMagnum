@@ -15,7 +15,7 @@ export const styles = defineStyles("MuiSvgIcon", (theme: any) => ({
       duration: theme.transitions.duration.shorter,
     }),
   },
-}), {stylePriority: -1});
+}), {stylePriority: -10});
 
 function SvgIcon(props: {
   className?: string
