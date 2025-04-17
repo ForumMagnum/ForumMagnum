@@ -24,9 +24,9 @@ import { useSingle } from "@/lib/crud/withSingle";
 export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
 const RESULT_ICON_MAX_HEIGHT = 27;
-const USER_IMAGE_SIZE = 34;
+const USER_IMAGE_SIZE = 30;
 const DEFAULT_STACK_IMAGES = 20;
-const NUM_TICKS = 29;
+const NUM_TICKS = 21;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
 const styles = (theme: ThemeType) => ({

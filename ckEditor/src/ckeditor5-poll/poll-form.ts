@@ -91,7 +91,7 @@ class MainFormView extends View {
                   attributes: {
                     class: ["ck-cta-form-label"],
                   },
-                  children: ["Disagree wording"],
+                  children: ["Left side"],
                 },
                 disagreeWordingView
               ]
@@ -107,7 +107,7 @@ class MainFormView extends View {
                   attributes: {
                     class: ["ck-cta-form-label"],
                   },
-                  children: ["Agree wording"],
+                  children: ["Right side"],
                 },
                 agreeWordingView
               ]
@@ -137,21 +137,33 @@ class MainFormView extends View {
                 {
                   tag: "div",
                   attributes: {
-                    style: "display: flex; align-items: center;"
+                    style: "display: flex; align-items: center; flex: 1;"
                   },
                   children: [
                     {
                       tag: "div",
                       attributes: {
-                        style: "background-color: #9f85cc; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
+                        style: "background-color: #06005C; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
                       }
                     },
                     {
                       tag: "div",
                       attributes: {
-                        style: "background-color: #3185C4; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
+                        style: "background-color: #1D2A17; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
                       }
-                    }
+                    },
+                    {
+                      tag: "div",
+                      attributes: {
+                        style: "background-color:rgb(123, 52, 2); width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
+                      }
+                    },
+                    {
+                      tag: "div",
+                      attributes: {
+                        style: "background-color: #F3F3E1; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
+                      }
+                    },
                   ]
                 }
               ]
@@ -190,7 +202,7 @@ class MainFormView extends View {
                     {
                       tag: "span",
                       attributes: { style: "margin-right: 16px; font-weight: 500; color: var(--palette-grey-1000);" },
-                      children: ["days,"]
+                      children: ["days"]
                     },
                     {
                       tag: "input",
@@ -205,7 +217,7 @@ class MainFormView extends View {
                     {
                       tag: "span",
                       attributes: { style: "margin-right: 16px; font-weight: 500; color: var(--palette-grey-1000);" },
-                      children: ["hours,"]
+                      children: ["hours"]
                     },
                     {
                       tag: "input",

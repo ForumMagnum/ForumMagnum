@@ -89,7 +89,7 @@ export default class PollPlugin extends Plugin {
         border-radius: calc(var(--borderRadius-default) * 1px);
         margin: 10px 0;
         padding: 20px;
-        --debug-fe-background: #3185C4;
+        --debug-fe-background: #06005C;
         --debug-fe-banner-text: #FFF;
         --debug-fe-foreground: #FFf;
       }
@@ -176,7 +176,7 @@ export default class PollPlugin extends Plugin {
         });
         viewWriter.insert(
           viewWriter.createPositionAt(disagreeLabel, 0),
-          viewWriter.createText("disagree")
+          viewWriter.createText("consequentialism")
         );
 
         // Create agree label
@@ -185,7 +185,7 @@ export default class PollPlugin extends Plugin {
         });
         viewWriter.insert(
           viewWriter.createPositionAt(agreeLabel, 0),
-          viewWriter.createText("agree")
+          viewWriter.createText("virtue ethics")
         );
 
         // Assemble the widget
