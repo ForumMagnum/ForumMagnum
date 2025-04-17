@@ -23,9 +23,6 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recombee-lesswrong-custom': 5,
   'recentComments': 10,
   'spotlights': 2,
-  'curated': 0,
-  'stickied': 0,
-  'welcome-post': 0,
 };
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
