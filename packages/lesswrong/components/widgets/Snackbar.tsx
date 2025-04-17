@@ -76,7 +76,7 @@ export const Snackbar = (props: {
 
       onClose();
     }, autoHideDurationBefore);
-  }, []);
+  }, [onClose, props.autoHideDuration]);
 
   const handleMouseEnter = (event: React.MouseEvent) => {
     handlePause();
