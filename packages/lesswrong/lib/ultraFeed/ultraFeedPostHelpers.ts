@@ -1,11 +1,9 @@
 import { accessFilterMultiple } from "../utils/schemaUtils";
-import { performQueryFromViewParameters } from "@/server/resolvers/defaultResolvers";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { FilterSettings, getDefaultFilterSettings } from "../filterSettings";
-import { viewTermsToQuery } from "../utils/viewUtils";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "../collections/users/recommendationSettings";
-import { filterNonnull } from "../utils/typeGuardUtils";
+import { UltraFeedSettingsType } from "@/components/ultraFeed/ultraFeedSettingsTypes";
 
 
 /**
@@ -14,7 +12,6 @@ import { filterNonnull } from "../utils/typeGuardUtils";
 export async function getRecommendedPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
-  excludedPostIds: string[] = [],
   scenarioId = 'recombee-lesswrong-custom'
 ): Promise<FeedFullPost[]> {
   const { currentUser } = context;
@@ -26,10 +23,9 @@ export async function getRecommendedPostsForUltraFeed(
     return [];
   }
   
-  // Construct the RQL filter string ONLY for the excludedPostIds
   let exclusionFilterString: string | undefined = undefined;
-  if (excludedPostIds.length > 0) {
-      const exclusionFilter = excludedPostIds.map(id => `"${id}"`).join(',');
+  if (currentUser?.hiddenPostsMetadata?.length) {
+      const exclusionFilter = currentUser?.hiddenPostsMetadata.map(metadata => `"${metadata.postId}"`).join(',');
       exclusionFilterString = `'itemId' NOT IN {${exclusionFilter}}`;
   }
   
@@ -72,46 +68,36 @@ export async function getRecommendedPostsForUltraFeed(
 }
 
 /**
- * Fetches the latest posts and maps them directly to FeedFullPost format.
+ * Fetches the latest posts for UltraFeed by approx Hacker News algorithm
  */
 export async function getLatestPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
-  excludedPostIds: string[] = [],
+  settings: UltraFeedSettingsType
 ): Promise<FeedFullPost[]> {
-  const latestPostsSourceType: FeedItemSourceType = 'hacker-news';
-  const { currentUser } = context;
-  const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
-  const allExcludedIds = [...new Set([...excludedPostIds, ...hiddenPostIds])];
-
-  const thirtyDaysAgo = new Date(new Date().getTime() - (30*24*60*60*1000));
-  const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
-
-  const postsTerms: PostsViewTerms = {
-    view: "magic",
-    forum: true,
-    limit,
-    filterSettings,
-    after: thirtyDaysAgo,
-    karmaThreshold: 10,
-    ...(allExcludedIds.length > 0 && { notPostIds: allExcludedIds }),
-  };
-
-  const postsQuery = viewTermsToQuery('Posts', postsTerms, undefined, context);
+  const { currentUser, repos } = context;
   
+  if (!currentUser?._id) {
+    // eslint-disable-next-line no-console
+    console.warn("getLatestPostsForUltraFeed: No logged in user found.");
+    return [];
+  }
+
+  const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
+
+  const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+  
+  const seenPenalty = settings.ultraFeedSeenPenalty;
+
   try {
-    const posts = await performQueryFromViewParameters(context.Posts, postsTerms, postsQuery);
-    const potentiallyPartialPosts = await accessFilterMultiple(currentUser, 'Posts', posts, context);
-    const accessiblePosts = filterNonnull(potentiallyPartialPosts) as DbPost[];
-    
-    // Directly map to FeedFullPost format inline, without using mapDbPostToFeedFullPost
-    return accessiblePosts.map(post => ({
-      post,
-      postMetaInfo: {
-        sources: [latestPostsSourceType],
-        displayStatus: 'expanded',
-      }
-    }));
+    return await repos.posts.getLatestPostsForUltraFeed(
+      context,
+      filterSettings,
+      seenPenalty,
+      60,
+      hiddenPostIds,
+      limit
+    );
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Error fetching latest posts for UltraFeed:", error);
@@ -127,18 +113,17 @@ export async function getUltraFeedPostThreads(
   context: ResolverContext,
   recommendedPostsLimit: number,
   latestPostsLimit: number,
-  servedPostIds: string[],
+  settings: UltraFeedSettingsType
 ): Promise<FeedFullPost[]> {
   const recombeeScenario = 'recombee-lesswrong-custom';
 
 
-  // Get both post types
   const [recommendedPostItems, latestPostItems] = await Promise.all([
     (recommendedPostsLimit > 0)
-      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, servedPostIds, recombeeScenario)
+      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
       : Promise.resolve([]),
     (latestPostsLimit > 0)
-      ? getLatestPostsForUltraFeed(context, latestPostsLimit, servedPostIds)
+      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings)
       : Promise.resolve([]),
   ]);
 

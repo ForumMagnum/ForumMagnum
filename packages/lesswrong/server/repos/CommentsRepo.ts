@@ -531,7 +531,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         FROM "AllRelevantComments" c
         JOIN "ReadStatuses" rs ON c."postId" = rs."postId"
         WHERE rs."userId" = $(userId)
-          AND rs."isRead" = TRUE
+          AND rs."isRead" IS TRUE
           AND c."postedAt" < rs."lastUpdated"
       ),
       "UsersEvents" AS (

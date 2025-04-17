@@ -156,44 +156,6 @@ const parseUltraFeedSettings = (settingsJson?: string): UltraFeedSettingsType =>
 };
 
 /**
- * Calculate fetch limits for each content type based on source weights and overall number of requested items
- */
-
-/**
- * Fetch served post IDs for the current user
- */
-const getServedPostIds = async (userId: string): Promise<string[]> => {
-  const servedPostIds = new Set<string>();
-
-  const [servedEvents, readStatuses] = await Promise.all([
-    UltraFeedEvents.find({ 
-      userId: userId, 
-      eventType: "served",
-      collectionName: { $in: ["Posts"] } 
-    }, { projection: { documentId: 1, collectionName: 1 } }).fetch(),
-    
-    ReadStatuses.find({ 
-      userId: userId, 
-      isRead: true
-    }, { projection: { postId: 1 } }).fetch()
-  ]);
-
-  servedEvents.forEach(event => {
-    if (event.collectionName === "Posts") {
-      servedPostIds.add(event.documentId);
-    }
-  });
-
-  readStatuses.forEach(status => {
-    if (status.postId) {
-      servedPostIds.add(status.postId);
-    }
-  });
-  
-  return Array.from(servedPostIds);
-};
-
-/**
  * Create a map of source type to weighted source with items
  */
 const createSourcesMap = (
@@ -531,14 +493,13 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      const servedPostIds = await getServedPostIds(currentUser._id);
       const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id, sessionId);
 
       const combinedPostFetchLimit = recombeePostFetchLimit + hackerNewsPostFetchLimit;
 
 
       const [allPostItems, commentThreadsItems, spotlightItems] = await Promise.all([
-        combinedPostFetchLimit > 0 ? getUltraFeedPostThreads( context, recombeePostFetchLimit, hackerNewsPostFetchLimit, servedPostIds) : Promise.resolve([]),
+        combinedPostFetchLimit > 0 ? getUltraFeedPostThreads( context, recombeePostFetchLimit, hackerNewsPostFetchLimit, parsedSettings) : Promise.resolve([]),
         commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit, parsedSettings, servedCommentThreadHashes) : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([])
       ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[]];

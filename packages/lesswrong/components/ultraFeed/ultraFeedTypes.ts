@@ -26,6 +26,9 @@ export interface RecombeeMetaInfo {
 export interface FeedPostMetaInfo {
   recommInfo?: RecombeeMetaInfo;
   sources: FeedItemSourceType[];
+  lastServed?: Date | null;
+  lastViewed?: Date | null;
+  lastInteracted?: Date | null;
   displayStatus: FeedItemDisplayStatus;
 }
 export interface FeedCommentMetaInfo {
@@ -51,6 +54,13 @@ export interface FeedCommentFromDb {
   lastViewed: Date | null;
   lastInteracted: Date | null;
   postedAt: Date | null;
+}
+
+export interface FeedPostFromDb extends DbPost {
+  sourceType: FeedItemSourceType;
+  lastServed: Date | null;
+  lastViewed: Date | null;
+  lastInteracted: Date | null;
 }
 
 export interface PreDisplayFeedComment {
