@@ -2,7 +2,7 @@ import AbstractRepo from './AbstractRepo';
 import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
 import groupBy from 'lodash/groupBy';
 import { recordPerfMetrics } from './perfMetricWrapper';
-import { generateThreadHash } from '@/lib/ultraFeed/ultraFeedThreadHelpers';
+import { generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 
 class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   constructor() {
