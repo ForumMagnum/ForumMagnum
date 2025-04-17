@@ -1,7 +1,7 @@
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
-import { FilterSettings, getDefaultFilterSettings } from "../filterSettings";
+import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
-import { RecombeeRecommendationArgs } from "../collections/users/recommendationSettings";
+import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
 import { UltraFeedSettingsType } from "@/components/ultraFeed/ultraFeedSettingsTypes";
 import keyBy from 'lodash/keyBy';
 
@@ -22,38 +22,38 @@ export async function getRecommendedPostsForUltraFeed(
     console.warn("getRecommendedPostsForUltraFeed: No Recombee user found.");
     return [];
   }
-  
+
   let exclusionFilterString: string | undefined = undefined;
   if (currentUser?.hiddenPostsMetadata?.length) {
-      const exclusionFilter = currentUser?.hiddenPostsMetadata.map(metadata => `"${metadata.postId}"`).join(',');
-      exclusionFilterString = `'itemId' NOT IN {${exclusionFilter}}`;
+    const exclusionFilter = currentUser?.hiddenPostsMetadata.map(metadata => `"${metadata.postId}"`).join(',');
+    exclusionFilterString = `'itemId' NOT IN {${exclusionFilter}}`;
   }
-  
+
   const lwAlgoSettings: RecombeeRecommendationArgs = {
-      scenario: scenarioId,
-      filterSettings: currentUser?.frontpageFilterSettings,
-      ...(exclusionFilterString && { filter: exclusionFilterString }),
+    scenario: scenarioId,
+    filterSettings: currentUser?.frontpageFilterSettings,
+    ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
-  
-  const recommendedResults = await recombeeApi.getRecommendationsForUser( recombeeUser, limit, lwAlgoSettings, context);
+
+  const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, limit, lwAlgoSettings, context);
   const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
-      if (!item.post?._id) return null;
-      const { post, recommId, scenario, generatedAt } = item;
-      
-      const recommInfo = (recommId && generatedAt) ? {
-          recommId,
-          scenario: scenario || scenarioId,
-          generatedAt,
-      } : undefined;
-      
-      return {
-          post,
-          postMetaInfo: {
-              sources: [scenario as FeedItemSourceType],
-              displayStatus: 'expanded',
-              recommInfo: recommInfo,
-          },
-      };
+    if (!item.post?._id) return null;
+    const { post, recommId, scenario, generatedAt } = item;
+
+    const recommInfo = (recommId && generatedAt) ? {
+      recommId,
+      scenario: scenario || scenarioId,
+      generatedAt,
+    } : undefined;
+
+    return {
+      post,
+      postMetaInfo: {
+        sources: [scenario as FeedItemSourceType],
+        displayStatus: 'expanded',
+        recommInfo: recommInfo,
+      },
+    };
   }).filter((p) => !!p);
 
   return displayPosts;
@@ -68,7 +68,7 @@ export async function getLatestPostsForUltraFeed(
   settings: UltraFeedSettingsType
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
-  
+
   if (!currentUser?._id) {
     // eslint-disable-next-line no-console
     console.warn("getLatestPostsForUltraFeed: No logged in user found.");
@@ -76,25 +76,17 @@ export async function getLatestPostsForUltraFeed(
   }
 
   const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
-
   const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
-  
   const seenPenalty = settings.ultraFeedSeenPenalty;
 
-  try {
-    return await repos.posts.getLatestPostsForUltraFeed(
-      context,
-      filterSettings,
-      seenPenalty,
-      60,
-      hiddenPostIds,
-      limit
-    );
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Error fetching latest posts for UltraFeed:", error);
-    return [];
-  }
+  return await repos.posts.getLatestPostsForUltraFeed(
+    context,
+    filterSettings,
+    seenPenalty,
+    60,
+    hiddenPostIds,
+    limit
+  );
 }
 
 
@@ -121,18 +113,18 @@ export async function getUltraFeedPostThreads(
   const allPostsMap = keyBy(recommendedPostItems, item => item.post?._id) as Record<string, FeedFullPost>;
 
   latestPostItems.forEach(item => {
-    if (item.post?._id) { 
+    if (item.post?._id) {
       const postId = item.post._id;
       if (postId in allPostsMap) {
         const existingItem = allPostsMap[postId];
-        
+
         if (!existingItem.postMetaInfo.sources) {
           existingItem.postMetaInfo.sources = [];
         }
         if (item.postMetaInfo?.sources) {
-           existingItem.postMetaInfo.sources = [
-             ...new Set([...existingItem.postMetaInfo.sources, ...item.postMetaInfo.sources])
-           ];
+          existingItem.postMetaInfo.sources = [
+            ...new Set([...existingItem.postMetaInfo.sources, ...item.postMetaInfo.sources])
+          ];
         }
       } else {
         allPostsMap[postId] = item;
