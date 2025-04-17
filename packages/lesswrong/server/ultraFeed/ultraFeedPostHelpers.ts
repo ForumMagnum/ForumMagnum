@@ -1,9 +1,9 @@
-import { accessFilterMultiple } from "../utils/schemaUtils";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { FilterSettings, getDefaultFilterSettings } from "../filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "../collections/users/recommendationSettings";
 import { UltraFeedSettingsType } from "@/components/ultraFeed/ultraFeedSettingsTypes";
+import keyBy from 'lodash/keyBy';
 
 
 /**
@@ -35,36 +35,28 @@ export async function getRecommendedPostsForUltraFeed(
       ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
   
-  try {
-      const recommendedResults = await recombeeApi.getRecommendationsForUser( recombeeUser, limit, lwAlgoSettings, context);
+  const recommendedResults = await recombeeApi.getRecommendationsForUser( recombeeUser, limit, lwAlgoSettings, context);
+  const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
+      if (!item.post?._id) return null;
+      const { post, recommId, scenario, generatedAt } = item;
+      
+      const recommInfo = (recommId && generatedAt) ? {
+          recommId,
+          scenario: scenario || scenarioId,
+          generatedAt,
+      } : undefined;
+      
+      return {
+          post,
+          postMetaInfo: {
+              sources: [scenario as FeedItemSourceType],
+              displayStatus: 'expanded',
+              recommInfo: recommInfo,
+          },
+      };
+  }).filter((p) => !!p);
 
-      const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
-          if (!item.post?._id) return null;
-          const { post, recommId, scenario, generatedAt } = item;
-          
-          const recommInfo = (recommId && generatedAt) ? {
-              recommId,
-              scenario: scenario || scenarioId,
-              generatedAt,
-          } : undefined;
-          
-          return {
-              post,
-              postMetaInfo: {
-                  sources: [scenario as FeedItemSourceType],
-                  displayStatus: 'expanded',
-                  recommInfo: recommInfo,
-              },
-          };
-      }).filter((p) => !!p);
-
-      return displayPosts;
-
-  } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`Error calling getRecommendationsForUser for scenario ${scenarioId}:`, error);
-      return [];
-  }
+  return displayPosts;
 }
 
 /**
@@ -117,7 +109,6 @@ export async function getUltraFeedPostThreads(
 ): Promise<FeedFullPost[]> {
   const recombeeScenario = 'recombee-lesswrong-custom';
 
-
   const [recommendedPostItems, latestPostItems] = await Promise.all([
     (recommendedPostsLimit > 0)
       ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
@@ -127,29 +118,27 @@ export async function getUltraFeedPostThreads(
       : Promise.resolve([]),
   ]);
 
-  const allPostsMap = new Map<string, FeedFullPost>();
+  const allPostsMap = keyBy(recommendedPostItems, item => item.post?._id) as Record<string, FeedFullPost>;
 
-  recommendedPostItems.forEach(item => {
-    if (item.post?._id) {
-      allPostsMap.set(item.post._id, item);
-    }
-  });
-
-  // Add latest posts, merging sources if ID exists
   latestPostItems.forEach(item => {
-    if (item.post?._id) {
-      if (allPostsMap.has(item.post._id)) {
-        const existingItem = allPostsMap.get(item.post._id)!;
-        if (existingItem.postMetaInfo && item.postMetaInfo?.sources) {
+    if (item.post?._id) { 
+      const postId = item.post._id;
+      if (postId in allPostsMap) {
+        const existingItem = allPostsMap[postId];
+        
+        if (!existingItem.postMetaInfo.sources) {
+          existingItem.postMetaInfo.sources = [];
+        }
+        if (item.postMetaInfo?.sources) {
            existingItem.postMetaInfo.sources = [
-             ...new Set([...(existingItem.postMetaInfo.sources || []), ...item.postMetaInfo.sources])
+             ...new Set([...existingItem.postMetaInfo.sources, ...item.postMetaInfo.sources])
            ];
         }
       } else {
-        allPostsMap.set(item.post._id, item);
+        allPostsMap[postId] = item;
       }
     }
   });
 
-  return Array.from(allPostsMap.values());
+  return Object.values(allPostsMap);
 } 

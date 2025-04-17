@@ -13,13 +13,12 @@ import {
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
-import { UltraFeedEvents } from '../collections/ultraFeedEvents/collection';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
-import { getUltraFeedCommentThreads, generateThreadHash } from '@/lib/ultraFeed/ultraFeedThreadHelpers';
+import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedSettingsType } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
-import { getUltraFeedPostThreads } from '@/lib/ultraFeed/ultraFeedPostHelpers';
+import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { ReadStatuses } from '../collections/readStatus/collection';
 
 export const ultraFeedGraphQLTypeDefs = gql`
