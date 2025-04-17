@@ -208,7 +208,7 @@ const UltraFeedCommentItem = ({
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
-  const { observe, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
+  const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { post } = comment;
   const { displayStatus } = metaInfo;
@@ -226,7 +226,13 @@ const UltraFeedCommentItem = ({
         postId: comment.postId
       });
     }
-  }, [observe, comment._id, comment.postId]);
+
+    return () => {
+      if (currentElement) {
+        unobserve(currentElement);
+      }
+    };
+  }, [observe, unobserve, comment._id, comment.postId]);
 
   // Effect to subscribe/unsubscribe to long view events from the observer
   useEffect(() => {
