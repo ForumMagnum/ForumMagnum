@@ -32,8 +32,16 @@ export const styles = defineStyles("TableCell", theme => ({
   /* Styles applied to the root element if `variant="body"` or `context.table.body`. */
   body: {
     color: theme.palette.text.primary,
-    fontSize: "0.8125rem",
     fontWeight: 400,
+    fontSize: 14.3,
+    lineHeight: "19.5px",
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    marginTop: 0,
+    marginBottom: 0,
+    wordBreak: "normal",
   },
   /* Styles applied to the root element if `variant="footer"` or `context.table.footer`. */
   footer: {

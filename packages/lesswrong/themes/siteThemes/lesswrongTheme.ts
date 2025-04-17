@@ -127,12 +127,6 @@ export const lessWrongTheme: SiteThemeSpecification = {
           paddingBottom: 8
         }
       },
-      MuiCard: {
-        root: {
-          borderRadius: 1,
-          boxShadow: palette.boxShadow.lwCard,
-        }
-      }
     }
   }),
 };
