@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import { default as BadlyTypedSlide } from '@/lib/vendor/@material-ui/core/src/Slide'
+import Slide from '@/lib/vendor/@material-ui/core/src/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
@@ -9,8 +9,6 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
-
-const Slide = componentWithChildren(BadlyTypedSlide);
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
@@ -34,6 +32,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
+    ...(isFriendlyUI && {
+      top: 26,
+    })
   },
   navSidebarTransparent: {
     zIndex: 10,

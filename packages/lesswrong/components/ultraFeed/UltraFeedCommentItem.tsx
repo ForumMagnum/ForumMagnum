@@ -141,11 +141,8 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   footer: {
-    paddingTop: 16,
+    paddingTop: 8,
     paddingBottom: 12,
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: 12,
-    }
   },
 }));
 

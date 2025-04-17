@@ -11,7 +11,7 @@ export interface UltraFeedSettingsType {
   sourceWeights: Record<FeedItemSourceType, number>;
   commentDecayFactor: number;
   commentDecayBiasHours: number;
-  commentSeenPenalty: number;
+  ultraFeedSeenPenalty: number;
   quickTakeBoost: number;
   incognitoMode: boolean;
   threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
@@ -23,9 +23,6 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recombee-lesswrong-custom': 5,
   'recentComments': 10,
   'spotlights': 2,
-  'curated': 0,
-  'stickied': 0,
-  'welcome-post': 0,
 };
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
@@ -35,7 +32,7 @@ export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
   commentTruncationBreakpoints: [50, 300, 1000],
   commentDecayFactor: 1.8,
   commentDecayBiasHours: 2,
-  commentSeenPenalty: 0.6,
+  ultraFeedSeenPenalty: 0.6,
   quickTakeBoost: 1.5,
   incognitoMode: false,
   threadScoreAggregation: 'logSum',

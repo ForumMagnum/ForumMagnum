@@ -1,6 +1,6 @@
 import React from 'react';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogContent } from '../../widgets/DialogContent';
+import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";

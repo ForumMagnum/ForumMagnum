@@ -128,7 +128,9 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
-    writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
+    //writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
+    //writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
+    writeIfChanged(generateGraphQLAndFragmentsSchemaFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/gqlSchemaAndFragments.gql");
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error(e);
@@ -147,4 +149,8 @@ function generateGraphQLSchemaFile(): string {
   sb.push("# Generated file - run 'yarn generate' to update.\n\n");
   sb.push(print(typeDefs));
   return sb.join("");
+}
+
+function generateGraphQLAndFragmentsSchemaFile(collectionNameToTypeName: Record<string,string>): string {
+  return generateGraphQLSchemaFile() + generateFragmentsGqlFile(collectionNameToTypeName);
 }
