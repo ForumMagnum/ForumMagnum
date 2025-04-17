@@ -10,18 +10,7 @@ import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { useNavigate } from "@/lib/routeUtil";
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
-import { useMutation, gql } from "@apollo/client";
-
-// Define the mutation for creating an UltraFeedEvent
-const CREATE_ULTRA_FEED_EVENT = gql`
-  mutation CreateUltraFeedEvent($data: CreateUltraFeedEventDataInput!) {
-    createUltraFeedEvent(data: $data) {
-      data {
-        _id
-      }
-    }
-  }
-`;
+import { useCreate } from "../../lib/crud/withCreate";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -165,8 +154,9 @@ const UltraFeedItemFooterCore = ({
   const { BookmarkButton, OverallVoteAxis, AgreementVoteAxis, AddReactionButton } = Components;
   const currentUser = useCurrentUser();
 
-  const [logInteractionEvent] = useMutation(CREATE_ULTRA_FEED_EVENT, {
-    ignoreResults: true,
+  const { create: createUltraFeedEvent } = useCreate({
+    collectionName: "UltraFeedEvents",
+    fragmentName: 'UltraFeedEventsDefaultFragment',
   });
 
   // TODO:the wrapping approach does not work with votes as click-handlers inside the vote bottons prevent an onClick at this level from firing
@@ -174,13 +164,15 @@ const UltraFeedItemFooterCore = ({
     if (!currentUser || !voteProps.document) return;
 
     const eventData = {
-      userId: currentUser._id,
-      eventType: 'interacted' as const,
-      documentId: voteProps.document._id,
-      collectionName: voteProps.collectionName as "Posts" | "Comments" | "Spotlights", 
-      event: { interactionType },
+      data: {
+        userId: currentUser._id,
+        eventType: 'interacted' as const,
+        documentId: voteProps.document._id,
+        collectionName: voteProps.collectionName as "Posts" | "Comments" | "Spotlights", 
+        event: { interactionType },
+      }
     };
-    void logInteractionEvent({ variables: { data: eventData } });
+    void createUltraFeedEvent(eventData);
   };
 
   const handleCommentsClick = () => {
