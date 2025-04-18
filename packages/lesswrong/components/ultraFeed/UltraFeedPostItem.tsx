@@ -11,6 +11,8 @@ import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import classnames from "classnames";
+import { useSingle } from "../../lib/crud/withSingle";
+import { highlightMaxChars } from "../../lib/editor/ellipsize";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -144,6 +146,11 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     paddingTop: 12,
     paddingBottom: 12,
   },
+  loadingContainer: {
+    display: "flex",
+    justifyContent: "center",
+    padding: "20px 0",
+  }
 }));
 
 // TODO: This is optimized for mobile (only show one author, might want to show more on desktop)
@@ -182,13 +189,23 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate } = Components;
+  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading } = Components;
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
   const { isAnon, authors } = usePostsUserAndCoauthors(post);
   const { recordPostView, isRead } = useRecordPostView(post);
   const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
+  const [isLoadingFull, setIsLoadingFull] = useState(false);
+  const [shouldShowLoading, setShouldShowLoading] = useState(false);
+  const [expandLevel, setExpandLevel] = useState(0);
+
+  const { document: fullPost, loading: loadingFullPost } = useSingle({
+    documentId: post._id,
+    collectionName: "Posts",
+    fragmentName: "PostsExpandedHighlight",
+    skip: !isLoadingFull,
+  });
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -198,6 +215,22 @@ const UltraFeedPostItem = ({
   }, [observe, post._id]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
+    setExpandLevel(level);
+    
+    // Start loading the full post on first expand
+    if (level > 0 && !isLoadingFull && !fullPost) {
+      setIsLoadingFull(true);
+    }
+
+    // Show loading spinner only if we need more content than what we have
+    // Compare requested breakpoint (word count) against highlight char limit
+    // This is an approximation, but better than using full post word count
+    const requestedWordCount = settings.postTruncationBreakpoints?.[level - 1];
+    const needsMoreContentThanHighlight = requestedWordCount ? requestedWordCount > (highlightMaxChars / 5) : false;
+    
+    const showLoading = isLoadingFull && needsMoreContentThanHighlight && !fullPost;
+    setShouldShowLoading(showLoading);
+
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
@@ -218,17 +251,29 @@ const UltraFeedPostItem = ({
       setHasRecordedViewOnExpand(true);
     }
 
-  }, [trackExpansion, post, captureEvent, recordPostView, hasRecordedViewOnExpand, setHasRecordedViewOnExpand]);
+  }, [
+    trackExpansion, 
+    post, 
+    captureEvent, 
+    recordPostView, 
+    hasRecordedViewOnExpand, 
+    isLoadingFull, 
+    fullPost,
+    settings.postTruncationBreakpoints
+  ]);
 
   if (
     !post?._id 
     || !post.contents
-    || !post.contents.html
+    || !post.contents.htmlHighlight
     || !post.contents.wordCount
     || post.contents.wordCount <= 0
   ) {
      return <div>No post content found for post with id: {post._id}</div>; 
   }
+
+  const displayHtml = fullPost?.contents?.html || post.contents.htmlHighlight;
+  const displayWordCount = post.contents.wordCount;
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
@@ -254,8 +299,6 @@ const UltraFeedPostItem = ({
             </div>
           </div>
 
-
-
           <span className={classes.headerRightSection}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
               <PostActionsButton
@@ -266,21 +309,26 @@ const UltraFeedPostItem = ({
             </AnalyticsContext>
           </span>
         </div>
-
-
       </div>
 
-      <FeedContentBody
-        post={post}
-        html={post.contents.html}
-        breakpoints={settings.postTruncationBreakpoints}
-        initialExpansionLevel={0}
-        wordCount={post.contents.wordCount}
-        linkToDocumentOnFinalExpand={true}
-        nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-        onExpand={handleContentExpand}
-        hideSuffix={false}
-      />
+      {shouldShowLoading && loadingFullPost ? (
+        <div className={classes.loadingContainer}>
+          <Loading />
+        </div>
+      ) : (
+        <FeedContentBody
+          post={post}
+          html={displayHtml}
+          breakpoints={settings.postTruncationBreakpoints}
+          initialExpansionLevel={0}
+          wordCount={displayWordCount}
+          linkToDocumentOnFinalExpand={true}
+          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+          onExpand={handleContentExpand}
+          hideSuffix={false}
+        />
+      )}
+      
       <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
     </AnalyticsContext>
