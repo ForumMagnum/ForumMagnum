@@ -113,14 +113,6 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      MuiMenuItem: {
-        root: {
-          fontFamily: sansSerifStack,
-          color: palette.grey[800],
-          fontSize: 14.3,
-          lineHeight: "1.1em"
-        }
-      },
       MuiListItem: {
         root: {
           paddingTop: 8,

@@ -242,19 +242,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
       },
       overrides: {
-        MuiSnackbarContent: {
-          root: {
-            backgroundColor: palette.lwTertiary.main
-          }
-        },
-        MuiMenuItem: {
-          root: {
-            fontFamily: sansSerifStack,
-            fontWeight: 500,
-            fontSize: 14.3,
-            color: palette.grey[900],
-          }
-        },
         MuiListItemIcon: {
           root: {
             color: palette.grey[700],

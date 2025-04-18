@@ -5,7 +5,6 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import ListItemText from '@/lib/vendor/@material-ui/core/src/ListItemText';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -143,7 +142,7 @@ const MultiSelect = ({
     );
   }
 
-  const {MenuItem} = Components;
+  const {MenuItem, Typography} = Components;
   return <FormControl>
     {label && <FormLabel className={classes.formLabel}>{label}</FormLabel>}
     <Select
@@ -162,7 +161,9 @@ const MultiSelect = ({
         {options.map(option => {
           return <MenuItem key={option.value} value={option.value}>
             <Checkbox checked={value.some(v => v === option.value)} />
-            <ListItemText primary={option.label} />
+            <Typography variant="subheading" component="span">
+              {option.label}
+            </Typography>
           </MenuItem>
         })}
     </Select>

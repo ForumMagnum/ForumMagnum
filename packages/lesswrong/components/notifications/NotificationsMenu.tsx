@@ -90,12 +90,12 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
     },
     {
       name: "New Posts",
-      icon: () => (<PostsIcon classes={{root: classes.icon}}/>),
+      icon: () => (<PostsIcon className={classes.icon}/>),
       terms: {view: 'userNotifications', type: "newPost"},
     },
     {
       name: "New Comments",
-      icon: () => (<CommentsIcon classes={{root: classes.icon}}/>),
+      icon: () => (<CommentsIcon className={classes.icon}/>),
       terms: {view: 'userNotifications', type: "newComment"},
     },
     {
@@ -106,7 +106,7 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
           badgeClassName={classes.badge}
           badgeContent={unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""}
         >
-          <MailIcon classes={{root: classes.icon}} />
+          <MailIcon className={classes.icon} />
         </Badge>
       ),
       terms: {view: 'userNotifications', type: "newMessage"},

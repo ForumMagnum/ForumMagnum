@@ -47,15 +47,12 @@ const getUsedMuiStyles = () => {
     MuiRadioGroup: require("@/lib/vendor/@material-ui/core/src/RadioGroup/RadioGroup").styles,
     MuiSelect: require("@/lib/vendor/@material-ui/core/src/Select/Select").styles,
     MuiSlide: require("@/lib/vendor/@material-ui/core/src/Slide/Slide").styles,
-    MuiSnackbar: require("@/lib/vendor/@material-ui/core/src/Snackbar/Snackbar").styles,
-    MuiSvgIcon: require("@/lib/vendor/@material-ui/core/src/SvgIcon/SvgIcon").styles,
     MuiSwitchBase: require("@/lib/vendor/@material-ui/core/src/internal/SwitchBase").styles,
     MuiSwitch: require("@/lib/vendor/@material-ui/core/src/Switch/Switch").styles,
     MuiTab: require("@/lib/vendor/@material-ui/core/src/Tab/Tab").styles,
     MuiTabs: require("@/lib/vendor/@material-ui/core/src/Tabs/Tabs").styles,
     MuiTextField: require("@/lib/vendor/@material-ui/core/src/TextField/TextField").styles,
     MuiToolbar: require("@/lib/vendor/@material-ui/core/src/Toolbar/Toolbar").styles,
-    MuiTooltip: require("@/lib/vendor/@material-ui/core/src/Tooltip/Tooltip").styles,
   };
 
   // Filter out components that don't have any styles

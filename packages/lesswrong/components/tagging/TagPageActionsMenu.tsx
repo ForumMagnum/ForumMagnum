@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
+import { Menu } from '@/components/widgets/Menu';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useMutation, gql, useApolloClient } from '@apollo/client';

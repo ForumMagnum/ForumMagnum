@@ -52,9 +52,7 @@ const ShowParentComment = ({ comment, active, onClick, classes }: {
   return (
     <Components.LWTooltip title={`${active ? "Hide" : "Show"} previous comment`}>
       <span className={classNames(classes.root, {[classes.active]: active})} onClick={onClick}>
-        <SubdirectoryArrowLeft className={classNames(classes.icon, {[classes.activeArrow]: active})}>
-          subdirectory_arrow_left
-        </SubdirectoryArrowLeft>
+        <SubdirectoryArrowLeft className={classNames(classes.icon, {[classes.activeArrow]: active})}/>
       </span>
     </Components.LWTooltip>
   )

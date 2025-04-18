@@ -41,6 +41,7 @@ export const defaultZIndexes = {
   sideCommentBox: 1040,
   languageModelChat: 1041,
   postItemMenu: 1050,
+  snackbar: 1400,
   searchResults: 1450, // higher than intercom
   tabNavigation: 1101,
   hideTableOfContentsButton: 1200,

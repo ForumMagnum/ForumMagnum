@@ -1,17 +1,12 @@
 import React, { useState, useCallback, ReactNode, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { MessageContext, useMessages } from './withMessages';
-import classnames from 'classnames';
-import Snackbar from '@/lib/vendor/@material-ui/core/src/Snackbar';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { Snackbar } from '../widgets/Snackbar';
+import { SnackbarContent } from '../widgets/SnackbarContent';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    '& .MuiSnackbarContent-message': {
-      color: theme.palette.text.maxIntensity,
-      fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-    },
   },
 });
 
@@ -20,7 +15,7 @@ export const MessageContextProvider = ({children}: {
 }) => {
   const [messages,setMessages] = useState<AnyBecauseTodo[]>([]);
   
-  const flash = useCallback((message: AnyBecauseTodo) => {
+  const flash = useCallback((message: WithMessagesMessage) => {
     if (!messages.length) {
       setMessages([message])
     } else {
@@ -79,33 +74,27 @@ const FlashMessages = ({classes}: {
   const { messages, clear } = useMessages();
   let messageObject = messages.length > 0 ? getProperties(messages[0]) : undefined;
   return (
-    <div className={classnames("flash-messages", classes.root)}>
+    <div className={classes.root}>
       <Snackbar
         // @ts-ignore there is no hide property on the message props!
         open={!!messageObject && !messageObject.hide}
-        message={messageObject && messageObject.message}
         autoHideDuration={6000}
         onClose={clear}
-        ClickAwayListenerProps={{
-          // Don't close flash messages on click
-          // This breaks some unit tests in Playwright, since a click that was
-          // supposed to go to a button instead gets eaten by the clickaway. And
-          // it's not actually a good UI interaction, since the message is going
-          // to close soon anyways and it's easy to dismiss by accident when you
-          // wanted to read it by clicking something unrelated.
-          mouseEvent: false
-        }}
-        action={
-          messageObject?.action &&
-          <Button
-            onClick={messageObject?.action}
-            color="primary"
-          >
-            {/* @ts-ignore there is no actionName property on the message props! */}
-            {messageObject?.actionName || "UNDO"}
-          </Button>
-        }
-      />
+      >
+        <SnackbarContent
+          message={messageObject && messageObject.message}
+          action={
+            messageObject?.action &&
+            <Button
+              onClick={messageObject?.action}
+              color="primary"
+            >
+              {/* @ts-ignore there is no actionName property on the message props! */}
+              {messageObject?.actionName || "UNDO"}
+            </Button>
+          }
+        />
+      </Snackbar>
     </div>
   );
 }
