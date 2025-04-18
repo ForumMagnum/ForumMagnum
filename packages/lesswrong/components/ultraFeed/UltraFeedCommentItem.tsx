@@ -121,13 +121,13 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   verticalLine: {
     width: 0,
-    borderLeft: `4px solid ${theme.palette.grey[300]}`,
+    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
     flex: 1,
     marginLeft: -10,
-    transition: 'border-left-color 1.0s ease-in-out',
   },
   verticalLineHighlighted: {
-    borderLeft: `4px solid ${theme.palette.secondary.light}ac`,
+    borderLeftColor: `${theme.palette.secondary.light}ac`,
+    transition: 'border-left-color 1.0s ease-out',
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
