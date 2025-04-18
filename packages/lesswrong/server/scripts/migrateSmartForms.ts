@@ -290,7 +290,7 @@ function getComponentName(fieldName: string, fieldSpec: DerivedSimpleSchemaField
         knownProps.push(inlineFormField('addOnSubmitCallback', '{addOnSubmitCallback}', fieldName, collectionName, true));
         knownProps.push(inlineFormField('addOnSuccessCallback', '{addOnSuccessCallback}', fieldName, collectionName, true));
       }
-      return { component: controlMap[control] };
+      return { component: controlMap[control], props: knownProps };
     } else {
       // Unknown control – guess a name and emit TODO
       return {
@@ -395,19 +395,28 @@ const sharedFieldStyles = defineStyles('GeneratedFormFieldStyles', (theme: Theme
     /* ------------------------------------------ */
     /* Generate TSX for this collection           */
     /* ------------------------------------------ */
-    const className = `TanStack${collectionName}Form`;
+    const className = `${collectionName}Form`;
 
     output += `
 /* ================================================================
     ${collectionName}
     ================================================================
 */
+
+const formStyles = defineStyles('${className}', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
 export const ${className} = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: ${collectionName}InvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: Update${collectionNameToTypeName[collectionName]}DataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: ${collectionName}InvalidMutationFragment) => void;
 }) => {
@@ -417,7 +426,12 @@ export const ${className} = ({
   const formType = initialData ? 'edit' : 'new';
 
   ${anyEditableFields ? `
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, ${collectionName}InvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, ${collectionName}InvalidMutationFragment>();
   `: ''}
 
   const { create } = useCreate({
@@ -445,9 +459,10 @@ export const ${className} = ({
         const { data } = await create({ data: value });
         result = data?.create${collectionNameToTypeName[collectionName]}.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.update${collectionNameToTypeName[collectionName]}.data;
       }
@@ -570,7 +585,7 @@ export const ${className} = ({
         }
 
         output += `
-        <div className={classes.fieldWrapper}>
+        <div className={${formObj.editableFieldOptions ? 'classNames("form-component-EditorFormComponent", classes.fieldWrapper)' : 'classes.fieldWrapper'}}>
           <form.Field name="${fieldName}">
             {(field) => (`;
 

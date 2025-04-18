@@ -24,12 +24,21 @@ const sharedFieldStyles = defineStyles('GeneratedFormFieldStyles', (theme: Theme
     Localgroups
     ================================================================
 */
-export const TanStackLocalgroupsForm = ({
+
+const formStyles = defineStyles('LocalgroupsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const LocalgroupsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: LocalgroupsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateLocalgroupDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: LocalgroupsInvalidMutationFragment) => void;
 }) => {
@@ -39,7 +48,12 @@ export const TanStackLocalgroupsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, LocalgroupsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, LocalgroupsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -68,9 +82,10 @@ export const TanStackLocalgroupsForm = ({
         const { data } = await create({ data: value });
         result = data?.createLocalgroup.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateLocalgroup.data;
       }
@@ -138,11 +153,16 @@ export const TanStackLocalgroupsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Localgroups'),
   revisionsHaveCommitMessages: false
@@ -395,12 +415,21 @@ export const TanStackLocalgroupsForm = ({
     CurationNotices
     ================================================================
 */
-export const TanStackCurationNoticesForm = ({
+
+const formStyles = defineStyles('CurationNoticesForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const CurationNoticesForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: CurationNoticesInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateCurationNoticeDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: CurationNoticesInvalidMutationFragment) => void;
 }) => {
@@ -410,7 +439,12 @@ export const TanStackCurationNoticesForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, CurationNoticesInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, CurationNoticesInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -439,9 +473,10 @@ export const TanStackCurationNoticesForm = ({
         const { data } = await create({ data: value });
         result = data?.createCurationNotice.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateCurationNotice.data;
       }
@@ -466,11 +501,16 @@ export const TanStackCurationNoticesForm = ({
       void form.handleSubmit();
     }}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('CurationNotices'),
   revisionsHaveCommitMessages: false
@@ -531,12 +571,21 @@ export const TanStackCurationNoticesForm = ({
     Comments
     ================================================================
 */
-export const TanStackCommentsForm = ({
+
+const formStyles = defineStyles('CommentsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const CommentsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: CommentsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateCommentDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: CommentsInvalidMutationFragment) => void;
 }) => {
@@ -546,7 +595,12 @@ export const TanStackCommentsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, CommentsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, CommentsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -575,9 +629,10 @@ export const TanStackCommentsForm = ({
         const { data } = await create({ data: value });
         result = data?.createComment.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateComment.data;
       }
@@ -616,11 +671,16 @@ export const TanStackCommentsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
@@ -771,12 +831,21 @@ export const TanStackCommentsForm = ({
     ForumEvents
     ================================================================
 */
-export const TanStackForumEventsForm = ({
+
+const formStyles = defineStyles('ForumEventsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const ForumEventsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: ForumEventsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateForumEventDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: ForumEventsInvalidMutationFragment) => void;
 }) => {
@@ -786,7 +855,12 @@ export const TanStackForumEventsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, ForumEventsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, ForumEventsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -815,9 +889,10 @@ export const TanStackForumEventsForm = ({
         const { data } = await create({ data: value });
         result = data?.createForumEvent.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateForumEvent.data;
       }
@@ -842,11 +917,16 @@ export const TanStackForumEventsForm = ({
       void form.handleSubmit();
     }}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="frontpageDescription">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="frontpageDescription"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
@@ -863,11 +943,16 @@ export const TanStackForumEventsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="frontpageDescriptionMobile">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="frontpageDescriptionMobile"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
@@ -884,11 +969,16 @@ export const TanStackForumEventsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="postPageDescription">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="postPageDescription"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
@@ -1047,11 +1137,16 @@ export const TanStackForumEventsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="pollQuestion">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="pollQuestion"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
@@ -1161,12 +1256,21 @@ export const TanStackForumEventsForm = ({
     JargonTerms
     ================================================================
 */
-export const TanStackJargonTermsForm = ({
+
+const formStyles = defineStyles('JargonTermsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const JargonTermsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: JargonTermsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateJargonTermDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: JargonTermsInvalidMutationFragment) => void;
 }) => {
@@ -1176,7 +1280,12 @@ export const TanStackJargonTermsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, JargonTermsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, JargonTermsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -1205,9 +1314,10 @@ export const TanStackJargonTermsForm = ({
         const { data } = await create({ data: value });
         result = data?.createJargonTerm.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateJargonTerm.data;
       }
@@ -1232,11 +1342,16 @@ export const TanStackJargonTermsForm = ({
       void form.handleSubmit();
     }}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('JargonTerms'),
   revisionsHaveCommitMessages: false
@@ -1310,12 +1425,21 @@ export const TanStackJargonTermsForm = ({
     Conversations
     ================================================================
 */
-export const TanStackConversationsForm = ({
+
+const formStyles = defineStyles('ConversationsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const ConversationsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: ConversationsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateConversationDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: ConversationsInvalidMutationFragment) => void;
 }) => {
@@ -1348,9 +1472,10 @@ export const TanStackConversationsForm = ({
         const { data } = await create({ data: value });
         result = data?.createConversation.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateConversation.data;
       }
@@ -1453,12 +1578,21 @@ export const TanStackConversationsForm = ({
     Messages
     ================================================================
 */
-export const TanStackMessagesForm = ({
+
+const formStyles = defineStyles('MessagesForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const MessagesForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: MessagesInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateMessageDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: MessagesInvalidMutationFragment) => void;
 }) => {
@@ -1468,7 +1602,12 @@ export const TanStackMessagesForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, MessagesInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, MessagesInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -1497,9 +1636,10 @@ export const TanStackMessagesForm = ({
         const { data } = await create({ data: value });
         result = data?.createMessage.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateMessage.data;
       }
@@ -1524,11 +1664,16 @@ export const TanStackMessagesForm = ({
       void form.handleSubmit();
     }}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Messages'),
   revisionsHaveCommitMessages: false
@@ -1589,12 +1734,21 @@ export const TanStackMessagesForm = ({
     ModerationTemplates
     ================================================================
 */
-export const TanStackModerationTemplatesForm = ({
+
+const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const ModerationTemplatesForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: ModerationTemplatesInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateModerationTemplateDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: ModerationTemplatesInvalidMutationFragment) => void;
 }) => {
@@ -1604,7 +1758,12 @@ export const TanStackModerationTemplatesForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, ModerationTemplatesInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, ModerationTemplatesInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -1633,9 +1792,10 @@ export const TanStackModerationTemplatesForm = ({
         const { data } = await create({ data: value });
         result = data?.createModerationTemplate.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateModerationTemplate.data;
       }
@@ -1671,11 +1831,16 @@ export const TanStackModerationTemplatesForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('ModerationTemplates'),
   revisionsHaveCommitMessages: false
@@ -1765,12 +1930,21 @@ export const TanStackModerationTemplatesForm = ({
     Users
     ================================================================
 */
-export const TanStackUsersForm = ({
+
+const formStyles = defineStyles('UsersForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const UsersForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: UsersInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateUserDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: UsersInvalidMutationFragment) => void;
 }) => {
@@ -1780,7 +1954,12 @@ export const TanStackUsersForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, UsersInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, UsersInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -1809,9 +1988,10 @@ export const TanStackUsersForm = ({
         const { data } = await create({ data: value });
         result = data?.createUser.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateUser.data;
       }
@@ -1886,11 +2066,16 @@ export const TanStackUsersForm = ({
 <<<<<<< VERSION 1
         {/* TODO: add custom validation (simpleSchema present) */}
         {/* TODO: implement conditional visibility for biography */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="biography"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Users'),
   revisionsHaveCommitMessages: false
@@ -3204,11 +3389,16 @@ export const TanStackUsersForm = ({
 >>>>>>> END
         {/* TODO: add custom validation (simpleSchema present) */}
         {/* TODO: implement conditional visibility for moderationGuidelines */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="moderationGuidelines"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Users'),
   revisionsHaveCommitMessages: false
@@ -3320,11 +3510,16 @@ export const TanStackUsersForm = ({
       <Components.FormGroupLayout label="About you">
         {/* TODO: add custom validation (simpleSchema present) */}
         {/* TODO: implement conditional visibility for biography */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="biography"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Users'),
   revisionsHaveCommitMessages: false
@@ -3435,12 +3630,21 @@ export const TanStackUsersForm = ({
     Posts
     ================================================================
 */
-export const TanStackPostsForm = ({
+
+const formStyles = defineStyles('PostsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const PostsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: PostsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdatePostDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: PostsInvalidMutationFragment) => void;
 }) => {
@@ -3450,7 +3654,12 @@ export const TanStackPostsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, PostsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, PostsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -3479,9 +3688,10 @@ export const TanStackPostsForm = ({
         const { data } = await create({ data: value });
         result = data?.createPost.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updatePost.data;
       }
@@ -3593,11 +3803,16 @@ export const TanStackPostsForm = ({
       </Components.FormGroupLayout>
       <Components.FormGroupLayout /* TODO: port layoutComponentProps: {"groupStyling":false,"paddingStyling":true} */>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Posts'),
   hasToc: true,
@@ -3977,11 +4192,16 @@ export const TanStackPostsForm = ({
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Highlight" collapsed={true}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="customHighlight">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="customHighlight"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Posts'),
   revisionsHaveCommitMessages: false
@@ -4530,11 +4750,16 @@ export const TanStackPostsForm = ({
 >>>>>>> END
         {/* TODO: add custom validation (simpleSchema present) */}
         {/* TODO: implement conditional visibility for moderationGuidelines */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="moderationGuidelines"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Posts'),
   revisionsHaveCommitMessages: false
@@ -4705,12 +4930,21 @@ export const TanStackPostsForm = ({
     RSSFeeds
     ================================================================
 */
-export const TanStackRSSFeedsForm = ({
+
+const formStyles = defineStyles('RSSFeedsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const RSSFeedsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: RSSFeedsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateRSSFeedDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: RSSFeedsInvalidMutationFragment) => void;
 }) => {
@@ -4743,9 +4977,10 @@ export const TanStackRSSFeedsForm = ({
         const { data } = await create({ data: value });
         result = data?.createRSSFeed.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateRSSFeed.data;
       }
@@ -4876,12 +5111,21 @@ export const TanStackRSSFeedsForm = ({
     PetrovDayActions
     ================================================================
 */
-export const TanStackPetrovDayActionsForm = ({
+
+const formStyles = defineStyles('PetrovDayActionsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const PetrovDayActionsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: PetrovDayActionsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdatePetrovDayActionDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: PetrovDayActionsInvalidMutationFragment) => void;
 }) => {
@@ -4914,9 +5158,10 @@ export const TanStackPetrovDayActionsForm = ({
         const { data } = await create({ data: value });
         result = data?.createPetrovDayAction.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updatePetrovDayAction.data;
       }
@@ -4998,12 +5243,21 @@ export const TanStackPetrovDayActionsForm = ({
     Books
     ================================================================
 */
-export const TanStackBooksForm = ({
+
+const formStyles = defineStyles('BooksForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const BooksForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: BooksInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateBookDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: BooksInvalidMutationFragment) => void;
 }) => {
@@ -5013,7 +5267,12 @@ export const TanStackBooksForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, BooksInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, BooksInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -5042,9 +5301,10 @@ export const TanStackBooksForm = ({
         const { data } = await create({ data: value });
         result = data?.createBook.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateBook.data;
       }
@@ -5069,11 +5329,16 @@ export const TanStackBooksForm = ({
       void form.handleSubmit();
     }}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
@@ -5236,12 +5501,21 @@ export const TanStackBooksForm = ({
     Chapters
     ================================================================
 */
-export const TanStackChaptersForm = ({
+
+const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const ChaptersForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: ChaptersInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateChapterDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: ChaptersInvalidMutationFragment) => void;
 }) => {
@@ -5251,7 +5525,12 @@ export const TanStackChaptersForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, ChaptersInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, ChaptersInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -5280,9 +5559,10 @@ export const TanStackChaptersForm = ({
         const { data } = await create({ data: value });
         result = data?.createChapter.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateChapter.data;
       }
@@ -5307,11 +5587,16 @@ export const TanStackChaptersForm = ({
       void form.handleSubmit();
     }}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
@@ -5410,12 +5695,21 @@ export const TanStackChaptersForm = ({
     Collections
     ================================================================
 */
-export const TanStackCollectionsForm = ({
+
+const formStyles = defineStyles('CollectionsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const CollectionsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: CollectionsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateCollectionDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: CollectionsInvalidMutationFragment) => void;
 }) => {
@@ -5425,7 +5719,12 @@ export const TanStackCollectionsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, CollectionsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, CollectionsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -5454,9 +5753,10 @@ export const TanStackCollectionsForm = ({
         const { data } = await create({ data: value });
         result = data?.createCollection.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateCollection.data;
       }
@@ -5481,11 +5781,16 @@ export const TanStackCollectionsForm = ({
       void form.handleSubmit();
     }}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Collections'),
   revisionsHaveCommitMessages: false
@@ -5601,12 +5906,21 @@ export const TanStackCollectionsForm = ({
     Sequences
     ================================================================
 */
-export const TanStackSequencesForm = ({
+
+const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const SequencesForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: SequencesInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateSequenceDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: SequencesInvalidMutationFragment) => void;
 }) => {
@@ -5616,7 +5930,12 @@ export const TanStackSequencesForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, SequencesInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, SequencesInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -5645,9 +5964,10 @@ export const TanStackSequencesForm = ({
         const { data } = await create({ data: value });
         result = data?.createSequence.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateSequence.data;
       }
@@ -5689,11 +6009,16 @@ export const TanStackSequencesForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Sequences'),
   revisionsHaveCommitMessages: false
@@ -5899,12 +6224,21 @@ export const TanStackSequencesForm = ({
     Spotlights
     ================================================================
 */
-export const TanStackSpotlightsForm = ({
+
+const formStyles = defineStyles('SpotlightsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const SpotlightsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: SpotlightsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateSpotlightDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: SpotlightsInvalidMutationFragment) => void;
 }) => {
@@ -5914,7 +6248,12 @@ export const TanStackSpotlightsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, SpotlightsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, SpotlightsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -5943,9 +6282,10 @@ export const TanStackSpotlightsForm = ({
         const { data } = await create({ data: value });
         result = data?.createSpotlight.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateSpotlight.data;
       }
@@ -6182,11 +6522,16 @@ export const TanStackSpotlightsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="description">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="description"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
@@ -6247,12 +6592,21 @@ export const TanStackSpotlightsForm = ({
     ModeratorActions
     ================================================================
 */
-export const TanStackModeratorActionsForm = ({
+
+const formStyles = defineStyles('ModeratorActionsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const ModeratorActionsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: ModeratorActionsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateModeratorActionDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: ModeratorActionsInvalidMutationFragment) => void;
 }) => {
@@ -6285,9 +6639,10 @@ export const TanStackModeratorActionsForm = ({
         const { data } = await create({ data: value });
         result = data?.createModeratorAction.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateModeratorAction.data;
       }
@@ -6433,12 +6788,21 @@ export const TanStackModeratorActionsForm = ({
     Reports
     ================================================================
 */
-export const TanStackReportsForm = ({
+
+const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const ReportsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: ReportsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateReportDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: ReportsInvalidMutationFragment) => void;
 }) => {
@@ -6471,9 +6835,10 @@ export const TanStackReportsForm = ({
         const { data } = await create({ data: value });
         result = data?.createReport.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateReport.data;
       }
@@ -6563,12 +6928,21 @@ export const TanStackReportsForm = ({
     UserRateLimits
     ================================================================
 */
-export const TanStackUserRateLimitsForm = ({
+
+const formStyles = defineStyles('UserRateLimitsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const UserRateLimitsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: UserRateLimitsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateUserRateLimitDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: UserRateLimitsInvalidMutationFragment) => void;
 }) => {
@@ -6601,9 +6975,10 @@ export const TanStackUserRateLimitsForm = ({
         const { data } = await create({ data: value });
         result = data?.createUserRateLimit.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateUserRateLimit.data;
       }
@@ -6727,12 +7102,21 @@ export const TanStackUserRateLimitsForm = ({
     SurveySchedules
     ================================================================
 */
-export const TanStackSurveySchedulesForm = ({
+
+const formStyles = defineStyles('SurveySchedulesForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const SurveySchedulesForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: SurveySchedulesInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateSurveyScheduleDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: SurveySchedulesInvalidMutationFragment) => void;
 }) => {
@@ -6765,9 +7149,10 @@ export const TanStackSurveySchedulesForm = ({
         const { data } = await create({ data: value });
         result = data?.createSurveySchedule.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateSurveySchedule.data;
       }
@@ -6948,12 +7333,21 @@ export const TanStackSurveySchedulesForm = ({
     Tags
     ================================================================
 */
-export const TanStackTagsForm = ({
+
+const formStyles = defineStyles('TagsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const TagsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: TagsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateTagDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: TagsInvalidMutationFragment) => void;
 }) => {
@@ -6963,7 +7357,12 @@ export const TanStackTagsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, TagsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, TagsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -6992,9 +7391,10 @@ export const TanStackTagsForm = ({
         const { data } = await create({ data: value });
         result = data?.createTag.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateTag.data;
       }
@@ -7030,11 +7430,16 @@ export const TanStackTagsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="description">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="description"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: true
@@ -7421,11 +7826,16 @@ export const TanStackTagsForm = ({
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Sidebar Welcome Message" collapsed={true}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="subforumWelcomeText">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="subforumWelcomeText"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: getDefaultLocalStorageIdGenerator('Tags'),
   revisionsHaveCommitMessages: false
@@ -7488,12 +7898,21 @@ export const TanStackTagsForm = ({
     MultiDocuments
     ================================================================
 */
-export const TanStackMultiDocumentsForm = ({
+
+const formStyles = defineStyles('MultiDocumentsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const MultiDocumentsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: MultiDocumentsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateMultiDocumentDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: MultiDocumentsInvalidMutationFragment) => void;
 }) => {
@@ -7503,7 +7922,12 @@ export const TanStackMultiDocumentsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, MultiDocumentsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, MultiDocumentsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -7532,9 +7956,10 @@ export const TanStackMultiDocumentsForm = ({
         const { data } = await create({ data: value });
         result = data?.createMultiDocument.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateMultiDocument.data;
       }
@@ -7606,11 +8031,16 @@ export const TanStackMultiDocumentsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: true
@@ -7696,12 +8126,21 @@ export const TanStackMultiDocumentsForm = ({
     TagFlags
     ================================================================
 */
-export const TanStackTagFlagsForm = ({
+
+const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
+
+export const TagFlagsForm = ({
   initialData,
   currentUser,
   onSuccess,
 }: {
-  initialData?: TagFlagsInvalidQueryFragment; // TODO: use correct fragment type
+  initialData?: UpdateTagFlagDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: TagFlagsInvalidMutationFragment) => void;
 }) => {
@@ -7711,7 +8150,12 @@ export const TanStackTagFlagsForm = ({
   const formType = initialData ? 'edit' : 'new';
 
   
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<typeof form.state.values, TagFlagsInvalidMutationFragment>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+    } = useEditorFormCallbacks<typeof form.state.values, TagFlagsInvalidMutationFragment>();
   
 
   const { create } = useCreate({
@@ -7740,9 +8184,10 @@ export const TanStackTagFlagsForm = ({
         const { data } = await create({ data: value });
         result = data?.createTagFlag.data;
       } else {
+        const { _id, ...valueWithoutId } = value;
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: valueWithoutId,
         });
         result = data?.updateTagFlag.data;
       }
@@ -7789,11 +8234,16 @@ export const TanStackTagFlagsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        <div className={classes.fieldWrapper}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <TanStackEditor
                 field={field}
+                name="contents"
+                formType={formType}
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
                 editableFieldOptions={{
   getLocalStorageId: [Function: getLocalStorageId],
   revisionsHaveCommitMessages: false
