@@ -16,7 +16,7 @@ export const formGroups = {
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
-  createdAt: deepmerge(DEFAULT_CREATED_AT_FIELD, {graphql: { outputType: "Date" }}),
+  createdAt: deepmerge(DEFAULT_CREATED_AT_FIELD, {database: {nullable: false}, graphql: { outputType: "Date" }}),
   legacyData: DEFAULT_LEGACY_DATA_FIELD,
   contents: {
     database: {
