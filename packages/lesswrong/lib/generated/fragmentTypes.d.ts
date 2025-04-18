@@ -138,7 +138,7 @@ interface BooksDefaultFragment { // fragment on Books
 interface ChaptersDefaultFragment { // fragment on Chapters
   readonly _id: string,
   readonly schemaVersion: number,
-  readonly createdAt: Date,
+  readonly createdAt: Date | null,
   readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly contents_latest: string | null,
   readonly title: string,
@@ -154,7 +154,7 @@ interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
 
 interface ChaptersFragment { // fragment on Chapters
   readonly _id: string,
-  readonly createdAt: Date,
+  readonly createdAt: Date | null,
   readonly title: string,
   readonly subtitle: string,
   readonly contents: RevisionDisplay|null,

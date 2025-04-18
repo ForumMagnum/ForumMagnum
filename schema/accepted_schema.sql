@@ -124,7 +124,7 @@ CREATE INDEX IF NOT EXISTS "idx_Books_collectionId" ON "Books" USING btree ("col
 CREATE TABLE "Chapters" (
   _id VARCHAR(27) PRIMARY KEY,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,

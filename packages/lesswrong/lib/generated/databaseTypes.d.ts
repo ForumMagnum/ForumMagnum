@@ -90,7 +90,7 @@ interface DbChapter extends DbObject {
   __collectionName?: "Chapters"
   contents: EditableFieldContents | null
   contents_latest: string | null
-  createdAt: Date
+  createdAt: Date | null
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   number: number | null
   postIds: Array<string>
