@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable'
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import type { WrappedSmartFormProps } from '../vulcan-forms/propTypes';
 import * as _ from 'underscore';
 

@@ -19,7 +19,7 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { TanStackUserMultiselect } from '../tanstack-form-components/TanStackUserMultiSelect';
 import { TanStackLocation } from '../tanstack-form-components/TanStackLocation';
 import { TanStackImageUpload } from '../tanstack-form-components/TanStackImageUpload';
-import { TanStackEditor } from '../tanstack-form-components/TanStackEditor';
+import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-components/TanStackEditor';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { TanStackGroupFormSubmit } from './TanStackGroupFormSubmit';
@@ -96,6 +96,13 @@ const TanStackGroupForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+  } = useEditorFormCallbacks<typeof form.state.values, localGroupsHomeFragment>();
+
   const { create } = useCreate({
     collectionName: 'Localgroups',
     fragmentName: 'localGroupsHomeFragment',
@@ -105,23 +112,6 @@ const TanStackGroupForm = ({
     collectionName: 'Localgroups',
     fragmentName: 'localGroupsHomeFragment',
   });
-
-  const onSubmitCallback = useRef<((submission: typeof form.state.values) => Promise<typeof form.state.values>)>();
-  const onSuccessCallback = useRef<((result: localGroupsHomeFragment, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => localGroupsHomeFragment)>();
-
-  const addOnSubmitCallback = (cb: (submission: typeof form.state.values) => Promise<typeof form.state.values>) => {
-    onSubmitCallback.current = cb;
-    return () => {
-      onSubmitCallback.current = undefined;
-    };
-  };
-
-  const addOnSuccessCallback = (cb: (result: localGroupsHomeFragment, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => localGroupsHomeFragment) => {
-    onSuccessCallback.current = cb;
-    return () => {
-      onSuccessCallback.current = undefined;
-    };
-  };
 
   const form = useForm({
     // validators: {
@@ -204,9 +194,8 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="contents">
           {(field) => (
-            <TanStackEditor<typeof form.state.values, localGroupsHomeFragment>
+            <TanStackEditor
               field={field}
-              editorType={formType}
               fieldName='contents'
               name='contents'
               commentEditor

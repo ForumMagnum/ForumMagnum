@@ -29,6 +29,7 @@ interface TanStackMuiTextFieldProps {
   type?: string;
   disabled?: boolean;
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
+  overrideClassName?: string;
 }
 
 export function TanStackMuiTextField({
@@ -43,6 +44,7 @@ export function TanStackMuiTextField({
   type,
   disabled = false,
   InputLabelProps,
+  overrideClassName: className,
 }: TanStackMuiTextFieldProps) {
   const classes = useStyles(styles);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -69,7 +71,7 @@ export function TanStackMuiTextField({
         ...InputLabelProps
       }}
       className={classnames(
-        classes.textField,
+        className ?? classes.textField,
         { [classes.fullWidth]: fullWidth }
       )}
       disabled={disabled}

@@ -15,7 +15,8 @@ import { getVotingSystemNameForDocument } from "../../voting/getVotingSystem";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { quickTakesTagsEnabledSetting } from "../../publicSettings";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
-import { getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
@@ -1470,7 +1471,7 @@ const schema = {
     },
     form: {
       label: "AF Review UserId",
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => alignmentOptionsGroup,
     },
   },

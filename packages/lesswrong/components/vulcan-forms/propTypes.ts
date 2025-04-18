@@ -136,7 +136,7 @@ declare global {
     label?: string
     placeholder?: string
     input: FormInputType
-    datatype: any
+    datatype: Array<{ type: DerivedSimpleSchemaFieldType['type']['singleType'] }>
     path: string
     disabled?: boolean
     nestedSchema: any

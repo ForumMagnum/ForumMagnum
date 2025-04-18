@@ -5,7 +5,8 @@ import {
   accessFilterMultiple
 } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 
 const SPOTLIGHT_DOCUMENT_TYPES = ["Sequence", "Post", "Tag"] as const;
 

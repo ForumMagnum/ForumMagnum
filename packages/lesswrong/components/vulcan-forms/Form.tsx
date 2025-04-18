@@ -365,10 +365,10 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     // to the form component, calling them if they are functions
     const inputProperties = fieldSchema.form || {};
     for (const prop in inputProperties) {
-      const property = inputProperties[prop];
+      const property = inputProperties[prop as keyof typeof inputProperties];
       (field as AnyBecauseTodo)[prop] =
         isFunction(property)
-          ? property.call(fieldSchema, this.props)
+          ? property.apply(fieldSchema, [this.props])
           : property;
     }
 

@@ -9,7 +9,8 @@ import {
 } from "../../utils/schemaUtils";
 import { localGroupTypeFormOptions } from "./groupTypes";
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
-import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { isEAForum, isLW } from "@/lib/instanceSettings";
 
 export const GROUP_CATEGORIES = [
@@ -191,7 +192,7 @@ const schema = {
       form: { options: () => localGroupTypeFormOptions },
       label: "Group Type:",
       control: "MultiSelectButtons",
-      hidden: !isLW,
+      hidden: () => !isLW,
     },
   },
   categories: {
@@ -211,7 +212,7 @@ const schema = {
       form: { label: "Group type / intended audience", options: () => GROUP_CATEGORIES },
       control: "FormComponentMultiSelect",
       placeholder: "Select all that apply",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
     },
   },
   isOnline: {

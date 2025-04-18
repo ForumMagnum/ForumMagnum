@@ -66,7 +66,8 @@ import {
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { SmartFormProps } from "@/components/vulcan-forms/propTypes";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
@@ -392,7 +393,7 @@ const schema = {
       },
       order: 50,
       control: "EditorFormComponent",
-      hidden: isFriendlyUI,
+      hidden: () => isFriendlyUI,
       group: () => formGroups.moderationGroup,
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("Posts"),
@@ -1454,7 +1455,7 @@ const schema = {
       },
     },
     form: {
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.adminOptions,
     },
   },
@@ -3116,7 +3117,7 @@ const schema = {
       order: 14,
       label: "Hide comments on this post from Popular Comments",
       control: "checkbox",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.adminOptions,
     },
   },
@@ -4311,7 +4312,7 @@ const schema = {
       },
     },
     form: {
-      hidden: !hasSidenotes,
+      hidden: () => !hasSidenotes,
       group: () => formGroups.advancedOptions,
     },
   },
@@ -4399,7 +4400,7 @@ const schema = {
       },
     },
     form: {
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.moderationGroup,
     },
   },
@@ -4935,7 +4936,7 @@ const schema = {
       order: 10,
       label: "Sticky (Alignment)",
       control: "checkbox",
-      hidden: isEAForum,
+      hidden: () => isEAForum,
       group: () => formGroups.adminOptions,
     },
   },
@@ -4986,7 +4987,7 @@ const schema = {
     },
     form: {
       label: "AF Review UserId",
-      hidden: isEAForum,
+      hidden: () => isEAForum,
       group: () => formGroups.adminOptions,
     },
   },

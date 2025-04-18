@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, getEditableFieldInCollection, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { getEditableFieldInCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';

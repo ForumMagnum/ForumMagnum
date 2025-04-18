@@ -43,7 +43,8 @@ import {
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { recommendationSettingsSchema } from "@/lib/collections/users/recommendationSettings";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
@@ -607,7 +608,7 @@ const schema = {
       },
       order: 50,
       control: "EditorFormComponent",
-      hidden: !hasAuthorModeration,
+      hidden: () => !hasAuthorModeration,
       group: () => formGroups.moderationGroup,
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
@@ -775,7 +776,7 @@ const schema = {
       },
       order: isEAForum ? 6 : 40,
       control: "EditorFormComponent",
-      hidden: isEAForum,
+      hidden: () => isEAForum,
       group: () => (isEAForum ? formGroups.aboutMe : formGroups.default),
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
@@ -921,7 +922,7 @@ const schema = {
     },
     form: {
       order: 10,
-      hidden: isFriendlyUI,
+      hidden: () => isFriendlyUI,
       group: () => formGroups.default,
     },
   },
@@ -1099,7 +1100,7 @@ const schema = {
     form: {
       order: 1,
       control: "ThemeSelect",
-      hidden: isLWorAF,
+      hidden: () => isLWorAF,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1253,7 +1254,7 @@ const schema = {
       },
       label: "React Palette Style",
       control: "select",
-      hidden: isEAForum,
+      hidden: () => isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1295,7 +1296,7 @@ const schema = {
       order: 69,
       label: "Enable option on posts to hide karma visibility",
       control: "checkbox",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1413,7 +1414,7 @@ const schema = {
       order: 90,
       label: "Hide explanations of how AIAF submissions work for non-members",
       control: "checkbox",
-      hidden: !isAF, //TODO: just hide this in prod
+      hidden: () => !isAF, //TODO: just hide this in prod
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1510,7 +1511,7 @@ const schema = {
       order: 93,
       label: "Hide community section from the frontpage",
       control: "checkbox",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1555,7 +1556,7 @@ const schema = {
       order: 94,
       label: "Show Community posts in Recent Discussion",
       control: "checkbox",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1580,7 +1581,7 @@ const schema = {
       order: 95,
       label: "Hide recommendations from the posts page",
       control: "checkbox",
-      hidden: !hasPostRecommendations,
+      hidden: () => !hasPostRecommendations,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -1629,7 +1630,7 @@ const schema = {
     form: {
       order: 97,
       label: "Opt out of user surveys",
-      hidden: !hasSurveys,
+      hidden: () => !hasSurveys,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -2065,7 +2066,7 @@ const schema = {
       order: 55,
       label: "Style",
       control: "select",
-      hidden: isFriendlyUI,
+      hidden: () => isFriendlyUI,
       group: () => formGroups.moderationGroup,
     },
   },
@@ -2086,7 +2087,7 @@ const schema = {
       order: 55,
       label: "I'm happy for site moderators to help enforce my policy",
       control: "checkbox",
-      hidden: isFriendlyUI,
+      hidden: () => isFriendlyUI,
       group: () => formGroups.moderationGroup,
     },
   },
@@ -2107,7 +2108,7 @@ const schema = {
       order: 56,
       label: "On my posts, collapse my moderation guidelines by default",
       control: "checkbox",
-      hidden: isFriendlyUI,
+      hidden: () => isFriendlyUI,
       group: () => formGroups.moderationGroup,
     },
   },
@@ -2276,7 +2277,7 @@ const schema = {
       label: "Deactivate",
       tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
       control: "checkbox",
-      hidden: hasAccountDeletionFlow,
+      hidden: () => hasAccountDeletionFlow,
       group: () => formGroups.deactivate,
     },
   },
@@ -2485,7 +2486,7 @@ const schema = {
     form: {
       label: "Auto-subscribe to posts/events in groups I organize",
       control: "checkbox",
-      hidden: !hasEventsSetting.get(),
+      hidden: () => !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2605,7 +2606,7 @@ const schema = {
     form: {
       label: "Posts/events in groups I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
-      hidden: !hasEventsSetting.get(),
+      hidden: () => !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2634,7 +2635,7 @@ const schema = {
     form: {
       label: "Posts added to sequences I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
-      hidden: !allowSubscribeToSequencePosts,
+      hidden: () => !allowSubscribeToSequencePosts,
       group: () => formGroups.notifications,
     },
   },
@@ -2677,7 +2678,7 @@ const schema = {
     form: {
       label: "Alignment Forum submission approvals",
       control: "NotificationTypeSettingsWidget",
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.notifications,
     },
   },
@@ -2692,7 +2693,7 @@ const schema = {
     form: {
       label: "New events in my notification radius",
       control: "NotificationTypeSettingsWidget",
-      hidden: !hasEventsSetting.get(),
+      hidden: () => !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2725,7 +2726,7 @@ const schema = {
     form: {
       label: "New RSVP responses to my events",
       control: "NotificationTypeSettingsWidget",
-      hidden: !hasEventsSetting.get(),
+      hidden: () => !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2740,7 +2741,7 @@ const schema = {
     form: {
       label: "Group administration notifications",
       control: "NotificationTypeSettingsWidget",
-      hidden: !hasEventsSetting.get(),
+      hidden: () => !hasEventsSetting.get(),
       group: () => formGroups.notifications,
     },
   },
@@ -2867,7 +2868,7 @@ const schema = {
     form: {
       label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
       control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.notifications,
     },
   },
@@ -2882,7 +2883,7 @@ const schema = {
     form: {
       label: "[Old Style] New dialogue content in a dialogue I'm participating in",
       control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.notifications,
     },
   },
@@ -2897,7 +2898,7 @@ const schema = {
     form: {
       label: "Another user and I have matched for a dialogue",
       control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.notifications,
     },
   },
@@ -2915,7 +2916,7 @@ const schema = {
     form: {
       label: "You have new people interested in dialogue-ing with you",
       control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.notifications,
     },
   },
@@ -2930,7 +2931,7 @@ const schema = {
     form: {
       label: "Fill in the topics form for your dialogue match",
       control: "NotificationTypeSettingsWidget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.notifications,
     },
   },
@@ -2952,7 +2953,7 @@ const schema = {
     },
     form: {
       label: "Hide the widget for opting in to being approached about dialogues",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -2974,7 +2975,7 @@ const schema = {
     },
     form: {
       label: "Allow users to reveal their checks for better facilitation",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -2996,7 +2997,7 @@ const schema = {
     },
     form: {
       label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -3015,7 +3016,7 @@ const schema = {
     },
     form: {
       label: "Show a list of recently active dialogues inside the frontpage widget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -3034,7 +3035,7 @@ const schema = {
     },
     form: {
       label: "Show a list of dialogues the user participated in inside the frontpage widget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -3053,7 +3054,7 @@ const schema = {
     },
     form: {
       label: "Show a list of dialogue reciprocity matched users inside frontpage widget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -3072,7 +3073,7 @@ const schema = {
     },
     form: {
       label: "Show a list of recommended dialogue partners inside frontpage widget",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -3094,7 +3095,7 @@ const schema = {
     },
     form: {
       label: "Hides/collapses the active dialogue users in the header",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -3176,7 +3177,7 @@ const schema = {
     form: {
       label: "Email me new posts in Curated",
       control: "EmailConfirmationRequiredCheckbox",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.emails,
     },
   },
@@ -3198,7 +3199,7 @@ const schema = {
     },
     form: {
       label: "Subscribe to the EA Forum Digest emails",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.emails,
     },
   },
@@ -3424,7 +3425,7 @@ const schema = {
       order: 100,
       label: "Account location (used for location-based recommendations)",
       control: "LocationFormComponent",
-      hidden: !hasEventsSetting.get(),
+      hidden: () => !hasEventsSetting.get(),
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -3466,7 +3467,7 @@ const schema = {
       order: isLWorAF ? 101 : 5,
       label: isLWorAF ? "Public map location" : "Location",
       control: "LocationFormComponent",
-      hidden: isEAForum,
+      hidden: () => isEAForum,
       group: () => (isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo),
     },
   },
@@ -3654,7 +3655,7 @@ const schema = {
     form: {
       order: 44,
       label: "Hide the frontpage map",
-      hidden: !isLW,
+      hidden: () => !isLW,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -3734,7 +3735,7 @@ const schema = {
     form: {
       order: 47,
       label: "Hide the frontpage book ad",
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -4091,7 +4092,7 @@ const schema = {
     },
     form: {
       order: 39,
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.default,
     },
   },
@@ -4564,7 +4565,7 @@ const schema = {
       order: 73,
       label: "Restore the previous WYSIWYG editor",
       tooltip: "Restore the old Draft-JS based editor",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -4581,7 +4582,7 @@ const schema = {
       },
     },
     form: {
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.adminOptions,
     },
   },
@@ -4597,7 +4598,7 @@ const schema = {
       },
     },
     form: {
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.siteCustomizations,
     },
   },
@@ -4667,7 +4668,7 @@ const schema = {
     form: {
       label: "Payment Contact Email",
       tooltip: "An email you'll definitely check where you can receive information about receiving payments",
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.paymentInfo,
     },
   },
@@ -4686,7 +4687,7 @@ const schema = {
     form: {
       label: "PayPal Info",
       tooltip: "Your PayPal account info, for sending small payments",
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.paymentInfo,
     },
   },
@@ -4796,7 +4797,7 @@ const schema = {
       form: {
         variant: "grey",
         separator: ", ",
-        options: CAREER_STAGES,
+        options: () => CAREER_STAGES,
       },
     },
   },
@@ -4989,7 +4990,7 @@ const schema = {
       },
       order: 11,
       control: "PrefixedInput",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.adminOptions,
     },
   },
@@ -5367,7 +5368,7 @@ const schema = {
     },
     form: {
       label: "Hide my profile from the People directory",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.privacy,
     },
   },
@@ -5391,7 +5392,7 @@ const schema = {
     form: {
       label: "Allow Session Replay",
       tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.privacy,
     },
   },
@@ -5538,7 +5539,7 @@ const schema = {
     },
     form: {
       label: "AF Review UserId",
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
       group: () => formGroups.adminOptions,
     },
   },
@@ -5629,7 +5630,7 @@ const schema = {
     },
     form: {
       label: "Hide Sunshine Sidebar",
-      hidden: isEAForum,
+      hidden: () => isEAForum,
       group: () => formGroups.adminOptions,
     },
   },

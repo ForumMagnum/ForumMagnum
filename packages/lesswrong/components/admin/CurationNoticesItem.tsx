@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
-import { useTracking } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from '@/themes/forumTheme';
-import { commentBodyStyles } from '../../themes/stylePiping'
-import { useCurrentUser } from '../common/withUser';
-import { useCreate } from '@/lib/crud/withCreate';
-import { commentDefaultToAlignment } from '@/lib/collections/comments/helpers';
-import { User } from '@sentry/node';
-import { useUpdate } from '@/lib/crud/withUpdate';
-import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
-import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import { useCreate } from '@/lib/crud/withCreate';
+import { useUpdate } from '@/lib/crud/withUpdate';
+import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
+import { Link } from '@/lib/reactRouterWrapper';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
+import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { commentBodyStyles } from '../../themes/stylePiping';
+import { useCurrentUser } from '../common/withUser';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
+import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-components/TanStackEditor';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       opacity: 0.5,
     },
-},
+  },
   publishButton: {
     ...theme.typography.body2,
     color: theme.palette.primary.main,
@@ -89,15 +91,188 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+const formStyles = defineStyles('TanStackCurationNoticesForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  formButton: {
+    fontFamily: theme.typography.fontFamily,
+    marginLeft: "5px",
+
+    ...(isFriendlyUI
+      ? {
+        fontSize: 14,
+        fontWeight: 500,
+        textTransform: "none",
+      }
+      : {
+        paddingBottom: 2,
+        fontSize: 16,
+      }),
+
+    "&:hover": {
+      background: theme.palette.panelBackground.darken05,
+    }
+  },
+
+  secondaryButton: {
+    color: theme.palette.text.dim40,
+  },
+
+  submitButton: isFriendlyUI
+    ? {
+      background: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite, // Dark mode independent
+      "&:hover": {
+        background: theme.palette.primary.dark,
+      },
+    }
+    : {
+      color: theme.palette.secondary.main,
+    },
+}));
+
+type TanStackCurationNoticesFormProps = {
+  initialData?: UpdateCurationNoticeDataInput & { _id: string };
+  currentUser: UsersCurrent;
+  postId: string;
+  onSuccess: (doc: CurationNoticesFragment) => void;
+};
+
+const TanStackCurationNoticesForm = ({
+  initialData,
+  currentUser,
+  postId,
+  onSuccess,
+}: TanStackCurationNoticesFormProps) => {
+  const classes = useStyles(formStyles);
+  const { LWTooltip, Error404 } = Components;
+
+  const formType = initialData ? 'edit' : 'new';
+
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+  } = useEditorFormCallbacks<typeof form.state.values, CurationNoticesFragment>();
+
+  const { create } = useCreate({
+    collectionName: 'CurationNotices',
+    fragmentName: 'CurationNoticesFragment',
+  });
+
+  const { mutate } = useUpdate({
+    collectionName: 'CurationNotices',
+    fragmentName: 'CurationNoticesFragment',
+  });
+
+  const form = useForm({
+    defaultValues: {
+      ...initialData,
+      ...(formType === 'new' ? {
+        userId: currentUser._id,
+        postId,
+      } : {}),
+    },
+    onSubmit: async ({ value }) => {
+      if (onSubmitCallback.current) {
+        value = await onSubmitCallback.current(value);
+      }
+
+      let result: CurationNoticesFragment;
+      if (formType === 'new') {
+        const { data } = await create({ data: value });
+        result = data?.createCurationNotice.data;
+      } else {
+        const { _id, ...valueWithoutId } = value;
+        const { data } = await mutate({
+          selector: { _id: initialData?._id },
+          data: valueWithoutId,
+        });
+        result = data?.updateCurationNotice.data;
+      }
+
+      if (onSuccessCallback.current) {
+        result = onSuccessCallback.current(result, {});
+      }
+
+      onSuccess(result);
+    },
+  });
+
+  if (formType === 'edit' && !initialData) {
+    return <Error404 />;
+  }
+
+  return (
+    <form className="vulcan-form" onSubmit={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void form.handleSubmit();
+    }}>
+      {/* TODO: add custom validation (simpleSchema present) */}
+      <div className={classes.fieldWrapper}>
+        <form.Field name="contents">
+          {(field) => (
+            <TanStackEditor
+              field={field}
+              document={form.state.values}
+              formType={formType}
+              hintText={defaultEditorPlaceholder}
+              fieldName="contents"
+              name="contents"
+              collectionName="CurationNotices"
+              commentEditor={true}
+              commentStyles={true}
+              hideControls={true}
+              addOnSubmitCallback={addOnSubmitCallback}
+              addOnSuccessCallback={addOnSuccessCallback}
+            />
+          )}
+        </form.Field>
+      </div>
+
+      <div className={classes.fieldWrapper}>
+        <form.Field name="deleted">
+          {(field) => (
+            <TanStackCheckbox
+              field={field}
+              label="Deleted"
+            />
+          )}
+        </form.Field>
+      </div>
+
+      <div className="form-submit">
+        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              disabled={!canSubmit || isSubmitting}
+              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+            >
+              Submit
+            </Button>
+          )}
+        </form.Subscribe>
+      </div>
+    </form>
+  );
+};
+
 export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
   const { ContentItemBody, Button, BasicFormStyles, WrappedSmartForm } = Components;
 
+  const currentUser = useCurrentUser();
 
   const [edit, setEdit] = useState<boolean>(false)
   const [clickedPushing, setClickedPushing] = useState<boolean>(false)
+
   const { create } = useCreate({
     collectionName: "Comments",
     fragmentName: 'CommentsList'
@@ -150,20 +325,28 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     }
   }
 
-  if (curationNotice.post === null) return null;
+  if (curationNotice.post === null || !currentUser) return null;
+
+  const { _id, contents, commentId, deleted } = curationNotice;
 
   return <div className={classes.root}>
     {edit ? 
       <div>
         <BasicFormStyles>
           {curationNotice.post.title}
-          <WrappedSmartForm
+          {/* <WrappedSmartForm
             collectionName="CurationNotices"
             documentId={curationNotice._id}
             mutationFragmentName={'CurationNoticesFragment'}
             queryFragmentName={'CurationNoticesFragment'}
             successCallback={() => setEdit(false)}
             prefilledProps={{userId: curationNotice.userId, postId: curationNotice.postId}}
+          /> */}
+          <TanStackCurationNoticesForm
+            initialData={{ _id, contents, commentId, deleted }}
+            currentUser={currentUser}
+            postId={curationNotice.postId}
+            onSuccess={() => setEdit(false)}
           />
         </BasicFormStyles>
       </div>

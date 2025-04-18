@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, getEditableFieldInCollection, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -95,10 +95,39 @@ interface TanStackEditorFormComponentProps<S, R> {
   placeholder?: string;
   label?: string;
   formVariant?: 'default' | 'grey';
+  revisionsHaveCommitMessages?: boolean;
+  hasToc?: boolean;
   setFieldEditorType?: (editorType: EditorTypeString) => void;
   addOnSubmitCallback: (fn: (submission: S) => Promise<S>) => () => void;
   addOnSuccessCallback: (fn: (result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => R) => () => void;
+  getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
 }
+
+export function useEditorFormCallbacks<S, R>() {
+  const onSubmitCallback = useRef<((submission: S) => Promise<S>)>();
+  const onSuccessCallback = useRef<((result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => R)>();
+
+  const addOnSubmitCallback = (cb: (submission: S) => Promise<S>) => {
+    onSubmitCallback.current = cb;
+    return () => {
+      onSubmitCallback.current = undefined;
+    };
+  };
+
+  const addOnSuccessCallback = (cb: (result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => R) => {
+    onSuccessCallback.current = cb;
+    return () => {
+      onSuccessCallback.current = undefined;
+    };
+  };
+
+  return {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback,
+  };
+};
 
 function TanStackEditorInner<S, R>({
   field,
@@ -116,9 +145,12 @@ function TanStackEditorInner<S, R>({
   placeholder,
   label,
   formVariant,
+  revisionsHaveCommitMessages,
+  hasToc,
   setFieldEditorType,
   addOnSubmitCallback,
   addOnSuccessCallback,
+  getLocalStorageId,
 }: TanStackEditorFormComponentProps<S, R>) {
   const classes = useStyles(definedStyles);
   const { flash } = useMessages();
@@ -127,14 +159,14 @@ function TanStackEditorInner<S, R>({
   const hasUnsavedDataRef = useRef({ hasUnsavedData: false });
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
   const { captureEvent } = useTracking();
-  const { form: { editableFieldOptions } } = getEditableFieldInCollection(collectionName, fieldName)!;
+
+  const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);
 
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
-    const getLocalStorageId = editableFieldOptions.getLocalStorageId;
-    return getLSHandlers(getLocalStorageId, document, name,
+    return getLSHandlers(localStorageIdGenerator, document, name,
       getLSKeyPrefix(editorType)
     );
-  }, [document, name, editableFieldOptions.getLocalStorageId]);
+  }, [document, localStorageIdGenerator, name]);
 
   const getNewPostLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
     // It would be nice to check that it's a post and not a comment, but it should be fine
@@ -152,9 +184,9 @@ function TanStackEditorInner<S, R>({
       };
     }
     // pass in {_id: null} to getLocalStorageId to treat this like a new post, without having to change how makeEditableOptions works
-    const getLocalStorageId = (_: AnyBecauseIsInput, name: string) => editableFieldOptions.getLocalStorageId?.({ _id: null }, name);
+    const getLocalStorageId = (_: AnyBecauseIsInput, name: string) => localStorageIdGenerator({ _id: null }, name);
     return getLSHandlers(getLocalStorageId, document, name, getLSKeyPrefix(editorType));
-  }, [document, name, editableFieldOptions, formType]);
+  }, [document, name, localStorageIdGenerator, formType]);
 
   const [contents, setContents] = useState(() =>
     getInitialEditorContents(field.state.value, document, fieldName, currentUser),
@@ -359,7 +391,7 @@ function TanStackEditorInner<S, R>({
 
   const wrappedSetContents = useStabilizedCallback((change: EditorChangeEvent) => {
     const { contents: newContents, autosave } = change;
-    if (dynamicTableOfContents && editableFieldOptions.hasToc) {
+    if (dynamicTableOfContents && hasToc) {
       dynamicTableOfContents.setToc(change.contents);
     }
     setContents(newContents);
@@ -405,12 +437,12 @@ function TanStackEditorInner<S, R>({
       dynamicTableOfContents &&
       contents &&
       !hasGeneratedFirstToC.current.generated &&
-      editableFieldOptions.hasToc
+      hasToc
     ) {
       dynamicTableOfContents.setToc(contents);
       hasGeneratedFirstToC.current.generated = true;
     }
-  }, [contents, dynamicTableOfContents, editableFieldOptions.hasToc]);
+  }, [contents, dynamicTableOfContents, hasToc]);
 
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
@@ -542,7 +574,7 @@ function TanStackEditorInner<S, R>({
 
   if (!document) return null;
 
-  const fieldHasCommitMessages = editableFieldOptions.revisionsHaveCommitMessages;
+  const fieldHasCommitMessages = revisionsHaveCommitMessages;
   const hasCommitMessages =
     fieldHasCommitMessages &&
     currentUser &&
@@ -634,11 +666,11 @@ function TanStackEditorInner<S, R>({
   );
 }
 
-export function TanStackEditor<S, R>(props: TanStackEditorFormComponentProps<S, R> & { editorType: 'new' | 'edit' }) {
-  const { field, editorType, ...rest } = props;
-  if (typeof field.state.value !== 'object' && editorType === 'edit') {
+export function TanStackEditor<S, R>(props: TanStackEditorFormComponentProps<S, R>) {
+  const { field, formType, ...rest } = props;
+  if (typeof field.state.value !== 'object' && formType === 'edit') {
     return null;
   }
 
-  return <TanStackEditorInner<S, R> {...{ field, ...rest }} />;
+  return <TanStackEditorInner<S, R> {...{ field, formType, ...rest }} />;
 }

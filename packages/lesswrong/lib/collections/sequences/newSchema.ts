@@ -6,7 +6,8 @@ import {
 import { getWithCustomLoader } from "../../loaders";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 
 const formGroups = {
   adminOptions: {

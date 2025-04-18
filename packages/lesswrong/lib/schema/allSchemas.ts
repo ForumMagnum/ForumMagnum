@@ -118,6 +118,10 @@ export const allSchemas = {
   Users, Votes, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
 
+export function getAllSchemas() {
+  return allSchemas;
+}
+
 export function getSchema<N extends CollectionNameString>(collectionName: N): Record<string, CollectionFieldSpecification<N>> {
   return allSchemas[collectionName] as Record<string, CollectionFieldSpecification<N>>;
 }

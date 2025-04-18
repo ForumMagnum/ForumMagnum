@@ -15,7 +15,8 @@ import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPage
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
 import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtField";
 import uniqBy from "lodash/uniqBy";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { userIsSubforumModerator } from "./helpers";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { getToCforTag } from "@/server/tableOfContents";
@@ -356,7 +357,7 @@ const schema = {
     },
     form: {
       label: "Is post type",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.advancedOptions,
     },
   },
@@ -734,7 +735,7 @@ const schema = {
       label: "Banner Image",
       tooltip: "Minimum 200x600 px",
       control: "ImageUpload",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.advancedOptions,
     },
   },
@@ -756,7 +757,7 @@ const schema = {
       label: "Square Image",
       tooltip: "Minimum 200x200 px",
       control: "ImageUpload",
-      hidden: !isEAForum,
+      hidden: () => !isEAForum,
       group: () => formGroups.advancedOptions,
     },
   },

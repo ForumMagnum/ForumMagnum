@@ -97,7 +97,7 @@ const schema = {
       },
     },
     form: {
-      hidden: !isLWorAF,
+      hidden: () => !isLWorAF,
     },
   },
   messageCount: {

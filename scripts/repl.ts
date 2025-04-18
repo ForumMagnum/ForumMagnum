@@ -95,8 +95,8 @@ export async function initRepl(commandLineOptions: CommandLineOptions) {
   //await startSshTunnel(getDatabaseConfigFromModeAndForumType(mode, forumType).sshTunnelCommand);
 
   if (["dev", "local", "staging", "prod", "xpost"].includes(mode)) {
-    console.log('Running REPL in mode', mode);
-    args.settingsFileName = getSettingsFilePath(getSettingsFileName(mode, forumType), forumType);
+    console.log('Running REPL in mode', mode, 'with settings file', args.settingsFileName);
+    args.settingsFileName = getSettingsFilePath(args.settingsFileName /*getSettingsFileName(mode, forumType)*/, forumType);
   } else if (args.postgresUrl && args.settingsFileName) {
     console.log('Using PG_URL and SETTINGS_FILE from environment');
   } else {

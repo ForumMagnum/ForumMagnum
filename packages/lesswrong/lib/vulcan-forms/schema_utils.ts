@@ -62,11 +62,13 @@ export const getEditableFields = function<N extends CollectionNameString>(
 };
 
 export type FormSchemaField = {
-  [k in typeof schemaProperties[number]]?: k extends keyof DerivedSimpleSchemaFieldType
-    ? DerivedSimpleSchemaFieldType[k]
-    : k extends keyof Exclude<GraphQLBaseFieldSpecification['validation'], undefined>
-      ? Exclude<GraphQLBaseFieldSpecification['validation'], undefined>[k]
-      : unknown;
+  [k in typeof schemaProperties[number]]?: k extends 'type'
+    ? Array<{ type: DerivedSimpleSchemaFieldType['type']['singleType'] }>
+    : k extends keyof DerivedSimpleSchemaFieldType
+      ? DerivedSimpleSchemaFieldType[k]
+      : k extends keyof Exclude<GraphQLBaseFieldSpecification['validation'], undefined>
+        ? Exclude<GraphQLBaseFieldSpecification['validation'], undefined>[k]
+        : unknown;
 };
 
 export type ConvertedFormSchema = Record<

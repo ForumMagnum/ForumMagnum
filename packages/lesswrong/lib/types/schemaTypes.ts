@@ -230,7 +230,34 @@ interface FormFieldSpecification<N extends CollectionNameString> {
   minCount?: number,
   maxCount?: number,
   options?: (props: SmartFormProps<N>) => any,
-  form?: Record<string, string | number | boolean | Record<string, any> | ((props: SmartFormProps<N>) => any) | undefined>,
+  form?: {
+    hintText?: (() => string | undefined),
+    fieldName?: string,
+    collectionName?: string,
+    commentEditor?: boolean,
+    commentStyles?: boolean,
+    hideControls?: boolean,
+    fullWidth?: boolean,
+    options?: ((props: SmartFormProps<N>) => any),
+    stringVersionFieldName?: string,
+    label?: string,
+    labels?: Record<string, string>,
+    multiLine?: boolean,
+    rows?: number,
+    below?: boolean,
+    croppingAspectRatio?: number,
+    variant?: 'grey',
+    formVariant?: 'grey'
+    disabled?: (props: SmartFormProps<N>) => boolean,
+    inputPrefix?: string | (() => string),
+    heading?: string,
+    smallBottomMargin?: boolean,
+    useDocumentAsUser?: boolean,
+    separator?: string,
+    multiselect?: boolean,
+    hideClear?: boolean,
+    horizontal?: boolean,
+  }
   beforeComponent?: keyof ComponentTypes,
   afterComponent?: keyof ComponentTypes,
   order?: number,
@@ -259,7 +286,7 @@ type FormField<N extends CollectionNameString> = Pick<
 > & {
   document: any
   name: string
-  datatype: any
+  datatype: Array<{ type: DerivedSimpleSchemaFieldType['type']['singleType'] }>
   layout: string
   input: FormInputType
   label: string

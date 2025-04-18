@@ -6,7 +6,7 @@ import type { Suggest, QueryType } from 'react-geosuggest';
 import { Components } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isClient } from '../../lib/executionEnvironment';
-import { DatabasePublicSetting, mapsAPIKeySetting } from '../../lib/publicSettings';
+import { mapsAPIKeySetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from '../ea-forum/onboarding/EAOnboardingInput';
 
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
