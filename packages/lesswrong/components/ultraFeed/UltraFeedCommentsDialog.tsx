@@ -46,7 +46,7 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
     margin: 4
   },
   scrolledHighlight: {
-    backgroundColor: `${theme.palette.secondary.light}4c`,
+    backgroundColor: `${theme.palette.secondary.light}6c`,
   }
 }));
 
@@ -61,7 +61,6 @@ const UltraFeedCommentsDialog = ({
 }) => {
   const { LWDialog, CommentsListSection, Loading } = Components;
   const classes = useStyles(styles);
-  const [highlightDate, setHighlightDate] = useState<Date|undefined>(undefined);
 
   const isPost = collectionName === "Posts";
   const comment = isPost ? null : (document as UltraFeedComment);
@@ -168,8 +167,9 @@ const UltraFeedCommentsDialog = ({
             commentCount={(comments || []).length}
             loadMoreComments={() => {}}
             loadingMoreComments={false}
-            highlightDate={highlightDate}
-            setHighlightDate={setHighlightDate}
+            highlightDate={undefined}
+            setHighlightDate={() => {}}
+            hideDateHighlighting={true}
             newForm={isPost}
           />
         )}
