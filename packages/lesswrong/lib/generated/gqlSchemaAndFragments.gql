@@ -1412,7 +1412,7 @@ extend type Query {
 type Chapter {
   _id: String!
   schemaVersion: Float!
-  createdAt: Date!
+  createdAt: Date
   legacyData: JSON
   contents(version: String): Revision
   contents_latest: String
@@ -7019,7 +7019,6 @@ input UpdateUserDataInput {
   groups: [String!]
   theme: JSON
   lastUsedTimezone: String
-  whenConfirmationEmailSent: Date
   legacy: Boolean
   commentSorting: String
   sortDraftsBy: String

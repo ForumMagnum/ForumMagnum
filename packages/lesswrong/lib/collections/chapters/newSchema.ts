@@ -2,6 +2,7 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { defaultEditorPlaceholder, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
+import deepmerge from "deepmerge";
 
 export const formGroups = {
   chapterDetails: {
@@ -15,7 +16,7 @@ export const formGroups = {
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
-  createdAt: DEFAULT_CREATED_AT_FIELD,
+  createdAt: deepmerge(DEFAULT_CREATED_AT_FIELD, {graphql: { outputType: "Date" }}),
   legacyData: DEFAULT_LEGACY_DATA_FIELD,
   contents: {
     database: {
