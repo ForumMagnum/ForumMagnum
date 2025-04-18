@@ -83,6 +83,7 @@ interface TanStackEditorFormComponentProps<S, R> {
   field: TypedFieldApi<any>;
   commentEditor?: boolean;
   commentStyles?: boolean;
+  commentMinimalistStyle?: boolean;
   collectionName: CollectionNameString;
   hideControls?: boolean;
   formType: 'new' | 'edit';
@@ -133,6 +134,7 @@ function TanStackEditorInner<S, R>({
   field,
   commentEditor,
   commentStyles,
+  commentMinimalistStyle,
   collectionName,
   hideControls,
   formType,
@@ -618,7 +620,7 @@ function TanStackEditorInner<S, R>({
           collectionName={collectionName}
           fieldName={fieldName}
           initialEditorType={initialEditorType}
-          formProps={{ editorHintText, maxHeight }}
+          formProps={{ editorHintText, maxHeight, commentMinimalistStyle }}
           isCollaborative={isCollabEditor}
           accessLevel={document.myEditorAccess}
           value={contents}

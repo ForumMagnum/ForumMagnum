@@ -7,6 +7,12 @@ import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useCreate } from "@/lib/crud/withCreate";
+import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { useForm } from "@tanstack/react-form";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,6 +36,13 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
       flexDirection: "row",
     }
+  },
+});
+
+const formStyles = defineStyles('MessagesForm', (theme: ThemeType) => ({
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
   },
   submitMinimalist: {
     height: 'fit-content',
@@ -74,7 +87,128 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.background.primaryDim,
     }
   },
-});
+}));
+
+interface MessagesNewFormProps {
+  isMinimalist: boolean;
+  submitLabel?: React.ReactNode;
+  prefilledProps: {
+    conversationId: string;
+    contents: {
+      originalContents: {
+        type: string;
+        data: string;
+      };
+    };
+  };
+  onSuccess: (doc: messageListFragment) => void;
+}
+
+const InnerMessagesNewForm = ({
+  isMinimalist,
+  submitLabel = "Submit",
+  prefilledProps,
+  onSuccess,
+}: MessagesNewFormProps) => {
+  const { Loading, ForumIcon } = Components;
+
+  const classes = useStyles(formStyles);
+  const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
+  const hintText = isMinimalist ? "Type a new message..." : defaultEditorPlaceholder;
+  const commentMinimalistStyle = isMinimalist ? true : false;
+
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback
+  } = useEditorFormCallbacks<typeof form.state.values, messageListFragment>();
+
+  const { create } = useCreate({
+    collectionName: 'Messages',
+    fragmentName: 'messageListFragment',
+  });
+
+  const form = useForm({
+    defaultValues: {
+      ...prefilledProps,
+      noEmail: false,
+    },
+    onSubmit: async ({ value }) => {
+      if (onSubmitCallback.current) {
+        value = await onSubmitCallback.current(value);
+      }
+
+      let result: messageListFragment;
+
+      const { data } = await create({ data: value });
+      result = data?.createMessage.data;
+
+      if (onSuccessCallback.current) {
+        result = onSuccessCallback.current(result, {});
+      }
+
+      onSuccess(result);
+    },
+  });
+
+  return (
+    <form className="vulcan-form" onSubmit={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void form.handleSubmit();
+    }}>
+      <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <form.Field name="contents">
+          {(field) => (
+            <TanStackEditor
+              field={field}
+              name="contents"
+              formType='new'
+              document={form.state.values}
+              addOnSubmitCallback={addOnSubmitCallback}
+              addOnSuccessCallback={addOnSuccessCallback}
+              hintText={hintText}
+              commentMinimalistStyle={commentMinimalistStyle}
+              fieldName="contents"
+              collectionName="Messages"
+              commentEditor={true}
+              commentStyles={true}
+              hideControls={false}
+            />
+          )}
+        </form.Field>
+      </div>
+
+      <div className={classes.fieldWrapper}>
+        <form.Field name="noEmail">
+          {(field) => (
+            <TanStackCheckbox
+              field={field}
+              label="No email"
+            />
+          )}
+        </form.Field>
+      </div>
+
+      <div className="form-submit">
+        <form.Subscribe selector={(s) => [s.isSubmitting]}>
+          {([isSubmitting]) => (
+            <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
+              <Button
+                type="submit"
+                id="new-message-submit"
+                className={classNames("primary-form-submit-button", formButtonClass)}
+              >
+                {isSubmitting ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
+              </Button>
+            </div>
+          )}
+        </form.Subscribe>
+      </div>
+    </form>
+  );
+};
 
 export const MessagesNewForm = ({
   conversationId,
@@ -91,12 +225,10 @@ export const MessagesNewForm = ({
   formStyle?: FormDisplayMode;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { WrappedSmartForm, Loading, ForumIcon, Error404 } = Components;
-  const [loading, setLoading] = useState(false);
+  const { Loading, Error404 } = Components;
 
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
-  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Type a new message..."} : {}
 
   const { document: template, loading: loadingTemplate } = useSingle({
     documentId: templateQueries?.templateId,
@@ -104,33 +236,6 @@ export const MessagesNewForm = ({
     fragmentName: "ModerationTemplateFragment",
     skip,
   });
-
-  const SubmitComponent = useCallback(
-    ({ submitLabel = "Submit" }) => {
-      const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-
-      return (
-        <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
-          <Button
-            type="submit"
-            id="new-message-submit"
-            className={classNames("primary-form-submit-button", formButtonClass)}
-          >
-            {loading ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
-          </Button>
-        </div>
-      );
-    },
-    [
-      ForumIcon,
-      Loading,
-      classes.formButton,
-      classes.formButtonMinimalist,
-      classes.submitMinimalist,
-      isMinimalist,
-      loading,
-    ]
-  );
 
   // For some reason loading returns true even if we're skipping the query?
   if (!skip && loadingTemplate) return <Loading />;
@@ -142,38 +247,19 @@ export const MessagesNewForm = ({
 
   return (
     <div className={isMinimalist ? classes.rootMinimalist : classes.root}>
-      <WrappedSmartForm
-        collectionName="Messages"
+      <InnerMessagesNewForm
+        isMinimalist={isMinimalist}
         submitLabel={submitLabel}
-        successCallback={() => {
-          setLoading(false);
-          return successEvent();
-        }}
-        submitCallback={(data: unknown) => {
-          setLoading(true);
-          return data;
-        }}
         prefilledProps={{
           conversationId,
           contents: {
             originalContents: {
               type: "ckEditorMarkup",
-              data: templateHtml,
+              data: templateHtml ?? '',
             },
           },
         }}
-        mutationFragmentName={'messageListFragment'}
-        errorCallback={(message: any) => {
-          setLoading(false);
-          //eslint-disable-next-line no-console
-          console.error("Failed to send", message);
-        }}
-        formComponents={{
-          FormSubmit: SubmitComponent,
-        }}
-        formProps={{
-          ...extraFormProps,
-        }}
+        onSuccess={() => successEvent()}
       />
     </div>
   );
