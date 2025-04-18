@@ -420,7 +420,7 @@ export const ${className} = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: ${collectionName}InvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -469,10 +469,9 @@ export const ${className} = ({
       ${anyEditableFields ? `
       if (onSuccessCallback.current) {
         result = onSuccessCallback.current(result, {});
-      }
-      `: ''}
+      }`: ''}
       
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -628,7 +627,7 @@ export const ${className} = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -642,7 +641,7 @@ export const ${className} = ({
             <Button${submitVariantProp}
               type="submit"
               disabled={!canSubmit || isSubmitting}${submitOnClickProp}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
