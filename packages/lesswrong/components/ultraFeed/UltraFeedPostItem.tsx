@@ -99,20 +99,14 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       fontSize: "1.3rem",
-      marginTop: 0,
     },
   },
   metaLeftSection: {
     display: "flex",
     alignItems: "center",
     flex: "1 1 auto",
+    minWidth: 0,
     flexWrap: "wrap",
-  },
-  metaRightSection: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto",
-    marginRight: 0,
   },
   metaKarma: {
     display: "inline-block",
@@ -121,23 +115,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     flexShrink: 0,
     paddingRight: 8,
     marginRight: 4,
-  },
-  metaUsername: {
-    marginRight: 12,
-    '& a, & a:hover': {
-      color: theme.palette.link.unmarked,
-    },
-    color: theme.palette.text.dim,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    whiteSpace: 'nowrap',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  metaCoauthors: {
-    marginLeft: 4,
-    marginRight: 0,
-    color: theme.palette.text.dim,
-    whiteSpace: 'nowrap',
   },
   metaDateContainer: {
     marginRight: 8,
@@ -150,30 +127,18 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "center",
     padding: "20px 0",
-  }
+  },
+  authorsList: {
+    fontSize: 'inherit',
+    color: 'inherit',
+    fontFamily: 'inherit',
+    marginRight: 8,
+    flexShrink: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
 }));
-
-// TODO: This is optimized for mobile (only show one author, might want to show more on desktop)
-const PostAuthorsDisplay = ({ authors, isAnon }: { authors: UsersMinimumInfo[]; isAnon: boolean }) => {
-  const classes = useStyles(styles);
-  const { UserNameDeleted, UsersName } = Components;
-
-  if (isAnon || authors.length === 0) {
-    return <UserNameDeleted />;
-  }
-
-  const mainAuthor = authors[0];
-  const additionalAuthorsCount = authors.length - 1;
-
-  return (
-    <span className={classes.metaUsername}>
-      <UsersName user={mainAuthor} />
-      {additionalAuthorsCount > 0 && (
-        <span className={classes.metaCoauthors}>+{additionalAuthorsCount}</span>
-      )}
-    </span>
-  );
-};
 
 const UltraFeedPostItem = ({
   post,
@@ -189,9 +154,11 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading } = Components;
+  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading, TruncatedAuthorsList } = Components;
+
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const metaLeftSectionRef = useRef<HTMLDivElement>(null);
   const { captureEvent } = useTracking();
   const { isAnon, authors } = usePostsUserAndCoauthors(post);
   const { recordPostView, isRead } = useRecordPostView(post);
@@ -285,11 +252,11 @@ const UltraFeedPostItem = ({
               {post.title}
             </Link>
             <div className={classes.metaRoot}>
-              <span className={classes.metaLeftSection}>
+              <span className={classes.metaLeftSection} ref={metaLeftSectionRef}>
                 {showKarma && !post.rejected && <span className={classes.metaKarma}>
                   {postGetKarma(post)}
                 </span>}
-                <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
+                <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaLeftSectionRef} className={classes.authorsList} />
                 {post.postedAt && (
                   <span className={classes.metaDateContainer}>
                     <FormatDate date={post.postedAt} />

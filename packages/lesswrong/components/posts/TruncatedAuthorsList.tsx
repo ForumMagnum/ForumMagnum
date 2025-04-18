@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
+import { useState } from "react";
 
 const styles = (_: ThemeType) => ({
   root: {
@@ -28,33 +29,52 @@ const styles = (_: ThemeType) => ({
   },
 });
 
-const reformatAuthorPlaceholder = (
-  moreCount: number,
-  totalItems: number,
-  moreNode: Element,
-) => {
-  const text = moreCount === totalItems
-    ? `${moreCount} authors`
-    : `+ ${moreCount} more`
-  moreNode.innerHTML = moreNode.innerHTML.replace(
-    /(\+ \d+ more)|(\d+ authors)/,
-    text,
-  );
-}
-
-const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
+const TruncatedAuthorsList = ({
+  post,
+  expandContainer,
+  className,
+  classes,
+  useMoreSuffix = true
+}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
   className?: string,
   classes: ClassesType<typeof styles>,
+  useMoreSuffix?: boolean,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
   const ref = useRef<HTMLDivElement>(null);
+  const [hiddenAuthors, setHiddenAuthors] = useState<UsersMinimumInfo[]>([]);
 
   useEffect(() => {
     if (isAnon || authors.length === 0) {
+      setHiddenAuthors([]);
       return;
     }
+    const reformatAuthorPlaceholder = (
+      moreCount: number,
+      totalItems: number,
+      moreNode: Element,
+    ) => {
+      const hidden = authors.slice(totalItems - moreCount);
+      setHiddenAuthors(hidden);
+
+      let text: string;
+      if (moreCount === totalItems) {
+        text = `${moreCount} authors`;
+      } else {
+        if (useMoreSuffix) {
+          text = `+ ${moreCount} more`;
+        } else {
+          text = `+${moreCount}`;
+        }
+      }
+      moreNode.innerHTML = moreNode.innerHTML.replace(
+        /(\+ \d+(?: more)?)|(\d+ authors)/,
+        text,
+      );
+    }
+
     const handler = () => recalculateTruncation(
       ref,
       expandContainer,
@@ -64,7 +84,7 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
     handler();
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
-  }, [isAnon, authors, topCommentAuthor, ref, classes.item, expandContainer, classes]);
+  }, [isAnon, authors, topCommentAuthor, ref, classes, expandContainer, useMoreSuffix]);
 
   const {UsersNameDisplay, UserNameDeleted, LWTooltip} = Components;
 
@@ -82,18 +102,20 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
               <UsersNameDisplay user={author} />
             </span>
           )}
-          <LWTooltip
-            title={
-              <div className={classes.tooltip}>
-                {authors.map((author) =>
-                  <UsersNameDisplay key={author._id} user={author} />
-                )}
-              </div>
-            }
-            className={classes.more}
-          >
-            + 0 more
-          </LWTooltip>
+          {hiddenAuthors.length > 0 && (
+            <LWTooltip
+              title={
+                <div className={classes.tooltip}>
+                  {hiddenAuthors.map((author) => (
+                    <UsersNameDisplay key={author._id} user={author} />
+                  ))}
+                </div>
+              }
+              className={classes.more}
+            >
+              + 0 more
+            </LWTooltip>
+          )}
         </div>
       </div>
     );
