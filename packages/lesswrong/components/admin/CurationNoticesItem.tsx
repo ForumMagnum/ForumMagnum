@@ -14,6 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
 import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-components/TanStackEditor';
+import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -96,41 +97,7 @@ const formStyles = defineStyles('TanStackCurationNoticesForm', (theme: ThemeType
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
   },
-  formButton: {
-    fontFamily: theme.typography.fontFamily,
-    marginLeft: "5px",
-
-    ...(isFriendlyUI
-      ? {
-        fontSize: 14,
-        fontWeight: 500,
-        textTransform: "none",
-      }
-      : {
-        paddingBottom: 2,
-        fontSize: 16,
-      }),
-
-    "&:hover": {
-      background: theme.palette.panelBackground.darken05,
-    }
-  },
-
-  secondaryButton: {
-    color: theme.palette.text.dim40,
-  },
-
-  submitButton: isFriendlyUI
-    ? {
-      background: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite, // Dark mode independent
-      "&:hover": {
-        background: theme.palette.primary.dark,
-      },
-    }
-    : {
-      color: theme.palette.secondary.main,
-    },
+  submitButton: submitButtonStyles(theme),
 }));
 
 type TanStackCurationNoticesFormProps = {
@@ -251,7 +218,7 @@ const TanStackCurationNoticesForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
