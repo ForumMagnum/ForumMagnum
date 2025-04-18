@@ -46,7 +46,7 @@ export const userTimeSinceLast = async function<N extends CollectionNameWithCrea
 ): Promise<number> {
   var now = new Date().getTime();
   var last = await userFindLast(user, collection, filter);
-  if (!last) return 999; // if this is the user's first post or comment ever, stop here
+  if (!last?.createdAt) return 999; // if this is the user's first post or comment ever, stop here
   return Math.abs(Math.floor((now - last.createdAt.getTime()) / 1000));
 };
 
