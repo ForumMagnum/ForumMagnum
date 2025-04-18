@@ -5,6 +5,7 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { JargonTermForm } from './JargonTermForm';
 
 export const formStyles = {
   '& .form-section-default > div': {
@@ -242,15 +243,11 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
         <Checkbox checked={jargonTerm.approved} className={classes.checkbox} />
       </div>
       {edit ? <div className={classes.formStyles}>
-          <WrappedSmartForm
-            collectionName="JargonTerms"
-            documentId={jargonTerm._id}
-            mutationFragmentName={'JargonTerms'}
-            queryFragmentName={'JargonTerms'}
-            successCallback={() => setEdit(false)}
-            cancelCallback={() => setEdit(false)}
-            formComponents={{ FormSubmit: Components.JargonSubmitButton }}
-            prefetchedDocument={jargonTerm}
+          <JargonTermForm
+            initialData={jargonTerm}
+            postId={jargonTerm.postId}
+            onSuccess={() => setEdit(false)}
+            onCancel={() => setEdit(false)}
           />
         </div>
       :  <JargonTooltip
