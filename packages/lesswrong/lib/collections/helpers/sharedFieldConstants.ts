@@ -1,7 +1,7 @@
 export const DEFAULT_ID_FIELD = {
   database: {
     type: "VARCHAR(27)",
-    nullable: false,
+    nullable: true,
   },
   graphql: {
     outputType: "String!",
