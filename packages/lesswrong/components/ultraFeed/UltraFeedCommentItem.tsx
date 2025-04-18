@@ -126,8 +126,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginLeft: -10,
   },
   verticalLineHighlighted: {
-    borderLeftColor: `${theme.palette.secondary.light}ac`,
     transition: 'border-left-color 1.0s ease-out',
+    borderLeftColor: `${theme.palette.secondary.light}4c`,
+    [theme.breakpoints.down('sm')]: {
+      borderLeftColor: `${theme.palette.secondary.light}ac`,
+    },
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
