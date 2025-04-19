@@ -42,7 +42,7 @@ export const LocalgroupsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: LocalgroupsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -94,8 +94,7 @@ export const LocalgroupsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -386,7 +385,7 @@ export const LocalgroupsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -400,7 +399,7 @@ export const LocalgroupsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -433,7 +432,7 @@ export const CurationNoticesForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: CurationNoticesInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -485,8 +484,7 @@ export const CurationNoticesForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -542,7 +540,7 @@ export const CurationNoticesForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -556,7 +554,7 @@ export const CurationNoticesForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -589,7 +587,7 @@ export const CommentsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: CommentsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -641,8 +639,7 @@ export const CommentsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -802,7 +799,7 @@ export const CommentsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -816,7 +813,7 @@ export const CommentsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -849,7 +846,7 @@ export const ForumEventsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: ForumEventsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -901,8 +898,7 @@ export const ForumEventsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -1227,7 +1223,7 @@ export const ForumEventsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -1241,7 +1237,7 @@ export const ForumEventsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -1274,7 +1270,7 @@ export const JargonTermsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: JargonTermsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -1326,8 +1322,7 @@ export const JargonTermsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -1396,7 +1391,7 @@ export const JargonTermsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -1410,7 +1405,7 @@ export const JargonTermsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -1443,7 +1438,7 @@ export const ConversationsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: ConversationsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -1481,7 +1476,7 @@ export const ConversationsForm = ({
       }
       
       
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -1549,7 +1544,7 @@ export const ConversationsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -1563,7 +1558,7 @@ export const ConversationsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -1596,7 +1591,7 @@ export const MessagesForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: MessagesInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -1648,8 +1643,7 @@ export const MessagesForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -1705,7 +1699,7 @@ export const MessagesForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -1719,7 +1713,7 @@ export const MessagesForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -1752,7 +1746,7 @@ export const ModerationTemplatesForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: ModerationTemplatesInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -1804,8 +1798,7 @@ export const ModerationTemplatesForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -1901,7 +1894,7 @@ export const ModerationTemplatesForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -1915,7 +1908,7 @@ export const ModerationTemplatesForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -1948,7 +1941,7 @@ export const UsersForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: UsersInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -2000,8 +1993,7 @@ export const UsersForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -3600,7 +3592,7 @@ export const UsersForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -3615,7 +3607,7 @@ export const UsersForm = ({
             variant={isBookUI ? 'outlined' : undefined}
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -3648,7 +3640,7 @@ export const PostsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: PostsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -3700,8 +3692,7 @@ export const PostsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -4900,7 +4891,7 @@ export const PostsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -4915,7 +4906,7 @@ export const PostsForm = ({
               type="submit"
               disabled={!canSubmit || isSubmitting}
             onClick={() => form.setFieldValue('draft', false)}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -4948,7 +4939,7 @@ export const RSSFeedsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: RSSFeedsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -4986,7 +4977,7 @@ export const RSSFeedsForm = ({
       }
       
       
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -5082,7 +5073,7 @@ export const RSSFeedsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -5096,7 +5087,7 @@ export const RSSFeedsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -5129,7 +5120,7 @@ export const PetrovDayActionsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: PetrovDayActionsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -5167,7 +5158,7 @@ export const PetrovDayActionsForm = ({
       }
       
       
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -5214,7 +5205,7 @@ export const PetrovDayActionsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -5228,7 +5219,7 @@ export const PetrovDayActionsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -5261,7 +5252,7 @@ export const BooksForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: BooksInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -5313,8 +5304,7 @@ export const BooksForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -5472,7 +5462,7 @@ export const BooksForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -5486,7 +5476,7 @@ export const BooksForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -5519,7 +5509,7 @@ export const ChaptersForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: ChaptersInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -5571,8 +5561,7 @@ export const ChaptersForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -5666,7 +5655,7 @@ export const ChaptersForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -5680,7 +5669,7 @@ export const ChaptersForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -5713,7 +5702,7 @@ export const CollectionsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: CollectionsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -5765,8 +5754,7 @@ export const CollectionsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -5877,7 +5865,7 @@ export const CollectionsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -5891,7 +5879,7 @@ export const CollectionsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -5924,7 +5912,7 @@ export const SequencesForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: SequencesInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -5976,8 +5964,7 @@ export const SequencesForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -6195,7 +6182,7 @@ export const SequencesForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -6209,7 +6196,7 @@ export const SequencesForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -6242,7 +6229,7 @@ export const SpotlightsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: SpotlightsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -6294,8 +6281,7 @@ export const SpotlightsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -6563,7 +6549,7 @@ export const SpotlightsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -6577,7 +6563,7 @@ export const SpotlightsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -6610,7 +6596,7 @@ export const ModeratorActionsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: ModeratorActionsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -6648,7 +6634,7 @@ export const ModeratorActionsForm = ({
       }
       
       
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -6759,7 +6745,7 @@ export const ModeratorActionsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -6773,7 +6759,7 @@ export const ModeratorActionsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -6806,7 +6792,7 @@ export const ReportsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: ReportsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -6844,7 +6830,7 @@ export const ReportsForm = ({
       }
       
       
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -6899,7 +6885,7 @@ export const ReportsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -6913,7 +6899,7 @@ export const ReportsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -6946,7 +6932,7 @@ export const UserRateLimitsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: UserRateLimitsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -6984,7 +6970,7 @@ export const UserRateLimitsForm = ({
       }
       
       
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -7073,7 +7059,7 @@ export const UserRateLimitsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -7087,7 +7073,7 @@ export const UserRateLimitsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -7120,7 +7106,7 @@ export const SurveySchedulesForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: SurveySchedulesInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -7158,7 +7144,7 @@ export const SurveySchedulesForm = ({
       }
       
       
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -7304,7 +7290,7 @@ export const SurveySchedulesForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -7318,7 +7304,7 @@ export const SurveySchedulesForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -7351,7 +7337,7 @@ export const TagsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: TagsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -7403,8 +7389,7 @@ export const TagsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -7869,7 +7854,7 @@ export const TagsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -7883,7 +7868,7 @@ export const TagsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -7916,7 +7901,7 @@ export const MultiDocumentsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: MultiDocumentsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -7968,8 +7953,7 @@ export const MultiDocumentsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -8097,7 +8081,7 @@ export const MultiDocumentsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -8111,7 +8095,7 @@ export const MultiDocumentsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>
@@ -8144,7 +8128,7 @@ export const TagFlagsForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: TagFlagsInvalidMutationFragment) => void;
 }) => {
-  const classes = useStyles(sharedFieldStyles);
+  const classes = useStyles(formStyles);
   const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -8196,8 +8180,7 @@ export const TagFlagsForm = ({
         result = onSuccessCallback.current(result, {});
       }
       
-      
-      onSuccess(value);
+      onSuccess(result);
     },
   });
 
@@ -8276,7 +8259,7 @@ export const TagFlagsForm = ({
       <div className="form-submit">
         {/* TODO: check if there's a cancel callback - if not, delete this */}
         {/*<Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+          className={classNames("form-cancel", classes.secondaryButton)}
           onClick={(e) => {
             e.preventDefault();
             cancelCallback(document)
@@ -8290,7 +8273,7 @@ export const TagFlagsForm = ({
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
             >
               Submit
             </Button>

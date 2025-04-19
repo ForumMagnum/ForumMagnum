@@ -2,10 +2,7 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
-
-export const ALLOWABLE_COLLECTIONS: TemplateType[] = ["Messages", "Comments", "Rejections"];
-
-export type TemplateType = "Messages" | "Comments" | "Rejections";
+import { ALLOWABLE_COLLECTIONS } from "./constants";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,

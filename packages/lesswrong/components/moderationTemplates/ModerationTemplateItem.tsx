@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { ModerationTemplatesForm } from './ModerationTemplateForm';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,7 +26,7 @@ export const ModerationTemplateItem = ({classes, template}: {
   classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
-  const { ContentItemBody, MetaInfo, WrappedSmartForm, BasicFormStyles, Row } = Components
+  const { ContentItemBody, MetaInfo, BasicFormStyles, Row } = Components
   const [edit, setEdit] = useState<boolean>(false)
 
   const {hash} = useLocation()
@@ -37,13 +38,10 @@ export const ModerationTemplateItem = ({classes, template}: {
     </Row>
     {edit 
       ? <BasicFormStyles>
-          <WrappedSmartForm
-            collectionName="ModerationTemplates"
-            documentId={template._id}
-            mutationFragmentName={'ModerationTemplateFragment'}
-            queryFragmentName={'ModerationTemplateFragment'}
-            successCallback={() => setEdit(false)}
-          /> 
+          <ModerationTemplatesForm
+            initialData={template}
+            onSuccess={() => setEdit(false)}
+          />
         </BasicFormStyles>
       : <div>
           <ContentItemBody

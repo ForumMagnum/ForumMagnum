@@ -2,7 +2,8 @@ import React, { ReactNode } from 'react';
 import TextField, { TextFieldProps } from '@/lib/vendor/@material-ui/core/src/TextField';
 import classnames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TypedFieldApi } from './BaseAppForm';
+import type { TypedFieldApi } from './BaseAppForm';
+import type { Updater } from '@tanstack/react-form';
 
 const styles = defineStyles('TanStackMuiTextField', (theme: ThemeType) => ({
   textField: {
@@ -17,8 +18,8 @@ const styles = defineStyles('TanStackMuiTextField', (theme: ThemeType) => ({
   }
 }));
 
-interface TanStackMuiTextFieldProps {
-  field: TypedFieldApi<string | number>;
+interface TanStackMuiTextFieldProps<T extends string | number> {
+  field: TypedFieldApi<T>;
   label?: string;
   children?: ReactNode;
   select?: boolean;
@@ -32,7 +33,7 @@ interface TanStackMuiTextFieldProps {
   overrideClassName?: string;
 }
 
-export function TanStackMuiTextField({
+export function TanStackMuiTextField<T extends string | number>({
   field,
   label,
   children,
@@ -45,11 +46,11 @@ export function TanStackMuiTextField({
   disabled = false,
   InputLabelProps,
   overrideClassName: className,
-}: TanStackMuiTextFieldProps) {
+}: TanStackMuiTextFieldProps<T>) {
   const classes = useStyles(styles);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const value = type === 'number' ? (event.target as HTMLInputElement).valueAsNumber : event.target.value;
-    field.handleChange(value);
+    field.handleChange(value as Updater<T>);
   };
 
   const error = field.state.meta.errors[0];
