@@ -3725,16 +3725,6 @@ interface UltraFeedEventsDefaultFragment { // fragment on UltraFeedEvents
 }
 
 interface UltraFeedPostFragment extends PostsListWithVotes { // fragment on Posts
-  readonly contents: UltraFeedPostFragment_contents|null,
-}
-
-interface UltraFeedPostFragment_contents { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
-  readonly wordCount: number,
-  readonly version: string,
 }
 
 interface UnclaimedReportsList { // fragment on Reports

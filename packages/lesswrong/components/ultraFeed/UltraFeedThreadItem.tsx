@@ -187,7 +187,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
       <Loading />
     </div>}
     {postExpanded && post && <div className={classes.postContainer}>
-      <UltraFeedPostItem post={post} index={index} postMetaInfo={postMetaInfo} />
+      <UltraFeedPostItem post={post} index={index} postMetaInfo={postMetaInfo} settings={settings}/>
     </div>}
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>

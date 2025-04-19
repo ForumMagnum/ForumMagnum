@@ -32,6 +32,7 @@ export async function getRecommendedPostsForUltraFeed(
   const lwAlgoSettings: RecombeeRecommendationArgs = {
     scenario: scenarioId,
     filterSettings: currentUser?.frontpageFilterSettings,
+    skipTopOfListPosts: true,
     ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
 

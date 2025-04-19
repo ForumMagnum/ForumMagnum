@@ -549,12 +549,18 @@ const recombeeApi = {
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
-    const includedTopOfListPostIds = reqIsLoadMore
+    const includedTopOfListPostIds = (reqIsLoadMore || lwAlgoSettings.skipTopOfListPosts)
       ? []
       : [...includedAboutPagePostId, ...includedCuratedPostIds, ...includedStickiedPostIds];
 
     const curatedAndStickiedPostCount = includedTopOfListPostIds.length;
     const modifiedCount = count - curatedAndStickiedPostCount;
+    if (modifiedCount <= 0) {
+      // eslint-disable-next-line no-console
+      console.warn(`Requested count of posts from Recombee is less than number of top of lists posts plus 1. Either request more or don't request top of list posts.`);
+      return [];
+    }
+
     const recommendationsRequestBody = helpers.createRecommendationsForUserRequest(recombeeUser, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
 
     const [recombeeResponseWithScenario] = await helpers.getCachedRecommendations({

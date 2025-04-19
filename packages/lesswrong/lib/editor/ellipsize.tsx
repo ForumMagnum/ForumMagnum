@@ -1,6 +1,6 @@
 import { truncatise } from '../truncatise';
 
-const highlightMaxChars = 2400;
+export const highlightMaxChars = 2400;
 export const GTP2_TRUNCATION_CHAR_COUNT = 400;
 export const SMALL_TRUNCATION_CHAR_COUNT = 750;
 export const LARGE_TRUNCATION_CHAR_COUNT = 1600;

@@ -94,6 +94,7 @@ const CommentsListSection = ({
   newForm=true,
   newFormProps={},
   highlightDate,
+  hideDateHighlighting,
   setHighlightDate,
   classes,
 }: {
@@ -111,6 +112,7 @@ const CommentsListSection = ({
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
   highlightDate: Date|undefined,
+  hideDateHighlighting?: boolean,
   setHighlightDate: (newValue: Date|undefined) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -181,7 +183,7 @@ const CommentsListSection = ({
       >
         {commentSortNode}
       </Typography>
-      {post && <Typography
+      {post && !hideDateHighlighting && <Typography
         variant="body2"
         component='span'
         className={classes.clickToHighlightNewSince}

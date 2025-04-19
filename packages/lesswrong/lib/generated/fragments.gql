@@ -4109,14 +4109,6 @@ fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
 
 fragment UltraFeedPostFragment on Post {
   ...PostsListWithVotes
-  contents {
-    _id
-    html
-    htmlHighlight
-    plaintextDescription
-    wordCount
-    version
-  }
 }
 
 fragment UnclaimedReportsList on Report {

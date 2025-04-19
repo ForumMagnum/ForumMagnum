@@ -135,6 +135,7 @@ export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
   lwRationalityOnly?: boolean,
   scenario: string,
   filterSettings?: FilterSettings,
+  skipTopOfListPosts?: boolean,
 }
 
 export interface HybridRecombeeConfiguration {
