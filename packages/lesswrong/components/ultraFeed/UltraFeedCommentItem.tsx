@@ -11,6 +11,7 @@ import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
 
+
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
     paddingTop: commentHeaderPaddingDesktop,
@@ -125,12 +126,12 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     flex: 1,
     marginLeft: -10,
   },
-  verticalLineHighlighted: {
+  verticalLineHighlightedUnviewed: {
+    borderLeftColor: `${theme.palette.secondary.light}bc`,
+  },
+  verticalLineHighlightedViewed: {
+    borderLeftColor: `${theme.palette.secondary.light}6c`,
     transition: 'border-left-color 1.0s ease-out',
-    borderLeftColor: `${theme.palette.secondary.light}4c`,
-    [theme.breakpoints.down('sm')]: {
-      borderLeftColor: `${theme.palette.secondary.light}ac`,
-    },
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
@@ -150,6 +151,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
 }));
 
+type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
 
 const UltraFeedCompressedCommentsItem = ({
   numComments, 
@@ -216,7 +218,8 @@ const UltraFeedCommentItem = ({
   const { post } = comment;
   const { displayStatus } = metaInfo;
 
-  const [isHighlighted, setIsHighlighted] = useState(highlight && !hasBeenLongViewed(comment._id));
+  const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+  const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -235,26 +238,20 @@ const UltraFeedCommentItem = ({
     };
   }, [observe, unobserve, comment._id, comment.postId]);
 
-  // Effect to subscribe/unsubscribe to long view events from the observer
   useEffect(() => {
-    // Update local state if the prop changes or if it was already long-viewed
-    const initialHighlight = highlight && !hasBeenLongViewed(comment._id);
-    setIsHighlighted(initialHighlight);
+    const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
+    setHighlightState(initialHighlightState);
 
-    // Callback to turn off highlight when long view occurs
     const handleLongView = () => {
-      setIsHighlighted(false);
+      setHighlightState(prevState => prevState === 'highlighted-unviewed' ? 'highlighted-viewed' : prevState);
     };
 
-    // Subscribe only if the component should currently be highlighted
-    if (initialHighlight) {
+    if (initialHighlightState === 'highlighted-unviewed') {
       subscribeToLongView(comment._id, handleLongView);
     }
 
-    // Cleanup: Unsubscribe when component unmounts or dependencies change
     return () => {
-      // Check initialHighlight again ensures we only unsubscribe if we initially subscribed
-      if (initialHighlight) { 
+      if (initialHighlightState === 'highlighted-unviewed') {
         unsubscribeFromLongView(comment._id, handleLongView);
       }
     };
@@ -298,8 +295,9 @@ const UltraFeedCommentItem = ({
       <div className={classes.verticalLineContainer}>
         <div className={classNames(
           classes.verticalLine,
-          { 
-            [classes.verticalLineHighlighted]: isHighlighted,
+          {
+            [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
+            [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
             [classes.verticalLineFirstComment]: isFirstComment,
             [classes.verticalLineLastComment]: isLastComment
           }
