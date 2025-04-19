@@ -292,8 +292,6 @@ const UltraFeedCommentItem = ({
     return settings.commentTruncationBreakpoints || [];
   }, [settings.commentTruncationBreakpoints]);
 
-  const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
-
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
     <div ref={elementRef} className={classNames(classes.root)} >
@@ -331,7 +329,7 @@ const UltraFeedCommentItem = ({
             linkToDocumentOnFinalExpand={expanded}
             initialExpansionLevel={0}
             nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
+            clampOverride={settings.lineClampNumberOfLines}
             onExpand={handleContentExpand}
             hideSuffix={false}
           />
