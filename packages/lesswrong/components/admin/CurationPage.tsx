@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { useTracking } from "../../lib/analyticsEvents";
-import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
-import { userCanDo, userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
-import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { unflattenComments } from '@/lib/utils/unflatten';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
+import React, { useState } from 'react';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentUser } from '../common/withUser';
+import { CurationNoticesForm } from './CurationNoticesForm';
 
 const styles = (theme: ThemeType) => ({
   curated: {
@@ -52,10 +52,9 @@ export const CurationPage = ({classes}: {
             {post &&
               <BasicFormStyles>
                 {post.title}
-                <WrappedSmartForm
-                  collectionName="CurationNotices"
-                  mutationFragmentName={'CurationNoticesFragment'}
-                  prefilledProps={{userId: currentUser._id, postId: post._id}}
+                <CurationNoticesForm
+                  currentUser={currentUser}
+                  postId={post._id}
                 />
               </BasicFormStyles>
             }
