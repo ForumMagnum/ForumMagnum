@@ -1,9 +1,8 @@
-import React, { useRef, useEffect, RefObject } from "react";
+import React, { useRef, useEffect, RefObject, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
-import { useState } from "react";
 
 const styles = (_: ThemeType) => ({
   root: {
@@ -106,7 +105,7 @@ const TruncatedAuthorsList = ({
             <LWTooltip
               title={
                 <div className={classes.tooltip}>
-                  {hiddenAuthors.map((author) => (
+                  {hiddenAuthors.map((author: UsersMinimumInfo) => (
                     <UsersNameDisplay key={author._id} user={author} />
                   ))}
                 </div>
