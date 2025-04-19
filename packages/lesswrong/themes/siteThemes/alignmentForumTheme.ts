@@ -98,11 +98,6 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      MuiTooltip: {
-        tooltip: {
-          fontSize: 13
-        }
-      },
     }
   }),
 };

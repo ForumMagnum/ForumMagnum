@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import Card from "@/lib/vendor/@material-ui/core/src/Card";
+import { Card } from "@/components/widgets/Paper";
 import { NotifyMeDropdownItemProps } from "./NotifyMeDropdownItem";
 import { NotifyMeToggleDropdownItemPropsExternal } from "./NotifyMeToggleDropdownItem";
 

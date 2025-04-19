@@ -4,7 +4,6 @@ import { useOnNavigate } from '../hooks/useOnNavigate';
 import { SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import Portal from '@/lib/vendor/@material-ui/core/src/Portal';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -15,6 +14,7 @@ import { useCurrentUser } from './withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { createPortal } from 'react-dom';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -200,9 +200,10 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
             <CloseIcon className={classes.closeSearchIcon}/>
           </div>}
           <div>
-            { searchOpen && <Portal container={searchResultsArea.current}>
-                <SearchBarResults closeSearch={closeSearch} currentQuery={currentQuery} />
-              </Portal> }
+            {searchOpen && createPortal(
+              <SearchBarResults closeSearch={closeSearch} currentQuery={currentQuery} />,
+              searchResultsArea.current
+            )}
           </div>
         </div>
       </InstantSearch>
