@@ -50,7 +50,7 @@ type DocumentType = 'post' | 'comment' | 'spotlight';
 interface ObserveData {
   documentId: string;
   documentType: DocumentType;
-  postId?: string; // Relevant for comments
+  postId?: string;
 }
 
 interface TrackExpansionData {
@@ -98,7 +98,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   const longViewedItemsRef = useRef<Set<string>>(new Set());
   const shortViewedItemsRef = useRef<Set<string>>(new Set());
 
-  // New: Ref to store subscription callbacks for long view events
   const longViewSubscriptionsRef = useRef<Map<string, Set<() => void>>>(new Map());
 
   const logViewEvent = useCallback((elementData: ObserveData, durationMs: number) => {
@@ -130,7 +129,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
 
       if (entry.isIntersecting && entry.intersectionRatio >= INTERSECTION_THRESHOLD) {
         if (!timerMapRef.current.has(element)) {
-          // Ensure elementData exists before proceeding
           if (!elementData) return;
           
           let shortTimerId: NodeJS.Timeout | null = null;
@@ -149,7 +147,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
 
           const longTimerId = setTimeout(() => {
              if (elementDataMapRef.current.has(element)) {
-               // Ensure elementData exists before proceeding
                const currentElementData = elementDataMapRef.current.get(element);
                if (!currentElementData) return;
 
@@ -157,15 +154,12 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
                const documentId = currentElementData.documentId;
                longViewedItemsRef.current.add(documentId);
 
-               // New: Notify subscribers for this documentId
                const subscriptions = longViewSubscriptionsRef.current.get(documentId);
                if (subscriptions) {
                  subscriptions.forEach(callback => callback());
-                 // clear subscriptions after notifying, if desired:
                  longViewSubscriptionsRef.current.delete(documentId);
                }
                
-               // Original logic: stop observing, clear maps
                observerRef.current?.unobserve(element);
                elementDataMapRef.current.delete(element);
                timerMapRef.current.delete(element);
@@ -234,12 +228,10 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
     }
   }, []);
 
-  // New: Check if an item has been long-viewed
   const hasBeenLongViewed = useCallback((documentId: string): boolean => {
     return longViewedItemsRef.current.has(documentId);
   }, []);
 
-  // New: Subscribe to long view event for a specific documentId
   const subscribeToLongView = useCallback((documentId: string, callback: () => void) => {
     if (!longViewSubscriptionsRef.current.has(documentId)) {
       longViewSubscriptionsRef.current.set(documentId, new Set());
@@ -247,7 +239,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
     longViewSubscriptionsRef.current.get(documentId)!.add(callback);
   }, []);
 
-  // New: Unsubscribe from long view event
   const unsubscribeFromLongView = useCallback((documentId: string, callback: () => void) => {
     if (longViewSubscriptionsRef.current.has(documentId)) {
       const subscriptions = longViewSubscriptionsRef.current.get(documentId)!;

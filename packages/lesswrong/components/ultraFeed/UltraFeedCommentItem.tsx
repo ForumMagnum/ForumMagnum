@@ -216,9 +216,7 @@ const UltraFeedCommentItem = ({
   const { post } = comment;
   const { displayStatus } = metaInfo;
 
-  const [isHighlighted, setIsHighlighted] = useState(() => 
-    highlight && !hasBeenLongViewed(comment._id)
-  );
+  const [isHighlighted, setIsHighlighted] = useState(highlight && !hasBeenLongViewed(comment._id));
 
   useEffect(() => {
     const currentElement = elementRef.current;

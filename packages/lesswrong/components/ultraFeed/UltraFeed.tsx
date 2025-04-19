@@ -154,22 +154,11 @@ const UltraFeedContent = () => {
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [sessionId] = useState<string>(() => {
-    if (!isClient) return randomId(); 
-    const ls = getBrowserLocalStorage();
-    const storage = ls ? window.sessionStorage : null;
+    const storage = window.sessionStorage;
+    const currentId = storage ? storage.getItem(ULTRAFEED_SESSION_ID_KEY) ?? randomId() : randomId();
+    storage.setItem(ULTRAFEED_SESSION_ID_KEY, currentId);
 
-    if (!storage) {
-        return randomId();
-    }
-
-    const storedId = storage.getItem(ULTRAFEED_SESSION_ID_KEY) ?? randomId();
-    try {
-      storage.setItem(ULTRAFEED_SESSION_ID_KEY, storedId);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn("Failed to set sessionStorage item for UltraFeed sessionId:", e);
-    }
-    return storedId;
+    return currentId;
   });
   
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);

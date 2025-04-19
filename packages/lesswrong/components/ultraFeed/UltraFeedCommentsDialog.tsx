@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import type { CommentTreeOptions } from "../comments/commentTree";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useMulti } from "../../lib/crud/withMulti";
 

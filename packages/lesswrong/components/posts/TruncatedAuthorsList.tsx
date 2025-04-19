@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, RefObject, useState } from "react";
+import React, { useRef, useEffect, RefObject, useState, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
@@ -28,6 +28,30 @@ const styles = (_: ThemeType) => ({
   },
 });
 
+const reformatAuthorPlaceholder = (
+  moreCount: number,
+  totalItems: number,
+  moreNode: Element,
+  useMoreSuffix: boolean,
+) => {
+
+
+  let text: string;
+  if (moreCount === totalItems) {
+    text = `${moreCount} authors`;
+  } else {
+    if (useMoreSuffix) {
+      text = `+ ${moreCount} more`;
+    } else {
+      text = `+${moreCount}`;
+    }
+  }
+  moreNode.innerHTML = moreNode.innerHTML.replace(
+    /(\+ \d+(?: more)?)|(\d+ authors)/,
+    text,
+  );
+}
+
 const TruncatedAuthorsList = ({
   post,
   expandContainer,
@@ -43,47 +67,27 @@ const TruncatedAuthorsList = ({
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
   const ref = useRef<HTMLDivElement>(null);
-  const [hiddenAuthors, setHiddenAuthors] = useState<UsersMinimumInfo[]>([]);
+
+  const reformatAuthorPlaceholderCurried = useCallback(
+    (moreCount: number, totalItems: number, moreNode: Element) => reformatAuthorPlaceholder(moreCount, totalItems, moreNode, useMoreSuffix),
+    [useMoreSuffix],
+  );
 
   useEffect(() => {
     if (isAnon || authors.length === 0) {
-      setHiddenAuthors([]);
       return;
-    }
-    const reformatAuthorPlaceholder = (
-      moreCount: number,
-      totalItems: number,
-      moreNode: Element,
-    ) => {
-      const hidden = authors.slice(totalItems - moreCount);
-      setHiddenAuthors(hidden);
-
-      let text: string;
-      if (moreCount === totalItems) {
-        text = `${moreCount} authors`;
-      } else {
-        if (useMoreSuffix) {
-          text = `+ ${moreCount} more`;
-        } else {
-          text = `+${moreCount}`;
-        }
-      }
-      moreNode.innerHTML = moreNode.innerHTML.replace(
-        /(\+ \d+(?: more)?)|(\d+ authors)/,
-        text,
-      );
     }
 
     const handler = () => recalculateTruncation(
       ref,
       expandContainer,
       classes,
-      reformatAuthorPlaceholder,
+      reformatAuthorPlaceholderCurried,
     );
     handler();
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
-  }, [isAnon, authors, topCommentAuthor, ref, classes, expandContainer, useMoreSuffix]);
+  }, [isAnon, authors, topCommentAuthor, ref, classes, expandContainer, useMoreSuffix, reformatAuthorPlaceholderCurried]);
 
   const {UsersNameDisplay, UserNameDeleted, LWTooltip} = Components;
 
@@ -101,11 +105,11 @@ const TruncatedAuthorsList = ({
               <UsersNameDisplay user={author} />
             </span>
           )}
-          {hiddenAuthors.length > 0 && (
+          {authors.length > 1 && (
             <LWTooltip
               title={
                 <div className={classes.tooltip}>
-                  {hiddenAuthors.map((author: UsersMinimumInfo) => (
+                  {authors.slice(1).map((author: UsersMinimumInfo) => (
                     <UsersNameDisplay key={author._id} user={author} />
                   ))}
                 </div>
