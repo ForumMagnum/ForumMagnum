@@ -103,6 +103,7 @@ const UltraFeedCommentsDialog = ({
   const comments = isPost ? postComments : threadComments;
   const totalCount = isPost ? postCommentsTotalCount : threadCommentsTotalCount;
 
+  // TODO: Do this more elegantly, combine within existing functionality in CommentsNode?
   // scroll to comment clicked on when dialog opens
   useEffect(() => {
     let scrollTimer: NodeJS.Timeout | null = null;
@@ -161,9 +162,9 @@ const UltraFeedCommentsDialog = ({
         {!isLoading && postDataForTree && (
           <CommentsListSection 
             post={postDataForTree}
-            comments={comments || []}
-            totalComments={totalCount || 0}
-            commentCount={(comments || []).length}
+            comments={comments ?? []}
+            totalComments={totalCount ?? 0}
+            commentCount={(comments ?? []).length}
             loadMoreComments={() => {}}
             loadingMoreComments={false}
             highlightDate={undefined}
