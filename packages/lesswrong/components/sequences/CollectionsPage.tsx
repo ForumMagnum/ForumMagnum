@@ -8,6 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { BooksForm } from './BooksForm';
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -82,7 +83,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
+  const { SingleColumnSection, BooksItem, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -160,7 +161,11 @@ const CollectionsPage = ({ documentId, classes }: {
           </SectionButton>
         </SectionFooter>}
         {addingBook && <SingleColumnSection>
-          <BooksNewForm prefilledProps={{collectionId: collection._id}} />
+          <BooksForm
+            collectionId={collection._id}
+            onSuccess={() => setAddingBook(false)}
+            onCancel={() => setAddingBook(false)}
+          />
         </SingleColumnSection>}
       </ToCColumn>
       

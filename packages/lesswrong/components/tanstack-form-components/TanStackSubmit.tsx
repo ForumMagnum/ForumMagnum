@@ -23,3 +23,22 @@ export const submitButtonStyles = (theme: ThemeType) => ({
       },
     }),
 });
+
+export const cancelButtonStyles = (theme: ThemeType) => ({
+  color: theme.palette.text.dim40,
+  fontFamily: theme.typography.fontFamily,
+  marginLeft: "5px",
+  "&:hover": {
+    background: theme.palette.panelBackground.darken05,
+  },
+  ...(isFriendlyUI
+    ? {
+      fontSize: 14,
+      fontWeight: 500,
+      textTransform: "none",
+    }
+    : {
+      paddingBottom: 2,
+      fontSize: 16,
+    }),
+});

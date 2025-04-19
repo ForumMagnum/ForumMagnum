@@ -24,7 +24,7 @@ export const CurationPage = ({classes}: {
 }) => {
   const currentUser = useCurrentUser()
 
-  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle, ErrorAccessDenied, CurationNoticesItem, CommentsList } = Components
+  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, SectionTitle, ErrorAccessDenied, CurationNoticesItem, CommentsList } = Components
 
   const [post, setPost] = useState<PostsList|null>(null)
 

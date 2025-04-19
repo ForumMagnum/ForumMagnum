@@ -2,6 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { BooksForm } from './BooksForm';
+import { useSingle } from '@/lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -38,6 +40,13 @@ const BooksItem = ({ book, canEdit, classes }: {
   const { html = "" } = book.contents || {}
   const { BooksProgressBar, SectionTitle, SectionButton, LargeSequencesItem,
     SequencesPostsList, ContentItemBody, ContentStyles, SequencesGrid } = Components
+
+  const { document: editableBook, loading } = useSingle({
+    collectionName: 'Books',
+    documentId: book._id,
+    fragmentName: 'BookEdit',
+    skip: !edit,
+  });
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -46,11 +55,14 @@ const BooksItem = ({ book, canEdit, classes }: {
     setEdit(false);
   }, []);
 
-  if (edit) {
-    return <Components.BooksEditForm
-      documentId={book._id}
-      successCallback={showBook}
-      cancelCallback={showBook}
+  if (loading) {
+    return <Components.Loading />
+  } else if (edit) {
+    return <BooksForm
+      initialData={editableBook}
+      collectionId={book.collectionId}
+      onSuccess={showBook}
+      onCancel={showBook}
     />
   } else {
     return <div>
