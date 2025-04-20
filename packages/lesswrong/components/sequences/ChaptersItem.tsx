@@ -44,8 +44,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
 
   if (edit) return (
     <ChaptersEditForm
-      documentId={chapter._id}
-      postIds={chapter.postIds}
+      chapter={chapter}
       successCallback={showChapter}
       cancelCallback={showChapter}
     />

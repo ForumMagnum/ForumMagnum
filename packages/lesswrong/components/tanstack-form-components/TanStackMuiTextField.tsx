@@ -30,6 +30,7 @@ interface TanStackMuiTextFieldProps<T extends string | number> {
   type?: string;
   disabled?: boolean;
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
+  placeholder?: string;
   overrideClassName?: string;
 }
 
@@ -45,6 +46,7 @@ export function TanStackMuiTextField<T extends string | number>({
   type,
   disabled = false,
   InputLabelProps,
+  placeholder,
   overrideClassName: className,
 }: TanStackMuiTextFieldProps<T>) {
   const classes = useStyles(styles);
@@ -78,6 +80,7 @@ export function TanStackMuiTextField<T extends string | number>({
       disabled={disabled}
       error={!!error}
       helperText={error?.message}
+      placeholder={placeholder}
     >
       {children}
     </TextField>

@@ -13,6 +13,7 @@ import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
+import { ChaptersForm } from './ChaptersForm';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -264,7 +265,13 @@ const SequencesPage = ({ documentId, classes }: {
                 <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
               </SectionButton>
             </SectionFooter>}
-            {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
+            {showNewChapterForm && (
+              <ChaptersForm
+                prefilledProps={{ sequenceId: document._id, number: nextSuggestedNumberRef.current }}
+                onSuccess={() => setShowNewChapterForm(false)}
+                onCancel={() => setShowNewChapterForm(false)}
+              />
+            )}
           </div>
         </div>
       </SingleColumnSection>

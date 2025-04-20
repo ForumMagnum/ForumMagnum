@@ -481,7 +481,6 @@ importComponent("EventNotificationsDialog", () => require("../../components/loca
 importComponent("EventTime", () => require("../../components/localGroups/EventTime.tsx"));
 importComponent("EventVicinity", () => require("../../components/localGroups/EventVicinity.tsx"));
 importComponent("GroupFormDialog", () => require("../../components/localGroups/GroupFormDialog.tsx"));
-importComponent("GroupFormDialog", () => require("../../components/localGroups/GroupFormDialogOld.tsx"));
 importComponent("GroupFormLink", () => require("../../components/localGroups/GroupFormLink.tsx"));
 importComponent("GroupFormSubmit", () => require("../../components/localGroups/GroupFormSubmit.tsx"));
 importComponent("GroupLinks", () => require("../../components/localGroups/GroupLinks.tsx"));
