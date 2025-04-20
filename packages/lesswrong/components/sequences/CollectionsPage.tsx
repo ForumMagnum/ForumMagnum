@@ -76,6 +76,13 @@ const CollectionsPage = ({ documentId, classes }: {
     fragmentName: 'CollectionsPageFragment',
   });
 
+  const { document: editDocument } = useSingle({
+    documentId,
+    collectionName: "Collections",
+    fragmentName: 'CollectionsEditFragment',
+    skip: !edit,
+  });
+
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
@@ -84,11 +91,11 @@ const CollectionsPage = ({ documentId, classes }: {
   }, []);
 
   const { SingleColumnSection, BooksItem, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
-  if (loading || !document) {
+  if (loading || !document || (edit && !editDocument)) {
     return <Components.Loading />;
-  } else if (edit) {
+  } else if (edit && editDocument) {
     return <Components.CollectionsEditForm
-      documentId={document._id}
+      initialData={editDocument}
       successCallback={showCollection}
       cancelCallback={showCollection}
     />

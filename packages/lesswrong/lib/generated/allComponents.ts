@@ -867,7 +867,6 @@ importComponent("ChapterTitle", () => require("../../components/sequences/Chapte
 importComponent("ChaptersEditForm", () => require("../../components/sequences/ChaptersEditForm.tsx"));
 importComponent("ChaptersItem", () => require("../../components/sequences/ChaptersItem.tsx"));
 importComponent("ChaptersList", () => require("../../components/sequences/ChaptersList.tsx"));
-importComponent("ChaptersNewForm", () => require("../../components/sequences/ChaptersNewForm.tsx"));
 importComponent("Codex", () => require("../../components/sequences/Codex.tsx"));
 importComponent("CollectionTableOfContents", () => require("../../components/sequences/CollectionTableOfContents.tsx"));
 importComponent("CollectionsEditForm", () => require("../../components/sequences/CollectionsEditForm.tsx"));
