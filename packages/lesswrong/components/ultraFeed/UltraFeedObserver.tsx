@@ -73,9 +73,20 @@ interface UltraFeedObserverContextType {
 
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
 
+// Minimum amount of the element (in pixels) that must be inside the viewport to
+// count as "visible enough". This is implemented via `rootMargin` when creating
+// the IntersectionObserver, so we never need to calculate it manually in the
+// callback.
+const MIN_VISIBLE_PX = 250;
+
 const VIEW_THRESHOLD_MS = 300;
 const LONG_VIEW_THRESHOLD_MS = 2500;
-const INTERSECTION_THRESHOLD = 0.5;
+
+// Now that we are using a pixel based threshold implemented through
+// `rootMargin`, we no longer need to compare against an `intersectionRatio` in
+// the callback. We keep the constant around (set to 0) so the rest of the code
+// compiles without larger structural changes.
+const INTERSECTION_THRESHOLD = 0;
 
 const documentTypeToCollectionName = {
   post: "Posts",
@@ -117,7 +128,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-    if (!currentUser || incognitoMode) return;
+    if (!currentUser) return;
     
     entries.forEach((entry) => {
       const element = entry.target;
@@ -127,7 +138,10 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         return;
       }
 
-      if (entry.isIntersecting && entry.intersectionRatio >= INTERSECTION_THRESHOLD) {
+      // A positive `isIntersecting` now means at least `MIN_VISIBLE_PX` (or the
+      // entire element if it is shorter than that) is visible, because of the
+      // negative `rootMargin` used when creating the observer.
+      if (entry.isIntersecting) {
         if (!timerMapRef.current.has(element)) {
           if (!elementData) return;
           
@@ -135,6 +149,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
           if (!shortViewedItemsRef.current.has(elementData.documentId)) {
             shortTimerId = setTimeout(() => {
               if (elementDataMapRef.current.has(element)) {
+                // short timer fired
                 logViewEvent(elementData, VIEW_THRESHOLD_MS);
                 shortViewedItemsRef.current.add(elementData.documentId);
                 const timers = timerMapRef.current.get(element);
@@ -143,6 +158,8 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
                 }
               }
             }, VIEW_THRESHOLD_MS);
+
+            // start short timer
           }
 
           const longTimerId = setTimeout(() => {
@@ -150,6 +167,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
                const currentElementData = elementDataMapRef.current.get(element);
                if (!currentElementData) return;
 
+               // long timer fired
                logViewEvent(currentElementData, LONG_VIEW_THRESHOLD_MS);
                const documentId = currentElementData.documentId;
                longViewedItemsRef.current.add(documentId);
@@ -166,9 +184,12 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
              }
           }, LONG_VIEW_THRESHOLD_MS);
 
+          // start long timer
+
           timerMapRef.current.set(element, { shortTimerId, longTimerId });
         }
       } else {
+        // Element is no longer intersecting the central stripe – clear timers.
         if (timerMapRef.current.has(element)) {
           const timers = timerMapRef.current.get(element)!;
           if (timers.shortTimerId) {
@@ -178,10 +199,14 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
             clearTimeout(timers.longTimerId);
           }
           timerMapRef.current.delete(element);
+
+          // cleared timers
         }
+
+        // intersection false
       }
     });
-  }, [logViewEvent, currentUser, incognitoMode]);
+  }, [logViewEvent, currentUser]);
 
   useEffect(() => {
     const currentTimerMap = timerMapRef.current;
@@ -189,9 +214,13 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
     const currentLongViewedItems = longViewedItemsRef.current;
     const currentShortViewedItems = shortViewedItemsRef.current;
 
+    // We shrink the effective viewport by MIN_VISIBLE_PX on the top and bottom.
+    // Consequently, `entry.isIntersecting === true` means the element has at
+    // least MIN_VISIBLE_PX pixels (or its full height if smaller) visible.
     observerRef.current = new IntersectionObserver(handleIntersection, {
       root: null,
-      threshold: INTERSECTION_THRESHOLD,
+      rootMargin: `-${MIN_VISIBLE_PX}px 0px -${MIN_VISIBLE_PX}px 0px`,
+      threshold: 0,
     });
     const observerInstance = observerRef.current;
 
@@ -225,6 +254,8 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         timerMapRef.current.delete(element);
       }
       elementDataMapRef.current.delete(element);
+
+      // unobserved element
     }
   }, []);
 
