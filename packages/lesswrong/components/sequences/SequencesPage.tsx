@@ -121,7 +121,37 @@ const styles = (theme: ThemeType) => ({
   },
   imageScrim: {
     ...sequencesImageScrim(theme)
-  }
+  },
+  newChapterForm: {
+    maxWidth: 695,
+    marginLeft: "auto",
+    marginRight: 90,
+    padding: 15,
+    border: theme.palette.border.normal,
+    borderRadius: 2,
+    marginBottom: "2em",
+  
+    "& form": {
+      clear: "both",
+      overflow: "auto",
+    },
+    "& .form-submit": {
+      float: "right",
+    },
+    "& h3": {
+      fontSize: "2em",
+      marginBottom: "1em",
+    },
+    "& label.control-label": {
+      display: "none",
+    },
+    "& .col-sm-9": {
+      padding: 0,
+    },
+    "& .input-title input": {
+      fontSize: "2em",
+    },
+  },
 })
 
 const SequencesPage = ({ documentId, classes }: {
@@ -147,7 +177,7 @@ const SequencesPage = ({ documentId, classes }: {
   }, []);
 
   const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
-    ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName,
+    ChaptersList, FormatDate, Loading, SectionFooter, UsersName,
     ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
   } = Components
   
@@ -266,11 +296,14 @@ const SequencesPage = ({ documentId, classes }: {
               </SectionButton>
             </SectionFooter>}
             {showNewChapterForm && (
-              <ChaptersForm
-                prefilledProps={{ sequenceId: document._id, number: nextSuggestedNumberRef.current }}
-                onSuccess={() => setShowNewChapterForm(false)}
-                onCancel={() => setShowNewChapterForm(false)}
-              />
+              <div className={classes.newChapterForm}>
+                <h3>Add Chapter</h3>
+                <ChaptersForm
+                  prefilledProps={{ sequenceId: document._id, number: nextSuggestedNumberRef.current }}
+                  onSuccess={() => setShowNewChapterForm(false)}
+                  onCancel={() => setShowNewChapterForm(false)}
+                />
+              </div>
             )}
           </div>
         </div>
