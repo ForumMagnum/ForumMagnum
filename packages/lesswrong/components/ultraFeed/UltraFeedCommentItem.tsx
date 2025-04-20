@@ -224,6 +224,7 @@ const UltraFeedCommentItem = ({
 
   const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
+  const [resetSig, setResetSig] = useState(0);
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -293,6 +294,11 @@ const UltraFeedCommentItem = ({
     return settings.commentTruncationBreakpoints || [];
   }, [settings.commentTruncationBreakpoints]);
 
+  const collapseToFirst = () => {
+    setResetSig((s)=>s+1);
+    onChangeDisplayStatus('collapsed');
+  };
+
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
     <div ref={elementRef} className={classNames(classes.root)} >
@@ -334,6 +340,7 @@ const UltraFeedCommentItem = ({
             clampOverride={settings.lineClampNumberOfLines}
             onExpand={handleContentExpand}
             hideSuffix={false}
+            resetSignal={resetSig}
           />
         </div>
         <UltraFeedItemFooter
@@ -344,7 +351,7 @@ const UltraFeedCommentItem = ({
         />
       </div>
     </div>
-    {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} />}
+    {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} />}
     </AnalyticsContext>
   );
 };

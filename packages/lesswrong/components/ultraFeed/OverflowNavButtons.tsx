@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import ArrowUpwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowUpward';
 import ArrowDownwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDownward';
+import UnfoldLessIcon from '@/lib/vendor/@material-ui/icons/src/UnfoldLess';
 import type { OverflowNavResult } from './hooks/useOverflowNav';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { registerComponent } from '@/lib/vulcan-lib/components';
@@ -49,9 +50,19 @@ const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
   },
 }));
 
-export const OverflowNavButtons = ({ nav }: { nav: OverflowNavResult }) => {
+interface Props {
+  nav: OverflowNavResult;
+  onCollapse?: () => void;
+}
+
+export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
   const { showUp, showDown, scrollToTop: onTop, scrollToBottom: onBottom } = nav;
   const classes = useStyles(styles);
+
+  const handleCollapse = useCallback(() => {
+    onCollapse?.();
+    onTop();
+  }, [onCollapse, onTop]);
 
   let containerClass = classes.fixed;
   if (showUp && !showDown) {
@@ -62,6 +73,11 @@ export const OverflowNavButtons = ({ nav }: { nav: OverflowNavResult }) => {
 
   return (
     <div className={`${classes.base} ${containerClass}`}>
+      {onCollapse && (
+        <IconButton onClick={handleCollapse} className={classes.button}>
+          <UnfoldLessIcon fontSize="medium" />
+        </IconButton>
+      )}
       <IconButton
         onClick={onTop}
         className={classNames(classes.button, { [classes.hidden]: !showUp })}

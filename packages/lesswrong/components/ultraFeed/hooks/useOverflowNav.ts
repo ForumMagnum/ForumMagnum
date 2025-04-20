@@ -100,12 +100,6 @@ export const useOverflowNav = (
             info.pair.bottomIntersect = entry.isIntersecting;
             if (entry.isIntersecting) info.pair.bottomViewportPos = entry.boundingClientRect.top;
           }
-          // eslint-disable-next-line no-console
-          console.log('[OverflowNav] sentinel update', {
-            kind: info.kind,
-            topIntersect: info.pair.topIntersect,
-            bottomIntersect: info.pair.bottomIntersect,
-          });
           info.pair.update();
         });
       }, { threshold: 0 });

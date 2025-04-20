@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
@@ -97,6 +97,8 @@ interface BaseFeedContentBodyProps {
   clampOverride?: number;
   /** If true, don't show the inline '(read more)' suffix */
   hideSuffix?: boolean;
+  /** when changed, resets expansion level to 0 */
+  resetSignal?: number;
 }
 
 type FeedContentBodyProps = BaseFeedContentBodyProps & DocumentProps;
@@ -116,11 +118,18 @@ const FeedContentBody = ({
   className,
   clampOverride,
   hideSuffix,
+  resetSignal,
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
   const [expansionLevel, setExpansionLevel] = useState(initialExpansionLevel);
   
+  useEffect(() => {
+    if (resetSignal !== undefined) {
+      setExpansionLevel(0);
+    }
+  }, [resetSignal]);
+
   const isMaxLevel = expansionLevel >= breakpoints.length - 1;
   const currentWordLimit = breakpoints[expansionLevel];
 

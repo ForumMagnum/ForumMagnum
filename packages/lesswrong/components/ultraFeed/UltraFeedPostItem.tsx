@@ -167,6 +167,7 @@ const UltraFeedPostItem = ({
   const [isLoadingFull, setIsLoadingFull] = useState(false);
   const [shouldShowLoading, setShouldShowLoading] = useState(false);
   const [expandLevel, setExpandLevel] = useState(0);
+  const [resetSig, setResetSig] = useState(0);
 
   const { document: fullPost, loading: loadingFullPost } = useSingle({
     documentId: post._id,
@@ -229,6 +230,11 @@ const UltraFeedPostItem = ({
     fullPost,
     settings.postTruncationBreakpoints
   ]);
+
+  const handleCollapse = () => {
+    setExpandLevel(0);
+    setResetSig((s) => s + 1);
+  };
 
   if (
     !post?._id 
@@ -294,9 +300,10 @@ const UltraFeedPostItem = ({
           nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
           onExpand={handleContentExpand}
           hideSuffix={false}
+          resetSignal={resetSig}
         />
       )}
-      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} id={post._id} />}
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={handleCollapse} />}
       <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
     </AnalyticsContext>
