@@ -545,6 +545,18 @@ function repliesToCommentThread(terms: CommentsViewTerms) {
   }
 }
 
+function repliesToCommentThreadIncludingRoot(terms: CommentsViewTerms) {
+  return {
+    selector: {
+      $or: [
+        {topLevelCommentId: terms.topLevelCommentId},
+        {_id: terms.topLevelCommentId}
+      ]
+    },
+    options: {sort: {baseScore: -1}}
+  }
+}
+
 function shortformLatestChildren(terms: CommentsViewTerms) {
   return {
     selector: { topLevelCommentId: terms.topLevelCommentId} ,
@@ -768,6 +780,7 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   shortform,
   shortformFrontpage,
   repliesToCommentThread,
+  repliesToCommentThreadIncludingRoot,
   shortformLatestChildren,
   nominations2018,
   nominations2019,
