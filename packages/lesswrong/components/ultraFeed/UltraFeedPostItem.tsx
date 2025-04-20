@@ -8,14 +8,15 @@ import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
-import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import classnames from "classnames";
 import { useSingle } from "../../lib/crud/withSingle";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
+import { useOverflowNav } from "./hooks/useOverflowNav";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
+    position: 'relative',
     paddingTop: 12,
     paddingLeft: 16,
     paddingRight: 16,
@@ -154,13 +155,13 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading, TruncatedAuthorsList } = Components;
+  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading, TruncatedAuthorsList, OverflowNavButtons } = Components;
 
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const metaLeftSectionRef = useRef<HTMLDivElement>(null);
+  const overflowNav = useOverflowNav(elementRef);
   const { captureEvent } = useTracking();
-  const { isAnon, authors } = usePostsUserAndCoauthors(post);
   const { recordPostView, isRead } = useRecordPostView(post);
   const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
@@ -295,7 +296,7 @@ const UltraFeedPostItem = ({
           hideSuffix={false}
         />
       )}
-      
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} id={post._id} />}
       <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
     </AnalyticsContext>

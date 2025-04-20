@@ -7,6 +7,8 @@ import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsType
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import { useOverflowNav } from "./hooks/useOverflowNav";
+import OverflowNavButtons from "./OverflowNavButtons";
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -14,6 +16,7 @@ const commentHeaderPaddingMobile = 12;
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
+    position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
     display: 'flex',
     flexDirection: 'row',
@@ -215,6 +218,7 @@ const UltraFeedCommentItem = ({
   const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const overflowNav = useOverflowNav(elementRef);
   const { post } = comment;
   const { displayStatus } = metaInfo;
 
@@ -340,6 +344,7 @@ const UltraFeedCommentItem = ({
         />
       </div>
     </div>
+    {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} />}
     </AnalyticsContext>
   );
 };
