@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from 'react';
  * "oversized" and show scroll navigation controls. For example, a ratio of 2
  * means the item must be at least twice as tall as the viewport.
  */
-export const OVERFLOW_HEIGHT_RATIO = 3;
+export const OVERFLOW_HEIGHT_RATIO = 2;
 
 export interface OverflowNavResult {
   showUp: boolean;

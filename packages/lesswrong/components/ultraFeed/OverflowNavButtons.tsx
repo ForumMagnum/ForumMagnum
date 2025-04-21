@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import ArrowUpwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowUpward';
 import ArrowDownwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDownward';
 import UnfoldLessIcon from '@/lib/vendor/@material-ui/icons/src/UnfoldLess';
@@ -17,7 +16,7 @@ const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
   },
   fixed: {
     position: 'fixed',
-    right: 16,
+    right: 12,
     bottom: 128,
     [theme.breakpoints.down('sm')]: {
       bottom: 24,
@@ -25,27 +24,33 @@ const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
   },
   absoluteTop: {
     position: 'absolute',
-    right: 16,
+    right: 12,
     top: 24,
   },
   absoluteBottom: {
     position: 'absolute',
-    right: 16,
+    right: 12,
     bottom: 24,
   },
   button: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     background: theme.palette.grey[900],
-    opacity: 0.5,
+    borderRadius: '40%',
+    opacity: 0.4,
     color: '#fff',
     width: 36,
     height: 36,
-    transition: 'opacity 0.3s ease',
-    '&:hover': {
-      opacity: 0.7
-    },
+    cursor: 'pointer',
+    transition: 'opacity 0.5s ease',
+    // would be nice to have hover effect, but it gets stuck as applied which is worse than not having it
+    // '&:hover': {
+    //   opacity: 0.7,
+    // },
   },
   hidden: {
-    opacity: 0,
+    opacity: '0 !important',
     pointerEvents: 'none',
   },
 }));
@@ -57,6 +62,7 @@ interface Props {
 
 export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
   const { showUp, showDown, scrollToTop: onTop, scrollToBottom: onBottom } = nav;
+  console.debug('[OverflowNavButtons render]', { showUp, showDown });
   const classes = useStyles(styles);
 
   const handleCollapse = useCallback(() => {
@@ -72,24 +78,16 @@ export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
   }
 
   return (
-    <div className={`${classes.base} ${containerClass}`}>
-      {onCollapse && (
-        <IconButton onClick={handleCollapse} className={classes.button}>
+    <div className={classNames(classes.base, containerClass)}>
+      {onCollapse && <div onClick={handleCollapse} className={classes.button} >
           <UnfoldLessIcon fontSize="medium" />
-        </IconButton>
-      )}
-      <IconButton
-        onClick={onTop}
-        className={classNames(classes.button, { [classes.hidden]: !showUp })}
-      >
+        </div>}
+      <div onClick={onTop} className={classNames(classes.button, { [classes.hidden]: !showUp })} >
         <ArrowUpwardIcon fontSize="small" />
-      </IconButton>
-      <IconButton
-        onClick={onBottom}
-        className={classNames(classes.button, { [classes.hidden]: !showDown })}
-      >
+      </div>
+      <div onClick={onBottom} className={classNames(classes.button, { [classes.hidden]: !showDown })} >
         <ArrowDownwardIcon fontSize="small" />
-      </IconButton>
+      </div>
     </div>
   );
 };
