@@ -1,5 +1,5 @@
-function createRippleHandler(instance, eventName, action, cb) {
-  return function handleEvent(event) {
+function createRippleHandler(instance: AnyBecauseTodo, eventName: AnyBecauseTodo, action: AnyBecauseTodo, cb?: AnyBecauseTodo) {
+  return function handleEvent(event: AnyBecauseTodo) {
     if (cb) {
       cb.call(instance, event);
     }

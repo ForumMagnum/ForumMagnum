@@ -1,10 +1,21 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { withStyles } from '../styles';
 import { capitalize } from '../utils/helpers';
+import { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useTheme } from '@/components/themes/useTheme';
 
-export const styles = theme => {
+export interface NotchedOutlineProps extends StandardProps<React.FieldsetHTMLAttributes<HTMLFieldSetElement>, NotchedOutlineClassKey> {
+  disabled?: boolean;
+  error?: boolean;
+  focused?: boolean;
+  labelWidth: number;
+  notched: boolean;
+}
+
+export type NotchedOutlineClassKey = 'root' | 'legend' | 'focused' | 'error' | 'disabled';
+
+export const styles = defineStyles("MuiNotchedOutline", theme => {
   const light = theme.palette.type === 'light';
   const align = theme.direction === 'rtl' ? 'right' : 'left';
 
@@ -59,15 +70,15 @@ export const styles = theme => {
       borderColor: theme.palette.action.disabled,
     },
   };
-};
+}, {stylePriority: -10});
 
 /**
  * @ignore - internal component.
  */
-function NotchedOutline(props) {
+function NotchedOutline(props: NotchedOutlineProps) {
   const {
     children,
-    classes,
+    classes: classesOverride,
     className,
     disabled,
     error,
@@ -75,9 +86,10 @@ function NotchedOutline(props) {
     labelWidth: labelWidthProp,
     notched,
     style,
-    theme,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
+  const theme = useTheme();
 
   const align = theme.direction === 'rtl' ? 'right' : 'left';
   const labelWidth = labelWidthProp > 0 ? labelWidthProp * 0.75 + 8 : 0;
@@ -113,44 +125,4 @@ function NotchedOutline(props) {
   );
 }
 
-NotchedOutline.propTypes = {
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * If `true`, the outline should be displayed in a disabled state.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the outline should be displayed in an error state.
-   */
-  error: PropTypes.bool,
-  /**
-   * If `true`, the outline should be displayed in a focused state.
-   */
-  focused: PropTypes.bool,
-  /**
-   * The width of the legend.
-   */
-  labelWidth: PropTypes.number.isRequired,
-  /**
-   * If `true`, the outline is notched to accommodate the label.
-   */
-  notched: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
-  /**
-   * @ignore
-   */
-  theme: PropTypes.object,
-};
-
-export default withStyles(styles, { name: 'MuiNotchedOutline', withTheme: true })(NotchedOutline);
+export default NotchedOutline;

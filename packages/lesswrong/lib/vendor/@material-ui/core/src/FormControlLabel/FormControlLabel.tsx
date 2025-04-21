@@ -3,8 +3,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import Typography from '../Typography';
+import { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface FormControlLabelProps
   extends StandardProps<
@@ -25,7 +26,7 @@ export interface FormControlLabelProps
 
 export type FormControlLabelClassKey = 'root' | 'start' | 'disabled' | 'label';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiFormControlLabel", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'inline-flex',
@@ -55,7 +56,7 @@ export const styles = theme => ({
       color: theme.palette.text.disabled,
     },
   },
-});
+}), {stylePriority: -10});
 
 /**
  * Drop in replacement of the `Radio`, `Switch` and `Checkbox` component.
@@ -64,7 +65,7 @@ export const styles = theme => ({
 function FormControlLabel(props: FormControlLabelProps, context) {
   const {
     checked,
-    classes,
+    classes: classesOverride,
     className: classNameProp,
     control,
     disabled: disabledProp,
@@ -76,6 +77,7 @@ function FormControlLabel(props: FormControlLabelProps, context) {
     value,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
   const { muiFormControl } = context;
 
   let disabled = disabledProp;
@@ -118,58 +120,6 @@ function FormControlLabel(props: FormControlLabelProps, context) {
   );
 }
 
-FormControlLabel.propTypes = {
-  /**
-   * If `true`, the component appears selected.
-   */
-  checked: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * A control element. For instance, it can be be a `Radio`, a `Switch` or a `Checkbox`.
-   */
-  control: PropTypes.element,
-  /**
-   * If `true`, the control will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Use that property to pass a ref callback to the native input component.
-   */
-  inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  /**
-   * The text to be used in an enclosing label element.
-   */
-  label: PropTypes.node,
-  /**
-   * The position of the label.
-   */
-  labelPlacement: PropTypes.oneOf(['end', 'start']),
-  /*
-   * @ignore
-   */
-  name: PropTypes.string,
-  /**
-   * Callback fired when the state is changed.
-   *
-   * @param {object} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.checked`.
-   * @param {boolean} checked The `checked` value of the switch
-   */
-  onChange: PropTypes.func,
-  /**
-   * The value of the component.
-   */
-  value: PropTypes.string,
-};
-
 FormControlLabel.defaultProps = {
   labelPlacement: 'end',
 };
@@ -178,4 +128,4 @@ FormControlLabel.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiFormControlLabel' })(FormControlLabel);
+export default FormControlLabel;

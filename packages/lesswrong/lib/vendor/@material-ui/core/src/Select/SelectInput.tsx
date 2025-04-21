@@ -1,20 +1,45 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import keycode from 'keycode';
 import warning from 'warning';
-import Menu from '../Menu/Menu';
+import Menu, { MenuProps } from '../Menu/Menu';
 import { isFilled } from '../InputBase/utils';
 import { setRef } from '../utils/reactHelpers';
+
+export interface SelectInputProps {
+  autoFocus?: boolean;
+  autoWidth: boolean;
+  disabled?: boolean;
+  IconComponent?: React.ComponentType;
+  inputRef?: (
+    ref: HTMLSelectElement | { node: HTMLInputElement; value: SelectInputProps['value'] },
+  ) => void;
+  MenuProps?: Partial<MenuProps>;
+  multiple: boolean;
+  name?: string;
+  native: boolean;
+  onBlur?: React.FocusEventHandler<any>;
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>, child: React.ReactNode) => void;
+  onClose?: (event: React.ChangeEvent<{}>) => void;
+  onFocus?: React.FocusEventHandler<any>;
+  onOpen?: (event: React.ChangeEvent<{}>) => void;
+  open?: boolean;
+  readOnly?: boolean;
+  renderValue?: (value: SelectInputProps['value']) => React.ReactNode;
+  SelectDisplayProps?: React.HTMLAttributes<HTMLDivElement>;
+  tabIndex?: number;
+  value?: string | number | boolean | Array<string | number | boolean>;
+  variant?: 'standard' | 'outlined' | 'filled';
+}
 
 /**
  * @ignore - internal component.
  */
-class SelectInput extends React.Component {
+class SelectInput extends React.Component<SelectInputProps> {
   ignoreNextBlur = false;
 
-  constructor(props) {
-    super();
+  constructor(props: SelectInputProps) {
+    super(props);
     this.isOpenControlled = props.open !== undefined;
     this.state = {
       menuMinWidth: null,
@@ -322,133 +347,5 @@ class SelectInput extends React.Component {
     );
   }
 }
-
-SelectInput.propTypes = {
-  /**
-   * @ignore
-   */
-  autoFocus: PropTypes.bool,
-  /**
-   * If true, the width of the popover will automatically be set according to the items inside the
-   * menu, otherwise it will be at least the width of the select input.
-   */
-  autoWidth: PropTypes.bool,
-  /**
-   * The option elements to populate the select with.
-   * Can be some `<MenuItem>` elements.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * The CSS class name of the select element.
-   */
-  className: PropTypes.string,
-  /**
-   * If `true`, the select will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the selected item is displayed even if its value is empty.
-   */
-  displayEmpty: PropTypes.bool,
-  /**
-   * The icon that displays the arrow.
-   */
-  IconComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * Use that property to pass a ref callback to the native select element.
-   */
-  inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  /**
-   * Properties applied to the [`Menu`](/api/menu) element.
-   */
-  MenuProps: PropTypes.object,
-  /**
-   * If true, `value` must be an array and the menu will support multiple selections.
-   */
-  multiple: PropTypes.bool,
-  /**
-   * Name attribute of the `select` or hidden `input` element.
-   */
-  name: PropTypes.string,
-  /**
-   * @ignore
-   */
-  onBlur: PropTypes.func,
-  /**
-   * Callback function fired when a menu item is selected.
-   *
-   * @param {object} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value`.
-   * @param {object} [child] The react element that was selected.
-   */
-  onChange: PropTypes.func,
-  /**
-   * Callback fired when the component requests to be closed.
-   * Use in controlled mode (see open).
-   *
-   * @param {object} event The event source of the callback
-   */
-  onClose: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onFocus: PropTypes.func,
-  /**
-   * Callback fired when the component requests to be opened.
-   * Use in controlled mode (see open).
-   *
-   * @param {object} event The event source of the callback
-   */
-  onOpen: PropTypes.func,
-  /**
-   * Control `select` open state.
-   */
-  open: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  readOnly: PropTypes.bool,
-  /**
-   * Render the selected value.
-   *
-   * @param {*} value The `value` provided to the component.
-   * @returns {ReactElement}
-   */
-  renderValue: PropTypes.func,
-  /**
-   * @ignore
-   */
-  required: PropTypes.bool,
-  /**
-   * Properties applied to the clickable div element.
-   */
-  SelectDisplayProps: PropTypes.object,
-  /**
-   * @ignore
-   */
-  tabIndex: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  type: PropTypes.string,
-  /**
-   * The input value.
-   */
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.bool,
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])),
-  ]).isRequired,
-  /**
-   * The variant to use.
-   */
-  variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
 
 export default SelectInput;

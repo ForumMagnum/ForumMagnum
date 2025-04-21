@@ -1,14 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import keycode from 'keycode';
 import ownerWindow from '../utils/ownerWindow';
-import withStyles from '../styles/withStyles';
 import { listenForFocusKeys, detectFocusVisible } from './focusVisible';
 import TouchRipple, { type TouchRippleProps } from './TouchRipple';
 import createRippleHandler from './createRippleHandler';
 import type { StandardProps } from '..';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface ButtonBaseProps
   extends StandardProps<
@@ -18,13 +17,14 @@ export interface ButtonBaseProps
   action?: (actions: ButtonBaseActions) => void;
   buttonRef?: React.Ref<any> | React.RefObject<any>;
   centerRipple?: boolean;
-  component?: React.ReactType<ButtonBaseProps>;
+  component?: React.Component<ButtonBaseProps>;
   disableRipple?: boolean;
   disableTouchRipple?: boolean;
   focusRipple?: boolean;
   focusVisibleClassName?: string;
   onFocusVisible?: React.FocusEventHandler<any>;
   TouchRippleProps?: Partial<TouchRippleProps>;
+  children?: React.ReactNode;
 }
 
 export type ButtonBaseClassKey = 'root' | 'disabled' | 'focusVisible';
@@ -33,7 +33,7 @@ export interface ButtonBaseActions {
   focusVisible(): void;
 }
 
-export const styles = {
+export const styles = defineStyles("MuiButtonBase", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'inline-flex',
@@ -69,12 +69,7 @@ export const styles = {
   disabled: {},
   /* Styles applied to the root element if keyboard focused. */
   focusVisible: {},
-};
-
-/* istanbul ignore if */
-if (process.env.NODE_ENV !== 'production' && !React.createContext) {
-  throw new Error('Material-UI: react@16.3.0 or greater is required.');
-}
+}), {stylePriority: -10});
 
 /**
  * `ButtonBase` contains as few styles as possible.
@@ -335,136 +330,6 @@ class ButtonBase extends React.Component<ButtonBaseProps> {
   }
 }
 
-ButtonBase.propTypes = {
-  /**
-   * Callback fired when the component mounts.
-   * This is useful when you want to trigger an action programmatically.
-   * It currently only supports `focusVisible()` action.
-   *
-   * @param {object} actions This object contains all possible actions
-   * that can be triggered programmatically.
-   */
-  action: PropTypes.func,
-  /**
-   * Use that property to pass a ref callback to the native button component.
-   */
-  buttonRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the ripples will be centered.
-   * They won't start at the cursor interaction position.
-   */
-  centerRipple: PropTypes.bool,
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the base button will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the ripple effect will be disabled.
-   */
-  disableRipple: PropTypes.bool,
-  /**
-   * If `true`, the touch ripple effect will be disabled.
-   */
-  disableTouchRipple: PropTypes.bool,
-  /**
-   * If `true`, the base button will have a keyboard focus ripple.
-   * `disableRipple` must also be `false`.
-   */
-  focusRipple: PropTypes.bool,
-  /**
-   * This property can help a person know which element has the keyboard focus.
-   * The class name will be applied when the element gain the focus through a keyboard interaction.
-   * It's a polyfill for the [CSS :focus-visible feature](https://drafts.csswg.org/selectors-4/#the-focus-visible-pseudo).
-   * The rational for using this feature [is explain here](https://github.com/WICG/focus-visible/blob/master/explainer.md).
-   */
-  focusVisibleClassName: PropTypes.string,
-  /**
-   * @ignore
-   */
-  onBlur: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onClick: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onFocus: PropTypes.func,
-  /**
-   * Callback fired when the component is focused with a keyboard.
-   * We trigger a `onFocus` callback too.
-   */
-  onFocusVisible: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onKeyDown: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onKeyUp: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onMouseDown: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onMouseLeave: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onMouseUp: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onTouchEnd: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onTouchMove: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onTouchStart: PropTypes.func,
-  /**
-   * @ignore
-   */
-  role: PropTypes.string,
-  /**
-   * @ignore
-   */
-  tabIndex: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  /**
-   * Properties applied to the `TouchRipple` element.
-   */
-  TouchRippleProps: PropTypes.object,
-  /**
-   * Used to control the button's purpose.
-   * This property passes the value to the `type` attribute of the native button component.
-   * Valid property values include `button`, `submit`, and `reset`.
-   */
-  type: PropTypes.string,
-};
-
 ButtonBase.defaultProps = {
   centerRipple: false,
   component: 'button',
@@ -475,4 +340,4 @@ ButtonBase.defaultProps = {
   type: 'button',
 };
 
-export default withStyles(styles, { name: 'MuiButtonBase' })(ButtonBase);
+export default withStyles(styles, ButtonBase);

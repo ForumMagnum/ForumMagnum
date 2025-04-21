@@ -3,10 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
+import { StandardProps } from '..';
+import { ButtonBaseProps } from '../ButtonBase/ButtonBase';
+import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface IconButtonProps extends StandardProps<ButtonBaseProps, IconButtonClassKey> {
   color?: PropTypes.Color;
@@ -22,7 +24,7 @@ export type IconButtonClassKey =
   | 'disabled'
   | 'label';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiIconButton", theme => ({
   /* Styles applied to the root element. */
   root: {
     textAlign: 'center',
@@ -84,14 +86,15 @@ export const styles = theme => ({
     alignItems: 'inherit',
     justifyContent: 'inherit',
   },
-});
+}), {stylePriority: -10});
 
 /**
  * Refer to the [Icons](/style/icons) section of the documentation
  * regarding the available icon options.
  */
 function IconButton(props: IconButtonProps) {
-  const { children, classes, className, color, disabled, ...other } = props;
+  const { children, classes: classesOverride, className, color, disabled, ...other } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return (
     <ButtonBase
@@ -113,37 +116,9 @@ function IconButton(props: IconButtonProps) {
   );
 }
 
-IconButton.propTypes = {
-  /**
-   * The icon element.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The color of the component. It supports those theme colors that make sense for this component.
-   */
-  color: PropTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
-  /**
-   * If `true`, the button will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the ripple will be disabled.
-   */
-  disableRipple: PropTypes.bool,
-};
-
 IconButton.defaultProps = {
   color: 'default',
   disabled: false,
 };
 
-export default withStyles(styles, { name: 'MuiIconButton' })(IconButton);
+export default IconButton;

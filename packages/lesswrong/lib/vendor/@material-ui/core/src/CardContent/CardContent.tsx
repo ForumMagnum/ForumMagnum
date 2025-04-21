@@ -1,9 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import type { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-export const styles = theme => ({
+export interface CardContentProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, CardContentClassKey> {
+  component?: React.ComponentType<CardContentProps>;
+}
+
+export type CardContentClassKey = 'root';
+
+export const styles = defineStyles("MuiCardContent", theme => ({
   /* Styles applied to the root element. */
   root: theme.mixins.gutters({
     paddingTop: 16,
@@ -12,10 +20,11 @@ export const styles = theme => ({
       paddingBottom: 24,
     },
   }),
-});
+}), {stylePriority: -10});
 
-function CardContent(props) {
-  const { classes, className, component: Component, ...other } = props;
+function CardContent(props: CardContentProps) {
+  const { classes: classesOverride, className, component: Component, ...other } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return <Component className={classNames(classes.root, className)} {...other} />;
 }
@@ -41,4 +50,4 @@ CardContent.defaultProps = {
   component: 'div',
 };
 
-export default withStyles(styles, { name: 'MuiCardContent' })(CardContent);
+export default CardContent;

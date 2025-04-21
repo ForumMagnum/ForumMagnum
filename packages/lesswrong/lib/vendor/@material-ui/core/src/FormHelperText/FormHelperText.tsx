@@ -1,10 +1,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import { formControlState } from '../InputBase/InputBase';
+import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
+import { StandardProps } from '..';
 
-export const styles = theme => ({
+export interface FormHelperTextProps
+  extends StandardProps<React.HTMLAttributes<HTMLParagraphElement>, FormHelperTextClassKey> {
+  disabled?: boolean;
+  error?: boolean;
+  filled?: boolean;
+  focused?: boolean;
+  component?: React.ComponentType<FormHelperTextProps>;
+  margin?: 'dense';
+  required?: boolean;
+  variant?: 'standard' | 'outlined' | 'filled';
+}
+
+export type FormHelperTextClassKey =
+  | 'root'
+  | 'error'
+  | 'disabled'
+  | 'marginDense'
+  | 'focused'
+  | 'filled'
+  | 'contained'
+  | 'required';
+
+export const styles = defineStyles("MuiFormHelperText", theme => ({
   /* Styles applied to the root element. */
   root: {
     color: theme.palette.text.secondary,
@@ -40,11 +63,11 @@ export const styles = theme => ({
   filled: {},
   /* Styles applied to the root element if `required={true}`. */
   required: {},
-});
+}), {stylePriority: -10});
 
-function FormHelperText(props, context) {
+function FormHelperText(props: FormHelperTextProps, context) {
   const {
-    classes,
+    classes: classesOverride,
     className: classNameProp,
     component: Component,
     disabled,
@@ -56,6 +79,7 @@ function FormHelperText(props, context) {
     variant,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
 
   const fcs = formControlState({
     props,
@@ -83,56 +107,6 @@ function FormHelperText(props, context) {
   );
 }
 
-FormHelperText.propTypes = {
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the helper text should be displayed in a disabled state.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, helper text should be displayed in an error state.
-   */
-  error: PropTypes.bool,
-  /**
-   * If `true`, the helper text should use filled classes key.
-   */
-  filled: PropTypes.bool,
-  /**
-   * If `true`, the helper text should use focused classes key.
-   */
-  focused: PropTypes.bool,
-  /**
-   * If `dense`, will adjust vertical spacing. This is normally obtained via context from
-   * FormControl.
-   */
-  margin: PropTypes.oneOf(['dense']),
-  /**
-   * If `true`, the helper text should use required classes key.
-   */
-  required: PropTypes.bool,
-  /**
-   * The variant to use.
-   */
-  variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
-
 FormHelperText.defaultProps = {
   component: 'p',
 };
@@ -141,4 +115,4 @@ FormHelperText.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiFormHelperText' })(FormHelperText);
+export default FormHelperText;

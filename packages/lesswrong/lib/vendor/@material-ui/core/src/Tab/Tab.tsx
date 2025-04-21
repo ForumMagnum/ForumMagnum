@@ -1,14 +1,41 @@
 // @inheritedComponent ButtonBase
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
-import unsupportedProp from '../utils/unsupportedProp';
+import type { StandardProps } from '..';
+import type { ButtonBaseProps } from '../ButtonBase/ButtonBase';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
-export const styles = theme => ({
+export interface TabProps extends StandardProps<ButtonBaseProps, TabClassKey, 'onChange'> {
+  disabled?: boolean;
+  fullWidth?: boolean;
+  icon?: string | React.ReactElement<any>;
+  value?: any;
+  label?: React.ReactNode;
+  onChange?: (event: React.ChangeEvent<{ checked: boolean }>, value: any) => void;
+  onClick?: React.EventHandler<any>;
+  selected?: boolean;
+  style?: React.CSSProperties;
+  textColor?: string | 'secondary' | 'primary' | 'inherit';
+}
+
+export type TabClassKey =
+  | 'root'
+  | 'labelIcon'
+  | 'textColorInherit'
+  | 'textColorPrimary'
+  | 'textColorSecondary'
+  | 'selected'
+  | 'disabled'
+  | 'fullWidth'
+  | 'wrapper'
+  | 'labelContainer'
+  | 'label'
+  | 'labelWrapped';
+
+const styles = defineStyles("MuiTab", theme => ({
   /* Styles applied to the root element. */
   root: {
     ...theme.typography.button,
@@ -97,9 +124,9 @@ export const styles = theme => ({
       fontSize: theme.typography.pxToRem(12),
     },
   },
-});
+}, {stylePriority: -10}));
 
-class Tab extends React.Component {
+class Tab extends React.Component<TabProps> {
   state = {
     labelWrapped: false,
   };
@@ -207,68 +234,9 @@ class Tab extends React.Component {
   }
 }
 
-Tab.propTypes = {
-  /**
-   * This property isn't supported.
-   * Use the `component` property if you need to change the children structure.
-   */
-  children: unsupportedProp,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * If `true`, the tab will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  fullWidth: PropTypes.bool,
-  /**
-   * The icon element.
-   */
-  icon: PropTypes.node,
-  /**
-   * @ignore
-   * For server side rendering consideration, we let the selected tab
-   * render the indicator.
-   */
-  indicator: PropTypes.node,
-  /**
-   * The label element.
-   */
-  label: PropTypes.node,
-  /**
-   * @ignore
-   */
-  onChange: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onClick: PropTypes.func,
-  /**
-   * @ignore
-   */
-  selected: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  textColor: PropTypes.oneOf(['secondary', 'primary', 'inherit']),
-  /**
-   * You can provide your own value. Otherwise, we fallback to the child position index.
-   */
-  value: PropTypes.any,
-};
-
 Tab.defaultProps = {
   disabled: false,
   textColor: 'inherit',
 };
 
-export default withStyles(styles, { name: 'MuiTab' })(Tab);
+export default withStyles(styles, Tab);

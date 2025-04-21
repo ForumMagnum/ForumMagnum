@@ -1,8 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import type { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface ListItemIconProps extends StandardProps<{}, ListItemIconClassKey> {
   children: React.ReactElement<any>;
@@ -10,20 +9,21 @@ export interface ListItemIconProps extends StandardProps<{}, ListItemIconClassKe
 
 export type ListItemIconClassKey = 'root';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiListItemIcon", theme => ({
   /* Styles applied to the root element. */
   root: {
     marginRight: 16,
     color: theme.palette.action.active,
     flexShrink: 0,
   },
-});
+}), {stylePriority: -10});
 
 /**
  * A simple wrapper to apply `List` styles to an `Icon` or `SvgIcon`.
  */
 function ListItemIcon(props: ListItemIconProps) {
-  const { children, classes, className: classNameProp, ...other } = props;
+  const { children, classes: classesOverride, className: classNameProp, ...other } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return React.cloneElement(children, {
     className: classNames(classes.root, classNameProp, children.props.className),
@@ -31,21 +31,4 @@ function ListItemIcon(props: ListItemIconProps) {
   });
 }
 
-ListItemIcon.propTypes = {
-  /**
-   * The content of the component, normally `Icon`, `SvgIcon`,
-   * or a `@material-ui/icons` SVG icon element.
-   */
-  children: PropTypes.element.isRequired,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-};
-
-export default withStyles(styles, { name: 'MuiListItemIcon' })(ListItemIcon);
+export default ListItemIcon;

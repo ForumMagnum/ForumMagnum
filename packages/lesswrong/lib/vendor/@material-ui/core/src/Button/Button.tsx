@@ -3,16 +3,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
 import type { StandardProps } from '..';
 import type { ButtonBaseProps } from '../ButtonBase/ButtonBase';
+import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface ButtonProps extends StandardProps<ButtonBaseProps, ButtonClassKey, 'component'> {
   color?: PropTypes.Color;
-  component?: React.ReactType<ButtonProps>;
+  component?: React.ComponentType<ButtonProps>;
   disabled?: boolean;
   disableFocusRipple?: boolean;
   disableRipple?: boolean;
@@ -22,6 +22,7 @@ export interface ButtonProps extends StandardProps<ButtonBaseProps, ButtonClassK
   size?: 'small' | 'medium' | 'large';
   type?: string;
   variant?: 'text' | 'flat' | 'outlined' | 'contained' | 'raised' | 'fab' | 'extendedFab';
+  children: React.ReactNode;
 }
 
 export type ButtonClassKey =
@@ -51,7 +52,7 @@ export type ButtonClassKey =
   | 'sizeLarge'
   | 'fullWidth';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiButton", theme => ({
   /* Styles applied to the root element. */
   root: {
     ...theme.typography.button,
@@ -251,12 +252,12 @@ export const styles = theme => ({
   fullWidth: {
     width: '100%',
   },
-});
+}), {stylePriority: -10});
 
 function Button(props: ButtonProps) {
   const {
     children,
-    classes,
+    classes: classesOverride,
     className: classNameProp,
     color,
     disabled,
@@ -268,6 +269,7 @@ function Button(props: ButtonProps) {
     variant,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
 
   const fab = variant === 'fab' || variant === 'extendedFab';
   const contained = variant === 'contained' || variant === 'raised';
@@ -314,82 +316,6 @@ function Button(props: ButtonProps) {
   );
 }
 
-Button.propTypes = {
-  /**
-   * The content of the button.
-   */
-  children: PropTypes.node.isRequired,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The color of the component. It supports those theme colors that make sense for this component.
-   */
-  color: PropTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the button will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the  keyboard focus ripple will be disabled.
-   * `disableRipple` must also be true.
-   */
-  disableFocusRipple: PropTypes.bool,
-  /**
-   * If `true`, the ripple effect will be disabled.
-   */
-  disableRipple: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  focusVisibleClassName: PropTypes.string,
-  /**
-   * If `true`, the button will take up the full width of its container.
-   */
-  fullWidth: PropTypes.bool,
-  /**
-   * The URL to link to when the button is clicked.
-   * If defined, an `a` element will be used as the root node.
-   */
-  href: PropTypes.string,
-  /**
-   * If `true`, and `variant` is `'fab'`, will use mini floating action button styling.
-   */
-  mini: PropTypes.bool,
-  /**
-   * The size of the button.
-   * `small` is equivalent to the dense button styling.
-   */
-  size: PropTypes.oneOf(['small', 'medium', 'large']),
-  /**
-   * @ignore
-   */
-  type: PropTypes.string,
-  /**
-   * The variant to use.
-   */
-  variant: PropTypes.oneOf([
-    'text',
-    'flat',
-    'outlined',
-    'contained',
-    'raised',
-    'fab',
-    'extendedFab',
-  ]),
-};
-
 Button.defaultProps = {
   color: 'default',
   component: 'button',
@@ -402,4 +328,4 @@ Button.defaultProps = {
   variant: 'text',
 };
 
-export default withStyles(styles, { name: 'MuiButton' })(Button);
+export default Button;

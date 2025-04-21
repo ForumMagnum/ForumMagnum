@@ -2,13 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { isFilled, isAdornedStart } from '../InputBase/utils';
-import withStyles from '../styles/withStyles';
 import { capitalize } from '../utils/helpers';
 import { isMuiElement } from '../utils/reactHelpers';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
+import { StandardProps } from '..';
 
 export interface FormControlProps
   extends StandardProps<React.HtmlHTMLAttributes<HTMLDivElement>, FormControlClassKey> {
-  component?: React.ReactType<FormControlProps>;
+  component?: React.ComponentType<FormControlProps>;
   disabled?: boolean;
   error?: boolean;
   fullWidth?: boolean;
@@ -20,7 +21,7 @@ export interface FormControlProps
 
 export type FormControlClassKey = 'root' | 'marginNormal' | 'marginDense' | 'fullWidth';
 
-export const styles = {
+export const styles = defineStyles("MuiFormControl", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'inline-flex',
@@ -47,7 +48,7 @@ export const styles = {
   fullWidth: {
     width: '100%',
   },
-};
+}), {stylePriority: -10});
 
 /**
  * Provides context such as filled/focused/error/required for form inputs.
@@ -59,9 +60,13 @@ export const styles = {
  *  - Input
  *  - InputLabel
  */
-class FormControl extends React.Component<FormControlProps> {
-  constructor(props) {
-    super();
+class FormControl extends React.Component<FormControlProps, {
+  adornedStart: boolean
+  filled: boolean
+  focused: boolean
+}> {
+  constructor(props: FormControlProps) {
+    super(props);
 
     this.state = {
       adornedStart: false,
@@ -163,51 +168,6 @@ class FormControl extends React.Component<FormControlProps> {
   }
 }
 
-FormControl.propTypes = {
-  /**
-   * The contents of the form control.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the label, input and helper text should be displayed in a disabled state.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the label should be displayed in an error state.
-   */
-  error: PropTypes.bool,
-  /**
-   * If `true`, the component will take up the full width of its container.
-   */
-  fullWidth: PropTypes.bool,
-  /**
-   * If `dense` or `normal`, will adjust vertical spacing of this and contained components.
-   */
-  margin: PropTypes.oneOf(['none', 'dense', 'normal']),
-  /**
-   * If `true`, the label will indicate that the input is required.
-   */
-  required: PropTypes.bool,
-  /**
-   * The variant to use.
-   */
-  variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
-
 FormControl.defaultProps = {
   component: 'div',
   disabled: false,
@@ -222,4 +182,4 @@ FormControl.childContextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiFormControl' })(FormControl);
+export default withStyles(styles, FormControl);

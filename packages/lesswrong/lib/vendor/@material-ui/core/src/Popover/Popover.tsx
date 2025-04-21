@@ -1,17 +1,59 @@
 // @inheritedComponent Modal
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import warning from 'warning';
 import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
 import EventListener from 'react-event-listener';
 import ownerDocument from '../utils/ownerDocument';
 import ownerWindow from '../utils/ownerWindow';
-import withStyles from '../styles/withStyles';
 import Modal from '../Modal';
 import Grow from '../Grow';
 import Paper from '../Paper';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
+import { StandardProps } from '..';
+import { ModalProps } from '../Modal/Modal';
+import { TransitionHandlerProps, TransitionProps } from '../transitions/transition';
+import { PaperProps } from '../Paper/Paper';
+
+export interface PopoverOrigin {
+  horizontal: 'left' | 'center' | 'right' | number;
+  vertical: 'top' | 'center' | 'bottom' | number;
+}
+
+export interface PopoverPosition {
+  top: number;
+  left: number;
+}
+
+export type PopoverReference = 'anchorEl' | 'anchorPosition' | 'none';
+
+export interface PopoverProps
+  extends StandardProps<ModalProps & Partial<TransitionHandlerProps>, PopoverClassKey, 'children'> {
+  action?: (actions: PopoverActions) => void;
+  anchorEl?: null | HTMLElement | ((element: HTMLElement) => HTMLElement);
+  anchorOrigin?: PopoverOrigin;
+  anchorPosition?: PopoverPosition;
+  anchorReference?: PopoverReference;
+  children?: React.ReactNode;
+  elevation?: number;
+  getContentAnchorEl?: null | ((element: HTMLElement) => HTMLElement);
+  marginThreshold?: number;
+  modal?: boolean;
+  ModalClasses?: ModalProps['classes'];
+  PaperProps?: Partial<PaperProps>;
+  role?: string;
+  transformOrigin?: PopoverOrigin;
+  TransitionComponent?: React.ComponentType;
+  transitionDuration?: TransitionProps['timeout'] | 'auto';
+  TransitionProps?: TransitionProps;
+}
+
+export type PopoverClassKey = 'paper';
+
+export interface PopoverActions {
+  updatePosition(): void;
+}
 
 function getOffsetTop(rect, vertical) {
   let offset = 0;
@@ -65,7 +107,7 @@ function getAnchorEl(anchorEl) {
   return typeof anchorEl === 'function' ? anchorEl() : anchorEl;
 }
 
-export const styles = {
+export const styles = defineStyles("MuiPopover", theme => ({
   /* Styles applied to the `Paper` component. */
   paper: {
     position: 'absolute',
@@ -80,9 +122,9 @@ export const styles = {
     // We disable the focus ring for mouse, touch and keyboard users.
     outline: 'none',
   },
-};
+}), {stylePriority: -10});
 
-class Popover extends React.Component {
+class Popover extends React.Component<PopoverProps> {
   handleGetOffsetTop = getOffsetTop;
 
   handleGetOffsetLeft = getOffsetLeft;
@@ -345,166 +387,6 @@ class Popover extends React.Component {
   }
 }
 
-Popover.propTypes = {
-  /**
-   * This is callback property. It's called by the component on mount.
-   * This is useful when you want to trigger an action programmatically.
-   * It currently only supports updatePosition() action.
-   *
-   * @param {object} actions This object contains all posible actions
-   * that can be triggered programmatically.
-   */
-  action: PropTypes.func,
-  /**
-   * This is the DOM element, or a function that returns the DOM element,
-   * that may be used to set the position of the popover.
-   */
-  anchorEl: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  /**
-   * This is the point on the anchor where the popover's
-   * `anchorEl` will attach to. This is not used when the
-   * anchorReference is 'anchorPosition'.
-   *
-   * Options:
-   * vertical: [top, center, bottom];
-   * horizontal: [left, center, right].
-   */
-  anchorOrigin: PropTypes.shape({
-    horizontal: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.oneOf(['left', 'center', 'right']),
-    ]).isRequired,
-    vertical: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['top', 'center', 'bottom'])])
-      .isRequired,
-  }),
-  /**
-   * This is the position that may be used
-   * to set the position of the popover.
-   * The coordinates are relative to
-   * the application's client area.
-   */
-  anchorPosition: PropTypes.shape({
-    left: PropTypes.number.isRequired,
-    top: PropTypes.number.isRequired,
-  }),
-  /*
-   * This determines which anchor prop to refer to to set
-   * the position of the popover.
-   */
-  anchorReference: PropTypes.oneOf(['anchorEl', 'anchorPosition', 'none']),
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * A node, component instance, or function that returns either.
-   * The `container` will passed to the Modal component.
-   * By default, it uses the body of the anchorEl's top-level document object,
-   * so it's simply `document.body` most of the time.
-   */
-  container: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  /**
-   * The elevation of the popover.
-   */
-  elevation: PropTypes.number,
-  /**
-   * This function is called in order to retrieve the content anchor element.
-   * It's the opposite of the `anchorEl` property.
-   * The content anchor element should be an element inside the popover.
-   * It's used to correctly scroll and set the position of the popover.
-   * The positioning strategy tries to make the content anchor element just above the
-   * anchor element.
-   */
-  getContentAnchorEl: PropTypes.func,
-  /**
-   * Specifies how close to the edge of the window the popover can appear.
-   */
-  marginThreshold: PropTypes.number,
-  /**
-   * `classes` property applied to the [`Modal`](/api/modal) element.
-   */
-  ModalClasses: PropTypes.object,
-  /**
-   * Callback fired when the component requests to be closed.
-   *
-   * @param {object} event The event source of the callback.
-   */
-  onClose: PropTypes.func,
-  /**
-   * Callback fired before the component is entering.
-   */
-  onEnter: PropTypes.func,
-  /**
-   * Callback fired when the component has entered.
-   */
-  onEntered: PropTypes.func,
-  /**
-   * Callback fired when the component is entering.
-   */
-  onEntering: PropTypes.func,
-  /**
-   * Callback fired before the component is exiting.
-   */
-  onExit: PropTypes.func,
-  /**
-   * Callback fired when the component has exited.
-   */
-  onExited: PropTypes.func,
-  /**
-   * Callback fired when the component is exiting.
-   */
-  onExiting: PropTypes.func,
-  /**
-   * If `true`, the popover is visible.
-   */
-  open: PropTypes.bool.isRequired,
-  /**
-   * Properties applied to the [`Paper`](/api/paper) element.
-   */
-  PaperProps: PropTypes.object,
-  /**
-   * @ignore
-   */
-  role: PropTypes.string,
-  /**
-   * This is the point on the popover which
-   * will attach to the anchor's origin.
-   *
-   * Options:
-   * vertical: [top, center, bottom, x(px)];
-   * horizontal: [left, center, right, x(px)].
-   */
-  transformOrigin: PropTypes.shape({
-    horizontal: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.oneOf(['left', 'center', 'right']),
-    ]).isRequired,
-    vertical: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['top', 'center', 'bottom'])])
-      .isRequired,
-  }),
-  /**
-   * Transition component.
-   */
-  TransitionComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * Set to 'auto' to automatically calculate transition time based on height.
-   */
-  transitionDuration: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
-    PropTypes.oneOf(['auto']),
-  ]),
-  /**
-   * Properties applied to the `Transition` element.
-   */
-  TransitionProps: PropTypes.object,
-};
-
 Popover.defaultProps = {
   anchorReference: 'anchorEl',
   anchorOrigin: {
@@ -521,4 +403,4 @@ Popover.defaultProps = {
   transitionDuration: 'auto',
 };
 
-export default withStyles(styles, { name: 'MuiPopover' })(Popover);
+export default withStyles(styles, Popover);

@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import ButtonBase from '../ButtonBase';
 import { isMuiElement } from '../utils/reactHelpers';
+import { StandardProps } from '..';
+import { ButtonBaseProps } from '../ButtonBase/ButtonBase';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface ListItemProps
   extends StandardProps<
@@ -12,8 +14,8 @@ export interface ListItemProps
       'component'
     > {
   button?: boolean;
-  component?: React.ReactType<ListItemProps>;
-  ContainerComponent?: React.ReactType<React.HTMLAttributes<HTMLDivElement>>;
+  component?: React.ComponentType<ListItemProps>;
+  ContainerComponent?: React.ComponentType<React.HTMLAttributes<HTMLDivElement>>;
   ContainerProps?: React.HTMLAttributes<HTMLDivElement>;
   dense?: boolean;
   disabled?: boolean;
@@ -36,7 +38,7 @@ export type ListItemClassKey =
   | 'secondaryAction'
   | 'selected';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiListItem", theme => ({
   /* Styles applied to the (normally root) `component` element. May be wrapped by a `container`. */
   root: {
     display: 'flex',
@@ -102,7 +104,7 @@ export const styles = theme => ({
   },
   /* Styles applied to the root element if `selected={true}`. */
   selected: {},
-});
+}), {stylePriority: -10});
 
 class ListItem extends React.Component<ListItemProps> {
   getChildContext() {
@@ -190,65 +192,6 @@ class ListItem extends React.Component<ListItemProps> {
   }
 }
 
-ListItem.propTypes = {
-  /**
-   * If `true`, the list item will be a button (using `ButtonBase`).
-   */
-  button: PropTypes.bool,
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   * By default, it's a `li` when `button` is `false` and a `div` when `button` is `true`.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * The container component used when a `ListItemSecondaryAction` is rendered.
-   */
-  ContainerComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * Properties applied to the container element when the component
-   * is used to display a `ListItemSecondaryAction`.
-   */
-  ContainerProps: PropTypes.object,
-  /**
-   * If `true`, compact vertical padding designed for keyboard and mouse input will be used.
-   */
-  dense: PropTypes.bool,
-  /**
-   * If `true`, the list item will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the left and right padding is removed.
-   */
-  disableGutters: PropTypes.bool,
-  /**
-   * If `true`, a 1px light border is added to the bottom of the list item.
-   */
-  divider: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  focusVisibleClassName: PropTypes.string,
-  /**
-   * Use to apply selected styling.
-   */
-  selected: PropTypes.bool,
-};
-
 ListItem.defaultProps = {
   button: false,
   ContainerComponent: 'li',
@@ -267,4 +210,4 @@ ListItem.childContextTypes = {
   dense: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiListItem' })(ListItem);
+export default withStyles(styles, ListItem);

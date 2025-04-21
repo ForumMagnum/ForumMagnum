@@ -1,13 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import SwitchBase from '../internal/SwitchBase';
+import SwitchBase, { SwitchBaseClassKey, SwitchBaseProps } from '../internal/SwitchBase';
 import RadioButtonUncheckedIcon from '../internal/svg-icons/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '../internal/svg-icons/RadioButtonChecked';
 import { capitalize } from '../utils/helpers';
-import withStyles from '../styles/withStyles';
+import { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-export const styles = theme => ({
+export interface RadioProps
+  extends StandardProps<SwitchBaseProps, RadioClassKey, 'checkedIcon' | 'color' | 'icon'> {
+  checkedIcon?: React.ReactNode;
+  color?: 'primary' | 'secondary' | 'default';
+  icon?: React.ReactNode;
+}
+
+export type RadioClassKey = SwitchBaseClassKey | 'colorPrimary' | 'colorSecondary';
+
+
+export const styles = defineStyles("MuiRadio", theme => ({
   /* Styles applied to the root element. */
   root: {
     color: theme.palette.text.secondary,
@@ -34,10 +44,11 @@ export const styles = theme => ({
       color: theme.palette.action.disabled,
     },
   },
-});
+}), {stylePriority: -10});
 
-function Radio(props) {
-  const { classes, color, ...other } = props;
+function Radio(props: RadioProps) {
+  const { classes: classesOverride, color, ...other } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return (
     <SwitchBase
@@ -54,68 +65,8 @@ function Radio(props) {
   );
 }
 
-Radio.propTypes = {
-  /**
-   * If `true`, the component is checked.
-   */
-  checked: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
-  /**
-   * The icon to display when the component is checked.
-   */
-  checkedIcon: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * The color of the component. It supports those theme colors that make sense for this component.
-   */
-  color: PropTypes.oneOf(['primary', 'secondary', 'default']),
-  /**
-   * If `true`, the switch will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the ripple effect will be disabled.
-   */
-  disableRipple: PropTypes.bool,
-  /**
-   * The icon to display when the component is unchecked.
-   */
-  icon: PropTypes.node,
-  /**
-   * The id of the `input` element.
-   */
-  id: PropTypes.string,
-  /**
-   * Attributes applied to the `input` element.
-   */
-  inputProps: PropTypes.object,
-  /**
-   * Use that property to pass a ref callback to the native input component.
-   */
-  inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  /**
-   * Callback fired when the state is changed.
-   *
-   * @param {object} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value`.
-   * @param {boolean} checked The `checked` value of the switch
-   */
-  onChange: PropTypes.func,
-  /**
-   * The input component property `type`.
-   */
-  type: PropTypes.string,
-  /**
-   * The value of the component.
-   */
-  value: PropTypes.string,
-};
-
 Radio.defaultProps = {
   color: 'secondary',
 };
 
-export default withStyles(styles, { name: 'MuiRadio' })(Radio);
+export default Radio;

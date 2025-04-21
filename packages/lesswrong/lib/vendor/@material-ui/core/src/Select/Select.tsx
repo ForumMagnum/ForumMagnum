@@ -2,8 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import SelectInput from './SelectInput';
-import withStyles from '../styles/withStyles';
+import SelectInput, { SelectInputProps } from './SelectInput';
 import mergeClasses from '../styles/mergeClasses';
 import ArrowDropDownIcon from '../internal/svg-icons/ArrowDropDown';
 // To replace with InputBase in v4.0.0
@@ -11,14 +10,46 @@ import Input from '../Input';
 import { formControlState } from '../InputBase/InputBase';
 import { styles as nativeSelectStyles } from '../NativeSelect/NativeSelect';
 import NativeSelectInput from '../NativeSelect/NativeSelectInput';
+import { StandardProps } from '..';
+import { InputProps } from '../Input/Input';
+import { MenuProps } from '../Menu/Menu';
+import { useStyles } from '@/components/hooks/useStyles';
+
+export interface SelectProps
+  extends StandardProps<InputProps, SelectClassKey, 'value' | 'onChange'>,
+    Pick<SelectInputProps, 'onChange'> {
+  autoWidth?: boolean;
+  displayEmpty?: boolean;
+  IconComponent?: React.ComponentType;
+  input?: React.ReactNode;
+  MenuProps?: Partial<MenuProps>;
+  multiple?: boolean;
+  native?: boolean;
+  onClose?: (event: React.ChangeEvent<{}>) => void;
+  onOpen?: (event: React.ChangeEvent<{}>) => void;
+  open?: boolean;
+  renderValue?: (value: SelectProps['value']) => React.ReactNode;
+  SelectDisplayProps?: React.HTMLAttributes<HTMLDivElement>;
+  value?: Array<string | number | boolean> | string | number | boolean;
+  variant?: 'standard' | 'outlined' | 'filled';
+}
+
+export type SelectClassKey =
+  | 'root'
+  | 'select'
+  | 'selectMenu'
+  | 'disabled'
+  | 'icon'
+  | 'filled'
+  | 'outlined';
 
 export const styles = nativeSelectStyles;
 
-function Select(props, context) {
+function Select(props: SelectProps, context) {
   const {
     autoWidth,
     children,
-    classes,
+    classes: classesOverride,
     displayEmpty,
     IconComponent,
     input,
@@ -34,6 +65,7 @@ function Select(props, context) {
     variant,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
 
   const inputComponent = native ? NativeSelectInput : SelectInput;
   const fcs = formControlState({
@@ -78,108 +110,6 @@ function Select(props, context) {
   });
 }
 
-Select.propTypes = {
-  /**
-   * If true, the width of the popover will automatically be set according to the items inside the
-   * menu, otherwise it will be at least the width of the select input.
-   */
-  autoWidth: PropTypes.bool,
-  /**
-   * The option elements to populate the select with.
-   * Can be some `MenuItem` when `native` is false and `option` when `native` is true.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * If `true`, the selected item is displayed even if its value is empty.
-   * You can only use it when the `native` property is `false` (default).
-   */
-  displayEmpty: PropTypes.bool,
-  /**
-   * The icon that displays the arrow.
-   */
-  IconComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * An `Input` element; does not have to be a material-ui specific `Input`.
-   */
-  input: PropTypes.element,
-  /**
-   * Attributes applied to the `input` element.
-   * When `native` is `true`, the attributes are applied on the `select` element.
-   */
-  inputProps: PropTypes.object,
-  /**
-   * Properties applied to the [`Menu`](/api/menu) element.
-   */
-  MenuProps: PropTypes.object,
-  /**
-   * If true, `value` must be an array and the menu will support multiple selections.
-   * You can only use it when the `native` property is `false` (default).
-   */
-  multiple: PropTypes.bool,
-  /**
-   * If `true`, the component will be using a native `select` element.
-   */
-  native: PropTypes.bool,
-  /**
-   * Callback function fired when a menu item is selected.
-   *
-   * @param {object} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value`.
-   * @param {object} [child] The react element that was selected when `native` is `false` (default).
-   */
-  onChange: PropTypes.func,
-  /**
-   * Callback fired when the component requests to be closed.
-   * Use in controlled mode (see open).
-   *
-   * @param {object} event The event source of the callback
-   */
-  onClose: PropTypes.func,
-  /**
-   * Callback fired when the component requests to be opened.
-   * Use in controlled mode (see open).
-   *
-   * @param {object} event The event source of the callback
-   */
-  onOpen: PropTypes.func,
-  /**
-   * Control `select` open state.
-   * You can only use it when the `native` property is `false` (default).
-   */
-  open: PropTypes.bool,
-  /**
-   * Render the selected value.
-   * You can only use it when the `native` property is `false` (default).
-   *
-   * @param {*} value The `value` provided to the component.
-   * @returns {ReactElement}
-   */
-  renderValue: PropTypes.func,
-  /**
-   * Properties applied to the clickable div element.
-   */
-  SelectDisplayProps: PropTypes.object,
-  /**
-   * The input value.
-   * This property is required when the `native` property is `false` (default).
-   */
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.bool,
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool])),
-  ]),
-  /**
-   * The variant to use.
-   */
-  variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
-
 Select.defaultProps = {
   autoWidth: false,
   displayEmpty: false,
@@ -195,4 +125,4 @@ Select.contextTypes = {
 
 Select.muiName = 'Select';
 
-export default withStyles(nativeSelectStyles, { name: 'MuiSelect' })(Select);
+export default Select;

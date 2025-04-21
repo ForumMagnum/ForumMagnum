@@ -1,14 +1,41 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import keycode from 'keycode';
 import classNames from 'classnames';
-import withStyles from '@/lib/vendor/@material-ui/core/src/styles/withStyles';
 import ButtonBase from '@/lib/vendor/@material-ui/core/src/ButtonBase';
 import { fade } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
 import clamp from '../utils/clamp';
+import { StandardProps } from '..';
+import { defineStyles } from '@/components/hooks/useStyles';
+import { withTheme } from '@/components/themes/useTheme';
 
-export const styles = theme => {
+export interface SliderProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, SliderClassKey, 'onChange'> {
+  disabled?: boolean;
+  vertical?: boolean;
+  max?: number;
+  min?: number;
+  step?: number;
+  value?: number;
+  onChange?: (event: React.ChangeEvent<{}>, value: number) => void;
+  onDragEnd?: (event: React.ChangeEvent<{}>) => void;
+  onDragStart?: (event: React.ChangeEvent<{}>) => void;
+}
+
+export type SliderClassKey =
+  | 'root'
+  | 'container'
+  | 'track'
+  | 'trackBefore'
+  | 'trackAfter'
+  | 'thumb'
+  | 'focused'
+  | 'activated'
+  | 'disabled'
+  | 'vertical'
+  | 'jumped';
+
+export const styles = defineStyles("MuiSlider", theme => {
   const commonTransitionsOptions = {
     duration: theme.transitions.duration.shortest,
     easing: theme.transitions.easing.easeOut,
@@ -135,7 +162,7 @@ export const styles = theme => {
     /* Class applied to the root, track and container to trigger JSS nested styles if `vertical`. */
     vertical: {},
   };
-};
+}, {stylePriority: -10});
 
 function percentToValue(percent, min, max) {
   return ((max - min) * percent) / 100 + min;
@@ -184,12 +211,7 @@ function preventPageScrolling(event) {
   event.preventDefault();
 }
 
-/* istanbul ignore if */
-if (process.env.NODE_ENV !== 'production' && !React.createContext) {
-  throw new Error('Material-UI: react@16.3.0 or greater is required.');
-}
-
-class Slider extends React.Component {
+class Slider extends React.Component<SliderProps> {
   state = {
     currentState: 'initial',
   };
@@ -493,74 +515,10 @@ class Slider extends React.Component {
   }
 }
 
-Slider.propTypes = {
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the slider will be disabled.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * The maximum allowed value of the slider.
-   * Should not be equal to min.
-   */
-  max: PropTypes.number,
-  /**
-   * The minimum allowed value of the slider.
-   * Should not be equal to max.
-   */
-  min: PropTypes.number,
-  /**
-   * Callback function that is fired when the slider's value changed.
-   */
-  onChange: PropTypes.func,
-  /**
-   * Callback function that is fired when the slide has stopped moving.
-   */
-  onDragEnd: PropTypes.func,
-  /**
-   * Callback function that is fired when the slider has begun to move.
-   */
-  onDragStart: PropTypes.func,
-  /**
-   * The granularity the slider can step through values.
-   */
-  step: PropTypes.number,
-  /**
-   * @ignore
-   */
-  theme: PropTypes.object.isRequired,
-  /**
-   * The component used for the slider icon.
-   * This is optional, if provided should be a react element.
-   */
-  thumb: PropTypes.element,
-  /**
-   * The value of the slider.
-   */
-  value: PropTypes.number.isRequired,
-  /**
-   * If `true`, the slider will be vertical.
-   */
-  vertical: PropTypes.bool,
-};
-
 Slider.defaultProps = {
   min: 0,
   max: 100,
   component: 'div',
 };
 
-export default withStyles(styles, { name: 'MuiSlider', withTheme: true })(Slider);
+export default withTheme(Slider);

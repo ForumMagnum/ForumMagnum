@@ -1,19 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Typography from '../Typography';
-import withStyles from '../styles/withStyles';
+import { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface InputAdornmentProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, InputAdornmentClassKey> {
-  component?: React.ReactType<InputAdornmentProps>;
+  component?: React.ComponentType<InputAdornmentProps>;
   disableTypography?: boolean;
   position: 'start' | 'end';
+  children?: React.ReactNode
 }
 
 export type InputAdornmentClassKey = 'root' | 'positionStart' | 'positionEnd' | 'filled';
 
-export const styles = {
+export const styles = defineStyles("MuiInputAdornment", theme => ({
   /* Styles applied to the root element. */
   root: {
     display: 'flex',
@@ -35,19 +36,19 @@ export const styles = {
   positionEnd: {
     marginLeft: 8,
   },
-};
+}), {stylePriority: -10});
 
-function InputAdornment(props: InputAdornmentProps) {
+export function InputAdornment(props: InputAdornmentProps) {
   const {
     children,
     component: Component,
-    classes,
     className,
     disableTypography,
     position,
     variant,
     ...other
   } = props;
+  const classes = useStyles(styles, props.classes);
 
   return (
     <Component
@@ -71,42 +72,7 @@ function InputAdornment(props: InputAdornmentProps) {
   );
 }
 
-InputAdornment.propTypes = {
-  /**
-   * The content of the component, normally an `IconButton` or string.
-   */
-  children: PropTypes.node.isRequired,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If children is a string then disable wrapping in a Typography component.
-   */
-  disableTypography: PropTypes.bool,
-  /**
-   * The position this adornment should appear relative to the `Input`.
-   */
-  position: PropTypes.oneOf(['start', 'end']),
-  /**
-   * The variant to use.
-   */
-  variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
-
 InputAdornment.defaultProps = {
   component: 'div',
   disableTypography: false,
 };
-
-export default withStyles(styles, { name: 'MuiInputAdornment' })(InputAdornment);

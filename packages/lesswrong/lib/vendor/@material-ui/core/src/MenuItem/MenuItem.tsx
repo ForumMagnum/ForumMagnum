@@ -1,21 +1,20 @@
 // @inheritedComponent ListItem
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import ListItem from '../ListItem';
 import { StandardProps } from '..';
 import { ListItemProps } from '../ListItem/ListItem';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface MenuItemProps extends StandardProps<ListItemProps, MenuItemClassKey> {
-  component?: React.ReactType<MenuItemProps>;
+  component?: React.ComponentType<MenuItemProps>;
   role?: string;
 }
 
 export type MenuItemClassKey = 'root' | 'selected';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiMenuItem", theme => ({
   /* Styles applied to the root element. */
   root: {
     ...theme.typography.subheading,
@@ -31,10 +30,11 @@ export const styles = theme => ({
   },
   /* Styles applied to the root element if `selected={true}`. */
   selected: {},
-});
+}), {stylePriority: -10});
 
-function MenuItem(props) {
-  const { classes, className, component, selected, role, ...other } = props;
+function MenuItem(props: MenuItemProps) {
+  const { classes: classesOverride, className, component, selected, role, ...other } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return (
     <ListItem
@@ -49,38 +49,9 @@ function MenuItem(props) {
   );
 }
 
-MenuItem.propTypes = {
-  /**
-   * Menu item contents.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * @ignore
-   */
-  role: PropTypes.string,
-  /**
-   * @ignore
-   */
-  selected: PropTypes.bool,
-};
-
 MenuItem.defaultProps = {
   component: 'li',
   role: 'menuitem',
 };
 
-export default withStyles(styles, { name: 'MuiMenuItem' })(MenuItem);
+export default MenuItem;

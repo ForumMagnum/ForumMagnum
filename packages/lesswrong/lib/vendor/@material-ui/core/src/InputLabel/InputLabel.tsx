@@ -3,9 +3,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import FormLabel from '../FormLabel';
 import { formControlState } from '../InputBase/InputBase';
+import { StandardProps } from '..';
+import { FormLabelProps } from '../FormLabel/FormLabel';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface InputLabelProps extends StandardProps<FormLabelProps, InputLabelClassKey> {
   disableAnimation?: boolean;
@@ -28,7 +30,7 @@ export type InputLabelClassKey =
   | 'filled'
   | 'outlined';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiInputLabel", theme => ({
   /* Styles applied to the root element. */
   root: {
     transformOrigin: 'top left',
@@ -90,12 +92,12 @@ export const styles = theme => ({
       transform: 'translate(14px, -6px) scale(0.75)',
     },
   },
-});
+}), {stylePriority: -10});
 
 function InputLabel(props: InputLabelProps, context) {
   const {
     children,
-    classes,
+    classes: classesOverride,
     className: classNameProp,
     disableAnimation,
     FormLabelClasses,
@@ -104,6 +106,7 @@ function InputLabel(props: InputLabelProps, context) {
     variant: variantProp,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
 
   const { muiFormControl } = context;
 
@@ -138,59 +141,6 @@ function InputLabel(props: InputLabelProps, context) {
   );
 }
 
-InputLabel.propTypes = {
-  /**
-   * The contents of the `InputLabel`.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * If `true`, the transition animation is disabled.
-   */
-  disableAnimation: PropTypes.bool,
-  /**
-   * If `true`, apply disabled class.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the label will be displayed in an error state.
-   */
-  error: PropTypes.bool,
-  /**
-   * If `true`, the input of this label is focused.
-   */
-  focused: PropTypes.bool,
-  /**
-   * `classes` property applied to the [`FormLabel`](/api/form-label) element.
-   */
-  FormLabelClasses: PropTypes.object,
-  /**
-   * If `dense`, will adjust vertical spacing. This is normally obtained via context from
-   * FormControl.
-   */
-  margin: PropTypes.oneOf(['dense']),
-  /**
-   * if `true`, the label will indicate that the input is required.
-   */
-  required: PropTypes.bool,
-  /**
-   * If `true`, the label is shrunk.
-   */
-  shrink: PropTypes.bool,
-  /**
-   * The variant to use.
-   */
-  variant: PropTypes.oneOf(['standard', 'outlined', 'filled']),
-};
-
 InputLabel.defaultProps = {
   disableAnimation: false,
 };
@@ -199,4 +149,4 @@ InputLabel.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiInputLabel' })(InputLabel);
+export default InputLabel;

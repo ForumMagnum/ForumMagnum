@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import exactProp from '../utils/exactProp';
 import { setRef } from '../utils/reactHelpers';
+
+export interface RootRefProps<T = any> {
+  rootRef?: ((instance: T | null) => void) | React.RefObject<T>;
+}
 
 /**
  * Helper component to allow attaching a ref to a
@@ -34,7 +36,7 @@ import { setRef } from '../utils/reactHelpers';
  * }
  * ```
  */
-class RootRef extends React.Component {
+class RootRef extends React.Component<RootRefProps> {
   componentDidMount() {
     this.ref = ReactDOM.findDOMNode(this);
     setRef(this.props.rootRef, this.ref);
@@ -62,19 +64,5 @@ class RootRef extends React.Component {
     return this.props.children;
   }
 }
-
-RootRef.propTypes = {
-  /**
-   * The wrapped element.
-   */
-  children: PropTypes.element.isRequired,
-  /**
-   * Provide a way to access the DOM node of the wrapped element.
-   * You can provide a callback ref or a `React.createRef()` ref.
-   */
-  rootRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,
-};
-
-RootRef.propTypes = exactProp(RootRef.propTypes);
 
 export default RootRef;

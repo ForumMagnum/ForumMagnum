@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useLayoutEffect } from "react";
+import React, { createContext, forwardRef, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from "jss";
 import { jssPreset } from "@/lib/vendor/@material-ui/core/src/styles";
 import { isClient } from "@/lib/executionEnvironment";
+import { hookToHoc } from "@/lib/hocUtils";
 
 export type StylesContextType = {
   theme: ThemeType
@@ -106,7 +107,7 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
   }
 }
 
-export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyles<T> => {
+export const useStyles = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
   const stylesContext = useContext(StylesContext);
 
   if (bundleIsServer) {
@@ -135,7 +136,20 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyl
   if (!styles.nameProxy) {
     styles.nameProxy = classNameProxy(styles.name+"-");
   }
-  return styles.nameProxy;
+  if (overrideClasses) {
+    return overrideClassesProxy(styles.name+"-", overrideClasses)
+  } else {
+    return styles.nameProxy;
+  }
+}
+
+
+export const withStyles = (styles: StyleDefinition, Component: AnyBecauseHard) => {
+  return forwardRef(function WithStylesHoc(props: AnyBecauseHard, ref: AnyBecauseHard) {
+    const { classes: classesOverrides } = props;
+    const classes = useStyles(styles, classesOverrides);
+    return <Component ref={ref} {...props} classes={classes} />
+  })
 }
 
 export function getClassName<T extends StyleDefinition>(
@@ -177,6 +191,22 @@ export const classNameProxy = <T extends string>(prefix: string): ClassNameProxy
   });
 }
 
+
+export const overrideClassesProxy = <T extends string>(prefix: string, overrideClasses: Partial<JssStyles<T>>): ClassNameProxy<T> => {
+  return new Proxy({}, {
+    get: function(obj: any, prop: any) {
+      if (typeof prop === "string") {
+        if (prop in overrideClasses) {
+          return `${prefix}${prop} ${overrideClasses[prop as T]!}`;
+        } else {
+          return prefix+prop;
+        }
+      } else {
+        return prefix+'invalid';
+      }
+    }
+  });
+}
 
 function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefinition): HTMLStyleElement {
   const stylesStr = styleNodeToString(theme, styleDefinition);

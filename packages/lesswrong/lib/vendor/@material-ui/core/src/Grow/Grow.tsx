@@ -2,16 +2,14 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Transition from 'react-transition-group/Transition';
-import withTheme from '../styles/withTheme';
+import Transition, { TransitionProps } from 'react-transition-group/Transition';
 import { reflow, getTransitionProps } from '../transitions/utils';
+import { withTheme } from '@/components/themes/useTheme';
 
 export interface GrowProps extends Omit<TransitionProps, 'timeout'> {
   theme?: Theme;
   timeout?: TransitionProps['timeout'] | 'auto';
 }
-
-declare const Grow: React.ComponentType<GrowProps>;
 
 
 function getScale(value) {
@@ -36,6 +34,8 @@ const styles = {
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
 class Grow extends React.Component<GrowProps> {
+  timer: ReturnType<typeof setTimeout>
+
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
@@ -143,48 +143,10 @@ class Grow extends React.Component<GrowProps> {
   }
 }
 
-Grow.propTypes = {
-  /**
-   * A single child content element.
-   */
-  children: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * If `true`, show the component; triggers the enter or exit animation.
-   */
-  in: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  onEnter: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onExit: PropTypes.func,
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
-  /**
-   * @ignore
-   */
-  theme: PropTypes.object.isRequired,
-  /**
-   * The duration for the transition, in milliseconds.
-   * You may specify a single timeout for all transitions, or individually with an object.
-   *
-   * Set to 'auto' to automatically calculate transition time based on height.
-   */
-  timeout: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
-    PropTypes.oneOf(['auto']),
-  ]),
-};
-
 Grow.defaultProps = {
   timeout: 'auto',
 };
 
 Grow.muiSupportAuto = true;
 
-export default withTheme()(Grow);
+export default withTheme(Grow);

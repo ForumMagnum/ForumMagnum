@@ -1,10 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import Fade from '../Fade';
 import type { StandardProps } from '..';
 import type { FadeProps } from '../Fade/Fade';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import type { TransitionProps } from '../transitions/transition';
 
 export interface BackdropProps
   extends StandardProps<
@@ -19,7 +19,7 @@ export interface BackdropProps
 
 export type BackdropClassKey = 'root' | 'invisible';
 
-export const styles = {
+export const styles = defineStyles("MuiBackdrop", theme => ({
   /* Styles applied to the root element. */
   root: {
     zIndex: -1,
@@ -38,10 +38,11 @@ export const styles = {
   invisible: {
     backgroundColor: 'transparent',
   },
-};
+}), {stylePriority: -10});
 
 function Backdrop(props: BackdropProps) {
-  const { classes, className, invisible, open, transitionDuration, ...other } = props;
+  const { classes: classesOverrides, className, invisible, open, transitionDuration, ...other } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   return (
     <Fade in={open} timeout={transitionDuration} {...other}>
@@ -60,37 +61,8 @@ function Backdrop(props: BackdropProps) {
   );
 }
 
-Backdrop.propTypes = {
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * If `true`, the backdrop is invisible.
-   * It can be used when rendering a popover or a custom select component.
-   */
-  invisible: PropTypes.bool,
-  /**
-   * If `true`, the backdrop is open.
-   */
-  open: PropTypes.bool.isRequired,
-  /**
-   * The duration for the transition, in milliseconds.
-   * You may specify a single timeout for all transitions, or individually with an object.
-   */
-  transitionDuration: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
-  ]),
-};
-
 Backdrop.defaultProps = {
   invisible: false,
 };
 
-export default withStyles(styles, { name: 'MuiBackdrop' })(Backdrop);
+export default Backdrop;

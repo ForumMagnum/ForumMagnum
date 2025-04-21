@@ -2,24 +2,22 @@
 
 import React from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import Transition, { type TransitionProps } from 'react-transition-group/Transition';
-import withStyles from '../styles/withStyles';
 import { duration } from '../styles/transitions';
 import { getTransitionProps } from '../transitions/utils';
 import type { StandardProps } from '..';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface CollapseProps extends StandardProps<TransitionProps, CollapseClassKey, 'timeout'> {
   children?: React.ReactNode;
   collapsedHeight?: string;
-  component?: React.ReactType<CollapseProps>;
-  theme?: Theme;
+  component?: React.ComponentType<CollapseProps>;
   timeout?: TransitionProps['timeout'] | 'auto';
 }
 
 export type CollapseClassKey = 'container' | 'entered' | 'wrapper' | 'wrapperInner';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiCollapse", theme => ({
   /* Styles applied to the container element. */
   container: {
     height: 0,
@@ -39,7 +37,7 @@ export const styles = theme => ({
   wrapperInner: {
     width: '100%',
   },
-});
+}), {stylePriority: -10});
 
 /**
  * The Collapse transition is used by the
@@ -191,74 +189,6 @@ class Collapse extends React.Component<CollapseProps> {
   }
 }
 
-Collapse.propTypes = {
-  /**
-   * The content node to be collapsed.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The height of the container when collapsed.
-   */
-  collapsedHeight: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the component will transition in.
-   */
-  in: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  onEnter: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onEntered: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onEntering: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onExit: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onExiting: PropTypes.func,
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
-  /**
-   * @ignore
-   */
-  theme: PropTypes.object.isRequired,
-  /**
-   * The duration for the transition, in milliseconds.
-   * You may specify a single timeout for all transitions, or individually with an object.
-   *
-   * Set to 'auto' to automatically calculate transition time based on height.
-   */
-  timeout: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
-    PropTypes.oneOf(['auto']),
-  ]),
-};
-
 Collapse.defaultProps = {
   collapsedHeight: '0px',
   component: 'div',
@@ -267,7 +197,4 @@ Collapse.defaultProps = {
 
 Collapse.muiSupportAuto = true;
 
-export default withStyles(styles, {
-  withTheme: true,
-  name: 'MuiCollapse',
-})(Collapse);
+export default withStyles(styles, Collapse);

@@ -4875,6 +4875,11 @@
   resolved "https://registry.npmjs.org/@types/d3-time/-/d3-time-2.1.1.tgz"
   integrity sha512-9MVYlmIgmRR31C5b4FVSWtuMmBHh2mOWQYfl7XAYOa8dsnb7iEmUmRSWSFgXFtkjxO65d7hTUHQC+RhR/9IWFg==
 
+"@types/debounce@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@types/debounce/-/debounce-1.2.4.tgz#cb7e85d9ad5ababfac2f27183e8ac8b576b2abb3"
+  integrity sha512-jBqiORIzKDOToaF63Fm//haOCHuwQuLa2202RK4MozpA6lh93eCBc+/8+wZn5OzjJt3ySdc+74SXWXB55Ewtyw==
+
 "@types/diff-match-patch@^1.0.34":
   version "1.0.34"
   resolved "https://registry.npmjs.org/@types/diff-match-patch/-/diff-match-patch-1.0.34.tgz"
@@ -5595,6 +5600,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-event-listener@^0.4.15":
+  version "0.4.15"
+  resolved "https://registry.yarnpkg.com/@types/react-event-listener/-/react-event-listener-0.4.15.tgz#50531f0592a5085e9710aa4ef8c48820b314d43b"
+  integrity sha512-pOAZRbAioW0z1ZTRecWfwKLrJvvVpYwHZReCCUMc7HW/7rdSwvRFBc702E0NLHFhoS6xjolUqsoJdAkpwGgaYg==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-geosuggest@^2.7.10":
   version "2.7.10"
   resolved "https://registry.npmjs.org/@types/react-geosuggest/-/react-geosuggest-2.7.10.tgz"
@@ -5858,6 +5870,11 @@
   integrity sha512-s8pFUBSyFil9lPtBbBUlqK1fEPeVIX2nSndRtYEHLs2E2CWR9heAQlmAHBK9f1vVZ+aF7lAwlLcl26bsulJHig==
   dependencies:
     gl-matrix "^3.2.0"
+
+"@types/warning@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@types/warning/-/warning-3.0.3.tgz#d1884c8cc4a426d1ac117ca2611bf333834c6798"
+  integrity sha512-D1XC7WK8K+zZEveUPY+cf4+kgauk8N4eHr/XIHXGlGYkHLud6hK9lYfZk1ry1TNh798cZUCgb6MqGEG8DkJt6Q==
 
 "@types/websocket@1.0.1":
   version "1.0.1"

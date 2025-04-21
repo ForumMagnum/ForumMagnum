@@ -1,12 +1,16 @@
 // @inheritedComponent Popover
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import getScrollbarSize from 'dom-helpers/util/scrollbarSize';
-import withStyles from '../styles/withStyles';
 import Popover from '../Popover';
 import MenuList from '../MenuList';
+import { StandardProps } from '..';
+import { PopoverProps } from '../Popover/Popover';
+import { TransitionHandlerProps, TransitionProps } from '../transitions/transition';
+import { MenuListProps } from '../MenuList/MenuList';
+import { PaperProps } from '../Paper/Paper';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface MenuProps
   extends StandardProps<PopoverProps & Partial<TransitionHandlerProps>, MenuClassKey> {
@@ -29,7 +33,7 @@ const LTR_ORIGIN = {
   horizontal: 'left',
 };
 
-export const styles = {
+export const styles = defineStyles("MuiMenu", theme => ({
   /* Styles applied to the `Paper` component. */
   paper: {
     // specZ: The maximum height of a simple menu should be one or more rows less than the view
@@ -39,7 +43,7 @@ export const styles = {
     // Add iOS momentum scrolling.
     WebkitOverflowScrolling: 'touch',
   },
-};
+}), {stylePriority: -10});
 
 class Menu extends React.Component<MenuProps> {
   componentDidMount() {
@@ -144,87 +148,9 @@ class Menu extends React.Component<MenuProps> {
   }
 }
 
-Menu.propTypes = {
-  /**
-   * The DOM element used to set the position of the menu.
-   */
-  anchorEl: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  /**
-   * Menu contents, normally `MenuItem`s.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * If `true`, the selected / first menu item will not be auto focused.
-   */
-  disableAutoFocusItem: PropTypes.bool,
-  /**
-   * Properties applied to the [`MenuList`](/api/menu-list) element.
-   */
-  MenuListProps: PropTypes.object,
-  /**
-   * Callback fired when the component requests to be closed.
-   *
-   * @param {object} event The event source of the callback
-   */
-  onClose: PropTypes.func,
-  /**
-   * Callback fired before the Menu enters.
-   */
-  onEnter: PropTypes.func,
-  /**
-   * Callback fired when the Menu has entered.
-   */
-  onEntered: PropTypes.func,
-  /**
-   * Callback fired when the Menu is entering.
-   */
-  onEntering: PropTypes.func,
-  /**
-   * Callback fired before the Menu exits.
-   */
-  onExit: PropTypes.func,
-  /**
-   * Callback fired when the Menu has exited.
-   */
-  onExited: PropTypes.func,
-  /**
-   * Callback fired when the Menu is exiting.
-   */
-  onExiting: PropTypes.func,
-  /**
-   * If `true`, the menu is visible.
-   */
-  open: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  PaperProps: PropTypes.object,
-  /**
-   * `classes` property applied to the [`Popover`](/api/popover) element.
-   */
-  PopoverClasses: PropTypes.object,
-  /**
-   * @ignore
-   */
-  theme: PropTypes.object.isRequired,
-  /**
-   * The length of the transition in `ms`, or 'auto'
-   */
-  transitionDuration: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
-    PropTypes.oneOf(['auto']),
-  ]),
-};
-
 Menu.defaultProps = {
   disableAutoFocusItem: false,
   transitionDuration: 'auto',
 };
 
-export default withStyles(styles, { name: 'MuiMenu', withTheme: true })(Menu);
+export default withStyles(styles, Menu);

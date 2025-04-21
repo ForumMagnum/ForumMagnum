@@ -1,13 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import { capitalize } from '../utils/helpers';
+import { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface ListSubheaderProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, ListSubheaderClassKey> {
   color?: 'default' | 'primary' | 'inherit';
-  component?: React.ReactType<ListSubheaderProps>;
+  component?: React.ComponentType<ListSubheaderProps>;
   disableGutters?: boolean;
   disableSticky?: boolean;
   inset?: boolean;
@@ -21,7 +21,7 @@ export type ListSubheaderClassKey =
   | 'sticky'
   | 'gutters';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiListSubheader", theme => ({
   /* Styles applied to the root element. */
   root: {
     boxSizing: 'border-box',
@@ -53,11 +53,11 @@ export const styles = theme => ({
     zIndex: 1,
     backgroundColor: 'inherit',
   },
-});
+}), {stylePriority: -10});
 
 function ListSubheader(props: ListSubheaderProps) {
   const {
-    classes,
+    classes: classesOverride,
     className,
     color,
     component: Component,
@@ -66,6 +66,7 @@ function ListSubheader(props: ListSubheaderProps) {
     inset,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return (
     <Component
@@ -84,43 +85,6 @@ function ListSubheader(props: ListSubheaderProps) {
   );
 }
 
-ListSubheader.propTypes = {
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The color of the component. It supports those theme colors that make sense for this component.
-   */
-  color: PropTypes.oneOf(['default', 'primary', 'inherit']),
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the List Subheader will not have gutters.
-   */
-  disableGutters: PropTypes.bool,
-  /**
-   * If `true`, the List Subheader will not stick to the top during scroll.
-   */
-  disableSticky: PropTypes.bool,
-  /**
-   * If `true`, the List Subheader will be indented.
-   */
-  inset: PropTypes.bool,
-};
-
 ListSubheader.defaultProps = {
   color: 'default',
   component: 'li',
@@ -131,4 +95,4 @@ ListSubheader.defaultProps = {
 
 ListSubheader.muiName = 'ListSubheader';
 
-export default withStyles(styles, { name: 'MuiListSubheader' })(ListSubheader);
+export default ListSubheader;

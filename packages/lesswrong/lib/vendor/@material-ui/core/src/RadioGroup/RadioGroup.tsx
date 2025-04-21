@@ -5,8 +5,19 @@ import PropTypes from 'prop-types';
 import warning from 'warning';
 import FormGroup from '../FormGroup';
 import { createChainedFunction, find } from '../utils/helpers';
+import { StandardProps } from '..';
+import { FormGroupClassKey, FormGroupProps } from '../FormGroup/FormGroup';
 
-class RadioGroup extends React.Component {
+export interface RadioGroupProps
+  extends StandardProps<FormGroupProps, RadioGroupClassKey, 'onChange'> {
+  name?: string;
+  onChange?: (event: React.ChangeEvent<{}>, value: string) => void;
+  value?: string;
+}
+
+export type RadioGroupClassKey = FormGroupClassKey;
+
+class RadioGroup extends React.Component<RadioGroupProps> {
   radios = [];
 
   focus = () => {
@@ -71,36 +82,5 @@ class RadioGroup extends React.Component {
     );
   }
 }
-
-RadioGroup.propTypes = {
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * The name used to reference the value of the control.
-   */
-  name: PropTypes.string,
-  /**
-   * @ignore
-   */
-  onBlur: PropTypes.func,
-  /**
-   * Callback fired when a radio button is selected.
-   *
-   * @param {object} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value`.
-   * @param {string} value The `value` of the selected radio button
-   */
-  onChange: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onKeyDown: PropTypes.func,
-  /**
-   * Value of the selected radio button.
-   */
-  value: PropTypes.string,
-};
 
 export default RadioGroup;

@@ -1,10 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
 import EventListener from 'react-event-listener';
-import withStyles from '../styles/withStyles';
 import { setRef } from '../utils/reactHelpers';
+import { StandardProps } from '..';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface TextareaProps
   extends StandardProps<
@@ -24,7 +24,7 @@ export type TextareaClassKey = 'root' | 'shadow' | 'textarea';
 
 const ROWS_HEIGHT = 19;
 
-export const styles = {
+export const styles = defineStyles("MuiTextarea", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'relative', // because the shadow has position: 'absolute',
@@ -53,18 +53,20 @@ export const styles = {
     height: 'auto',
     whiteSpace: 'pre-wrap',
   },
-};
+}), {stylePriority: -10});
 
 /**
  * @ignore - internal component.
  */
 class Textarea extends React.Component<TextareaProps> {
+  isControlled: boolean
+
   handleResize = debounce(() => {
     this.syncHeightWithShadow();
   }, 166); // Corresponds to 10 frames at 60 Hz.
 
-  constructor(props) {
-    super();
+  constructor(props: TextareaProps) {
+    super(props);
     this.isControlled = props.value != null;
     // <Input> expects the components it renders to respond to 'value'
     // so that it can check whether they are filled.
@@ -203,48 +205,8 @@ class Textarea extends React.Component<TextareaProps> {
   }
 }
 
-Textarea.propTypes = {
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * @ignore
-   */
-  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  onChange: PropTypes.func,
-  /**
-   * Number of rows to display when multiline option is set to true.
-   */
-  rows: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  /**
-   * Maximum number of rows to display when multiline option is set to true.
-   */
-  rowsMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  /**
-   * Use that property to pass a ref callback to the native textarea element.
-   */
-  textareaRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  /**
-   * @ignore
-   */
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-};
-
 Textarea.defaultProps = {
   rows: 1,
 };
 
-export default withStyles(styles)(Textarea);
+export default withStyles(styles, Textarea);

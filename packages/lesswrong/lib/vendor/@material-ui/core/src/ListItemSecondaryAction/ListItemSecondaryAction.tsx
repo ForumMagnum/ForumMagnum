@@ -1,15 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import type { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface ListItemSecondaryActionProps
-  extends StandardProps<{}, ListItemSecondaryActionClassKey> {}
+  extends StandardProps<{}, ListItemSecondaryActionClassKey> {
+  children?: React.ReactNode
+}
 
 export type ListItemSecondaryActionClassKey = 'root';
 
-export const styles = {
+export const styles = defineStyles("MuiListItemSecondaryAction", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'absolute',
@@ -17,10 +18,11 @@ export const styles = {
     top: '50%',
     transform: 'translateY(-50%)',
   },
-};
+}), {stylePriority: -10});
 
-function ListItemSecondaryAction(props) {
-  const { children, classes, className, ...other } = props;
+function ListItemSecondaryAction(props: ListItemSecondaryActionProps) {
+  const { children, classes: classesOverride, className, ...other } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return (
     <div className={classNames(classes.root, className)} {...other}>
@@ -29,22 +31,6 @@ function ListItemSecondaryAction(props) {
   );
 }
 
-ListItemSecondaryAction.propTypes = {
-  /**
-   * The content of the component, normally an `IconButton` or selection control.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-};
-
 ListItemSecondaryAction.muiName = 'ListItemSecondaryAction';
 
-export default withStyles(styles, { name: 'MuiListItemSecondaryAction' })(ListItemSecondaryAction);
+export default ListItemSecondaryAction;

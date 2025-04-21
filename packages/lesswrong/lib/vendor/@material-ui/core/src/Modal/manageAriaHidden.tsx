@@ -13,7 +13,7 @@ function siblings(container, mount, callback) {
   });
 }
 
-export function ariaHidden(show, node) {
+export function ariaHidden(show: boolean, node: Element) {
   if (!node) {
     return;
   }
@@ -24,10 +24,10 @@ export function ariaHidden(show, node) {
   }
 }
 
-export function hideSiblings(container, mountNode) {
+export function hideSiblings(container: Element, mountNode: Node) {
   siblings(container, mountNode, node => ariaHidden(true, node));
 }
 
-export function showSiblings(container, mountNode) {
+export function showSiblings(container: Element, mountNode: Node) {
   siblings(container, mountNode, node => ariaHidden(false, node));
 }

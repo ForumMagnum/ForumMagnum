@@ -1,10 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import { capitalize } from '../utils/helpers';
+import { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-export const styles = theme => ({
+export interface TabIndicatorProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, TabIndicatorClassKey> {
+  color: 'secondary' | 'primary' | string;
+  style: { left: number; width: number };
+}
+
+export type TabIndicatorClassKey = 'root' | 'colorSecondary' | 'colorPrimary';
+
+export const styles = defineStyles("MuiTabIndicator", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'absolute',
@@ -22,13 +30,11 @@ export const styles = theme => ({
   colorSecondary: {
     backgroundColor: theme.palette.secondary.main,
   },
-});
+}), {stylePriority: -10});
 
-/**
- * @ignore - internal component.
- */
-function TabIndicator(props) {
-  const { classes, className, color, ...other } = props;
+function TabIndicator(props: TabIndicatorProps) {
+  const { classes: classesOverride, className, color, ...other } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return (
     <span
@@ -38,21 +44,4 @@ function TabIndicator(props) {
   );
 }
 
-TabIndicator.propTypes = {
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * @ignore
-   * The color of the tab indicator.
-   */
-  color: PropTypes.oneOf(['primary', 'secondary']),
-};
-
-export default withStyles(styles)(TabIndicator);
+export default TabIndicator;

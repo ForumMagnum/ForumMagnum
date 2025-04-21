@@ -9,6 +9,7 @@ import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { isClient } from '@/lib/executionEnvironment';
+import { hookToHoc } from '@/lib/hocUtils';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -29,6 +30,12 @@ export const useTheme = (): ThemeType => {
   if (!themeContext) throw "useTheme() used without the context available";
   return themeContext.theme;
 }
+
+export const withTheme = hookToHoc(() => {
+  const themeContext = React.useContext(ThemeContext);
+  if (!themeContext) throw "useTheme() used without the context available";
+  return {theme: themeContext.theme};
+});
 
 export const useThemeOptions = (): AbstractThemeOptions => {
   const themeContext = React.useContext(ThemeContext);

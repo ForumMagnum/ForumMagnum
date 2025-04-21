@@ -3,6 +3,43 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import warning from 'warning';
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { StandardProps } from '..';
+
+export interface PaperProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, PaperClassKey> {
+  component?: React.ComponentType<PaperProps>;
+  elevation?: number;
+  square?: boolean;
+}
+
+export type PaperClassKey =
+  | 'root'
+  | 'rounded'
+  | 'elevation0'
+  | 'elevation1'
+  | 'elevation2'
+  | 'elevation3'
+  | 'elevation4'
+  | 'elevation5'
+  | 'elevation6'
+  | 'elevation7'
+  | 'elevation8'
+  | 'elevation9'
+  | 'elevation10'
+  | 'elevation11'
+  | 'elevation12'
+  | 'elevation13'
+  | 'elevation14'
+  | 'elevation15'
+  | 'elevation16'
+  | 'elevation17'
+  | 'elevation18'
+  | 'elevation19'
+  | 'elevation20'
+  | 'elevation21'
+  | 'elevation22'
+  | 'elevation23'
+  | 'elevation24';
 
 export const styles = defineStyles("MuiPaper", theme => {
   const elevations = {};
@@ -29,7 +66,7 @@ export const styles = defineStyles("MuiPaper", theme => {
   };
 }, {stylePriority: -10});
 
-function Paper(props) {
+function Paper(props: PaperProps) {
   const {
     classes: classesOverrides,
     className: classNameProp,
@@ -56,35 +93,5 @@ function Paper(props) {
 
   return <Component className={className} {...other} />;
 }
-
-Paper.propTypes = {
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * Shadow depth, corresponds to `dp` in the spec.
-   * It's accepting values between 0 and 24 inclusive.
-   */
-  elevation: PropTypes.number,
-  /**
-   * If `true`, rounded corners are disabled.
-   */
-  square: PropTypes.bool,
-};
 
 export default Paper;

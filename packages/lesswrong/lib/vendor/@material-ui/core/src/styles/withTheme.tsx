@@ -4,6 +4,12 @@ import hoistNonReactStatics from 'hoist-non-react-statics';
 import wrapDisplayName from 'recompose/wrapDisplayName';
 import createMuiTheme from './createMuiTheme';
 import themeListener from './themeListener';
+import { PropInjector } from '..';
+
+export interface WithTheme {
+  theme: Theme;
+  innerRef?: React.Ref<any> | React.RefObject<any>;
+}
 
 let defaultTheme;
 
@@ -17,7 +23,7 @@ function getDefaultTheme() {
 }
 
 // Provide the theme object as a property to the input component.
-const withTheme = () => Component => {
+const withTheme: PropInjector<WithTheme, Partial<WithTheme>> = () => Component => {
   class WithTheme extends React.Component {
     constructor(props, context) {
       super();

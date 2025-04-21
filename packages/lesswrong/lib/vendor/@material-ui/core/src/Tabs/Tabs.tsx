@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import warning from 'warning';
 import classNames from 'classnames';
 import EventListener from 'react-event-listener';
@@ -9,11 +8,48 @@ import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce 
 import { getNormalizedScrollLeft, detectScrollType } from 'normalize-scroll-left';
 import animate from '../internal/animate';
 import ScrollbarSize from './ScrollbarSize';
-import withStyles from '../styles/withStyles';
-import TabIndicator from './TabIndicator';
+import TabIndicator, { TabIndicatorProps } from './TabIndicator';
 import TabScrollButton from './TabScrollButton';
+import { StandardProps } from '..';
+import { ButtonBaseProps } from '../ButtonBase/ButtonBase';
+import { withTheme } from '@/components/themes/useTheme';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
-export const styles = theme => ({
+export interface TabsProps
+  extends StandardProps<ButtonBaseProps, TabsClassKey, 'onChange' | 'action' | 'component'> {
+  action?: (actions: TabsActions) => void;
+  centered?: boolean;
+  children?: React.ReactNode;
+  component?: React.Component<TabsProps>;
+  fullWidth?: boolean;
+  indicatorColor?: 'secondary' | 'primary' | string;
+  onChange?: (event: React.ChangeEvent<{}>, value: any) => void;
+  scrollable?: boolean;
+  ScrollButtonComponent?: React.Component;
+  scrollButtons?: 'auto' | 'on' | 'off';
+  TabIndicatorProps?: Partial<TabIndicatorProps>;
+  textColor?: 'secondary' | 'primary' | 'inherit' | string;
+  value: any;
+  width?: string;
+}
+
+export interface TabsActions {
+  updateIndicator(): void;
+}
+
+export type TabsClassKey =
+  | 'root'
+  | 'flexContainer'
+  | 'scroller'
+  | 'fixed'
+  | 'scrollable'
+  | 'centered'
+  | 'scrollButtons'
+  | 'scrollButtonsAuto'
+  | 'indicator';
+
+
+export const styles = defineStyles("MuiTabs", theme => ({
   /* Styles applied to the root element. */
   root: {
     overflow: 'hidden',
@@ -54,9 +90,9 @@ export const styles = theme => ({
   },
   /* Styles applied to the `TabIndicator` component. */
   indicator: {},
-});
+}), {stylePriority: -10});
 
-class Tabs extends React.Component {
+class Tabs extends React.Component<TabsProps> {
   valueToIndex = new Map();
 
   handleResize = debounce(() => {
@@ -378,90 +414,6 @@ class Tabs extends React.Component {
   }
 }
 
-Tabs.propTypes = {
-  /**
-   * Callback fired when the component mounts.
-   * This is useful when you want to trigger an action programmatically.
-   * It currently only supports `updateIndicator()` action.
-   *
-   * @param {object} actions This object contains all possible actions
-   * that can be triggered programmatically.
-   */
-  action: PropTypes.func,
-  /**
-   * If `true`, the tabs will be centered.
-   * This property is intended for large views.
-   */
-  centered: PropTypes.bool,
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the tabs will grow to use all the available space.
-   * This property is intended for small views, like on mobile.
-   */
-  fullWidth: PropTypes.bool,
-  /**
-   * Determines the color of the indicator.
-   */
-  indicatorColor: PropTypes.oneOf(['secondary', 'primary']),
-  /**
-   * Callback fired when the value changes.
-   *
-   * @param {object} event The event source of the callback
-   * @param {number} value We default to the index of the child
-   */
-  onChange: PropTypes.func,
-  /**
-   * True invokes scrolling properties and allow for horizontally scrolling
-   * (or swiping) the tab bar.
-   */
-  scrollable: PropTypes.bool,
-  /**
-   * The component used to render the scroll buttons.
-   */
-  ScrollButtonComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * Determine behavior of scroll buttons when tabs are set to scroll
-   * `auto` will only present them on medium and larger viewports
-   * `on` will always present them
-   * `off` will never present them
-   */
-  scrollButtons: PropTypes.oneOf(['auto', 'on', 'off']),
-  /**
-   * Properties applied to the `TabIndicator` element.
-   */
-  TabIndicatorProps: PropTypes.object,
-  /**
-   * Determines the color of the `Tab`.
-   */
-  textColor: PropTypes.oneOf(['secondary', 'primary', 'inherit']),
-  /**
-   * @ignore
-   */
-  theme: PropTypes.object.isRequired,
-  /**
-   * The value of the currently selected `Tab`.
-   * If you don't want any selected `Tab`, you can set this property to `false`.
-   */
-  value: PropTypes.any,
-};
-
 Tabs.defaultProps = {
   centered: false,
   component: 'div',
@@ -473,4 +425,4 @@ Tabs.defaultProps = {
   textColor: 'inherit',
 };
 
-export default withStyles(styles, { name: 'MuiTabs', withTheme: true })(Tabs);
+export default withStyles(styles, Tabs);

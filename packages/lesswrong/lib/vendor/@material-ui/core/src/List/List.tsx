@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { StandardProps } from '..';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface ListProps
   extends StandardProps<React.HTMLAttributes<HTMLUListElement>, ListClassKey> {
-  component?: React.ReactType<ListProps>;
+  component?: React.ComponentType<ListProps>;
   dense?: boolean;
   disablePadding?: boolean;
   subheader?: React.ReactElement<any>;
@@ -13,7 +14,7 @@ export interface ListProps
 
 export type ListClassKey = 'root' | 'padding' | 'dense' | 'subheader';
 
-export const styles = {
+export const styles = defineStyles("MuiList", theme => ({
   /* Styles applied to the root element. */
   root: {
     listStyle: 'none',
@@ -35,7 +36,7 @@ export const styles = {
   subheader: {
     paddingTop: 0,
   },
-};
+}), {stylePriority: -10});
 
 class List extends React.Component<ListProps> {
   getChildContext() {
@@ -74,41 +75,6 @@ class List extends React.Component<ListProps> {
   }
 }
 
-List.propTypes = {
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, compact vertical padding designed for keyboard and mouse input will be used for
-   * the list and list items. The property is available to descendant components as the
-   * `dense` context.
-   */
-  dense: PropTypes.bool,
-  /**
-   * If `true`, vertical padding will be removed from the list.
-   */
-  disablePadding: PropTypes.bool,
-  /**
-   * The content of the subheader, normally `ListSubheader`.
-   */
-  subheader: PropTypes.node,
-};
-
 List.defaultProps = {
   component: 'ul',
   dense: false,
@@ -119,4 +85,4 @@ List.childContextTypes = {
   dense: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiList' })(List);
+export default withStyles(styles, List);

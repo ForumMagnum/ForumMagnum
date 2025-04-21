@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import Typography from '../Typography';
 import type { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { TypographyProps } from '../Typography/Typography';
 
 export interface ListItemTextProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, ListItemTextClassKey> {
@@ -23,7 +24,7 @@ export type ListItemTextClassKey =
   | 'secondary'
   | 'textDense';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiListItemText", theme => ({
   /* Styles applied to the root element. */
   root: {
     flex: '1 1 auto',
@@ -57,12 +58,12 @@ export const styles = theme => ({
   },
   /* Styles applied to the `Typography` components if `context.dense` is `true`. */
   textDense: {},
-});
+}), {stylePriority: -10});
 
 function ListItemText(props: ListItemTextProps, context) {
   const {
     children,
-    classes,
+    classes: classesOverride,
     className: classNameProp,
     disableTypography,
     inset,
@@ -72,6 +73,7 @@ function ListItemText(props: ListItemTextProps, context) {
     secondaryTypographyProps,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
   const { dense } = context;
 
   let primary = primaryProp != null ? primaryProp : children;
@@ -122,52 +124,6 @@ function ListItemText(props: ListItemTextProps, context) {
   );
 }
 
-ListItemText.propTypes = {
-  /**
-   * Alias for the `primary` property.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * If `true`, the children won't be wrapped by a Typography component.
-   * This can be useful to render an alternative Typography variant by wrapping
-   * the `children` (or `primary`) text, and optional `secondary` text
-   * with the Typography component.
-   */
-  disableTypography: PropTypes.bool,
-  /**
-   * If `true`, the children will be indented.
-   * This should be used if there is no left avatar or left icon.
-   */
-  inset: PropTypes.bool,
-  /**
-   * The main content element.
-   */
-  primary: PropTypes.node,
-  /**
-   * These props will be forwarded to the primary typography component
-   * (as long as disableTypography is not `true`).
-   */
-  primaryTypographyProps: PropTypes.object,
-  /**
-   * The secondary content element.
-   */
-  secondary: PropTypes.node,
-  /**
-   * These props will be forwarded to the secondary typography component
-   * (as long as disableTypography is not `true`).
-   */
-  secondaryTypographyProps: PropTypes.object,
-};
-
 ListItemText.defaultProps = {
   disableTypography: false,
   inset: false,
@@ -177,4 +133,4 @@ ListItemText.contextTypes = {
   dense: PropTypes.bool,
 };
 
-export default withStyles(styles, { name: 'MuiListItemText' })(ListItemText);
+export default ListItemText;

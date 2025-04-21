@@ -1,16 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import { formControlState } from '../InputBase/InputBase';
+import { StandardProps } from '..';
+import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
 
 export interface FormLabelProps extends StandardProps<FormLabelBaseProps, FormLabelClassKey> {
-  component?: React.ReactType<FormLabelBaseProps>;
+  component?: React.ComponentType<FormLabelBaseProps>;
   disabled?: boolean;
   error?: boolean;
   filled?: boolean;
   focused?: boolean;
   required?: boolean;
+  children: React.ReactNode
 }
 
 export type FormLabelBaseProps = React.LabelHTMLAttributes<HTMLLabelElement>;
@@ -24,7 +26,7 @@ export type FormLabelClassKey =
   | 'required'
   | 'asterisk';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiFormLabel", theme => ({
   /* Styles applied to the root element. */
   root: {
     fontFamily: theme.typography.fontFamily,
@@ -57,12 +59,12 @@ export const styles = theme => ({
       color: theme.palette.error.main,
     },
   },
-});
+}), {stylePriority: -10});
 
 function FormLabel(props: FormLabelProps, context) {
   const {
     children,
-    classes,
+    classes: classesOverride,
     className: classNameProp,
     component: Component,
     disabled,
@@ -72,6 +74,7 @@ function FormLabel(props: FormLabelProps, context) {
     required,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
 
   const fcs = formControlState({
     props,
@@ -109,47 +112,6 @@ function FormLabel(props: FormLabelProps, context) {
   );
 }
 
-FormLabel.propTypes = {
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * If `true`, the label should be displayed in a disabled state.
-   */
-  disabled: PropTypes.bool,
-  /**
-   * If `true`, the label should be displayed in an error state.
-   */
-  error: PropTypes.bool,
-  /**
-   * If `true`, the label should use filled classes key.
-   */
-  filled: PropTypes.bool,
-  /**
-   * If `true`, the input of this label is focused (used by `FormGroup` components).
-   */
-  focused: PropTypes.bool,
-  /**
-   * If `true`, the label will indicate that the input is required.
-   */
-  required: PropTypes.bool,
-};
-
 FormLabel.defaultProps = {
   component: 'label',
 };
@@ -158,4 +120,4 @@ FormLabel.contextTypes = {
   muiFormControl: PropTypes.object,
 };
 
-export default withStyles(styles, { name: 'MuiFormLabel' })(FormLabel);
+export default FormLabel;

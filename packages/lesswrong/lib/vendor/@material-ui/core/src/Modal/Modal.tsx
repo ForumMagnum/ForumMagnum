@@ -8,9 +8,34 @@ import ownerDocument from '../utils/ownerDocument';
 import RootRef from '../RootRef';
 import Portal from '../Portal';
 import { createChainedFunction } from '../utils/helpers';
-import withStyles from '../styles/withStyles';
 import ModalManager from './ModalManager';
 import Backdrop from '../Backdrop';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
+import { StandardProps } from '..';
+import { BackdropProps } from '../Backdrop/Backdrop';
+
+export interface ModalProps
+  extends StandardProps<React.HtmlHTMLAttributes<HTMLDivElement>, ModalClassKey> {
+  BackdropComponent?: React.ReactType<BackdropProps>;
+  BackdropProps?: Partial<BackdropProps>;
+  container?: PortalProps['container'];
+  disableAutoFocus?: boolean;
+  disableBackdropClick?: boolean;
+  disableEnforceFocus?: boolean;
+  disableEscapeKeyDown?: boolean;
+  disablePortal?: PortalProps['disablePortal'];
+  disableRestoreFocus?: boolean;
+  hideBackdrop?: boolean;
+  keepMounted?: boolean;
+  manager?: ModalManager;
+  onBackdropClick?: React.ReactEventHandler<{}>;
+  onClose?: React.ReactEventHandler<{}>;
+  onEscapeKeyDown?: React.ReactEventHandler<{}>;
+  onRendered?: PortalProps['onRendered'];
+  open: boolean;
+}
+
+export type ModalClassKey = 'root' | 'hidden';
 
 function getContainer(container, defaultContainer) {
   container = typeof container === 'function' ? container() : container;
@@ -21,7 +46,7 @@ function getHasTransition(props) {
   return props.children ? props.children.props.hasOwnProperty('in') : false;
 }
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiModal", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'fixed',
@@ -35,17 +60,12 @@ export const styles = theme => ({
   hidden: {
     visibility: 'hidden',
   },
-});
-
-/* istanbul ignore if */
-if (process.env.NODE_ENV !== 'production' && !React.createContext) {
-  throw new Error('Material-UI: react@16.3.0 or greater is required.');
-}
+}), {stylePriority: -10});
 
 /**
  * This component shares many concepts with [react-overlays](https://react-bootstrap.github.io/react-overlays/#modals).
  */
-class Modal extends React.Component {
+class Modal extends React.Component<ModalProps> {
   mounted = false;
 
   constructor(props) {
@@ -309,110 +329,6 @@ class Modal extends React.Component {
   }
 }
 
-Modal.propTypes = {
-  /**
-   * A backdrop component. This property enables custom backdrop rendering.
-   */
-  BackdropComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * Properties applied to the [`Backdrop`](/api/backdrop) element.
-   */
-  BackdropProps: PropTypes.object,
-  /**
-   * A single child content element.
-   */
-  children: PropTypes.element,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * A node, component instance, or function that returns either.
-   * The `container` will have the portal children appended to it.
-   */
-  container: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  /**
-   * If `true`, the modal will not automatically shift focus to itself when it opens, and
-   * replace it to the last focused element when it closes.
-   * This also works correctly with any modal children that have the `disableAutoFocus` prop.
-   *
-   * Generally this should never be set to `true` as it makes the modal less
-   * accessible to assistive technologies, like screen readers.
-   */
-  disableAutoFocus: PropTypes.bool,
-  /**
-   * If `true`, clicking the backdrop will not fire any callback.
-   */
-  disableBackdropClick: PropTypes.bool,
-  /**
-   * If `true`, the modal will not prevent focus from leaving the modal while open.
-   *
-   * Generally this should never be set to `true` as it makes the modal less
-   * accessible to assistive technologies, like screen readers.
-   */
-  disableEnforceFocus: PropTypes.bool,
-  /**
-   * If `true`, hitting escape will not fire any callback.
-   */
-  disableEscapeKeyDown: PropTypes.bool,
-  /**
-   * Disable the portal behavior.
-   * The children stay within it's parent DOM hierarchy.
-   */
-  disablePortal: PropTypes.bool,
-  /**
-   * If `true`, the modal will not restore focus to previously focused element once
-   * modal is hidden.
-   */
-  disableRestoreFocus: PropTypes.bool,
-  /**
-   * If `true`, the backdrop is not rendered.
-   */
-  hideBackdrop: PropTypes.bool,
-  /**
-   * Always keep the children in the DOM.
-   * This property can be useful in SEO situation or
-   * when you want to maximize the responsiveness of the Modal.
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * A modal manager used to track and manage the state of open
-   * Modals. This enables customizing how modals interact within a container.
-   */
-  manager: PropTypes.object,
-  /**
-   * Callback fired when the backdrop is clicked.
-   */
-  onBackdropClick: PropTypes.func,
-  /**
-   * Callback fired when the component requests to be closed.
-   * The `reason` parameter can optionally be used to control the response to `onClose`.
-   *
-   * @param {object} event The event source of the callback
-   * @param {string} reason Can be:`"escapeKeyDown"`, `"backdropClick"`
-   */
-  onClose: PropTypes.func,
-  /**
-   * Callback fired when the escape key is pressed,
-   * `disableEscapeKeyDown` is false and the modal is in focus.
-   */
-  onEscapeKeyDown: PropTypes.func,
-  /**
-   * Callback fired once the children has been mounted into the `container`.
-   * It signals that the `open={true}` property took effect.
-   */
-  onRendered: PropTypes.func,
-  /**
-   * If `true`, the modal is open.
-   */
-  open: PropTypes.bool.isRequired,
-};
-
 Modal.defaultProps = {
   disableAutoFocus: false,
   disableBackdropClick: false,
@@ -427,4 +343,4 @@ Modal.defaultProps = {
   BackdropComponent: Backdrop,
 };
 
-export default withStyles(styles, { flip: false, name: 'MuiModal' })(Modal);
+export default withStyles(styles, Modal);

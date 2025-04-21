@@ -1,15 +1,16 @@
 // @inheritedComponent Modal
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
 import { capitalize } from '../utils/helpers';
 import Modal from '../Modal';
 import Fade from '../Fade';
 import { duration } from '../styles/transitions';
 import Paper from '../Paper';
 import type { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { ModalProps } from '../Modal/Modal';
+import { TransitionHandlerProps, TransitionProps } from '../transitions/transition';
 
 export interface DialogProps
   extends StandardProps<ModalProps & Partial<TransitionHandlerProps>, DialogClassKey, 'children'> {
@@ -19,7 +20,7 @@ export interface DialogProps
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | false;
   PaperProps?: Partial<PaperProps>;
   scroll?: 'body' | 'paper';
-  TransitionComponent?: React.ReactType;
+  TransitionComponent?: React.ComponentType;
   transitionDuration?: TransitionProps['timeout'];
   TransitionProps?: TransitionProps;
 }
@@ -37,7 +38,7 @@ export type DialogClassKey =
   | 'paperFullWidth'
   | 'paperFullScreen';
 
-export const styles = theme => ({
+export const styles = defineStyles("MuiDialog", theme => ({
   /* Styles applied to the root element. */
   root: {},
   /* Styles applied to the root element if `scroll="paper"`. */
@@ -122,7 +123,7 @@ export const styles = theme => ({
       margin: 0,
     },
   },
-});
+}), {stylePriority: -10});
 
 /**
  * Dialogs are overlaid modal paper based components with a backdrop.
@@ -131,7 +132,7 @@ function Dialog(props: DialogProps) {
   const {
     BackdropProps,
     children,
-    classes,
+    classes: classesOverride,
     className,
     disableBackdropClick,
     disableEscapeKeyDown,
@@ -155,6 +156,7 @@ function Dialog(props: DialogProps) {
     TransitionProps,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverride);
 
   return (
     <Modal
@@ -200,116 +202,6 @@ function Dialog(props: DialogProps) {
   );
 }
 
-Dialog.propTypes = {
-  /**
-   * @ignore
-   */
-  BackdropProps: PropTypes.object,
-  /**
-   * Dialog children, usually the included sub-components.
-   */
-  children: PropTypes.node.isRequired,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * If `true`, clicking the backdrop will not fire the `onClose` callback.
-   */
-  disableBackdropClick: PropTypes.bool,
-  /**
-   * If `true`, hitting escape will not fire the `onClose` callback.
-   */
-  disableEscapeKeyDown: PropTypes.bool,
-  /**
-   * If `true`, the dialog will be full-screen
-   */
-  fullScreen: PropTypes.bool,
-  /**
-   * If `true`, the dialog stretches to `maxWidth`.
-   */
-  fullWidth: PropTypes.bool,
-  /**
-   * Determine the max width of the dialog.
-   * The dialog width grows with the size of the screen, this property is useful
-   * on the desktop where you might need some coherent different width size across your
-   * application. Set to `false` to disable `maxWidth`.
-   */
-  maxWidth: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', false]),
-  /**
-   * Callback fired when the backdrop is clicked.
-   */
-  onBackdropClick: PropTypes.func,
-  /**
-   * Callback fired when the component requests to be closed.
-   *
-   * @param {object} event The event source of the callback
-   */
-  onClose: PropTypes.func,
-  /**
-   * Callback fired before the dialog enters.
-   */
-  onEnter: PropTypes.func,
-  /**
-   * Callback fired when the dialog has entered.
-   */
-  onEntered: PropTypes.func,
-  /**
-   * Callback fired when the dialog is entering.
-   */
-  onEntering: PropTypes.func,
-  /**
-   * Callback fired when the escape key is pressed,
-   * `disableKeyboard` is false and the modal is in focus.
-   */
-  onEscapeKeyDown: PropTypes.func,
-  /**
-   * Callback fired before the dialog exits.
-   */
-  onExit: PropTypes.func,
-  /**
-   * Callback fired when the dialog has exited.
-   */
-  onExited: PropTypes.func,
-  /**
-   * Callback fired when the dialog is exiting.
-   */
-  onExiting: PropTypes.func,
-  /**
-   * If `true`, the Dialog is open.
-   */
-  open: PropTypes.bool.isRequired,
-  /**
-   * Properties applied to the [`Paper`](/api/paper) element.
-   */
-  PaperProps: PropTypes.object,
-  /**
-   * Determine the container for scrolling the dialog.
-   */
-  scroll: PropTypes.oneOf(['body', 'paper']),
-  /**
-   * Transition component.
-   */
-  TransitionComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-  /**
-   * The duration for the transition, in milliseconds.
-   * You may specify a single timeout for all transitions, or individually with an object.
-   */
-  transitionDuration: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
-  ]),
-  /**
-   * Properties applied to the `Transition` element.
-   */
-  TransitionProps: PropTypes.object,
-};
-
 Dialog.defaultProps = {
   disableBackdropClick: false,
   disableEscapeKeyDown: false,
@@ -321,4 +213,4 @@ Dialog.defaultProps = {
   transitionDuration: { enter: duration.enteringScreen, exit: duration.leavingScreen },
 };
 
-export default withStyles(styles, { name: 'MuiDialog' })(Dialog);
+export default Dialog;

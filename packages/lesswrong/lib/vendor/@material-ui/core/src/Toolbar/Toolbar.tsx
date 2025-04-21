@@ -1,9 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import withStyles from '../styles/withStyles';
+import { StandardProps } from '..';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-export const styles = theme => ({
+export interface ToolbarProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, ToolbarClassKey> {
+  variant?: 'regular' | 'dense';
+  disableGutters?: boolean;
+  children: React.ReactNode
+}
+
+export type ToolbarClassKey = 'root' | 'gutters' | 'regular' | 'dense';
+
+export const styles = defineStyles("MuiToolbar", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'relative',
@@ -18,10 +27,11 @@ export const styles = theme => ({
   dense: {
     minHeight: 48,
   },
-});
+}), {stylePriority: -10});
 
-function Toolbar(props) {
-  const { children, classes, className: classNameProp, disableGutters, variant, ...other } = props;
+function Toolbar(props: ToolbarProps) {
+  const { children, classes: classesOverride, className: classNameProp, disableGutters=false, variant="regular", ...other } = props;
+  const classes = useStyles(styles, classesOverride);
 
   const className = classNames(
     classes.root,
@@ -39,33 +49,4 @@ function Toolbar(props) {
   );
 }
 
-Toolbar.propTypes = {
-  /**
-   * Toolbar children, usually a mixture of `IconButton`, `Button` and `Typography`.
-   */
-  children: PropTypes.node,
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * If `true`, disables gutter padding.
-   */
-  disableGutters: PropTypes.bool,
-  /**
-   * The variant to use.
-   */
-  variant: PropTypes.oneOf(['regular', 'dense']),
-};
-
-Toolbar.defaultProps = {
-  disableGutters: false,
-  variant: 'regular',
-};
-
-export default withStyles(styles, { name: 'MuiToolbar' })(Toolbar);
+export default Toolbar;
