@@ -305,8 +305,6 @@ const UltraFeedCommentItem = ({
     });
   }, [openDialog, comment]);
 
-  const expanded = displayStatus === "expanded";
-
   const truncationBreakpoints = useMemo(() => {
     return settings.commentTruncationBreakpoints || [];
   }, [settings.commentTruncationBreakpoints]);

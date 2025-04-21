@@ -62,7 +62,6 @@ interface Props {
 
 export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
   const { showUp, showDown, scrollToTop: onTop, scrollToBottom: onBottom } = nav;
-  console.debug('[OverflowNavButtons render]', { showUp, showDown });
   const classes = useStyles(styles);
 
   const handleCollapse = useCallback(() => {
