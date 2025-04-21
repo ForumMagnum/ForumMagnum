@@ -13,6 +13,8 @@ import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -113,6 +115,8 @@ const InnerMessagesNewForm = ({
   const { Loading, ForumIcon } = Components;
 
   const classes = useStyles(formStyles);
+  const currentUser = useCurrentUser();
+  
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const hintText = isMinimalist ? "Type a new message..." : defaultEditorPlaceholder;
   const commentMinimalistStyle = isMinimalist ? true : false;
@@ -180,7 +184,7 @@ const InnerMessagesNewForm = ({
         </form.Field>
       </div>
 
-      <div className={classes.fieldWrapper}>
+      {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
         <form.Field name="noEmail">
           {(field) => (
             <TanStackCheckbox
@@ -189,7 +193,7 @@ const InnerMessagesNewForm = ({
             />
           )}
         </form.Field>
-      </div>
+      </div>}
 
       <div className="form-submit">
         <form.Subscribe selector={(s) => [s.isSubmitting]}>

@@ -14,6 +14,8 @@ import { TanStackUserMultiselect } from '../tanstack-form-components/TanStackUse
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
+import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { useCurrentUser } from '../common/withUser';
 
 const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -31,10 +33,9 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   onClose?: () => void,
   conversation: UpdateConversationDataInput & { _id: string },
 }) => {
-  const classes = useStyles(formStyles);
   const { Error404 } = Components;
-
-  const formType = conversation ? 'edit' : 'new';
+  const classes = useStyles(formStyles);
+  const currentUser = useCurrentUser();
 
   const { mutate } = useUpdate({
     collectionName: 'Conversations',
@@ -56,10 +57,6 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
       onClose?.();
     },
   });
-
-  if (formType === 'edit' && !conversation) {
-    return <Error404 />;
-  }
 
   return <Components.LWDialog open onClose={onClose}>
     <DialogTitle>{preferredHeadingCase("Conversation Options")}</DialogTitle>
@@ -91,7 +88,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
           </form.Field>
         </div>
 
-        {isLWorAF && <div className={classes.fieldWrapper}>
+        {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
               <TanStackCheckbox
@@ -102,7 +99,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
           </form.Field>
         </div>}
 
-        <div className={classes.fieldWrapper}>
+        {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="moderator">
             {(field) => (
               <TanStackCheckbox
@@ -111,7 +108,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
               />
             )}
           </form.Field>
-        </div>
+        </div>}
 
         <div className="form-submit">
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>

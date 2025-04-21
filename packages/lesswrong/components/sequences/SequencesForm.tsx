@@ -55,12 +55,12 @@ export const SequencesForm = ({
 
   const { create } = useCreate({
     collectionName: 'Sequences',
-    fragmentName: 'SequencesEdit', // TODO: use correct fragment type
+    fragmentName: 'SequencesEdit',
   });
 
   const { mutate } = useUpdate({
     collectionName: 'Sequences',
-    fragmentName: 'SequencesEdit', // TODO: use correct fragment type
+    fragmentName: 'SequencesEdit',
   });
 
   const form = useForm({
@@ -81,7 +81,7 @@ export const SequencesForm = ({
       } else {
         const updatedFields = getUpdatedFieldValues(formApi);
         if (updatedFields.contents) {
-          const { originalContents: { type, data }, ...rest } = updatedFields.contents;
+          const { originalContents: { type, data } } = updatedFields.contents;
           updatedFields.contents = { originalContents: { type, data } };
         }
 

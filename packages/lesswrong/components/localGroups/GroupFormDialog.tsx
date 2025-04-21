@@ -24,6 +24,7 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { TanStackGroupFormSubmit } from './TanStackGroupFormSubmit';
 import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {
@@ -349,7 +350,7 @@ const TanStackGroupForm = ({
       </div>
 
       {/* Made a deliberate choice to get rid of the form group surrounding this single field */}
-      {formType === 'edit' && (
+      {formType === 'edit' && userIsAdminOrMod(currentUser) && (
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
