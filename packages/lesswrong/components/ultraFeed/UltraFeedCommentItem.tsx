@@ -301,7 +301,7 @@ const UltraFeedCommentItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
-    <div ref={elementRef} className={classNames(classes.root)} >
+    <div className={classNames(classes.root)} >
       <div className={classes.verticalLineContainer}>
         <div className={classNames(
           classes.verticalLine,
@@ -313,8 +313,7 @@ const UltraFeedCommentItem = ({
           }
         )} />
       </div>
-      
-      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+      <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
         <div className={classes.commentHeader}>
           <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
           {showInLineCommentThreadTitle && !comment.shortform && post && (
@@ -350,8 +349,8 @@ const UltraFeedCommentItem = ({
           className={classes.footer}
         />
       </div>
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} />}
     </div>
-    {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} />}
     </AnalyticsContext>
   );
 };
