@@ -23,6 +23,7 @@ import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-compone
 import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { TanStackGroupFormSubmit } from './TanStackGroupFormSubmit';
+import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {
@@ -123,7 +124,7 @@ const TanStackGroupForm = ({
       isOnline: initialIsOnline ?? initialData?.isOnline ?? false,
       organizerIds: initialData ? initialData.organizerIds : [currentUser._id],
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -133,9 +134,10 @@ const TanStackGroupForm = ({
         const { data } = await create({ data: value });
         result = data?.createLocalgroup.data;
       } else {
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: value,
+          data: updatedFields,
         });
         result = data?.updateLocalgroup.data;
       }

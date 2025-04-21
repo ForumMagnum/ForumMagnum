@@ -13,6 +13,7 @@ import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
 import { TanStackUserMultiselect } from '../tanstack-form-components/TanStackUserMultiSelect';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isLWorAF } from '@/lib/instanceSettings';
+import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
 
 const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -44,13 +45,12 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
     defaultValues: {
       ...conversation,
     },
-    onSubmit: async ({ value }) => {
-      const { title, participantIds, af, moderator } = value;
-      const updateData = { title, participantIds, af, moderator };
+    onSubmit: async ({ value, formApi }) => {
+      const updatedFields = getUpdatedFieldValues(formApi);
 
       await mutate({
         selector: { _id: conversation._id },
-        data: updateData,
+        data: updatedFields,
       });
 
       onClose?.();

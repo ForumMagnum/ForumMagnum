@@ -13,6 +13,7 @@ import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-compone
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { TanStackPostsListEditor } from "../tanstack-form-components/TanStackPostsListEditor";
 import { TanStackSequencesListEditor } from "../tanstack-form-components/TanStackSequencesListEditor";
+import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 
 const formStyles = defineStyles('BooksForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -61,7 +62,7 @@ export const BooksForm = ({
       ...initialData,
       ...(formType === 'new' ? { collectionId } : {}),
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -72,21 +73,10 @@ export const BooksForm = ({
         const { data } = await create({ data: value });
         result = data?.createBook.data;
       } else {
-        const {
-          collectionId, contents, displaySequencesAsGrid,
-          hideProgressBar, number, postIds, sequenceIds,
-          showChapters, subtitle, tocTitle, title
-        } = value;
-
-        const updateData = {
-          collectionId, contents, displaySequencesAsGrid,
-          hideProgressBar, number, postIds, sequenceIds,
-          showChapters, subtitle, tocTitle, title
-        };
-
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: updateData,
+          data: updatedFields,
         });
         result = data?.updateBook.data;
       }

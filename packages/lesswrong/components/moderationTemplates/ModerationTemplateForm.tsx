@@ -13,6 +13,7 @@ import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTex
 import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
 import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
+import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 
 const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -71,11 +72,10 @@ export const ModerationTemplatesForm = ({
         const { data } = await create({ data: value });
         result = data?.createModerationTemplate.data;
       } else {
-        const { collectionName, contents, deleted, name, order } = value;
-        const updateData = { collectionName, contents, deleted, name, order };
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: updateData,
+          data: updatedFields,
         });
         result = data?.updateModerationTemplate.data;
       }

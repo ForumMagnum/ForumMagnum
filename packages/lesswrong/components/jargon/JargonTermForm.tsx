@@ -8,6 +8,7 @@ import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-compone
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
+import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 
 const formStyles = defineStyles('JargonTermForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -103,7 +104,7 @@ export const JargonTermForm = ({
       ...initialData,
       ...(formType === 'new' ? { postId } : {}),
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -114,10 +115,10 @@ export const JargonTermForm = ({
         const { data } = await create({ data: value });
         result = data?.createJargonTerm.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateJargonTerm.data;
       }

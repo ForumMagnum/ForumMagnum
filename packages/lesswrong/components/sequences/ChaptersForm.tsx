@@ -11,6 +11,7 @@ import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTex
 import { TanStackPostsListEditor } from "../tanstack-form-components/TanStackPostsListEditor";
 import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
+import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 
 const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -62,7 +63,7 @@ export const ChaptersForm = ({
       ...initialData,
       ...(formType === 'new' && prefilledProps ? prefilledProps : {}),
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -73,12 +74,10 @@ export const ChaptersForm = ({
         const { data } = await create({ data: value });
         result = data?.createChapter.data;
       } else {
-        const { contents, number, postIds, sequenceId, subtitle, title } = value;
-        const updateData = { contents, number, postIds, sequenceId, subtitle, title };
-
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: updateData,
+          data: updatedFields,
         });
         result = data?.updateChapter.data;
       }

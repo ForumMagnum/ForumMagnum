@@ -71,7 +71,7 @@ export const LocalgroupsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -82,10 +82,10 @@ export const LocalgroupsForm = ({
         const { data } = await create({ data: value });
         result = data?.createLocalgroup.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateLocalgroup.data;
       }
@@ -177,7 +177,7 @@ export const LocalgroupsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for types */}
+        {/* TODO: custom hidden prop; implement conditional visibility for types */}
         <div className={classes.fieldWrapper}>
           <form.Field name="types">
             {(field) => (
@@ -195,7 +195,7 @@ export const LocalgroupsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for categories */}
+        {/* TODO: custom hidden prop; implement conditional visibility for categories */}
         <div className={classes.fieldWrapper}>
           <form.Field name="categories">
             {(field) => (
@@ -231,7 +231,7 @@ export const LocalgroupsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for googleLocation */}
+        {/* TODO: custom hidden prop; implement conditional visibility for googleLocation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="googleLocation">
             {(field) => (
@@ -367,6 +367,8 @@ export const LocalgroupsForm = ({
 =======
       <Components.FormGroupLayout label="Advanced options" collapsed={true}>
 >>>>>>> END
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for deleted */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for deleted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
@@ -461,7 +463,7 @@ export const CurationNoticesForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -472,10 +474,10 @@ export const CurationNoticesForm = ({
         const { data } = await create({ data: value });
         result = data?.createCurationNotice.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateCurationNotice.data;
       }
@@ -524,6 +526,7 @@ export const CurationNoticesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for deleted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
@@ -616,7 +619,7 @@ export const CommentsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -627,10 +630,10 @@ export const CommentsForm = ({
         const { data } = await create({ data: value });
         result = data?.createComment.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateComment.data;
       }
@@ -653,7 +656,7 @@ export const CommentsForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-        {/* TODO: implement conditional visibility for title */}
+        {/* TODO: custom hidden prop; implement conditional visibility for title */}
         {/* TODO: 'EditCommentTitle' not yet ported - implement TanStackEditCommentTitle */}
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
@@ -697,6 +700,7 @@ export const CommentsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for promoted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="promoted">
             {(field) => (
@@ -708,7 +712,7 @@ export const CommentsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for relevantTagIds */}
+        {/* TODO: custom hidden prop; implement conditional visibility for relevantTagIds */}
         {/* TODO: 'FormComponentQuickTakesTags' not yet ported - implement TanStackFormComponentQuickTakesTags */}
         <div className={classes.fieldWrapper}>
           <form.Field name="relevantTagIds">
@@ -721,7 +725,7 @@ export const CommentsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for debateResponse */}
+        {/* TODO: custom hidden prop; implement conditional visibility for debateResponse */}
         <div className={classes.fieldWrapper}>
           <form.Field name="debateResponse">
             {(field) => (
@@ -733,7 +737,9 @@ export const CommentsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for af */}
+        {/* TODO: canCreate gated to alignmentForum, admins - implement conditional visibility for af */}
+        {/* TODO: canUpdate gated to alignmentForum, admins - implement conditional visibility for af */}
+        {/* TODO: custom hidden prop; implement conditional visibility for af */}
         <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
@@ -758,6 +764,7 @@ export const CommentsForm = ({
         </div>
 
       <Components.FormGroupLayout label="Moderator Options" collapsed={true}>
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for repliesBlockedUntil */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="repliesBlockedUntil">
@@ -770,6 +777,7 @@ export const CommentsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for hideAuthor */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideAuthor">
             {(field) => (
@@ -782,7 +790,8 @@ export const CommentsForm = ({
         </div>
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Alignment Options" collapsed={true}>
-        {/* TODO: implement conditional visibility for reviewForAlignmentUserId */}
+        {/* TODO: canUpdate gated to alignmentForumAdmins, admins - implement conditional visibility for reviewForAlignmentUserId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for reviewForAlignmentUserId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewForAlignmentUserId">
             {(field) => (
@@ -875,7 +884,7 @@ export const ForumEventsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -886,10 +895,10 @@ export const ForumEventsForm = ({
         const { data } = await create({ data: value });
         result = data?.createForumEvent.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateForumEvent.data;
       }
@@ -913,6 +922,8 @@ export const ForumEventsForm = ({
       void form.handleSubmit();
     }}>
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to admins - implement conditional visibility for frontpageDescription */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for frontpageDescription */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="frontpageDescription">
             {(field) => (
@@ -939,6 +950,8 @@ export const ForumEventsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to admins - implement conditional visibility for frontpageDescriptionMobile */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for frontpageDescriptionMobile */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="frontpageDescriptionMobile">
             {(field) => (
@@ -965,6 +978,8 @@ export const ForumEventsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to admins - implement conditional visibility for postPageDescription */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for postPageDescription */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="postPageDescription">
             {(field) => (
@@ -990,6 +1005,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for title */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for title */}
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (
@@ -1001,6 +1018,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for startDate */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for startDate */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="startDate">
@@ -1014,6 +1033,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for endDate */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for endDate */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="endDate">
@@ -1027,6 +1048,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for darkColor */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for darkColor */}
         {/* TODO: 'FormComponentColorPicker' not yet ported - implement TanStackFormComponentColorPicker */}
         <div className={classes.fieldWrapper}>
           <form.Field name="darkColor">
@@ -1041,6 +1064,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for lightColor */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for lightColor */}
         {/* TODO: 'FormComponentColorPicker' not yet ported - implement TanStackFormComponentColorPicker */}
         <div className={classes.fieldWrapper}>
           <form.Field name="lightColor">
@@ -1055,6 +1080,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for bannerTextColor */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for bannerTextColor */}
         {/* TODO: 'FormComponentColorPicker' not yet ported - implement TanStackFormComponentColorPicker */}
         <div className={classes.fieldWrapper}>
           <form.Field name="bannerTextColor">
@@ -1069,6 +1096,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for contrastColor */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for contrastColor */}
         {/* TODO: 'FormComponentColorPicker' not yet ported - implement TanStackFormComponentColorPicker */}
         <div className={classes.fieldWrapper}>
           <form.Field name="contrastColor">
@@ -1081,6 +1110,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for tagId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for tagId */}
         {/* TODO: 'TagSelect' not yet ported - implement TanStackTagSelect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="tagId">
@@ -1093,6 +1124,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for postId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for postId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="postId">
             {(field) => (
@@ -1104,6 +1137,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for bannerImageId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for bannerImageId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="bannerImageId">
             {(field) => (
@@ -1115,6 +1150,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for eventFormat */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for eventFormat */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="eventFormat">
@@ -1133,6 +1170,8 @@ export const ForumEventsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to admins - implement conditional visibility for pollQuestion */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for pollQuestion */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="pollQuestion">
             {(field) => (
@@ -1158,6 +1197,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for customComponent */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for customComponent */}
         <div className={classes.fieldWrapper}>
           <form.Field name="customComponent">
             {(field) => (
@@ -1169,6 +1210,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for commentPrompt */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for commentPrompt */}
         <div className={classes.fieldWrapper}>
           <form.Field name="commentPrompt">
             {(field) => (
@@ -1183,6 +1226,8 @@ export const ForumEventsForm = ({
         </div>
 
       <Components.FormGroupLayout label="\"POLL\" Event Options" collapsed={true}>
+        {/* TODO: canCreate gated to admins - implement conditional visibility for pollAgreeWording */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for pollAgreeWording */}
         <div className={classes.fieldWrapper}>
           <form.Field name="pollAgreeWording">
             {(field) => (
@@ -1194,6 +1239,8 @@ export const ForumEventsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for pollDisagreeWording */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for pollDisagreeWording */}
         <div className={classes.fieldWrapper}>
           <form.Field name="pollDisagreeWording">
             {(field) => (
@@ -1206,6 +1253,8 @@ export const ForumEventsForm = ({
         </div>
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="\"STICKER\" Event Options" collapsed={true}>
+        {/* TODO: canCreate gated to admins - implement conditional visibility for maxStickersPerUser */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for maxStickersPerUser */}
         <div className={classes.fieldWrapper}>
           <form.Field name="maxStickersPerUser">
             {(field) => (
@@ -1299,7 +1348,7 @@ export const JargonTermsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -1310,10 +1359,10 @@ export const JargonTermsForm = ({
         const { data } = await create({ data: value });
         result = data?.createJargonTerm.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateJargonTerm.data;
       }
@@ -1460,17 +1509,17 @@ export const ConversationsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       let result: ConversationsInvalidMutationFragment;
 
       if (formType === 'new') {
         const { data } = await create({ data: value });
         result = data?.createConversation.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateConversation.data;
       }
@@ -1516,7 +1565,8 @@ export const ConversationsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for af */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for af */}
+        {/* TODO: custom hidden prop; implement conditional visibility for af */}
         <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
@@ -1528,6 +1578,8 @@ export const ConversationsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for moderator */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for moderator */}
         <div className={classes.fieldWrapper}>
           <form.Field name="moderator">
             {(field) => (
@@ -1620,7 +1672,7 @@ export const MessagesForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -1631,10 +1683,10 @@ export const MessagesForm = ({
         const { data } = await create({ data: value });
         result = data?.createMessage.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateMessage.data;
       }
@@ -1683,6 +1735,7 @@ export const MessagesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for noEmail */}
         <div className={classes.fieldWrapper}>
           <form.Field name="noEmail">
             {(field) => (
@@ -1775,7 +1828,7 @@ export const ModerationTemplatesForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -1786,10 +1839,10 @@ export const ModerationTemplatesForm = ({
         const { data } = await create({ data: value });
         result = data?.createModerationTemplate.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateModerationTemplate.data;
       }
@@ -1849,6 +1902,8 @@ export const ModerationTemplatesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for collectionName */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for collectionName */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="collectionName">
@@ -1866,6 +1921,8 @@ export const ModerationTemplatesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for order */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for order */}
         <div className={classes.fieldWrapper}>
           <form.Field name="order">
             {(field) => (
@@ -1878,6 +1935,7 @@ export const ModerationTemplatesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for deleted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
@@ -1970,7 +2028,7 @@ export const UsersForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -1981,10 +2039,10 @@ export const UsersForm = ({
         const { data } = await create({ data: value });
         result = data?.createUser.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateUser.data;
       }
@@ -2007,7 +2065,15 @@ export const UsersForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-        {/* TODO: implement conditional visibility for displayName */}
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for displayName */}
+<<<<<<< VERSION 1
+        {/* TODO: canUpdate gated to sunshineRegiment, admins, (user, document)=>{
+    if (!user) return false;
+    return !user.previousDisplayName;
+} - implement conditional visibility for displayName */}
+=======
+>>>>>>> END
+        {/* TODO: custom hidden prop; implement conditional visibility for displayName */}
         <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
             {(field) => (
@@ -2019,6 +2085,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for previousDisplayName */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for previousDisplayName */}
         <div className={classes.fieldWrapper}>
           <form.Field name="previousDisplayName">
             {(field) => (
@@ -2043,7 +2111,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for fullName */}
+        {/* TODO: custom hidden prop; implement conditional visibility for fullName */}
         <div className={classes.fieldWrapper}>
           <form.Field name="fullName">
             {(field) => (
@@ -2057,7 +2125,8 @@ export const UsersForm = ({
 
 <<<<<<< VERSION 1
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for biography */}
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for biography */}
+        {/* TODO: custom hidden prop; implement conditional visibility for biography */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
@@ -2115,7 +2184,7 @@ export const UsersForm = ({
       <Components.FormGroupLayout label="Site customizations" collapsed={true}>
 >>>>>>> END
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for theme */}
+        {/* TODO: custom hidden prop; implement conditional visibility for theme */}
         {/* TODO: 'ThemeSelect' not yet ported - implement TanStackThemeSelect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="theme">
@@ -2171,7 +2240,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideFrontpageMap */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideFrontpageMap */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageMap">
             {(field) => (
@@ -2183,7 +2252,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideFrontpageBook2020Ad */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideFrontpageBook2020Ad */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageBook2020Ad">
             {(field) => (
@@ -2208,7 +2277,10 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for showHideKarmaOption */}
+        {/* TODO: canUpdate gated to (user, document)=>{
+        return (0, _permissions.userOwns)(user, document) && (0, _permissions.userIsMemberOf)(user, group);
+    }, sunshineRegiment, admins - implement conditional visibility for showHideKarmaOption */}
+        {/* TODO: custom hidden prop; implement conditional visibility for showHideKarmaOption */}
         <div className={classes.fieldWrapper}>
           <form.Field name="showHideKarmaOption">
             {(field) => (
@@ -2255,7 +2327,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for reenableDraftJs */}
+        {/* TODO: custom hidden prop; implement conditional visibility for reenableDraftJs */}
         <div className={classes.fieldWrapper}>
           <form.Field name="reenableDraftJs">
             {(field) => (
@@ -2280,7 +2352,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideAFNonMemberInitialWarning */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideAFNonMemberInitialWarning */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideAFNonMemberInitialWarning">
             {(field) => (
@@ -2325,7 +2397,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideCommunitySection */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideCommunitySection */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideCommunitySection">
             {(field) => (
@@ -2337,7 +2409,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for showCommunityInRecentDiscussion */}
+        {/* TODO: custom hidden prop; implement conditional visibility for showCommunityInRecentDiscussion */}
         <div className={classes.fieldWrapper}>
           <form.Field name="showCommunityInRecentDiscussion">
             {(field) => (
@@ -2349,7 +2421,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hidePostsRecommendations */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hidePostsRecommendations */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hidePostsRecommendations">
             {(field) => (
@@ -2361,7 +2433,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for optedOutOfSurveys */}
+        {/* TODO: custom hidden prop; implement conditional visibility for optedOutOfSurveys */}
         <div className={classes.fieldWrapper}>
           <form.Field name="optedOutOfSurveys">
             {(field) => (
@@ -2373,7 +2445,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for postGlossariesPinned */}
+        {/* TODO: custom hidden prop; implement conditional visibility for postGlossariesPinned */}
         <div className={classes.fieldWrapper}>
           <form.Field name="postGlossariesPinned">
             {(field) => (
@@ -2386,7 +2458,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for googleLocation */}
+        {/* TODO: custom hidden prop; implement conditional visibility for googleLocation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="googleLocation">
             {(field) => (
@@ -2401,7 +2473,7 @@ export const UsersForm = ({
 
 <<<<<<< VERSION 1
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for mapLocation */}
+        {/* TODO: custom hidden prop; implement conditional visibility for mapLocation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="mapLocation">
             {(field) => (
@@ -2416,7 +2488,7 @@ export const UsersForm = ({
 
 =======
 >>>>>>> END
-        {/* TODO: implement conditional visibility for reactPaletteStyle */}
+        {/* TODO: custom hidden prop; implement conditional visibility for reactPaletteStyle */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="reactPaletteStyle">
@@ -2433,7 +2505,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideDialogueFacilitation */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideDialogueFacilitation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideDialogueFacilitation">
             {(field) => (
@@ -2445,7 +2517,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for revealChecksToAdmins */}
+        {/* TODO: custom hidden prop; implement conditional visibility for revealChecksToAdmins */}
         <div className={classes.fieldWrapper}>
           <form.Field name="revealChecksToAdmins">
             {(field) => (
@@ -2457,7 +2529,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for optedInToDialogueFacilitation */}
+        {/* TODO: custom hidden prop; implement conditional visibility for optedInToDialogueFacilitation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="optedInToDialogueFacilitation">
             {(field) => (
@@ -2469,7 +2541,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for showDialoguesList */}
+        {/* TODO: custom hidden prop; implement conditional visibility for showDialoguesList */}
         <div className={classes.fieldWrapper}>
           <form.Field name="showDialoguesList">
             {(field) => (
@@ -2481,7 +2553,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for showMyDialogues */}
+        {/* TODO: custom hidden prop; implement conditional visibility for showMyDialogues */}
         <div className={classes.fieldWrapper}>
           <form.Field name="showMyDialogues">
             {(field) => (
@@ -2493,7 +2565,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for showMatches */}
+        {/* TODO: custom hidden prop; implement conditional visibility for showMatches */}
         <div className={classes.fieldWrapper}>
           <form.Field name="showMatches">
             {(field) => (
@@ -2505,7 +2577,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for showRecommendedPartners */}
+        {/* TODO: custom hidden prop; implement conditional visibility for showRecommendedPartners */}
         <div className={classes.fieldWrapper}>
           <form.Field name="showRecommendedPartners">
             {(field) => (
@@ -2517,7 +2589,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideActiveDialogueUsers */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideActiveDialogueUsers */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideActiveDialogueUsers">
             {(field) => (
@@ -2529,7 +2601,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideWalledGardenUI */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideWalledGardenUI */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideWalledGardenUI">
             {(field) => (
@@ -2565,7 +2637,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for autoSubscribeAsOrganizer */}
+        {/* TODO: custom hidden prop; implement conditional visibility for autoSubscribeAsOrganizer */}
         <div className={classes.fieldWrapper}>
           <form.Field name="autoSubscribeAsOrganizer">
             {(field) => (
@@ -2660,7 +2732,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationPostsInGroups */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationPostsInGroups */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationPostsInGroups">
@@ -2687,7 +2759,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationSubscribedSequencePost */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationSubscribedSequencePost */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationSubscribedSequencePost">
@@ -2727,7 +2799,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationAlignmentSubmissionApproved */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationAlignmentSubmissionApproved */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationAlignmentSubmissionApproved">
@@ -2741,7 +2813,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationEventInRadius */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationEventInRadius */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationEventInRadius">
@@ -2755,7 +2827,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationRSVPs */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationRSVPs */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationRSVPs">
@@ -2769,7 +2841,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationGroupAdministration */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationGroupAdministration */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationGroupAdministration">
@@ -2861,7 +2933,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationDebateCommentsOnSubscribedPost */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationDebateCommentsOnSubscribedPost */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationDebateCommentsOnSubscribedPost">
@@ -2875,7 +2947,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationDebateReplies */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationDebateReplies */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationDebateReplies">
@@ -2889,7 +2961,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationDialogueMatch */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationDialogueMatch */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationDialogueMatch">
@@ -2903,7 +2975,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationNewDialogueChecks */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationNewDialogueChecks */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationNewDialogueChecks">
@@ -2917,7 +2989,7 @@ export const UsersForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for notificationYourTurnMatchForm */}
+        {/* TODO: custom hidden prop; implement conditional visibility for notificationYourTurnMatchForm */}
         {/* TODO: 'NotificationTypeSettingsWidget' not yet ported - implement TanStackNotificationTypeSettingsWidget */}
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationYourTurnMatchForm">
@@ -2944,6 +3016,10 @@ export const UsersForm = ({
         </div>
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Emails" collapsed={true}>
+<<<<<<< VERSION 1
+=======
+        {/* TODO: canUpdate gated to  - implement conditional visibility for whenConfirmationEmailSent */}
+>>>>>>> END
         {/* TODO: 'UsersEmailVerification' not yet ported - implement TanStackUsersEmailVerification */}
         <div className={classes.fieldWrapper}>
           <form.Field name="whenConfirmationEmailSent">
@@ -2956,7 +3032,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for emailSubscribedToCurated */}
+        {/* TODO: custom hidden prop; implement conditional visibility for emailSubscribedToCurated */}
         {/* TODO: 'EmailConfirmationRequiredCheckbox' not yet ported - implement TanStackEmailConfirmationRequiredCheckbox */}
         <div className={classes.fieldWrapper}>
           <form.Field name="emailSubscribedToCurated">
@@ -2969,7 +3045,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for subscribedToDigest */}
+        {/* TODO: custom hidden prop; implement conditional visibility for subscribedToDigest */}
         <div className={classes.fieldWrapper}>
           <form.Field name="subscribedToDigest">
             {(field) => (
@@ -2997,7 +3073,7 @@ export const UsersForm = ({
 =======
       <Components.FormGroupLayout label="Privacy settings" collapsed={true}>
 >>>>>>> END
-        {/* TODO: implement conditional visibility for hideFromPeopleDirectory */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideFromPeopleDirectory */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFromPeopleDirectory">
             {(field) => (
@@ -3009,7 +3085,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for allowDatadogSessionReplay */}
+        {/* TODO: custom hidden prop; implement conditional visibility for allowDatadogSessionReplay */}
         <div className={classes.fieldWrapper}>
           <form.Field name="allowDatadogSessionReplay">
             {(field) => (
@@ -3028,6 +3104,8 @@ export const UsersForm = ({
 =======
       <Components.FormGroupLayout label="Admin options" collapsed={true}>
 >>>>>>> END
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for viewUnreviewedComments */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for viewUnreviewedComments */}
         <div className={classes.fieldWrapper}>
           <form.Field name="viewUnreviewedComments">
             {(field) => (
@@ -3039,7 +3117,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for twitterProfileURLAdmin */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for twitterProfileURLAdmin */}
+        {/* TODO: custom hidden prop; implement conditional visibility for twitterProfileURLAdmin */}
         {/* TODO: 'PrefixedInput' not yet ported - implement TanStackPrefixedInput */}
         <div className={classes.fieldWrapper}>
           <form.Field name="twitterProfileURLAdmin">
@@ -3055,6 +3134,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for slug */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for slug */}
         <div className={classes.fieldWrapper}>
           <form.Field name="slug">
             {(field) => (
@@ -3066,6 +3147,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for noindex */}
         <div className={classes.fieldWrapper}>
           <form.Field name="noindex">
             {(field) => (
@@ -3079,6 +3161,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for sunshineNotes */}
         <div className={classes.fieldWrapper}>
           <form.Field name="sunshineNotes">
             {(field) => (
@@ -3090,6 +3173,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for sunshineFlagged */}
         <div className={classes.fieldWrapper}>
           <form.Field name="sunshineFlagged">
             {(field) => (
@@ -3101,6 +3185,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for needsReview */}
         <div className={classes.fieldWrapper}>
           <form.Field name="needsReview">
             {(field) => (
@@ -3112,6 +3197,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for sunshineSnoozed */}
         <div className={classes.fieldWrapper}>
           <form.Field name="sunshineSnoozed">
             {(field) => (
@@ -3123,6 +3209,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for snoozedUntilContentCount */}
         <div className={classes.fieldWrapper}>
           <form.Field name="snoozedUntilContentCount">
             {(field) => (
@@ -3135,6 +3222,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for reviewedByUserId */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for reviewedByUserId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewedByUserId">
             {(field) => (
@@ -3146,6 +3235,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for reviewedAt */}
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewedAt">
             {(field) => (
@@ -3159,6 +3249,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for shortformFeedId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for shortformFeedId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="shortformFeedId">
             {(field) => (
@@ -3170,6 +3262,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for defaultToCKEditor */}
         <div className={classes.fieldWrapper}>
           <form.Field name="defaultToCKEditor">
             {(field) => (
@@ -3181,6 +3274,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for signUpReCaptchaRating */}
         <div className={classes.fieldWrapper}>
           <form.Field name="signUpReCaptchaRating">
             {(field) => (
@@ -3195,6 +3289,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for abTestKey */}
         <div className={classes.fieldWrapper}>
           <form.Field name="abTestKey">
             {(field) => (
@@ -3206,7 +3301,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for walledGardenInvite */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for walledGardenInvite */}
+        {/* TODO: custom hidden prop; implement conditional visibility for walledGardenInvite */}
         <div className={classes.fieldWrapper}>
           <form.Field name="walledGardenInvite">
             {(field) => (
@@ -3218,7 +3314,9 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for reviewForAlignmentForumUserId */}
+        {/* TODO: canCreate gated to alignmentForumAdmins, admins - implement conditional visibility for reviewForAlignmentForumUserId */}
+        {/* TODO: canUpdate gated to alignmentForumAdmins, admins - implement conditional visibility for reviewForAlignmentForumUserId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for reviewForAlignmentForumUserId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewForAlignmentForumUserId">
             {(field) => (
@@ -3230,7 +3328,9 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideSunshineSidebar */}
+        {/* TODO: canCreate gated to admins - implement conditional visibility for hideSunshineSidebar */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for hideSunshineSidebar */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideSunshineSidebar */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideSunshineSidebar">
             {(field) => (
@@ -3247,7 +3347,7 @@ export const UsersForm = ({
 =======
       <Components.FormGroupLayout label="Prize/payment info" collapsed={false}>
 >>>>>>> END
-        {/* TODO: implement conditional visibility for paymentEmail */}
+        {/* TODO: custom hidden prop; implement conditional visibility for paymentEmail */}
         <div className={classes.fieldWrapper}>
           <form.Field name="paymentEmail">
             {(field) => (
@@ -3261,7 +3361,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for paymentInfo */}
+        {/* TODO: custom hidden prop; implement conditional visibility for paymentInfo */}
         <div className={classes.fieldWrapper}>
           <form.Field name="paymentInfo">
             {(field) => (
@@ -3280,6 +3380,8 @@ export const UsersForm = ({
 =======
       <Components.FormGroupLayout label="Disabled privileges" collapsed={true}>
 >>>>>>> END
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for postingDisabled */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for postingDisabled */}
         <div className={classes.fieldWrapper}>
           <form.Field name="postingDisabled">
             {(field) => (
@@ -3291,6 +3393,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for allCommentingDisabled */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for allCommentingDisabled */}
         <div className={classes.fieldWrapper}>
           <form.Field name="allCommentingDisabled">
             {(field) => (
@@ -3302,6 +3406,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for commentingOnOtherUsersDisabled */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for commentingOnOtherUsersDisabled */}
         <div className={classes.fieldWrapper}>
           <form.Field name="commentingOnOtherUsersDisabled">
             {(field) => (
@@ -3313,6 +3419,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for conversationsDisabled */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for conversationsDisabled */}
         <div className={classes.fieldWrapper}>
           <form.Field name="conversationsDisabled">
             {(field) => (
@@ -3329,6 +3437,8 @@ export const UsersForm = ({
 =======
       <Components.FormGroupLayout label="Ban & purge user" collapsed={true}>
 >>>>>>> END
+        {/* TODO: canCreate gated to admins - implement conditional visibility for nullifyVotes */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for nullifyVotes */}
         <div className={classes.fieldWrapper}>
           <form.Field name="nullifyVotes">
             {(field) => (
@@ -3340,6 +3450,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for deleteContent */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for deleteContent */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deleteContent">
             {(field) => (
@@ -3351,6 +3463,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for banned */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for banned */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="banned">
@@ -3380,7 +3494,8 @@ export const UsersForm = ({
       <Components.FormGroupLayout label="Moderation" collapsed={true}>
 >>>>>>> END
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for moderationGuidelines */}
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for moderationGuidelines */}
+        {/* TODO: custom hidden prop; implement conditional visibility for moderationGuidelines */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
@@ -3406,7 +3521,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for moderationStyle */}
+        {/* TODO: custom hidden prop; implement conditional visibility for moderationStyle */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="moderationStyle">
@@ -3434,7 +3549,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for moderatorAssistance */}
+        {/* TODO: custom hidden prop; implement conditional visibility for moderatorAssistance */}
         <div className={classes.fieldWrapper}>
           <form.Field name="moderatorAssistance">
             {(field) => (
@@ -3446,7 +3561,7 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for collapseModerationGuidelines */}
+        {/* TODO: custom hidden prop; implement conditional visibility for collapseModerationGuidelines */}
         <div className={classes.fieldWrapper}>
           <form.Field name="collapseModerationGuidelines">
             {(field) => (
@@ -3458,6 +3573,10 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for bannedUserIds */}
+        {/* TODO: canUpdate gated to (user, document)=>{
+        return (0, _permissions.userOwns)(user, document) && (0, _permissions.userIsMemberOf)(user, group);
+    }, sunshineRegiment, admins - implement conditional visibility for bannedUserIds */}
         <div className={classes.fieldWrapper}>
           <form.Field name="bannedUserIds">
             {(field) => (
@@ -3469,6 +3588,10 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for bannedPersonalUserIds */}
+        {/* TODO: canUpdate gated to (user, document)=>{
+        return (0, _permissions.userOwns)(user, document) && (0, _permissions.userIsMemberOf)(user, group);
+    }, sunshineRegiment, admins - implement conditional visibility for bannedPersonalUserIds */}
         <div className={classes.fieldWrapper}>
           <form.Field name="bannedPersonalUserIds">
             {(field) => (
@@ -3486,7 +3609,7 @@ export const UsersForm = ({
 =======
       <Components.FormGroupLayout label="General info">
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for mapLocation */}
+        {/* TODO: custom hidden prop; implement conditional visibility for mapLocation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="mapLocation">
             {(field) => (
@@ -3501,7 +3624,8 @@ export const UsersForm = ({
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="About you">
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for biography */}
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for biography */}
+        {/* TODO: custom hidden prop; implement conditional visibility for biography */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
@@ -3530,6 +3654,8 @@ export const UsersForm = ({
       </Components.FormGroupLayout>
 >>>>>>> END
       <Components.FormGroupLayout label="Admin">
+        {/* TODO: canCreate gated to admins - implement conditional visibility for isAdmin */}
+        {/* TODO: canUpdate gated to admins, realAdmins - implement conditional visibility for isAdmin */}
         <div className={classes.fieldWrapper}>
           <form.Field name="isAdmin">
             {(field) => (
@@ -3541,6 +3667,8 @@ export const UsersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for groups */}
+        {/* TODO: canUpdate gated to alignmentForumAdmins, admins, realAdmins - implement conditional visibility for groups */}
         {/* TODO: 'checkboxgroup' not yet ported - implement TanStackcheckboxgroup */}
         <div className={classes.fieldWrapper}>
           <form.Field name="groups">
@@ -3573,7 +3701,7 @@ export const UsersForm = ({
 =======
       <Components.FormGroupLayout label="Deactivate account" collapsed={true}>
 >>>>>>> END
-        {/* TODO: implement conditional visibility for deleted */}
+        {/* TODO: custom hidden prop; implement conditional visibility for deleted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
@@ -3669,7 +3797,7 @@ export const PostsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -3680,10 +3808,10 @@ export const PostsForm = ({
         const { data } = await create({ data: value });
         result = data?.createPost.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updatePost.data;
       }
@@ -3731,7 +3859,7 @@ export const PostsForm = ({
         </div>
 
       <Components.FormGroupPostTopBar >
-        {/* TODO: implement conditional visibility for postCategory */}
+        {/* TODO: custom hidden prop; implement conditional visibility for postCategory */}
         {/* TODO: 'EditPostCategory' not yet ported - implement TanStackEditPostCategory */}
         <div className={classes.fieldWrapper}>
           <form.Field name="postCategory">
@@ -3745,7 +3873,7 @@ export const PostsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for sharingSettings */}
+        {/* TODO: custom hidden prop; implement conditional visibility for sharingSettings */}
         {/* TODO: 'PostSharingSettings' not yet ported - implement TanStackPostSharingSettings */}
         <div className={classes.fieldWrapper}>
           <form.Field name="sharingSettings">
@@ -3773,7 +3901,7 @@ export const PostsForm = ({
         </div>
       </Components.FormGroupLayout>
       <Components.FormGroupLayout /* TODO: port layoutComponentProps: {"groupStyling":false,"paddingStyling":true,"flexStyling":true} */>
-        {/* TODO: implement conditional visibility for url */}
+        {/* TODO: custom hidden prop; implement conditional visibility for url */}
         {/* TODO: 'EditLinkpostUrl' not yet ported - implement TanStackEditLinkpostUrl */}
         <div className={classes.fieldWrapper}>
           <form.Field name="url">
@@ -3822,7 +3950,7 @@ export const PostsForm = ({
       </Components.FormGroupLayout>
 <<<<<<< VERSION 1
       <Components.FormGroupLayout label="Event Details">
-        {/* TODO: implement conditional visibility for onlineEvent */}
+        {/* TODO: custom hidden prop; implement conditional visibility for onlineEvent */}
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
@@ -3834,7 +3962,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for groupId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for groupId */}
         {/* TODO: 'SelectLocalgroup' not yet ported - implement TanStackSelectLocalgroup */}
         <div className={classes.fieldWrapper}>
           <form.Field name="groupId">
@@ -3847,7 +3975,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for eventType */}
+        {/* TODO: custom hidden prop; implement conditional visibility for eventType */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="eventType">
@@ -3869,7 +3997,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for activateRSVPs */}
+        {/* TODO: custom hidden prop; implement conditional visibility for activateRSVPs */}
         <div className={classes.fieldWrapper}>
           <form.Field name="activateRSVPs">
             {(field) => (
@@ -3883,7 +4011,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for startTime */}
+        {/* TODO: custom hidden prop; implement conditional visibility for startTime */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="startTime">
@@ -3895,7 +4023,7 @@ export const PostsForm = ({
 =======
       <Components.FormGroupLayout label="Set wikitags" collapsed={false}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for tagRelevance */}
+        {/* TODO: custom hidden prop; implement conditional visibility for tagRelevance */}
         {/* TODO: 'FormComponentPostEditorTagging' not yet ported - implement TanStackFormComponentPostEditorTagging */}
         <div className={classes.fieldWrapper}>
           <form.Field name="tagRelevance">
@@ -3909,7 +4037,7 @@ export const PostsForm = ({
         </div>
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Event details">
-        {/* TODO: implement conditional visibility for onlineEvent */}
+        {/* TODO: custom hidden prop; implement conditional visibility for onlineEvent */}
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
@@ -3921,7 +4049,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for groupId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for groupId */}
         {/* TODO: 'SelectLocalgroup' not yet ported - implement TanStackSelectLocalgroup */}
         <div className={classes.fieldWrapper}>
           <form.Field name="groupId">
@@ -3934,7 +4062,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for eventType */}
+        {/* TODO: custom hidden prop; implement conditional visibility for eventType */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="eventType">
@@ -3956,7 +4084,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for activateRSVPs */}
+        {/* TODO: custom hidden prop; implement conditional visibility for activateRSVPs */}
         <div className={classes.fieldWrapper}>
           <form.Field name="activateRSVPs">
             {(field) => (
@@ -3972,9 +4100,9 @@ export const PostsForm = ({
         </div>
 
 <<<<<<< VERSION 1
-        {/* TODO: implement conditional visibility for endTime */}
+        {/* TODO: custom hidden prop; implement conditional visibility for endTime */}
 =======
-        {/* TODO: implement conditional visibility for startTime */}
+        {/* TODO: custom hidden prop; implement conditional visibility for startTime */}
 >>>>>>> END
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
@@ -3992,7 +4120,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for endTime */}
+        {/* TODO: custom hidden prop; implement conditional visibility for endTime */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
 >>>>>>> END
@@ -4006,7 +4134,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for eventRegistrationLink */}
+        {/* TODO: custom hidden prop; implement conditional visibility for eventRegistrationLink */}
         <div className={classes.fieldWrapper}>
           <form.Field name="eventRegistrationLink">
             {(field) => (
@@ -4020,7 +4148,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for joinEventLink */}
+        {/* TODO: custom hidden prop; implement conditional visibility for joinEventLink */}
         <div className={classes.fieldWrapper}>
           <form.Field name="joinEventLink">
             {(field) => (
@@ -4034,7 +4162,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for globalEvent */}
+        {/* TODO: custom hidden prop; implement conditional visibility for globalEvent */}
         <div className={classes.fieldWrapper}>
           <form.Field name="globalEvent">
             {(field) => (
@@ -4049,7 +4177,7 @@ export const PostsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for googleLocation */}
+        {/* TODO: custom hidden prop; implement conditional visibility for googleLocation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="googleLocation">
             {(field) => (
@@ -4062,7 +4190,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for contactInfo */}
+        {/* TODO: custom hidden prop; implement conditional visibility for contactInfo */}
         <div className={classes.fieldWrapper}>
           <form.Field name="contactInfo">
             {(field) => (
@@ -4074,7 +4202,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for facebookLink */}
+        {/* TODO: custom hidden prop; implement conditional visibility for facebookLink */}
         <div className={classes.fieldWrapper}>
           <form.Field name="facebookLink">
             {(field) => (
@@ -4088,7 +4216,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for meetupLink */}
+        {/* TODO: custom hidden prop; implement conditional visibility for meetupLink */}
         <div className={classes.fieldWrapper}>
           <form.Field name="meetupLink">
             {(field) => (
@@ -4102,7 +4230,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for website */}
+        {/* TODO: custom hidden prop; implement conditional visibility for website */}
         <div className={classes.fieldWrapper}>
           <form.Field name="website">
             {(field) => (
@@ -4116,7 +4244,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for eventImageId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for eventImageId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="eventImageId">
             {(field) => (
@@ -4130,7 +4258,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for types */}
+        {/* TODO: custom hidden prop; implement conditional visibility for types */}
         <div className={classes.fieldWrapper}>
           <form.Field name="types">
             {(field) => (
@@ -4150,6 +4278,14 @@ export const PostsForm = ({
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Coauthors" hideHeader>
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to sunshineRegiment, admins, (user)=>{
+        if (!user) return false;
+        return user.karma > n || !!user.reviewedByUserId;
+    } - implement conditional visibility for coauthorStatuses */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins, (user)=>{
+        if (!user) return false;
+        return user.karma > n || !!user.reviewedByUserId;
+    } - implement conditional visibility for coauthorStatuses */}
         {/* TODO: 'CoauthorsListEditor' not yet ported - implement TanStackCoauthorsListEditor */}
         <div className={classes.fieldWrapper}>
           <form.Field name="coauthorStatuses">
@@ -4168,7 +4304,7 @@ export const PostsForm = ({
       <Components.FormGroupLayout label="Edit link preview" collapsed={false}>
 >>>>>>> END
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for socialPreview */}
+        {/* TODO: custom hidden prop; implement conditional visibility for socialPreview */}
         {/* TODO: 'SocialPreviewUpload' not yet ported - implement TanStackSocialPreviewUpload */}
         <div className={classes.fieldWrapper}>
           <form.Field name="socialPreview">
@@ -4183,6 +4319,8 @@ export const PostsForm = ({
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Highlight" collapsed={true}>
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for customHighlight */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for customHighlight */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="customHighlight">
             {(field) => (
@@ -4213,6 +4351,8 @@ export const PostsForm = ({
 =======
       <Components.FormGroupLayout label="Admin options" collapsed={true}>
 >>>>>>> END
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for sticky */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for sticky */}
         <div className={classes.fieldWrapper}>
           <form.Field name="sticky">
             {(field) => (
@@ -4224,6 +4364,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for metaSticky */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for metaSticky */}
         <div className={classes.fieldWrapper}>
           <form.Field name="metaSticky">
             {(field) => (
@@ -4235,7 +4377,9 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for afSticky */}
+        {/* TODO: canCreate gated to alignmentForumAdmins, admins - implement conditional visibility for afSticky */}
+        {/* TODO: canUpdate gated to alignmentForumAdmins, admins - implement conditional visibility for afSticky */}
+        {/* TODO: custom hidden prop; implement conditional visibility for afSticky */}
         <div className={classes.fieldWrapper}>
           <form.Field name="afSticky">
             {(field) => (
@@ -4248,6 +4392,8 @@ export const PostsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for stickyPriority */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for stickyPriority */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="stickyPriority">
@@ -4266,6 +4412,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for unlisted */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for unlisted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="unlisted">
             {(field) => (
@@ -4277,6 +4425,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for legacy */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for legacy */}
         <div className={classes.fieldWrapper}>
           <form.Field name="legacy">
             {(field) => (
@@ -4288,6 +4438,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for disableRecommendation */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for disableRecommendation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="disableRecommendation">
             {(field) => (
@@ -4299,6 +4451,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for forceAllowType3Audio */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for forceAllowType3Audio */}
         <div className={classes.fieldWrapper}>
           <form.Field name="forceAllowType3Audio">
             {(field) => (
@@ -4310,6 +4464,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for defaultRecommendation */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for defaultRecommendation */}
         <div className={classes.fieldWrapper}>
           <form.Field name="defaultRecommendation">
             {(field) => (
@@ -4321,7 +4477,9 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideFromPopularComments */}
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for hideFromPopularComments */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for hideFromPopularComments */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideFromPopularComments */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFromPopularComments">
             {(field) => (
@@ -4333,6 +4491,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for slug */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for slug */}
         <div className={classes.fieldWrapper}>
           <form.Field name="slug">
             {(field) => (
@@ -4344,6 +4504,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for postedAt */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for postedAt */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="postedAt">
@@ -4356,6 +4518,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for status */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for status */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="status">
@@ -4375,6 +4539,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for userId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for userId */}
         {/* TODO: 'text' not yet ported - implement TanStacktext */}
         <div className={classes.fieldWrapper}>
           <form.Field name="userId">
@@ -4389,6 +4555,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for authorIsUnreviewed */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for authorIsUnreviewed */}
         <div className={classes.fieldWrapper}>
           <form.Field name="authorIsUnreviewed">
             {(field) => (
@@ -4400,6 +4568,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for readTimeMinutesOverride */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for readTimeMinutesOverride */}
         {/* TODO: 'FormComponentNumber' not yet ported - implement TanStackFormComponentNumber */}
         <div className={classes.fieldWrapper}>
           <form.Field name="readTimeMinutesOverride">
@@ -4414,6 +4584,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for canonicalSource */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for canonicalSource */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalSource">
             {(field) => (
@@ -4425,7 +4597,9 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for manifoldReviewMarketId */}
+        {/* TODO: canCreate gated to admins - implement conditional visibility for manifoldReviewMarketId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for manifoldReviewMarketId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for manifoldReviewMarketId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="manifoldReviewMarketId">
             {(field) => (
@@ -4437,6 +4611,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for noIndex */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for noIndex */}
         <div className={classes.fieldWrapper}>
           <form.Field name="noIndex">
             {(field) => (
@@ -4448,6 +4624,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for onlyVisibleToLoggedIn */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for onlyVisibleToLoggedIn */}
         <div className={classes.fieldWrapper}>
           <form.Field name="onlyVisibleToLoggedIn">
             {(field) => (
@@ -4459,6 +4637,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for onlyVisibleToEstablishedAccounts */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for onlyVisibleToEstablishedAccounts */}
         <div className={classes.fieldWrapper}>
           <form.Field name="onlyVisibleToEstablishedAccounts">
             {(field) => (
@@ -4470,6 +4650,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for hideFromRecentDiscussions */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for hideFromRecentDiscussions */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFromRecentDiscussions">
             {(field) => (
@@ -4481,6 +4663,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for votingSystem */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="votingSystem">
@@ -4494,6 +4677,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for feedId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for feedId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="feedId">
             {(field) => (
@@ -4505,6 +4690,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for feedLink */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for feedLink */}
         <div className={classes.fieldWrapper}>
           <form.Field name="feedLink">
             {(field) => (
@@ -4516,6 +4703,13 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+<<<<<<< VERSION 1
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for curatedDate */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for curatedDate */}
+=======
+        {/* TODO: canCreate gated to admins - implement conditional visibility for curatedDate */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for curatedDate */}
+>>>>>>> END
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="curatedDate">
@@ -4528,6 +4722,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for metaDate */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for metaDate */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="metaDate">
@@ -4540,6 +4736,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins, canSuggestCuration - implement conditional visibility for suggestForCuratedUserIds */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins, canSuggestCuration - implement conditional visibility for suggestForCuratedUserIds */}
         <div className={classes.fieldWrapper}>
           <form.Field name="suggestForCuratedUserIds">
             {(field) => (
@@ -4551,6 +4749,13 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+<<<<<<< VERSION 1
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for reviewForCuratedUserId */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for reviewForCuratedUserId */}
+=======
+        {/* TODO: canCreate gated to admins - implement conditional visibility for reviewForCuratedUserId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for reviewForCuratedUserId */}
+>>>>>>> END
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewForCuratedUserId">
             {(field) => (
@@ -4562,6 +4767,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for commentSortOrder */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for commentSortOrder */}
         <div className={classes.fieldWrapper}>
           <form.Field name="commentSortOrder">
             {(field) => (
@@ -4573,6 +4780,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for hideAuthor */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for hideAuthor */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideAuthor">
             {(field) => (
@@ -4584,7 +4793,9 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for reviewForAlignmentUserId */}
+        {/* TODO: canCreate gated to alignmentForumAdmins, admins - implement conditional visibility for reviewForAlignmentUserId */}
+        {/* TODO: canUpdate gated to alignmentForumAdmins, admins - implement conditional visibility for reviewForAlignmentUserId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for reviewForAlignmentUserId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewForAlignmentUserId">
             {(field) => (
@@ -4596,6 +4807,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for swrCachingEnabled */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for swrCachingEnabled */}
         <div className={classes.fieldWrapper}>
           <form.Field name="swrCachingEnabled">
             {(field) => (
@@ -4612,6 +4825,8 @@ export const PostsForm = ({
 =======
       <Components.FormGroupLayout label="Canonical sequence" collapsed={true}>
 >>>>>>> END
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for collectionTitle */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for collectionTitle */}
         <div className={classes.fieldWrapper}>
           <form.Field name="collectionTitle">
             {(field) => (
@@ -4623,6 +4838,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for canonicalSequenceId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for canonicalSequenceId */}
         {/* TODO: 'text' not yet ported - implement TanStacktext */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalSequenceId">
@@ -4635,6 +4852,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for canonicalCollectionSlug */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for canonicalCollectionSlug */}
         {/* TODO: 'text' not yet ported - implement TanStacktext */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalCollectionSlug">
@@ -4647,6 +4866,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for canonicalBookId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for canonicalBookId */}
         {/* TODO: 'text' not yet ported - implement TanStacktext */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalBookId">
@@ -4659,6 +4880,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for canonicalNextPostSlug */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for canonicalNextPostSlug */}
         {/* TODO: 'text' not yet ported - implement TanStacktext */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalNextPostSlug">
@@ -4671,6 +4894,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for canonicalPrevPostSlug */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for canonicalPrevPostSlug */}
         {/* TODO: 'text' not yet ported - implement TanStacktext */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalPrevPostSlug">
@@ -4685,7 +4910,13 @@ export const PostsForm = ({
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Options" collapsed={true}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for fmCrosspost */}
+        {/* TODO: canCreate gated to (user)=>{
+    const currentKarmaThreshold = _publicSettings.crosspostKarmaThreshold.get();
+    return currentKarmaThreshold === null ? true : // so just subtract one
+    (0, _permissions.userOverNKarmaFunc)(currentKarmaThreshold - 1)(user);
+}, admins - implement conditional visibility for fmCrosspost */}
+        {/* TODO: canUpdate gated to (...args)=>fns.every((fn)=>fn(...args)), admins - implement conditional visibility for fmCrosspost */}
+        {/* TODO: custom hidden prop; implement conditional visibility for fmCrosspost */}
         {/* TODO: 'FMCrosspostControl' not yet ported - implement TanStackFMCrosspostControl */}
         <div className={classes.fieldWrapper}>
           <form.Field name="fmCrosspost">
@@ -4698,6 +4929,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to alignmentForum - implement conditional visibility for af */}
+        {/* TODO: canUpdate gated to alignmentForum - implement conditional visibility for af */}
         <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
@@ -4709,7 +4942,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for disableSidenotes */}
+        {/* TODO: canCreate gated to sunshineRegiment - implement conditional visibility for disableSidenotes */}
+        {/* TODO: custom hidden prop; implement conditional visibility for disableSidenotes */}
         <div className={classes.fieldWrapper}>
           <form.Field name="disableSidenotes">
             {(field) => (
@@ -4722,6 +4956,8 @@ export const PostsForm = ({
         </div>
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Audio" collapsed={true}>
+        {/* TODO: canCreate gated to admins, podcasters - implement conditional visibility for podcastEpisodeId */}
+        {/* TODO: canUpdate gated to admins, podcasters - implement conditional visibility for podcastEpisodeId */}
         {/* TODO: 'PodcastEpisodeInput' not yet ported - implement TanStackPodcastEpisodeInput */}
         <div className={classes.fieldWrapper}>
           <form.Field name="podcastEpisodeId">
@@ -4740,7 +4976,7 @@ export const PostsForm = ({
       <Components.FormGroupLayout label="Moderation" collapsed={true}>
 >>>>>>> END
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for moderationGuidelines */}
+        {/* TODO: custom hidden prop; implement conditional visibility for moderationGuidelines */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
@@ -4766,7 +5002,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for moderationStyle */}
+        {/* TODO: custom hidden prop; implement conditional visibility for moderationStyle */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="moderationStyle">
@@ -4794,7 +5030,7 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for ignoreRateLimits */}
+        {/* TODO: custom hidden prop; implement conditional visibility for ignoreRateLimits */}
         <div className={classes.fieldWrapper}>
           <form.Field name="ignoreRateLimits">
             {(field) => (
@@ -4808,6 +5044,8 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for hideFrontpageComments */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for hideFrontpageComments */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageComments">
             {(field) => (
@@ -4842,7 +5080,13 @@ export const PostsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for hideCommentKarma */}
+        {/* TODO: canCreate gated to admins, (user, post)=>{
+    return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)));
+} - implement conditional visibility for hideCommentKarma */}
+        {/* TODO: canUpdate gated to admins, (user, post)=>{
+    return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)));
+} - implement conditional visibility for hideCommentKarma */}
+        {/* TODO: custom hidden prop; implement conditional visibility for hideCommentKarma */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideCommentKarma">
             {(field) => (
@@ -4855,7 +5099,7 @@ export const PostsForm = ({
         </div>
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Glossary" collapsed={false} hideHeader>
-        {/* TODO: implement conditional visibility for glossary */}
+        {/* TODO: custom hidden prop; implement conditional visibility for glossary */}
         {/* TODO: 'GlossaryEditFormWrapper' not yet ported - implement TanStackGlossaryEditFormWrapper */}
         <div className={classes.fieldWrapper}>
           <form.Field name="glossary">
@@ -4871,7 +5115,7 @@ export const PostsForm = ({
 <<<<<<< VERSION 1
       <Components.FormGroupLayout label="Apply Wikitags" collapsed={false}>
         {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: implement conditional visibility for tagRelevance */}
+        {/* TODO: custom hidden prop; implement conditional visibility for tagRelevance */}
         {/* TODO: 'FormComponentPostEditorTagging' not yet ported - implement TanStackFormComponentPostEditorTagging */}
         <div className={classes.fieldWrapper}>
           <form.Field name="tagRelevance">
@@ -4961,17 +5205,17 @@ export const RSSFeedsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       let result: RSSFeedsInvalidMutationFragment;
 
       if (formType === 'new') {
         const { data } = await create({ data: value });
         result = data?.createRSSFeed.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateRSSFeed.data;
       }
@@ -4991,6 +5235,7 @@ export const RSSFeedsForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for nickname */}
         <div className={classes.fieldWrapper}>
           <form.Field name="nickname">
             {(field) => (
@@ -5002,6 +5247,7 @@ export const RSSFeedsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for url */}
         <div className={classes.fieldWrapper}>
           <form.Field name="url">
             {(field) => (
@@ -5013,6 +5259,7 @@ export const RSSFeedsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for ownedByUser */}
         <div className={classes.fieldWrapper}>
           <form.Field name="ownedByUser">
             {(field) => (
@@ -5024,6 +5271,7 @@ export const RSSFeedsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for displayFullContent */}
         <div className={classes.fieldWrapper}>
           <form.Field name="displayFullContent">
             {(field) => (
@@ -5035,6 +5283,7 @@ export const RSSFeedsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for status */}
         <div className={classes.fieldWrapper}>
           <form.Field name="status">
             {(field) => (
@@ -5057,6 +5306,7 @@ export const RSSFeedsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for importAsDraft */}
         <div className={classes.fieldWrapper}>
           <form.Field name="importAsDraft">
             {(field) => (
@@ -5142,17 +5392,17 @@ export const PetrovDayActionsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       let result: PetrovDayActionsInvalidMutationFragment;
 
       if (formType === 'new') {
         const { data } = await create({ data: value });
         result = data?.createPetrovDayAction.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updatePetrovDayAction.data;
       }
@@ -5281,7 +5531,7 @@ export const BooksForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -5292,10 +5542,10 @@ export const BooksForm = ({
         const { data } = await create({ data: value });
         result = data?.createBook.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateBook.data;
       }
@@ -5377,6 +5627,7 @@ export const BooksForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for collectionId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="collectionId">
             {(field) => (
@@ -5388,6 +5639,8 @@ export const BooksForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for number */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for number */}
         <div className={classes.fieldWrapper}>
           <form.Field name="number">
             {(field) => (
@@ -5424,6 +5677,8 @@ export const BooksForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for displaySequencesAsGrid */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for displaySequencesAsGrid */}
         <div className={classes.fieldWrapper}>
           <form.Field name="displaySequencesAsGrid">
             {(field) => (
@@ -5435,6 +5690,8 @@ export const BooksForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for hideProgressBar */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for hideProgressBar */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideProgressBar">
             {(field) => (
@@ -5446,6 +5703,8 @@ export const BooksForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for showChapters */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for showChapters */}
         <div className={classes.fieldWrapper}>
           <form.Field name="showChapters">
             {(field) => (
@@ -5538,7 +5797,7 @@ export const ChaptersForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -5549,10 +5808,10 @@ export const ChaptersForm = ({
         const { data } = await create({ data: value });
         result = data?.createChapter.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateChapter.data;
       }
@@ -5614,6 +5873,8 @@ export const ChaptersForm = ({
         </div>
 
       <Components.FormGroupLayout label="Chapter Details" collapsed={true}>
+        {/* TODO: canCreate gated to admins - implement conditional visibility for title */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for title */}
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (
@@ -5626,6 +5887,8 @@ export const ChaptersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for subtitle */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for subtitle */}
         <div className={classes.fieldWrapper}>
           <form.Field name="subtitle">
             {(field) => (
@@ -5638,6 +5901,8 @@ export const ChaptersForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for number */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for number */}
         <div className={classes.fieldWrapper}>
           <form.Field name="number">
             {(field) => (
@@ -5731,7 +5996,7 @@ export const CollectionsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -5742,10 +6007,10 @@ export const CollectionsForm = ({
         const { data } = await create({ data: value });
         result = data?.createCollection.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateCollection.data;
       }
@@ -5794,6 +6059,8 @@ export const CollectionsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for title */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for title */}
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (
@@ -5805,6 +6072,8 @@ export const CollectionsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for slug */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for slug */}
         <div className={classes.fieldWrapper}>
           <form.Field name="slug">
             {(field) => (
@@ -5816,6 +6085,8 @@ export const CollectionsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for gridImageId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for gridImageId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="gridImageId">
             {(field) => (
@@ -5827,6 +6098,8 @@ export const CollectionsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for firstPageLink */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for firstPageLink */}
         <div className={classes.fieldWrapper}>
           <form.Field name="firstPageLink">
             {(field) => (
@@ -5838,6 +6111,8 @@ export const CollectionsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for hideStartReadingButton */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for hideStartReadingButton */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hideStartReadingButton">
             {(field) => (
@@ -5849,6 +6124,8 @@ export const CollectionsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for noindex */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for noindex */}
         <div className={classes.fieldWrapper}>
           <form.Field name="noindex">
             {(field) => (
@@ -5941,7 +6218,7 @@ export const SequencesForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -5952,10 +6229,10 @@ export const SequencesForm = ({
         const { data } = await create({ data: value });
         result = data?.createSequence.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateSequence.data;
       }
@@ -6065,6 +6342,8 @@ export const SequencesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to alignmentVoters - implement conditional visibility for af */}
+        {/* TODO: canUpdate gated to alignmentVoters - implement conditional visibility for af */}
         <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
@@ -6081,6 +6360,8 @@ export const SequencesForm = ({
 =======
       <Components.FormGroupLayout label="Admin options" collapsed={false}>
 >>>>>>> END
+        {/* TODO: canCreate gated to admins - implement conditional visibility for userId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for userId */}
         {/* TODO: 'FormUserSelect' not yet ported - implement TanStackFormUserSelect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="userId">
@@ -6093,6 +6374,8 @@ export const SequencesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for curatedOrder */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for curatedOrder */}
         <div className={classes.fieldWrapper}>
           <form.Field name="curatedOrder">
             {(field) => (
@@ -6105,6 +6388,8 @@ export const SequencesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for userProfileOrder */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for userProfileOrder */}
         <div className={classes.fieldWrapper}>
           <form.Field name="userProfileOrder">
             {(field) => (
@@ -6117,6 +6402,8 @@ export const SequencesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for canonicalCollectionSlug */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for canonicalCollectionSlug */}
         {/* TODO: 'text' not yet ported - implement TanStacktext */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalCollectionSlug">
@@ -6135,6 +6422,8 @@ export const SequencesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for hidden */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for hidden */}
         <div className={classes.fieldWrapper}>
           <form.Field name="hidden">
             {(field) => (
@@ -6148,6 +6437,8 @@ export const SequencesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for noindex */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for noindex */}
         <div className={classes.fieldWrapper}>
           <form.Field name="noindex">
             {(field) => (
@@ -6258,7 +6549,7 @@ export const SpotlightsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -6269,10 +6560,10 @@ export const SpotlightsForm = ({
         const { data } = await create({ data: value });
         result = data?.createSpotlight.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateSpotlight.data;
       }
@@ -6295,6 +6586,8 @@ export const SpotlightsForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for documentId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for documentId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="documentId">
             {(field) => (
@@ -6306,6 +6599,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for documentType */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for documentType */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="documentType">
@@ -6323,6 +6618,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for position */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for position */}
         <div className={classes.fieldWrapper}>
           <form.Field name="position">
             {(field) => (
@@ -6335,6 +6632,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for duration */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for duration */}
         <div className={classes.fieldWrapper}>
           <form.Field name="duration">
             {(field) => (
@@ -6347,6 +6646,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for customTitle */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for customTitle */}
         <div className={classes.fieldWrapper}>
           <form.Field name="customTitle">
             {(field) => (
@@ -6358,6 +6659,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for customSubtitle */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for customSubtitle */}
         <div className={classes.fieldWrapper}>
           <form.Field name="customSubtitle">
             {(field) => (
@@ -6369,6 +6672,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for subtitleUrl */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for subtitleUrl */}
         <div className={classes.fieldWrapper}>
           <form.Field name="subtitleUrl">
             {(field) => (
@@ -6380,6 +6685,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for headerTitle */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for headerTitle */}
         <div className={classes.fieldWrapper}>
           <form.Field name="headerTitle">
             {(field) => (
@@ -6391,6 +6698,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for headerTitleLeftColor */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for headerTitleLeftColor */}
         <div className={classes.fieldWrapper}>
           <form.Field name="headerTitleLeftColor">
             {(field) => (
@@ -6402,6 +6711,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for headerTitleRightColor */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for headerTitleRightColor */}
         <div className={classes.fieldWrapper}>
           <form.Field name="headerTitleRightColor">
             {(field) => (
@@ -6413,6 +6724,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for lastPromotedAt */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for lastPromotedAt */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="lastPromotedAt">
@@ -6425,6 +6738,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for draft */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for draft */}
         <div className={classes.fieldWrapper}>
           <form.Field name="draft">
             {(field) => (
@@ -6436,6 +6751,7 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for deletedDraft */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deletedDraft">
             {(field) => (
@@ -6449,6 +6765,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for showAuthor */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for showAuthor */}
         <div className={classes.fieldWrapper}>
           <form.Field name="showAuthor">
             {(field) => (
@@ -6460,6 +6778,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for imageFade */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for imageFade */}
         <div className={classes.fieldWrapper}>
           <form.Field name="imageFade">
             {(field) => (
@@ -6471,6 +6791,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for imageFadeColor */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for imageFadeColor */}
         {/* TODO: 'FormComponentColorPicker' not yet ported - implement TanStackFormComponentColorPicker */}
         <div className={classes.fieldWrapper}>
           <form.Field name="imageFadeColor">
@@ -6483,6 +6805,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for spotlightSplashImageUrl */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for spotlightSplashImageUrl */}
         <div className={classes.fieldWrapper}>
           <form.Field name="spotlightSplashImageUrl">
             {(field) => (
@@ -6496,6 +6820,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for spotlightImageId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for spotlightImageId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="spotlightImageId">
             {(field) => (
@@ -6508,6 +6834,8 @@ export const SpotlightsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for description */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for description */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="description">
             {(field) => (
@@ -6533,6 +6861,8 @@ export const SpotlightsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for spotlightDarkImageId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for spotlightDarkImageId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="spotlightDarkImageId">
             {(field) => (
@@ -6618,17 +6948,17 @@ export const ModeratorActionsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       let result: ModeratorActionsInvalidMutationFragment;
 
       if (formType === 'new') {
         const { data } = await create({ data: value });
         result = data?.createModeratorAction.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateModeratorAction.data;
       }
@@ -6648,6 +6978,8 @@ export const ModeratorActionsForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for userId */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for userId */}
         {/* TODO: 'SearchSingleUser' not yet ported - implement TanStackSearchSingleUser */}
         <div className={classes.fieldWrapper}>
           <form.Field name="userId">
@@ -6660,6 +6992,8 @@ export const ModeratorActionsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for type */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for type */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="type">
@@ -6728,6 +7062,8 @@ export const ModeratorActionsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for endedAt */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for endedAt */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="endedAt">
@@ -6814,17 +7150,17 @@ export const ReportsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       let result: ReportsInvalidMutationFragment;
 
       if (formType === 'new') {
         const { data } = await create({ data: value });
         result = data?.createReport.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateReport.data;
       }
@@ -6856,6 +7192,7 @@ export const ReportsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for closedAt */}
         <div className={classes.fieldWrapper}>
           <form.Field name="closedAt">
             {(field) => (
@@ -6869,6 +7206,7 @@ export const ReportsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for markedAsSpam */}
         <div className={classes.fieldWrapper}>
           <form.Field name="markedAsSpam">
             {(field) => (
@@ -6954,17 +7292,17 @@ export const UserRateLimitsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       let result: UserRateLimitsInvalidMutationFragment;
 
       if (formType === 'new') {
         const { data } = await create({ data: value });
         result = data?.createUserRateLimit.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateUserRateLimit.data;
       }
@@ -6984,6 +7322,8 @@ export const UserRateLimitsForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for type */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for type */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="type">
@@ -7000,6 +7340,8 @@ export const UserRateLimitsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for intervalUnit */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for intervalUnit */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="intervalUnit">
@@ -7018,6 +7360,8 @@ export const UserRateLimitsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for intervalLength */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for intervalLength */}
         <div className={classes.fieldWrapper}>
           <form.Field name="intervalLength">
             {(field) => (
@@ -7030,6 +7374,8 @@ export const UserRateLimitsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for actionsPerInterval */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for actionsPerInterval */}
         <div className={classes.fieldWrapper}>
           <form.Field name="actionsPerInterval">
             {(field) => (
@@ -7042,6 +7388,8 @@ export const UserRateLimitsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for endedAt */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for endedAt */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="endedAt">
@@ -7128,17 +7476,17 @@ export const SurveySchedulesForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       let result: SurveySchedulesInvalidMutationFragment;
 
       if (formType === 'new') {
         const { data } = await create({ data: value });
         result = data?.createSurveySchedule.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateSurveySchedule.data;
       }
@@ -7158,6 +7506,8 @@ export const SurveySchedulesForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+        {/* TODO: canCreate gated to admins - implement conditional visibility for surveyId */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for surveyId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="surveyId">
             {(field) => (
@@ -7169,6 +7519,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for name */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for name */}
         <div className={classes.fieldWrapper}>
           <form.Field name="name">
             {(field) => (
@@ -7180,6 +7532,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for impressionsLimit */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for impressionsLimit */}
         <div className={classes.fieldWrapper}>
           <form.Field name="impressionsLimit">
             {(field) => (
@@ -7194,6 +7548,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for maxVisitorPercentage */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for maxVisitorPercentage */}
         <div className={classes.fieldWrapper}>
           <form.Field name="maxVisitorPercentage">
             {(field) => (
@@ -7208,6 +7564,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for minKarma */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for minKarma */}
         <div className={classes.fieldWrapper}>
           <form.Field name="minKarma">
             {(field) => (
@@ -7220,6 +7578,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for maxKarma */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for maxKarma */}
         <div className={classes.fieldWrapper}>
           <form.Field name="maxKarma">
             {(field) => (
@@ -7232,6 +7592,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for target */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for target */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="target">
@@ -7250,6 +7612,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for startDate */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for startDate */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="startDate">
@@ -7262,6 +7626,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for endDate */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for endDate */}
         {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
         <div className={classes.fieldWrapper}>
           <form.Field name="endDate">
@@ -7274,6 +7640,8 @@ export const SurveySchedulesForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for deactivated */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for deactivated */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deactivated">
             {(field) => (
@@ -7366,7 +7734,7 @@ export const TagsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -7377,10 +7745,10 @@ export const TagsForm = ({
         const { data } = await create({ data: value });
         result = data?.createTag.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateTag.data;
       }
@@ -7453,6 +7821,8 @@ export const TagsForm = ({
         </div>
 
       <Components.FormGroupLayout label="Advanced Options" collapsed={true}>
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for slug */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for slug */}
         <div className={classes.fieldWrapper}>
           <form.Field name="slug">
             {(field) => (
@@ -7464,6 +7834,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for shortName */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for shortName */}
         <div className={classes.fieldWrapper}>
           <form.Field name="shortName">
             {(field) => (
@@ -7475,6 +7847,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for subtitle */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for subtitle */}
         <div className={classes.fieldWrapper}>
           <form.Field name="subtitle">
             {(field) => (
@@ -7486,6 +7860,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for core */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for core */}
         <div className={classes.fieldWrapper}>
           <form.Field name="core">
             {(field) => (
@@ -7497,7 +7873,9 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for isPostType */}
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for isPostType */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for isPostType */}
+        {/* TODO: custom hidden prop; implement conditional visibility for isPostType */}
         <div className={classes.fieldWrapper}>
           <form.Field name="isPostType">
             {(field) => (
@@ -7509,6 +7887,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for suggestedAsFilter */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for suggestedAsFilter */}
         <div className={classes.fieldWrapper}>
           <form.Field name="suggestedAsFilter">
             {(field) => (
@@ -7520,6 +7900,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for defaultOrder */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for defaultOrder */}
         <div className={classes.fieldWrapper}>
           <form.Field name="defaultOrder">
             {(field) => (
@@ -7534,6 +7916,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for descriptionTruncationCount */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for descriptionTruncationCount */}
         <div className={classes.fieldWrapper}>
           <form.Field name="descriptionTruncationCount">
             {(field) => (
@@ -7546,6 +7930,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for adminOnly */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for adminOnly */}
         <div className={classes.fieldWrapper}>
           <form.Field name="adminOnly">
             {(field) => (
@@ -7557,6 +7943,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for canEditUserIds */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for canEditUserIds */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canEditUserIds">
             {(field) => (
@@ -7570,6 +7958,7 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for deleted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
@@ -7581,6 +7970,7 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for needsReview */}
         <div className={classes.fieldWrapper}>
           <form.Field name="needsReview">
             {(field) => (
@@ -7593,6 +7983,8 @@ export const TagsForm = ({
         </div>
 
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for wikiGrade */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for wikiGrade */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="wikiGrade">
@@ -7613,6 +8005,11 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+<<<<<<< VERSION 1
+=======
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for wikiOnly */}
+>>>>>>> END
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for wikiOnly */}
         <div className={classes.fieldWrapper}>
           <form.Field name="wikiOnly">
             {(field) => (
@@ -7624,7 +8021,9 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for bannerImageId */}
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for bannerImageId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for bannerImageId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for bannerImageId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="bannerImageId">
             {(field) => (
@@ -7638,7 +8037,9 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for squareImageId */}
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for squareImageId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for squareImageId */}
+        {/* TODO: custom hidden prop; implement conditional visibility for squareImageId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="squareImageId">
             {(field) => (
@@ -7652,6 +8053,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for introSequenceId */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for introSequenceId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="introSequenceId">
             {(field) => (
@@ -7663,6 +8066,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for postsDefaultSortOrder */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for postsDefaultSortOrder */}
         {/* TODO: 'select' not yet ported - implement TanStackselect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="postsDefaultSortOrder">
@@ -7692,6 +8097,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for canVoteOnRels */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for canVoteOnRels */}
         <div className={classes.fieldWrapper}>
           <form.Field name="canVoteOnRels">
             {(field) => (
@@ -7703,6 +8110,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for isSubforum */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for isSubforum */}
         <div className={classes.fieldWrapper}>
           <form.Field name="isSubforum">
             {(field) => (
@@ -7714,6 +8123,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for subforumModeratorIds */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for subforumModeratorIds */}
         <div className={classes.fieldWrapper}>
           <form.Field name="subforumModeratorIds">
             {(field) => (
@@ -7725,6 +8136,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for subforumIntroPostId */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for subforumIntroPostId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="subforumIntroPostId">
             {(field) => (
@@ -7738,6 +8151,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for parentTagId */}
+        {/* TODO: canUpdate gated to sunshineRegiment, admins - implement conditional visibility for parentTagId */}
         {/* TODO: 'TagSelect' not yet ported - implement TanStackTagSelect */}
         <div className={classes.fieldWrapper}>
           <form.Field name="parentTagId">
@@ -7752,6 +8167,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for autoTagModel */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for autoTagModel */}
         <div className={classes.fieldWrapper}>
           <form.Field name="autoTagModel">
             {(field) => (
@@ -7763,6 +8180,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for autoTagPrompt */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for autoTagPrompt */}
         <div className={classes.fieldWrapper}>
           <form.Field name="autoTagPrompt">
             {(field) => (
@@ -7774,6 +8193,7 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for noindex */}
         <div className={classes.fieldWrapper}>
           <form.Field name="noindex">
             {(field) => (
@@ -7787,6 +8207,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for coreTagId */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for coreTagId */}
         <div className={classes.fieldWrapper}>
           <form.Field name="coreTagId">
             {(field) => (
@@ -7798,6 +8220,8 @@ export const TagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins - implement conditional visibility for forceAllowType3Audio */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for forceAllowType3Audio */}
         <div className={classes.fieldWrapper}>
           <form.Field name="forceAllowType3Audio">
             {(field) => (
@@ -7811,6 +8235,11 @@ export const TagsForm = ({
       </Components.FormGroupLayout>
       <Components.FormGroupLayout label="Sidebar Welcome Message" collapsed={true}>
         {/* TODO: add custom validation (simpleSchema present) */}
+        {/* TODO: canCreate gated to sunshineRegiment, admins - implement conditional visibility for subforumWelcomeText */}
+        {/* TODO: canUpdate gated to (user, tag)=>{
+    if (!user || !tag) return false;
+    return tag.subforumModeratorIds?.includes(user._id);
+}, sunshineRegiment, admins - implement conditional visibility for subforumWelcomeText */}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="subforumWelcomeText">
             {(field) => (
@@ -7930,7 +8359,7 @@ export const MultiDocumentsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -7941,10 +8370,10 @@ export const MultiDocumentsForm = ({
         const { data } = await create({ data: value });
         result = data?.createMultiDocument.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateMultiDocument.data;
       }
@@ -7967,7 +8396,7 @@ export const MultiDocumentsForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-        {/* TODO: implement conditional visibility for title */}
+        {/* TODO: custom hidden prop; implement conditional visibility for title */}
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (
@@ -7990,7 +8419,7 @@ export const MultiDocumentsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for tabSubtitle */}
+        {/* TODO: custom hidden prop; implement conditional visibility for tabSubtitle */}
         <div className={classes.fieldWrapper}>
           <form.Field name="tabSubtitle">
             {(field) => (
@@ -8002,7 +8431,9 @@ export const MultiDocumentsForm = ({
           </form.Field>
         </div>
 
-        {/* TODO: implement conditional visibility for slug */}
+        {/* TODO: canCreate gated to admins - implement conditional visibility for slug */}
+        {/* TODO: canUpdate gated to admins - implement conditional visibility for slug */}
+        {/* TODO: custom hidden prop; implement conditional visibility for slug */}
         <div className={classes.fieldWrapper}>
           <form.Field name="slug">
             {(field) => (
@@ -8040,6 +8471,14 @@ export const MultiDocumentsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canUpdate gated to function userCanDeleteMultiDocument(user, document) {
+    if ((0, _permissions.userIsAdminOrMod)(user)) {
+        return true;
+    }
+    const deletableUntil = new Date(document.createdAt).getTime() + MULTI_DOCUMENT_DELETION_WINDOW;
+    const withinDeletionWindow = deletableUntil > Date.now();
+    return (0, _permissions.userOwns)(user, document) && withinDeletionWindow;
+}, sunshineRegiment, admins - implement conditional visibility for deleted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
@@ -8157,7 +8596,7 @@ export const TagFlagsForm = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -8168,10 +8607,10 @@ export const TagFlagsForm = ({
         const { data } = await create({ data: value });
         result = data?.createTagFlag.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateTagFlag.data;
       }
@@ -8205,6 +8644,8 @@ export const TagFlagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for deleted */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for deleted */}
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
@@ -8242,6 +8683,8 @@ export const TagFlagsForm = ({
           </form.Field>
         </div>
 
+        {/* TODO: canCreate gated to admins, sunshineRegiment - implement conditional visibility for order */}
+        {/* TODO: canUpdate gated to admins, sunshineRegiment - implement conditional visibility for order */}
         <div className={classes.fieldWrapper}>
           <form.Field name="order">
             {(field) => (

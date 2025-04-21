@@ -10,6 +10,7 @@ import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
 import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-components/TanStackEditor';
 import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
+import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
 
 export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => ({
   newOrEditForm: {
@@ -80,19 +81,18 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
 
       let result: CollectionsPageFragment;
 
-      const { contents, firstPageLink, gridImageId, hideStartReadingButton, noindex, slug, title} = value;
-      const updateData = { contents, firstPageLink, gridImageId, hideStartReadingButton, noindex, slug, title };
+      const updatedFields = getUpdatedFieldValues(formApi);
 
       const { data } = await mutate({
         selector: { _id: initialData?._id },
-        data: updateData,
+        data: updatedFields,
       });
       result = data?.updateCollection.data;
 

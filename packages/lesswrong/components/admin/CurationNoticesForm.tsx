@@ -10,6 +10,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
 import { TanStackEditor, useEditorFormCallbacks } from "../tanstack-form-components/TanStackEditor";
 import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 
 interface CurationNoticesFormProps {
   initialData?: UpdateCurationNoticeDataInput & { _id: string; };
@@ -62,7 +63,7 @@ export const CurationNoticesForm = ({
         postId,
       } : {}),
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }
@@ -72,10 +73,10 @@ export const CurationNoticesForm = ({
         const { data } = await create({ data: value });
         result = data?.createCurationNotice.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.updateCurationNotice.data;
       }
