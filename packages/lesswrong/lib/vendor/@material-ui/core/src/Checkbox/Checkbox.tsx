@@ -7,6 +7,22 @@ import CheckBoxIcon from '../internal/svg-icons/CheckBox';
 import IndeterminateCheckBoxIcon from '../internal/svg-icons/IndeterminateCheckBox';
 import { capitalize } from '../utils/helpers';
 import withStyles from '../styles/withStyles';
+import type { StandardProps } from '..';
+
+export interface CheckboxProps
+  extends StandardProps<SwitchBaseProps, CheckboxClassKey, 'checkedIcon' | 'color' | 'icon'> {
+  checkedIcon?: React.ReactNode;
+  color?: 'primary' | 'secondary' | 'default';
+  icon?: React.ReactNode;
+  indeterminate?: boolean;
+  indeterminateIcon?: React.ReactNode;
+}
+
+export type CheckboxClassKey =
+  | SwitchBaseClassKey
+  | 'indeterminate'
+  | 'colorPrimary'
+  | 'colorSecondary';
 
 export const styles = theme => ({
   /* Styles applied to the root element. */
@@ -39,7 +55,7 @@ export const styles = theme => ({
   },
 });
 
-function Checkbox(props) {
+function Checkbox(props: CheckboxProps) {
   const {
     checkedIcon,
     classes,

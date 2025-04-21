@@ -8,6 +8,17 @@ import withStyles from '../styles/withStyles';
 import Popover from '../Popover';
 import MenuList from '../MenuList';
 
+export interface MenuProps
+  extends StandardProps<PopoverProps & Partial<TransitionHandlerProps>, MenuClassKey> {
+  disableAutoFocusItem?: boolean;
+  MenuListProps?: Partial<MenuListProps>;
+  PaperProps?: Partial<PaperProps>;
+  PopoverClasses?: PopoverProps['classes'];
+  transitionDuration?: TransitionProps['timeout'] | 'auto';
+}
+
+export type MenuClassKey = 'paper';
+
 const RTL_ORIGIN = {
   vertical: 'top',
   horizontal: 'right',
@@ -30,7 +41,7 @@ export const styles = {
   },
 };
 
-class Menu extends React.Component {
+class Menu extends React.Component<MenuProps> {
   componentDidMount() {
     if (this.props.open && this.props.disableAutoFocusItem !== true) {
       this.focus();

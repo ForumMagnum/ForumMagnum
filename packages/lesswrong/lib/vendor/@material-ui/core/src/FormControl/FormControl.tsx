@@ -6,6 +6,20 @@ import withStyles from '../styles/withStyles';
 import { capitalize } from '../utils/helpers';
 import { isMuiElement } from '../utils/reactHelpers';
 
+export interface FormControlProps
+  extends StandardProps<React.HtmlHTMLAttributes<HTMLDivElement>, FormControlClassKey> {
+  component?: React.ReactType<FormControlProps>;
+  disabled?: boolean;
+  error?: boolean;
+  fullWidth?: boolean;
+  margin?: PropTypes.Margin;
+  onBlur?: React.EventHandler<any>;
+  onFocus?: React.EventHandler<any>;
+  required?: boolean;
+}
+
+export type FormControlClassKey = 'root' | 'marginNormal' | 'marginDense' | 'fullWidth';
+
 export const styles = {
   /* Styles applied to the root element. */
   root: {
@@ -45,7 +59,7 @@ export const styles = {
  *  - Input
  *  - InputLabel
  */
-class FormControl extends React.Component {
+class FormControl extends React.Component<FormControlProps> {
   constructor(props) {
     super();
 

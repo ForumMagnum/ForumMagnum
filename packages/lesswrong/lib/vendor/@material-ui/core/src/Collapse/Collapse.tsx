@@ -3,10 +3,21 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import Transition from 'react-transition-group/Transition';
+import Transition, { type TransitionProps } from 'react-transition-group/Transition';
 import withStyles from '../styles/withStyles';
 import { duration } from '../styles/transitions';
 import { getTransitionProps } from '../transitions/utils';
+import type { StandardProps } from '..';
+
+export interface CollapseProps extends StandardProps<TransitionProps, CollapseClassKey, 'timeout'> {
+  children?: React.ReactNode;
+  collapsedHeight?: string;
+  component?: React.ReactType<CollapseProps>;
+  theme?: Theme;
+  timeout?: TransitionProps['timeout'] | 'auto';
+}
+
+export type CollapseClassKey = 'container' | 'entered' | 'wrapper' | 'wrapperInner';
 
 export const styles = theme => ({
   /* Styles applied to the container element. */
@@ -35,7 +46,7 @@ export const styles = theme => ({
  * [Vertical Stepper](/demos/steppers#vertical-stepper) StepContent component.
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
-class Collapse extends React.Component {
+class Collapse extends React.Component<CollapseProps> {
   componentWillUnmount() {
     clearTimeout(this.timer);
   }

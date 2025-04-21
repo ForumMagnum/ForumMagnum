@@ -4,6 +4,15 @@ import classNames from 'classnames';
 import Typography from '../Typography';
 import withStyles from '../styles/withStyles';
 
+export interface InputAdornmentProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, InputAdornmentClassKey> {
+  component?: React.ReactType<InputAdornmentProps>;
+  disableTypography?: boolean;
+  position: 'start' | 'end';
+}
+
+export type InputAdornmentClassKey = 'root' | 'positionStart' | 'positionEnd' | 'filled';
+
 export const styles = {
   /* Styles applied to the root element. */
   root: {
@@ -28,7 +37,7 @@ export const styles = {
   },
 };
 
-function InputAdornment(props) {
+function InputAdornment(props: InputAdornmentProps) {
   const {
     children,
     component: Component,

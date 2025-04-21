@@ -6,6 +6,23 @@ import classNames from 'classnames';
 import InputBase from '../InputBase';
 import withStyles from '../styles/withStyles';
 
+export interface InputProps extends StandardProps<InputBaseProps, InputClassKey> {}
+
+export type InputClassKey =
+  | 'root'
+  | 'formControl'
+  | 'focused'
+  | 'disabled'
+  | 'underline'
+  | 'error'
+  | 'multiline'
+  | 'fullWidth'
+  | 'input'
+  | 'inputMarginDense'
+  | 'inputMultiline'
+  | 'inputType'
+  | 'inputTypeSearch';
+
 export const styles = theme => {
   const light = theme.palette.type === 'light';
   const bottomLineColor = light ? 'rgba(0, 0, 0, 0.42)' : 'rgba(255, 255, 255, 0.7)';

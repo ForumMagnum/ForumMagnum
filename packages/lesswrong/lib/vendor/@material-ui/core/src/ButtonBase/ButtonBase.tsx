@@ -6,8 +6,32 @@ import keycode from 'keycode';
 import ownerWindow from '../utils/ownerWindow';
 import withStyles from '../styles/withStyles';
 import { listenForFocusKeys, detectFocusVisible } from './focusVisible';
-import TouchRipple from './TouchRipple';
+import TouchRipple, { type TouchRippleProps } from './TouchRipple';
 import createRippleHandler from './createRippleHandler';
+import type { StandardProps } from '..';
+
+export interface ButtonBaseProps
+  extends StandardProps<
+      React.AnchorHTMLAttributes<HTMLElement> & React.ButtonHTMLAttributes<HTMLElement>,
+      ButtonBaseClassKey
+    > {
+  action?: (actions: ButtonBaseActions) => void;
+  buttonRef?: React.Ref<any> | React.RefObject<any>;
+  centerRipple?: boolean;
+  component?: React.ReactType<ButtonBaseProps>;
+  disableRipple?: boolean;
+  disableTouchRipple?: boolean;
+  focusRipple?: boolean;
+  focusVisibleClassName?: string;
+  onFocusVisible?: React.FocusEventHandler<any>;
+  TouchRippleProps?: Partial<TouchRippleProps>;
+}
+
+export type ButtonBaseClassKey = 'root' | 'disabled' | 'focusVisible';
+
+export interface ButtonBaseActions {
+  focusVisible(): void;
+}
 
 export const styles = {
   /* Styles applied to the root element. */
@@ -57,7 +81,7 @@ if (process.env.NODE_ENV !== 'production' && !React.createContext) {
  * It aims to be a simple building block for creating a button.
  * It contains a load of style reset and some focus/ripple logic.
  */
-class ButtonBase extends React.Component {
+class ButtonBase extends React.Component<ButtonBaseProps> {
   state = {};
 
   keyDown = false; // Used to help track keyboard activation keyDown

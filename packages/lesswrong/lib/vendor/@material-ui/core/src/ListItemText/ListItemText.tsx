@@ -3,6 +3,25 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import Typography from '../Typography';
+import type { StandardProps } from '..';
+
+export interface ListItemTextProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, ListItemTextClassKey> {
+  disableTypography?: boolean;
+  inset?: boolean;
+  primary?: React.ReactNode;
+  primaryTypographyProps?: Partial<TypographyProps>;
+  secondary?: React.ReactNode;
+  secondaryTypographyProps?: Partial<TypographyProps>;
+}
+
+export type ListItemTextClassKey =
+  | 'root'
+  | 'inset'
+  | 'dense'
+  | 'primary'
+  | 'secondary'
+  | 'textDense';
 
 export const styles = theme => ({
   /* Styles applied to the root element. */
@@ -40,7 +59,7 @@ export const styles = theme => ({
   textDense: {},
 });
 
-function ListItemText(props, context) {
+function ListItemText(props: ListItemTextProps, context) {
   const {
     children,
     classes,

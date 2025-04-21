@@ -4,6 +4,26 @@ import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import { formControlState } from '../InputBase/InputBase';
 
+export interface FormLabelProps extends StandardProps<FormLabelBaseProps, FormLabelClassKey> {
+  component?: React.ReactType<FormLabelBaseProps>;
+  disabled?: boolean;
+  error?: boolean;
+  filled?: boolean;
+  focused?: boolean;
+  required?: boolean;
+}
+
+export type FormLabelBaseProps = React.LabelHTMLAttributes<HTMLLabelElement>;
+
+export type FormLabelClassKey =
+  | 'root'
+  | 'focused'
+  | 'disabled'
+  | 'error'
+  | 'filled'
+  | 'required'
+  | 'asterisk';
+
 export const styles = theme => ({
   /* Styles applied to the root element. */
   root: {
@@ -39,7 +59,7 @@ export const styles = theme => ({
   },
 });
 
-function FormLabel(props, context) {
+function FormLabel(props: FormLabelProps, context) {
   const {
     children,
     classes,

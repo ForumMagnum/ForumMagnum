@@ -7,6 +7,49 @@ import withStyles from '../styles/withStyles';
 import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
+import type { StandardProps } from '..';
+import type { ButtonBaseProps } from '../ButtonBase/ButtonBase';
+
+export interface ButtonProps extends StandardProps<ButtonBaseProps, ButtonClassKey, 'component'> {
+  color?: PropTypes.Color;
+  component?: React.ReactType<ButtonProps>;
+  disabled?: boolean;
+  disableFocusRipple?: boolean;
+  disableRipple?: boolean;
+  fullWidth?: boolean;
+  href?: string;
+  mini?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  type?: string;
+  variant?: 'text' | 'flat' | 'outlined' | 'contained' | 'raised' | 'fab' | 'extendedFab';
+}
+
+export type ButtonClassKey =
+  | 'root'
+  | 'label'
+  | 'text'
+  | 'textPrimary'
+  | 'textSecondary'
+  | 'flat'
+  | 'flatPrimary'
+  | 'flatSecondary'
+  | 'outlined'
+  | 'outlinedPrimary'
+  | 'outlinedSecondary'
+  | 'colorInherit'
+  | 'contained'
+  | 'containedPrimary'
+  | 'containedSecondary'
+  | 'raised'
+  | 'raisedPrimary'
+  | 'raisedSecondary'
+  | 'focusVisible'
+  | 'disabled'
+  | 'fab'
+  | 'mini'
+  | 'sizeSmall'
+  | 'sizeLarge'
+  | 'fullWidth';
 
 export const styles = theme => ({
   /* Styles applied to the root element. */
@@ -210,7 +253,7 @@ export const styles = theme => ({
   },
 });
 
-function Button(props) {
+function Button(props: ButtonProps) {
   const {
     children,
     classes,

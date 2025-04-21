@@ -7,6 +7,27 @@ import withStyles from '../styles/withStyles';
 import FormLabel from '../FormLabel';
 import { formControlState } from '../InputBase/InputBase';
 
+export interface InputLabelProps extends StandardProps<FormLabelProps, InputLabelClassKey> {
+  disableAnimation?: boolean;
+  disabled?: boolean;
+  error?: boolean;
+  FormLabelClasses?: FormLabelProps['classes'];
+  focused?: boolean;
+  required?: boolean;
+  shrink?: boolean;
+  variant?: 'standard' | 'outlined' | 'filled';
+}
+
+export type InputLabelClassKey =
+  | 'root'
+  | 'formControl'
+  | 'marginDense'
+  | 'shrink'
+  | 'animated'
+  | 'contained'
+  | 'filled'
+  | 'outlined';
+
 export const styles = theme => ({
   /* Styles applied to the root element. */
   root: {
@@ -71,7 +92,7 @@ export const styles = theme => ({
   },
 });
 
-function InputLabel(props, context) {
+function InputLabel(props: InputLabelProps, context) {
   const {
     children,
     classes,

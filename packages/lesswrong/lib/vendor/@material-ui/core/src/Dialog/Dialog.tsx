@@ -9,6 +9,33 @@ import Modal from '../Modal';
 import Fade from '../Fade';
 import { duration } from '../styles/transitions';
 import Paper from '../Paper';
+import type { StandardProps } from '..';
+
+export interface DialogProps
+  extends StandardProps<ModalProps & Partial<TransitionHandlerProps>, DialogClassKey, 'children'> {
+  children?: React.ReactNode;
+  fullScreen?: boolean;
+  fullWidth?: boolean;
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | false;
+  PaperProps?: Partial<PaperProps>;
+  scroll?: 'body' | 'paper';
+  TransitionComponent?: React.ReactType;
+  transitionDuration?: TransitionProps['timeout'];
+  TransitionProps?: TransitionProps;
+}
+
+export type DialogClassKey =
+  | 'root'
+  | 'scrollPaper'
+  | 'scrollBody'
+  | 'paper'
+  | 'paperScrollPaper'
+  | 'paperScrollBody'
+  | 'paperWidthXs'
+  | 'paperWidthSm'
+  | 'paperWidthMd'
+  | 'paperFullWidth'
+  | 'paperFullScreen';
 
 export const styles = theme => ({
   /* Styles applied to the root element. */
@@ -100,7 +127,7 @@ export const styles = theme => ({
 /**
  * Dialogs are overlaid modal paper based components with a backdrop.
  */
-function Dialog(props) {
+function Dialog(props: DialogProps) {
   const {
     BackdropProps,
     children,

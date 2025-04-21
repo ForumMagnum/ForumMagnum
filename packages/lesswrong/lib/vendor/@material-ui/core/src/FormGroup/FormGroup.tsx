@@ -3,6 +3,13 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 
+export interface FormGroupProps
+  extends StandardProps<React.HtmlHTMLAttributes<HTMLDivElement>, FormGroupClassKey> {
+  row?: boolean;
+}
+
+export type FormGroupClassKey = 'root' | 'row';
+
 export const styles = {
   /* Styles applied to the root element. */
   root: {
@@ -21,7 +28,7 @@ export const styles = {
  * It provides compact row layout.
  * For the `Radio`, you should be using the `RadioGroup` component instead of this one.
  */
-function FormGroup(props) {
+function FormGroup(props: FormGroupProps) {
   const { classes, className, children, row, ...other } = props;
 
   return (

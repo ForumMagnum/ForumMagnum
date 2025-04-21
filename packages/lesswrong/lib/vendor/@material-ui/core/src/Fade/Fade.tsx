@@ -7,6 +7,10 @@ import { duration } from '../styles/transitions';
 import withTheme from '../styles/withTheme';
 import { reflow, getTransitionProps } from '../transitions/utils';
 
+export interface FadeProps extends TransitionProps {
+  theme?: Theme;
+}
+
 const styles = {
   entering: {
     opacity: 1,
@@ -20,7 +24,7 @@ const styles = {
  * The Fade transition is used by the [Modal](/utils/modal) component.
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
-class Fade extends React.Component {
+class Fade extends React.Component<FadeProps> {
   handleEnter = node => {
     const { theme } = this.props;
     reflow(node); // So the animation always start from the start.

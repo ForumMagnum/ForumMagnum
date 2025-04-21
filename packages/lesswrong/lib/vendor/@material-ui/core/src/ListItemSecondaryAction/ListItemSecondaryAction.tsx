@@ -2,6 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
+import type { StandardProps } from '..';
+
+export interface ListItemSecondaryActionProps
+  extends StandardProps<{}, ListItemSecondaryActionClassKey> {}
+
+export type ListItemSecondaryActionClassKey = 'root';
 
 export const styles = {
   /* Styles applied to the root element. */

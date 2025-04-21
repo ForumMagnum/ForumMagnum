@@ -5,6 +5,15 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import ListItem from '../ListItem';
+import { StandardProps } from '..';
+import { ListItemProps } from '../ListItem/ListItem';
+
+export interface MenuItemProps extends StandardProps<ListItemProps, MenuItemClassKey> {
+  component?: React.ReactType<MenuItemProps>;
+  role?: string;
+}
+
+export type MenuItemClassKey = 'root' | 'selected';
 
 export const styles = theme => ({
   /* Styles applied to the root element. */

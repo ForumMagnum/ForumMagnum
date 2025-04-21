@@ -6,6 +6,22 @@ import EventListener from 'react-event-listener';
 import withStyles from '../styles/withStyles';
 import { setRef } from '../utils/reactHelpers';
 
+export interface TextareaProps
+  extends StandardProps<
+      React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+      TextareaClassKey,
+      'rows'
+    > {
+  defaultValue?: any;
+  disabled?: boolean;
+  rows?: string | number;
+  rowsMax?: string | number;
+  textareaRef?: React.Ref<any> | React.RefObject<any>;
+  value?: string;
+}
+
+export type TextareaClassKey = 'root' | 'shadow' | 'textarea';
+
 const ROWS_HEIGHT = 19;
 
 export const styles = {
@@ -42,7 +58,7 @@ export const styles = {
 /**
  * @ignore - internal component.
  */
-class Textarea extends React.Component {
+class Textarea extends React.Component<TextareaProps> {
   handleResize = debounce(() => {
     this.syncHeightWithShadow();
   }, 166); // Corresponds to 10 frames at 60 Hz.

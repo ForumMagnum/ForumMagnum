@@ -3,6 +3,21 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import Fade from '../Fade';
+import type { StandardProps } from '..';
+import type { FadeProps } from '../Fade/Fade';
+
+export interface BackdropProps
+  extends StandardProps<
+      React.HTMLAttributes<HTMLDivElement> & Partial<FadeProps>,
+      BackdropClassKey
+    > {
+  invisible?: boolean;
+  onClick?: React.ReactEventHandler<{}>;
+  open: boolean;
+  transitionDuration?: TransitionProps['timeout'];
+}
+
+export type BackdropClassKey = 'root' | 'invisible';
 
 export const styles = {
   /* Styles applied to the root element. */
@@ -25,7 +40,7 @@ export const styles = {
   },
 };
 
-function Backdrop(props) {
+function Backdrop(props: BackdropProps) {
   const { classes, className, invisible, open, transitionDuration, ...other } = props;
 
   return (

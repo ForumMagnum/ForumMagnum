@@ -8,6 +8,20 @@ import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
 
+export interface IconButtonProps extends StandardProps<ButtonBaseProps, IconButtonClassKey> {
+  color?: PropTypes.Color;
+  disabled?: boolean;
+  disableRipple?: boolean;
+}
+
+export type IconButtonClassKey =
+  | 'root'
+  | 'colorInherit'
+  | 'colorPrimary'
+  | 'colorSecondary'
+  | 'disabled'
+  | 'label';
+
 export const styles = theme => ({
   /* Styles applied to the root element. */
   root: {
@@ -76,7 +90,7 @@ export const styles = theme => ({
  * Refer to the [Icons](/style/icons) section of the documentation
  * regarding the available icon options.
  */
-function IconButton(props) {
+function IconButton(props: IconButtonProps) {
   const { children, classes, className, color, disabled, ...other } = props;
 
   return (

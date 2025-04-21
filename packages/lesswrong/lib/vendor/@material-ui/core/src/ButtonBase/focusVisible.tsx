@@ -7,7 +7,16 @@ const internal = {
   keyUpEventTimeout: -1,
 };
 
-export function detectFocusVisible(instance, element, callback, attempt = 1) {
+export function detectFocusVisible(
+  instance: {
+    focusVisibleTimeout: any;
+    focusVisibleCheckTime: number;
+    focusVisibleMaxCheckTimes: number;
+  },
+  element: Element,
+  cb: () => void,
+  attempt: number = -1,
+): void {
   warning(instance.focusVisibleCheckTime, 'Material-UI: missing instance.focusVisibleCheckTime.');
   warning(
     instance.focusVisibleMaxCheckTimes,
@@ -46,7 +55,7 @@ const handleKeyUpEvent = event => {
   }
 };
 
-export function listenForFocusKeys(win) {
+export function listenForFocusKeys(win: Window): void {
   // The event listener will only be added once per window.
   // Duplicate event listeners will be ignored by addEventListener.
   // Also, this logic is client side only, we don't need a teardown.

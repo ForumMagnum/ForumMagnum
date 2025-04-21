@@ -12,6 +12,37 @@ import FormControl from '../FormControl';
 import FormHelperText from '../FormHelperText';
 import Select from '../Select';
 
+export interface TextFieldProps
+  extends StandardProps<FormControlProps, TextFieldClassKey, 'onChange' | 'defaultValue'> {
+  autoComplete?: string;
+  autoFocus?: boolean;
+  children?: React.ReactNode;
+  defaultValue?: string | number;
+  disabled?: boolean;
+  error?: boolean;
+  FormHelperTextProps?: Partial<FormHelperTextProps>;
+  fullWidth?: boolean;
+  helperText?: React.ReactNode;
+  id?: string;
+  InputLabelProps?: Partial<InputLabelProps>;
+  InputProps?: Partial<InputProps>;
+  inputProps?: InputProps['inputProps'];
+  inputRef?: React.Ref<any> | React.RefObject<any>;
+  label?: React.ReactNode;
+  margin?: PropTypes.Margin;
+  multiline?: boolean;
+  name?: string;
+  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+  placeholder?: string;
+  required?: boolean;
+  rows?: string | number;
+  rowsMax?: string | number;
+  select?: boolean;
+  SelectProps?: Partial<SelectProps>;
+  type?: string;
+  value?: Array<string | number | boolean> | string | number | boolean;
+  variant?: 'standard' | 'outlined' | 'filled';
+}
 const variantComponent = {
   standard: Input,
   filled: FilledInput,
@@ -46,7 +77,7 @@ const variantComponent = {
  * - using the upper case props for passing values directly to the components
  * - using the underlying components directly as shown in the demos
  */
-class TextField extends React.Component {
+class TextField extends React.Component<TextFieldProps> {
   constructor(props) {
     super(props);
     this.labelRef = React.createRef();

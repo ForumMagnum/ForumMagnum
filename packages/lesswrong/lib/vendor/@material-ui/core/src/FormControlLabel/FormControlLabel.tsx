@@ -6,6 +6,25 @@ import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import Typography from '../Typography';
 
+export interface FormControlLabelProps
+  extends StandardProps<
+      React.LabelHTMLAttributes<HTMLLabelElement>,
+      FormControlLabelClassKey,
+      'onChange'
+    > {
+  checked?: boolean | string;
+  control: React.ReactElement<any>;
+  disabled?: boolean;
+  inputRef?: React.Ref<any>;
+  label: React.ReactNode;
+  name?: string;
+  onChange?: (event: React.ChangeEvent<{}>, checked: boolean) => void;
+  labelPlacement?: 'end' | 'start';
+  value?: string;
+}
+
+export type FormControlLabelClassKey = 'root' | 'start' | 'disabled' | 'label';
+
 export const styles = theme => ({
   /* Styles applied to the root element. */
   root: {
@@ -42,7 +61,7 @@ export const styles = theme => ({
  * Drop in replacement of the `Radio`, `Switch` and `Checkbox` component.
  * Use this component if you want to display an extra label.
  */
-function FormControlLabel(props, context) {
+function FormControlLabel(props: FormControlLabelProps, context) {
   const {
     checked,
     classes,

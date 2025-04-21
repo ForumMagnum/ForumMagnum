@@ -6,6 +6,23 @@ import classNames from 'classnames';
 import InputBase from '../InputBase';
 import withStyles from '../styles/withStyles';
 
+export interface FilledInputProps extends StandardProps<InputBaseProps, FilledInputClassKey> {}
+
+export type FilledInputClassKey =
+  | 'root'
+  | 'underline'
+  | 'focused'
+  | 'disabled'
+  | 'adornedStart'
+  | 'adornedEnd'
+  | 'error'
+  | 'multiline'
+  | 'input'
+  | 'inputMarginDense'
+  | 'inputMultiline'
+  | 'inputAdornedStart'
+  | 'inputAdornedEnd';
+
 export const styles = theme => {
   const light = theme.palette.type === 'light';
   const bottomLineColor = light ? 'rgba(0, 0, 0, 0.42)' : 'rgba(255, 255, 255, 0.7)';
@@ -118,7 +135,7 @@ export const styles = theme => {
   };
 };
 
-function FilledInput(props) {
+function FilledInput(props: FilledInputProps) {
   const { classes, ...other } = props;
 
   return (

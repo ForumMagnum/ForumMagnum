@@ -5,6 +5,32 @@ import warning from 'warning';
 import withStyles from '../styles/withStyles';
 import { lighten } from '../styles/colorManipulator';
 
+export interface LinearProgressProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, LinearProgressClassKey> {
+  color?: 'primary' | 'secondary';
+  value?: number;
+  valueBuffer?: number;
+  variant?: 'determinate' | 'indeterminate' | 'buffer' | 'query';
+}
+
+export type LinearProgressClassKey =
+  | 'root'
+  | 'colorPrimary'
+  | 'colorSecondary'
+  | 'buffer'
+  | 'query'
+  | 'dashed'
+  | 'dashedColorPrimary'
+  | 'dashedColorSecondary'
+  | 'bar'
+  | 'barColorPrimary'
+  | 'barColorSecondary'
+  | 'bar1Indeterminate'
+  | 'bar2Indeterminate'
+  | 'bar1Determinate'
+  | 'bar1Buffer'
+  | 'bar2Buffer';
+
 const TRANSITION_DURATION = 4; // seconds
 
 export const styles = theme => ({
@@ -163,7 +189,7 @@ export const styles = theme => ({
  * you should use `aria-describedby` to point to the progress bar, and set the `aria-busy`
  * attribute to `true` on that region until it has finished loading.
  */
-function LinearProgress(props) {
+function LinearProgress(props: LinearProgressProps) {
   const { classes, className: classNameProp, color, value, valueBuffer, variant, ...other } = props;
 
   const className = classNames(

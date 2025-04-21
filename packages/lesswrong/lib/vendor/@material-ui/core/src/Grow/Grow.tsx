@@ -6,6 +6,14 @@ import Transition from 'react-transition-group/Transition';
 import withTheme from '../styles/withTheme';
 import { reflow, getTransitionProps } from '../transitions/utils';
 
+export interface GrowProps extends Omit<TransitionProps, 'timeout'> {
+  theme?: Theme;
+  timeout?: TransitionProps['timeout'] | 'auto';
+}
+
+declare const Grow: React.ComponentType<GrowProps>;
+
+
 function getScale(value) {
   return `scale(${value}, ${value ** 2})`;
 }
@@ -27,7 +35,7 @@ const styles = {
  * [Popover](/utils/popover) components.
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
-class Grow extends React.Component {
+class Grow extends React.Component<GrowProps> {
   componentWillUnmount() {
     clearTimeout(this.timer);
   }

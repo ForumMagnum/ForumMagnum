@@ -4,6 +4,10 @@ import classNames from 'classnames';
 import warning from 'warning';
 import withStyles from '../styles/withStyles';
 
+export interface ListItemAvatarProps extends StandardProps<{}, ListItemAvatarClassKey> {}
+
+export type ListItemAvatarClassKey = 'root' | 'icon';
+
 export const styles = theme => ({
   /* Styles applied to the root element. */
   root: {
@@ -23,7 +27,7 @@ export const styles = theme => ({
 /**
  * This is a simple wrapper to apply the `dense` mode styles to `Avatar`.
  */
-function ListItemAvatar(props, context) {
+function ListItemAvatar(props: ListItemAvatarProps, context) {
   const { children, classes, className: classNameProp, ...other } = props;
 
   if (context.dense === undefined) {

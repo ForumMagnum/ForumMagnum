@@ -3,6 +3,16 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 
+export interface ListProps
+  extends StandardProps<React.HTMLAttributes<HTMLUListElement>, ListClassKey> {
+  component?: React.ReactType<ListProps>;
+  dense?: boolean;
+  disablePadding?: boolean;
+  subheader?: React.ReactElement<any>;
+}
+
+export type ListClassKey = 'root' | 'padding' | 'dense' | 'subheader';
+
 export const styles = {
   /* Styles applied to the root element. */
   root: {
@@ -27,7 +37,7 @@ export const styles = {
   },
 };
 
-class List extends React.Component {
+class List extends React.Component<ListProps> {
   getChildContext() {
     return {
       dense: this.props.dense,

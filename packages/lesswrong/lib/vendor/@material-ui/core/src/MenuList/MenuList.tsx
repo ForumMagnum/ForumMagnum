@@ -8,6 +8,12 @@ import warning from 'warning';
 import ownerDocument from '../utils/ownerDocument';
 import List from '../List';
 
+export interface MenuListProps extends StandardProps<ListProps, MenuListClassKey, 'onKeyDown'> {
+  onKeyDown?: React.ReactEventHandler<React.KeyboardEvent<any>>;
+}
+
+export type MenuListClassKey = ListClassKey;
+
 class MenuList extends React.Component {
   state = {
     currentTabIndex: null,

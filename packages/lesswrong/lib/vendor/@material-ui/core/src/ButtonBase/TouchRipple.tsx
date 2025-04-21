@@ -5,6 +5,23 @@ import TransitionGroup from 'react-transition-group/TransitionGroup';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import Ripple from './Ripple';
+import type { StandardProps } from '..';
+
+export type TouchRippleProps = StandardProps<
+  TransitionGroup.TransitionGroupProps,
+  TouchRippleClassKey
+> & {
+  center?: boolean;
+};
+
+export type TouchRippleClassKey =
+  | 'root'
+  | 'ripple'
+  | 'rippleVisible'
+  | 'ripplePulsate'
+  | 'child'
+  | 'childLeaving'
+  | 'childPulsate';
 
 const DURATION = 550;
 export const DELAY_RIPPLE = 80;

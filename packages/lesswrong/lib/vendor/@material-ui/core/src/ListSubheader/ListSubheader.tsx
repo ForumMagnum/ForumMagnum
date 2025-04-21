@@ -4,6 +4,23 @@ import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import { capitalize } from '../utils/helpers';
 
+export interface ListSubheaderProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, ListSubheaderClassKey> {
+  color?: 'default' | 'primary' | 'inherit';
+  component?: React.ReactType<ListSubheaderProps>;
+  disableGutters?: boolean;
+  disableSticky?: boolean;
+  inset?: boolean;
+}
+
+export type ListSubheaderClassKey =
+  | 'root'
+  | 'colorPrimary'
+  | 'colorInherit'
+  | 'inset'
+  | 'sticky'
+  | 'gutters';
+
 export const styles = theme => ({
   /* Styles applied to the root element. */
   root: {
@@ -38,7 +55,7 @@ export const styles = theme => ({
   },
 });
 
-function ListSubheader(props) {
+function ListSubheader(props: ListSubheaderProps) {
   const {
     classes,
     className,

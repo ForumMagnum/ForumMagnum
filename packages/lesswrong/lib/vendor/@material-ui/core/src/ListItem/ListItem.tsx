@@ -5,6 +5,37 @@ import withStyles from '../styles/withStyles';
 import ButtonBase from '../ButtonBase';
 import { isMuiElement } from '../utils/reactHelpers';
 
+export interface ListItemProps
+  extends StandardProps<
+      ButtonBaseProps & React.LiHTMLAttributes<HTMLElement>,
+      ListItemClassKey,
+      'component'
+    > {
+  button?: boolean;
+  component?: React.ReactType<ListItemProps>;
+  ContainerComponent?: React.ReactType<React.HTMLAttributes<HTMLDivElement>>;
+  ContainerProps?: React.HTMLAttributes<HTMLDivElement>;
+  dense?: boolean;
+  disabled?: boolean;
+  disableGutters?: boolean;
+  divider?: boolean;
+  focusVisibleClassName?: string;
+  selected?: boolean;
+}
+
+export type ListItemClassKey =
+  | 'root'
+  | 'container'
+  | 'focusVisible'
+  | 'default'
+  | 'dense'
+  | 'disabled'
+  | 'divider'
+  | 'gutters'
+  | 'button'
+  | 'secondaryAction'
+  | 'selected';
+
 export const styles = theme => ({
   /* Styles applied to the (normally root) `component` element. May be wrapped by a `container`. */
   root: {
@@ -73,7 +104,7 @@ export const styles = theme => ({
   selected: {},
 });
 
-class ListItem extends React.Component {
+class ListItem extends React.Component<ListItemProps> {
   getChildContext() {
     return {
       dense: this.props.dense || this.context.dense || false,

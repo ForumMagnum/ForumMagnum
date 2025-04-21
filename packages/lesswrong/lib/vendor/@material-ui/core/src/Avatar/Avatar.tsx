@@ -2,6 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
+import { StandardProps } from '..';
+
+export interface AvatarProps
+  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, AvatarClassKey> {
+  alt?: string;
+  childrenClassName?: string;
+  component?: React.ReactType<AvatarProps>;
+  imgProps?: React.HtmlHTMLAttributes<HTMLImageElement>;
+  sizes?: string;
+  src?: string;
+  srcSet?: string;
+}
+
+export type AvatarClassKey = 'root' | 'colorDefault' | 'img';
 
 export const styles = theme => ({
   /* Styles applied to the root element. */
@@ -36,7 +50,7 @@ export const styles = theme => ({
   },
 });
 
-function Avatar(props) {
+function Avatar(props: AvatarProps) {
   const {
     alt,
     children: childrenProp,

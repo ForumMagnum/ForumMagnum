@@ -2,6 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
+import type { StandardProps } from '..';
+
+export interface ListItemIconProps extends StandardProps<{}, ListItemIconClassKey> {
+  children: React.ReactElement<any>;
+}
+
+export type ListItemIconClassKey = 'root';
 
 export const styles = theme => ({
   /* Styles applied to the root element. */
@@ -15,7 +22,7 @@ export const styles = theme => ({
 /**
  * A simple wrapper to apply `List` styles to an `Icon` or `SvgIcon`.
  */
-function ListItemIcon(props) {
+function ListItemIcon(props: ListItemIconProps) {
   const { children, classes, className: classNameProp, ...other } = props;
 
   return React.cloneElement(children, {
