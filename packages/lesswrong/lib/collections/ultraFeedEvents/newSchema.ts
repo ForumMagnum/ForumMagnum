@@ -2,7 +2,7 @@ import { FeedItemDisplayStatus } from "@/components/ultraFeed/ultraFeedTypes";
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 
 const ALLOWED_COLLECTION_NAMES = ["Posts", "Comments", "Spotlights"];
-const ALLOWED_EVENT_TYPES = ["served", "viewed", "expanded"];
+const ALLOWED_EVENT_TYPES = ["served", "viewed", "expanded", "interacted"];
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -116,6 +116,11 @@ interface ServedEventData {
   displayStatus?: FeedItemDisplayStatus;
 }
 
+// Define data for the new 'interacted' event type
+interface InteractedEventData {
+  interactionType: "bookmarkClicked" | "voteClicked" | "commentsClicked";
+}
+
 // Use Pick on the generated DB type (adjust type name 'DbUltraFeedEvent' if needed)
 type UltraFeedEventBase = Pick<DbUltraFeedEvent, '_id' | 'createdAt' | 'userId' | 'documentId' | 'collectionName' | 'feedItemId'>;
 
@@ -127,9 +132,13 @@ export type UltraFeedEvent =
     })
   | (UltraFeedEventBase & {
       eventType: "viewed";
-      event?: null | Record<string, never>;
+      event: { durationMs: number } | null;
     })
   | (UltraFeedEventBase & {
       eventType: "expanded";
       event: ExpandedEventData;
+    })
+  | (UltraFeedEventBase & {
+      eventType: "interacted";
+      event: InteractedEventData;
     });

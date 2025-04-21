@@ -3718,23 +3718,13 @@ interface UltraFeedEventsDefaultFragment { // fragment on UltraFeedEvents
   readonly createdAt: Date,
   readonly documentId: string,
   readonly collectionName: "Posts" | "Comments" | "Spotlights",
-  readonly eventType: "served" | "viewed" | "expanded",
+  readonly eventType: "served" | "viewed" | "expanded" | "interacted",
   readonly userId: string,
   readonly event: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly feedItemId: string | null,
 }
 
 interface UltraFeedPostFragment extends PostsListWithVotes { // fragment on Posts
-  readonly contents: UltraFeedPostFragment_contents|null,
-}
-
-interface UltraFeedPostFragment_contents { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
-  readonly wordCount: number,
-  readonly version: string,
 }
 
 interface UnclaimedReportsList { // fragment on Reports
