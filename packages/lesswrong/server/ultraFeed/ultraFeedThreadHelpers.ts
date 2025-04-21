@@ -137,7 +137,7 @@ interface PreparedFeedCommentsThread extends FeedCommentsThread {
  */
 function calculateCommentScore(
   comment: FeedCommentFromDb,
-  settings: Pick<UltraFeedSettingsType, 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost'>
+  settings: Pick<UltraFeedSettingsType, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
 ): number {
   if (!comment.postedAt) {
     return 0; // Cannot score without a timestamp
@@ -160,7 +160,7 @@ function calculateCommentScore(
 
   // Apply seen penalty
   const hasBeenSeenOrInteracted = comment.lastViewed !== null || comment.lastInteracted !== null;
-  const finalScore = boostedScore * (hasBeenSeenOrInteracted ? settings.commentSeenPenalty : 1.0);
+  const finalScore = boostedScore * (hasBeenSeenOrInteracted ? settings.ultraFeedSeenPenalty : 1.0);
 
   return Number.isFinite(finalScore) && finalScore >= 0 ? finalScore : 0;
 }
@@ -226,7 +226,7 @@ function calculateThreadScore(
  */
 function scoreComments(
   comments: FeedCommentFromDb[],
-  settings: Pick<UltraFeedSettingsType, 'commentDecayFactor' | 'commentDecayBiasHours' | 'commentSeenPenalty' | 'quickTakeBoost'>
+  settings: Pick<UltraFeedSettingsType, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
 ): IntermediateScoredComment[] { 
   return comments.map(comment => ({
     ...comment,
@@ -417,7 +417,7 @@ export async function getUltraFeedCommentThreads(
   const relevantSettings = { 
     commentDecayFactor: settings.commentDecayFactor, 
     commentDecayBiasHours: settings.commentDecayBiasHours, 
-    commentSeenPenalty: settings.commentSeenPenalty,
+    ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty,
     quickTakeBoost: settings.quickTakeBoost 
   };
   const scoredComments = scoreComments(rawCommentsData, relevantSettings); 

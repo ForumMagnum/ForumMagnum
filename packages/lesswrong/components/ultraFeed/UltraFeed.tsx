@@ -14,6 +14,8 @@ import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 
+const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
+
 const getStoredSettings = (): UltraFeedSettingsType => {
   if (!isClient) return DEFAULT_SETTINGS;
   
@@ -109,13 +111,41 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     padding: '16px 12px',
     boxShadow: theme.palette.boxShadow.default,
   },
+  hiddenOnDesktop: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+    },
+  },
+  hiddenOnMobile: {
+    display: 'block',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  ultraFeedSpotlightTitle: {
+    '& .SpotlightItem-title': {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontVariant: 'normal',
+      fontSize: '1.4rem',
+      fontWeight: 600,
+      opacity: 0.8,
+      lineHeight: 1.15,
+      marginBottom: 8,
+      textWrap: 'balance',
+      width: '100%',
+      '& a:hover': {
+        opacity: 0.9,
+      },
+    },
+  },
 }));
 
 const UltraFeedContent = () => {
   const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, UltraFeedPostItem,
     FeedItemWrapper, SectionTitle, SingleColumnSection, SettingsButton, 
-    SpotlightFeedItem, UltraFeedSettings, UltraFeedThreadItem } = Components;
+    SpotlightFeedItem, UltraFeedSettings, UltraFeedThreadItem, SpotlightItem } = Components;
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -123,7 +153,13 @@ const UltraFeedContent = () => {
   
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [sessionId] = useState(() => randomId());
+  const [sessionId] = useState<string>(() => {
+    const storage = window.sessionStorage;
+    const currentId = storage ? storage.getItem(ULTRAFEED_SESSION_ID_KEY) ?? randomId() : randomId();
+    storage.setItem(ULTRAFEED_SESSION_ID_KEY, currentId);
+
+    return currentId;
+  });
   
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
@@ -250,11 +286,20 @@ const UltraFeedContent = () => {
 
                       return (
                         <FeedItemWrapper>
-                          <SpotlightFeedItem 
-                            spotlight={spotlight}
-                            showSubtitle={true}
-                            index={index}
-                          />
+                          <span className={classes.hiddenOnDesktop}>
+                            <SpotlightFeedItem 
+                              spotlight={spotlight}
+                              showSubtitle={true}
+                              index={index}
+                            />
+                          </span>
+                          <span className={classes.hiddenOnMobile}>
+                            <SpotlightItem 
+                              spotlight={spotlight}
+                              showSubtitle={true}
+                              className={classes.ultraFeedSpotlightTitle}
+                            />
+                          </span>
                         </FeedItemWrapper>
                       );
                     }

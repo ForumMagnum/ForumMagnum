@@ -243,11 +243,6 @@ export const baseTheme: BaseThemeSpecification = {
         `0px 11px 15px -7px ${palette.boxShadowColor(0.2)},0px 24px 38px 3px ${palette.boxShadowColor(0.14)},0px 9px 46px 8px ${palette.boxShadowColor(0.12)}`,
       ],
       overrides: {
-        MuiButton: {
-          contained: {
-            // TODO: Override color, for which material-UI uses getContrastText() which produces a non-theme color
-          },
-        },
         MuiSelect: {
           selectMenu: {
             paddingLeft: spacingUnit
@@ -261,19 +256,6 @@ export const baseTheme: BaseThemeSpecification = {
             lineHeight: "19.5px",
           }
         },
-        MuiTableCell: {
-          body: {
-            fontSize: 14.3,
-            lineHeight: "19.5px",
-            paddingLeft: 16,
-            paddingRight: 16,
-            paddingTop: 12,
-            paddingBottom: 12,
-            marginTop: 0,
-            marginBottom: 0,
-            wordBreak: "normal",
-          }
-        }
       },
       rawCSS: [
         `@property --top-posts-page-scrim-opacity {

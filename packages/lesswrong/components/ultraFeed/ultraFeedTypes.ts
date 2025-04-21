@@ -1,15 +1,20 @@
-// Define source type arrays
-export const feedPostSourceTypesArray = ['recombee-lesswrong-custom', 'hacker-news', 'welcome-post', 'curated', 'stickied'] as const;
-export const feedCommentSourceTypesArray = [ 'recentComments', ] as const;
+// Define source type arrays for runtime iteration
+export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom' ] as const;
+export const feedCommentSourceTypesArray = ['recentComments'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 
+// Define types based on the arrays
 export type FeedPostSourceType = typeof feedPostSourceTypesArray[number];
-export type FeedCommentSourceType = 'recentComments';
+export type FeedCommentSourceType = typeof feedCommentSourceTypesArray[number];
 export type FeedSpotlightSourceType = typeof feedSpotlightSourceTypesArray[number];
 
+// Combined type for all possible sources
 export type FeedItemSourceType = FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
+
+// Define render types
 export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
+
 export type FeedItemType = FeedItemRenderType | "feedComment";
  
 export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden";
@@ -21,6 +26,9 @@ export interface RecombeeMetaInfo {
 export interface FeedPostMetaInfo {
   recommInfo?: RecombeeMetaInfo;
   sources: FeedItemSourceType[];
+  lastServed?: Date | null;
+  lastViewed?: Date | null;
+  lastInteracted?: Date | null;
   displayStatus: FeedItemDisplayStatus;
 }
 export interface FeedCommentMetaInfo {
@@ -46,6 +54,13 @@ export interface FeedCommentFromDb {
   lastViewed: Date | null;
   lastInteracted: Date | null;
   postedAt: Date | null;
+}
+
+export interface FeedPostFromDb extends DbPost {
+  sourceType: FeedItemSourceType;
+  lastServed: Date | null;
+  lastViewed: Date | null;
+  lastInteracted: Date | null;
 }
 
 export interface PreDisplayFeedComment {

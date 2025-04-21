@@ -70,16 +70,16 @@ const LWHome = () => {
             observerProps={{threshold:[0, 0.5, 1]}}
           >
             <LWHomePosts>
+              <QuickTakesSection />
+              <EAPopularCommentsSection />
               <UltraFeed />
-              {!ultraFeedEnabled && <>
-                <QuickTakesSection />
-                <EAPopularCommentsSection />
+              {!ultraFeedEnabled && ( 
                 <RecentDiscussionFeed
                   af={false}
                   commentsLimit={4}
                   maxAgeHours={18}
                 />
-              </>}
+              )}
             </LWHomePosts>
           </AnalyticsInViewTracker>
         </React.Fragment>

@@ -9,6 +9,10 @@ import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
+import { useRecordPostView } from "../hooks/useRecordPostView";
+import classnames from "classnames";
+import { useSingle } from "../../lib/crud/withSingle";
+import { highlightMaxChars } from "../../lib/editor/ellipsize";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -54,6 +58,12 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       fontSize: '1.6rem',
     },
   },
+  titleIsRead: {
+    opacity: 0.5,
+    '&:hover': {
+      opacity: 0.9,
+    },
+  },
   headerRightSection: {
     display: "flex",
     flexGrow: 0,
@@ -89,20 +99,14 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       fontSize: "1.3rem",
-      marginTop: 0,
     },
   },
   metaLeftSection: {
     display: "flex",
     alignItems: "center",
     flex: "1 1 auto",
+    minWidth: 0,
     flexWrap: "wrap",
-  },
-  metaRightSection: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto",
-    marginRight: 0,
   },
   metaKarma: {
     display: "inline-block",
@@ -112,23 +116,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     paddingRight: 8,
     marginRight: 4,
   },
-  metaUsername: {
-    marginRight: 12,
-    '& a, & a:hover': {
-      color: theme.palette.link.unmarked,
-    },
-    color: theme.palette.text.dim,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    whiteSpace: 'nowrap',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  metaCoauthors: {
-    marginLeft: 4,
-    marginRight: 0,
-    color: theme.palette.text.dim,
-    whiteSpace: 'nowrap',
-  },
   metaDateContainer: {
     marginRight: 8,
   },
@@ -136,29 +123,22 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     paddingTop: 12,
     paddingBottom: 12,
   },
+  loadingContainer: {
+    display: "flex",
+    justifyContent: "center",
+    padding: "20px 0",
+  },
+  authorsList: {
+    fontSize: 'inherit',
+    color: 'inherit',
+    fontFamily: 'inherit',
+    marginRight: 8,
+    flexShrink: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
 }));
-
-// TODO: This is optimized for mobile (only show one author, might want to show more on desktop)
-const PostAuthorsDisplay = ({ authors, isAnon }: { authors: UsersMinimumInfo[]; isAnon: boolean }) => {
-  const classes = useStyles(styles);
-  const { UserNameDeleted, UsersName } = Components;
-
-  if (isAnon || authors.length === 0) {
-    return <UserNameDeleted />;
-  }
-
-  const mainAuthor = authors[0];
-  const additionalAuthorsCount = authors.length - 1;
-
-  return (
-    <span className={classes.metaUsername}>
-      <UsersName user={mainAuthor} />
-      {additionalAuthorsCount > 0 && (
-        <span className={classes.metaCoauthors}>+{additionalAuthorsCount}</span>
-      )}
-    </span>
-  );
-};
 
 const UltraFeedPostItem = ({
   post,
@@ -174,11 +154,25 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate } = Components;
+  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading, TruncatedAuthorsList } = Components;
+
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const metaLeftSectionRef = useRef<HTMLDivElement>(null);
   const { captureEvent } = useTracking();
   const { isAnon, authors } = usePostsUserAndCoauthors(post);
+  const { recordPostView, isRead } = useRecordPostView(post);
+  const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
+  const [isLoadingFull, setIsLoadingFull] = useState(false);
+  const [shouldShowLoading, setShouldShowLoading] = useState(false);
+  const [expandLevel, setExpandLevel] = useState(0);
+
+  const { document: fullPost, loading: loadingFullPost } = useSingle({
+    documentId: post._id,
+    collectionName: "Posts",
+    fragmentName: "PostsExpandedHighlight",
+    skip: !isLoadingFull,
+  });
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -188,6 +182,22 @@ const UltraFeedPostItem = ({
   }, [observe, post._id]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
+    setExpandLevel(level);
+    
+    // Start loading the full post on first expand
+    if (level > 0 && !isLoadingFull && !fullPost) {
+      setIsLoadingFull(true);
+    }
+
+    // Show loading spinner only if we need more content than what we have
+    // Compare requested breakpoint (word count) against highlight char limit
+    // This is an approximation, but better than using full post word count
+    const requestedWordCount = settings.postTruncationBreakpoints?.[level - 1];
+    const needsMoreContentThanHighlight = requestedWordCount ? requestedWordCount > (highlightMaxChars / 5) : false;
+    
+    const showLoading = isLoadingFull && needsMoreContentThanHighlight && !fullPost;
+    setShouldShowLoading(showLoading);
+
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
@@ -202,17 +212,35 @@ const UltraFeedPostItem = ({
       maxLevelReached: maxReached,
       wordCount,
     });
-  }, [trackExpansion, post._id, captureEvent]);
+
+    if (!hasRecordedViewOnExpand) {
+      void recordPostView({ post, extraEventProperties: { type: 'ultraFeedExpansion' } });
+      setHasRecordedViewOnExpand(true);
+    }
+
+  }, [
+    trackExpansion, 
+    post, 
+    captureEvent, 
+    recordPostView, 
+    hasRecordedViewOnExpand, 
+    isLoadingFull, 
+    fullPost,
+    settings.postTruncationBreakpoints
+  ]);
 
   if (
     !post?._id 
     || !post.contents
-    || !post.contents.html
+    || !post.contents.htmlHighlight
     || !post.contents.wordCount
     || post.contents.wordCount <= 0
   ) {
      return <div>No post content found for post with id: {post._id}</div>; 
   }
+
+  const displayHtml = fullPost?.contents?.html || post.contents.htmlHighlight;
+  const displayWordCount = post.contents.wordCount;
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
@@ -220,13 +248,15 @@ const UltraFeedPostItem = ({
       <div className={classes.header}>
         <div className={classes.titleRow}>
           <div className={classes.titleContainer}>
-            <Link to={postGetLink(post)} className={classes.title}>{post.title}</Link>
+            <Link to={postGetLink(post)} className={classnames(classes.title, { [classes.titleIsRead]: isRead })}>
+              {post.title}
+            </Link>
             <div className={classes.metaRoot}>
-              <span className={classes.metaLeftSection}>
+              <span className={classes.metaLeftSection} ref={metaLeftSectionRef}>
                 {showKarma && !post.rejected && <span className={classes.metaKarma}>
                   {postGetKarma(post)}
                 </span>}
-                <PostAuthorsDisplay authors={authors} isAnon={isAnon} />
+                <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaLeftSectionRef} className={classes.authorsList} />
                 {post.postedAt && (
                   <span className={classes.metaDateContainer}>
                     <FormatDate date={post.postedAt} />
@@ -235,8 +265,6 @@ const UltraFeedPostItem = ({
               </span>
             </div>
           </div>
-
-
 
           <span className={classes.headerRightSection}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
@@ -248,21 +276,26 @@ const UltraFeedPostItem = ({
             </AnalyticsContext>
           </span>
         </div>
-
-
       </div>
 
-      <FeedContentBody
-        post={post}
-        html={post.contents.html}
-        breakpoints={settings.postTruncationBreakpoints}
-        initialExpansionLevel={0}
-        wordCount={post.contents.wordCount}
-        linkToDocumentOnFinalExpand={true}
-        nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-        onExpand={handleContentExpand}
-        hideSuffix={false}
-      />
+      {shouldShowLoading && loadingFullPost ? (
+        <div className={classes.loadingContainer}>
+          <Loading />
+        </div>
+      ) : (
+        <FeedContentBody
+          post={post}
+          html={displayHtml}
+          breakpoints={settings.postTruncationBreakpoints}
+          initialExpansionLevel={0}
+          wordCount={displayWordCount}
+          linkToDocumentOnFinalExpand={true}
+          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+          onExpand={handleContentExpand}
+          hideSuffix={false}
+        />
+      )}
+      
       <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
     </AnalyticsContext>
