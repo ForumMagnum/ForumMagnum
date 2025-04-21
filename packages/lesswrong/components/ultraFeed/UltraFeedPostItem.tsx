@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { Link } from "../../lib/reactRouterWrapper";
 import { postGetLink, postGetKarma } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
@@ -13,6 +12,7 @@ import classnames from "classnames";
 import { useSingle } from "../../lib/crud/withSingle";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
 import { useOverflowNav } from "./hooks/useOverflowNav";
+import { useDialog } from "../common/withDialog";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -54,6 +54,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     width: '100%',
     '&:hover': {
       opacity: 0.9,
+      textDecoration: 'none',
+      cursor: 'pointer',
     },
     [theme.breakpoints.down('sm')]: {
       fontSize: '1.6rem',
@@ -148,7 +150,7 @@ const UltraFeedPostItem = ({
   showKarma,
   settings = DEFAULT_SETTINGS,
 }: {
-  post: UltraFeedPostFragment,
+  post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
   index: number,
   showKarma?: boolean,
@@ -160,6 +162,7 @@ const UltraFeedPostItem = ({
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const metaLeftSectionRef = useRef<HTMLDivElement>(null);
+  const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
   const { captureEvent } = useTracking();
   const { recordPostView, isRead } = useRecordPostView(post);
@@ -236,6 +239,20 @@ const UltraFeedPostItem = ({
     setResetSig((s) => s + 1);
   };
 
+  const handleTitleClick = useCallback(() => {
+    captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
+    openDialog({
+      name: "UltraFeedPostDialog",
+      closeOnNavigate: true,
+      contents: ({ onClose }) => (
+        <Components.UltraFeedPostDialog
+          postId={post._id}
+          onClose={onClose}
+        />
+      )
+    });
+  }, [openDialog, post._id, captureEvent]);
+
   if (
     !post?._id 
     || !post.contents
@@ -255,9 +272,15 @@ const UltraFeedPostItem = ({
       <div className={classes.header}>
         <div className={classes.titleRow}>
           <div className={classes.titleContainer}>
-            <Link to={postGetLink(post)} className={classnames(classes.title, { [classes.titleIsRead]: isRead })}>
+            <span 
+              onClick={handleTitleClick}
+              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTitleClick(); }}
+            >
               {post.title}
-            </Link>
+            </span>
             <div className={classes.metaRoot}>
               <span className={classes.metaLeftSection} ref={metaLeftSectionRef}>
                 {showKarma && !post.rejected && <span className={classes.metaKarma}>
@@ -296,9 +319,9 @@ const UltraFeedPostItem = ({
           breakpoints={settings.postTruncationBreakpoints}
           initialExpansionLevel={0}
           wordCount={displayWordCount}
-          linkToDocumentOnFinalExpand={true}
           nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
           onExpand={handleContentExpand}
+          onContinueReadingClick={handleTitleClick}
           hideSuffix={false}
           resetSignal={resetSig}
         />

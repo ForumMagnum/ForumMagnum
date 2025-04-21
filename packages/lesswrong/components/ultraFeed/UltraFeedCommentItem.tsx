@@ -9,6 +9,7 @@ import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { useOverflowNav } from "./hooks/useOverflowNav";
 import OverflowNavButtons from "./OverflowNavButtons";
+import { useDialog } from "../common/withDialog";
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -218,6 +219,7 @@ const UltraFeedCommentItem = ({
   const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
   const { post } = comment;
   const { displayStatus } = metaInfo;
@@ -288,6 +290,21 @@ const UltraFeedCommentItem = ({
 
   }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus]);
 
+  const handleContinueReadingClick = useCallback(() => {
+    captureEvent("ultraFeedCommentItemContinueReadingClicked", { commentId: comment._id, postId: comment.postId });
+    openDialog({
+      name: "UltraFeedCommentsDialog",
+      closeOnNavigate: true,
+      contents: ({ onClose }) => (
+        <Components.UltraFeedCommentsDialog 
+          document={comment}
+          collectionName="Comments"
+          onClose={onClose}
+        />
+      )
+    });
+  }, [openDialog, comment]);
+
   const expanded = displayStatus === "expanded";
 
   const truncationBreakpoints = useMemo(() => {
@@ -333,11 +350,11 @@ const UltraFeedCommentItem = ({
             html={comment.contents?.html ?? ""}
             breakpoints={truncationBreakpoints ?? []}
             wordCount={comment.contents?.wordCount ?? 0}
-            linkToDocumentOnFinalExpand={expanded}
             initialExpansionLevel={0}
             nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
             clampOverride={settings.lineClampNumberOfLines}
             onExpand={handleContentExpand}
+            onContinueReadingClick={handleContinueReadingClick}
             hideSuffix={false}
             resetSignal={resetSig}
           />

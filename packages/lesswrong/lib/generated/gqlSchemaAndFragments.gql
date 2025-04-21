@@ -8228,7 +8228,7 @@ fragment FeedPostFragment on FeedPost {
   _id
   postMetaInfo
   post {
-    ...UltraFeedPostFragment
+    ...PostsListWithVotes
   }
 }
 
@@ -11320,7 +11320,16 @@ fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
 }
 
 fragment UltraFeedPostFragment on Post {
+  ...PostsDetails
   ...PostsListWithVotes
+  contents {
+    _id
+    html
+    htmlHighlight
+    wordCount
+  }
+  autoFrontpage
+  votingSystem
 }
 
 fragment UnclaimedReportsList on Report {

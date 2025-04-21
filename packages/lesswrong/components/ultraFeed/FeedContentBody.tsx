@@ -20,7 +20,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
   readMoreButton: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.primary.main,
+    color: theme.palette.link.color,
     cursor: 'pointer',
     marginTop: 12,
     display: 'block',
@@ -77,7 +77,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
 }));
 
-type PostProps = { post: PostsList; comment?: never; tag?: never };
+type PostProps = { post: PostsList|UltraFeedPostFragment; comment?: never; tag?: never };
 type CommentProps = { post?: never; comment: CommentsList; tag?: never };
 type TagProps = { post?: never; comment?: never; tag: TagBasicInfo };
 
@@ -85,9 +85,10 @@ type DocumentProps = PostProps | CommentProps | TagProps;
 
 interface BaseFeedContentBodyProps {
   html: string;
-  breakpoints: number[];
+  breakpoints?: number[];
   initialExpansionLevel?: number;
   linkToDocumentOnFinalExpand?: boolean;
+  onContinueReadingClick?: () => void;
   wordCount: number;
   onExpand?: (level: number, maxLevelReached: boolean, wordCount: number) => void;
   description?: string;
@@ -105,9 +106,10 @@ type FeedContentBodyProps = BaseFeedContentBodyProps & DocumentProps;
 
 const FeedContentBody = ({
   html,
-  breakpoints,
+  breakpoints = [],
   initialExpansionLevel = 0,
   linkToDocumentOnFinalExpand = true,
+  onContinueReadingClick,
   wordCount,
   post,
   comment,
@@ -158,7 +160,7 @@ const FeedContentBody = ({
   };
 
   const handleExpand = useCallback(() => {
-    if (isMaxLevel) {
+    if (isMaxLevel || !breakpoints.length) {
         return; 
     }
 
@@ -185,7 +187,9 @@ const FeedContentBody = ({
     let wasTruncated = false;
     let wordsLeft = 0;
 
-    if (applyLineClamp) {
+    if (!breakpoints.length) {
+      return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0 };
+    } else if (applyLineClamp) {
       wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
       wordsLeft = 0; // Not used when applyLineClamp is true, set to 0
       truncatedHtml = html; // Render full HTML for CSS clamping
@@ -240,8 +244,29 @@ const FeedContentBody = ({
     }
   };
 
-  const showContinueReadingLink = !applyLineClamp && isMaxLevel && wasTruncated && linkToDocumentOnFinalExpand;
+  const showContinueReadingAction = !applyLineClamp && isMaxLevel && wasTruncated;
   const isClickableForExpansion = !isMaxLevel;
+
+  const continueReadingAction = (() => {
+    if (!showContinueReadingAction) return null;
+
+    if (onContinueReadingClick) {
+      return <div className={classes.readMoreButton} onClick={(e) => { e.stopPropagation(); onContinueReadingClick(); }} >
+        {`(Continue Reading – ${wordsLeft} words more)`}
+      </div>
+    }
+    else if (linkToDocumentOnFinalExpand) {
+      return <Link
+        to={getDocumentUrl()}
+        className={classes.readMoreButton}
+        eventProps={{intent: `expand${documentType.charAt(0).toUpperCase() + documentType.slice(1)}`}}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {`(Continue Reading – ${wordsLeft} words more)`}
+      </Link>
+    }
+    return null;
+  })();
 
   return (
     <div
@@ -265,17 +290,7 @@ const FeedContentBody = ({
               })}
             />
         </div>
-
-        {showContinueReadingLink && <div className={classes.continueReadingLinkContainer}>
-            <Link
-              to={getDocumentUrl()}
-              className={classes.readMoreButton}
-              eventProps={{intent: `expand${documentType.charAt(0).toUpperCase() + documentType.slice(1)}`}}
-              onClick={(e) => e.stopPropagation()}
-            >
-            {`(Continue Reading – ${wordsLeft} words more)`}
-          </Link>
-      </div>}
+        {continueReadingAction}
       </Components.ContentStyles>
     </div>
   );
