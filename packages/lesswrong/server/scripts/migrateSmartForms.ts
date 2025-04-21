@@ -24,6 +24,7 @@ import { exec as execSync } from 'child_process';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
+import { userOwns } from '@/lib/vulcan-users/permissions';
 
 const exec = util.promisify(execSync);
 
@@ -322,6 +323,24 @@ function getComponentName(fieldName: string, fieldSpec: DerivedSimpleSchemaField
   return { component: 'TanStackMuiTextField' };
 }
 
+function getCanCreateTodo(fieldName: string, schemaFieldSpec: CollectionFieldSpecification<any>) {
+  const canCreate = schemaFieldSpec.graphql?.canCreate;
+  if (!canCreate || !Array.isArray(canCreate) || ((canCreate.includes('guests') || canCreate.includes('members')))) {
+    return undefined;
+  }
+
+  return `{/* TODO: canCreate gated to ${canCreate.join(', ')} - implement conditional visibility for ${fieldName} */}`;
+}
+
+function getCanUpdateTodo(fieldName: string, schemaFieldSpec: CollectionFieldSpecification<any>) {
+  const canUpdate = schemaFieldSpec.graphql?.canUpdate;
+  if (!canUpdate || !Array.isArray(canUpdate) || ((canUpdate.includes('guests') || canUpdate.includes('members') || canUpdate.includes(userOwns)))) {
+    return undefined;
+  }
+
+  return `{/* TODO: canUpdate gated to ${canUpdate.join(', ')} - implement conditional visibility for ${fieldName} */}`;
+}
+
 /* ---------------  MAIN LOOP ---------------------------------------- */
 
 export function generateForms() {
@@ -449,7 +468,7 @@ export const ${className} = ({
     defaultValues: {
       ...initialData,
     },
-    onSubmit: async ({ value }) => {${anyEditableFields ? `
+    onSubmit: async ({ value, formApi }) => {${anyEditableFields ? `
       if (onSubmitCallback.current) {
         value = await onSubmitCallback.current(value);
       }\n`: ''}
@@ -459,10 +478,10 @@ export const ${className} = ({
         const { data } = await create({ data: value });
         result = data?.create${collectionNameToTypeName[collectionName]}.data;
       } else {
-        const { _id, ...valueWithoutId } = value;
+        const updatedFields = getUpdatedFieldValues(formApi);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
-          data: valueWithoutId,
+          data: updatedFields,
         });
         result = data?.update${collectionNameToTypeName[collectionName]}.data;
       }
@@ -572,8 +591,19 @@ export const ${className} = ({
         // Conditional visibility TODO (function)
         const hiddenTodo =
           typeof hiddenProp === 'function'
-            ? `{/* TODO: implement conditional visibility for ${fieldName} */}`
+            ? `{/* TODO: custom hidden prop; implement conditional visibility for ${fieldName} */}`
             : '';
+
+        const canCreateTodo = getCanCreateTodo(fieldName, collectionSchema[fieldName]);
+        const canUpdateTodo = getCanUpdateTodo(fieldName, collectionSchema[fieldName]);
+
+        if (canCreateTodo) {
+          output += `\n        ${canCreateTodo}`;
+        }
+
+        if (canUpdateTodo) {
+          output += `\n        ${canUpdateTodo}`;
+        }
 
         if (hiddenTodo) {
           output += `\n        ${hiddenTodo}`;

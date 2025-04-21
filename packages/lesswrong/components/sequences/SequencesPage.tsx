@@ -169,6 +169,13 @@ const SequencesPage = ({ documentId, classes }: {
     fragmentName: 'SequencesPageFragment',
   });
 
+  const { document: editDocument, loading: editLoading } = useSingle({
+    documentId,
+    collectionName: "Sequences",
+    fragmentName: 'SequencesEdit',
+    skip: !edit,
+  });
+
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
@@ -193,13 +200,25 @@ const SequencesPage = ({ documentId, classes }: {
   if (!document) {
     return <Components.Error404/>
   }
-  if (edit) return (
-    <SequencesEditForm
-      documentId={documentId}
-      successCallback={showSequence}
-      cancelCallback={showSequence}
-    />
-  )
+  if (edit) {
+    if (!currentUser) {
+      return <div>You must be logged in to edit this sequence.</div>
+    }
+    if (editLoading) {
+      return <Components.Loading />
+    }
+    if (!editDocument) {
+      return <Components.Error404/>
+    }
+    return (
+      <SequencesEditForm
+        sequence={editDocument}
+        currentUser={currentUser}
+        successCallback={showSequence}
+        cancelCallback={showSequence}
+      />
+    )
+  }
 
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
   const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
