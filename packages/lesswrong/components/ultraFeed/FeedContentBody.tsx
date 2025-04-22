@@ -7,6 +7,16 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
+const limitImageHeightClass = (theme: ThemeType) => ({
+  maxHeight: 250,
+  objectFit: 'contain',
+  display: 'block',
+  margin: '0 auto',
+  [theme.breakpoints.down('sm')]: {
+    maxHeight: 'none',
+  },
+});
+
 const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   root: {
     position: 'relative',
@@ -45,11 +55,11 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     // textOverflow: 'ellipsis !important', // might want to reenable
     maxHeight: 'none !important',
     paddingBottom: '0.1em !important',
-
     // Hide first blockquote when line clamping is active
     '& blockquote:first-child': {
       display: 'none !important',
     },
+    '& img': limitImageHeightClass(theme),
   },
   lineClamp1: {
     WebkitLineClamp: '1 !important',
@@ -74,6 +84,9 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
   lineClamp10: {
     WebkitLineClamp: '10 !important',
+  },
+  levelZero: {
+    '& img': limitImageHeightClass(theme),
   },
 }));
 
@@ -311,6 +324,7 @@ const FeedContentBody = ({
                 [classes.maxHeight]: !applyLineClamp && !isMaxLevel && wasTruncated,
                 [classes.lineClamp]: applyLineClamp && wasTruncated,
                 [getLineClampClass()]: applyLineClamp && wasTruncated,
+                [classes.levelZero]: expansionLevel === 0,
               })}
             />
         </div>
