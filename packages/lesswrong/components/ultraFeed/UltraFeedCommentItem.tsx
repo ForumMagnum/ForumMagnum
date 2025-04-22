@@ -8,7 +8,6 @@ import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import { useOverflowNav } from "./hooks/useOverflowNav";
-import OverflowNavButtons from "./OverflowNavButtons";
 import { useDialog } from "../common/withDialog";
 
 const commentHeaderPaddingDesktop = 12;
@@ -216,7 +215,7 @@ const UltraFeedCommentItem = ({
   settings = DEFAULT_SETTINGS,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
+  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter, OverflowNavButtons } = Components;
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();

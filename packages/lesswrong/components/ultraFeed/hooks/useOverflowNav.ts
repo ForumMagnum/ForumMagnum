@@ -1,10 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
 
-/**
- * Ratio of item height to viewport height beyond which we consider the item
- * "oversized" and show scroll navigation controls. For example, a ratio of 2
- * means the item must be at least twice as tall as the viewport.
- */
 export const OVERFLOW_HEIGHT_RATIO = 2;
 
 export interface OverflowNavResult {
@@ -15,15 +10,17 @@ export interface OverflowNavResult {
 }
 
 /**
- * Hook that returns `true` when the target element is
- *   1. Taller than `ratio × viewportHeight`, *and*
- *   2. The viewport is currently somewhere in the middle of the element
- *      (i.e. its top is above the viewport and its bottom below).
+ * Hook that determines whether to show "scroll up" and "scroll down" navigation
+ * indicators for a target element based on its size and scroll position within
+ * the viewport (used in UltraFeed componets).
  *
- * Implementation: two invisible 1-px "sentinel" divs are inserted at the very
- * top and bottom of the element. An IntersectionObserver with threshold 0
- * watches them. When both sentinels are *not* intersecting the viewport, we
- * know the element fully surrounds the viewport.
+ * Returns an object containing boolean flags `showUp`, `showDown`, and functions
+ * `scrollToTop`, `scrollToBottom` to smoothly scroll near the top or bottom
+ * of the target element.
+ * 
+ * Only returns true if the item is larger than the viewport.
+ * Implemented by inserting two sentinel divs 1px-high at the top and bottom of the item,
+ * and watching them with an IntersectionObserver to infer state.
  */
 export const useOverflowNav = (
   targetRef: React.RefObject<HTMLElement>,
@@ -106,7 +103,6 @@ export const useOverflowNav = (
       (useOverflowNav as any)._observer = sharedObserver;
     }
 
-    // Register sentinels
     sharedMap.set(topSentinel, { pair: pairState, kind: 'top' });
     sharedMap.set(bottomSentinel, { pair: pairState, kind: 'bottom' });
 

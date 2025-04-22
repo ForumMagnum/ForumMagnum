@@ -296,7 +296,6 @@ const FeedContentBody = ({
       return <Link
         to={getDocumentUrl()}
         className={classes.readMoreButton}
-        eventProps={{intent: `expand${documentType.charAt(0).toUpperCase() + documentType.slice(1)}`}}
         onClick={(e) => e.stopPropagation()}
       >
         {`(Continue Reading – ${wordsLeft} words more)`}

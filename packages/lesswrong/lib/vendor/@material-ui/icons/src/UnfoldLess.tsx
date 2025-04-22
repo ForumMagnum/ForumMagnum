@@ -7,4 +7,4 @@ export default createSvgIcon(
     <path d="M16.59 5.41 15.17 4 12 7.17 8.83 4 7.41 5.41 12 10z" />
   </React.Fragment>,
   'UnfoldLess'
-); 
+);
