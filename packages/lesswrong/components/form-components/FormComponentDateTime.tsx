@@ -7,6 +7,7 @@ import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
+import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
 
 const styles = (theme: ThemeType) => ({
   input: {
@@ -330,6 +331,21 @@ const FormComponentDateTime = (
     name={name}
     value={date}
     onChange={updateDate}
+    below={below}
+  />
+}
+
+export const TanStackDatePicker = ({ field, label, name, below }: {
+  field: TypedFieldApi<Date | undefined>,
+  label: string,
+  name?: string,
+  below?: boolean,
+}) => {
+  return <Components.DatePicker
+    label={label}
+    name={name}
+    value={field.state.value}
+    onChange={field.handleChange}
     below={below}
   />
 }
