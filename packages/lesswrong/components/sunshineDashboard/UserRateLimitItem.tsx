@@ -1,12 +1,21 @@
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/newSchema';
+import { INTERVAL_UNITS, USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/newSchema';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { useForm } from '@tanstack/react-form';
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
+import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
+import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
+import { TanStackSelect } from '../tanstack-form-components/TanStackSelect';
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -66,9 +75,11 @@ const styles = (theme: ThemeType) => ({
 const COMMENTS_THREE_PER_DAY = 'comments_3_per_day';
 const COMMENTS_ONE_PER_DAY = 'comments_1_per_day';
 const COMMENTS_ONE_PER_THREE_DAYS = 'comments_1_per_3_days';
-
 const POSTS_ONE_PER_WEEK = 'posts_1_per_week';
-const DEFAULT_RATE_LIMITS: Record<string, (userId: string) => NullablePartial<DbUserRateLimit>> = {
+
+type RateLimitInput = Pick<DbUserRateLimit, 'userId' | 'type' | 'intervalLength' | 'intervalUnit' | 'actionsPerInterval' | 'endedAt'>;
+
+const DEFAULT_RATE_LIMITS: Record<string, (userId: string) => RateLimitInput> = {
   [COMMENTS_THREE_PER_DAY]: (userId: string) => ({
     userId,
     type: 'allComments',
@@ -120,7 +131,169 @@ const getRateLimitDescription = (rateLimit: UserRateLimitDisplay) => {
   return `${USER_RATE_LIMIT_TYPES[rateLimit.type]}, ${rateLimit.actionsPerInterval} per ${intervalDescription}`;
 };
 
-export const UserRateLimitItem = ({userId, classes}: {
+const formStyles = defineStyles('SurveySchedulesForm', (theme: ThemeType) => ({
+  defaultFormSection: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+  cancelButton: cancelButtonStyles(theme),
+}));
+
+export const UserRateLimitsForm = ({
+  initialData,
+  prefilledProps,
+  onSuccess,
+  onCancel,
+}: {
+  initialData?: UpdateUserRateLimitDataInput & { _id: string; intervalUnit: DbUserRateLimit['intervalUnit']; type: DbUserRateLimit['type'] };
+  prefilledProps?: RateLimitInput;
+  onSuccess: (doc: UserRateLimitDisplay) => void;
+  onCancel: () => void;
+}) => {
+  const classes = useStyles(formStyles);
+  const { Error404 } = Components;
+
+  const formType = initialData ? 'edit' : 'new';
+
+  const { create } = useCreate({
+    collectionName: 'UserRateLimits',
+    fragmentName: 'UserRateLimitDisplay', // TODO: use correct fragment type
+  });
+
+  const { mutate } = useUpdate({
+    collectionName: 'UserRateLimits',
+    fragmentName: 'UserRateLimitDisplay', // TODO: use correct fragment type
+  });
+
+  const form = useForm({
+    defaultValues: {
+      ...initialData,
+      ...(formType === 'new' ? prefilledProps : {})
+    },
+    onSubmit: async ({ value, formApi }) => {
+      let result: UserRateLimitDisplay;
+
+      if (formType === 'new') {
+        const { data } = await create({ data: value });
+        result = data?.createUserRateLimit.data;
+      } else {
+        const updatedFields = getUpdatedFieldValues(formApi);
+        const { data } = await mutate({
+          selector: { _id: initialData?._id },
+          data: updatedFields,
+        });
+        result = data?.updateUserRateLimit.data;
+      }
+
+      onSuccess(result);
+    },
+  });
+
+  if (formType === 'edit' && !initialData) {
+    return <Error404 />;
+  }
+
+  return (
+    <form className="vulcan-form" onSubmit={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void form.handleSubmit();
+    }}>
+      <div className={classes.defaultFormSection}>
+        <div className={classNames('input-type', classes.fieldWrapper)}>
+          <form.Field name="type">
+            {(field) => (
+              <TanStackSelect
+                field={field}
+                options={Object.entries(USER_RATE_LIMIT_TYPES).map(([value, label]) => ({ value, label }))}
+                label="Type"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classNames('input-intervalUnit', classes.fieldWrapper)}>
+          <form.Field name="intervalUnit">
+            {(field) => (
+              <TanStackSelect
+                field={field}
+                options={Object.entries(INTERVAL_UNITS).map(([value, label]) => ({ value, label }))}
+                label="Interval unit"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classNames('input-intervalLength', classes.fieldWrapper)}>
+          <form.Field name="intervalLength">
+            {(field) => (
+              <TanStackMuiTextField
+                field={field}
+                type="number"
+                label="Interval length"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classNames('input-actionsPerInterval', classes.fieldWrapper)}>
+          <form.Field name="actionsPerInterval">
+            {(field) => (
+              <TanStackMuiTextField
+                field={field}
+                type="number"
+                label="Actions per interval"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classNames('input-endedAt', classes.fieldWrapper)}>
+          <form.Field name="endedAt">
+            {(field) => (
+              <TanStackDatePicker
+                field={field}
+                label="Ended at"
+              />
+            )}
+          </form.Field>
+        </div>
+      </div>
+
+
+      <div className="form-submit">
+        <Button
+          className={classNames("form-cancel", classes.cancelButton)}
+          onClick={(e) => {
+            e.preventDefault();
+            onCancel();
+          }}
+        >
+          Cancel
+        </Button>
+
+        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              disabled={!canSubmit || isSubmitting}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
+            >
+              Submit
+            </Button>
+          )}
+        </form.Subscribe>
+      </div>
+    </form>
+  );
+};
+
+export const UserRateLimitItem = ({ userId, classes }: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -194,17 +367,15 @@ export const UserRateLimitItem = ({userId, classes}: {
       </Select>
     </div>}
     {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
-      <WrappedSmartForm
-        {...(editingExistingRateLimitId ? {documentId: editingExistingRateLimitId} : {})}
-        collectionName='UserRateLimits'
-        mutationFragmentName='UserRateLimitDisplay'
-        prefilledProps={editingExistingRateLimitId ? {} : prefilledCustomFormProps}
-        successCallback={async () => {
+      <UserRateLimitsForm
+        initialData={editingExistingRateLimitId ? existingRateLimits.find(rateLimit => rateLimit._id === editingExistingRateLimitId) : undefined}
+        prefilledProps={editingExistingRateLimitId ? undefined : prefilledCustomFormProps}
+        onSuccess={async () => {
           await refetch();
           setCreateNewRateLimit(false);
           setEditingExistingRateLimitId(undefined);
         }}
-        cancelCallback={() => {
+        onCancel={() => {
           setCreateNewRateLimit(false);
           setEditingExistingRateLimitId(undefined);
         }}
@@ -220,14 +391,14 @@ export const UserRateLimitItem = ({userId, classes}: {
         </span>
         <LWTooltip title="End this rate limit">
           <span className={classes.clickToEdit}>
-            <ClearIcon className={classes.clearIcon} onClick={() => endExistingRateLimit(existingRateLimit._id)}/>
+            <ClearIcon className={classes.clearIcon} onClick={() => endExistingRateLimit(existingRateLimit._id)} />
           </span>
         </LWTooltip>
       </div>)}
   </div>;
 }
 
-const UserRateLimitItemComponent = registerComponent('UserRateLimitItem', UserRateLimitItem, {styles});
+const UserRateLimitItemComponent = registerComponent('UserRateLimitItem', UserRateLimitItem, { styles });
 
 declare global {
   interface ComponentTypes {

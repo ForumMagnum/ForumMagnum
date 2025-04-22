@@ -10,7 +10,7 @@ export const USER_RATE_LIMIT_TYPES = {
   allPosts: "Posts",
 };
 
-const INTERVAL_UNITS = {
+export const INTERVAL_UNITS = {
   minutes: "minutes",
   hours: "hours",
   days: "days",
