@@ -25,7 +25,6 @@ export interface TabsProps
   indicatorColor?: 'secondary' | 'primary' | string;
   onChange?: (event: React.ChangeEvent<{}>, value: any) => void;
   scrollable?: boolean;
-  ScrollButtonComponent?: React.Component;
   scrollButtons?: 'auto' | 'on' | 'off';
   TabIndicatorProps?: Partial<TabIndicatorProps>;
   textColor?: 'secondary' | 'primary' | 'inherit' | string;
@@ -145,7 +144,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
   }
 
   getConditionalElements = () => {
-    const { classes, scrollable, ScrollButtonComponent, scrollButtons, theme } = this.props;
+    const { classes, scrollable, scrollButtons, theme } = this.props;
     const conditionalElements = {};
     conditionalElements.scrollbarSizeListener = scrollable ? (
       <ScrollbarSize
@@ -157,7 +156,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     const showScrollButtons = scrollable && (scrollButtons === 'auto' || scrollButtons === 'on');
 
     conditionalElements.scrollButtonLeft = showScrollButtons ? (
-      <ScrollButtonComponent
+      <TabScrollButton
         direction={theme && theme.direction === 'rtl' ? 'right' : 'left'}
         onClick={this.handleLeftScrollClick}
         visible={this.state.showLeftScroll}
@@ -168,7 +167,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     ) : null;
 
     conditionalElements.scrollButtonRight = showScrollButtons ? (
-      <ScrollButtonComponent
+      <TabScrollButton
         direction={theme && theme.direction === 'rtl' ? 'left' : 'right'}
         onClick={this.handleRightScrollClick}
         visible={this.state.showRightScroll}
@@ -322,7 +321,6 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
       indicatorColor,
       onChange,
       scrollable,
-      ScrollButtonComponent,
       scrollButtons,
       TabIndicatorProps = {},
       textColor,
@@ -421,7 +419,6 @@ Tabs.defaultProps = {
   fullWidth: false,
   indicatorColor: 'secondary',
   scrollable: false,
-  ScrollButtonComponent: TabScrollButton,
   scrollButtons: 'auto',
   textColor: 'inherit',
 };

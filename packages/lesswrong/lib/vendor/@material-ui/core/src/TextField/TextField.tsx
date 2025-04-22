@@ -3,7 +3,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import warning from 'warning';
-import PropTypes from 'prop-types';
 import Input from '../Input';
 import FilledInput from '../FilledInput';
 import OutlinedInput from '../OutlinedInput';
@@ -35,7 +34,7 @@ export interface TextFieldProps
   inputProps?: InputProps['inputProps'];
   inputRef?: React.Ref<any> | React.RefObject<any>;
   label?: React.ReactNode;
-  margin?: PropTypes.Margin;
+  margin?: string;
   multiline?: boolean;
   name?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;

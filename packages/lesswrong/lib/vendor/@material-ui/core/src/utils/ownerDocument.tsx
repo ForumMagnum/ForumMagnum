@@ -1,4 +1,4 @@
-function ownerDocument(node) {
+function ownerDocument(node: Node) {
   return (node && node.ownerDocument) || document;
 }
 

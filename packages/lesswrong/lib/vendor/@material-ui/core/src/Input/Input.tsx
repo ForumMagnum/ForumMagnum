@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import InputBase from '../InputBase';
 import { StandardProps } from '..';
 import { InputBaseProps } from '../InputBase/InputBase';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useStyles, useStylesNonProxy } from '@/components/hooks/useStyles';
 
 export interface InputProps extends StandardProps<InputBaseProps, InputClassKey> {}
 
@@ -108,7 +108,7 @@ export const styles = defineStyles("MuiInput", theme => {
 
 function Input(props: InputProps) {
   const { disableUnderline, classes: classesOverride, ...other } = props;
-  const classes = useStyles(styles, classesOverride);
+  const classes = useStylesNonProxy(styles, classesOverride);
 
   return (
     <InputBase
@@ -117,7 +117,7 @@ function Input(props: InputProps) {
         root: classNames(classes.root, {
           [classes.underline]: !disableUnderline,
         }),
-        underline: null,
+        underline: undefined,
       }}
       {...other}
     />

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import EventListener from 'react-event-listener';
 import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
 
@@ -12,12 +11,20 @@ const styles = {
   msOverflowStyle: 'scrollbar',
 };
 
+interface ScrollbarSizeProps {
+  onChange: any
+  onLoad: any
+}
+
 /**
  * @ignore - internal component.
  * The component is originates from https://github.com/STORIS/react-scrollbar-size.
  * It has been moved into the core in order to minimize the bundle size.
  */
-class ScrollbarSize extends React.Component {
+class ScrollbarSize extends React.Component<ScrollbarSizeProps> {
+  scrollbarHeight: number
+  scrollbarWidth: number
+  
   handleResize = debounce(() => {
     const { onChange } = this.props;
 
@@ -68,10 +75,5 @@ class ScrollbarSize extends React.Component {
     );
   }
 }
-
-ScrollbarSize.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  onLoad: PropTypes.func.isRequired,
-};
 
 export default ScrollbarSize;

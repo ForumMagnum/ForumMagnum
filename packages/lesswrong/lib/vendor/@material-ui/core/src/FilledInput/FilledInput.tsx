@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import InputBase from '../InputBase';
 import { StandardProps } from '..';
 import { InputBaseProps } from '../InputBase/InputBase';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useStyles, useStylesNonProxy } from '@/components/hooks/useStyles';
 
 export interface FilledInputProps extends StandardProps<InputBaseProps, FilledInputClassKey> {}
 
@@ -138,14 +138,14 @@ export const styles = defineStyles("MuiFilledInput", theme => {
 
 function FilledInput(props: FilledInputProps) {
   const { classes: classesOverride, ...other } = props;
-  const classes = useStyles(styles, classesOverride);
+  const classes = useStylesNonProxy(styles, classesOverride);
 
   return (
     <InputBase
       classes={{
         ...classes,
         root: classNames(classes.root, classes.underline, {}),
-        underline: null,
+        underline: undefined,
       }}
       {...other}
     />

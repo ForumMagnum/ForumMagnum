@@ -4,6 +4,7 @@ import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from "jss";
 import jssPreset from "@/lib/vendor/@material-ui/core/src/styles/jssPreset";
 import { isClient } from "@/lib/executionEnvironment";
+import { useTheme } from "../themes/useTheme";
 
 export type StylesContextType = {
   theme: ThemeType
@@ -140,6 +141,59 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
   } else {
     return styles.nameProxy;
   }
+}
+
+/**
+ * Like useStyles, but returns classes in the form of an object with all
+ * classes in it as regular fields, rather than a proxy. This is less efficient,
+ * but is compatible with some janky object-spreading hacks inside vendored
+ * material-UI code.
+ */
+export const useStylesNonProxy = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
+  const stylesContext = useContext(StylesContext);
+  const theme = useTheme();
+
+  if (bundleIsServer) {
+    // If we're rendering server-side, we might or might not have
+    // StylesContext. If we do, use it to record which styles were used during
+    // the render. This is used when rendering emails, or if you want to server
+    // an SSR with styles inlined rather than in a static stlyesheet.
+    if (stylesContext) {
+      if (!stylesContext.mountedStyles.has(styles.name)) {
+        stylesContext.mountedStyles.set(styles.name, {
+          refcount: 1,
+          styleDefinition: styles,
+        });
+      }
+    }
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLayoutEffect(() => {
+      if (stylesContext) {
+        addStyleUsage(stylesContext, styles);
+        return () => removeStyleUsage(stylesContext, styles);
+      }
+    }, [styles, stylesContext, stylesContext?.theme]);
+  }
+
+  const styleKeys = Object.keys(styles.styles(theme));
+  const styleKeysSet = new Set(styleKeys);
+  const allClasses = [
+    ...styleKeys,
+    ...(overrideClasses ? Object.keys(overrideClasses) : [])
+  ];
+  return Object.fromEntries(
+    allClasses.map(key => [
+      key,
+      [
+        ...(styleKeysSet.has(key) ? [`${styles.name}-${key}`] : []),
+        ...((overrideClasses && (key in overrideClasses))
+          ? [(overrideClasses as any)[key]]
+          : []
+        ),
+      ].join(" ")
+    ])
+  ) as JssStyles<T>;
 }
 
 

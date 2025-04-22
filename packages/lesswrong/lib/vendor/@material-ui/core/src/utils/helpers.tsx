@@ -1,20 +1,16 @@
 import warning from 'warning';
 
-export function capitalize(string) {
-  if (process.env.NODE_ENV !== 'production' && typeof string !== 'string') {
-    throw new Error('Material-UI: capitalize(string) expects a string argument.');
-  }
-
-  return string.charAt(0).toUpperCase() + string.slice(1);
+export function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-export function contains(obj, pred) {
+export function contains<O1 extends O2, O2 extends {}>(obj: O1, pred: O2): boolean {
   return Object.keys(pred).every(key => {
-    return obj.hasOwnProperty(key) && obj[key] === pred[key];
+    return obj.hasOwnProperty(key) && (obj as any)[key] === (pred as any)[key];
   });
 }
 
-export function findIndex(arr, pred) {
+export function findIndex(arr: any[], pred: any): number {
   const predType = typeof pred;
   for (let i = 0; i < arr.length; i += 1) {
     if (predType === 'function' && !!pred(arr[i], i, arr) === true) {
@@ -30,10 +26,12 @@ export function findIndex(arr, pred) {
   return -1;
 }
 
-export function find(arr, pred) {
+export function find<T>(arr: T[], pred: any): T|undefined {
   const index = findIndex(arr, pred);
   return index > -1 ? arr[index] : undefined;
 }
+
+export type ChainedFunction = ((...args: any[]) => void) | undefined | null;
 
 /**
  * Safe chained function
@@ -44,9 +42,9 @@ export function find(arr, pred) {
  * @param {function} functions to chain
  * @returns {function|null}
  */
-export function createChainedFunction(...funcs) {
+export function createChainedFunction(...funcs: ChainedFunction[]) {
   return funcs.reduce(
-    (acc, func) => {
+    (acc: AnyBecauseTodo, func) => {
       if (func == null) {
         return acc;
       }
@@ -57,8 +55,8 @@ export function createChainedFunction(...funcs) {
       );
 
       return function chainedFunction(...args) {
-        acc.apply(this, args);
-        func.apply(this, args);
+        acc.apply(this as any, args);
+        func.apply(this as any, args);
       };
     },
     () => {},

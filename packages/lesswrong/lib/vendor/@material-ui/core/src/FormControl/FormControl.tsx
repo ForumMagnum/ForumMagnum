@@ -17,7 +17,8 @@ export interface FormControlProps
   onBlur?: React.EventHandler<any>;
   onFocus?: React.EventHandler<any>;
   required?: boolean;
-  children: React.ReactNode
+  variant?: string;
+  children?: React.ReactNode
 }
 
 export type FormControlClassKey = 'root' | 'marginNormal' | 'marginDense' | 'fullWidth';
@@ -158,7 +159,8 @@ class FormControl extends React.Component<FormControlProps & WithStylesProps<typ
         className={classNames(
           classes.root,
           {
-            [classes[`margin${capitalize(margin)}`]]: margin !== 'none',
+            [classes[`marginNormal`]]: margin === 'normal',
+            [classes[`marginDense`]]: margin === 'dense',
             [classes.fullWidth]: fullWidth,
           },
           className,

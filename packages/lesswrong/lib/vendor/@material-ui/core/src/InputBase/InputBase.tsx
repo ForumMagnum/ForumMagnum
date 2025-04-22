@@ -49,6 +49,7 @@ export interface InputBaseProps
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>;
   onKeyUp?: React.KeyboardEventHandler<HTMLTextAreaElement | HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLTextAreaElement | HTMLInputElement>;
+  renderPrefix?: (state: AnyBecauseTodo) => React.ReactNode
 }
 
 export interface InputBaseComponentProps extends InputBaseProps {
@@ -69,7 +70,9 @@ export type InputBaseClassKey =
   | 'inputDisabled'
   | 'inputMultiline'
   | 'inputType'
-  | 'inputTypeSearch';
+  | 'inputTypeSearch'
+  | 'notchedOutline'
+  | 'underline';
 
 export const styles = defineStyles("MuiInputBase", theme => {
   const light = theme.palette.type === 'light';

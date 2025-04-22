@@ -1,7 +1,6 @@
 // @inheritedComponent Transition
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import Transition, { TransitionProps } from 'react-transition-group/Transition';
 import { reflow, getTransitionProps } from '../transitions/utils';
 import { withTheme } from '@/components/themes/useTheme';
@@ -40,7 +39,7 @@ class Grow extends React.Component<GrowProps & {theme: ThemeType}> {
   }
 
   handleEnter = node => {
-    const { theme, timeout } = this.props;
+    const { theme, timeout='auto' } = this.props;
     reflow(node); // So the animation always start from the start.
 
     const { duration: transitionDuration, delay } = getTransitionProps(this.props, {
@@ -71,7 +70,7 @@ class Grow extends React.Component<GrowProps & {theme: ThemeType}> {
   };
 
   handleExit = node => {
-    const { theme, timeout } = this.props;
+    const { theme, timeout='auto' } = this.props;
     let duration = 0;
 
     const { duration: transitionDuration, delay } = getTransitionProps(this.props, {
@@ -110,7 +109,7 @@ class Grow extends React.Component<GrowProps & {theme: ThemeType}> {
   };
 
   render() {
-    const { children, onEnter, onExit, style: styleProp, theme, timeout, ...other } = this.props;
+    const { children, onEnter, onExit, style: styleProp, theme, timeout='auto', ...other } = this.props;
 
     const style = {
       ...styleProp,
@@ -141,10 +140,6 @@ class Grow extends React.Component<GrowProps & {theme: ThemeType}> {
     );
   }
 }
-
-Grow.defaultProps = {
-  timeout: 'auto',
-};
 
 Grow.muiSupportAuto = true;
 

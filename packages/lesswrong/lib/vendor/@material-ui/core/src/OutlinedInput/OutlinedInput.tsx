@@ -6,7 +6,7 @@ import InputBase from '../InputBase';
 import NotchedOutline from './NotchedOutline';
 import { StandardProps } from '..';
 import { InputBaseProps } from '../InputBase/InputBase';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useStyles, useStylesNonProxy } from '@/components/hooks/useStyles';
 
 export interface OutlinedInputProps extends StandardProps<InputBaseProps, OutlinedInputClassKey> {
   notched?: boolean;
@@ -85,7 +85,7 @@ export const styles = defineStyles("MuiOutlinedInput", theme => {
 
 function OutlinedInput(props: OutlinedInputProps) {
   const { classes: classesOverride, labelWidth, notched, ...other } = props;
-  const classes = useStyles(styles, classesOverride);
+  const classes = useStylesNonProxy(styles, classesOverride);
 
   return (
     <InputBase
@@ -106,7 +106,7 @@ function OutlinedInput(props: OutlinedInputProps) {
       classes={{
         ...classes,
         root: classNames(classes.root, classes.underline, {}),
-        notchedOutline: null,
+        notchedOutline: undefined,
       }}
       {...other}
     />

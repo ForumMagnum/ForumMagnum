@@ -672,7 +672,7 @@ declare global {
       borderRadius: number,
     },
     transitions: MuiTransitions,
-    direction: "ltr",
+    direction: "ltr"|"rtl",
   };
 
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
