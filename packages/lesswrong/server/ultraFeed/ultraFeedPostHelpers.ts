@@ -90,6 +90,24 @@ export async function getLatestPostsForUltraFeed(
   );
 }
 
+/**
+ * Fetches bookmarked posts for UltraFeed, prioritizing posts that have been
+ * served less often to the current user and were bookmarked more recently.
+ */
+export async function getBookmarkedPostsForUltraFeed(
+  context: ResolverContext,
+  limit: number,
+): Promise<FeedFullPost[]> {
+  const { currentUser, repos } = context;
+
+  if (!currentUser?._id) {
+    // eslint-disable-next-line no-console
+    console.warn("getBookmarkedPostsForUltraFeed: No logged in user found.");
+    return [];
+  }
+
+  return await repos.posts.getBookmarkedPostsForUltraFeed(context, limit);
+}
 
 /**
  * Fetches and combines recommended and latest posts for the UltraFeed.
@@ -98,23 +116,28 @@ export async function getUltraFeedPostThreads(
   context: ResolverContext,
   recommendedPostsLimit: number,
   latestPostsLimit: number,
+  bookmarkedPostsLimit: number,
   settings: UltraFeedSettingsType
 ): Promise<FeedFullPost[]> {
   const recombeeScenario = 'recombee-lesswrong-custom';
 
-  const [recommendedPostItems, latestPostItems] = await Promise.all([
+  const [recommendedPostItems, latestPostItems, bookmarkedPostItems] = await Promise.all([
     (recommendedPostsLimit > 0)
       ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
       : Promise.resolve([]),
     (latestPostsLimit > 0)
       ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings)
       : Promise.resolve([]),
+    (bookmarkedPostsLimit > 0)
+      ? getBookmarkedPostsForUltraFeed(context, bookmarkedPostsLimit)
+      : Promise.resolve([]),
   ]);
 
   const allPostsMap = keyBy(recommendedPostItems, item => item.post?._id) as Record<string, FeedFullPost>;
 
-  latestPostItems.forEach(item => {
-    if (item.post?._id) {
+  const mergeIntoMap = (items: FeedFullPost[]) => {
+    items.forEach(item => {
+      if (!item.post?._id) return;
       const postId = item.post._id;
       if (postId in allPostsMap) {
         const existingItem = allPostsMap[postId];
@@ -130,8 +153,12 @@ export async function getUltraFeedPostThreads(
       } else {
         allPostsMap[postId] = item;
       }
-    }
-  });
+    });
+  };
+
+  // Merge Hacker News style latest posts and bookmarked posts into the map
+  mergeIntoMap(latestPostItems);
+  mergeIntoMap(bookmarkedPostItems);
 
   return Object.values(allPostsMap);
 } 

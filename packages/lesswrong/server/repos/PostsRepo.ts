@@ -1239,6 +1239,80 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       };
     });
   }
+
+  /**
+   * Get bookmarked posts for UltraFeed, prioritizing less seen and more recently bookmarked.
+   */
+  async getBookmarkedPostsForUltraFeed(
+    context: ResolverContext,
+    limit = 20
+  ): Promise<FeedFullPost[]> {
+    const db = this.getRawDb();
+    const userId = context.currentUser?._id;
+
+    if (!userId) {
+      return [];
+    }
+
+    const bookmarkedPostRows = await db.manyOrNone<DbPost & { bookmarkedAt: Date, viewCount: number }>(`
+      -- PostsRepo.getBookmarkedPostsForUltraFeed
+      WITH UserBookmarks AS (
+        -- Unnest the jsonb[] array and extract postId/addedAt from each jsonb element
+        SELECT
+          (bookmark_elem ->> 'postId') AS "postId",
+          COALESCE((bookmark_elem ->> 'addedAt')::TIMESTAMPTZ, '1970-01-01T00:00:00Z'::TIMESTAMPTZ) AS "bookmarkedAt"
+        FROM "Users" u, unnest(u."bookmarkedPostsMetadata") AS bookmark_elem
+        WHERE u."_id" = $(userId)
+      ),
+      RecentEvents AS (
+        -- Count recent served or viewed events for these posts by this user
+        SELECT
+          "documentId",
+          COUNT(*) AS "eventCount"
+        FROM "UltraFeedEvents"
+        WHERE "collectionName" = 'Posts'
+          AND "eventType" IN ('served', 'viewed')
+          AND "createdAt" > NOW() - INTERVAL '90 days'
+          AND "userId" = $(userId)
+          AND "documentId" IN (SELECT "postId" FROM UserBookmarks)
+        GROUP BY "documentId"
+      )
+      SELECT
+        p.*,
+        ub."bookmarkedAt",
+        COALESCE(re."eventCount", 0)::INTEGER AS "viewCount"
+      FROM "Posts" p
+      JOIN UserBookmarks ub ON p."_id" = ub."postId"
+      LEFT JOIN RecentEvents re ON p."_id" = re."documentId"
+      WHERE
+        ${getViewablePostsSelector('p')} -- Ensure the post is viewable by the current context
+        AND p."draft" IS NOT TRUE
+        AND p."deletedDraft" IS NOT TRUE
+      ORDER BY
+        -- Weighted random sort: bias towards less seen (lower viewCount) and more recent bookmarks (smaller age_in_days)
+        -- Adjust coefficients (e.g., 0.1, 0.01) to control the strength of the bias vs. randomness.
+        (COALESCE(re."eventCount", 0) * 0.2) + (EXTRACT(EPOCH FROM (NOW() - ub."bookmarkedAt")) / (3600 * 24) * 0.01) + RANDOM()
+      LIMIT $(limit)
+    `, { 
+      userId,
+      limit
+    });
+
+    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', bookmarkedPostRows, context);
+
+    return filteredPosts.map((post): FeedFullPost => {
+      const { bookmarkedAt, viewCount, ...postData } = post; // Separate metadata used for sorting
+      return {
+        post: postData,
+        postMetaInfo: {
+          sources: ['bookmarks'],
+          displayStatus: 'expanded',
+          // We don't have specific lastServed/Viewed/Interacted from this query directly
+          // but the viewCount helps prioritize less seen items.
+        },
+      };
+    });
+  }
 }
 
 recordPerfMetrics(PostsRepo);

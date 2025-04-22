@@ -432,6 +432,7 @@ const calculateFetchLimits = (
   bufferMultiplier = 1.2
 ): {
   totalWeight: number;
+  bookmarkedPostsFetchLimit: number;
   recombeePostFetchLimit: number;
   hackerNewsPostFetchLimit: number;
   commentFetchLimit: number;
@@ -444,9 +445,11 @@ const calculateFetchLimits = (
   const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
   const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
   const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
+  const bookmarkedPostsWeight = sourceWeights['bookmarks'] ?? 0;
 
   return {
     totalWeight,
+    bookmarkedPostsFetchLimit: Math.ceil(totalLimit * (bookmarkedPostsWeight / totalWeight) * bufferMultiplier),
     recombeePostFetchLimit: Math.ceil(totalLimit * (recombeePostWeight / totalWeight) * bufferMultiplier),
     hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * bufferMultiplier),
     commentFetchLimit: Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier),
@@ -477,7 +480,13 @@ export const ultraFeedGraphQLQueries = {
       const spotlightsRepo = context.repos.spotlights;
       const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
 
-      const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bufferMultiplier } = calculateFetchLimits(sourceWeights, limit);
+      const { totalWeight,
+        bookmarkedPostsFetchLimit,
+        recombeePostFetchLimit,
+        hackerNewsPostFetchLimit,
+        commentFetchLimit,
+        spotlightFetchLimit,
+        bufferMultiplier } = calculateFetchLimits(sourceWeights, limit);
 
 
       if (totalWeight <= 0) {
@@ -494,11 +503,11 @@ export const ultraFeedGraphQLQueries = {
 
       const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id, sessionId);
 
-      const combinedPostFetchLimit = recombeePostFetchLimit + hackerNewsPostFetchLimit;
+      const combinedPostFetchLimit = recombeePostFetchLimit + hackerNewsPostFetchLimit + bookmarkedPostsFetchLimit;
 
 
       const [allPostItems, commentThreadsItems, spotlightItems] = await Promise.all([
-        combinedPostFetchLimit > 0 ? getUltraFeedPostThreads( context, recombeePostFetchLimit, hackerNewsPostFetchLimit, parsedSettings) : Promise.resolve([]),
+        combinedPostFetchLimit > 0 ? getUltraFeedPostThreads( context, recombeePostFetchLimit, hackerNewsPostFetchLimit, bookmarkedPostsFetchLimit, parsedSettings) : Promise.resolve([]),
         commentFetchLimit > 0 ? getUltraFeedCommentThreads(context, commentFetchLimit, parsedSettings, servedCommentThreadHashes) : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([])
       ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[]];
