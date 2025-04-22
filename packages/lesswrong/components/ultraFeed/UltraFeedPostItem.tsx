@@ -248,10 +248,6 @@ const UltraFeedPostItem = ({
 
   const handleOpenDialog = useCallback((params?: {snippet?: string}) => {
     const snippet = params?.snippet;
-    if (snippet) {
-      // eslint-disable-next-line no-console
-      console.log('[UltraFeedPostItem] opening dialog with snippet', snippet);
-    }
     captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
     openDialog({
       name: "UltraFeedPostDialog",

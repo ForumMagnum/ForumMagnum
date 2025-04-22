@@ -117,6 +117,78 @@ interface BaseFeedContentBodyProps {
 
 type FeedContentBodyProps = BaseFeedContentBodyProps & DocumentProps;
 
+// Define the props needed for the helper function
+interface RenderContinueReadingActionProps {
+  showContinueReadingAction: boolean;
+  onContinueReadingClick?: (snippet: string) => void;
+  truncatedHtml: string;
+  suffix: string;
+  classes: Record<"readMoreButton", string>; // Be more specific if possible
+  wordsLeft: number;
+  linkToDocumentOnFinalExpand: boolean;
+  documentUrl: string;
+}
+
+const renderContinueReadingAction = ({
+  showContinueReadingAction,
+  onContinueReadingClick,
+  truncatedHtml,
+  suffix,
+  classes,
+  wordsLeft,
+  linkToDocumentOnFinalExpand,
+  documentUrl,
+}: RenderContinueReadingActionProps): React.ReactNode => {
+  if (!showContinueReadingAction) return null;
+
+  if (onContinueReadingClick) {
+    const htmlWithoutSuffix = truncatedHtml.replace(suffix, '');
+
+    // DOMParser is only available in the browser, handle server-side rendering if needed
+    let snippet = '';
+    if (typeof window !== 'undefined') {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlWithoutSuffix, 'text/html');
+      let textContent = doc.body.textContent || '';
+
+      // Clean the text: remove punctuation, keep only letters/numbers/spaces
+      // Unicode property escapes (\p{L}, \p{N}) match letters/numbers in any language
+      textContent = textContent
+        .replace(/[^\p{L}\p{N}\s]/gu, '') // Remove non-letter, non-number, non-whitespace
+        .replace(/\s+/g, ' ')             // Collapse multiple whitespace to single spaces
+        .trim();
+
+      const words = textContent.trim().split(/\s+/);
+      const snippetWords = words.slice(-15);
+      snippet = snippetWords.join(' ');
+    } else {
+       // Basic fallback or alternative logic for SSR/Node.js environment
+       // This might need refinement depending on requirements
+       const plainText = htmlWithoutSuffix.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+       const words = plainText.split(/\s+/);
+       snippet = words.slice(-15).join(' ');
+    }
+
+
+    return <div className={classes.readMoreButton} onClick={(e) => {
+      e.stopPropagation();
+      onContinueReadingClick(snippet);
+    }} >
+      {`(Continue Reading – ${wordsLeft} words more)`}
+    </div>
+  }
+  else if (linkToDocumentOnFinalExpand) {
+    return <Link
+      to={documentUrl}
+      className={classes.readMoreButton}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {`(Continue Reading – ${wordsLeft} words more)`}
+    </Link>
+  }
+  return null;
+};
+
 const FeedContentBody = ({
   html,
   breakpoints = [],
@@ -264,45 +336,16 @@ const FeedContentBody = ({
   const showContinueReadingAction = !applyLineClamp && isMaxLevel && wasTruncated;
   const isClickableForExpansion = !isMaxLevel;
 
-  const continueReadingAction = (() => {
-    if (!showContinueReadingAction) return null;
-
-    if (onContinueReadingClick) {
-      const htmlWithoutSuffix = truncatedHtml.replace(suffix, '');
-      
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlWithoutSuffix, 'text/html');
-      let textContent = doc.body.textContent || '';
-      
-      // Clean the text: remove punctuation, keep only letters/numbers/spaces
-      // Unicode property escapes (\p{L}, \p{N}) match letters/numbers in any language
-      textContent = textContent
-        .replace(/[^\p{L}\p{N}\s]/gu, '') // Remove non-letter, non-number, non-whitespace
-        .replace(/\s+/g, ' ')             // Collapse multiple whitespace to single spaces
-        .trim();
-        
-      const words = textContent.trim().split(/\s+/);
-      const snippetWords = words.slice(-15);
-      const snippet = snippetWords.join(' ');
-
-      return <div className={classes.readMoreButton} onClick={(e) => { 
-        e.stopPropagation(); 
-        onContinueReadingClick(snippet); 
-      }} >
-        {`(Continue Reading – ${wordsLeft} words more)`}
-      </div>
-    }
-    else if (linkToDocumentOnFinalExpand) {
-      return <Link
-        to={getDocumentUrl()}
-        className={classes.readMoreButton}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {`(Continue Reading – ${wordsLeft} words more)`}
-      </Link>
-    }
-    return null;
-  })();
+  const continueReadingAction = renderContinueReadingAction({
+    showContinueReadingAction,
+    onContinueReadingClick,
+    truncatedHtml,
+    suffix,
+    classes,
+    wordsLeft,
+    linkToDocumentOnFinalExpand,
+    documentUrl: getDocumentUrl(),
+  });
 
   return (
     <div

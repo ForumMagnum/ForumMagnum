@@ -9,6 +9,14 @@ export interface OverflowNavResult {
   scrollToBottom: () => void;
 }
 
+interface PairState {
+  topIntersect: boolean;
+  bottomIntersect: boolean;
+  topViewportPos: number; // px from top of viewport when intersecting
+  bottomViewportPos: number; // px from top when intersecting
+  update: () => void;
+}
+
 /**
  * Hook that determines whether to show "scroll up" and "scroll down" navigation
  * indicators for a target element based on its size and scroll position within
@@ -38,14 +46,6 @@ export const useOverflowNav = (
   useEffect(() => {
     const target = targetRef.current;
     if (!target) return;
-
-    interface PairState {
-      topIntersect: boolean;
-      bottomIntersect: boolean;
-      topViewportPos: number; // px from top of viewport when intersecting
-      bottomViewportPos: number; // px from top when intersecting
-      update: () => void;
-    }
 
     const topSentinel = document.createElement('div');
     const bottomSentinel = document.createElement('div');

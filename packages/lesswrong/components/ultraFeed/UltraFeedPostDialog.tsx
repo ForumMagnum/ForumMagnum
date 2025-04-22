@@ -97,7 +97,6 @@ function escapeRegExp(s: string) {
  * arbitrary whitespace and HTML tags between words
  */
 function snippetRegex(snippet: string): RegExp {
-  // Collapse whitespace inside snippet first
   const compact = snippet.trim().replace(/\s+/g, ' ');
 
   // Allow ANY run of non‑letter/number characters (punctuation, whitespace) or HTML tags between words.
@@ -136,18 +135,17 @@ function wrapSnippet(html: string, snippet?: string, anchorId = 'snippet-anchor'
     );
   }
   
-  // If no match, return original HTML
   return html;
 }
 
 type UltraFeedPostDialogProps = {
   postId?: string;
-  post?: never; // Use a fragment that includes contents.html
+  post?: never; 
   onClose: () => void;
   snippet?: string;
 } | {
   postId?: never;
-  post: UltraFeedPostFragment; // Use a fragment that includes contents.html
+  post: UltraFeedPostFragment;
   onClose: () => void;
   snippet?: string;
 }
@@ -172,7 +170,7 @@ const UltraFeedPostDialog = ({
     terms: {
       view: "postCommentsTop",
       postId: postId ?? post?._id,
-      limit: 50, // Consider pagination later if needed
+      limit: 100, // TODO: add load more
     },
     collectionName: "Comments",
     fragmentName: "CommentsList",
@@ -205,9 +203,6 @@ const UltraFeedPostDialog = ({
           const desiredScrollTop = container.scrollTop + elementTopRelativeToContainer - (container.clientHeight * 0.1);
 
           container.scrollTo({ top: desiredScrollTop, behavior: 'smooth' });
-        } else {
-          // eslint-disable-next-line no-console
-          console.log('[UltraFeedPostDialog scroll] Container not scrollable', { scrollHeight: container.scrollHeight, clientHeight: container.clientHeight });
         }
       }
     }, 200);
@@ -228,7 +223,7 @@ const UltraFeedPostDialog = ({
         {loadingPost && <div className={classes.loadingContainer}><Loading /></div>}
         {!loadingPost && fullPost && <div>
           <div className={classes.titleContainer}>
-            <Link to={postGetLink(fullPost)} className={classes.title} onClick={(e) => { e.stopPropagation(); onClose(); /* Close dialog on click, allow navigation */ }}>
+            <Link to={postGetLink(fullPost)} className={classes.title} onClick={(e) => { e.stopPropagation(); onClose(); }}>
               {fullPost.title}
             </Link>
             <span className={classes.closeButton} onClick={onClose}>
@@ -245,8 +240,8 @@ const UltraFeedPostDialog = ({
                 post={fullPost}
                 html={htmlWithAnchor}
                 wordCount={fullPost.contents?.wordCount || 0}
-                linkToDocumentOnFinalExpand={false} // Not applicable
-                hideSuffix={true} // No suffix needed
+                linkToDocumentOnFinalExpand={false}
+                hideSuffix={true}
               />
             )}
             {!isLoading && !fullPost.contents?.html && (
