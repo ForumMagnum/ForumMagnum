@@ -341,10 +341,13 @@ export const TanStackDatePicker = ({ field, label, name, below }: {
   name?: string,
   below?: boolean,
 }) => {
+  const value = field.state.value;
+  const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
+
   return <Components.DatePicker
     label={label}
     name={name}
-    value={field.state.value}
+    value={date}
     onChange={field.handleChange}
     below={below}
   />
