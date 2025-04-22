@@ -1,3 +1,4 @@
+import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
 import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
 
@@ -206,6 +207,8 @@ export const baseTheme: BaseThemeSpecification = {
         smallCaps: {
           fontVariant: "small-caps",
         },
+        
+        pxToRem: (px: number) => `${px * .0625}rem`
       },
       zIndexes: {
         ...defaultZIndexes
@@ -242,18 +245,16 @@ export const baseTheme: BaseThemeSpecification = {
         `0px 11px 14px -7px ${palette.boxShadowColor(0.2)},0px 23px 36px 3px ${palette.boxShadowColor(0.14)},0px 9px 44px 8px ${palette.boxShadowColor(0.12)}`,
         `0px 11px 15px -7px ${palette.boxShadowColor(0.2)},0px 24px 38px 3px ${palette.boxShadowColor(0.14)},0px 9px 46px 8px ${palette.boxShadowColor(0.12)}`,
       ],
+      shape: {
+        borderRadius: 4,
+      },
+      transitions: transitions,
+      direction: "ltr",
+
       overrides: {
         MuiSelect: {
           selectMenu: {
             paddingLeft: spacingUnit
-          }
-        },
-        MuiFormControlLabel: {
-          label: {
-            fontFamily: palette.fonts.sansSerifStack,
-            fontSize: 14.3,
-            fontWeight: 400,
-            lineHeight: "19.5px",
           }
         },
       },

@@ -2,9 +2,9 @@ import React from 'react';
 import classNames from 'classnames';
 import keycode from 'keycode';
 import warning from 'warning';
-import Menu, { MenuProps } from '../Menu/Menu';
 import { isFilled } from '../InputBase/utils';
 import { setRef } from '../utils/reactHelpers';
+import { Menu } from '@/components/widgets/Menu';
 
 export interface SelectInputProps {
   autoFocus?: boolean;
@@ -14,7 +14,6 @@ export interface SelectInputProps {
   inputRef?: (
     ref: HTMLSelectElement | { node: HTMLInputElement; value: SelectInputProps['value'] },
   ) => void;
-  MenuProps?: Partial<MenuProps>;
   multiple: boolean;
   name?: string;
   native: boolean;
@@ -187,7 +186,6 @@ class SelectInput extends React.Component<SelectInputProps> {
       displayEmpty,
       IconComponent,
       inputRef,
-      MenuProps = {},
       multiple,
       name,
       onBlur,
@@ -328,16 +326,12 @@ class SelectInput extends React.Component<SelectInputProps> {
           anchorEl={this.displayRef}
           open={open}
           onClose={this.handleClose}
-          {...MenuProps}
           MenuListProps={{
             role: 'listbox',
-            ...MenuProps.MenuListProps,
           }}
           PaperProps={{
-            ...MenuProps.PaperProps,
             style: {
               minWidth: menuMinWidth,
-              ...(MenuProps.PaperProps != null ? MenuProps.PaperProps.style : null),
             },
           }}
         >

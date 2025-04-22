@@ -1,20 +1,19 @@
 // @inheritedComponent Transition
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import EventListener from 'react-event-listener';
 import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
-import Transition, { TransitionProps } from 'react-transition-group/Transition';
+import Transition, { type TransitionChildren, type TransitionProps } from 'react-transition-group/Transition';
 import ownerWindow from '../utils/ownerWindow';
-import withTheme from '../styles/withTheme';
 import { duration } from '../styles/transitions';
 import { reflow, getTransitionProps } from '../transitions/utils';
+import { withTheme } from '@/components/themes/useTheme';
 
 export interface SlideProps extends TransitionProps {
   direction: 'left' | 'right' | 'up' | 'down';
-  theme?: Theme;
-  children?: React.ReactNode;
+  theme?: ThemeType;
+  children?: TransitionChildren;
 }
 
 const GUTTER = 24;
@@ -78,7 +77,7 @@ export function setTranslateValue(props, node) {
  * The Slide transition is used by the [Snackbar](/demos/snackbars) component.
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
-class Slide extends React.Component {
+class Slide extends React.Component<SlideProps> {
   mounted = false;
 
   handleResize = debounce(() => {
@@ -232,53 +231,6 @@ class Slide extends React.Component {
   }
 }
 
-Slide.propTypes = {
-  /**
-   * A single child content element.
-   */
-  children: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Direction the child node will enter from.
-   */
-  direction: PropTypes.oneOf(['left', 'right', 'up', 'down']),
-  /**
-   * If `true`, show the component; triggers the enter or exit animation.
-   */
-  in: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  onEnter: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onEntering: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onExit: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onExited: PropTypes.func,
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
-  /**
-   * @ignore
-   */
-  theme: PropTypes.object.isRequired,
-  /**
-   * The duration for the transition, in milliseconds.
-   * You may specify a single timeout for all transitions, or individually with an object.
-   */
-  timeout: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({ enter: PropTypes.number, exit: PropTypes.number }),
-  ]),
-};
-
 Slide.defaultProps = {
   direction: 'down',
   timeout: {
@@ -287,4 +239,4 @@ Slide.defaultProps = {
   },
 };
 
-export default withTheme()(Slide);
+export default withTheme(Slide);

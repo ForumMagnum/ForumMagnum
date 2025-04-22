@@ -20,9 +20,24 @@ export const styles = defineStyles("MuiToolbar", theme => ({
     alignItems: 'center',
   },
   /* Styles applied to the root element if `disableGutters={false}`. */
-  gutters: theme.mixins.gutters(),
+  gutters: {
+    paddingLeft: theme.spacing.unit * 2,
+    paddingRight: theme.spacing.unit * 2,
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: theme.spacing.unit * 3,
+      paddingRight: theme.spacing.unit * 3,
+    },
+  },
   /* Styles applied to the root element if `variant="regular"`. */
-  regular: theme.mixins.toolbar,
+  regular: {
+    minHeight: 56,
+    [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+      minHeight: 48,
+    },
+    [theme.breakpoints.up('sm')]: {
+      minHeight: 64,
+    },
+  },
   /* Styles applied to the root element if `variant="dense"`. */
   dense: {
     minHeight: 48,

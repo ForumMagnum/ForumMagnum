@@ -11,7 +11,6 @@ import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './draftjs-plugins/divider';
 import createMathjaxPlugin from './draftjs-plugins/draft-js-mathjax-plugin/src'
 import createMarkdownShortcutsPlugin from './draftjs-plugins/markdown-shortcuts-plugin';
-import { withTheme } from '@/lib/vendor/@material-ui/core/src/styles';
 import createLinkPlugin from 'draft-js-anchor-plugin';
 import LinkButton from './draftjs-plugins/LinkButton'
 import { myKeyBindingFn } from './draftjs-plugins/keyBindings.js'
@@ -22,7 +21,8 @@ import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, Bloc
 import { isClient } from '../../lib/executionEnvironment';
 import { styleMap } from "./draftJsEditorStyleMap";
 import * as _ from 'underscore';
-import DeferRender from '../common/DeferRender.js';
+import DeferRender from '../common/DeferRender';
+import { withTheme } from '../themes/useTheme';
 
 function customBlockStyleFn(contentBlock: AnyBecauseTodo) {
   const type = contentBlock.getType();
@@ -192,7 +192,7 @@ const blockRenderMap = Map({
 });
 
 const DraftJSEditorComponent = registerComponent("DraftJSEditor", DraftJSEditor, {
-  hocs: [withTheme()]
+  hocs: [withTheme]
 });
 declare global {
   interface ComponentTypes {

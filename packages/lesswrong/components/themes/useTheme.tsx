@@ -1,7 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, forwardRef } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
-import { MuiThemeProvider } from '@/lib/vendor/@material-ui/core/src/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -31,11 +30,12 @@ export const useTheme = (): ThemeType => {
   return themeContext.theme;
 }
 
-export const withTheme = hookToHoc(() => {
-  const themeContext = React.useContext(ThemeContext);
-  if (!themeContext) throw "useTheme() used without the context available";
-  return {theme: themeContext.theme};
-});
+export const withTheme = <T extends {}>(Component: React.ComponentType<T>) => {
+  return forwardRef((props, ref) => {
+    const theme = useTheme();
+    return <Component ref={ref} {...props} theme={theme}/>
+  }) as React.ComponentType<Omit<T,"theme">>;
+}
 
 export const useThemeOptions = (): AbstractThemeOptions => {
   const themeContext = React.useContext(ThemeContext);
@@ -148,8 +148,6 @@ export const ThemeContextProvider = ({options, children}: {
   );
   
   return <ThemeContext.Provider value={themeContext}>
-    <MuiThemeProvider theme={theme} sheetsManager={sheetsManager}>
-      {children}
-    </MuiThemeProvider>
+    {children}
   </ThemeContext.Provider>
 }

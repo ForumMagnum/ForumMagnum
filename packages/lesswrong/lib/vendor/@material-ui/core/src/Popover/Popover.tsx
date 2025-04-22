@@ -35,7 +35,6 @@ export interface PopoverProps
   anchorOrigin?: PopoverOrigin;
   anchorPosition?: PopoverPosition;
   anchorReference?: PopoverReference;
-  children?: React.ReactNode;
   elevation?: number;
   getContentAnchorEl?: null | ((element: HTMLElement) => HTMLElement);
   marginThreshold?: number;
@@ -47,6 +46,7 @@ export interface PopoverProps
   TransitionComponent?: React.ComponentType;
   transitionDuration?: TransitionProps['timeout'] | 'auto';
   TransitionProps?: TransitionProps;
+  children?: React.ReactNode;
 }
 
 export type PopoverClassKey = 'paper';
@@ -124,7 +124,7 @@ export const styles = defineStyles("MuiPopover", theme => ({
   },
 }), {stylePriority: -10});
 
-class Popover extends React.Component<PopoverProps> {
+class Popover extends React.Component<PopoverProps & WithStylesProps<typeof styles>> {
   handleGetOffsetTop = getOffsetTop;
 
   handleGetOffsetLeft = getOffsetLeft;

@@ -13,13 +13,19 @@ export type CardContentClassKey = 'root';
 
 export const styles = defineStyles("MuiCardContent", theme => ({
   /* Styles applied to the root element. */
-  root: theme.mixins.gutters({
+  root: {
+    paddingLeft: theme.spacing.unit * 2,
+    paddingRight: theme.spacing.unit * 2,
     paddingTop: 16,
     paddingBottom: 16,
     '&:last-child': {
       paddingBottom: 24,
     },
-  }),
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: theme.spacing.unit * 3,
+      paddingRight: theme.spacing.unit * 3,
+    },
+  },
 }), {stylePriority: -10});
 
 function CardContent(props: CardContentProps) {

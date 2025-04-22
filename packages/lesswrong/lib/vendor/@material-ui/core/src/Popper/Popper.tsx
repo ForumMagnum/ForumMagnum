@@ -2,8 +2,32 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import PopperJS from 'popper.js';
-import withTheme from '../styles/withTheme';
 import Portal from '../Portal';
+import type { Placement as PopperPlacementType, ReferenceObject } from "popper.js"
+import { TransitionProps } from '../transitions/transition';
+import { PortalProps } from '../Portal/Portal';
+import { withTheme } from '@/components/themes/useTheme';
+
+export interface PopperProps extends React.HTMLAttributes<HTMLDivElement> {
+  transition?: boolean;
+  anchorEl?: null | HTMLElement | ReferenceObject | ((element: HTMLElement) => HTMLElement);
+  children:
+    | React.ReactNode
+    | ((
+        props: {
+          placement: PopperPlacementType;
+          TransitionProps?: TransitionProps;
+        },
+      ) => React.ReactNode);
+  container?: PortalProps['container'];
+  disablePortal?: PortalProps['disablePortal'];
+  keepMounted?: boolean;
+  modifiers?: object;
+  open: boolean;
+  placement?: PopperPlacementType;
+  popperOptions?: object;
+}
+
 
 function flipPlacement(theme, placement) {
   if (theme.direction !== 'rtl') {
@@ -31,9 +55,9 @@ function getAnchorEl(anchorEl) {
 /**
  * Poppers rely on the 3rd party library [Popper.js](https://github.com/FezVrasta/popper.js) for positioning.
  */
-class Popper extends React.Component {
-  constructor(props) {
-    super();
+class Popper extends React.Component<PopperProps> {
+  constructor(props: PopperProps) {
+    super(props);
     this.state = {
       exited: !props.open,
     };
@@ -193,85 +217,10 @@ class Popper extends React.Component {
   }
 }
 
-Popper.propTypes = {
-  /**
-   * This is the DOM element, or a function that returns the DOM element,
-   * that may be used to set the position of the popover.
-   * The return value will passed as the reference object of the Popper
-   * instance.
-   */
-  anchorEl: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  /**
-   * Popper render function or node.
-   */
-  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
-  /**
-   * A node, component instance, or function that returns either.
-   * The `container` will passed to the Modal component.
-   * By default, it uses the body of the anchorEl's top-level document object,
-   * so it's simply `document.body` most of the time.
-   */
-  container: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  /**
-   * Disable the portal behavior.
-   * The children stay within it's parent DOM hierarchy.
-   */
-  disablePortal: PropTypes.bool,
-  /**
-   * Always keep the children in the DOM.
-   * This property can be useful in SEO situation or
-   * when you want to maximize the responsiveness of the Popper.
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Popper.js is based on a "plugin-like" architecture,
-   * most of its features are fully encapsulated "modifiers".
-   *
-   * A modifier is a function that is called each time Popper.js needs to
-   * compute the position of the popper.
-   * For this reason, modifiers should be very performant to avoid bottlenecks.
-   * To learn how to create a modifier, [read the modifiers documentation](https://github.com/FezVrasta/popper.js/blob/master/docs/_includes/popper-documentation.md#modifiers--object).
-   */
-  modifiers: PropTypes.object,
-  /**
-   * If `true`, the popper is visible.
-   */
-  open: PropTypes.bool.isRequired,
-  /**
-   * Popper placement.
-   */
-  placement: PropTypes.oneOf([
-    'bottom-end',
-    'bottom-start',
-    'bottom',
-    'left-end',
-    'left-start',
-    'left',
-    'right-end',
-    'right-start',
-    'right',
-    'top-end',
-    'top-start',
-    'top',
-  ]),
-  /**
-   * Options provided to the [`popper.js`](https://github.com/FezVrasta/popper.js) instance.
-   */
-  popperOptions: PropTypes.object,
-  /**
-   * @ignore
-   */
-  theme: PropTypes.object.isRequired,
-  /**
-   * Help supporting a react-transition-group/Transition component.
-   */
-  transition: PropTypes.bool,
-};
-
 Popper.defaultProps = {
   disablePortal: false,
   placement: 'bottom',
   transition: false,
 };
 
-export default withTheme()(Popper);
+export default withTheme(Popper);

@@ -1,10 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/server';
-// Adds selected MUI components to global styles.
-// import './register-mui-styles';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
-import { withStyles } from '@/lib/vendor/@material-ui/core/src/styles';
-import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
@@ -12,7 +7,6 @@ import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
-import { usedMuiStyles } from './usedMuiStyles';
 import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
@@ -20,8 +14,8 @@ import { brotliCompressResource, CompressedCacheResource } from './utils/bundleU
 import { type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
-import pick from 'lodash/pick';
-import mapValues from 'lodash/mapValues';
+import jssPreset from '@/lib/vendor/@material-ui/core/src/styles/jssPreset';
+import { create as jssCreate, SheetsRegistry } from 'jss';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -47,7 +41,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   const theme = getForumTheme(themeOptions);
   const cssVars = requestedCssVarsToString(theme);
-  const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions, true);
+  const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions);
   
   const mergedCSS = [
     draftjsStyles(),
@@ -83,28 +77,24 @@ function getAllStylesByName() {
   };
 }
 
-function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType, themeOptions: ThemeOptions, addPotentiallUnusedMuiStyles: boolean): string {
-  const context: any = {};
+function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType, themeOptions: ThemeOptions): string {
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);
   const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
-  
-  const DummyComponent = (props: any) => <div/>
-  const DummyTree = <div>
-    {addPotentiallUnusedMuiStyles && Object.keys(usedMuiStyles).map((componentName: string) => {
-      const StyledComponent = withStyles(usedMuiStyles[componentName], {name: componentName})(DummyComponent)
-      return <StyledComponent key={componentName}/>
-    })}
-    {stylesByNameAndPriority.map((name: string) => {
-      const styles = allStyles[name]!.styles
-      const StyledComponent = withStyles(styles as any, {name})(DummyComponent)
-      return <StyledComponent key={name}/>
-    })}
-  </div>
-  const WrappedTree = wrapWithMuiTheme(DummyTree, context, themeOptions);
-  
-  ReactDOM.renderToString(WrappedTree);
-  const jssStylesheet = context.sheetsRegistry.toString()
-  return jssStylesheet;
+
+  const _jss = jssCreate({
+    ...jssPreset(),
+  });
+  const sheetsRegistry = new SheetsRegistry();
+  stylesByNameAndPriority.map(name => {
+    const styles = allStyles[name].styles(theme);
+    const sheet = _jss.createStyleSheet(styles, {
+      generateId: (rule) => {
+        return `${name}-${rule.key}`;
+      },
+    });
+    sheetsRegistry.add(sheet);
+  }).join("\n");
+  return sheetsRegistry.toString();
 }
 
 type StylesheetAndHash = {
@@ -142,20 +132,15 @@ export const getMergedStylesheet = (theme: ThemeOptions): StylesheetAndHash => {
   return mergedStylesheet;
 }
 
-export function generateEmailStylesheet({muiSheetsRegistry, stylesContext, theme, themeOptions}: {
-  muiSheetsRegistry: any,
+export function generateEmailStylesheet({stylesContext, theme, themeOptions}: {
   stylesContext: StylesContextType,
   theme: ThemeType
   themeOptions: ThemeOptions
 }): string {
-  const muiSheet = muiSheetsRegistry.toString();
-  
   const mountedStyles = stylesContext.mountedStyles;
   const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition)
   const usedStylesByName = keyBy(usedStyleDefinitions, s=>s.name);
-  const css = stylesToStylesheet(usedStylesByName, theme, themeOptions, false);
-
-  return muiSheet + css;
+  return stylesToStylesheet(usedStylesByName, theme, themeOptions);
 }
 
 addStaticRoute("/allStyles", async ({query}, req, res, next) => {

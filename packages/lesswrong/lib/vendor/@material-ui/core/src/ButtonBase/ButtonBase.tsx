@@ -17,7 +17,7 @@ export interface ButtonBaseProps
   action?: (actions: ButtonBaseActions) => void;
   buttonRef?: React.Ref<any> | React.RefObject<any>;
   centerRipple?: boolean;
-  component?: React.Component<ButtonBaseProps>;
+  component?: React.Component<ButtonBaseProps>|"button"|"li";
   disableRipple?: boolean;
   disableTouchRipple?: boolean;
   focusRipple?: boolean;
@@ -69,15 +69,18 @@ export const styles = defineStyles("MuiButtonBase", theme => ({
   disabled: {},
   /* Styles applied to the root element if keyboard focused. */
   focusVisible: {},
-}), {stylePriority: -10});
+}), {stylePriority: -11});
 
 /**
  * `ButtonBase` contains as few styles as possible.
  * It aims to be a simple building block for creating a button.
  * It contains a load of style reset and some focus/ripple logic.
  */
-class ButtonBase extends React.Component<ButtonBaseProps> {
-  state = {};
+class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeof styles>> {
+  state = {
+    focusVisible: false
+  };
+  focusVisibleTimeout: ReturnType<typeof setTimeout>|null
 
   keyDown = false; // Used to help track keyboard activation keyDown
 

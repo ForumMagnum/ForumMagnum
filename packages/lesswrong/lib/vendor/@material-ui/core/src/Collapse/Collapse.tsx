@@ -44,7 +44,7 @@ export const styles = defineStyles("MuiCollapse", theme => ({
  * [Vertical Stepper](/demos/steppers#vertical-stepper) StepContent component.
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
-class Collapse extends React.Component<CollapseProps> {
+class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof styles>> {
   componentWillUnmount() {
     clearTimeout(this.timer);
   }

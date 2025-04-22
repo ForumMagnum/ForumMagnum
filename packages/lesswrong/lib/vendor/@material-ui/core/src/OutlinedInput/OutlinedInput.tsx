@@ -79,6 +79,7 @@ export const styles = defineStyles("MuiOutlinedInput", theme => {
     inputAdornedEnd: {
       paddingRight: 0,
     },
+    underline: {},
   };
 }, {stylePriority: -10});
 

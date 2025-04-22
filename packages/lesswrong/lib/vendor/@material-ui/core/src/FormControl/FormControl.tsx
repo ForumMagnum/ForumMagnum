@@ -13,10 +13,11 @@ export interface FormControlProps
   disabled?: boolean;
   error?: boolean;
   fullWidth?: boolean;
-  margin?: PropTypes.Margin;
+  margin?: string
   onBlur?: React.EventHandler<any>;
   onFocus?: React.EventHandler<any>;
   required?: boolean;
+  children: React.ReactNode
 }
 
 export type FormControlClassKey = 'root' | 'marginNormal' | 'marginDense' | 'fullWidth';
@@ -60,12 +61,12 @@ export const styles = defineStyles("MuiFormControl", theme => ({
  *  - Input
  *  - InputLabel
  */
-class FormControl extends React.Component<FormControlProps, {
+class FormControl extends React.Component<FormControlProps & WithStylesProps<typeof styles>, {
   adornedStart: boolean
   filled: boolean
   focused: boolean
 }> {
-  constructor(props: FormControlProps) {
+  constructor(props: FormControlProps & WithStylesProps<typeof styles>) {
     super(props);
 
     this.state = {
@@ -84,13 +85,13 @@ class FormControl extends React.Component<FormControlProps, {
         }
 
         if (isFilled(child.props, true)) {
-          this.state.filled = true;
+          this.state = {...this.state, filled: true};
         }
 
         const input = isMuiElement(child, ['Select']) ? child.props.input : child;
 
         if (input && isAdornedStart(input.props)) {
-          this.state.adornedStart = true;
+          this.state = {...this.state, adornedStart: true};
         }
       });
     }

@@ -7,7 +7,6 @@ import { reflow, getTransitionProps } from '../transitions/utils';
 import { withTheme } from '@/components/themes/useTheme';
 
 export interface GrowProps extends Omit<TransitionProps, 'timeout'> {
-  theme?: Theme;
   timeout?: TransitionProps['timeout'] | 'auto';
 }
 
@@ -33,7 +32,7 @@ const styles = {
  * [Popover](/utils/popover) components.
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
-class Grow extends React.Component<GrowProps> {
+class Grow extends React.Component<GrowProps & {theme: ThemeType}> {
   timer: ReturnType<typeof setTimeout>
 
   componentWillUnmount() {

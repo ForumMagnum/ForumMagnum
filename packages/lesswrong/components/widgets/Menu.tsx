@@ -17,16 +17,16 @@ const styles = defineStyles("Menu", (theme) => ({
 export function Menu({open, anchorEl, onClose, onClick, className, children}: {
   open: boolean
   anchorEl: any
-  onClose?: () => void
-  onClick?: () => void
+  onClose?: (event: AnyBecauseTodo) => void
+  onClick?: (event: AnyBecauseTodo) => void
   className?: string,
   children?: React.ReactNode
 }) {
   const { LWClickAwayListener, LWPopper } = Components;
   if (!anchorEl) return null;
-  function sendCloseAndClick() {
-    onClick?.();
-    onClose?.();
+  function sendCloseAndClick(ev: AnyBecauseTodo) {
+    onClick?.(ev);
+    onClose?.(ev);
   }
   
   return <MenuPopper
@@ -61,6 +61,10 @@ function MenuPopper({open, className, anchorEl, children}: {
   const positioning = (anchorEl && element)
     ? getMenuPositionStyles(anchorEl, element, "bottom-start")
     : getOffScreeStyles();
+
+  if (!open) {
+    return null;
+  }
 
   return <>
     {createPortal(<div

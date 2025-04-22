@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { formControlState } from '../InputBase/InputBase';
 import { StandardProps } from '..';
-import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface FormLabelProps extends StandardProps<FormLabelBaseProps, FormLabelClassKey> {
   component?: React.ComponentType<FormLabelBaseProps>;

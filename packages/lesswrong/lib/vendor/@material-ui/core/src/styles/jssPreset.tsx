@@ -1,9 +1,9 @@
-import jssGlobal from 'jss-global';
-import jssNested from 'jss-nested';
-import jssCamelCase from 'jss-camel-case';
-import jssDefaultUnit from 'jss-default-unit';
-import jssVendorPrefixer from 'jss-vendor-prefixer';
-import jssPropsSort from 'jss-props-sort';
+import jssGlobal from 'jss-plugin-global';
+import jssNested from 'jss-plugin-nested';
+import jssCamelCase from 'jss-plugin-camel-case';
+import jssDefaultUnit from 'jss-plugin-default-unit';
+import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
+import jssPropsSort from 'jss-plugin-props-sort';
 
 // Subset of jss-preset-default with only the plugins the Material-UI
 // components are using.

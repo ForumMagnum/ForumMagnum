@@ -12,7 +12,7 @@ import FormControl from '../FormControl';
 import FormHelperText from '../FormHelperText';
 import Select from '../Select';
 import { StandardProps } from '..';
-import { FormControlProps } from '../FormControl/FormControl';
+import { FormControlClassKey, FormControlProps } from '../FormControl/FormControl';
 import { FormHelperTextProps } from '../FormHelperText/FormHelperText';
 import { InputLabelProps } from '../InputLabel/InputLabel';
 import { InputProps } from '../Input/Input';
@@ -49,6 +49,9 @@ export interface TextFieldProps
   value?: Array<string | number | boolean> | string | number | boolean;
   variant?: 'standard' | 'outlined' | 'filled';
 }
+
+export type TextFieldClassKey = FormControlClassKey;
+
 const variantComponent = {
   standard: Input,
   filled: FilledInput,

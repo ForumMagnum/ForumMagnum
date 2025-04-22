@@ -3,9 +3,45 @@
 
 import warning from 'warning';
 
+export interface Easing {
+  easeInOut: string;
+  easeOut: string;
+  easeIn: string;
+  sharp: string;
+}
+
+export interface Duration {
+  shortest: number;
+  shorter: number;
+  short: number;
+  standard: number;
+  complex: number;
+  enteringScreen: number;
+  leavingScreen: number;
+}
+
+export interface Transitions {
+  easing: Easing;
+  duration: Duration;
+  create(
+    props: string | string[],
+    options?: Partial<{ duration: number | string; easing: string; delay: number | string }>,
+  ): string;
+  getAutoHeightDuration(height: number): number;
+}
+
+export interface TransitionsOptions {
+  easing?: Partial<Easing>;
+  duration?: Partial<Duration>;
+  create?: (
+    props: string | string[],
+    options?: Partial<{ duration: number | string; easing: string; delay: number | string }>,
+  ) => string;
+  getAutoHeightDuration?: (height: number) => number;
+}
 // Follow https://material.google.com/motion/duration-easing.html#duration-easing-natural-easing-curves
 // to learn the context in which each easing should be used.
-export const easing = {
+export const easing : Easing= {
   // This is the most common easing curve.
   easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
   // Objects enter the screen at full velocity from off-screen and
@@ -19,7 +55,7 @@ export const easing = {
 
 // Follow https://material.io/guidelines/motion/duration-easing.html#duration-easing-common-durations
 // to learn when use what timing
-export const duration = {
+export const duration: Duration = {
   shortest: 150,
   shorter: 200,
   short: 250,
@@ -33,9 +69,9 @@ export const duration = {
   leavingScreen: 195,
 };
 
-export const formatMs = milliseconds => `${Math.round(milliseconds)}ms`;
-export const isString = value => typeof value === 'string';
-export const isNumber = value => !isNaN(parseFloat(value));
+export const formatMs = (milliseconds: number) => `${Math.round(milliseconds)}ms`;
+export const isString = (value: any) => typeof value === 'string';
+export const isNumber = (value: any) => !isNaN(parseFloat(value));
 
 /**
  * @param {string|Array} props
@@ -45,10 +81,10 @@ export const isNumber = value => !isNaN(parseFloat(value));
  * @param {string} param.easing
  * @param {number} param.delay
  */
-export default {
+const transitions: Transitions = {
   easing,
   duration,
-  create: (props = ['all'], options = {}) => {
+  create: (props = ['all'], options: TransitionsOptions = {}) => {
     const {
       duration: durationOption = duration.standard,
       easing: easingOption = easing.easeInOut,
@@ -83,7 +119,7 @@ export default {
       )
       .join(',');
   },
-  getAutoHeightDuration(height) {
+  getAutoHeightDuration(height: number) {
     if (!height) {
       return 0;
     }
@@ -94,3 +130,5 @@ export default {
     return Math.round((4 + 15 * constant ** 0.25 + constant / 5) * 10);
   },
 };
+
+export default transitions;

@@ -8,7 +8,7 @@ import ButtonBase from '../ButtonBase';
 import { capitalize } from '../utils/helpers';
 import { StandardProps } from '..';
 import { ButtonBaseProps } from '../ButtonBase/ButtonBase';
-import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface IconButtonProps extends StandardProps<ButtonBaseProps, IconButtonClassKey> {
   color?: PropTypes.Color;

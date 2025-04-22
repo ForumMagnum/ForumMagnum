@@ -2,6 +2,7 @@ import type { FetchResult } from '@apollo/client';
 import { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { ReactElement } from 'react';
 import type { JssStylesCallback } from '@/lib/jssStyles';
+import type { StyleDefinition } from '@/server/styleGeneration';
 
 declare global {
 
@@ -12,8 +13,8 @@ type ClassesType<
   ClassKey extends string = string
 > = Readonly<Record<keyof ReturnType<Styles>, string>>;
 
-interface WithStylesProps {
-  classes: ClassesType<AnyStyles>,
+interface WithStylesProps<T extends StyleDefinition<any>=any> {
+  classes: ClassesType<T["styles"]>,
 }
 
 type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string|ReactElement, type?: string, action?: any};

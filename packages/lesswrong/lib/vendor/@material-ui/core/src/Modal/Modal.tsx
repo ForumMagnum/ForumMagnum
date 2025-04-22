@@ -13,6 +13,7 @@ import Backdrop from '../Backdrop';
 import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 import { StandardProps } from '..';
 import { BackdropProps } from '../Backdrop/Backdrop';
+import { PortalProps } from '../Portal/Portal';
 
 export interface ModalProps
   extends StandardProps<React.HtmlHTMLAttributes<HTMLDivElement>, ModalClassKey> {
@@ -50,7 +51,7 @@ export const styles = defineStyles("MuiModal", theme => ({
   /* Styles applied to the root element. */
   root: {
     position: 'fixed',
-    zIndex: theme.zIndex.modal,
+    zIndex: theme.zIndexes.modal,
     right: 0,
     bottom: 0,
     top: 0,

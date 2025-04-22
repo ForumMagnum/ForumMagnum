@@ -1,19 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import Typography from '../Typography';
 import type { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { TypographyProps } from '../Typography/Typography';
+import { Typography } from "@/components/common/Typography";
 
 export interface ListItemTextProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, ListItemTextClassKey> {
   disableTypography?: boolean;
   inset?: boolean;
   primary?: React.ReactNode;
-  primaryTypographyProps?: Partial<TypographyProps>;
   secondary?: React.ReactNode;
-  secondaryTypographyProps?: Partial<TypographyProps>;
 }
 
 export type ListItemTextClassKey =
@@ -55,6 +52,7 @@ export const styles = defineStyles("MuiListItemText", theme => ({
     '&$textDense': {
       fontSize: 'inherit',
     },
+    color: theme.palette.text.secondary,
   },
   /* Styles applied to the `Typography` components if `context.dense` is `true`. */
   textDense: {},
@@ -68,9 +66,7 @@ function ListItemText(props: ListItemTextProps, context) {
     disableTypography,
     inset,
     primary: primaryProp,
-    primaryTypographyProps,
     secondary: secondaryProp,
-    secondaryTypographyProps,
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
@@ -83,7 +79,6 @@ function ListItemText(props: ListItemTextProps, context) {
         variant="subheading"
         className={classNames(classes.primary, { [classes.textDense]: dense })}
         component="span"
-        {...primaryTypographyProps}
       >
         {primary}
       </Typography>
@@ -98,8 +93,6 @@ function ListItemText(props: ListItemTextProps, context) {
         className={classNames(classes.secondary, {
           [classes.textDense]: dense,
         })}
-        color="textSecondary"
-        {...secondaryTypographyProps}
       >
         {secondary}
       </Typography>

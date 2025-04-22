@@ -124,9 +124,9 @@ const styles = defineStyles("MuiTab", theme => ({
       fontSize: theme.typography.pxToRem(12),
     },
   },
-}, {stylePriority: -10}));
+}), {stylePriority: -10});
 
-class Tab extends React.Component<TabProps> {
+class Tab extends React.Component<TabProps & WithStylesProps<typeof styles>> {
   state = {
     labelWrapped: false,
   };

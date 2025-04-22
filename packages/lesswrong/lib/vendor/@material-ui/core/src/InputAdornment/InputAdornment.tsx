@@ -1,14 +1,15 @@
 import React from 'react';
 import classNames from 'classnames';
-import Typography from '../Typography';
 import { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { Typography } from '@/components/common/Typography';
 
 export interface InputAdornmentProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, InputAdornmentClassKey> {
   component?: React.ComponentType<InputAdornmentProps>;
   disableTypography?: boolean;
   position: 'start' | 'end';
+  variant?: "standard"|"outline"|"filled";
   children?: React.ReactNode
 }
 
@@ -36,14 +37,17 @@ export const styles = defineStyles("MuiInputAdornment", theme => ({
   positionEnd: {
     marginLeft: 8,
   },
+  typography: {
+    color: theme.palette.text.secondary,
+  },
 }), {stylePriority: -10});
 
 export function InputAdornment(props: InputAdornmentProps) {
   const {
     children,
-    component: Component,
+    component: Component='div',
     className,
-    disableTypography,
+    disableTypography=false,
     position,
     variant,
     ...other
@@ -64,7 +68,7 @@ export function InputAdornment(props: InputAdornmentProps) {
       {...other}
     >
       {typeof children === 'string' && !disableTypography ? (
-        <Typography color="textSecondary">{children}</Typography>
+        <Typography className={classes.typography} variant="body1">{children}</Typography>
       ) : (
         children
       )}
@@ -72,7 +76,4 @@ export function InputAdornment(props: InputAdornmentProps) {
   );
 }
 
-InputAdornment.defaultProps = {
-  component: 'div',
-  disableTypography: false,
-};
+export default InputAdornment;

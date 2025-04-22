@@ -6,7 +6,7 @@ import ButtonBase from '@/lib/vendor/@material-ui/core/src/ButtonBase';
 import { fade } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
 import clamp from '../utils/clamp';
 import { StandardProps } from '..';
-import { defineStyles } from '@/components/hooks/useStyles';
+import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 import { withTheme } from '@/components/themes/useTheme';
 
 export interface SliderProps
@@ -20,6 +20,7 @@ export interface SliderProps
   onChange?: (event: React.ChangeEvent<{}>, value: number) => void;
   onDragEnd?: (event: React.ChangeEvent<{}>) => void;
   onDragStart?: (event: React.ChangeEvent<{}>) => void;
+  theme: ThemeType
 }
 
 export type SliderClassKey =
@@ -211,7 +212,7 @@ function preventPageScrolling(event) {
   event.preventDefault();
 }
 
-class Slider extends React.Component<SliderProps> {
+class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles>> {
   state = {
     currentState: 'initial',
   };
@@ -521,4 +522,4 @@ Slider.defaultProps = {
   component: 'div',
 };
 
-export default withTheme(Slider);
+export default withStyles(styles, withTheme(Slider));

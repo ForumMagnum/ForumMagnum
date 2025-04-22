@@ -58,14 +58,14 @@ export const styles = defineStyles("MuiTextarea", theme => ({
 /**
  * @ignore - internal component.
  */
-class Textarea extends React.Component<TextareaProps> {
+class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof styles>> {
   isControlled: boolean
 
   handleResize = debounce(() => {
     this.syncHeightWithShadow();
   }, 166); // Corresponds to 10 frames at 60 Hz.
 
-  constructor(props: TextareaProps) {
+  constructor(props: TextareaProps & WithStylesProps<typeof styles>) {
     super(props);
     this.isControlled = props.value != null;
     // <Input> expects the components it renders to respond to 'value'

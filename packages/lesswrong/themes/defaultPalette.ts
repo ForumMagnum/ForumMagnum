@@ -164,6 +164,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     secondary: shades.greyAlpha(.54),
     normal: shades.greyAlpha(.87),
     maxIntensity: shades.greyAlpha(1.0),
+    disabled: shades.greyAlpha(0.38),
     slightlyIntense: shades.greyAlpha(.92),
     slightlyIntense2: shades.greyAlpha(.9),
     slightlyDim: shades.greyAlpha(.8),
@@ -625,6 +626,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   lwTertiary: {
     main: "#69886e",
     dark: "#21672b",
+  },
+  action: {
+    active: 'rgba(0, 0, 0, 0.54)',
+    hover: 'rgba(0, 0, 0, 0.08)',
+    hoverOpacity: 0.08,
+    disabled: 'rgba(0, 0, 0, 0.26)',
+    disabledBackground: 'rgba(0, 0, 0, 0.12)',
   },
   error: {
     main: "#bf360c",

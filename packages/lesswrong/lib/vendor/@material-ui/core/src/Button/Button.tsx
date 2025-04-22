@@ -1,17 +1,15 @@
 // @inheritedComponent ButtonBase
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
-import { capitalize } from '../utils/helpers';
 import type { StandardProps } from '..';
 import type { ButtonBaseProps } from '../ButtonBase/ButtonBase';
-import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface ButtonProps extends StandardProps<ButtonBaseProps, ButtonClassKey, 'component'> {
-  color?: PropTypes.Color;
+  color?: string;
   component?: React.ComponentType<ButtonProps>;
   disabled?: boolean;
   disableFocusRipple?: boolean;
@@ -20,7 +18,7 @@ export interface ButtonProps extends StandardProps<ButtonBaseProps, ButtonClassK
   href?: string;
   mini?: boolean;
   size?: 'small' | 'medium' | 'large';
-  type?: string;
+  type?: "submit"|"reset"|"button";
   variant?: 'text' | 'flat' | 'outlined' | 'contained' | 'raised' | 'fab' | 'extendedFab';
   children: React.ReactNode;
 }
@@ -146,7 +144,7 @@ export const styles = defineStyles("MuiButton", theme => ({
   },
   /* Styles applied to the root element if `variant="[contained | fab]"`. */
   contained: {
-    color: theme.palette.getContrastText(theme.palette.grey[300]),
+    color: theme.themeOptions.name === 'dark' ? theme.palette.greyAlpha(1.0) : theme.palette.greyAlpha(0.87),
     backgroundColor: theme.palette.grey[300],
     boxShadow: theme.shadows[2],
     '&$focusVisible': {
@@ -295,7 +293,8 @@ function Button(props: ButtonProps) {
       [classes.outlined]: variant === 'outlined',
       [classes.outlinedPrimary]: variant === 'outlined' && color === 'primary',
       [classes.outlinedSecondary]: variant === 'outlined' && color === 'secondary',
-      [classes[`size${capitalize(size)}`]]: size !== 'medium',
+      [classes[`sizeSmall`]]: size === 'small',
+      [classes[`sizeLarge`]]: size === 'large',
       [classes.disabled]: disabled,
       [classes.fullWidth]: fullWidth,
       [classes.colorInherit]: color === 'inherit',

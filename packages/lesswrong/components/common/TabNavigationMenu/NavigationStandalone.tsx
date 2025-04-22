@@ -5,10 +5,8 @@ import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { communityPath } from '../../../lib/routes';
-import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
-import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden

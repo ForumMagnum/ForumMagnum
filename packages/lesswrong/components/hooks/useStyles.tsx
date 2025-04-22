@@ -2,9 +2,8 @@ import React, { createContext, forwardRef, useContext, useLayoutEffect } from "r
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from "jss";
-import { jssPreset } from "@/lib/vendor/@material-ui/core/src/styles";
+import jssPreset from "@/lib/vendor/@material-ui/core/src/styles/jssPreset";
 import { isClient } from "@/lib/executionEnvironment";
-import { hookToHoc } from "@/lib/hocUtils";
 
 export type StylesContextType = {
   theme: ThemeType
@@ -144,12 +143,12 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
 }
 
 
-export const withStyles = (styles: StyleDefinition, Component: AnyBecauseHard) => {
+export const withStyles = <T extends {classes: any}>(styles: StyleDefinition, Component: React.ComponentType<T>) => {
   return forwardRef(function WithStylesHoc(props: AnyBecauseHard, ref: AnyBecauseHard) {
     const { classes: classesOverrides } = props;
     const classes = useStyles(styles, classesOverrides);
     return <Component ref={ref} {...props} classes={classes} />
-  })
+  }) as React.ComponentType<Omit<T,"classes"> & {classes?: Partial<T["classes"]>}>;
 }
 
 export function getClassName<T extends StyleDefinition>(
@@ -223,20 +222,15 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
   
   const jss = jssCreate({
     ...jssPreset(),
-    virtual: true,
   })
   const sheet = jss.createStyleSheet(
     styleDefinition.styles(theme), {
-      classNamePrefix: styleDefinition.name,
-      generateClassName: (r,s) => {
-        return `${styleDefinition.name}-${(r as any).key}`
-      }
+      generateId: (rule,sheet) => {
+        return `${styleDefinition.name}-${rule.key}`
+      },
     }
   );
-  sheets.add(sheet)
-  sheet.attach();
-  const str = sheets.toString();
-  return str;
+  return sheets.toString();
 }
 
 

@@ -11,6 +11,7 @@ import type { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ModalProps } from '../Modal/Modal';
 import { TransitionHandlerProps, TransitionProps } from '../transitions/transition';
+import { PaperProps } from '../Paper/Paper';
 
 export interface DialogProps
   extends StandardProps<ModalProps & Partial<TransitionHandlerProps>, DialogClassKey, 'children'> {

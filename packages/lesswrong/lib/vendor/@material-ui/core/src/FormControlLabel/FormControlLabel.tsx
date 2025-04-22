@@ -3,9 +3,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import Typography from '../Typography';
 import { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { Typography } from '@/components/common/Typography';
 
 export interface FormControlLabelProps
   extends StandardProps<
@@ -55,6 +55,10 @@ export const styles = defineStyles("MuiFormControlLabel", theme => ({
     '&$disabled': {
       color: theme.palette.text.disabled,
     },
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14.3,
+    fontWeight: 400,
+    lineHeight: "19.5px",
   },
 }), {stylePriority: -10});
 

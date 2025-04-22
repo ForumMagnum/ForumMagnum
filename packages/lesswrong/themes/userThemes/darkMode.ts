@@ -135,6 +135,13 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         main: "#0e9bb4",
         dark: "#0e9bb4",
       },
+      action: {
+        active: '#ffffff',
+        hover: 'rgba(255, 255, 255, 0.1)',
+        hoverOpacity: 0.1,
+        disabled: 'rgba(255, 255, 255, 0.3)',
+        disabledBackground: 'rgba(255, 255, 255, 0.12)',
+      },
       text: {
         primaryAlert: '#F3F9FA'
       },
@@ -192,6 +199,7 @@ export const darkModeTheme: UserThemeSpecification = {
   },
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
+      disabled: shadePalette.greyAlpha(0.5),
       primaryAlert: '#b2c5b5',
       warning: '#FFF7E6',
       alwaysWhite: '#fff',

@@ -34,6 +34,7 @@ export const defaultZIndexes = {
   sunshineSidebar: 1000,
   reactionsFooter: 1001,
   drawer: 1200,
+  modal: 1300,
   intercomButton: 1400,
   blurredBackgroundModal: 1350, // lower than intercom
   confirmLogoutModal: 1351,

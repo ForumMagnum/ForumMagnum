@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { formControlState } from '../InputBase/InputBase';
-import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { StandardProps } from '..';
 
 export interface FormHelperTextProps

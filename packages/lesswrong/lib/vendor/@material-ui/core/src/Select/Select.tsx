@@ -3,28 +3,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import SelectInput, { SelectInputProps } from './SelectInput';
-import mergeClasses from '../styles/mergeClasses';
 import ArrowDropDownIcon from '../internal/svg-icons/ArrowDropDown';
 // To replace with InputBase in v4.0.0
 import Input from '../Input';
 import { formControlState } from '../InputBase/InputBase';
-import { styles as nativeSelectStyles } from '../NativeSelect/NativeSelect';
-import NativeSelectInput from '../NativeSelect/NativeSelectInput';
 import { StandardProps } from '..';
 import { InputProps } from '../Input/Input';
-import { MenuProps } from '../Menu/Menu';
-import { useStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface SelectProps
   extends StandardProps<InputProps, SelectClassKey, 'value' | 'onChange'>,
     Pick<SelectInputProps, 'onChange'> {
-  autoWidth?: boolean;
   displayEmpty?: boolean;
   IconComponent?: React.ComponentType;
   input?: React.ReactNode;
-  MenuProps?: Partial<MenuProps>;
   multiple?: boolean;
-  native?: boolean;
   onClose?: (event: React.ChangeEvent<{}>) => void;
   onOpen?: (event: React.ChangeEvent<{}>) => void;
   open?: boolean;
@@ -43,20 +36,84 @@ export type SelectClassKey =
   | 'filled'
   | 'outlined';
 
-export const styles = nativeSelectStyles;
+export const styles = defineStyles("MuiSelect", theme => ({
+  /* Styles applied to the `Input` component `root` class. */
+  root: {
+    position: 'relative',
+    width: '100%',
+  },
+  /* Styles applied to the `Input` component `select` class. */
+  select: {
+    '-moz-appearance': 'none', // Reset
+    '-webkit-appearance': 'none', // Reset
+    // When interacting quickly, the text can end up selected.
+    // Native select can't be selected either.
+    userSelect: 'none',
+    paddingRight: 32,
+    borderRadius: 0, // Reset
+    width: 'calc(100% - 32px)',
+    minWidth: 16, // So it doesn't collapse.
+    cursor: 'pointer',
+    '&:focus': {
+      // Show that it's not an text input
+      background:
+        theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)',
+      borderRadius: 0, // Reset Chrome style
+    },
+    // Remove Firefox focus border
+    '&:-moz-focusring': {
+      color: 'transparent',
+      textShadow: '0 0 0 #000',
+    },
+    // Remove IE11 arrow
+    '&::-ms-expand': {
+      display: 'none',
+    },
+    '&$disabled': {
+      cursor: 'default',
+    },
+  },
+  /* Styles applied to the `Input` component if `variant="filled"`. */
+  filled: {
+    width: 'calc(100% - 44px)',
+  },
+  /* Styles applied to the `Input` component if `variant="outlined"`. */
+  outlined: {
+    width: 'calc(100% - 46px)',
+    borderRadius: theme.shape.borderRadius,
+  },
+  /* Styles applied to the `Input` component `selectMenu` class. */
+  selectMenu: {
+    width: 'auto', // Fix Safari textOverflow
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    minHeight: '1.1875em', // Reset (19px), match the native input line-height
+  },
+  /* Styles applied to the `Input` component `disabled` class. */
+  disabled: {},
+  /* Styles applied to the `Input` component `icon` class. */
+  icon: {
+    // We use a position absolute over a flexbox in order to forward the pointer events
+    // to the input.
+    position: 'absolute',
+    right: 0,
+    top: 'calc(50% - 12px)', // Center vertically
+    color: theme.palette.action.active,
+    'pointer-events': 'none', // Don't block pointer events on the select under the icon.
+  },
+}), {stylePriority: -10});
 
 function Select(props: SelectProps, context) {
   const {
-    autoWidth,
+    autoWidth=false,
     children,
     classes: classesOverride,
     displayEmpty,
     IconComponent,
     input,
     inputProps,
-    MenuProps,
     multiple,
-    native,
     onClose,
     onOpen,
     open,
@@ -67,7 +124,7 @@ function Select(props: SelectProps, context) {
   } = props;
   const classes = useStyles(styles, classesOverride);
 
-  const inputComponent = native ? NativeSelectInput : SelectInput;
+  const inputComponent = SelectInput;
   const fcs = formControlState({
     props,
     context,
@@ -83,27 +140,18 @@ function Select(props: SelectProps, context) {
       IconComponent,
       variant: fcs.variant,
       type: undefined, // We render a select. We can ignore the type provided by the `Input`.
-      ...(native
-        ? {}
-        : {
-            autoWidth,
-            displayEmpty,
-            MenuProps,
-            multiple,
-            onClose,
-            onOpen,
-            open,
-            renderValue,
-            SelectDisplayProps,
-          }),
+      ...({
+        autoWidth,
+        displayEmpty,
+        multiple,
+        onClose,
+        onOpen,
+        open,
+        renderValue,
+        SelectDisplayProps,
+      }),
       ...inputProps,
-      classes: inputProps
-        ? mergeClasses({
-            baseClasses: classes,
-            newClasses: inputProps.classes,
-            Component: Select,
-          })
-        : classes,
+      classes,
       ...(input ? input.props.inputProps : {}),
     },
     ...other,
@@ -111,12 +159,10 @@ function Select(props: SelectProps, context) {
 }
 
 Select.defaultProps = {
-  autoWidth: false,
   displayEmpty: false,
   IconComponent: ArrowDropDownIcon,
   input: <Input />,
   multiple: false,
-  native: false,
 };
 
 Select.contextTypes = {

@@ -7,8 +7,7 @@ import { reflow, getTransitionProps } from '../transitions/utils';
 import { withTheme } from '@/components/themes/useTheme';
 
 export interface FadeProps extends TransitionProps {
-  theme?: ThemeType;
-  children: React.ReactNode
+  theme: ThemeType;
 }
 
 const styles = {
@@ -36,7 +35,7 @@ class Fade extends React.Component<FadeProps> {
     node.style.transition = theme.transitions.create('opacity', transitionProps);
 
     if (this.props.onEnter) {
-      this.props.onEnter(node);
+      this.props.onEnter(node, false);
     }
   };
 

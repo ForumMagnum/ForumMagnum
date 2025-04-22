@@ -14,7 +14,7 @@ export function detectFocusVisible(
     focusVisibleMaxCheckTimes: number;
   },
   element: Element,
-  cb: () => void,
+  callback: () => void,
   attempt: number = -1,
 ): void {
   warning(instance.focusVisibleCheckTime, 'Material-UI: missing instance.focusVisibleCheckTime.');

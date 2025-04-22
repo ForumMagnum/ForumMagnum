@@ -92,7 +92,8 @@ export const styles = defineStyles("MuiTabs", theme => ({
   indicator: {},
 }), {stylePriority: -10});
 
-class Tabs extends React.Component<TabsProps> {
+type TabsPropsWithHoCs = TabsProps & WithStylesProps<typeof styles> & {theme: ThemeType}
+class Tabs extends React.Component<TabsPropsWithHoCs> {
   valueToIndex = new Map();
 
   handleResize = debounce(() => {
@@ -425,4 +426,4 @@ Tabs.defaultProps = {
   textColor: 'inherit',
 };
 
-export default withStyles(styles, Tabs);
+export default withTheme(withStyles(styles, Tabs));

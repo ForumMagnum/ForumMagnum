@@ -63,18 +63,20 @@ export const styles = defineStyles("MuiSwitchBase", theme => ({
 /**
  * @ignore - internal component.
  */
-class SwitchBase extends React.Component<SwitchBaseProps, {
+class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeof styles>, {
   checked?: boolean
 }> {
   isControlled: boolean
 
-  constructor(props: SwitchBaseProps) {
+  constructor(props: SwitchBaseProps & WithStylesProps<typeof styles>) {
     super(props);
     this.isControlled = props.checked != null;
     this.state = {};
     if (!this.isControlled) {
       // not controlled, use internal state
-      this.state.checked = props.defaultChecked !== undefined ? props.defaultChecked : false;
+      this.state = {
+        checked: props.defaultChecked !== undefined ? props.defaultChecked : false
+      };
     }
   }
 

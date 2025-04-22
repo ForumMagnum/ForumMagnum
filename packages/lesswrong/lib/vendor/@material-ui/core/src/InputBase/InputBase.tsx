@@ -24,7 +24,7 @@ export interface InputBaseProps
   error?: boolean;
   fullWidth?: boolean;
   id?: string;
-  inputComponent?: React.ComponentType<InputBaseComponentProps>;
+  inputComponent?: React.ComponentType<InputBaseComponentProps> | 'input';
   inputProps?: InputBaseComponentProps;
   inputRef?: React.Ref<any> | React.RefObject<any>;
   margin?: 'dense';
@@ -216,8 +216,10 @@ export function formControlState({ props, states, context }) {
  * It aims to be a simple building block for creating an input.
  * It contains a load of style reset and some state logic.
  */
-class InputBase extends React.Component<InputBaseProps> {
-  constructor(props, context) {
+class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof styles>> {
+  isControlled: boolean
+
+  constructor(props: InputBaseProps & WithStylesProps<typeof styles>, context) {
     super(props, context);
     this.isControlled = props.value != null;
     if (this.isControlled) {
@@ -254,9 +256,7 @@ class InputBase extends React.Component<InputBaseProps> {
 
     /* eslint-disable no-underscore-dangle */
     this.componentWillReceiveProps = componentWillReceiveProps;
-    this.componentWillReceiveProps.__suppressDeprecationWarning = true;
     this.componentWillUpdate = componentWillUpdate;
-    this.componentWillUpdate.__suppressDeprecationWarning = true;
     /* eslint-enable no-underscore-dangle */
   }
 

@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import DialogContent from "@material-ui/core/DialogContent";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useMulti } from "../../lib/crud/withMulti";
+import { DialogContent } from "../widgets/DialogContent";
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   dialogContent: {
