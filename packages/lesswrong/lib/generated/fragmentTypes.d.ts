@@ -2143,6 +2143,7 @@ interface PostsExpandedHighlight { // fragment on Posts
 interface PostsExpandedHighlight_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+  readonly wordCount: number,
 }
 
 interface PostsForAutocomplete { // fragment on Posts

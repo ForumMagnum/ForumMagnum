@@ -13,6 +13,8 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
 import { useOverflowNav } from "./hooks/useOverflowNav";
 import { useDialog } from "../common/withDialog";
+import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
+import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -167,17 +169,25 @@ const UltraFeedPostItem = ({
   const { captureEvent } = useTracking();
   const { recordPostView, isRead } = useRecordPostView(post);
   const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
-  const [isLoadingFull, setIsLoadingFull] = useState(false);
+  const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
+  const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost);
   const [shouldShowLoading, setShouldShowLoading] = useState(false);
-  const [expandLevel, setExpandLevel] = useState(0);
   const [resetSig, setResetSig] = useState(0);
 
+
+  const apolloClient = useForeignApolloClient();
+  
+  const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
+
   const { document: fullPost, loading: loadingFullPost } = useSingle({
-    documentId: post._id,
+    documentId,
     collectionName: "Posts",
-    fragmentName: "PostsExpandedHighlight",
-    skip: !isLoadingFull,
+    apolloClient: isForeignCrosspost ? apolloClient : undefined,
+    fragmentName: isForeignCrosspost ? "SunshinePostsList" : "PostsExpandedHighlight",
+    fetchPolicy: "cache-first",
+    skip: !isLoadingFull
   });
+
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -187,8 +197,6 @@ const UltraFeedPostItem = ({
   }, [observe, post._id]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
-    setExpandLevel(level);
-    
     // Start loading the full post on first expand
     if (level > 0 && !isLoadingFull && !fullPost) {
       setIsLoadingFull(true);
@@ -235,7 +243,6 @@ const UltraFeedPostItem = ({
   ]);
 
   const handleCollapse = () => {
-    setExpandLevel(0);
     setResetSig((s) => s + 1);
   };
 
@@ -259,18 +266,17 @@ const UltraFeedPostItem = ({
     });
   }, [openDialog, post._id, captureEvent]);
 
-  if (
-    !post?._id 
-    || !post.contents
-    || !post.contents.htmlHighlight
-    || !post.contents.wordCount
-    || post.contents.wordCount <= 0
-  ) {
-     return <div>No post content found for post with id: {post._id}</div>; 
+  const displayHtml = fullPost?.contents?.html || post.contents?.htmlHighlight;
+  const displayWordCount = fullPost?.contents?.wordCount ?? post.contents?.wordCount;
+
+  if (!displayHtml) {
+    return <div>No post content found for post with id: {post._id}</div>; 
   }
 
-  const displayHtml = fullPost?.contents?.html || post.contents.htmlHighlight;
-  const displayWordCount = post.contents.wordCount;
+  // TODO: instead do something like set to 200 words and display and show warning
+  if (!displayWordCount) {
+    return <div>No word count found for post with id: {post._id}</div>;
+  }
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>

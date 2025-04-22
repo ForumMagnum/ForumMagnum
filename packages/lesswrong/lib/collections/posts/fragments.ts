@@ -456,6 +456,7 @@ export const PostsExpandedHighlight = () => frag`
     contents {
       _id
       html
+      wordCount
     }
   }
 `

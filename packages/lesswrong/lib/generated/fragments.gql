@@ -2299,6 +2299,7 @@ fragment PostsExpandedHighlight on Post {
   contents {
     _id
     html
+    wordCount
   }
 }
 
