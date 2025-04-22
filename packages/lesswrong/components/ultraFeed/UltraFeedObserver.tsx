@@ -130,7 +130,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         return;
       }
 
-      // `isIntersecting` is true when `MIN_VISIBLE_PX` (or the entire element if it is shorter than that)
       if (entry.isIntersecting) {
         if (!timerMapRef.current.has(element)) {
           if (!elementData) return;
@@ -139,7 +138,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
           if (!shortViewedItemsRef.current.has(elementData.documentId)) {
             shortTimerId = setTimeout(() => {
               if (elementDataMapRef.current.has(element)) {
-                // short timer fired
                 logViewEvent(elementData, VIEW_THRESHOLD_MS);
                 shortViewedItemsRef.current.add(elementData.documentId);
                 const timers = timerMapRef.current.get(element);
@@ -174,7 +172,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
           timerMapRef.current.set(element, { shortTimerId, longTimerId });
         }
       } else {
-        // Element is no longer intersecting the central stripe – clear timers.
         if (timerMapRef.current.has(element)) {
           const timers = timerMapRef.current.get(element)!;
           if (timers.shortTimerId) {
