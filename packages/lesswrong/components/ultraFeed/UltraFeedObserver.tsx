@@ -74,19 +74,11 @@ interface UltraFeedObserverContextType {
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
 
 // Minimum amount of the element (in pixels) that must be inside the viewport to
-// count as "visible enough". This is implemented via `rootMargin` when creating
-// the IntersectionObserver, so we never need to calculate it manually in the
-// callback.
+// count as "visible enough" to register a view event.
 const MIN_VISIBLE_PX = 250;
 
 const VIEW_THRESHOLD_MS = 300;
 const LONG_VIEW_THRESHOLD_MS = 2500;
-
-// Now that we are using a pixel based threshold implemented through
-// `rootMargin`, we no longer need to compare against an `intersectionRatio` in
-// the callback. We keep the constant around (set to 0) so the rest of the code
-// compiles without larger structural changes.
-const INTERSECTION_THRESHOLD = 0;
 
 const documentTypeToCollectionName = {
   post: "Posts",
@@ -138,9 +130,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         return;
       }
 
-      // A positive `isIntersecting` now means at least `MIN_VISIBLE_PX` (or the
-      // entire element if it is shorter than that) is visible, because of the
-      // negative `rootMargin` used when creating the observer.
+      // `isIntersecting` is true when `MIN_VISIBLE_PX` (or the entire element if it is shorter than that)
       if (entry.isIntersecting) {
         if (!timerMapRef.current.has(element)) {
           if (!elementData) return;
@@ -158,8 +148,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
                 }
               }
             }, VIEW_THRESHOLD_MS);
-
-            // start short timer
           }
 
           const longTimerId = setTimeout(() => {
@@ -167,7 +155,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
                const currentElementData = elementDataMapRef.current.get(element);
                if (!currentElementData) return;
 
-               // long timer fired
                logViewEvent(currentElementData, LONG_VIEW_THRESHOLD_MS);
                const documentId = currentElementData.documentId;
                longViewedItemsRef.current.add(documentId);
@@ -184,8 +171,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
              }
           }, LONG_VIEW_THRESHOLD_MS);
 
-          // start long timer
-
           timerMapRef.current.set(element, { shortTimerId, longTimerId });
         }
       } else {
@@ -199,11 +184,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
             clearTimeout(timers.longTimerId);
           }
           timerMapRef.current.delete(element);
-
-          // cleared timers
         }
-
-        // intersection false
       }
     });
   }, [logViewEvent, currentUser]);
@@ -254,8 +235,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         timerMapRef.current.delete(element);
       }
       elementDataMapRef.current.delete(element);
-
-      // unobserved element
     }
   }, []);
 
