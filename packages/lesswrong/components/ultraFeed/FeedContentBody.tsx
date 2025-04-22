@@ -88,7 +88,7 @@ interface BaseFeedContentBodyProps {
   breakpoints?: number[];
   initialExpansionLevel?: number;
   linkToDocumentOnFinalExpand?: boolean;
-  onContinueReadingClick?: () => void;
+  onContinueReadingClick?: (snippet: string) => void;
   wordCount: number;
   onExpand?: (level: number, maxLevelReached: boolean, wordCount: number) => void;
   description?: string;
@@ -182,33 +182,37 @@ const FeedContentBody = ({
 
   const readMoreSuffixText = '(read more)';
 
-  const calculateTruncationState = () => {
+  const calculateTruncationState = (): {
+    truncatedHtml: string;
+    wasTruncated: boolean;
+    wordsLeft: number;
+    suffix: string;
+  } => {
     let truncatedHtml = html;
     let wasTruncated = false;
     let wordsLeft = 0;
+    let suffix = '';
 
     if (!breakpoints.length) {
-      return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0 };
+      return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0, suffix: '' };
     } else if (applyLineClamp) {
       wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
       wordsLeft = 0; // Not used when applyLineClamp is true, set to 0
       truncatedHtml = html; // Render full HTML for CSS clamping
     } else {
       // Word count truncation logic (applies if no clampOverride OR expansionLevel > 0)
-      const createReadMoreSuffix = () => {
-        if (hideSuffix || (isMaxLevel && linkToDocumentOnFinalExpand)) { 
-           return '...';
-        }
-        const suffixContent = `...<span class="read-more-suffix">${readMoreSuffixText}</span>`;
-        return suffixContent;
-      };
+      if (hideSuffix || (isMaxLevel && linkToDocumentOnFinalExpand)) { 
+        suffix = '...';
+      } else {
+        suffix = `...<span class="read-more-suffix">${readMoreSuffixText}</span>`;
+      }
 
       const result = truncateWithGrace(
         html,
         currentWordLimit,
         20, 
         wordCount,
-        createReadMoreSuffix()
+        suffix
       );
 
       truncatedHtml = result.truncatedHtml;
@@ -221,10 +225,10 @@ const FeedContentBody = ({
       }
     }
 
-    return { truncatedHtml, wasTruncated, wordsLeft };
+    return { truncatedHtml, wasTruncated, wordsLeft, suffix };
   };
 
-  const { truncatedHtml, wasTruncated, wordsLeft } = calculateTruncationState();
+  const { truncatedHtml, wasTruncated, wordsLeft, suffix } = calculateTruncationState();
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return ""; 
@@ -251,7 +255,27 @@ const FeedContentBody = ({
     if (!showContinueReadingAction) return null;
 
     if (onContinueReadingClick) {
-      return <div className={classes.readMoreButton} onClick={(e) => { e.stopPropagation(); onContinueReadingClick(); }} >
+      const htmlWithoutSuffix = truncatedHtml.replace(suffix, '');
+      
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlWithoutSuffix, 'text/html');
+      let textContent = doc.body.textContent || '';
+      
+      // Clean the text: remove punctuation, keep only letters/numbers/spaces
+      // Unicode property escapes (\p{L}, \p{N}) match letters/numbers in any language
+      textContent = textContent
+        .replace(/[^\p{L}\p{N}\s]/gu, '') // Remove non-letter, non-number, non-whitespace
+        .replace(/\s+/g, ' ')             // Collapse multiple whitespace to single spaces
+        .trim();
+        
+      const words = textContent.trim().split(/\s+/);
+      const snippetWords = words.slice(-15);
+      const snippet = snippetWords.join(' ');
+
+      return <div className={classes.readMoreButton} onClick={(e) => { 
+        e.stopPropagation(); 
+        onContinueReadingClick(snippet); 
+      }} >
         {`(Continue Reading – ${wordsLeft} words more)`}
       </div>
     }

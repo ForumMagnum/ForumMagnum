@@ -239,7 +239,12 @@ const UltraFeedPostItem = ({
     setResetSig((s) => s + 1);
   };
 
-  const handleTitleClick = useCallback(() => {
+  const handleOpenDialog = useCallback((params?: {snippet?: string}) => {
+    const snippet = params?.snippet;
+    if (snippet) {
+      // eslint-disable-next-line no-console
+      console.log('[UltraFeedPostItem] opening dialog with snippet', snippet);
+    }
     captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
     openDialog({
       name: "UltraFeedPostDialog",
@@ -247,6 +252,7 @@ const UltraFeedPostItem = ({
       contents: ({ onClose }) => (
         <Components.UltraFeedPostDialog
           postId={post._id}
+          snippet={snippet}
           onClose={onClose}
         />
       )
@@ -273,11 +279,10 @@ const UltraFeedPostItem = ({
         <div className={classes.titleRow}>
           <div className={classes.titleContainer}>
             <span 
-              onClick={handleTitleClick}
+              onClick={() => handleOpenDialog()}
               className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTitleClick(); }}
             >
               {post.title}
             </span>
@@ -320,8 +325,8 @@ const UltraFeedPostItem = ({
           initialExpansionLevel={0}
           wordCount={displayWordCount}
           nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+          onContinueReadingClick={(snippet) => handleOpenDialog({ snippet })}
           onExpand={handleContentExpand}
-          onContinueReadingClick={handleTitleClick}
           hideSuffix={false}
           resetSignal={resetSig}
         />
