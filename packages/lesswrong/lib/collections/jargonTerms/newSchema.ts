@@ -18,6 +18,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],

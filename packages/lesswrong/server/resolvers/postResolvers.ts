@@ -418,7 +418,7 @@ export const postGqlMutations = {
 
       return await Posts.findOne({_id: postId})
     } else {
-      let afField: Partial<ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>> = {};
+      let afField = {};
       if (isAF) {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }

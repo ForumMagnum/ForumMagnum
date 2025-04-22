@@ -1,7 +1,7 @@
 import { SENT_MODERATOR_MESSAGE } from '../../lib/collections/moderatorActions/newSchema';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { loadByIds } from '../../lib/loaders';
-import { CreateCallbackProperties } from '../mutationCallbacks';
+import type { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
@@ -15,7 +15,7 @@ export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
   }
 }
 
-export function unArchiveConversations({ document, context }: CreateCallbackProperties<'Messages'>) {
+export function unArchiveConversations({ document, context }: AfterCreateCallbackProperties<'Messages'>) {
   const { Conversations } = context;
 
   void Conversations.rawUpdateOne({_id:document.conversationId}, {$set: {archivedByIds: []}});
@@ -25,7 +25,7 @@ export function unArchiveConversations({ document, context }: CreateCallbackProp
  * Creates a moderator action when the first message in a mod conversation is sent to the user
  * This also adds a note to a user's sunshineNotes
  */
-export async function updateUserNotesOnModMessage({ document, context }: CreateCallbackProperties<'Messages'>) {
+export async function updateUserNotesOnModMessage({ document, context }: AfterCreateCallbackProperties<'Messages'>) {
   const { conversationId } = document;
   // In practice this should never happen, we just don't have types set up for handling required fields
   if (!conversationId) {
@@ -59,7 +59,7 @@ export async function updateUserNotesOnModMessage({ document, context }: CreateC
  * sure they get notified about future messages (only mods have permission to
  * add themselves to conversations).
  */
-export async function addParticipantIfNew({ document, currentUser, context }: CreateCallbackProperties<'Messages'>) {
+export async function addParticipantIfNew({ document, currentUser, context }: AfterCreateCallbackProperties<'Messages'>) {
   const { Conversations, loaders } = context;
 
   const { conversationId } = document;

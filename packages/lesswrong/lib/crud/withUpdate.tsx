@@ -61,7 +61,7 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
   const [mutate, {loading, error, called, data}] = useMutation(query);
   const wrappedMutate = useCallback(({selector, data, optimisticResponse, ...extraVariables}: {
     selector: MongoSelector<ObjectsByCollectionName[CollectionName]>,
-    data: NullablePartial<ObjectsByCollectionName[CollectionName]>,
+    data: NullablePartial<DbInsertion<ObjectsByCollectionName[CollectionName]>>,
     optimisticResponse?: FragmentTypes[F],
     extraVariables?: any,
   }) => {

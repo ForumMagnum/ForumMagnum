@@ -72,7 +72,7 @@ export const ModerationTemplatesForm = ({
         const { data } = await create({ data: value });
         result = data?.createModerationTemplate.data;
       } else {
-        const updatedFields = getUpdatedFieldValues(formApi);
+        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
           data: updatedFields,

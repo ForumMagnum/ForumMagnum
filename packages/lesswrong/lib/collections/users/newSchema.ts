@@ -70,7 +70,7 @@ import gql from "graphql-tag";
 // Anything else..
 ///////////////////////////////////////
 
-export const createDisplayName = (user: Partial<DbInsertion<DbUser>> | CreateUserDataInput | UpdateUserDataInput): string => {
+export const createDisplayName = (user: Partial<DbUser> | Partial<DbInsertion<DbUser>> | CreateUserDataInput | UpdateUserDataInput): string => {
   const profileName = getNestedProperty(user, "profile.name");
   const twitterName = getNestedProperty(user, "services.twitter.screenName");
   const linkedinFirstName = getNestedProperty(user, "services.linkedin.firstName");
@@ -586,6 +586,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -626,6 +627,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -666,6 +668,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -752,6 +755,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],

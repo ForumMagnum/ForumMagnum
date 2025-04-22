@@ -73,7 +73,7 @@ export const BooksForm = ({
         const { data } = await create({ data: value });
         result = data?.createBook.data;
       } else {
-        const updatedFields = getUpdatedFieldValues(formApi);
+        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
           data: updatedFields,

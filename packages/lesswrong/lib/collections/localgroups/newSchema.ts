@@ -34,7 +34,7 @@ const formGroups = {
   },
 } satisfies Partial<Record<string, FormGroupType<"Localgroups">>>;
 
-function groupHasGoogleLocation(data: Partial<DbLocalgroup>) {
+function groupHasGoogleLocation(data: Partial<DbLocalgroup> | UpdateLocalgroupDataInput) {
   return "googleLocation" in data;
 }
 
@@ -57,6 +57,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],

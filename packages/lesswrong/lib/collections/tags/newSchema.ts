@@ -92,6 +92,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -155,6 +156,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userIsSubforumModerator, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -196,6 +198,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userIsSubforumModerator, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],

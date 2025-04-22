@@ -88,8 +88,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
 
       let result: CollectionsPageFragment;
 
-      const updatedFields = getUpdatedFieldValues(formApi);
-
+      const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
       const { data } = await mutate({
         selector: { _id: initialData?._id },
         data: updatedFields,

@@ -310,7 +310,7 @@ const utils = {
     }
   },
 
-  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbInsertion<DbPost>) => {
+  eventHasRelevantChangeForNotification: (oldPost: DbPost, newPost: DbPost) => {
     const oldLocation = oldPost.googleLocation?.geometry?.location;
     const newLocation = newPost.googleLocation?.geometry?.location;
     if (!!oldLocation !== !!newLocation) {

@@ -4899,7 +4899,7 @@ extend type Mutation {
 
 input CreateBookDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   tocTitle: String
@@ -4918,7 +4918,7 @@ input CreateBookInput {
 
 input UpdateBookDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   tocTitle: String
@@ -4947,7 +4947,7 @@ extend type Mutation {
 
 input CreateChapterDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   number: Float
@@ -4961,7 +4961,7 @@ input CreateChapterInput {
 
 input UpdateChapterDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   number: Float
@@ -4986,7 +4986,7 @@ extend type Mutation {
 input CreateCollectionDataInput {
   createdAt: Date!
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String!
   slug: String!
   gridImageId: String
@@ -5002,7 +5002,7 @@ input CreateCollectionInput {
 input UpdateCollectionDataInput {
   createdAt: Date
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   slug: String
   gridImageId: String
@@ -5059,7 +5059,7 @@ extend type Mutation {
 
 input CreateCommentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   parentCommentId: String
   topLevelCommentId: String
   postId: String
@@ -5114,7 +5114,7 @@ input CreateCommentInput {
 
 input UpdateCommentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -5212,7 +5212,7 @@ extend type Mutation {
 
 input CreateCurationNoticeDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   userId: String!
   commentId: String
   postId: String!
@@ -5224,7 +5224,7 @@ input CreateCurationNoticeInput {
 
 input UpdateCurationNoticeDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   commentId: String
   deleted: Boolean
 }
@@ -5445,9 +5445,9 @@ extend type Mutation {
 
 input CreateForumEventDataInput {
   legacyData: JSON
-  frontpageDescription: JSON
-  frontpageDescriptionMobile: JSON
-  postPageDescription: JSON
+  frontpageDescription: CreateRevisionDataInput
+  frontpageDescriptionMobile: CreateRevisionDataInput
+  postPageDescription: CreateRevisionDataInput
   title: String!
   startDate: Date!
   endDate: Date!
@@ -5460,7 +5460,7 @@ input CreateForumEventDataInput {
   bannerImageId: String
   includesPoll: Boolean
   eventFormat: String
-  pollQuestion: JSON
+  pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
@@ -5475,9 +5475,9 @@ input CreateForumEventInput {
 
 input UpdateForumEventDataInput {
   legacyData: JSON
-  frontpageDescription: JSON
-  frontpageDescriptionMobile: JSON
-  postPageDescription: JSON
+  frontpageDescription: CreateRevisionDataInput
+  frontpageDescriptionMobile: CreateRevisionDataInput
+  postPageDescription: CreateRevisionDataInput
   title: String
   startDate: Date
   endDate: Date
@@ -5490,7 +5490,7 @@ input UpdateForumEventDataInput {
   bannerImageId: String
   includesPoll: Boolean
   eventFormat: String
-  pollQuestion: JSON
+  pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
@@ -5514,7 +5514,7 @@ extend type Mutation {
 
 input CreateJargonTermDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   postId: String!
   term: String!
   approved: Boolean
@@ -5528,7 +5528,7 @@ input CreateJargonTermInput {
 
 input UpdateJargonTermDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   term: String
   approved: Boolean
   deleted: Boolean
@@ -5595,7 +5595,7 @@ extend type Mutation {
 
 input CreateLocalgroupDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String!
   nameInAnotherLanguage: String
   organizerIds: [String!]!
@@ -5622,7 +5622,7 @@ input CreateLocalgroupInput {
 
 input UpdateLocalgroupDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String
   nameInAnotherLanguage: String
   organizerIds: [String!]
@@ -5659,7 +5659,7 @@ extend type Mutation {
 
 input CreateMessageDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   userId: String
   conversationId: String!
   noEmail: Boolean
@@ -5671,7 +5671,7 @@ input CreateMessageInput {
 
 input UpdateMessageDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
 }
 
 input UpdateMessageInput {
@@ -5690,7 +5690,7 @@ extend type Mutation {
 
 input CreateModerationTemplateDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String!
   collectionName: String!
   order: Float
@@ -5702,7 +5702,7 @@ input CreateModerationTemplateInput {
 
 input UpdateModerationTemplateDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String
   collectionName: String
   order: Float
@@ -5757,7 +5757,7 @@ extend type Mutation {
 
 input CreateMultiDocumentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   title: String
   tabTitle: String!
@@ -5774,7 +5774,7 @@ input CreateMultiDocumentInput {
 
 input UpdateMultiDocumentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   title: String
   tabTitle: String
@@ -5856,9 +5856,9 @@ extend type Mutation {
 
 input CreatePostDataInput {
   legacyData: JSON
-  contents: JSON
-  moderationGuidelines: JSON
-  customHighlight: JSON
+  contents: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
+  customHighlight: CreateRevisionDataInput
   slug: String
   postedAt: Date
   url: String
@@ -5970,9 +5970,9 @@ input CreatePostInput {
 
 input UpdatePostDataInput {
   legacyData: JSON
-  contents: JSON
-  moderationGuidelines: JSON
-  customHighlight: JSON
+  contents: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
+  customHighlight: CreateRevisionDataInput
   slug: String
   postedAt: Date
   url: String
@@ -6177,6 +6177,19 @@ extend type Mutation {
   updateReport(selector: SelectorInput!, data: UpdateReportDataInput!): ReportOutput
 }
 
+input ContentTypeInput {
+  type: String!
+  data: ContentTypeData!
+}
+
+input CreateRevisionDataInput {
+  originalContents: ContentTypeInput!
+  commitMessage: String
+  updateType: String
+  dataWithDiscardedSuggestions: JSON
+  googleDocMetadata: JSON
+}
+
 input UpdateRevisionDataInput {
   legacyData: JSON
   skipAttributions: Boolean
@@ -6197,7 +6210,7 @@ extend type Mutation {
 
 input CreateSequenceDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
   title: String!
@@ -6220,7 +6233,7 @@ input CreateSequenceInput {
 
 input UpdateSequenceDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
   title: String
@@ -6285,7 +6298,7 @@ extend type Mutation {
 
 input CreateSpotlightDataInput {
   legacyData: JSON
-  description: JSON
+  description: CreateRevisionDataInput
   documentId: String!
   documentType: String!
   position: Float
@@ -6312,7 +6325,7 @@ input CreateSpotlightInput {
 
 input UpdateSpotlightDataInput {
   legacyData: JSON
-  description: JSON
+  description: CreateRevisionDataInput
   documentId: String
   documentType: String
   position: Float
@@ -6516,7 +6529,7 @@ extend type Mutation {
 
 input CreateTagFlagDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   name: String!
   deleted: Boolean
@@ -6529,7 +6542,7 @@ input CreateTagFlagInput {
 
 input UpdateTagFlagDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   name: String
   deleted: Boolean
@@ -6552,9 +6565,9 @@ extend type Mutation {
 
 input CreateTagDataInput {
   legacyData: JSON
-  description: JSON
-  subforumWelcomeText: JSON
-  moderationGuidelines: JSON
+  description: CreateRevisionDataInput
+  subforumWelcomeText: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
   slug: String
   name: String!
   shortName: String
@@ -6592,9 +6605,9 @@ input CreateTagInput {
 
 input UpdateTagDataInput {
   legacyData: JSON
-  description: JSON
-  subforumWelcomeText: JSON
-  moderationGuidelines: JSON
+  description: CreateRevisionDataInput
+  subforumWelcomeText: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
   slug: String
   name: String
   shortName: String
@@ -6839,11 +6852,11 @@ extend type Mutation {
 
 input CreateUserDataInput {
   legacyData: JSON
-  moderationGuidelines: JSON
-  howOthersCanHelpMe: JSON
-  howICanHelpOthers: JSON
+  moderationGuidelines: CreateRevisionDataInput
+  howOthersCanHelpMe: CreateRevisionDataInput
+  howICanHelpOthers: CreateRevisionDataInput
   slug: String
-  biography: JSON
+  biography: CreateRevisionDataInput
   username: String
   isAdmin: Boolean
   displayName: String
@@ -6999,11 +7012,11 @@ input CreateUserInput {
 
 input UpdateUserDataInput {
   legacyData: JSON
-  moderationGuidelines: JSON
-  howOthersCanHelpMe: JSON
-  howICanHelpOthers: JSON
+  moderationGuidelines: CreateRevisionDataInput
+  howOthersCanHelpMe: CreateRevisionDataInput
+  howICanHelpOthers: CreateRevisionDataInput
   slug: String
-  biography: JSON
+  biography: CreateRevisionDataInput
   username: String
   isAdmin: Boolean
   displayName: String

@@ -127,7 +127,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
       userId,
       contents: {
         originalContents: { data, type }
-      } as EditableFieldContents
+      }
     };
 
     try {

@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { useSingle } from '@/lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -31,6 +32,13 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
 }) => {
   const [edit,setEdit] = useState(false);
 
+  const { document: editableChapter } = useSingle({
+    collectionName: 'Chapters',
+    fragmentName: 'ChaptersEdit',
+    documentId: chapter._id,
+    skip: !canEdit,
+  });
+
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
@@ -42,9 +50,9 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
     SectionButton, ContentItemBody, ContentStyles, PostsItem } = Components
   const html = chapter.contents?.html || ""
 
-  if (edit) return (
+  if (edit && editableChapter) return (
     <ChaptersEditForm
-      chapter={chapter}
+      chapter={editableChapter}
       successCallback={showChapter}
       cancelCallback={showChapter}
     />

@@ -65,12 +65,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
         const { data } = await create({ data: value });
         result = data?.createTagFlag.data;
       } else {
-        const updatedFields = getUpdatedFieldValues(formApi);
-        if (updatedFields.contents) {
-          const { originalContents: { type, data } } = updatedFields.contents;
-          updatedFields.contents = { originalContents: { type, data } };
-        }
-
+        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
         const { data } = await mutate({
           selector: { _id: initialData?._id },
           data: updatedFields,

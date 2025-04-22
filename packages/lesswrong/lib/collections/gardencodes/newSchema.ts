@@ -40,6 +40,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],

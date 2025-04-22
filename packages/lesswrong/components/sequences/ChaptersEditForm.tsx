@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
 
 const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
   classes: ClassesType<typeof styles>,
-  chapter: ChaptersFragment,
+  chapter: ChaptersEdit,
   successCallback: any,
   cancelCallback: any,
 }) => {

@@ -305,6 +305,7 @@ const schema = {
   contents: {
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
       canUpdate: ["members", "sunshineRegiment", "admins"],
@@ -370,6 +371,7 @@ const schema = {
   moderationGuidelines: {
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -411,6 +413,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
