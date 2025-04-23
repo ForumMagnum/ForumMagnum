@@ -235,7 +235,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
+const formatDate = ({ startDate, endDate }: { startDate: Date, endDate: Date }) => {
   const start = moment.utc(startDate);
   const end = moment.utc(endDate);
   const startFormatted = start.format("MMMM D");
@@ -293,8 +293,8 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId} = currentForumEvent;
-  const date = formatDate(currentForumEvent);
+  const {title, bannerImageId, startDate, endDate} = currentForumEvent;
+  const date = endDate ? formatDate({ startDate, endDate }) : null;
   
   const {CloudinaryImage2, ForumIcon} = Components;
 
@@ -302,7 +302,7 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
       <div className={classNames(classes.root, classes.rootWithGradient)}>
         <div className={classes.contentBasic}>
-          <div className={classes.date}>{date}</div>
+          {date && <div className={classes.date}>{date}</div>}
           <div className={classes.title}>{title}</div>
           <Description forumEvent={currentForumEvent} classes={classes} />
         </div>
@@ -339,8 +339,8 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile} = currentForumEvent;
-  const date = formatDate(currentForumEvent);
+  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, startDate, endDate} = currentForumEvent;
+  const date = endDate && formatDate({startDate, endDate});
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
 
   const {
@@ -353,7 +353,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
         <ForumEventPoll />
         <div className={classes.contentWithPoll}>
           <div className={classes.titleWithPoll}>{title}</div>
-          <div className={classes.dateWithPoll}>{date}</div>
+          {date && <div className={classes.dateWithPoll}>{date}</div>}
           <div className={classes.descriptionWithPoll}>
               {mobileDescription &&
                 <ContentStyles contentType="comment">

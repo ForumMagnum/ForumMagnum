@@ -515,7 +515,7 @@ interface DbForumEvent extends DbObject {
   createdAt: Date
   customComponent: string | null
   darkColor: string
-  endDate: Date
+  endDate: Date | null
   eventFormat: "BASIC" | "POLL" | "STICKERS"
   frontpageDescription: EditableFieldContents | null
   frontpageDescriptionMobile: EditableFieldContents | null

@@ -2724,7 +2724,7 @@ interface CreateForumEventDataInput {
   postPageDescription?: any;
   title: string;
   startDate: Date;
-  endDate: Date;
+  endDate?: Date | null;
   darkColor: string;
   lightColor: string;
   bannerTextColor: string;

@@ -4,7 +4,8 @@ import cheerio from 'cheerio';
 import ForumEvents from '../collections/forumEvents/collection';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { createForumEvent, updateForumEvent } from '../collections/forumEvents/mutations';
-import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { UpdateCallbackProperties } from '../mutationCallbacks';
+import { hasPolls } from '@/lib/betas';
 
 // Users upvote their own tag-revisions
 export async function upvoteOwnTagRevision({revision, context}: {revision: DbRevision, context: ResolverContext}) {
@@ -54,81 +55,138 @@ export async function recomputeWhenSkipAttributionChanged({oldDocument, newDocum
   }
 };
 
+// Duplicate of ckEditor/src/ckeditor5-poll/poll.ts
+type PollProps = {
+  question: string;
+  agreeWording: string;
+  disagreeWording: string;
+  colorScheme: { darkColor: string; lightColor: string; bannerTextColor: string }
+  duration: { days: number; hours: number; minutes: number };
+};
+const ONE_MINUTE_MS = 60 * 1000;
+const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
+const ONE_DAY_MS = 24 * ONE_HOUR_MS;
+
 // Upsert a ForumEvent with eventFormat = "POLL"
-async function upsertPoll({ _id, question, user, postId }: { _id: string; question: string; user: DbUser | null; postId: string; }) {
-  const existingPoll = await ForumEvents.findOne({ _id });
+async function upsertPoll({
+  _id,
+  post,
+  existingPoll,
+  question,
+  agreeWording,
+  disagreeWording,
+  colorScheme,
+  duration,
+}: {
+  _id: string;
+  existingPoll?: DbForumEvent;
+  post: DbPost;
+} & PollProps, context: ResolverContext) {
+  const endDateFromDuration = new Date(
+    Date.now() + (duration.days * ONE_DAY_MS) + (duration.hours * ONE_HOUR_MS) + (duration.minutes * ONE_MINUTE_MS)
+  );
+  // Start the timer when the post is published. If editing after that, don't update the end date
+  const endDate = existingPoll?.endDate ? existingPoll?.endDate : (post.draft ? null : endDateFromDuration);
 
-  // TODO replace with actual context
-  const context = createAnonymousContext();
-
-  // TODO read the props here
   if (existingPoll) {
-    // Update existing poll
-    return updateForumEvent({
-      selector: { _id: existingPoll._id },
-      data: {
-        eventFormat: "POLL",
-        pollQuestion: {
-          originalContents: {
-            data: `<p>${question}</p>`,
-            type: "ckEditorMarkup"
-          }
+    return updateForumEvent(
+      {
+        selector: { _id: existingPoll._id },
+        data: {
+          eventFormat: "POLL",
+          pollQuestion: {
+            originalContents: {
+              data: `<p>${question}</p>`,
+              type: "ckEditorMarkup",
+            },
+          },
+          pollAgreeWording: agreeWording,
+          pollDisagreeWording: disagreeWording,
+          endDate,
+          ...colorScheme,
+          postId: post._id,
         },
-        postId,
       },
-    }, context);
+      context
+    );
   } else {
-    // Create a new ForumEvent with basic required fields
-    return createForumEvent({
-      data: {
-        // TODO fix
-        // @ts-ignore
-        _id,
-        title: `New Poll for ${_id}`,
-        eventFormat: "POLL",
-        pollQuestion: {
-          originalContents: {
-            data: `<p>${question}</p>`,
-            type: "ckEditorMarkup"
-          }
+    return createForumEvent(
+      {
+        data: {
+          // TODO Explicitly allow settting an _id. This does work currently, but the generated types don't recognise it
+          // @ts-ignore
+          _id,
+          title: `New Poll for ${_id}`,
+          eventFormat: "POLL",
+          pollQuestion: {
+            originalContents: {
+              data: `<p>${question}</p>`,
+              type: "ckEditorMarkup",
+            },
+          },
+          startDate: new Date(),
+          endDate,
+          pollAgreeWording: agreeWording,
+          pollDisagreeWording: disagreeWording,
+          ...colorScheme,
+          postId: post._id,
+          isGlobal: false,
         },
-        startDate: new Date('2000-01-01T00:00:00Z'),
-        endDate: new Date('2000-01-08T00:00:00Z'),
-        darkColor: "#000000",
-        lightColor: "#ffffff",
-        bannerTextColor: "#ffffff",
-        postId,
-        isGlobal: false
-      }
-    }, context);
+      },
+      context
+    );
   }
 }
 
-// TODO continue fixing conflicts from here
+export async function upsertPolls({
+  revision,
+  context,
+}: {
+  revision: Pick<DbRevision, "documentId" | "collectionName" | "html">;
+  context: ResolverContext;
+}) {
+  if (!hasPolls) return;
 
-// Existing createAfter callback:
-// This will find every data-internal-id in the revision HTML and call upsertPoll().
-// getCollectionHooks("Revisions").createAfter.add(async (revision: DbRevision, { currentUser }) => {
-//   console.log("In createAfter for revision");
+  console.log("In upsertPolls");
 
-//   // TODO more specific check here for perf reasons
-//   if (revision.html && revision.collectionName === "Posts" && !!revision.documentId) {
-//     const $ = cheerio.load(revision.html);
-//     // TODO make it a div instead of an a
-//     const internalIds = $(".ck-poll[data-internal-id]")
-//       .map((_, element) => {
-//         const internalId = $(element).attr("data-internal-id");
-//         const question = $(element).text().trim(); // Extract the content as the question
-//         return { internalId, question };
-//       })
-//       .get();
-//     console.log("Data-internal-ids and questions:", internalIds);
+  if (revision.html && revision.collectionName === "Posts" && !!revision.documentId) {
+    const $ = cheerio.load(revision.html);
+    const pollData = $(".ck-poll[data-internal-id]")
+      .map((_, element) => {
+        const internalId = $(element).attr("data-internal-id");
+        const props = $(element).attr("data-props");
 
-//     // Upsert a poll for each internal id found in the HTML
-//     for (const { internalId, question } of internalIds) {
-//       await upsertPoll({ _id: internalId, question, user: currentUser, postId: revision.documentId });
-//     }
-//   }
+        if (!props) return null;
 
-//   return revision;
-// });
+        const parsedProps = JSON.parse(props) as PollProps;
+
+        return { _id: internalId, ...parsedProps };
+      })
+      .get()
+      .filter((item) => item !== null) as ({ _id: string } & PollProps)[];
+    console.log("Data-internal-ids and questions:", pollData);
+
+    if (!pollData?.length) return;
+
+    const [post, existingPolls] = await Promise.all([
+      context.loaders.Posts.load(revision.documentId),
+      context.loaders.ForumEvents.loadMany(pollData.map(d => d._id))
+    ]);
+
+    const validExistingPolls = existingPolls.filter((fe): fe is DbForumEvent => !(fe instanceof Error) && !!fe?._id);
+
+    if (!post) {
+      // eslint-disable-next-line no-console
+      console.error(`Post (${revision.documentId}) not found, cannot upsert polls`);
+      return;
+    }
+
+    // Upsert a poll for each internal id found in the HTML
+    for (const data of pollData) {
+      const existingPoll = validExistingPolls.find(poll => poll && poll._id === data._id);
+      await upsertPoll({ ...data, post, existingPoll }, context);
+    }
+  }
+
+  return;
+};

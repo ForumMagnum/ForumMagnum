@@ -197,13 +197,16 @@ const schema = {
   endDate: {
     database: {
       type: "TIMESTAMPTZ",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "Date!",
+      outputType: "Date",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: { below: true },

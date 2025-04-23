@@ -2291,7 +2291,7 @@ type ForumEvent {
   postPageDescription_latest: String
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -5457,7 +5457,7 @@ input CreateForumEventDataInput {
   postPageDescription: JSON
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!

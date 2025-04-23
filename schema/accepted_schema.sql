@@ -951,7 +951,7 @@ CREATE TABLE "ForumEvents" (
   "postPageDescription_latest" TEXT,
   "title" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
-  "endDate" TIMESTAMPTZ NOT NULL,
+  "endDate" TIMESTAMPTZ,
   "darkColor" TEXT NOT NULL DEFAULT '#000000',
   "lightColor" TEXT NOT NULL DEFAULT '#ffffff',
   "bannerTextColor" TEXT NOT NULL DEFAULT '#ffffff',

@@ -496,7 +496,8 @@ export const ForumEventPoll = ({
 
   const event = forumEventId ? eventFromId : currentForumEvent;
   const refetch = forumEventId ? refetchOverrideEvent : refectCurrentEvent;
-  const votingOpen = event ? new Date(event.endDate) > new Date() : false;
+  // Events where endDate is null always have voting open
+  const votingOpen = event ? (!event.endDate || new Date(event.endDate) > new Date()) : false;
 
   const displayHtml = useMemo(
     () => (event?.pollQuestion?.html ? footnotesToTooltips({ html: event.pollQuestion.html, event, classes }) : null),
@@ -874,7 +875,7 @@ export const ForumEventPoll = ({
                   >
                     <LWTooltip
                       title={
-                        !hasVoted && (
+                        (votingOpen && !hasVoted) && (
                           <>
                             <div className={classes.voteTooltipHeading}>Click and drag to vote</div>
                             <div className={classes.voteTooltipBody}>
