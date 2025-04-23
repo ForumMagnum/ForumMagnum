@@ -14,6 +14,8 @@ import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 
+const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
+
 const getStoredSettings = (): UltraFeedSettingsType => {
   if (!isClient) return DEFAULT_SETTINGS;
   
@@ -151,7 +153,13 @@ const UltraFeedContent = () => {
   
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [sessionId] = useState(() => randomId());
+  const [sessionId] = useState<string>(() => {
+    const storage = window.sessionStorage;
+    const currentId = storage ? storage.getItem(ULTRAFEED_SESSION_ID_KEY) ?? randomId() : randomId();
+    storage.setItem(ULTRAFEED_SESSION_ID_KEY, currentId);
+
+    return currentId;
+  });
   
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 

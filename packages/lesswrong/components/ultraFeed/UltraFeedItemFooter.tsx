@@ -7,10 +7,10 @@ import { useVote } from "../votes/withVote";
 import { VotingProps } from "../votes/votingProps";
 import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttachedReactions";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
-import { useNavigate } from "@/lib/routeUtil";
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "../../lib/crud/withCreate";
+import { useDialog } from "../common/withDialog";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -245,7 +245,7 @@ const UltraFeedItemFooterCore = ({
 
 
 const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string }) => {
-  const navigate = useNavigate();
+  const { openDialog } = useDialog();
 
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
   const voteProps = useVote(post, "Posts", votingSystem);
@@ -253,7 +253,18 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
   const reactionCount = reacts ? Object.keys(reacts).length : 0;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions";
   const commentCount = post.commentCount ?? 0;
-  const onClickComments = () => navigate(`/posts/${post._id}#comments`)
+  
+  const onClickComments = () => {
+    openDialog({
+      name: "commentsDialog",
+      closeOnNavigate: true,
+      contents: ({onClose}) => <Components.UltraFeedCommentsDialog 
+        document={post}
+        collectionName="Posts"
+        onClose={onClose}
+      />
+    });
+  }
 
   return (
     <UltraFeedItemFooterCore
@@ -271,7 +282,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
 
 
 const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string }) => {
-  const navigate = useNavigate();
+  const { openDialog } = useDialog();
 
   const parentPost = comment.post;
   const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
@@ -281,7 +292,18 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
   const hideKarma = !!parentPost?.hideCommentKarma;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !hideKarma;
   const commentCount = metaInfo.directDescendentCount;
-  const onClickComments = () => navigate(`/posts/${comment?.postId}?commentId=${comment._id}`)
+  
+  const onClickComments = () => {
+    openDialog({
+      name: "UltraFeedCommentsDialog",
+      closeOnNavigate: true,
+      contents: ({onClose}) => <Components.UltraFeedCommentsDialog 
+        document={comment}
+        collectionName="Comments"
+        onClose={onClose}
+      />
+    });
+  }
 
   const bookmarkDocument = parentPost;
 
