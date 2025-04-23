@@ -2302,7 +2302,7 @@ type ForumEvent {
   post: Post
   bannerImageId: String
   includesPoll: Boolean!
-  isGlobal: Boolean
+  isGlobal: Boolean!
   eventFormat: String!
   pollQuestion(version: String): Revision
   pollQuestion_latest: String
@@ -5466,7 +5466,7 @@ input CreateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
-  isGlobal: Boolean
+  isGlobal: Boolean!
   eventFormat: String
   pollQuestion: JSON
   pollAgreeWording: String
@@ -5505,6 +5505,7 @@ input UpdateForumEventDataInput {
   maxStickersPerUser: Float
   customComponent: String
   commentPrompt: String
+  publicData: JSON
 }
 
 input UpdateForumEventInput {

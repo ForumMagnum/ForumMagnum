@@ -392,7 +392,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"], // newCheck ensures this can only be false for user-created events

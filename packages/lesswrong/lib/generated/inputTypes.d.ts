@@ -2733,7 +2733,7 @@ interface CreateForumEventDataInput {
   postId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
-  isGlobal?: boolean | null;
+  isGlobal: boolean;
   eventFormat?: string | null;
   pollQuestion?: any;
   pollAgreeWording?: string | null;
@@ -2772,6 +2772,7 @@ interface UpdateForumEventDataInput {
   maxStickersPerUser?: number | null;
   customComponent?: string | null;
   commentPrompt?: string | null;
+  publicData?: any;
 }
 
 interface UpdateForumEventInput {
