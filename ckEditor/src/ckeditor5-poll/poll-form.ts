@@ -6,6 +6,7 @@ import clickOutsideHandler from "@ckeditor/ckeditor5-ui/src/bindings/clickoutsid
 import View from "@ckeditor/ckeditor5-ui/src/view";
 import ViewCollection from "@ckeditor/ckeditor5-ui/src/viewcollection";
 import InputTextView from "@ckeditor/ckeditor5-ui/src/inputtext/inputtextview";
+import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
 import KeystrokeHandler from "@ckeditor/ckeditor5-utils/src/keystrokehandler";
 import FocusTracker from "@ckeditor/ckeditor5-utils/src/focustracker";
@@ -35,6 +36,7 @@ class MainFormView extends View {
   questionView: AnyBecauseTodo
   agreeWordingView: AnyBecauseTodo
   disagreeWordingView: AnyBecauseTodo
+  colorSchemeButtons: ButtonView[]
   previewEnabled: AnyBecauseTodo
   _focusables: AnyBecauseTodo
   focusTracker: AnyBecauseTodo
@@ -51,10 +53,11 @@ class MainFormView extends View {
 
     this.selectedElement = null;
 
-    const { questionView, agreeWordingView, disagreeWordingView } = this._createInputs();
+    const { questionView, agreeWordingView, disagreeWordingView, colorSchemeButtons } = this._createInputs();
     this.questionView = questionView;
     this.agreeWordingView = agreeWordingView;
     this.disagreeWordingView = disagreeWordingView;
+    this.colorSchemeButtons = colorSchemeButtons;
 
     this.previewEnabled = true;
 
@@ -143,19 +146,12 @@ class MainFormView extends View {
                   children: ["Color"]
                 },
                 {
-                  // TODO move a lot of this styling to css
                   tag: "div",
                   attributes: {
+                    class: ["ck-color-selector-container"],
                     style: "display: flex; align-items: center; flex: 1; gap: 8px;"
                   },
-                  children: [
-                    ...POLL_COLOR_SCHEMES.map((colorScheme => ({
-                      tag: "div",
-                      attributes: {
-                        style: `background-color: ${colorScheme.darkColor}; width: 20px; height: 20px; cursor: pointer; border: 1px solid #ccc;`
-                      }
-                    })))
-                  ]
+                  children: this.colorSchemeButtons
                 }
               ]
             },
@@ -246,25 +242,12 @@ class MainFormView extends View {
       view: this,
     });
 
-    // Add click listeners to color scheme selectors
-    const colorSchemeElements = this.element.querySelectorAll('[style*="background-color"]');
-    colorSchemeElements.forEach((el, index) => {
-      el.addEventListener('click', () => {
-        const model = this.editor.model;
-        const selectedElement = this.selectedElement;
-
-        if (!selectedElement) return;
-
-        model.change((writer: Writer) => {
-          const props = this.selectedElement.getAttribute("props") as PollProps;
-          const newColorScheme = POLL_COLOR_SCHEMES[index];
-
-          writer.setAttribute("props", {...props, colorScheme: newColorScheme}, this.selectedElement);
-        });
-      });
-    });
-
-    const childViews = [this.questionView, this.disagreeWordingView,  this.agreeWordingView];
+    const childViews = [
+        this.questionView,
+        this.disagreeWordingView,
+        this.agreeWordingView,
+        ...this.colorSchemeButtons
+    ];
 
     childViews.forEach((v) => {
       this._focusables.add(v);
@@ -384,7 +367,6 @@ class MainFormView extends View {
         input: disagreeWordingBind.to("input"),
       },
     });
-    // TODO clean up unecessary things here
     (disagreeWordingView as AnyBecauseTodo).label = "Left label";
     disagreeWordingView.on("input", () => {
       const model = this.editor.model;
@@ -400,10 +382,57 @@ class MainFormView extends View {
       });
     });
 
+    // Create color scheme buttons
+    const colorSchemeButtons = POLL_COLOR_SCHEMES.map((colorScheme, index) => {
+      const buttonView = new ButtonView(this.locale);
+
+      buttonView.set({
+        tooltip: `Select color scheme: ${colorScheme.darkColor} / ${colorScheme.lightColor}`,
+        withText: false,
+      });
+
+      buttonView.on('render', () => {
+        // TODO move to css file
+        buttonView.element.style.backgroundColor = colorScheme.darkColor;
+        buttonView.element.classList.add('ck-color-selector-button');
+        buttonView.element.style.border = '1px solid #ccc';
+        buttonView.element.style.boxSizing = 'border-box';
+        buttonView.element.style.cursor = 'pointer';
+      });
+
+      buttonView.on('execute', () => {
+        const model = this.editor.model;
+        const selectedElement = this.selectedElement;
+
+        if (!selectedElement) return;
+
+        model.change((writer: Writer) => {
+          const props = this.selectedElement.getAttribute("props") as PollProps;
+          const newColorScheme = POLL_COLOR_SCHEMES[index];
+
+          writer.setAttribute("props", {...props, colorScheme: newColorScheme}, this.selectedElement);
+
+          // TODO improve selection UI
+          this.colorSchemeButtons.forEach((btn, btnIndex) => {
+            btn.element.style.border = '1px solid #ccc';
+            btn.isOn = (index === btnIndex);
+            if (index === btnIndex) {
+                btn.element.style.border = '2px solid blue';
+            } else {
+                btn.element.style.border = '1px solid #ccc';
+            }
+          });
+        });
+      });
+
+      return buttonView;
+    });
+
     return {
       questionView,
       agreeWordingView,
       disagreeWordingView,
+      colorSchemeButtons,
     };
   }
 }
