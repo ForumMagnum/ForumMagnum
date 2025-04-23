@@ -15,7 +15,7 @@ import { getContributorsFieldResolver } from "@/lib/collections/helpers/contribu
 
 const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
-export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: DbMultiDocument) {
+export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: Pick<DbMultiDocument, "userId" | "createdAt">) {
   if (userIsAdminOrMod(user)) {
     return true;
   }

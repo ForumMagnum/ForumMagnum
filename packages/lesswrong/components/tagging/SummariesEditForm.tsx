@@ -7,6 +7,7 @@ import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
 import { SortableHandle as sortableHandle } from "react-sortable-hoc";
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { SummaryForm } from "./SummaryForm";
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -35,7 +36,7 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
       marginTop: 0,
       width: '100%',
     },
-    '& .form-component-default, & .MuiTextField-textField': {
+    '& .input-tabTitle, & .TanStackMuiTextField-textField': {
       marginBottom: 0,
       marginTop: 0,
       width: 150,
@@ -195,7 +196,7 @@ const SummaryEditorRow = ({ summary, refetch }: {
   summary: MultiDocumentContentDisplay,
   refetch: () => Promise<void>,
 }) => {
-  const { WrappedSmartForm, LWTooltip, ContentItemBody, ContentStyles, ForumIcon } = Components;
+  const { LWTooltip, ContentItemBody, ContentStyles, ForumIcon } = Components;
   const classes = useStyles(styles);
 
   const [edit, setEdit] = useState(false);
@@ -217,60 +218,44 @@ const SummaryEditorRow = ({ summary, refetch }: {
       </LWTooltip>
     </div>
     <div className={classNames(classes.summaryRowFormStyles, !edit && classes.hide)}>
-      <WrappedSmartForm
+      <SummaryForm
         key={mountKey}
-        collectionName="MultiDocuments"
-        documentId={summary._id}
-        mutationFragmentName={'MultiDocumentContentDisplay'}
-        queryFragmentName={'MultiDocumentContentDisplay'}
-        prefetchedDocument={summary}
-        successCallback={() => {
+        initialData={summary}
+        onSuccess={() => {
           setEdit(false);
           // This is a horrible hack to get around the problem where, because we initialize the page with the form mounted for snappy click-through,
           // clicking into the form a second time after editing a summary leaves us with an empty form.  (I still haven't figured out exactly why.)
           void refetch().then(() => setMountKey(mountKey + 1));
         }}
-        cancelCallback={() => setEdit(false)}
-        formComponents={{ FormSubmit: SummarySubmitButtons }}
-        removeFields={['title', 'tabSubtitle']}
+        onCancel={() => setEdit(false)}
       />
     </div>
   </span>);
 }
 
-const NewSummaryEditor = ({ parentDocument, refetchSummaries, setNewSummaryEditorOpen }: {
-  parentDocument: TagPageWithArbitalContentFragment | MultiDocumentContentDisplay,
+interface NewSummaryEditorProps {
+  parentDocumentId: string,
+  collectionName: 'Tags' | 'MultiDocuments',
   refetchSummaries: () => Promise<void>,
   setNewSummaryEditorOpen: (open: boolean) => void,
-}) => {
+}
+
+const NewSummaryEditor = ({ parentDocumentId, collectionName, refetchSummaries, setNewSummaryEditorOpen }: NewSummaryEditorProps) => {
   const { WrappedSmartForm } = Components;
   const classes = useStyles(styles);
-
-  const collectionName: DbMultiDocument['collectionName'] = 'title' in parentDocument ? 'MultiDocuments' : 'Tags';
 
   const wrappedSuccessCallback = async () => {
     await refetchSummaries();
     setNewSummaryEditorOpen(false);
   };
 
-  const prefilledProps = {
-    parentDocumentId: parentDocument._id,
-    collectionName,
-    fieldName: 'summary',
-  };
+  const prefilledProps = { parentDocumentId, collectionName };
 
   return <div className={classes.summaryRowFormStyles}>
-    <WrappedSmartForm
-      collectionName="MultiDocuments"
-      mutationFragmentName={'MultiDocumentContentDisplay'}
-      queryFragmentName={'MultiDocumentContentDisplay'}
-      successCallback={wrappedSuccessCallback}
-      cancelCallback={() => setNewSummaryEditorOpen(false)}
-      formComponents={{ FormSubmit: SummarySubmitButtons }}
-      formProps={{
-        editorHintText: "Write a custom summary to be displayed when users hover over links to this page.",
-      }}
+    <SummaryForm
       prefilledProps={prefilledProps}
+      onSuccess={wrappedSuccessCallback}
+      onCancel={() => setNewSummaryEditorOpen(false)}
     />
   </div>
 }
@@ -295,9 +280,12 @@ function getSummariesHelpText(results: MultiDocumentContentDisplay[]) {
   }
 }
 
-const SummariesEditForm = ({ document }: {
-  document: TagPageWithArbitalContentFragment | MultiDocumentContentDisplay,
-}) => {
+interface SummariesEditFormProps {
+  parentDocumentId: string,
+  collectionName: 'Tags' | 'MultiDocuments',
+}
+
+const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFormProps) => {
   const { Loading, ForumIcon, LWTooltip } = Components;
 
   const classes = useStyles(styles);
@@ -309,7 +297,7 @@ const SummariesEditForm = ({ document }: {
     fragmentName: 'MultiDocumentContentDisplay',
     terms: {
       view: 'summariesByParentId',
-      parentDocumentId: document._id,
+      parentDocumentId,
     },
   });
 
@@ -358,22 +346,25 @@ const SummariesEditForm = ({ document }: {
     }
   });
 
-  const parentDocumentCollectionName = 'title' in document ? 'MultiDocuments' : 'Tags';
-
   const displayedSummaries = reorderedSummaries
     ? reorderedSummaries.map((summaryId) => summariesById[summaryId])
     : results;
 
   return <span className={classes.root}>
     {topRow}
-    {newSummaryEditorOpen && <NewSummaryEditor parentDocument={document} refetchSummaries={refetch} setNewSummaryEditorOpen={setNewSummaryEditorOpen} />}
+    {newSummaryEditorOpen && <NewSummaryEditor
+      parentDocumentId={parentDocumentId}
+      collectionName={collectionName}
+      refetchSummaries={refetch}
+      setNewSummaryEditorOpen={setNewSummaryEditorOpen}
+    />}
     <SortableSummaryRowList
       value={displayedSummaries.map((summary) => summary._id)}
       setValue={(newValue: string[]) => {
         void reorderSummaries({
           variables: {
-            parentDocumentId: document._id,
-            parentDocumentCollectionName,
+            parentDocumentId,
+            parentDocumentCollectionName: collectionName,
             summaryIds: newValue,
           },
         });
