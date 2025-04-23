@@ -64,12 +64,12 @@ export const SummaryForm = ({
 
   const { create } = useCreate({
     collectionName: 'MultiDocuments',
-    fragmentName: 'MultiDocumentContentDisplay', // TODO: use correct fragment type
+    fragmentName: 'MultiDocumentContentDisplay',
   });
 
   const { mutate } = useUpdate({
     collectionName: 'MultiDocuments',
-    fragmentName: 'MultiDocumentContentDisplay', // TODO: use correct fragment type
+    fragmentName: 'MultiDocumentContentDisplay',
   });
 
   const form = useForm({

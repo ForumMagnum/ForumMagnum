@@ -4,6 +4,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
 import DialogContentText from '@/lib/vendor/@material-ui/core/src/DialogContentText';
 import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { LensForm } from './LensForm';
 
 const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
   dialog: {
@@ -23,7 +24,7 @@ const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
       display: 'inline-block',
       width: 120,
       marginRight: 20,
-      '& .MuiTextField-textField': {
+      '& .TanStackMuiTextField-textField': {
         width: '100%',
       },
     },
@@ -47,7 +48,7 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
   updateSelectedLens: (lensId: string) => void,
   onClose?: () => void,
 }) => {
-  const { LWDialog, WrappedSmartForm } = Components;
+  const { LWDialog } = Components;
   
   const classes = useStyles(styles);
 
@@ -55,12 +56,6 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
     await refetchTag();
     updateSelectedLens(lens._id);
     onClose?.();
-  };
-
-  const prefilledProps = {
-    parentDocumentId: tag._id,
-    collectionName: 'Tags',
-    fieldName: 'description',
   };
   
   return <LWDialog open={true} onClose={onClose} dialogClasses={{ paper: classes.dialog }}>
@@ -71,17 +66,10 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
         <p /><p />
         The title of the lens is displayed at the top of the content, and the tab title and (optional) subtitle are displayed in the tab bar.
       </DialogContentText>
-      <WrappedSmartForm
-        collectionName='MultiDocuments'
-        queryFragmentName='MultiDocumentMinimumInfo'
-        mutationFragmentName='MultiDocumentMinimumInfo'
-        successCallback={wrappedSuccessCallback}
-        cancelCallback={() => onClose?.()}
-        formProps={{
-          lensForm: true,
-          editorHintText: 'New lens content goes here!'
-        }}
-        prefilledProps={prefilledProps}
+      <LensForm
+        parentDocumentId={tag._id}
+        onSuccess={wrappedSuccessCallback}
+        onCancel={() => onClose?.()}
       />
     </DialogContent>
   </LWDialog>;

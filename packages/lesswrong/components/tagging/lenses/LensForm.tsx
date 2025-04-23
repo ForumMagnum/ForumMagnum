@@ -37,7 +37,7 @@ export const LensForm = ({
   parentDocumentId?: string;
   onSuccess: (doc: MultiDocumentEdit) => void;
   onCancel: () => void;
-  onChange: () => void;
+  onChange?: () => void;
 }) => {
   const { Error404, FormGroupLayout, FormGroupHeader, SummariesEditForm } = Components;
   const classes = useStyles(formStyles);
@@ -112,7 +112,7 @@ export const LensForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      <div className={classes.fieldWrapper}>
+      <div className={classNames('input-title', 'form-input', classes.fieldWrapper)}>
         <form.Field name="title">
           {(field) => (
             <TanStackMuiTextField
@@ -123,7 +123,7 @@ export const LensForm = ({
         </form.Field>
       </div>
 
-      <div className={classes.fieldWrapper}>
+      <div className={classNames('input-tabTitle', 'form-input', classes.fieldWrapper)}>
         <form.Field name="tabTitle">
           {(field) => (
             <TanStackMuiTextField
@@ -134,7 +134,7 @@ export const LensForm = ({
         </form.Field>
       </div>
 
-      <div className={classes.fieldWrapper}>
+      <div className={classNames('input-tabSubtitle', 'form-input', classes.fieldWrapper)}>
         <form.Field name="tabSubtitle">
           {(field) => (
             <TanStackMuiTextField
@@ -145,7 +145,7 @@ export const LensForm = ({
         </form.Field>
       </div>
 
-      {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+      {userIsAdmin(currentUser) && <div className={classNames('input-slug', 'form-input', classes.fieldWrapper)}>
         <form.Field name="slug">
           {(field) => (
             <TanStackMuiTextField
@@ -156,8 +156,7 @@ export const LensForm = ({
         </form.Field>
       </div>}
 
-      {/* TODO: add custom validation (simpleSchema present) */}
-      <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+      <div className={classNames("form-component-EditorFormComponent", 'form-input', classes.fieldWrapper)}>
         <form.Field name="contents" listeners={{ onChange }}>
           {(field) => (
             <TanStackEditor
@@ -186,7 +185,7 @@ export const LensForm = ({
         </form.Field>
       </div>
 
-      {initialData && userCanDeleteMultiDocument(currentUser, initialData) && <div className={classes.fieldWrapper}>
+      {initialData && userCanDeleteMultiDocument(currentUser, initialData) && <div className={classNames('input-deleted', 'form-input', classes.fieldWrapper)}>
         <form.Field name="deleted">
           {(field) => (
             <TanStackCheckbox
