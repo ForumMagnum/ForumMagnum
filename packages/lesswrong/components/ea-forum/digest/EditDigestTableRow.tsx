@@ -161,7 +161,7 @@ const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
 
 const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
   post: PostWithRating,
-  postStatus: DigestPost,
+  postStatus: Partial<DigestPost>,
   statusIconsDisabled: boolean,
   handleClickStatusIcon: (postId: string, statusField: StatusField) => void,
   visibleTagIds: string[],
@@ -176,7 +176,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   /**
    * Build the cell with the given status icon
    */
-  const getStatusIconCell = (postId: string, statusField: StatusField, postStatus: DigestPost) => {
+  const getStatusIconCell = (postId: string, statusField: StatusField, postStatus: Partial<DigestPost>) => {
     const status = postStatus[statusField]
     let iconNode = null
     switch (status) {
