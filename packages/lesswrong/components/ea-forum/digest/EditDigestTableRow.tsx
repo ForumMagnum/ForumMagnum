@@ -189,7 +189,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       case 'no':
         iconNode = <CloseIcon />
         break
-      case 'pending':
+      default:
         iconNode = <CheckIcon /> // this has opacity: 0, it's just here to appear on hover
         break
     }

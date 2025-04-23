@@ -305,6 +305,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
       case 'pending':
         newStatus = 'yes'
         break
+      default:
+        break;
     }
     newPostStatuses[postId][statusField] = newStatus
     
