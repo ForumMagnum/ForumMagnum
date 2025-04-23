@@ -21,12 +21,11 @@ import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import { useMessages } from "../common/withMessages";
 import { useSingle } from "@/lib/crud/withSingle";
 
-export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
 const RESULT_ICON_MAX_HEIGHT = 27;
 const USER_IMAGE_SIZE = 30;
 const DEFAULT_STACK_IMAGES = 20;
-const NUM_TICKS = 21;
+const NUM_TICKS = 19;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
 const styles = (theme: ThemeType) => ({
@@ -37,9 +36,6 @@ const styles = (theme: ThemeType) => ({
     padding: "0px 30px 15px 30px",
     margin: "0 auto",
     maxWidth: "100%",
-    [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none',
-    },
   },
   question: {
     fontSize: 32,
@@ -298,11 +294,6 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
     },
   },
-  commentForm: {
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none'
-    },
-  }
 });
 
 export type ForumEventVoteData = {
@@ -475,11 +466,13 @@ export const ForumEventPoll = ({
   hideViewResults,
   classes,
   forumEventId,
+  className
 }: {
   postId?: string;
   hideViewResults?: boolean;
   classes: ClassesType<typeof styles>;
   forumEventId?: string;
+  className?: string;
 }) => {
   const { currentForumEvent, refetch: refectCurrentEvent } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
@@ -791,7 +784,7 @@ export const ForumEventPoll = ({
 
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
-      <div className={classes.root}>
+      <div className={classNames(classes.root, className)}>
         {displayHtml && <div className={classes.question}>{displayHtml}</div>}
         <div className={classes.votePromptWrapper}>
           <DeferRender ssr={false}>
@@ -929,7 +922,6 @@ export const ForumEventPoll = ({
                           , and show next to your avatar in the results.
                         </div>
                       </>)}
-                      className={classes.commentForm}
                     />
                   )}
                 </AnalyticsContext>

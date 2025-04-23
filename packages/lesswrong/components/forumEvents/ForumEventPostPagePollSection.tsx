@@ -6,7 +6,7 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
-import { POLL_MAX_WIDTH, getForumEventVoteForUser } from "./ForumEventPoll";
+import { getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import { useCurrentUser } from "../common/withUser";
@@ -21,10 +21,6 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     marginBottom: 40,
     scrollMarginTop: '100px',
-    // TODO make it not disappear on mobile
-    [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none'
-    }
   },
   rootEmbedded: {
     padding: 6

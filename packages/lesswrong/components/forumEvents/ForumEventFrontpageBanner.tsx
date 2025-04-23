@@ -7,7 +7,8 @@ import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import { POLL_MAX_WIDTH } from "./ForumEventPoll";
+
+const POLL_MIN_WIDTH = 800;
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -48,6 +49,11 @@ const styles = (theme: ThemeType) => ({
       textUnderlineOffset: '2px',
     },
   },
+  hideBelowMinWidth: {
+    [`@media(max-width: ${POLL_MIN_WIDTH}px)`]: {
+      display: 'none'
+    },
+  },
   rootWithGradient: {
     height: BANNER_HEIGHT,
     display: "flex",
@@ -57,12 +63,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       background: "var(--forum-event-background)",
       height: "unset",
-    },
-  },
-  expandToggleRow: {
-    padding: '0 20px 20px',
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none'
     },
   },
   expandToggleButton: {
@@ -123,9 +123,6 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 500,
     textWrap: 'pretty',
     padding: '16px 30px 30px',
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'block'
-    },
   },
   postsHeading: {
     display: 'flex',
@@ -350,8 +347,8 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
       <div className={classes.root}>
-        <ForumEventPoll />
-        <div className={classes.contentWithPoll}>
+        <ForumEventPoll className={classes.hideBelowMinWidth} />
+        <div className={classNames(classes.contentWithPoll, classes.hideBelowMinWidth)}>
           <div className={classes.titleWithPoll}>{title}</div>
           {date && <div className={classes.dateWithPoll}>{date}</div>}
           <div className={classes.descriptionWithPoll}>
