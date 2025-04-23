@@ -8,6 +8,16 @@ import { postGetLink } from "@/lib/collections/posts/helpers";
 import { useMulti } from "@/lib/crud/withMulti";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
+  '@global': {
+    // Style the browser's text fragment highlighting
+    '::target-text': {
+      backgroundColor: `${theme.palette.secondary.light}4c`,
+    },
+    //fallback/common implementation
+    'mark': {
+      backgroundColor: `${theme.palette.secondary.light}4c`,
+    }
+  },
   dialogContent: {
     padding: 20,
     paddingTop: 0,
@@ -66,12 +76,11 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     fontFamily: `${theme.palette.fonts.sansSerifStack} !important`,
   },
   voteBottom: {
+    display: 'flex',
+    justifyContent: 'center',
     position: 'relative',
     fontSize: 42,
     textAlign: 'center',
-    display: 'inline-block',
-    marginLeft: 'auto',
-    marginRight:'auto',
     marginBottom: 40,
     "@media print": { display: "none" },
     '& h1': {
@@ -216,7 +225,7 @@ const UltraFeedPostDialog = ({
         <div className={classes.voteBottom}>
           {fullPost && <PostsVote post={fullPost} useHorizontalLayout={false} isFooter />}
         </div>
-        {isCommentsLoading && <div className={classes.loadingContainer}><Loading /></div>}
+        {isCommentsLoading && !isLoading && <div className={classes.loadingContainer}><Loading /></div>}
         {!isCommentsLoading && comments && (
           <CommentsListSection 
             post={fullPost}
