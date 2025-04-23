@@ -370,8 +370,9 @@ class MainFormView extends View {
       const buttonView = new ButtonView(this.locale);
 
       buttonView.on('render', () => {
-        // TODO move to css file
+        // Apply dynamic background color
         buttonView.element.style.backgroundColor = colorScheme.darkColor;
+        // Add class on initial render
         buttonView.element.classList.add('ck-color-selector-button');
       });
 
@@ -387,11 +388,19 @@ class MainFormView extends View {
 
           writer.setAttribute("props", {...props, colorScheme: newColorScheme}, this.selectedElement);
 
-          // TODO improve selection UI
           this.colorSchemeButtons.forEach((btn, btnIndex) => {
             btn.isOn = (index === btnIndex);
+             // Ensure the class is still present after potential CKEditor updates
+            if (btn.element) { // Check if element exists
+               btn.element.classList.add('ck-color-selector-button');
+            }
           });
         });
+
+        // Also ensure the class is on the clicked button itself after execute finishes
+        if (buttonView.element) {
+           buttonView.element.classList.add('ck-color-selector-button');
+        }
       });
 
       return buttonView;

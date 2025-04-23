@@ -40,7 +40,7 @@ function updateViewElementText(
     const existingText = targetElement.getChild(0);
 
     if (existingText && existingText.is('$text') && existingText.data === newText) {
-      return; // Text hasn't changed
+      return;
     }
 
     if (existingText) {
@@ -121,7 +121,7 @@ export default class PollPlugin extends Plugin {
       view: (modelElement, { writer: viewWriter }) => {
         const id: string = modelElement.getAttribute("id") as string;
         const props: PollProps = modelElement.getAttribute("props") as PollProps;
-        const { colorScheme } = props; // Get the initial color scheme
+        const { colorScheme } = props;
 
         const container = viewWriter.createContainerElement("div", {
           class: POLL_CLASS,
@@ -227,9 +227,6 @@ export default class PollPlugin extends Plugin {
           "data-internal-id": id,
           "data-props": JSON.stringify(props)
         });
-
-        // Data view doesn't need the complex internal structure, just the container
-        // with the necessary data attributes.
 
         return container;
       }
