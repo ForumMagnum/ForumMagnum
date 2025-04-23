@@ -7,6 +7,13 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
+// Constants for Text Fragment Generation
+const FRAGMENT_START_WORDS = 5; // Number of words for the starting phrase
+const FRAGMENT_END_WORDS = 3;   // Number of words for the ending phrase
+const FRAGMENT_SEPARATION_WORDS = 20; // Minimum words between end of start phrase and start of end phrase
+const MIN_WORDS_FOR_FRAGMENT = FRAGMENT_START_WORDS + FRAGMENT_SEPARATION_WORDS + FRAGMENT_END_WORDS; // Min words needed in source text
+const MIN_WORDS_FOR_STRADDLE_FRAGMENT = FRAGMENT_START_WORDS + FRAGMENT_END_WORDS + 10; // Need buffer around limit
+
 const limitImageHeightClass = (theme: ThemeType) => ({
   maxHeight: 250,
   objectFit: 'contain',
@@ -96,12 +103,12 @@ type TagProps = { post?: never; comment?: never; tag: TagBasicInfo };
 
 type DocumentProps = PostProps | CommentProps | TagProps;
 
-interface BaseFeedContentBodyProps {
+export interface BaseFeedContentBodyProps {
   html: string;
   breakpoints?: number[];
   initialExpansionLevel?: number;
   linkToDocumentOnFinalExpand?: boolean;
-  onContinueReadingClick?: (snippet: string) => void;
+  onContinueReadingClick?: (params: { textFragment?: string }) => void;
   wordCount: number;
   onExpand?: (level: number, maxLevelReached: boolean, wordCount: number) => void;
   description?: string;
@@ -117,76 +124,91 @@ interface BaseFeedContentBodyProps {
 
 type FeedContentBodyProps = BaseFeedContentBodyProps & DocumentProps;
 
-// Define the props needed for the helper function
 interface RenderContinueReadingActionProps {
   showContinueReadingAction: boolean;
-  onContinueReadingClick?: (snippet: string) => void;
-  truncatedHtml: string;
-  suffix: string;
-  classes: Record<"readMoreButton", string>; // Be more specific if possible
+  onContinueReadingClick?: (params: { textFragment?: string }) => void;
+  fullHtmlForGeneration: string;
+  truncatedHtmlWithoutSuffix: string;
+  classes: Record<"readMoreButton", string>;
   wordsLeft: number;
-  linkToDocumentOnFinalExpand: boolean;
-  documentUrl: string;
 }
+
+// Helper function to generate the text fragment hash using truncated end and full start
+const generateTextFragment = (truncatedHtml: string, fullHtml: string): string | undefined => {
+    if (typeof window === 'undefined') {
+        console.warn('[TextFragment] Not in browser environment. Cannot generate fragment.');
+        return undefined;
+    }
+
+    const parser = new DOMParser();
+
+    // --- Process Truncated HTML --- 
+    const truncatedDoc = parser.parseFromString(truncatedHtml, 'text/html');
+    // Normalize spaces, keep punctuation
+    const truncatedTextContent = (truncatedDoc.body.textContent || '').replace(/\s+/g, ' ').trim(); 
+    const truncatedWords = truncatedTextContent.split(' ');
+    const truncatedWordCount = truncatedWords.length;
+
+    if (truncatedWordCount < FRAGMENT_START_WORDS) {
+        console.log('[TextFragment] Not generated: Truncated text too short for start phrase.');
+        return undefined;
+    }
+    // textStart: Last words of truncated text
+    const startStartIndex = Math.max(0, truncatedWordCount - FRAGMENT_START_WORDS);
+    const textStart = truncatedWords.slice(startStartIndex).join(' ');
+
+    // --- Process Full HTML --- 
+    const fullDoc = parser.parseFromString(fullHtml, 'text/html');
+    // Normalize spaces, keep punctuation
+    const fullTextContent = (fullDoc.body.textContent || '').replace(/\s+/g, ' ').trim(); 
+    const fullWords = fullTextContent.split(' ');
+    const fullWordCount = fullWords.length;
+
+    // textEnd: First words of the *continuation* text
+    // Start looking for end phrase right after the truncated word count
+    const continuationStartIndex = truncatedWordCount; 
+    if (continuationStartIndex >= fullWordCount || (continuationStartIndex + FRAGMENT_END_WORDS) > fullWordCount) {
+        console.log('[TextFragment] Not generated: Full text not long enough for end phrase after truncation point.');
+        return undefined;
+    }
+    const textEnd = fullWords.slice(continuationStartIndex, continuationStartIndex + FRAGMENT_END_WORDS).join(' ');
+
+    // --- Combine and return --- 
+    if (textStart && textEnd) {
+        // Note: We are not enforcing separation here, relying on the truncation itself
+        const textFragmentHash = `#:~:text=${encodeURIComponent(textStart)},${encodeURIComponent(textEnd)}`;
+        console.log('[TextFragment] Generated (TruncatedEnd/FullStart):', 
+                    { textStart, textEnd, textFragmentHash, truncatedWordCount, fullWordCount });
+        return textFragmentHash;
+    } else {
+        console.log('[TextFragment] Not generated: Failed to extract textStart or textEnd phrases.');
+        return undefined;
+    }
+};
 
 const renderContinueReadingAction = ({
   showContinueReadingAction,
   onContinueReadingClick,
-  truncatedHtml,
-  suffix,
+  fullHtmlForGeneration,
+  truncatedHtmlWithoutSuffix,
   classes,
   wordsLeft,
-  linkToDocumentOnFinalExpand,
-  documentUrl,
 }: RenderContinueReadingActionProps): React.ReactNode => {
-  if (!showContinueReadingAction) return null;
+  if (!showContinueReadingAction || !onContinueReadingClick) return null;
 
-  if (onContinueReadingClick) {
-    const htmlWithoutSuffix = truncatedHtml.replace(suffix, '');
-
-    // DOMParser is only available in the browser, handle server-side rendering if needed
-    let snippet = '';
-    if (typeof window !== 'undefined') {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlWithoutSuffix, 'text/html');
-      let textContent = doc.body.textContent || '';
-
-      // Clean the text: remove punctuation, keep only letters/numbers/spaces
-      // Unicode property escapes (\p{L}, \p{N}) match letters/numbers in any language
-      textContent = textContent
-        .replace(/[^\p{L}\p{N}\s]/gu, '') // Remove non-letter, non-number, non-whitespace
-        .replace(/\s+/g, ' ')             // Collapse multiple whitespace to single spaces
-        .trim();
-
-      const words = textContent.trim().split(/\s+/);
-      const snippetWords = words.slice(-15);
-      snippet = snippetWords.join(' ');
-    } else {
-       // Basic fallback or alternative logic for SSR/Node.js environment
-       // This might need refinement depending on requirements
-       const plainText = htmlWithoutSuffix.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
-       const words = plainText.split(/\s+/);
-       snippet = words.slice(-15).join(' ');
-    }
-
-
-    return <div className={classes.readMoreButton} onClick={(e) => {
-      e.stopPropagation();
-      onContinueReadingClick(snippet);
-    }} >
-      {`(Continue Reading – ${wordsLeft} words more)`}
-    </div>
-  }
-  else if (linkToDocumentOnFinalExpand) {
-    return <Link
-      to={documentUrl}
+  return (
+    <div
       className={classes.readMoreButton}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        // Generate fragment using both HTML versions
+        const generatedFragment = generateTextFragment(truncatedHtmlWithoutSuffix, fullHtmlForGeneration);
+        onContinueReadingClick({ textFragment: generatedFragment });
+      }}
     >
       {`(Continue Reading – ${wordsLeft} words more)`}
-    </Link>
-  }
-  return null;
+    </div>
+  );
 };
 
 const FeedContentBody = ({
@@ -314,6 +336,8 @@ const FeedContentBody = ({
   };
 
   const { truncatedHtml, wasTruncated, wordsLeft, suffix } = calculateTruncationState();
+  // Get truncated HTML *without* the suffix for fragment generation
+  const truncatedHtmlWithoutSuffix = truncatedHtml.replace(suffix, '');
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return ""; 
@@ -336,16 +360,14 @@ const FeedContentBody = ({
   const showContinueReadingAction = !applyLineClamp && isMaxLevel && wasTruncated;
   const isClickableForExpansion = !isMaxLevel;
 
-  const continueReadingAction = renderContinueReadingAction({
-    showContinueReadingAction,
+  const continueReadingAction = showContinueReadingAction ? renderContinueReadingAction({
+    showContinueReadingAction: true,
     onContinueReadingClick,
-    truncatedHtml,
-    suffix,
+    fullHtmlForGeneration: html,
+    truncatedHtmlWithoutSuffix: truncatedHtmlWithoutSuffix,
     classes,
     wordsLeft,
-    linkToDocumentOnFinalExpand,
-    documentUrl: getDocumentUrl(),
-  });
+  }) : null;
 
   return (
     <div

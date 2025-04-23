@@ -246,8 +246,8 @@ const UltraFeedPostItem = ({
     setResetSig((s) => s + 1);
   };
 
-  const handleOpenDialog = useCallback((params?: {snippet?: string}) => {
-    const snippet = params?.snippet;
+  const handleOpenDialog = useCallback((params?: {textFragment?: string}) => {
+    const textFragment = params?.textFragment;
     captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
     openDialog({
       name: "UltraFeedPostDialog",
@@ -255,7 +255,7 @@ const UltraFeedPostItem = ({
       contents: ({ onClose }) => (
         <Components.UltraFeedPostDialog
           postId={post._id}
-          snippet={snippet}
+          textFragment={textFragment}
           onClose={onClose}
         />
       )
@@ -327,7 +327,7 @@ const UltraFeedPostItem = ({
           initialExpansionLevel={0}
           wordCount={displayWordCount}
           nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-          onContinueReadingClick={(snippet) => handleOpenDialog({ snippet })}
+          onContinueReadingClick={handleOpenDialog}
           onExpand={handleContentExpand}
           hideSuffix={false}
           resetSignal={resetSig}

@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import DialogContent from "@material-ui/core/DialogContent";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetLink } from "@/lib/collections/posts/helpers";
-import classnames from "classnames";
 import { useMulti } from "@/lib/crud/withMulti";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
@@ -21,9 +20,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingTop: 8,
     marginBottom: 8,
   },
   title: { 
@@ -82,79 +78,25 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       fontFamily: `${theme.palette.fonts.sansSerifStack} !important`,
     }
   },
-  scrolledHighlight: {
-    backgroundColor: `${theme.palette.primary.light}4c`,
-  },
 }));
-
-
-function escapeRegExp(s: string) {
-  return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-}
-
-/**
- * Build a fuzzy regex that matches the snippet text allowing for 
- * arbitrary whitespace and HTML tags between words
- */
-function snippetRegex(snippet: string): RegExp {
-  const compact = snippet.trim().replace(/\s+/g, ' ');
-
-  // Allow ANY run of non‑letter/number characters (punctuation, whitespace) or HTML tags between words.
-  // This covers commas, periods, line‑breaks as <br>, etc.
-  const between = '(?:[^\\p{L}\\p{N}]+|<[^>]+>)+';
-
-  const pattern = compact
-    .split(' ')                  // individual words (already cleaned by generator)
-    .map(escapeRegExp)           // escape special regex chars (should be none but safe)
-    .join(between);
-
-  return new RegExp(pattern, 'iu');
-}
-
-/**
- * Wraps the first occurrence of a snippet in the HTML with a span
- * Handles whitespace differences between truncated and full HTML
- */
-function wrapSnippet(html: string, snippet?: string, anchorId = 'snippet-anchor', highlightClass = '') {
-  if (!snippet || !html) return html;
-
-  const directRegex = snippetRegex(snippet);
-  const directMatch = directRegex.exec(html);
-  
-  if (directMatch) {
-    // Found a precise location – wrap it and return.
-    const startIdx = directMatch.index;
-    const matchText = directMatch[0];
-
-    return (
-      html.slice(0, startIdx) +
-      `<span id="${anchorId}" class="${highlightClass}">` +
-      matchText +
-      '</span>' +
-      html.slice(startIdx + matchText.length)
-    );
-  }
-  
-  return html;
-}
 
 type UltraFeedPostDialogProps = {
   postId?: string;
-  post?: never; 
+  post?: never;
   onClose: () => void;
-  snippet?: string;
+  textFragment?: string;
 } | {
   postId?: never;
   post: UltraFeedPostFragment;
   onClose: () => void;
-  snippet?: string;
+  textFragment?: string;
 }
 
 const UltraFeedPostDialog = ({
   postId,
   post,
   onClose,
-  snippet,
+  textFragment,
 }: UltraFeedPostDialogProps) => {
   const { LWDialog, FeedContentBody, Loading, CommentsListSection, PostsVote } = Components;
   const classes = useStyles(styles);
@@ -174,41 +116,37 @@ const UltraFeedPostDialog = ({
     },
     collectionName: "Comments",
     fragmentName: "CommentsList",
-    skip: !postId,
+    skip: !(postId ?? post?._id),
     enableTotal: true,
   });
 
   const fullPost = post ?? fetchedPost;
-  const isLoading = loadingPost && !post;
+  const isLoading = !!postId && loadingPost && !post; 
 
-  const anchorId = 'snippet-anchor';
-  const htmlWithAnchor = wrapSnippet(fullPost?.contents?.html ?? '', snippet, anchorId, classes.scrolledHighlight);
+  const previousHashRef = useRef<string | null>(null);
+  const appliedHashRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!snippet) return;
-    const scrollAnchorId = anchorId;
-
-    // Delay slightly to ensure DOM rendered
-    const timer = setTimeout(() => {
-      const anchorEl = window.document.getElementById(scrollAnchorId);
-      const container = anchorEl?.closest('.MuiDialogContent-root') as HTMLElement | null;
-
-      if (anchorEl && container) {
-        const isScrollable = container.scrollHeight > container.clientHeight;
-
-        if (isScrollable) {
-          const elementRect = anchorEl.getBoundingClientRect();
-          const containerRect = container.getBoundingClientRect();
-          const elementTopRelativeToContainer = elementRect.top - containerRect.top;
-          const desiredScrollTop = container.scrollTop + elementTopRelativeToContainer - (container.clientHeight * 0.1);
-
-          container.scrollTo({ top: desiredScrollTop, behavior: 'smooth' });
-        }
+    if (!isLoading && textFragment && textFragment !== appliedHashRef.current) {
+      console.log('[TextFragment] Applying hash:', textFragment, 'isLoading:', isLoading);
+      if (previousHashRef.current === null) {
+         previousHashRef.current = window.location.hash;
       }
-    }, 200);
+      
+      window.history.replaceState(null, "", textFragment);
+      appliedHashRef.current = textFragment;
+    }
 
-    return () => clearTimeout(timer);
-  }, [snippet, classes.scrolledHighlight, htmlWithAnchor]);
+  }, [textFragment, isLoading]);
+
+  useEffect(() => {
+      return () => {
+          if (previousHashRef.current !== null && window.location.hash !== previousHashRef.current) {
+              console.log('[TextFragment] Restoring hash on unmount:', previousHashRef.current);
+              window.history.replaceState(null, "", previousHashRef.current);
+          }
+      };
+  }, []);
 
   return (
     <LWDialog
@@ -220,8 +158,8 @@ const UltraFeedPostDialog = ({
       }}
     >
       <DialogContent className={classes.dialogContent}>
-        {loadingPost && <div className={classes.loadingContainer}><Loading /></div>}
-        {!loadingPost && fullPost && <div>
+        {isLoading && <div className={classes.loadingContainer}><Loading /></div>}
+        {!isLoading && fullPost && <div>
           <div className={classes.titleContainer}>
             <Link to={postGetLink(fullPost)} className={classes.title} onClick={(e) => { e.stopPropagation(); onClose(); }}>
               {fullPost.title}
@@ -230,28 +168,22 @@ const UltraFeedPostDialog = ({
               Close
             </span>
           </div>
-            {isLoading && (
-              <div className={classes.loadingContainer}>
-                <Loading />
-              </div>
-            )}
-            {!isLoading && htmlWithAnchor && (
+            {fullPost?.contents?.html ? (
               <FeedContentBody
                 post={fullPost}
-                html={htmlWithAnchor}
-                wordCount={fullPost.contents?.wordCount || 0}
+                html={fullPost.contents.html}
+                wordCount={fullPost.contents.wordCount || 0}
                 linkToDocumentOnFinalExpand={false}
                 hideSuffix={true}
               />
-            )}
-            {!isLoading && !fullPost.contents?.html && (
+            ) : (
               <div>Post content not available.</div>
             )}
         </div>}
         <div className={classes.voteBottom}>
           {fullPost && <PostsVote post={fullPost} useHorizontalLayout={false} isFooter />}
         </div>
-        {isCommentsLoading && !isLoading && <Loading />}
+        {isCommentsLoading && <div className={classes.loadingContainer}><Loading /></div>}
         {!isCommentsLoading && comments && (
           <CommentsListSection 
             post={fullPost}
