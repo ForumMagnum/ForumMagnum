@@ -926,7 +926,7 @@ export const ForumEventPoll = ({
                           {event.isGlobal ? <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
                             this Debate Week post
                           </Link> : 'this post'}
-                          , and show next to your avatar on this banner.
+                          , and show next to your avatar in the results.
                         </div>
                       </>)}
                       className={classes.commentForm}
@@ -939,8 +939,8 @@ export const ForumEventPoll = ({
               <ForumIcon icon="ChevronRight" className={classNames(classes.sliderArrow, classes.sliderArrowRight)} />
             </div>
             <div className={classes.sliderLabels}>
-              <div>Disagree</div>
-              <div>Agree</div>
+              <div>{event.pollDisagreeWording}</div>
+              <div>{event.pollAgreeWording}</div>
             </div>
           </div>
         </div>

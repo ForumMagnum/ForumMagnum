@@ -113,7 +113,7 @@ async function upsertPoll({
     return createForumEvent(
       {
         data: {
-          // TODO Explicitly allow settting an _id. This does work currently, but the generated types don't recognise it
+          // TODO Explicitly allow setting an _id. This does work currently, but the generated types don't recognise it
           // @ts-ignore
           _id,
           title: `New Poll for ${_id}`,

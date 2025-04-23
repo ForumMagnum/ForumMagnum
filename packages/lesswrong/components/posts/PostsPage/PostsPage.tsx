@@ -276,7 +276,7 @@ export const styles = (theme: ThemeType) => ({
   },
   postBody: {
     ...(isFriendlyUI && {
-      width: "max-content",
+      width: "100%", // TODO remove, covered by https://github.com/ForumMagnum/ForumMagnum/pull/10775
     }),
   },
   audioPlayerHidden: {

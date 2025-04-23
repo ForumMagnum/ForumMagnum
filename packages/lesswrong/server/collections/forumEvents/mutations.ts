@@ -1,25 +1,37 @@
 
 import schema from "@/lib/collections/forumEvents/newSchema";
+import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
+import { userCanPost } from "@/lib/collections/users/helpers";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userIsPodcaster } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
-
 function newCheck(user: DbUser | null, document: CreateForumEventDataInput | null, context: ResolverContext) {
-  return userIsAdmin(user);
-}
-
-function editCheck(user: DbUser | null, document: DbForumEvent | null, context: ResolverContext) {
   if (!user || !document) return false;
 
-  return userIsAdmin(user);
+  if (userIsAdmin(user)) return true;
+
+  return !document?.isGlobal && userCanPost(user);
+}
+
+async function editCheck(user: DbUser | null, document: DbForumEvent | null, context: ResolverContext) {
+  if (!user || !document) return false;
+
+  if (userIsAdmin(user)) return true;
+
+  const { postId } = document;
+  const post = postId && (await context.loaders.Posts.load(postId));
+
+  if (!post) return false;
+
+  return canUserEditPostMetadata(user, post) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, post, context)
 }
 
 

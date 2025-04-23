@@ -9,7 +9,10 @@ declare global {
 
 function upcomingForumEvents(terms: ForumEventsViewTerms) {
   return {
-    selector: {endDate: {$gt: new Date()}},
+    selector: {
+      endDate: {$gt: new Date()},
+      isGlobal: true,
+    },
     options: {
       sort: {createdAt: 1},
       limit: terms.limit ?? 20,
@@ -19,7 +22,10 @@ function upcomingForumEvents(terms: ForumEventsViewTerms) {
 
 function pastForumEvents(terms: ForumEventsViewTerms) {
   return {
-    selector: {endDate: {$lte: new Date()}},
+    selector: {
+      endDate: {$lte: new Date()},
+      isGlobal: true,
+    },
     options: {
       sort: {createdAt: 1},
       limit: terms.limit ?? 20,
@@ -33,6 +39,7 @@ function currentForumEvent(_terms: ForumEventsViewTerms) {
     selector: {
       startDate: {$lt: now},
       endDate: {$gt: now},
+      isGlobal: true,
     },
     options: {
       sort: {createdAt: 1},
@@ -46,6 +53,7 @@ function currentAndRecentForumEvents(terms: ForumEventsViewTerms) {
     selector: {
       startDate: {$lt: new Date()},
       endDate: {$gt: moment().subtract(2, 'weeks').toDate()},
+      isGlobal: true,
     },
     options: {
       sort: {endDate: 1},
