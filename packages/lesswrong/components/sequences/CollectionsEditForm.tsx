@@ -82,9 +82,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
       ...initialData,
     },
     onSubmit: async ({ value, formApi }) => {
-      if (onSubmitCallback.current) {
-        value = await onSubmitCallback.current(value);
-      }
+      await onSubmitCallback.current?.();
 
       let result: CollectionsPageFragment;
 

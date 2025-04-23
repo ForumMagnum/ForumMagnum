@@ -99,16 +99,16 @@ interface TanStackEditorFormComponentProps<S, R> {
   revisionsHaveCommitMessages?: boolean;
   hasToc?: boolean;
   setFieldEditorType?: (editorType: EditorTypeString) => void;
-  addOnSubmitCallback: (fn: (submission: S) => Promise<S>) => () => void;
+  addOnSubmitCallback: (fn: () => Promise<void>) => () => void;
   addOnSuccessCallback: (fn: (result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => R) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
 }
 
 export function useEditorFormCallbacks<S, R>() {
-  const onSubmitCallback = useRef<((submission: S) => Promise<S>)>();
+  const onSubmitCallback = useRef<(() => Promise<void>)>();
   const onSuccessCallback = useRef<((result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => R)>();
 
-  const addOnSubmitCallback = (cb: (submission: S) => Promise<S>) => {
+  const addOnSubmitCallback = (cb: () => Promise<void>) => {
     onSubmitCallback.current = cb;
     return () => {
       onSubmitCallback.current = undefined;
@@ -497,14 +497,11 @@ function TanStackEditorInner<S, R>({
 
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = addOnSubmitCallback(async (submission: S) => {
-        if (editorRef.current && shouldSubmitContents(editorRef.current))
-          return {
-            ...submission,
-            [fieldName]: await editorRef.current.submitData()
-          };
-        else
-          return submission;
+      const cleanupSubmitForm = addOnSubmitCallback(async () => {
+        if (editorRef.current && shouldSubmitContents(editorRef.current)) {
+          const updatedEditorData = await editorRef.current.submitData();
+          field.setValue(updatedEditorData);
+        }
       });
       const cleanupSuccessForm = addOnSuccessCallback((result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => {
         getLocalStorageHandlers(currentEditorType).reset();

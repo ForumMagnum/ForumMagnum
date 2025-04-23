@@ -69,9 +69,7 @@ export const SequencesForm = ({
       ...(formType === 'new' ? { userId: currentUser._id } : {}),
     },
     onSubmit: async ({ value, formApi }) => {
-      if (onSubmitCallback.current) {
-        value = await onSubmitCallback.current(value);
-      }
+      await onSubmitCallback.current?.();
 
       let result: SequencesEdit;
 

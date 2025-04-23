@@ -62,9 +62,7 @@ export const ModerationTemplatesForm = ({
       ...newFormDefaults,
     },
     onSubmit: async ({ value, formApi }) => {
-      if (onSubmitCallback.current) {
-        value = await onSubmitCallback.current(value);
-      }
+      await onSubmitCallback.current?.();
 
       let result: ModerationTemplateFragment;
 

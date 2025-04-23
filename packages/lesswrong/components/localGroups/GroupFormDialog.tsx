@@ -126,9 +126,7 @@ const TanStackGroupForm = ({
       organizerIds: initialData ? initialData.organizerIds : [currentUser._id],
     },
     onSubmit: async ({ value, formApi }) => {
-      if (onSubmitCallback.current) {
-        value = await onSubmitCallback.current(value);
-      }
+      await onSubmitCallback.current?.();
 
       let result: localGroupsHomeFragment;
       if (formType === 'new') {

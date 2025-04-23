@@ -469,9 +469,7 @@ export const ${className} = ({
       ...initialData,
     },
     onSubmit: async ({ value, formApi }) => {${anyEditableFields ? `
-      if (onSubmitCallback.current) {
-        value = await onSubmitCallback.current(value);
-      }\n`: ''}
+      await onSubmitCallback.current?.();\n`: ''}
       let result: ${collectionName}InvalidMutationFragment;
 
       if (formType === 'new') {

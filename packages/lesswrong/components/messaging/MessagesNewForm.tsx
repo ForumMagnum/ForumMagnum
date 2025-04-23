@@ -139,9 +139,7 @@ const InnerMessagesNewForm = ({
       noEmail: false,
     },
     onSubmit: async ({ value }) => {
-      if (onSubmitCallback.current) {
-        value = await onSubmitCallback.current(value);
-      }
+      await onSubmitCallback.current?.();
 
       let result: messageListFragment;
 
