@@ -2,7 +2,7 @@ import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
 import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
 import Widget from "@ckeditor/ckeditor5-widget/src/widget";
-import PollForm from "./poll-form";
+import PollForm, { POLL_COLOR_SCHEMES } from "./poll-form";
 import pollIcon from "./poll-icon.svg";
 import { randomId } from "../random";
 import { POLL_CLASS, PollProps } from "./constants";
@@ -14,7 +14,7 @@ const DEFAULT_PROPS: PollProps = {
   question: "Ask a question",
   agreeWording: "agree",
   disagreeWording: "disagree",
-
+  colorScheme: POLL_COLOR_SCHEMES[0],
   duration: { days: 1, hours: 0, minutes: 0 }
 }
 

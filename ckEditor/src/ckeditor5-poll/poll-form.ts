@@ -21,6 +21,14 @@ import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 import './poll.css';
 import { POLL_CLASS, PollProps } from "./constants";
 
+// TODO ideally define this outside ckeditor
+export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
+  { darkColor: '#06005C', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
+  { darkColor: '#1D2A17', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
+  { darkColor: '#7B3402', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
+  { darkColor: '#F3F3E1', lightColor: '#222222', bannerTextColor: '#222222'},
+]
+
 class MainFormView extends View {
   editor: Editor
   selectedElement: (Element | RootElement)
@@ -135,35 +143,18 @@ class MainFormView extends View {
                   children: ["Color"]
                 },
                 {
+                  // TODO move a lot of this styling to css
                   tag: "div",
                   attributes: {
-                    style: "display: flex; align-items: center; flex: 1;"
+                    style: "display: flex; align-items: center; flex: 1; gap: 8px;"
                   },
                   children: [
-                    {
+                    ...POLL_COLOR_SCHEMES.map((colorScheme => ({
                       tag: "div",
                       attributes: {
-                        style: "background-color: #06005C; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
+                        style: `background-color: ${colorScheme.darkColor}; width: 20px; height: 20px; cursor: pointer; border: 1px solid #ccc;`
                       }
-                    },
-                    {
-                      tag: "div",
-                      attributes: {
-                        style: "background-color: #1D2A17; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
-                      }
-                    },
-                    {
-                      tag: "div",
-                      attributes: {
-                        style: "background-color:rgb(123, 52, 2); width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
-                      }
-                    },
-                    {
-                      tag: "div",
-                      attributes: {
-                        style: "background-color: #F3F3E1; width: 20px; height: 20px; margin-right: 8px; cursor: pointer; border: 1px solid #ccc;"
-                      }
-                    },
+                    })))
                   ]
                 }
               ]
@@ -253,6 +244,24 @@ class MainFormView extends View {
 
     submitHandler({
       view: this,
+    });
+
+    // Add click listeners to color scheme selectors
+    const colorSchemeElements = this.element.querySelectorAll('[style*="background-color"]');
+    colorSchemeElements.forEach((el, index) => {
+      el.addEventListener('click', () => {
+        const model = this.editor.model;
+        const selectedElement = this.selectedElement;
+
+        if (!selectedElement) return;
+
+        model.change((writer: Writer) => {
+          const props = this.selectedElement.getAttribute("props") as PollProps;
+          const newColorScheme = POLL_COLOR_SCHEMES[index];
+
+          writer.setAttribute("props", {...props, colorScheme: newColorScheme}, this.selectedElement);
+        });
+      });
     });
 
     const childViews = [this.questionView, this.disagreeWordingView,  this.agreeWordingView];
