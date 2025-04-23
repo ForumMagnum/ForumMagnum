@@ -66,7 +66,6 @@ export default class PollPlugin extends Plugin {
     const editor = this.editor;
     this._defineSchema();
     this._defineConverters();
-    this._defineStyles();
 
     editor.ui.componentFactory.add("pollToolbarItem", (locale) => {
       const toolbarButton = new ButtonView(locale);
@@ -114,56 +113,6 @@ export default class PollPlugin extends Plugin {
     });
   }
 
-  _defineStyles() {
-    // Inject styles into the document head
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .${POLL_CLASS} {
-        font-family: var(--palette-fonts-sansSerifStack);
-        text-align: center;
-        background: var(--forum-event-background);
-        border-radius: calc(var(--borderRadius-default) * 1px);
-        margin: 10px 0;
-        padding: 20px;
-      }
-      .${POLL_CLASS}-question {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        color: var(--forum-event-banner-text);
-      }
-      .${POLL_CLASS}-slider {
-        position: relative;
-        height: 2px;
-        background: var(--forum-event-foreground);
-        margin: 40px 40px 0px 40px;
-      }
-      .${POLL_CLASS}-circle {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: black;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        border: 2px solid var(--forum-event-foreground);
-        opacity: 0.3;
-      }
-      .${POLL_CLASS}-labels {
-        display: flex;
-        justify-content: space-between;
-        color: var(--forum-event-banner-text);
-        margin: 10px 40px;
-      }
-      .${POLL_CLASS}-label {
-        font-weight: 500;
-        color: var(--forum-event-banner-text);
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
   _defineConverters() {
     const editor = this.editor;
 
@@ -205,7 +154,7 @@ export default class PollPlugin extends Plugin {
         });
 
         const disagreeLabel = viewWriter.createContainerElement("div", {
-          class: [`${POLL_CLASS}-label`, `${POLL_CLASS}-disagree`] // Added POLL_CLASS_LABEL for consistency
+          class: [`${POLL_CLASS}-label`, `${POLL_CLASS}-disagree`]
         });
         viewWriter.insert(
           viewWriter.createPositionAt(disagreeLabel, 0),
@@ -213,7 +162,7 @@ export default class PollPlugin extends Plugin {
         );
 
         const agreeLabel = viewWriter.createContainerElement("div", {
-           class: [`${POLL_CLASS}-label`, `${POLL_CLASS}-agree`] // Added POLL_CLASS_LABEL for consistency
+           class: [`${POLL_CLASS}-label`, `${POLL_CLASS}-agree`]
         });
         viewWriter.insert(
           viewWriter.createPositionAt(agreeLabel, 0),

@@ -3,54 +3,11 @@
  * requireCssVar("palette", "fonts", "sansSerifStack") being called somewhere in the
  * main code. This is done in stylePiping.ts.
  */
-/* 
-.ck-poll {
 
-    display: block;
-    font-family: var(--palette-fonts-sansSerifStack);
-    min-width: 30px;
-    width: fit-content;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 20px;
-    text-transform: none;
-    padding: 12px 16px;
-    border-radius: calc(var(--borderRadius-default) * 1px);
-    box-shadow: none;
-    background-color: var(--palette-buttons-alwaysPrimary);
-    color: var(--palette-text-alwaysWhite) !important;
-    transition: background-color 0.3s ease;
-		margin: auto;
-}
-
-.ck-poll:hover {
-    opacity: 1;
-    background-color: var(--palette-primary-dark);
-    color: var(--palette-text-alwaysWhite);
-}
-
-.ck-poll:visited,
-.ck-poll.visited {
-    color: var(--palette-text-alwaysWhite);
-}
-
-.ck-poll:visited:hover,
-.ck-poll.visited:hover {
-    color: var(--palette-text-alwaysWhite);
-}
-
-.ck-poll:disabled {
-    background-color: var(--palette-buttons-alwaysPrimary);
-    color: var(--palette-text-alwaysWhite);
-    opacity: 0.5;
-} */
-
-.ck.ck-cta-form {
+.ck.ck-poll-form {
 	border-radius: 6px;
 	border: 0.5px solid #E1E1E1;
-	/* TODO revert */
-	/* background: var(--palette-panelBackground-default); */
+	background: var(--palette-panelBackground-default);
 	background: white;
 	box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.10);
 	padding: 12px;
@@ -59,19 +16,19 @@
 	gap: 12px;
 }
 
-.ck-cta-form-row {
+.ck-reset_all .ck-poll-form-row {
 	display: flex;
 	gap: 12px;
 }
 
-.ck-cta-form-group {
+.ck-reset_all .ck-poll-form-group {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.ck-cta-form-label {
+.ck-reset_all .ck-poll-form-label {
 	text-transform: uppercase;
 	font-size: 11px;
 	font-weight: 700;
@@ -79,7 +36,7 @@
 	font-family: var(--palette-fonts-sansSerifStack);
 }
 
-.ck-cta-form-input {
+.ck-reset_all .ck-poll-form-input {
 	background: var(--palette-grey-600);
 	border-radius: 4px;
 	opacity: 0.8;
@@ -94,25 +51,64 @@
 	font-family: var(--palette-fonts-sansSerifStack);
 }
 
-.ck.ck-reset_all .ck.ck-cta-form .ck-cta-error {
-	outline: 1px solid var(--palette-error-main);
-}
-
-.ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-input:hover,
-.ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-input:focus {
+.ck.ck-reset_all .ck.ck-poll-form .ck-poll-form-input:hover,
+.ck.ck-reset_all .ck.ck-poll-form .ck-poll-form-input:focus {
 	background: var(--palette-grey-300);
 }
 
-.ck.ck.ck.ck.ck.ck-cta-balloon {
+.ck.ck.ck.ck.ck.ck-poll-balloon {
 	box-shadow: none;
   background: none; 
   border: none;
 }
 
-.ck-cta-balloon:before {
+.ck-poll-balloon:before {
 	display: none;
 }
 
-.ck-cta-balloon:after {
+.ck-poll-balloon:after {
 	display: none;
+}
+
+.ck-poll {
+  font-family: var(--palette-fonts-sansSerifStack);
+  text-align: center;
+  background: var(--forum-event-background);
+  border-radius: calc(var(--borderRadius-default) * 1px);
+  margin: 10px 0;
+  padding: 20px;
+}
+.ck-poll-question {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: var(--forum-event-banner-text);
+}
+.ck-poll-slider {
+  position: relative;
+  height: 2px;
+  background: var(--forum-event-foreground);
+  margin: 40px 40px 0px 40px;
+}
+.ck-poll-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: black;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--forum-event-foreground);
+  opacity: 0.3;
+}
+.ck-poll-labels {
+  display: flex;
+  justify-content: space-between;
+  color: var(--forum-event-banner-text);
+  margin: 10px 40px;
+}
+.ck-poll-label {
+  font-weight: 500;
+  color: var(--forum-event-banner-text);
 }

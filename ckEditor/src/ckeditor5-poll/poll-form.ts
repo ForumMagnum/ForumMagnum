@@ -75,7 +75,7 @@ class MainFormView extends View {
     this.setTemplate({
       tag: "form",
       attributes: {
-        class: ["ck", "ck-cta-form"],
+        class: ["ck", "ck-poll-form"],
         tabindex: "-1",
         spellcheck: "false",
       },
@@ -83,13 +83,13 @@ class MainFormView extends View {
         {
           tag: "div",
           attributes: {
-            class: ["ck-cta-form-group"],
+            class: ["ck-poll-form-group"],
           },
           children: [
             {
               tag: "div",
               attributes: {
-                class: ["ck-cta-form-label"],
+                class: ["ck-poll-form-label"],
               },
               children: ["Question"],
             },
@@ -99,19 +99,19 @@ class MainFormView extends View {
         {
           tag: "div",
           attributes: {
-            class: ["ck-cta-form-row"],
+            class: ["ck-poll-form-row"],
           },
           children: [
             {
               tag: "div",
               attributes: {
-                class: ["ck-cta-form-group"],
+                class: ["ck-poll-form-group"],
               },
               children: [
                 {
                   tag: "div",
                   attributes: {
-                    class: ["ck-cta-form-label"],
+                    class: ["ck-poll-form-label"],
                   },
                   children: ["Left side"],
                 },
@@ -121,13 +121,13 @@ class MainFormView extends View {
             {
               tag: "div",
               attributes: {
-                class: ["ck-cta-form-group"],
+                class: ["ck-poll-form-group"],
               },
               children: [
                 {
                   tag: "div",
                   attributes: {
-                    class: ["ck-cta-form-label"],
+                    class: ["ck-poll-form-label"],
                   },
                   children: ["Right side"],
                 },
@@ -139,19 +139,19 @@ class MainFormView extends View {
         {
           tag: "div",
           attributes: {
-            class: ["ck-cta-form-row"],
+            class: ["ck-poll-form-row"],
           },
           children: [
             {
               tag: "div",
               attributes: {
-                class: ["ck-cta-form-group"],
+                class: ["ck-poll-form-group"],
               },
               children: [
                 {
                   tag: "div",
                   attributes: {
-                    class: ["ck-cta-form-label"],
+                    class: ["ck-poll-form-label"],
                     style: "margin-bottom: 4px; font-weight: bold;"
                   },
                   children: ["Color"]
@@ -169,14 +169,14 @@ class MainFormView extends View {
             {
               tag: "div",
               attributes: {
-                class: ["ck-cta-form-group"],
+                class: ["ck-poll-form-group"],
                 style: "margin-left: 20px;"
               },
               children: [
                 {
                   tag: "div",
                   attributes: {
-                    class: ["ck-cta-form-label"],
+                    class: ["ck-poll-form-label"],
                     style: "margin-bottom: 4px; font-weight: bold;"
                   },
                   children: ["Duration"]
@@ -216,7 +216,7 @@ class MainFormView extends View {
   }
 
   onClose() {
-    this.questionView.element.classList.remove('ck-cta-error');
+    this.questionView.element.classList.remove('ck-poll-error');
   }
 
   render() {
@@ -279,7 +279,7 @@ class MainFormView extends View {
       tag: "textarea",
       attributes: {
         type: "text",
-        class: ["ck-cta-form-input", questionBind.if("hasError", "ck-error")],
+        class: ["ck-poll-form-input", questionBind.if("hasError", "ck-error")],
         id: questionBind.to("id"),
         placeholder: questionBind.to("placeholder"),
         readonly: false,
@@ -312,7 +312,7 @@ class MainFormView extends View {
       tag: "input",
       attributes: {
         type: "text",
-        class: ["ck-cta-form-input", agreeWordingBind.if("hasError", "ck-error")],
+        class: ["ck-poll-form-input", agreeWordingBind.if("hasError", "ck-error")],
         id: agreeWordingBind.to("id"),
         readonly: false,
         "aria-invalid": agreeWordingBind.if("hasError", true),
@@ -344,7 +344,7 @@ class MainFormView extends View {
       tag: "input",
       attributes: {
         type: "text",
-        class: ["ck-cta-form-input", disagreeWordingBind.if("hasError", "ck-error")],
+        class: ["ck-poll-form-input", disagreeWordingBind.if("hasError", "ck-error")],
         id: disagreeWordingBind.to("id"),
         readonly: false,
         "aria-invalid": disagreeWordingBind.if("hasError", true),
@@ -419,7 +419,7 @@ class MainFormView extends View {
             attributes: {
                 type: 'number',
                 min: '0',
-                class: ['ck-cta-form-input', 'ck-duration-input'], // Add specific class
+                class: ['ck-poll-form-input', 'ck-duration-input'], // Add specific class
                 style: 'width: 50px; min-width: 50px; padding: 4px 8px;', // Basic styling
                 id: inputBind.to('id'),
                 'aria-label': label, // Accessibility
@@ -572,7 +572,7 @@ export default class PollForm extends Plugin {
     this._balloon.add({
       view: this.formView,
       position: this._getBalloonPositionData(),
-      balloonClassName: "ck-cta-balloon", // Consider a more specific name like ck-poll-form-balloon
+      balloonClassName: "ck-poll-balloon", // Consider a more specific name like ck-poll-form-balloon
     });
 
     this.formView.questionView.select(); // Focus the first field
