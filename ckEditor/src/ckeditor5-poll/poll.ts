@@ -125,6 +125,7 @@ export default class PollPlugin extends Plugin {
         border-radius: calc(var(--borderRadius-default) * 1px);
         margin: 10px 0;
         padding: 20px;
+        /* TODO remove */
         --debug-fe-background: #06005C;
         --debug-fe-banner-text: #FFF;
         --debug-fe-foreground: #FFf;
