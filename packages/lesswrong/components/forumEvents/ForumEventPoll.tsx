@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center',
     color: "var(--forum-event-banner-text)",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: "0px 30px 15px 30px",
+    padding: "0px 24px 15px 24px",
     margin: "0 auto",
     maxWidth: "100%",
   },
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     maxWidth: `min(${SLIDER_MAX_WIDTH}px, 100%)`,
     position: "relative",
-    padding: "8px 10px 0px 10px",
+    padding: "8px 16px 0px 16px",
     overflow: "hidden"
   },
   sliderLineResults: {
@@ -281,6 +281,9 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       opacity: 1,
     },
+    "& img": {
+      maxWidth: USER_IMAGE_SIZE
+    }
   },
   currentUserVoteClosed: {
     cursor: "default",
