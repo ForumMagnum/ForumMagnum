@@ -49,7 +49,9 @@
 .ck.ck-cta-form {
 	border-radius: 6px;
 	border: 0.5px solid #E1E1E1;
-	background: var(--palette-panelBackground-default);
+	/* TODO revert */
+	/* background: var(--palette-panelBackground-default); */
+	background: white;
 	box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.10);
 	padding: 12px;
 	display: flex;
@@ -103,7 +105,7 @@
 
 .ck.ck.ck.ck.ck.ck-cta-balloon {
 	box-shadow: none;
-  background: none;
+  background: none; 
   border: none;
 }
 

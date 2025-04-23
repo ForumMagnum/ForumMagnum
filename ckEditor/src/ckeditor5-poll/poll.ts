@@ -8,13 +8,49 @@ import { randomId } from "../random";
 import { POLL_CLASS, PollProps } from "./constants";
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
+import { DowncastWriter } from "@ckeditor/ckeditor5-engine";
 
 const DEFAULT_PROPS: PollProps = {
   question: "Ask a question",
   agreeWording: "agree",
   disagreeWording: "disagree",
-  // 1 day in ms
-  endDt: 24 * 60 * 60 * 1000
+
+  duration: { days: 1, hours: 0, minutes: 0 }
+}
+
+/** Helper function to update a text value in the editor view */
+function updateViewElementText(
+  viewWriter: DowncastWriter,
+  rootViewElement: ViewElement,
+  classPath: string[],
+  newText: string
+) {
+  if (classPath.length < 1) return;
+
+  const [headClass, ...tail] = classPath;
+
+  const targetElement = Array.from(rootViewElement.getChildren() as unknown as ViewElement[]).find(
+    child => child.hasClass(headClass)
+  );
+  if (!targetElement) return;
+
+  if (tail.length > 0) {
+    updateViewElementText(viewWriter, targetElement, tail, newText);
+  } else {
+    const existingText = targetElement.getChild(0);
+
+    if (existingText && existingText.is('$text') && existingText.data === newText) {
+      return; // Text hasn't changed
+    }
+
+    if (existingText) {
+      viewWriter.remove(existingText);
+    }
+    viewWriter.insert(
+      viewWriter.createPositionAt(targetElement, 0),
+      viewWriter.createText(newText)
+    );
+  }
 }
 
 /**
@@ -137,7 +173,6 @@ export default class PollPlugin extends Plugin {
     editor.conversion.for("editingDowncast").elementToElement({
       model: "poll",
       view: (modelElement, { writer: viewWriter }) => {
-        console.log("Downcasting")
         const id: string = modelElement.getAttribute("id") as string;
         const props: PollProps = modelElement.getAttribute("props") as PollProps;
 
@@ -146,7 +181,6 @@ export default class PollPlugin extends Plugin {
           "data-internal-id": id,
         });
 
-        // Create question container
         const questionContainer = viewWriter.createContainerElement("div", {
           class: `${POLL_CLASS}-question`
         });
@@ -155,40 +189,34 @@ export default class PollPlugin extends Plugin {
           viewWriter.createText(props.question)
         );
 
-        // Create slider container
         const sliderContainer = viewWriter.createContainerElement("div", {
           class: `${POLL_CLASS}-slider`
         });
 
-        // Create circle
         const circle = viewWriter.createEmptyElement("div", {
           class: `${POLL_CLASS}-circle`
         });
 
-        // Create labels container
         const labelsContainer = viewWriter.createContainerElement("div", {
           class: `${POLL_CLASS}-labels`
         });
 
-        // Create disagree label
         const disagreeLabel = viewWriter.createContainerElement("div", {
-          class: `${POLL_CLASS}-label`
+          class: `${POLL_CLASS}-disagree`
         });
         viewWriter.insert(
           viewWriter.createPositionAt(disagreeLabel, 0),
-          viewWriter.createText("consequentialism")
+          viewWriter.createText(props.disagreeWording)
         );
 
-        // Create agree label
         const agreeLabel = viewWriter.createContainerElement("div", {
-          class: `${POLL_CLASS}-label`
+          class: `${POLL_CLASS}-agree`
         });
         viewWriter.insert(
           viewWriter.createPositionAt(agreeLabel, 0),
-          viewWriter.createText("virtue ethics")
+          viewWriter.createText(props.agreeWording)
         );
 
-        // Assemble the widget
         viewWriter.insert(viewWriter.createPositionAt(container, 'end'), questionContainer);
         viewWriter.insert(viewWriter.createPositionAt(sliderContainer, 'end'), circle);
         viewWriter.insert(viewWriter.createPositionAt(container, 'end'), sliderContainer);
@@ -207,37 +235,18 @@ export default class PollPlugin extends Plugin {
         key: 'props',
         name: 'poll'
       },
-      view: (props, { writer: viewWriter }, data) => {
-        console.log({props, viewWriter, data})
+      view: (props: PollProps, { writer: viewWriter }, data) => {
         if (!props) return;
 
-        const pollModelElement = (data.item as unknown as ModelElement);
-        console.log({pollElement: pollModelElement})
+        const pollModelElement = data.item as ModelElement;
         if (!pollModelElement) return;
 
-        // Find the question container within the poll element
-        const viewPollElement = editor.editing.mapper.toViewElement(pollModelElement);
-        console.log({viewPollElement})
-        if (!viewPollElement) return;
+        const pollViewElement = editor.editing.mapper.toViewElement(pollModelElement);
+        if (!pollViewElement) return;
 
-        // TODO make a more generic utility for doing this
-        const questionContainer = Array.from(viewPollElement.getChildren() as unknown as ViewElement[]).find(
-          child => child.hasClass(`${POLL_CLASS}-question`)
-        );
-        console.log({questionContainer})
-        if (!questionContainer) return;
-
-        // Update the question text
-        const questionText = questionContainer.getChild(0);
-        console.log({questionText})
-        if (questionText) {
-          viewWriter.remove(questionText);
-        }
-        viewWriter.insert(
-          viewWriter.createPositionAt(questionContainer, 0),
-          viewWriter.createText(props.question)
-        );
-        console.log("Completed")
+        updateViewElementText(viewWriter, pollViewElement, [`${POLL_CLASS}-question`], props.question);
+        updateViewElementText(viewWriter, pollViewElement, [`${POLL_CLASS}-labels`, `${POLL_CLASS}-disagree`], props.disagreeWording);
+        updateViewElementText(viewWriter, pollViewElement, [`${POLL_CLASS}-labels`, `${POLL_CLASS}-agree`], props.agreeWording);
       }
     });
 
