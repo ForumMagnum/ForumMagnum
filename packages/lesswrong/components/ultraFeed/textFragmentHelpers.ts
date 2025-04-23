@@ -45,16 +45,15 @@
  */
 
 // Constants for Text Fragment Generation (Internal)
-const FRAGMENT_START_PHRASE_WORDS = 3; // Start phrase
-const FRAGMENT_END_PHRASE_WORDS = 1;   // End phrase
-const FRAGMENT_CONTINUATION_SEPARATION = 10; // Words between start and end
-const MIN_CONTINUATION_WORDS = FRAGMENT_START_PHRASE_WORDS + FRAGMENT_CONTINUATION_SEPARATION + FRAGMENT_END_PHRASE_WORDS; // Update minimum
-const MAX_SUBSEQUENT_PARAGRAPHS_TO_CHECK = 3;
+const FRAGMENT_START_PHRASE_WORDS = 3; 
+const FRAGMENT_END_PHRASE_WORDS = 2;
+const FRAGMENT_CONTINUATION_SEPARATION = 5;
+const MIN_CONTINUATION_WORDS = FRAGMENT_START_PHRASE_WORDS + FRAGMENT_CONTINUATION_SEPARATION + FRAGMENT_END_PHRASE_WORDS;
+const MAX_SUBSEQUENT_PARAGRAPHS_TO_CHECK = 2;
 
 // Helper: Basic word extraction (Internal)
 // NOTE: This depends on the global `window` object and DOM APIs. Ensure this file is only used in a browser environment.
 const extractWordsWithSpaces = (node: Node): string[] => {
-    // Ensure running in browser context
     if (typeof window === 'undefined' || typeof document === 'undefined') {
         return [];
     }
@@ -91,9 +90,7 @@ const extractWordsWithSpaces = (node: Node): string[] => {
 };
 
 
-// Helper: Find node near word index (Internal)
 const findNodeAtWordIndex = (rootNode: Node, targetWordIndex: number): { node: Node | null } => {
-    // Ensure running in browser context
     if (typeof document === 'undefined') {
         return { node: null };
     }
@@ -122,9 +119,7 @@ const findNodeAtWordIndex = (rootNode: Node, targetWordIndex: number): { node: N
     return { node: null };
 };
 
-// Helper: Extract words after a node within a root (Internal)
 const extractWordsFromWalker = (rootNode: Node, startAfterNode?: Node | null): string[] => {
-    // Ensure running in browser context
     if (typeof document === 'undefined') {
         return [];
     }
@@ -162,19 +157,16 @@ export const generateTextFragment = (truncatedHtml: string, fullHtml: string): s
     }
     const parser = new DOMParser();
 
-    // 1. Truncation index
     const truncatedDoc = parser.parseFromString(truncatedHtml, 'text/html');
     const truncatedWords = extractWordsWithSpaces(truncatedDoc.body);
     const actualTruncationWordIndex = truncatedWords.length;
 
-    // 2. Parse full HTML & basic check
     const fullDoc = parser.parseFromString(fullHtml, 'text/html');
     const fullWords = extractWordsWithSpaces(fullDoc.body);
     if (actualTruncationWordIndex >= fullWords.length) {
         return undefined;
     }
 
-    // 3. Find node near truncation
     const { node: startSearchNode } = findNodeAtWordIndex(fullDoc.body, actualTruncationWordIndex);
     if (!startSearchNode) {
          return undefined;
@@ -182,7 +174,7 @@ export const generateTextFragment = (truncatedHtml: string, fullHtml: string): s
 
     let textFragmentHash: string | undefined = undefined;
 
-    // 4. Attempt 1: Check remainder of the paragraph containing the truncation
+    // Attempt 1: Check remainder of the paragraph containing the truncation
     const truncationParagraph = (startSearchNode.parentElement?.closest('p') as HTMLParagraphElement | null);
     let searchStartNodeForFallback: Node = startSearchNode;
 
@@ -205,7 +197,7 @@ export const generateTextFragment = (truncatedHtml: string, fullHtml: string): s
         }
     }
 
-    // 5. Attempt 2 (Fallback): Search subsequent paragraphs
+    // Attempt 2 (Fallback): Search subsequent paragraphs
     let paragraphsChecked = 0;
     const walker = document.createTreeWalker(fullDoc.body, NodeFilter.SHOW_ELEMENT, {
         acceptNode: (node) => (node as Element).tagName === 'P' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
