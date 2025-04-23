@@ -151,16 +151,14 @@ class MainFormView extends View {
                 {
                   tag: "div",
                   attributes: {
-                    class: ["ck-poll-form-label"],
-                    style: "margin-bottom: 4px; font-weight: bold;"
+                    class: ["ck-poll-form-label", "ck-poll-form-label-bold"],
                   },
                   children: ["Color"]
                 },
                 {
                   tag: "div",
                   attributes: {
-                    class: ["ck-color-selector-container"],
-                    style: "display: flex; align-items: center; flex: 1; gap: 8px;"
+                    class: ["ck-poll-color-selector-container"],
                   },
                   children: this.colorSchemeButtons
                 }
@@ -169,40 +167,38 @@ class MainFormView extends View {
             {
               tag: "div",
               attributes: {
-                class: ["ck-poll-form-group"],
-                style: "margin-left: 20px;"
+                class: ["ck-poll-form-group", "ck-poll-duration-group"],
               },
               children: [
                 {
                   tag: "div",
                   attributes: {
-                    class: ["ck-poll-form-label"],
-                    style: "margin-bottom: 4px; font-weight: bold;"
+                    class: ["ck-poll-form-label", "ck-poll-form-label-bold"],
                   },
                   children: ["Duration"]
                 },
                 {
                   tag: "div",
                   attributes: {
-                    style: "display: flex; align-items: center;"
+                    class: ["ck-poll-duration-input-container"]
                   },
                   children: [
                     this.daysInputView,
                     {
                       tag: "span",
-                      attributes: { style: "margin: 0 16px 0 6px; font-weight: 500; color: var(--palette-grey-1000);" },
+                      attributes: { class: ["ck-poll-duration-label-unit"] },
                       children: ["days"]
                     },
                     this.hoursInputView,
                     {
                       tag: "span",
-                      attributes: { style: "margin: 0 16px 0 6px; font-weight: 500; color: var(--palette-grey-1000);" },
+                      attributes: { class: ["ck-poll-duration-label-unit"] },
                       children: ["hours"]
                     },
                     this.minutesInputView,
                     {
                       tag: "span",
-                      attributes: { style: "margin-left: 6px; font-weight: 500; color: var(--palette-grey-1000);" },
+                      attributes: { class: ["ck-poll-duration-label-unit"] },
                       children: ["minutes"]
                     }
                   ]
@@ -377,9 +373,6 @@ class MainFormView extends View {
         // TODO move to css file
         buttonView.element.style.backgroundColor = colorScheme.darkColor;
         buttonView.element.classList.add('ck-color-selector-button');
-        buttonView.element.style.border = '1px solid #ccc';
-        buttonView.element.style.boxSizing = 'border-box';
-        buttonView.element.style.cursor = 'pointer';
       });
 
       buttonView.on('execute', () => {
@@ -396,13 +389,7 @@ class MainFormView extends View {
 
           // TODO improve selection UI
           this.colorSchemeButtons.forEach((btn, btnIndex) => {
-            btn.element.style.border = '1px solid #ccc';
             btn.isOn = (index === btnIndex);
-            if (index === btnIndex) {
-                btn.element.style.border = '2px solid blue';
-            } else {
-                btn.element.style.border = '1px solid #ccc';
-            }
           });
         });
       });
@@ -419,10 +406,9 @@ class MainFormView extends View {
             attributes: {
                 type: 'number',
                 min: '0',
-                class: ['ck-poll-form-input', 'ck-duration-input'], // Add specific class
-                style: 'width: 50px; min-width: 50px; padding: 4px 8px;', // Basic styling
+                class: ['ck-poll-form-input', 'ck-duration-input'],
                 id: inputBind.to('id'),
-                'aria-label': label, // Accessibility
+                'aria-label': label,
             },
             on: {
                 input: inputBind.to('input')
@@ -557,12 +543,6 @@ export default class PollForm extends Plugin {
       );
       this.formView.colorSchemeButtons.forEach((btn, btnIndex) => {
           btn.isOn = (currentIndex === btnIndex);
-          // Apply visual distinction (ensure this matches the 'execute' handler logic)
-          if (currentIndex === btnIndex) {
-              btn.element.style.border = '2px solid blue';
-          } else {
-              btn.element.style.border = '1px solid #ccc';
-          }
       });
 
       return; // Don't add the view again
@@ -572,7 +552,7 @@ export default class PollForm extends Plugin {
     this._balloon.add({
       view: this.formView,
       position: this._getBalloonPositionData(),
-      balloonClassName: "ck-poll-balloon", // Consider a more specific name like ck-poll-form-balloon
+      balloonClassName: "ck-poll-balloon",
     });
 
     this.formView.questionView.select(); // Focus the first field
@@ -596,25 +576,7 @@ export default class PollForm extends Plugin {
         cs.darkColor === currentColorScheme?.darkColor && cs.lightColor === currentColorScheme?.lightColor
     );
      this.formView.colorSchemeButtons.forEach((btn, btnIndex) => {
-        // Set initial visual state based on props
         btn.isOn = (currentIndex === btnIndex);
-        // Ensure the border style is applied on initial render too
-         if (btn.isRendered) { // Check if element exists before styling
-             if (currentIndex === btnIndex) {
-                 btn.element.style.border = '2px solid blue';
-             } else {
-                 btn.element.style.border = '1px solid #ccc';
-             }
-         } else {
-            // If not rendered yet, style it in its render event
-            btn.once('render', () => {
-                 if (currentIndex === btnIndex) {
-                     btn.element.style.border = '2px solid blue';
-                 } else {
-                     btn.element.style.border = '1px solid #ccc';
-                 }
-            });
-         }
     });
   }
 

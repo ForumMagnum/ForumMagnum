@@ -70,6 +70,54 @@
 	display: none;
 }
 
+.ck-reset_all .ck-poll-form-label-bold {
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.ck-reset_all .ck-poll-color-selector-container {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+}
+
+.ck-reset_all .ck-poll-duration-group {
+  margin-left: 20px;
+}
+
+.ck-reset_all .ck-poll-duration-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.ck-reset_all .ck-poll-duration-label-unit {
+  margin: 0 16px 0 6px;
+  font-weight: 500;
+  color: var(--palette-grey-1000);
+}
+
+.ck-reset_all .ck-poll-duration-label-unit:last-of-type {
+  margin-left: 6px;
+  margin-right: 0;
+}
+
+.ck-reset_all .ck-color-selector-button {
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.ck-reset_all .ck-color-selector-button.ck-on {
+  border: 2px solid orange;
+}
+
+.ck-reset_all .ck-duration-input {
+  width: 50px;
+  min-width: 50px;
+  padding: 4px 8px;
+}
+
 .ck-poll {
   font-family: var(--palette-fonts-sansSerifStack);
   text-align: center;
