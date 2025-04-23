@@ -672,12 +672,8 @@ export default class PollForm extends Plugin {
     // Show panel when a poll is clicked
     this.listenTo(viewDocument, "click", (evt, data) => {
       const selectedElement = this._getSelectedPoll();
-      const domTarget = data.domTarget;
-      // isTargetPoll is here to make clicking away to exit work better, because clicks not quite
-      // on the poll can select it
-      const isTargetPoll = domTarget && domTarget.classList && domTarget.classList.contains(POLL_CLASS);
 
-      if (selectedElement && isTargetPoll) {
+      if (selectedElement) {
         this._showUI(selectedElement);
       }
     });

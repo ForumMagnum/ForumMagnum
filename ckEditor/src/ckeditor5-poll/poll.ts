@@ -121,25 +121,21 @@ export default class PollPlugin extends Plugin {
       .${POLL_CLASS} {
         font-family: var(--palette-fonts-sansSerifStack);
         text-align: center;
-        background: var(--debug-fe-background);
+        background: var(--forum-event-background);
         border-radius: calc(var(--borderRadius-default) * 1px);
         margin: 10px 0;
         padding: 20px;
-        /* TODO remove */
-        --debug-fe-background: #06005C;
-        --debug-fe-banner-text: #FFF;
-        --debug-fe-foreground: #FFf;
       }
       .${POLL_CLASS}-question {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 20px;
-        color: var(--debug-fe-banner-text);
+        color: var(--forum-event-banner-text);
       }
       .${POLL_CLASS}-slider {
         position: relative;
         height: 2px;
-        background: var(--debug-fe-foreground);
+        background: var(--forum-event-foreground);
         margin: 40px 40px 0px 40px;
       }
       .${POLL_CLASS}-circle {
@@ -151,18 +147,18 @@ export default class PollPlugin extends Plugin {
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        border: 2px solid var(--debug-fe-foreground);
+        border: 2px solid var(--forum-event-foreground);
         opacity: 0.3;
       }
       .${POLL_CLASS}-labels {
         display: flex;
         justify-content: space-between;
-        color: var(--debug-fe-banner-text);
+        color: var(--forum-event-banner-text);
         margin: 10px 40px;
       }
       .${POLL_CLASS}-label {
         font-weight: 500;
-        color: var(--debug-fe-banner-text);
+        color: var(--forum-event-banner-text);
       }
     `;
     document.head.appendChild(style);
@@ -176,10 +172,16 @@ export default class PollPlugin extends Plugin {
       view: (modelElement, { writer: viewWriter }) => {
         const id: string = modelElement.getAttribute("id") as string;
         const props: PollProps = modelElement.getAttribute("props") as PollProps;
+        const { colorScheme } = props; // Get the initial color scheme
 
         const container = viewWriter.createContainerElement("div", {
           class: POLL_CLASS,
           "data-internal-id": id,
+          style: `
+            --forum-event-background: ${colorScheme.darkColor};
+            --forum-event-banner-text: ${colorScheme.bannerTextColor};
+            --forum-event-foreground: ${colorScheme.lightColor};
+          `
         });
 
         const questionContainer = viewWriter.createContainerElement("div", {
@@ -203,7 +205,7 @@ export default class PollPlugin extends Plugin {
         });
 
         const disagreeLabel = viewWriter.createContainerElement("div", {
-          class: `${POLL_CLASS}-disagree`
+          class: [`${POLL_CLASS}-label`, `${POLL_CLASS}-disagree`] // Added POLL_CLASS_LABEL for consistency
         });
         viewWriter.insert(
           viewWriter.createPositionAt(disagreeLabel, 0),
@@ -211,7 +213,7 @@ export default class PollPlugin extends Plugin {
         );
 
         const agreeLabel = viewWriter.createContainerElement("div", {
-          class: `${POLL_CLASS}-agree`
+           class: [`${POLL_CLASS}-label`, `${POLL_CLASS}-agree`] // Added POLL_CLASS_LABEL for consistency
         });
         viewWriter.insert(
           viewWriter.createPositionAt(agreeLabel, 0),
@@ -245,9 +247,23 @@ export default class PollPlugin extends Plugin {
         const pollViewElement = editor.editing.mapper.toViewElement(pollModelElement);
         if (!pollViewElement) return;
 
+        // Update text content
         updateViewElementText(viewWriter, pollViewElement, [`${POLL_CLASS}-question`], props.question);
         updateViewElementText(viewWriter, pollViewElement, [`${POLL_CLASS}-labels`, `${POLL_CLASS}-disagree`], props.disagreeWording);
         updateViewElementText(viewWriter, pollViewElement, [`${POLL_CLASS}-labels`, `${POLL_CLASS}-agree`], props.agreeWording);
+
+        // Update color scheme
+        const { colorScheme } = props;
+        if (colorScheme) {
+          viewWriter.setStyle(
+            {
+              '--forum-event-background': colorScheme.darkColor,
+              '--forum-event-banner-text': colorScheme.bannerTextColor,
+              '--forum-event-foreground': colorScheme.lightColor
+            },
+            pollViewElement
+          );
+        }
       }
     });
 
