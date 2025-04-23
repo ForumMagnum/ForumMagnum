@@ -3,12 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
-
-// Constants for Text Fragment Generation
-const FRAGMENT_START_PHRASE_WORDS = 3; // Start phrase
-const FRAGMENT_END_PHRASE_WORDS = 1;   // End phrase
-const FRAGMENT_CONTINUATION_SEPARATION = 3; // Words between start and end
-const MIN_CONTINUATION_WORDS = FRAGMENT_START_PHRASE_WORDS + FRAGMENT_CONTINUATION_SEPARATION + FRAGMENT_END_PHRASE_WORDS; // Update minimum
+import { generateTextFragment } from './textFragmentHelpers'
 
 const limitImageHeightClass = (theme: ThemeType) => ({
   maxHeight: 250,
@@ -129,108 +124,6 @@ interface RenderContinueReadingActionProps {
   wordsLeft: number;
 }
 
-// Helper function to traverse DOM and extract text content intelligently
-const extractWordsWithSpaces = (node: Node): string[] => {
-    let words: string[] = [];
-    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, null);
-    let lastNodeType: number | null = null; // Keep track of last node type
-
-    while (walker.nextNode()) {
-        const currentNode = walker.currentNode;
-        
-        if (currentNode.nodeType === Node.TEXT_NODE) {
-            // Skip empty text nodes or nodes inside non-visible elements (basic check)
-            const parentElement = currentNode.parentElement;
-            if (!currentNode.textContent?.trim() || 
-                (parentElement && ['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(parentElement.tagName))) { 
-                continue; 
-            }
-            
-            // Add space before text if the previous node was an element (likely block)
-            if (lastNodeType === Node.ELEMENT_NODE && words.length > 0 && !words[words.length - 1].endsWith(' ')) {
-                 words.push(' '); // Add separator
-            }
-
-            // Split text content into words, filter empty, and add
-            const nodeWords = currentNode.textContent.split(/\s+/).filter(w => w.length > 0);
-            words = words.concat(nodeWords);
-            lastNodeType = Node.TEXT_NODE;
-        } else if (currentNode.nodeType === Node.ELEMENT_NODE) {
-            // Check if it's a block element that might warrant a space after it
-            const element = currentNode as Element;
-            const displayStyle = window.getComputedStyle(element).display;
-            const isBlock = ['block', 'list-item', 'table', 'flex', 'grid'].includes(displayStyle);
-            
-            // If the previous node was text and this is a block, ensure a space
-            if (lastNodeType === Node.TEXT_NODE && isBlock && words.length > 0 && !words[words.length - 1].endsWith(' ')) {
-                 words.push(' ');
-            }
-            lastNodeType = Node.ELEMENT_NODE;
-        }
-    }
-    // Final cleanup: Join then re-split to handle spaces added at the end and ensure single spacing
-    return words.join(' ').replace(/\s+/g, ' ').trim().split(' '); 
-};
-
-// Helper function generates start,end fragment using only text *after* truncation point with separation
-const generateTextFragment = (truncatedHtml: string, fullHtml: string): string | undefined => {
-    if (typeof window === 'undefined') {
-        console.warn('[TextFragment] Not in browser environment.');
-        return undefined;
-    }
-
-    const parser = new DOMParser();
-
-    // Parse Truncated HTML -> to find the split point
-    const truncatedDoc = parser.parseFromString(truncatedHtml, 'text/html');
-    const truncatedWords = extractWordsWithSpaces(truncatedDoc.body);
-    const actualTruncationWordIndex = truncatedWords.length;
-
-    // Parse Full HTML -> to extract phrases from
-    const fullDoc = parser.parseFromString(fullHtml, 'text/html');
-    const fullWords = extractWordsWithSpaces(fullDoc.body);
-    const fullWordCount = fullWords.length;
-
-    // Calculate how many words are available *after* the truncation point
-    const continuationWordCount = fullWordCount - actualTruncationWordIndex;
-
-    if (continuationWordCount < MIN_CONTINUATION_WORDS) {
-        console.log('[TextFragment] Not generated: Not enough words in continuation text for start, separation, and end phrases.', 
-                    { continuationWordCount, minRequired: MIN_CONTINUATION_WORDS });
-        return undefined;
-    }
-
-    // --- Calculate textStart (from start of continuation) --- 
-    const startPhraseStartIndex = actualTruncationWordIndex;
-    const startPhraseEndIndex = startPhraseStartIndex + FRAGMENT_START_PHRASE_WORDS;
-    if (startPhraseEndIndex > fullWordCount) {
-        console.log('[TextFragment] Not generated: Cannot define valid textStart range (exceeds fullWordCount).');
-        return undefined;
-    }
-    const textStart = fullWords.slice(startPhraseStartIndex, startPhraseEndIndex).join(' ');
-
-    // --- Calculate textEnd (starting after separation) --- 
-    const endPhraseStartIndex = startPhraseEndIndex + FRAGMENT_CONTINUATION_SEPARATION;
-    const endPhraseEndIndex = endPhraseStartIndex + FRAGMENT_END_PHRASE_WORDS;
-    // Ensure end index doesn't exceed total words
-    if (endPhraseEndIndex > fullWordCount) {
-         console.log('[TextFragment] Not generated: Cannot define valid textEnd range (exceeds fullWordCount).');
-         return undefined;
-    }
-    const textEnd = fullWords.slice(endPhraseStartIndex, endPhraseEndIndex).join(' ');
-
-    // --- Combine and return --- 
-    if (textStart && textEnd) {
-        const textFragmentHash = `#:~:text=${encodeURIComponent(textStart)},${encodeURIComponent(textEnd)}`;
-        console.log('[TextFragment] Generated (Separated Continuation Start/End):', 
-                    { textStart, textEnd, textFragmentHash, actualTruncationWordIndex });
-        return textFragmentHash;
-    } else {
-        console.log('[TextFragment] Not generated: Failed to extract textStart or textEnd phrases from continuation.');
-        return undefined;
-    }
-};
-
 const renderContinueReadingAction = ({
   showContinueReadingAction,
   onContinueReadingClick,
@@ -246,7 +139,6 @@ const renderContinueReadingAction = ({
       className={classes.readMoreButton}
       onClick={(e) => {
         e.stopPropagation();
-        // Generate fragment using the comparison method
         const generatedFragment = generateTextFragment(truncatedHtmlWithoutSuffix, fullHtmlForGeneration);
         onContinueReadingClick({ textFragment: generatedFragment });
       }}
