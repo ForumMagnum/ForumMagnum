@@ -363,7 +363,6 @@ const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
 // (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
 // are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css)
 requireCssVar("palette", "fonts", "sansSerifStack")
-// TODO clean up new ones that aren't used
 requireCssVar("borderRadius", "default")
 requireCssVar("borderRadius", "small")
 requireCssVar("palette", "buttons", "alwaysPrimary")

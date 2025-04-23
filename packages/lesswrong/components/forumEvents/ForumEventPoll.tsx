@@ -687,12 +687,12 @@ export const ForumEventPoll = ({
         if (event.post) {
           setCommentFormOpen(true);
         }
-  
+
         setVoteCount((count) => count + 1);
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
         refetch?.();
-  
+
         return;
       }
       const delta =

@@ -333,8 +333,6 @@ export const CommentsItemMeta = ({
         />}
       </span>}
       <CommentPollVote comment={comment} />
-      {/* TODO remove */}
-      {/* {comment.forumEvent?.pollQuestion?.html && <div dangerouslySetInnerHTML={{ __html: comment.forumEvent.pollQuestion.html }} />} */}
 
       <span className={classes.rightSection}>
         {rightSectionElements}

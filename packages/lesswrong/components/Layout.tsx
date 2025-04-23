@@ -363,7 +363,6 @@ const Layout = ({currentUser, children, classes}: {
     const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    const rootStyle = overrideLayoutOptions.style
     const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
@@ -386,7 +385,7 @@ const Layout = ({currentUser, children, classes}: {
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
-        )} id="wrapper" style={rootStyle}>
+        )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>

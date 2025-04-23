@@ -2,8 +2,6 @@ import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useSingle } from "@/lib/crud/withSingle";
-import { postGetPollUrl } from "@/lib/collections/posts/helpers";
-import { parseDocumentFromString } from "@/lib/domParser";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 
 const styles = (theme: ThemeType) => ({
@@ -37,7 +35,6 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   });
 
   const isGlobal = forumEvent?.isGlobal !== false;
-  // TODO make this act like the "see in context" button on comments
   const pollLink = (!isGlobal && forumEvent) ? `#${forumEvent._id}` : undefined;
 
   const agreeWording = forumEvent?.pollAgreeWording || "agree";

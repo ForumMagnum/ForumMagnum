@@ -1,7 +1,6 @@
 import { performVoteServer } from '../voteServer';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
 import cheerio from 'cheerio';
-import ForumEvents from '../collections/forumEvents/collection';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { createForumEvent, updateForumEvent } from '../collections/forumEvents/mutations';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
@@ -147,8 +146,6 @@ export async function upsertPolls({
 }) {
   if (!hasPolls) return;
 
-  console.log("In upsertPolls");
-
   if (revision.html && revision.collectionName === "Posts" && !!revision.documentId) {
     const $ = cheerio.load(revision.html);
     const pollData = $(".ck-poll[data-internal-id]")
@@ -164,7 +161,6 @@ export async function upsertPolls({
       })
       .get()
       .filter((item) => item !== null) as ({ _id: string } & PollProps)[];
-    console.log("Data-internal-ids and questions:", pollData);
 
     if (!pollData?.length) return;
 
