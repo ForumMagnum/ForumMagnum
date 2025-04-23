@@ -254,17 +254,18 @@ export default class PollPlugin extends Plugin {
     editor.conversion.for("dataDowncast").elementToElement({
       model: "poll",
       view: (modelElement, { writer: viewWriter }) => {
+        const id = modelElement.getAttribute("id") || "";
+        const props = modelElement.getAttribute("props") || {};
+
         const container = viewWriter.createContainerElement("div", {
           class: POLL_CLASS,
-          "data-internal-id": modelElement.getAttribute("id") || "",
+          "data-internal-id": id,
+          "data-props": JSON.stringify(props)
         });
-        
-        // const text = (modelElement.getChild(0) as unknown as Text).data;
-        // viewWriter.insert(
-        //   viewWriter.createPositionAt(container, 0),
-        //   viewWriter.createText(text)
-        // );
-        
+
+        // Data view doesn't need the complex internal structure, just the container
+        // with the necessary data attributes.
+
         return container;
       }
     });
@@ -275,17 +276,24 @@ export default class PollPlugin extends Plugin {
         classes: POLL_CLASS,
       },
       model: (viewElement, { writer: modelWriter }) => {
-        const poll = modelWriter.createElement("poll");
         const internalId = viewElement.getAttribute("data-internal-id");
-        if (internalId) {
-          modelWriter.setAttribute("id", internalId, poll);
+        const propsString = viewElement.getAttribute("data-props");
+
+        let props = { ...DEFAULT_PROPS };
+        if (propsString) {
+          const parsedProps = JSON.parse(propsString);
+          props = {
+              ...props,
+              ...parsedProps,
+          };
         }
-        const text = viewElement.getChild(0) as unknown as Text;
-        modelWriter.append(
-          modelWriter.createText(text.data),
-          poll
-        );
-        return poll;
+
+        const pollElement = modelWriter.createElement("poll", {
+            id: internalId || randomId(),
+            props: props
+        });
+
+        return pollElement;
       }
     });
   }
