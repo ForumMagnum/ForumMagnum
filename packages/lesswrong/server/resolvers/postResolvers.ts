@@ -292,11 +292,13 @@ export const postGqlQueries = {
 
       return {
         post,
-        digestPost: {
-          _id: post.digestPostId,
-          emailDigestStatus: post.emailDigestStatus,
-          onsiteDigestStatus: post.onsiteDigestStatus
-        },
+        digestPost: post.digestPostId
+          ? {
+            _id: post.digestPostId,
+            emailDigestStatus: post.emailDigestStatus,
+            onsiteDigestStatus: post.onsiteDigestStatus
+          }
+          : null,
         rating: 0
       }
     })
