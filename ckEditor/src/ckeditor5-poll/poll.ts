@@ -54,7 +54,7 @@ function updateViewElementText(
 }
 
 /**
- * Plugin for the CTA button element itself, the form for editing the text and link
+ * Plugin for the poll element itself, the form for editing the text and link
  * is defined in a separate plugin, PollForm
  */
 export default class PollPlugin extends Plugin {

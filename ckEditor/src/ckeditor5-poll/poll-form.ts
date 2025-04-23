@@ -22,8 +22,6 @@ import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 import './poll.css';
 import { PollProps } from "./constants";
 
-// TODO clean up comments
-
 export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
   { darkColor: '#06005C', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
   { darkColor: '#1D2A17', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
@@ -467,7 +465,7 @@ class MainFormView extends View {
 }
 
 /**
- * Plugin for the form to edit the text and link of a CTA button
+ * Plugin for the form to edit contents of a poll
  */
 export default class PollForm extends Plugin {
   formView: MainFormView
