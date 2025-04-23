@@ -58,26 +58,25 @@ export const styles = defineStyles("MuiListItemText", theme => ({
   textDense: {},
 }), {stylePriority: -10});
 
-function ListItemText(props: ListItemTextProps, context) {
+function ListItemText(props: ListItemTextProps) {
   const {
     children,
     classes: classesOverride,
     className: classNameProp,
-    disableTypography,
-    inset,
+    disableTypography=false,
+    inset=false,
     primary: primaryProp,
     secondary: secondaryProp,
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
-  const { dense } = context;
 
   let primary = primaryProp != null ? primaryProp : children;
-  if (primary != null && primary.type !== Typography && !disableTypography) {
+  if (primary != null && !disableTypography) {
     primary = (
       <Typography
         variant="subheading"
-        className={classNames(classes.primary, { [classes.textDense]: dense })}
+        className={classNames(classes.primary)}
         component="span"
       >
         {primary}
@@ -86,13 +85,11 @@ function ListItemText(props: ListItemTextProps, context) {
   }
 
   let secondary = secondaryProp;
-  if (secondary != null && secondary.type !== Typography && !disableTypography) {
+  if (secondary != null && !disableTypography) {
     secondary = (
       <Typography
         variant="body1"
-        className={classNames(classes.secondary, {
-          [classes.textDense]: dense,
-        })}
+        className={classNames(classes.secondary)}
       >
         {secondary}
       </Typography>
@@ -104,7 +101,6 @@ function ListItemText(props: ListItemTextProps, context) {
       className={classNames(
         classes.root,
         {
-          [classes.dense]: dense,
           [classes.inset]: inset,
         },
         classNameProp,
@@ -116,14 +112,5 @@ function ListItemText(props: ListItemTextProps, context) {
     </div>
   );
 }
-
-ListItemText.defaultProps = {
-  disableTypography: false,
-  inset: false,
-};
-
-ListItemText.contextTypes = {
-  dense: PropTypes.bool,
-};
 
 export default ListItemText;

@@ -4,7 +4,6 @@ import SwitchBase, { SwitchBaseClassKey, SwitchBaseProps } from '../internal/Swi
 import CheckBoxOutlineBlankIcon from '../internal/svg-icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '../internal/svg-icons/CheckBox';
 import IndeterminateCheckBoxIcon from '../internal/svg-icons/IndeterminateCheckBox';
-import { capitalize } from '../utils/helpers';
 import type { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -13,13 +12,11 @@ export interface CheckboxProps
   checkedIcon?: React.ReactNode;
   color?: 'primary' | 'secondary' | 'default';
   icon?: React.ReactNode;
-  indeterminate?: boolean;
   indeterminateIcon?: React.ReactNode;
 }
 
 export type CheckboxClassKey =
   | SwitchBaseClassKey
-  | 'indeterminate'
   | 'colorPrimary'
   | 'colorSecondary';
 
@@ -32,8 +29,6 @@ export const styles = defineStyles("MuiCheckbox", theme => ({
   checked: {},
   /* Styles applied to the root element if `disabled={true}`. */
   disabled: {},
-  /* Styles applied to the root element if `indeterminate={true}`. */
-  indeterminate: {},
   /* Styles applied to the root element if `color="primary"`. */
   colorPrimary: {
     '&$checked': {
@@ -61,7 +56,6 @@ function Checkbox(props: CheckboxProps) {
     className,
     color,
     icon,
-    indeterminate,
     indeterminateIcon,
     inputProps,
     ...other
@@ -71,23 +65,17 @@ function Checkbox(props: CheckboxProps) {
   return (
     <SwitchBase
       type="checkbox"
-      checkedIcon={indeterminate ? indeterminateIcon : checkedIcon}
-      className={classNames(
-        {
-          [classes.indeterminate]: indeterminate,
-        },
-        className,
-      )}
+      checkedIcon={checkedIcon}
+      className={classNames(className)}
       classes={{
-        root: classNames(classes.root, classes[`color${capitalize(color)}`]),
+        root: classNames(classes.root, {
+          [classes.colorPrimary]: color==='primary',
+          [classes.colorSecondary]: color==='secondary',
+        }),
         checked: classes.checked,
         disabled: classes.disabled,
       }}
-      inputProps={{
-        'data-indeterminate': indeterminate,
-        ...inputProps,
-      }}
-      icon={indeterminate ? indeterminateIcon : icon}
+      icon={icon}
       {...other}
     />
   );
@@ -97,7 +85,6 @@ Checkbox.defaultProps = {
   checkedIcon: <CheckBoxIcon />,
   color: 'secondary',
   icon: <CheckBoxOutlineBlankIcon />,
-  indeterminate: false,
   indeterminateIcon: <IndeterminateCheckBoxIcon />,
 };
 

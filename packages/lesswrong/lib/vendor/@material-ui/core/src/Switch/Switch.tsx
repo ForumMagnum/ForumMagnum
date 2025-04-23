@@ -126,7 +126,10 @@ function Switch(props: SwitchProps) {
         type="checkbox"
         icon={<span className={classes.icon} />}
         classes={{
-          root: classNames(classes.switchBase, classes[`color${capitalize(color)}`]),
+          root: classNames(classes.switchBase, {
+            [classes.colorPrimary]: color==='primary',
+            [classes.colorSecondary]: color==='secondary',
+          }),
           checked: classes.checked,
           disabled: classes.disabled,
         }}

@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import warning from 'warning';
 import keycode from 'keycode';
@@ -17,7 +16,6 @@ import { PortalProps } from '../Portal/Portal';
 
 export interface ModalProps
   extends StandardProps<React.HtmlHTMLAttributes<HTMLDivElement>, ModalClassKey> {
-  BackdropComponent?: React.ReactType<BackdropProps>;
   BackdropProps?: Partial<BackdropProps>;
   container?: PortalProps['container'];
   disableAutoFocus?: boolean;
@@ -28,12 +26,12 @@ export interface ModalProps
   disableRestoreFocus?: boolean;
   hideBackdrop?: boolean;
   keepMounted?: boolean;
-  manager?: ModalManager;
   onBackdropClick?: React.ReactEventHandler<{}>;
   onClose?: React.ReactEventHandler<{}>;
   onEscapeKeyDown?: React.ReactEventHandler<{}>;
   onRendered?: PortalProps['onRendered'];
   open: boolean;
+  children: React.ReactNode;
 }
 
 export type ModalClassKey = 'root' | 'hidden';
@@ -66,11 +64,18 @@ export const styles = defineStyles("MuiModal", theme => ({
 /**
  * This component shares many concepts with [react-overlays](https://react-bootstrap.github.io/react-overlays/#modals).
  */
-class Modal extends React.Component<ModalProps> {
+class Modal extends React.Component<ModalProps & WithStylesProps<typeof styles>, {
+  exited: boolean
+}> {
   mounted = false;
+  modalRef: AnyBecauseTodo
+  dialogRef: AnyBecauseTodo
+  manager: ModalManager = new ModalManager()
+  mountNode: AnyBecauseTodo
+  lastFocus: AnyBecauseTodo
 
-  constructor(props) {
-    super();
+  constructor(props: ModalProps & WithStylesProps<typeof styles>) {
+    super(props);
     this.state = {
       exited: !props.open,
     };
@@ -83,7 +88,7 @@ class Modal extends React.Component<ModalProps> {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: ModalProps & WithStylesProps<typeof styles>) {
     if (!prevProps.open && this.props.open) {
       this.checkForFocus();
     }
@@ -104,7 +109,7 @@ class Modal extends React.Component<ModalProps> {
     }
   }
 
-  static getDerivedStateFromProps(nextProps) {
+  static getDerivedStateFromProps(nextProps: ModalProps & WithStylesProps<typeof styles>) {
     if (nextProps.open) {
       return {
         exited: false,
@@ -136,13 +141,13 @@ class Modal extends React.Component<ModalProps> {
     const doc = ownerDocument(this.mountNode);
     const container = getContainer(this.props.container, doc.body);
 
-    this.props.manager.add(this, container);
+    this.manager.add(this, container);
     doc.addEventListener('keydown', this.handleDocumentKeyDown);
     doc.addEventListener('focus', this.enforceFocus, true);
   };
 
   handleClose = () => {
-    this.props.manager.remove(this);
+    this.manager.remove(this);
     const doc = ownerDocument(this.mountNode);
     doc.removeEventListener('keydown', this.handleDocumentKeyDown);
     doc.removeEventListener('focus', this.enforceFocus, true);
@@ -154,7 +159,7 @@ class Modal extends React.Component<ModalProps> {
     this.handleClose();
   };
 
-  handleBackdropClick = event => {
+  handleBackdropClick = (event: AnyBecauseTodo) => {
     if (event.target !== event.currentTarget) {
       return;
     }
@@ -164,11 +169,11 @@ class Modal extends React.Component<ModalProps> {
     }
 
     if (!this.props.disableBackdropClick && this.props.onClose) {
-      this.props.onClose(event, 'backdropClick');
+      this.props.onClose(event);
     }
   };
 
-  handleDocumentKeyDown = event => {
+  handleDocumentKeyDown = (event: AnyBEcauseTodo) => {
     if (!this.isTopModal() || keycode(event) !== 'esc') {
       return;
     }
@@ -183,7 +188,7 @@ class Modal extends React.Component<ModalProps> {
     }
 
     if (!this.props.disableEscapeKeyDown && this.props.onClose) {
-      this.props.onClose(event, 'escapeKeyDown');
+      this.props.onClose(event);
     }
   };
 
@@ -247,12 +252,11 @@ class Modal extends React.Component<ModalProps> {
   }
 
   isTopModal() {
-    return this.props.manager.isTopModal(this);
+    return this.manager.isTopModal(this);
   }
 
   render() {
     const {
-      BackdropComponent,
       BackdropProps,
       children,
       classes,
@@ -266,7 +270,6 @@ class Modal extends React.Component<ModalProps> {
       disableRestoreFocus,
       hideBackdrop,
       keepMounted,
-      manager,
       onBackdropClick,
       onClose,
       onEscapeKeyDown,
@@ -315,7 +318,7 @@ class Modal extends React.Component<ModalProps> {
           {...other}
         >
           {hideBackdrop ? null : (
-            <BackdropComponent open={open} onClick={this.handleBackdropClick} {...BackdropProps} />
+            <Backdrop open={open} onClick={this.handleBackdropClick} {...BackdropProps} />
           )}
           <RootRef
             rootRef={ref => {
@@ -330,7 +333,7 @@ class Modal extends React.Component<ModalProps> {
   }
 }
 
-Modal.defaultProps = {
+(Modal as any).defaultProps = {
   disableAutoFocus: false,
   disableBackdropClick: false,
   disableEnforceFocus: false,
@@ -339,9 +342,6 @@ Modal.defaultProps = {
   disableRestoreFocus: false,
   hideBackdrop: false,
   keepMounted: false,
-  // Modals don't open on the server so this won't conflict with concurrent requests.
-  manager: new ModalManager(),
-  BackdropComponent: Backdrop,
 };
 
 export default withStyles(styles, Modal);

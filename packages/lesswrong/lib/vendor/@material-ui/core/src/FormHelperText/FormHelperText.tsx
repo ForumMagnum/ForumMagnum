@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { formControlState } from '../InputBase/InputBase';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { StandardProps } from '..';
+import { FormControlContext } from '../FormControl/FormControl';
 
 export interface FormHelperTextProps
   extends StandardProps<React.HTMLAttributes<HTMLParagraphElement>, FormHelperTextClassKey> {
@@ -11,7 +12,6 @@ export interface FormHelperTextProps
   error?: boolean;
   filled?: boolean;
   focused?: boolean;
-  component?: React.ComponentType<FormHelperTextProps>;
   margin?: 'dense';
   required?: boolean;
   variant?: 'standard' | 'outlined' | 'filled';
@@ -69,7 +69,6 @@ function FormHelperText(props: FormHelperTextProps, context) {
   const {
     classes: classesOverride,
     className: classNameProp,
-    component: Component,
     disabled,
     error,
     filled,
@@ -80,15 +79,16 @@ function FormHelperText(props: FormHelperTextProps, context) {
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
+  const { muiFormControl } = useContext(FormControlContext);
 
   const fcs = formControlState({
     props,
-    context,
+    context: {muiFormControl},
     states: ['variant', 'margin', 'disabled', 'error', 'filled', 'focused', 'required'],
   });
 
   return (
-    <Component
+    <p
       className={classNames(
         classes.root,
         {
@@ -106,13 +106,5 @@ function FormHelperText(props: FormHelperTextProps, context) {
     />
   );
 }
-
-FormHelperText.defaultProps = {
-  component: 'p',
-};
-
-FormHelperText.contextTypes = {
-  muiFormControl: PropTypes.object,
-};
 
 export default FormHelperText;

@@ -6,7 +6,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface CardContentProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, CardContentClassKey> {
-  component?: React.ComponentType<CardContentProps>;
 }
 
 export type CardContentClassKey = 'root';
@@ -29,10 +28,10 @@ export const styles = defineStyles("MuiCardContent", theme => ({
 }), {stylePriority: -10});
 
 function CardContent(props: CardContentProps) {
-  const { classes: classesOverride, className, component: Component, ...other } = props;
+  const { classes: classesOverride, className, ...other } = props;
   const classes = useStyles(styles, classesOverride);
 
-  return <Component className={classNames(classes.root, className)} {...other} />;
+  return <div className={classNames(classes.root, className)} {...other} />;
 }
 
 CardContent.propTypes = {

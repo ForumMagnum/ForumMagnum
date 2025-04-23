@@ -10,7 +10,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface ButtonProps extends StandardProps<ButtonBaseProps, ButtonClassKey, 'component'> {
   color?: string;
-  component?: React.ComponentType<ButtonProps>;
   disabled?: boolean;
   disableFocusRipple?: boolean;
   disableRipple?: boolean;
@@ -308,6 +307,7 @@ function Button(props: ButtonProps) {
       disabled={disabled}
       focusRipple={!disableFocusRipple}
       focusVisibleClassName={classNames(classes.focusVisible, focusVisibleClassName)}
+      component="button"
       {...other}
     >
       <span className={classes.label}>{children}</span>
@@ -317,7 +317,6 @@ function Button(props: ButtonProps) {
 
 Button.defaultProps = {
   color: 'default',
-  component: 'button',
   disabled: false,
   disableFocusRipple: false,
   fullWidth: false,

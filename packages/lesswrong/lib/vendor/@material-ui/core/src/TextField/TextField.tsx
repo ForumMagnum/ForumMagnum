@@ -12,7 +12,6 @@ import FormHelperText from '../FormHelperText';
 import Select from '../Select';
 import { StandardProps } from '..';
 import { FormControlClassKey, FormControlProps } from '../FormControl/FormControl';
-import { FormHelperTextProps } from '../FormHelperText/FormHelperText';
 import { InputLabelProps } from '../InputLabel/InputLabel';
 import { InputProps } from '../Input/Input';
 import { SelectProps } from '../Select/Select';
@@ -25,7 +24,6 @@ export interface TextFieldProps
   defaultValue?: string | number;
   disabled?: boolean;
   error?: boolean;
-  FormHelperTextProps?: Partial<FormHelperTextProps>;
   fullWidth?: boolean;
   helperText?: React.ReactNode;
   id?: string;
@@ -109,7 +107,6 @@ class TextField extends React.Component<TextFieldProps> {
       className,
       defaultValue,
       error,
-      FormHelperTextProps,
       fullWidth,
       helperText,
       id,
@@ -199,7 +196,7 @@ class TextField extends React.Component<TextFieldProps> {
           InputElement
         )}
         {helperText && (
-          <FormHelperText id={helperTextId} {...FormHelperTextProps}>
+          <FormHelperText id={helperTextId}>
             {helperText}
           </FormHelperText>
         )}

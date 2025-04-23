@@ -1,11 +1,12 @@
 /* eslint-disable jsx-a11y/label-has-for */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { Typography } from '@/components/common/Typography';
+import { FormControlContext } from '../FormControl/FormControl';
 
 export interface FormControlLabelProps
   extends StandardProps<
@@ -66,7 +67,7 @@ export const styles = defineStyles("MuiFormControlLabel", theme => ({
  * Drop in replacement of the `Radio`, `Switch` and `Checkbox` component.
  * Use this component if you want to display an extra label.
  */
-function FormControlLabel(props: FormControlLabelProps, context) {
+function FormControlLabel(props: FormControlLabelProps) {
   const {
     checked,
     classes: classesOverride,
@@ -75,14 +76,14 @@ function FormControlLabel(props: FormControlLabelProps, context) {
     disabled: disabledProp,
     inputRef,
     label,
-    labelPlacement,
+    labelPlacement="end",
     name,
     onChange,
     value,
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
-  const { muiFormControl } = context;
+  const muiFormControl = useContext(FormControlContext);
 
   let disabled = disabledProp;
   if (typeof disabled === 'undefined' && typeof control.props.disabled !== 'undefined') {
@@ -117,19 +118,12 @@ function FormControlLabel(props: FormControlLabelProps, context) {
       <Typography
         component="span"
         className={classNames(classes.label, { [classes.disabled]: disabled })}
+        variant="body1"
       >
         {label}
       </Typography>
     </label>
   );
 }
-
-FormControlLabel.defaultProps = {
-  labelPlacement: 'end',
-};
-
-FormControlLabel.contextTypes = {
-  muiFormControl: PropTypes.object,
-};
 
 export default FormControlLabel;

@@ -87,7 +87,7 @@ const buildTheme = (
     palette,
     themeOptions,
     
-    breakpoints: createBreakpoints({}),
+    breakpoints: createBreakpoints(),
   };
 }
 

@@ -5,12 +5,11 @@ import warning from 'warning';
 import { isFilled } from '../InputBase/utils';
 import { setRef } from '../utils/reactHelpers';
 import { Menu } from '@/components/widgets/Menu';
+import ArrowDropDownIcon from '../internal/svg-icons/ArrowDropDown';
 
 export interface SelectInputProps {
   autoFocus?: boolean;
-  autoWidth: boolean;
   disabled?: boolean;
-  IconComponent?: React.ComponentType;
   inputRef?: (
     ref: HTMLSelectElement | { node: HTMLInputElement; value: SelectInputProps['value'] },
   ) => void;
@@ -36,6 +35,8 @@ export interface SelectInputProps {
  */
 class SelectInput extends React.Component<SelectInputProps> {
   ignoreNextBlur = false;
+  isOpenControlled = false
+  displayRef: AnyBecauseTodo
 
   constructor(props: SelectInputProps) {
     super(props);
@@ -72,7 +73,7 @@ class SelectInput extends React.Component<SelectInputProps> {
 
     this.setState({
       // Perfom the layout computation outside of the render method.
-      menuMinWidth: this.props.autoWidth ? null : this.displayRef.clientWidth,
+      menuMinWidth: null,
       open,
     });
   };
@@ -178,13 +179,11 @@ class SelectInput extends React.Component<SelectInputProps> {
 
   render() {
     const {
-      autoWidth,
       children,
       classes,
       className,
       disabled,
       displayEmpty,
-      IconComponent,
       inputRef,
       multiple,
       name,
@@ -272,7 +271,7 @@ class SelectInput extends React.Component<SelectInputProps> {
     // Avoid performing a layout computation in the render method.
     let menuMinWidth = this.state.menuMinWidth;
 
-    if (!autoWidth && this.isOpenControlled && this.displayRef) {
+    if (this.isOpenControlled && this.displayRef) {
       menuMinWidth = this.displayRef.clientWidth;
     }
 
@@ -320,7 +319,7 @@ class SelectInput extends React.Component<SelectInputProps> {
           type={type}
           {...other}
         />
-        <IconComponent className={classes.icon} />
+        <ArrowDropDownIcon className={classes.icon} />
         <Menu
           id={`menu-${name || ''}`}
           anchorEl={this.displayRef}

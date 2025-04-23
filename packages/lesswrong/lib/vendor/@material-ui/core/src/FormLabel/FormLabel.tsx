@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { formControlState } from '../InputBase/InputBase';
 import { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { FormControlContext } from '../FormControl/FormControl';
 
 export interface FormLabelProps extends StandardProps<FormLabelBaseProps, FormLabelClassKey> {
   component?: React.ComponentType<FormLabelBaseProps>;
@@ -61,12 +62,12 @@ export const styles = defineStyles("MuiFormLabel", theme => ({
   },
 }), {stylePriority: -10});
 
-function FormLabel(props: FormLabelProps, context) {
+function FormLabel(props: FormLabelProps) {
   const {
     children,
     classes: classesOverride,
     className: classNameProp,
-    component: Component,
+    component: Component = 'label',
     disabled,
     error,
     filled,
@@ -75,10 +76,11 @@ function FormLabel(props: FormLabelProps, context) {
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
+  const { muiFormControl } = useContext(FormControlContext);
 
   const fcs = formControlState({
     props,
-    context,
+    context: {muiFormControl},
     states: ['required', 'focused', 'disabled', 'error', 'filled'],
   });
 
@@ -111,13 +113,5 @@ function FormLabel(props: FormLabelProps, context) {
     </Component>
   );
 }
-
-FormLabel.defaultProps = {
-  component: 'label',
-};
-
-FormLabel.contextTypes = {
-  muiFormControl: PropTypes.object,
-};
 
 export default FormLabel;

@@ -1,17 +1,17 @@
 // @inheritedComponent IconButton
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import IconButton from '../IconButton';
 import { StandardProps } from '..';
 import { IconButtonProps } from '../IconButton/IconButton';
 import { defineStyles, withStyles } from '@/components/hooks/useStyles';
+import { FormControlContext } from '../FormControl/FormControl';
 
 export interface SwitchBaseProps
   extends StandardProps<IconButtonProps, SwitchBaseClassKey, 'onChange'> {
   autoFocus?: boolean;
-  checked?: boolean | string;
+  checked?: boolean;
   checkedIcon: React.ReactNode;
   defaultChecked?: boolean;
   disabled?: boolean;
@@ -66,6 +66,8 @@ export const styles = defineStyles("MuiSwitchBase", theme => ({
 class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeof styles>, {
   checked?: boolean
 }> {
+  static contextType = FormControlContext
+  declare context: React.ContextType<typeof FormControlContext>;
   isControlled: boolean
 
   constructor(props: SwitchBaseProps & WithStylesProps<typeof styles>) {
@@ -80,7 +82,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
     }
   }
 
-  handleFocus = event => {
+  handleFocus = (event: AnyBecauseTodo) => {
     if (this.props.onFocus) {
       this.props.onFocus(event);
     }
@@ -91,7 +93,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
     }
   };
 
-  handleBlur = event => {
+  handleBlur = (event: AnyBecauseTodo) => {
     if (this.props.onBlur) {
       this.props.onBlur(event);
     }
@@ -102,7 +104,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
     }
   };
 
-  handleInputChange = event => {
+  handleInputChange = (event: AnyBecauseTodo) => {
     const checked = event.target.checked;
 
     if (!this.isControlled) {
@@ -148,7 +150,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
     }
 
     const checked = this.isControlled ? checkedProp : this.state.checked;
-    const hasLabelFor = type === 'checkbox' || type === 'radio';
+    const hasLabelFor = (type as any) === 'checkbox' || (type as any) === 'radio';
 
     return (
       <IconButton
@@ -162,7 +164,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
           classNameProp,
         )}
         disabled={disabled}
-        tabIndex={null}
+        tabIndex={undefined}
         role={undefined}
         onFocus={this.handleFocus}
         onBlur={this.handleBlur}
@@ -174,7 +176,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
           checked={checked}
           className={classes.input}
           disabled={disabled}
-          id={hasLabelFor && id}
+          id={hasLabelFor ? id : undefined}
           name={name}
           onChange={this.handleInputChange}
           readOnly={readOnly}
@@ -190,8 +192,5 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
   }
 }
 
-SwitchBase.contextTypes = {
-  muiFormControl: PropTypes.object,
-};
-
 export default withStyles(styles, SwitchBase);
+

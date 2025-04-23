@@ -17,7 +17,7 @@ export interface ButtonBaseProps
   action?: (actions: ButtonBaseActions) => void;
   buttonRef?: React.Ref<any> | React.RefObject<any>;
   centerRipple?: boolean;
-  component?: React.Component<ButtonBaseProps>|"button"|"li";
+  component?: React.Component<ButtonBaseProps>|"button"|"li"|"span";
   disableRipple?: boolean;
   disableTouchRipple?: boolean;
   focusRipple?: boolean;
@@ -81,6 +81,8 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
     focusVisible: false
   };
   focusVisibleTimeout: ReturnType<typeof setTimeout>|null
+  button: AnyBecauseTodo
+  ripple: AnyBecauseTodo
 
   keyDown = false; // Used to help track keyboard activation keyDown
 
@@ -89,7 +91,9 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
   focusVisibleMaxCheckTimes = 5;
 
   handleMouseDown = createRippleHandler(this, 'MouseDown', 'start', () => {
-    clearTimeout(this.focusVisibleTimeout);
+    if (this.focusVisibleTimeout) {
+      clearTimeout(this.focusVisibleTimeout);
+    }
     if (this.state.focusVisible) {
       this.setState({ focusVisible: false });
     }
@@ -97,7 +101,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
 
   handleMouseUp = createRippleHandler(this, 'MouseUp', 'stop');
 
-  handleMouseLeave = createRippleHandler(this, 'MouseLeave', 'stop', event => {
+  handleMouseLeave = createRippleHandler(this, 'MouseLeave', 'stop', (event: AnyBecauseTodo) => {
     if (this.state.focusVisible) {
       event.preventDefault();
     }
@@ -110,7 +114,9 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
   handleTouchMove = createRippleHandler(this, 'TouchMove', 'stop');
 
   handleBlur = createRippleHandler(this, 'Blur', 'stop', () => {
-    clearTimeout(this.focusVisibleTimeout);
+    if (this.focusVisibleTimeout) {
+      clearTimeout(this.focusVisibleTimeout);
+    }
     if (this.state.focusVisible) {
       this.setState({ focusVisible: false });
     }
@@ -130,7 +136,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: AnyBecauseTodo, prevState: AnyBecauseTodo) {
     if (
       this.props.focusRipple &&
       !this.props.disableRipple &&
@@ -142,14 +148,16 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
   }
 
   componentWillUnmount() {
-    clearTimeout(this.focusVisibleTimeout);
+    if (this.focusVisibleTimeout) {
+      clearTimeout(this.focusVisibleTimeout);
+    }
   }
 
-  onRippleRef = node => {
+  onRippleRef = (node: AnyBecauseTodo) => {
     this.ripple = node;
   };
 
-  onFocusVisibleHandler = event => {
+  onFocusVisibleHandler = (event: AnyBecauseTodo) => {
     this.keyDown = false;
     this.setState({ focusVisible: true });
 
@@ -158,7 +166,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
     }
   };
 
-  static getDerivedStateFromProps(nextProps, prevState) {
+  static getDerivedStateFromProps(nextProps: AnyBecauseTodo, prevState: AnyBecauseTodo) {
     if (typeof prevState.focusVisible === 'undefined') {
       return {
         focusVisible: false,
@@ -180,7 +188,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
     };
   }
 
-  handleKeyDown = event => {
+  handleKeyDown = (event: AnyBecauseTodo) => {
     const { component, focusRipple, onKeyDown, onClick } = this.props;
     const key = keycode(event);
 
@@ -212,7 +220,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
     }
   };
 
-  handleKeyUp = event => {
+  handleKeyUp = (event: AnyBecauseTodo) => {
     if (
       this.props.focusRipple &&
       keycode(event) === 'space' &&
@@ -230,7 +238,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
     }
   };
 
-  handleFocus = event => {
+  handleFocus = (event: AnyBecauseTodo) => {
     if (this.props.disabled) {
       return;
     }
@@ -286,14 +294,14 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
       {
         [classes.disabled]: disabled,
         [classes.focusVisible]: this.state.focusVisible,
-        [focusVisibleClassName]: this.state.focusVisible,
       },
+      this.state.focusVisible && focusVisibleClassName,
       classNameProp,
     );
 
-    const buttonProps = {};
+    const buttonProps: AnyBecauseTodo = {};
 
-    let ComponentProp = component;
+    let ComponentProp: AnyBecauseTodo = component;
 
     if (ComponentProp === 'button' && other.href) {
       ComponentProp = 'a';
@@ -333,7 +341,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
   }
 }
 
-ButtonBase.defaultProps = {
+(ButtonBase as any).defaultProps = {
   centerRipple: false,
   component: 'button',
   disableRipple: false,

@@ -1,13 +1,13 @@
 // @inheritedComponent FormLabel
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import FormLabel from '../FormLabel';
 import { formControlState } from '../InputBase/InputBase';
 import { StandardProps } from '..';
 import { FormLabelProps } from '../FormLabel/FormLabel';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { FormControlContext } from '../FormControl/FormControl';
 
 export interface InputLabelProps extends StandardProps<FormLabelProps, InputLabelClassKey> {
   disableAnimation?: boolean;
@@ -94,21 +94,19 @@ export const styles = defineStyles("MuiInputLabel", theme => ({
   },
 }), {stylePriority: -10});
 
-function InputLabel(props: InputLabelProps, context) {
+function InputLabel(props: InputLabelProps) {
   const {
     children,
     classes: classesOverride,
     className: classNameProp,
-    disableAnimation,
+    disableAnimation=false,
     FormLabelClasses,
-    margin: marginProp,
     shrink: shrinkProp,
     variant: variantProp,
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
-
-  const { muiFormControl } = context;
+  const muiFormControl = useContext(FormControlContext);
 
   let shrink = shrinkProp;
   if (typeof shrink === 'undefined' && muiFormControl) {
@@ -140,13 +138,5 @@ function InputLabel(props: InputLabelProps, context) {
     </FormLabel>
   );
 }
-
-InputLabel.defaultProps = {
-  disableAnimation: false,
-};
-
-InputLabel.contextTypes = {
-  muiFormControl: PropTypes.object,
-};
 
 export default InputLabel;

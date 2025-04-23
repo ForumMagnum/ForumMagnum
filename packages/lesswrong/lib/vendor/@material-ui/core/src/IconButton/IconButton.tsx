@@ -1,17 +1,15 @@
 // @inheritedComponent ButtonBase
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
-import { capitalize } from '../utils/helpers';
 import { StandardProps } from '..';
 import { ButtonBaseProps } from '../ButtonBase/ButtonBase';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface IconButtonProps extends StandardProps<ButtonBaseProps, IconButtonClassKey> {
-  color?: PropTypes.Color;
+  color?: "default"|"inherit"|"primary"|"secondary"
   disabled?: boolean;
   disableRipple?: boolean;
 }
@@ -93,7 +91,7 @@ export const styles = defineStyles("MuiIconButton", theme => ({
  * regarding the available icon options.
  */
 function IconButton(props: IconButtonProps) {
-  const { children, classes: classesOverride, className, color, disabled, ...other } = props;
+  const { children, classes: classesOverride, className, color="default", disabled=false, ...other } = props;
   const classes = useStyles(styles, classesOverride);
 
   return (
@@ -101,7 +99,9 @@ function IconButton(props: IconButtonProps) {
       className={classNames(
         classes.root,
         {
-          [classes[`color${capitalize(color)}`]]: color !== 'default',
+          [classes.colorPrimary]: color === 'primary',
+          [classes.colorSecondary]: color === 'primary',
+          [classes.colorInherit]: color === 'inherit',
           [classes.disabled]: disabled,
         },
         className,
@@ -115,10 +115,5 @@ function IconButton(props: IconButtonProps) {
     </ButtonBase>
   );
 }
-
-IconButton.defaultProps = {
-  color: 'default',
-  disabled: false,
-};
 
 export default IconButton;

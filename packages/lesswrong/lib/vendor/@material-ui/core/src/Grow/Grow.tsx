@@ -10,7 +10,7 @@ export interface GrowProps extends Omit<TransitionProps, 'timeout'> {
 }
 
 
-function getScale(value) {
+function getScale(value: number) {
   return `scale(${value}, ${value ** 2})`;
 }
 
@@ -33,12 +33,13 @@ const styles = {
  */
 class Grow extends React.Component<GrowProps & {theme: ThemeType}> {
   timer: ReturnType<typeof setTimeout>
+  autoTimeout: AnyBecauseTodo
 
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
-  handleEnter = node => {
+  handleEnter = (node: AnyBecauseTodo) => {
     const { theme, timeout='auto' } = this.props;
     reflow(node); // So the animation always start from the start.
 
@@ -69,7 +70,7 @@ class Grow extends React.Component<GrowProps & {theme: ThemeType}> {
     }
   };
 
-  handleExit = node => {
+  handleExit = (node: AnyBecauseTodo) => {
     const { theme, timeout='auto' } = this.props;
     let duration = 0;
 
@@ -102,7 +103,7 @@ class Grow extends React.Component<GrowProps & {theme: ThemeType}> {
     }
   };
 
-  addEndListener = (_, next) => {
+  addEndListener = (_: AnyBecauseTodo, next: AnyBecauseTodo) => {
     if (this.props.timeout === 'auto') {
       this.timer = setTimeout(next, this.autoTimeout || 0);
     }

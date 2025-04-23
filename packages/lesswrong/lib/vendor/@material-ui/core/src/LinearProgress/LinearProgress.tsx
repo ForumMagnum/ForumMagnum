@@ -190,7 +190,7 @@ export const styles = defineStyles("MuiLinearProgress", theme => ({
  * attribute to `true` on that region until it has finished loading.
  */
 function LinearProgress(props: LinearProgressProps) {
-  const { classes: classesOverride, className: classNameProp, color, value, valueBuffer, variant, ...other } = props;
+  const { classes: classesOverride, className: classNameProp, color='primary', value, valueBuffer, variant='indeterminate', ...other } = props;
   const classes = useStyles(styles, classesOverride);
 
   const className = classNames(
@@ -223,8 +223,8 @@ function LinearProgress(props: LinearProgressProps) {
     [classes.bar2Determinate]: variant === 'determinate',
     [classes.bar2Buffer]: variant === 'buffer',
   });
-  const rootProps = {};
-  const inlineStyles = { bar1: {}, bar2: {} };
+  const rootProps: AnyBecauseTodo = {};
+  const inlineStyles: AnyBecauseTodo = { bar1: {}, bar2: {} };
 
   if (variant === 'determinate' || variant === 'buffer') {
     if (value !== undefined) {
@@ -260,10 +260,5 @@ function LinearProgress(props: LinearProgressProps) {
     </div>
   );
 }
-
-LinearProgress.defaultProps = {
-  color: 'primary',
-  variant: 'indeterminate',
-};
 
 export default LinearProgress;

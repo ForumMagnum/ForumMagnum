@@ -45,11 +45,15 @@ export const styles = defineStyles("MuiCollapse", theme => ({
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
 class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof styles>> {
+  timer: AnyBecauseTodo
+  wrapperRef: AnyBecauseTodo
+  autoTransitionDuration: AnyBecauseTodo
+
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
 
-  handleEnter = node => {
+  handleEnter = (node: AnyBecauseTodo) => {
     node.style.height = this.props.collapsedHeight;
 
     if (this.props.onEnter) {
@@ -57,7 +61,7 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
     }
   };
 
-  handleEntering = node => {
+  handleEntering = (node: AnyBecauseTodo) => {
     const { timeout, theme } = this.props;
     const wrapperHeight = this.wrapperRef ? this.wrapperRef.clientHeight : 0;
 
@@ -81,7 +85,7 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
     }
   };
 
-  handleEntered = node => {
+  handleEntered = (node: AnyBecauseTodo) => {
     node.style.height = 'auto';
 
     if (this.props.onEntered) {
@@ -89,7 +93,7 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
     }
   };
 
-  handleExit = node => {
+  handleExit = (node: AnyBecauseTodo) => {
     const wrapperHeight = this.wrapperRef ? this.wrapperRef.clientHeight : 0;
     node.style.height = `${wrapperHeight}px`;
 
@@ -98,7 +102,7 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
     }
   };
 
-  handleExiting = node => {
+  handleExiting = (node: AnyBecauseTodo) => {
     const { timeout, theme } = this.props;
     const wrapperHeight = this.wrapperRef ? this.wrapperRef.clientHeight : 0;
 

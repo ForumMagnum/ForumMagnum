@@ -2,7 +2,10 @@ import keycode from 'keycode';
 import warning from 'warning';
 import ownerDocument from '../utils/ownerDocument';
 
-const internal = {
+const internal: {
+  focusKeyPressed: boolean,
+  keyUpEventTimeout: ReturnType<typeof setTimeout>|number
+}= {
   focusKeyPressed: false,
   keyUpEventTimeout: -1,
 };
@@ -39,11 +42,11 @@ export function detectFocusVisible(
 
 const FOCUS_KEYS = ['tab', 'enter', 'space', 'esc', 'up', 'down', 'left', 'right'];
 
-function isFocusKey(event) {
+function isFocusKey(event: AnyBecauseTodo) {
   return FOCUS_KEYS.indexOf(keycode(event)) > -1;
 }
 
-const handleKeyUpEvent = event => {
+const handleKeyUpEvent = (event: AnyBecauseTodo) => {
   if (isFocusKey(event)) {
     internal.focusKeyPressed = true;
 

@@ -8,6 +8,7 @@ import Textarea from './Textarea';
 import { isFilled } from './utils';
 import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 import { StandardProps } from '..';
+import { FormControlContext } from '../FormControl/FormControl';
 
 export interface InputBaseProps
   extends StandardProps<
@@ -220,10 +221,13 @@ export function formControlState({ props, states, context }) {
  * It contains a load of style reset and some state logic.
  */
 class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof styles>> {
+  static contextType = FormControlContext
+  declare context: React.ContextType<typeof FormControlContext>;
+
   isControlled: boolean
 
-  constructor(props: InputBaseProps & WithStylesProps<typeof styles>, context) {
-    super(props, context);
+  constructor(props: InputBaseProps & WithStylesProps<typeof styles>) {
+    super(props);
     this.isControlled = props.value != null;
     if (this.isControlled) {
       this.checkDirty(props);
@@ -266,14 +270,6 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
   state = {
     focused: false,
   };
-
-  getChildContext() {
-    // We are consuming the parent muiFormControl context.
-    // We don't want a child to consume it a second time.
-    return {
-      muiFormControl: null,
-    };
-  }
 
   componentDidMount() {
     if (!this.isControlled) {
@@ -386,13 +382,13 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       disabled,
       endAdornment,
       error,
-      fullWidth,
+      fullWidth=false,
       id,
-      inputComponent,
+      inputComponent='input',
       inputProps: { className: inputPropsClassName, ...inputPropsProp } = {},
       inputRef,
       margin,
-      multiline,
+      multiline=false,
       name,
       onBlur,
       onChange,
@@ -408,7 +404,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       rows,
       rowsMax,
       startAdornment,
-      type,
+      type='text',
       value,
       ...other
     } = this.props;
@@ -485,55 +481,43 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
     }
 
     return (
-      <div className={className} onClick={this.handleClick} {...other}>
-        {renderPrefix
-          ? renderPrefix({
-              ...fcs,
-              startAdornment,
-              focused: this.state.focused,
-            })
-          : null}
-        {startAdornment}
-        <InputComponent
-          aria-invalid={fcs.error}
-          autoComplete={autoComplete}
-          autoFocus={autoFocus}
-          className={inputClassName}
-          defaultValue={defaultValue}
-          disabled={fcs.disabled}
-          id={id}
-          name={name}
-          onBlur={this.handleBlur}
-          onChange={this.handleChange}
-          onFocus={this.handleFocus}
-          onKeyDown={onKeyDown}
-          onKeyUp={onKeyUp}
-          placeholder={placeholder}
-          readOnly={readOnly}
-          required={fcs.required}
-          rows={rows}
-          value={value}
-          {...inputProps}
-        />
-        {endAdornment}
-      </div>
+      <FormControlContext.Provider value={null}>
+        {/* We are consuming the parent muiFormControl context. We don't want a child to consume it a second time. */}
+        <div className={className} onClick={this.handleClick} {...other}>
+          {renderPrefix
+            ? renderPrefix({
+                ...fcs,
+                startAdornment,
+                focused: this.state.focused,
+              })
+            : null}
+          {startAdornment}
+          <InputComponent
+            aria-invalid={fcs.error}
+            autoComplete={autoComplete}
+            autoFocus={autoFocus}
+            className={inputClassName}
+            defaultValue={defaultValue}
+            disabled={fcs.disabled}
+            id={id}
+            name={name}
+            onBlur={this.handleBlur}
+            onChange={this.handleChange}
+            onFocus={this.handleFocus}
+            onKeyDown={onKeyDown}
+            onKeyUp={onKeyUp}
+            placeholder={placeholder}
+            readOnly={readOnly}
+            required={fcs.required}
+            rows={rows}
+            value={value}
+            {...inputProps}
+          />
+          {endAdornment}
+        </div>
+      </FormControlContext.Provider>
     );
   }
 }
-
-InputBase.defaultProps = {
-  fullWidth: false,
-  inputComponent: 'input',
-  multiline: false,
-  type: 'text',
-};
-
-InputBase.contextTypes = {
-  muiFormControl: PropTypes.object,
-};
-
-InputBase.childContextTypes = {
-  muiFormControl: PropTypes.object,
-};
 
 export default withStyles(styles, InputBase);

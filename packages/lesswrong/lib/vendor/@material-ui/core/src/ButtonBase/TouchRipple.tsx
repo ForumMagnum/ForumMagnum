@@ -110,7 +110,10 @@ export const styles = defineStyles("MuiTouchRipple", theme => ({
   },
 }), {stylePriority: -10});
 
-class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps<typeof styles>> {
+class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps<typeof styles>, {
+  ripples: AnyBecauseTodo
+  nextKey: AnyBecauseTodo
+}> {
   // Used to filter out mouse emulated events on mobile.
   ignoringMouseDown = false;
 
@@ -128,14 +131,16 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
   };
 
   componentWillUnmount() {
-    clearTimeout(this.startTimer);
+    if (this.startTimer) {
+      clearTimeout(this.startTimer);
+    }
   }
 
   pulsate = () => {
     this.start({}, { pulsate: true });
   };
 
-  start = (event = {}, options = {}, cb) => {
+  start = (event: AnyBecauseTodo = {}, options: AnyBecauseTodo = {}, cb?: AnyBecauseTodo) => {
     const {
       pulsate = false,
       center = this.props.center || options.pulsate,
@@ -151,7 +156,7 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
       this.ignoringMouseDown = true;
     }
 
-    const element = fakeElement ? null : ReactDOM.findDOMNode(this);
+    const element: Element|null = fakeElement ? null : ReactDOM.findDOMNode(this);
     const rect = element
       ? element.getBoundingClientRect()
       : {
@@ -213,7 +218,7 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
     }
   };
 
-  startCommit = params => {
+  startCommit = (params: AnyBecauseTodo) => {
     const { pulsate, rippleX, rippleY, rippleSize, cb } = params;
 
     this.setState(state => {
@@ -224,10 +229,6 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
           <Ripple
             key={state.nextKey}
             classes={this.props.classes}
-            timeout={{
-              exit: DURATION,
-              enter: DURATION,
-            }}
             pulsate={pulsate}
             rippleX={rippleX}
             rippleY={rippleY}
@@ -238,8 +239,10 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
     }, cb);
   };
 
-  stop = (event, cb) => {
-    clearTimeout(this.startTimer);
+  stop = (event: AnyBecauseTodo, cb: AnyBecauseTodo) => {
+    if (this.startTimer) {
+      clearTimeout(this.startTimer);
+    }
     const { ripples } = this.state;
 
     // The touch interaction occurs too quickly.

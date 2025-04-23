@@ -1,21 +1,19 @@
 // @inheritedComponent Input
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
 import SelectInput, { SelectInputProps } from './SelectInput';
-import ArrowDropDownIcon from '../internal/svg-icons/ArrowDropDown';
 // To replace with InputBase in v4.0.0
 import Input from '../Input';
 import { formControlState } from '../InputBase/InputBase';
 import { StandardProps } from '..';
 import { InputProps } from '../Input/Input';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { FormControlContext } from '../FormControl/FormControl';
 
 export interface SelectProps
   extends StandardProps<InputProps, SelectClassKey, 'value' | 'onChange'>,
     Pick<SelectInputProps, 'onChange'> {
   displayEmpty?: boolean;
-  IconComponent?: React.ComponentType;
   input?: React.ReactNode;
   multiple?: boolean;
   onClose?: (event: React.ChangeEvent<{}>) => void;
@@ -104,16 +102,14 @@ export const styles = defineStyles("MuiSelect", theme => ({
   },
 }), {stylePriority: -10});
 
-function Select(props: SelectProps, context) {
+function Select(props: SelectProps) {
   const {
-    autoWidth=false,
     children,
     classes: classesOverride,
-    displayEmpty,
-    IconComponent,
-    input,
+    displayEmpty=false,
+    input=<Input />,
     inputProps,
-    multiple,
+    multiple=false,
     onClose,
     onOpen,
     open,
@@ -123,11 +119,12 @@ function Select(props: SelectProps, context) {
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
+  const muiFormControl = useContext(FormControlContext);
 
   const inputComponent = SelectInput;
   const fcs = formControlState({
     props,
-    context,
+    context: {muiFormControl},
     states: ['variant'],
   });
 
@@ -137,11 +134,9 @@ function Select(props: SelectProps, context) {
     inputComponent,
     inputProps: {
       children,
-      IconComponent,
       variant: fcs.variant,
       type: undefined, // We render a select. We can ignore the type provided by the `Input`.
       ...({
-        autoWidth,
         displayEmpty,
         multiple,
         onClose,
@@ -157,17 +152,6 @@ function Select(props: SelectProps, context) {
     ...other,
   });
 }
-
-Select.defaultProps = {
-  displayEmpty: false,
-  IconComponent: ArrowDropDownIcon,
-  input: <Input />,
-  multiple: false,
-};
-
-Select.contextTypes = {
-  muiFormControl: PropTypes.object,
-};
 
 Select.muiName = 'Select';
 

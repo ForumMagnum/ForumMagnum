@@ -165,15 +165,15 @@ export const styles = defineStyles("MuiSlider", theme => {
   };
 }, {stylePriority: -10});
 
-function percentToValue(percent, min, max) {
+function percentToValue(percent: number, min: number, max: number) {
   return ((max - min) * percent) / 100 + min;
 }
 
-function roundToStep(number, step) {
+function roundToStep(number: number, step: number) {
   return Math.round(number / step) * step;
 }
 
-function getOffset(node) {
+function getOffset(node: Element) {
   const { pageYOffset, pageXOffset } = global;
   const { left, top } = node.getBoundingClientRect();
 
@@ -183,7 +183,7 @@ function getOffset(node) {
   };
 }
 
-function getMousePosition(event) {
+function getMousePosition(event: AnyBecauseTodo) {
   if (event.changedTouches && event.changedTouches[0]) {
     return {
       x: event.changedTouches[0].pageX,
@@ -197,7 +197,7 @@ function getMousePosition(event) {
   };
 }
 
-function calculatePercent(node, event, isVertical, isRtl) {
+function calculatePercent(node: Element, event: AnyBecauseTodo, isVertical: boolean, isRtl: boolean) {
   const { width, height } = node.getBoundingClientRect();
   const { top, left } = getOffset(node);
   const { x, y } = getMousePosition(event);
@@ -208,16 +208,18 @@ function calculatePercent(node, event, isVertical, isRtl) {
   return isRtl && !isVertical ? 100 - clamp(value / onePercent) : clamp(value / onePercent);
 }
 
-function preventPageScrolling(event) {
+function preventPageScrolling(event: AnyBecauseTodo) {
   event.preventDefault();
 }
 
 class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles>> {
+  containerRef: AnyBecauseTodo
+
   state = {
     currentState: 'initial',
   };
 
-  jumpAnimationTimeoutId = -1;
+  jumpAnimationTimeoutId: AnyBecauseTodo = -1;
 
   componentDidMount() {
     if (this.containerRef) {
@@ -232,7 +234,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     clearTimeout(this.jumpAnimationTimeoutId);
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
+  static getDerivedStateFromProps(nextProps: AnyBecauseTodo, prevState: AnyBecauseTodo) {
     if (nextProps.disabled) {
       return { currentState: 'disabled' };
     }
@@ -244,8 +246,8 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     return null;
   }
 
-  handleKeyDown = event => {
-    const { min, max, value: currentValue } = this.props;
+  handleKeyDown = (event: AnyBecauseTodo) => {
+    const { min=0, max=100, value: currentValue=0 } = this.props;
 
     const onePercent = Math.abs((max - min) / 100);
     const step = this.props.step || onePercent;
@@ -291,9 +293,9 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     this.setState({ currentState: 'normal' });
   };
 
-  handleClick = event => {
-    const { min, max, vertical } = this.props;
-    const percent = calculatePercent(this.containerRef, event, vertical, this.isReverted());
+  handleClick = (event: AnyBecauseTodo) => {
+    const { min=0, max=100, vertical } = this.props;
+    const percent = calculatePercent(this.containerRef, event, !!vertical, this.isReverted());
     const value = percentToValue(percent, min, max);
 
     this.emitChange(event, value, () => {
@@ -301,7 +303,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     });
   };
 
-  handleTouchStart = event => {
+  handleTouchStart = (event: AnyBecauseTodo) => {
     event.preventDefault();
     this.setState({ currentState: 'activated' });
 
@@ -312,7 +314,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     }
   };
 
-  handleMouseDown = event => {
+  handleMouseDown = (event: AnyBecauseTodo) => {
     event.preventDefault();
     this.setState({ currentState: 'activated' });
 
@@ -324,7 +326,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     }
   };
 
-  handleMouseUp = event => {
+  handleMouseUp = (event: AnyBecauseTodo) => {
     this.setState({ currentState: 'normal' });
 
     document.body.removeEventListener('mousemove', this.handleMouseMove);
@@ -336,15 +338,15 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     }
   };
 
-  handleMouseMove = event => {
+  handleMouseMove = (event: AnyBecauseTodo) => {
     const { min, max, vertical } = this.props;
-    const percent = calculatePercent(this.containerRef, event, vertical, this.isReverted());
+    const percent = calculatePercent(this.containerRef, event, !!vertical, this.isReverted());
     const value = percentToValue(percent, min, max);
 
     this.emitChange(event, value);
   };
 
-  emitChange(event, rawValue, callback) {
+  emitChange(event: AnyBecauseTodo, rawValue: AnyBecauseTodo, callback?: AnyBecauseTodo) {
     const { step, value: previousValue, onChange, disabled } = this.props;
     let value = rawValue;
 
@@ -367,7 +369,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     }
   }
 
-  calculateTrackAfterStyles(percent) {
+  calculateTrackAfterStyles(percent: number) {
     const { currentState } = this.state;
 
     switch (currentState) {
@@ -380,7 +382,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     }
   }
 
-  calculateTrackBeforeStyles(percent) {
+  calculateTrackBeforeStyles(percent: number) {
     const { currentState } = this.state;
 
     switch (currentState) {
@@ -409,17 +411,15 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     const {
       className: classNameProp,
       classes,
-      component: Component,
-      thumb: thumbIcon,
       disabled,
-      max,
-      min,
+      max=100,
+      min=0,
       onChange,
       onDragEnd,
       onDragStart,
       step,
       theme,
-      value,
+      value=0,
       vertical,
       ...other
     } = this.props;
@@ -461,25 +461,10 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     const inlineTrackAfterStyles = { [trackProperty]: this.calculateTrackAfterStyles(percent) };
     const inlineThumbStyles = { [thumbProperty]: `${percent}%` };
 
-    /** Start Thumb Icon Logic Here */
-    const ThumbIcon = thumbIcon
-      ? React.cloneElement(thumbIcon, {
-          ...thumbIcon.props,
-          className: classNames(thumbIcon.props.className, classes.thumbIcon),
-        })
-      : null;
-    /** End Thumb Icon Logic Here */
-
-    const thumbClasses = classNames(
-      classes.thumb,
-      {
-        [classes.thumbIconWrapper]: thumbIcon,
-      },
-      commonClasses,
-    );
+    const thumbClasses = classNames(classes.thumb, commonClasses);
 
     return (
-      <Component
+      <div
         role="slider"
         className={className}
         aria-valuenow={value}
@@ -506,20 +491,12 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
             onTouchStartCapture={this.handleTouchStart}
             onTouchMove={this.handleMouseMove}
             onFocusVisible={this.handleFocus}
-          >
-            {ThumbIcon}
-          </ButtonBase>
+          />
           <div className={trackAfterClasses} style={inlineTrackAfterStyles} />
         </div>
-      </Component>
+      </div>
     );
   }
 }
-
-Slider.defaultProps = {
-  min: 0,
-  max: 100,
-  component: 'div',
-};
 
 export default withStyles(styles, withTheme(Slider));

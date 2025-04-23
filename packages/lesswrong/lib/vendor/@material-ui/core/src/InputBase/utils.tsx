@@ -4,7 +4,7 @@
 // @see https://facebook.github.io/react/docs/forms.html#controlled-components
 // @param value
 // @returns {boolean} true if string (including '') or number (including zero)
-export function hasValue(value) {
+export function hasValue(value: AnyBecauseTodo) {
   return value != null && !(Array.isArray(value) && value.length === 0);
 }
 
@@ -15,7 +15,7 @@ export function hasValue(value) {
 // @param SSR
 // @returns {boolean} False when not present or empty string.
 //                    True when any number or string with length.
-export function isFilled(obj, SSR = false) {
+export function isFilled(obj: AnyBecauseTodo, SSR = false) {
   return (
     obj &&
     ((hasValue(obj.value) && obj.value !== '') ||
@@ -29,6 +29,6 @@ export function isFilled(obj, SSR = false) {
 // @param obj
 // @returns {boolean} False when no adornments.
 //                    True when adorned at the start.
-export function isAdornedStart(obj) {
+export function isAdornedStart(obj: AnyBecauseTodo) {
   return obj.startAdornment;
 }

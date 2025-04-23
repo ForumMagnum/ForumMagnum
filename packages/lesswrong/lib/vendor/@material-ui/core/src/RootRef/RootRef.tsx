@@ -4,6 +4,7 @@ import { setRef } from '../utils/reactHelpers';
 
 export interface RootRefProps<T = any> {
   rootRef?: ((instance: T | null) => void) | React.RefObject<T>;
+  children: React.ReactNode
 }
 
 /**
@@ -37,12 +38,14 @@ export interface RootRefProps<T = any> {
  * ```
  */
 class RootRef extends React.Component<RootRefProps> {
+  ref: AnyBecauseTodo
+
   componentDidMount() {
     this.ref = ReactDOM.findDOMNode(this);
     setRef(this.props.rootRef, this.ref);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: RootRefProps) {
     const ref = ReactDOM.findDOMNode(this);
 
     if (prevProps.rootRef !== this.props.rootRef || this.ref !== ref) {

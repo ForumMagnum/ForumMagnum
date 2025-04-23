@@ -14,7 +14,7 @@ export interface TextareaProps
     > {
   defaultValue?: any;
   disabled?: boolean;
-  rows?: string | number;
+  rows?: number;
   rowsMax?: string | number;
   textareaRef?: React.Ref<any> | React.RefObject<any>;
   value?: string;
@@ -58,8 +58,14 @@ export const styles = defineStyles("MuiTextarea", theme => ({
 /**
  * @ignore - internal component.
  */
-class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof styles>> {
+class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof styles>,{
+  height: number
+}> {
   isControlled: boolean
+  value: AnyBecauseTodo
+  inputRef: AnyBecauseTodo
+  shadowRef: AnyBecauseTodo
+  singlelineShadowRef: AnyBecauseTodo
 
   handleResize = debounce(() => {
     this.syncHeightWithShadow();
@@ -88,21 +94,21 @@ class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof st
     this.handleResize.clear();
   }
 
-  handleRefInput = ref => {
+  handleRefInput = (ref: AnyBecauseTodo) => {
     this.inputRef = ref;
 
     setRef(this.props.textareaRef, ref);
   };
 
-  handleRefSinglelineShadow = ref => {
+  handleRefSinglelineShadow = (ref: AnyBecauseTodo) => {
     this.singlelineShadowRef = ref;
   };
 
-  handleRefShadow = ref => {
+  handleRefShadow = (ref: AnyBecauseTodo) => {
     this.shadowRef = ref;
   };
 
-  handleChange = event => {
+  handleChange = (event: AnyBecauseTodo) => {
     this.value = event.target.value;
 
     if (!this.isControlled) {
@@ -176,7 +182,7 @@ class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof st
           className={classnames(classes.textarea, classes.shadow)}
           readOnly
           ref={this.handleRefSinglelineShadow}
-          rows="1"
+          rows={1}
           tabIndex={-1}
           value=""
         />
@@ -205,7 +211,7 @@ class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof st
   }
 }
 
-Textarea.defaultProps = {
+(Textarea as any).defaultProps = {
   rows: 1,
 };
 
