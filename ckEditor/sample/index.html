@@ -45,9 +45,54 @@
 </div>
 <a onClick="console.log(window.CKEditorComment.getData())"> Log Contents </a>
 <script src="../build/ckeditor.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script> -->
+<script src="https://unpkg.com/@ckeditor/ckeditor5-inspector/build/inspector.js"></script>
 <script>
-	CKEditor.PostEditor.create( document.querySelector( '#editor' ) )
+	// TODO revert
+	console.log({CKEditor})
+	const postEditorToolbarConfig = {
+		blockToolbar: {
+			items: [
+			'imageUpload',
+			'insertTable',
+			'horizontalLine',
+			'mathDisplay',
+			'mediaEmbed',
+			'ctaButtonToolbarItem', 
+			'pollToolbarItem',
+			'footnote',
+			'insertClaimButton', 
+			],
+			icon: 'pilcrow'
+		},
+		toolbar: {
+			items: [
+			'restyledCommentButton',
+			'|',
+			'heading',
+			'|',
+			'bold',
+			'italic',
+			'strikethrough',
+			'|',
+			'link',
+			'|',
+			'blockQuote',
+			'bulletedList',
+			'numberedList',
+			'codeBlock',
+			'|',
+			'trackChanges',
+			'math',
+			'ctaButtonToolbarItem',
+			'footnote',
+			'insertClaimButton',
+			],
+			shouldNotGroupWhenFull: true,
+		},
+	};
+
+	CKEditor.getPostEditor().create( document.querySelector( '#editor' ), postEditorToolbarConfig )
 		.then( editor => {
 			CKEditorInspector.attach(editor);
 			window.CKEditor = editor
@@ -56,15 +101,15 @@
 		.catch( err => {
 			console.error( err.stack );
 		} );
-	CKEditor.CommentEditor.create( document.querySelector( '#comment-editor' ) )
-		.then( editor => {
-			CKEditorInspector.attach(editor);
-			window.CKEditorComment = editor
-			return editor 
-		})
-		.catch( err => {
-			console.error( err.stack );
-		} );
+	// CKEditor.getCommentEditor().create( document.querySelector( '#comment-editor' ) )
+	// 	.then( editor => {
+	// 		CKEditorInspector.attach(editor);
+	// 		window.CKEditorComment = editor
+	// 		return editor 
+	// 	})
+	// 	.catch( err => {
+	// 		console.error( err.stack );
+	// 	} );
 </script>
 
 </body>
