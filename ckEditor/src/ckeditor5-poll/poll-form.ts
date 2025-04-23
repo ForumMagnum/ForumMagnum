@@ -10,7 +10,7 @@ import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
 import KeystrokeHandler from "@ckeditor/ckeditor5-utils/src/keystrokehandler";
 import FocusTracker from "@ckeditor/ckeditor5-utils/src/focustracker";
-import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
+import FocusCycler, { FocusableView } from "@ckeditor/ckeditor5-ui/src/focuscycler";
 
 import type { Editor } from "@ckeditor/ckeditor5-core";
 import type { Locale } from "@ckeditor/ckeditor5-utils";
@@ -20,11 +20,10 @@ import type Writer from "@ckeditor/ckeditor5-engine/src/model/writer";
 import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 
 import './poll.css';
-import { POLL_CLASS, PollProps } from "./constants";
+import { PollProps } from "./constants";
 
 // TODO clean up comments
 
-// TODO ideally define this outside ckeditor
 export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
   { darkColor: '#06005C', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
   { darkColor: '#1D2A17', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
@@ -35,19 +34,17 @@ export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
 class MainFormView extends View {
   editor: Editor
   selectedElement: (Element | RootElement)
-  questionView: AnyBecauseTodo
-  agreeWordingView: AnyBecauseTodo
-  disagreeWordingView: AnyBecauseTodo
+  questionView: InputTextView
+  agreeWordingView: InputTextView
+  disagreeWordingView: InputTextView
   colorSchemeButtons: ButtonView[]
   daysInputView: InputTextView
   hoursInputView: InputTextView
   minutesInputView: InputTextView
-  previewEnabled: AnyBecauseTodo
-  _focusables: AnyBecauseTodo
-  focusTracker: AnyBecauseTodo
+  _focusables: ViewCollection<FocusableView>
+  focusTracker: FocusTracker
   keystrokes: KeystrokeHandler
   _focusCycler: FocusCycler
-  label: AnyBecauseTodo
   locale: Locale
 
   constructor(locale: Locale, editor: Editor) {
@@ -74,8 +71,6 @@ class MainFormView extends View {
     this.daysInputView = daysInputView;
     this.hoursInputView = hoursInputView;
     this.minutesInputView = minutesInputView;
-
-    this.previewEnabled = true;
 
     this.setTemplate({
       tag: "form",
@@ -469,7 +464,7 @@ class MainFormView extends View {
       agreeWordingView,
       disagreeWordingView,
       colorSchemeButtons,
-      daysInputView,     // Return duration inputs
+      daysInputView,
       hoursInputView,
       minutesInputView
     };
@@ -480,8 +475,8 @@ class MainFormView extends View {
  * Plugin for the form to edit the text and link of a CTA button
  */
 export default class PollForm extends Plugin {
-  formView: AnyBecauseTodo
-  _balloon: AnyBecauseTodo
+  formView: MainFormView
+  _balloon: ContextualBalloon
 
   static get requires() {
     return [ContextualBalloon];
