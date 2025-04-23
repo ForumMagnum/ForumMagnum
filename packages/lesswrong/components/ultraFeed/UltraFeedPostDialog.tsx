@@ -127,24 +127,51 @@ const UltraFeedPostDialog = ({
   const appliedHashRef = useRef<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true; 
     if (!isLoading && textFragment && textFragment !== appliedHashRef.current) {
-      console.log('[TextFragment] Applying hash:', textFragment, 'isLoading:', isLoading);
-      if (previousHashRef.current === null) {
-         previousHashRef.current = window.location.hash;
-      }
-      
-      window.history.replaceState(null, "", textFragment);
-      appliedHashRef.current = textFragment;
-    }
+      const timeoutId = setTimeout(() => {
+        if (isMounted && !isLoading && textFragment && textFragment !== appliedHashRef.current) {
+            console.log('[TextFragment] Applying hash via window.location.hash (after delay):', textFragment, 'isLoading:', isLoading);
+            if (previousHashRef.current === null) { 
+               previousHashRef.current = window.location.hash; 
+               console.log('[TextFragment] Saved previous hash:', previousHashRef.current);
+            }
+            
+            // Use direct hash assignment
+            window.location.hash = textFragment; 
+            // Removed window.scrollTo(0, 0);
+            appliedHashRef.current = textFragment; 
+        }
+      }, 10); 
 
+      return () => {
+        isMounted = false; 
+        clearTimeout(timeoutId);
+      };
+    } else {
+      if (isLoading) console.log('[TextFragment] Did not attempt hash assignment: Still loading.');
+      else if (!textFragment) console.log('[TextFragment] Did not attempt hash assignment: No textFragment provided.');
+      else if (textFragment === appliedHashRef.current) console.log('[TextFragment] Did not attempt hash assignment: Already applied.');
+    }
+    return () => { isMounted = false; }; 
   }, [textFragment, isLoading]);
 
+  // Effect specifically for cleanup on unmount
   useEffect(() => {
       return () => {
-          if (previousHashRef.current !== null && window.location.hash !== previousHashRef.current) {
-              console.log('[TextFragment] Restoring hash on unmount:', previousHashRef.current);
-              window.history.replaceState(null, "", previousHashRef.current);
-          }
+          console.log('[TextFragment] Cleanup effect running.');
+          const currentHash = window.location.hash;
+          const originalHash = previousHashRef.current;
+          console.log('[TextFragment] Current hash on cleanup:', currentHash);
+          console.log('[TextFragment] Original hash saved:', originalHash);
+
+          const restoreTo = originalHash || "";
+          console.log(`[TextFragment] Attempting to restore hash via replaceState to: "${restoreTo}"`);
+          // Use replaceState for restoration
+          window.history.replaceState(null, "", restoreTo);
+          // Removed window.scrollTo(0, 0);
+          
+          appliedHashRef.current = null; 
       };
   }, []);
 

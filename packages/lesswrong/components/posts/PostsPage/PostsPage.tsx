@@ -534,7 +534,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     // sharing links with the popup open
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+    // navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   }, [navigate, location.location, openDialog, fullPost, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
@@ -628,7 +628,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined,
       [VERTEX_ATTRIBUTION_ID_QUERY_PARAM]: undefined
     };
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
+    // navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
@@ -674,7 +674,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   
   useEffect(() => {
     if (isDebateResponseLink) {
-      navigate({ ...location.location, hash: `#debate-comment-${linkedCommentId}` }, {replace: true});
+      // navigate({ ...location.location, hash: `#debate-comment-${linkedCommentId}` }, {replace: true});
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps
