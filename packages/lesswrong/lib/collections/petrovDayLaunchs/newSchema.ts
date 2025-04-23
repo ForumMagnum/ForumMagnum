@@ -11,7 +11,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -48,6 +48,6 @@ const schema = {
       },
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"PetrovDayLaunchs">>;
+} satisfies Record<string, CollectionFieldSpecification<"PetrovDayLaunchs">>;
 
 export default schema;

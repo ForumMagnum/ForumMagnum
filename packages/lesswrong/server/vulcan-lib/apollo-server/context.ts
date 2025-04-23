@@ -12,7 +12,7 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { allCollections } from '../../collections/allCollections';
+import { getAllCollections, getAllCollectionsByName } from '../../collections/allCollections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import * as _ from 'underscore';
@@ -80,12 +80,12 @@ export const generateDataLoaders = (): {
   loaders: Record<CollectionNameString, DataLoader<string,any>>
   extraLoaders: Record<string,any>
 } => {
-  const loaders = _.mapObject(allCollections, (collection,name) =>
-    new DataLoader(
+  const loaders = Object.fromEntries(getAllCollections().map((collection) =>
+    [collection.collectionName, new DataLoader(
       (ids: Array<string>) => findByIds(collection, ids),
       { cache: true, }
-    )
-  ) as Record<CollectionNameString, DataLoader<string,any>>;
+    )] as const
+  )) as Record<CollectionNameString, DataLoader<string,any>>;
   
   return {
     loaders,
@@ -94,12 +94,22 @@ export const generateDataLoaders = (): {
 };
 
 
-export function requestIsFromGreaterWrong(req?: Request): boolean {
+export function requestIsFromUserAgent(req: Request, userAgentPrefix: string): boolean {
   if (!req) return false;
   const userAgent = req.headers?.["user-agent"];
   if (!userAgent) return false;
   if (typeof userAgent !== "string") return false;
-  return userAgent.startsWith("Dexador");
+  return userAgent.startsWith(userAgentPrefix);
+}
+
+export function requestIsFromGreaterWrong(req?: Request): boolean {
+  if (!req) return false;
+  return requestIsFromUserAgent(req, "Dexador");
+}
+
+export function requestIsFromIssaRiceReader(req?: Request): boolean {
+  if (!req) return false;
+  return requestIsFromUserAgent(req, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
 }
 
 export const computeContextFromUser = async ({user, req, res, isSSR}: {
@@ -117,7 +127,7 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
   }
   
   let context: ResolverContext = {
-    ...allCollections,
+    ...getAllCollectionsByName(),
     ...generateDataLoaders(),
     req: req as any,
     res,
@@ -125,6 +135,7 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     isSSR,
     isGreaterWrong: requestIsFromGreaterWrong(req),
+    isIssaRiceReader: requestIsFromIssaRiceReader(req),
     repos: getAllRepos(),
     clientId,
     visitorActivity,
@@ -153,7 +164,13 @@ export function configureSentryScope(context: ResolverContext) {
   } else if (context.isGreaterWrong) {
     configureScope(scope => {
       scope.setUser({
-        username: context.isGreaterWrong ? `Logged out (via GreaterWrong)` : "Logged out",
+        username: `Logged out (via GreaterWrong)`,
+      });
+    });
+  } else if (context.isIssaRiceReader) {
+    configureScope(scope => {
+      scope.setUser({
+        username: `Logged out (via lw2.issarice.com)`
       });
     });
   }

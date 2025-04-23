@@ -118,6 +118,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: -4,
     marginBottom: -4,
     borderRadius: 2,
+    
+    ...(isFriendlyUI && {
+      color: theme.palette.primary.main
+    }),
   },
   input: {
     padding: 0,

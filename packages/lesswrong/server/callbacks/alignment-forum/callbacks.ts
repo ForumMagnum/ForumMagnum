@@ -53,7 +53,7 @@ export async function revokeUserAFKarmaForCancelledVote ({newDocument, vote}: Vo
 
 }
 
-export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
+export async function moveToAFUpdatesUserAFKarma (document: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>, oldDocument: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>) {
   if (document.af && !oldDocument.af) {
     await Users.rawUpdateOne({_id:document.userId}, {
       $inc: {afKarma: document.afBaseScore ?? 0},

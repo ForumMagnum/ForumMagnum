@@ -3,9 +3,9 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
+import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
-import { visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
@@ -43,10 +43,12 @@ const getStructuredData = () => ({
 const LWHome = () => {
   const { RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, EAPopularCommentsSection,
-    QuickTakesSection, LWHomePosts, HeadTags
+    QuickTakesSection, LWHomePosts, HeadTags, UltraFeed
   } = Components;
 
   const currentUser = useCurrentUser();
+  const [ultraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
+  const ultraFeedEnabled = userHasUltraFeed(currentUser) && ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -69,14 +71,15 @@ const LWHome = () => {
           >
             <LWHomePosts>
               <QuickTakesSection />
-    
               <EAPopularCommentsSection />
-    
-              <RecentDiscussionFeed
-                af={false}
-                commentsLimit={4}
-                maxAgeHours={18}
-              />
+              <UltraFeed />
+              {!ultraFeedEnabled && ( 
+                <RecentDiscussionFeed
+                  af={false}
+                  commentsLimit={4}
+                  maxAgeHours={18}
+                />
+              )}
             </LWHomePosts>
           </AnalyticsInViewTracker>
         </React.Fragment>

@@ -559,6 +559,21 @@ export const JargonTermsDefaultFragment = `
   }
 `;
 
+export const LWEventsDefaultFragment = `
+  fragment LWEventsDefaultFragment on LWEvent {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+    userId
+    name
+    documentId
+    important
+    properties
+    intercom
+  }
+`;
+
 export const LegacyDataDefaultFragment = `
   fragment LegacyDataDefaultFragment on LegacyData {
     _id
@@ -621,21 +636,6 @@ export const LocalgroupsDefaultFragment = `
     bannerImageId
     inactive
     deleted
-  }
-`;
-
-export const LWEventsDefaultFragment = `
-  fragment LWEventsDefaultFragment on LWEvent {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-    userId
-    name
-    documentId
-    important
-    properties
-    intercom
   }
 `;
 
@@ -1048,6 +1048,24 @@ export const PostsDefaultFragment = `
   }
 `;
 
+export const RSSFeedsDefaultFragment = `
+  fragment RSSFeedsDefaultFragment on RSSFeed {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+    userId
+    ownedByUser
+    displayFullContent
+    nickname
+    url
+    status
+    rawFeed
+    setCanonicalUrl
+    importAsDraft
+  }
+`;
+
 export const ReadStatusesDefaultFragment = `
   fragment ReadStatusesDefaultFragment on ReadStatus {
     _id
@@ -1163,24 +1181,6 @@ export const RevisionsDefaultFragment = `
     afBaseScore
     afExtendedScore
     afVoteCount
-  }
-`;
-
-export const RSSFeedsDefaultFragment = `
-  fragment RSSFeedsDefaultFragment on RSSFeed {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-    userId
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-    status
-    rawFeed
-    setCanonicalUrl
-    importAsDraft
   }
 `;
 
@@ -1473,6 +1473,28 @@ export const TypingIndicatorsDefaultFragment = `
   }
 `;
 
+export const UltraFeedEventsDefaultFragment = `
+  fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
+    _id
+    createdAt
+    documentId
+    collectionName
+    eventType
+    userId
+    event
+    feedItemId
+  }
+`;
+
+export const UserActivitiesDefaultFragment = `
+  fragment UserActivitiesDefaultFragment on UserActivity {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+  }
+`;
+
 export const UserEAGDetailsDefaultFragment = `
   fragment UserEAGDetailsDefaultFragment on UserEAGDetail {
     _id
@@ -1545,15 +1567,6 @@ export const UserTagRelsDefaultFragment = `
   }
 `;
 
-export const UserActivitiesDefaultFragment = `
-  fragment UserActivitiesDefaultFragment on UserActivity {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-  }
-`;
-
 export const UsersDefaultFragment = `
   fragment UsersDefaultFragment on User {
     _id
@@ -1569,6 +1582,7 @@ export const UsersDefaultFragment = `
     username
     emails
     isAdmin
+    profile
     services
     displayName
     previousDisplayName

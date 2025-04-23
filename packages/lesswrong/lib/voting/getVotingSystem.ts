@@ -7,7 +7,7 @@ const votingSystems: Partial<Record<string,VotingSystem>> = {
   default: defaultVotingSystem,
   twoAxis: twoAxisVotingSystem,
   namesAttachedReactions: namesAttachedReactionsVotingSystem,
-  reactionsAndLkes: reactionsAndLikesVotingSystem,
+  reactionsAndLikes: reactionsAndLikesVotingSystem,
   reactsBallot: reactsBallotVotingSystem,
   emojiReactions: emojiReactionsVotingSystem,
   eaEmojis: eaEmojisVotingSystem,

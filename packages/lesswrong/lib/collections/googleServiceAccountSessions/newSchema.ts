@@ -70,6 +70,6 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"GoogleServiceAccountSessions">>;
+} satisfies Record<string, CollectionFieldSpecification<"GoogleServiceAccountSessions">>;
 
 export default schema;

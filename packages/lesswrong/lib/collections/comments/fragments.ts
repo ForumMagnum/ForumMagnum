@@ -97,6 +97,16 @@ export const CommentsListWithTopLevelComment = () => frag`
   }
 `
 
+export const UltraFeedComment = () => frag`
+  fragment UltraFeedComment on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+      votingSystem
+    }
+  }
+`
+
 export const ShortformComments = () => frag`
   fragment ShortformComments on Comment {
     ...CommentsList

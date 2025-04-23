@@ -204,6 +204,12 @@ export const PostsListWithVotesAndSequence = () => frag`
   }
 `
 
+export const UltraFeedPostFragment = () => frag`
+  fragment UltraFeedPostFragment on Post {
+    ${PostsListWithVotes}
+  }
+`
+
 export const PostsReviewVotingList = () => frag`
   fragment PostsReviewVotingList on Post {
     ${PostsListWithVotes}

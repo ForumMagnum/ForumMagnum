@@ -557,7 +557,10 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
         }
       } else {
-        const ReplacementComponent = Components[replacement.componentName];
+        // The `AnyBecauseHard` is to avoid the type checker spending ~2 seconds
+        // uselessly checking whether you can spread `any`-typed props into 1200 different component types.
+        // (You can; we aren't getting any safety out of having it typed right now.)
+        const ReplacementComponent: AnyBecauseHard = Components[replacement.componentName];
         const replacementComponentProps = replacement.props;
         const str = replacement.replacedString;
   

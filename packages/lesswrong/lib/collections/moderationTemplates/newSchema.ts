@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getRevisionsResolver, getVersionResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
 export const ALLOWABLE_COLLECTIONS: TemplateType[] = ["Messages", "Comments", "Rejections"];
@@ -56,8 +56,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -73,8 +72,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -101,7 +99,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
@@ -119,7 +118,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {
@@ -128,6 +128,6 @@ const schema = {
     },
     form: {},
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ModerationTemplates">>;
+} satisfies Record<string, CollectionFieldSpecification<"ModerationTemplates">>;
 
 export default schema;

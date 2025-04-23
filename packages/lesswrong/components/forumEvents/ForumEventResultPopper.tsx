@@ -6,7 +6,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 
 const styles = (theme: ThemeType) => ({
   popperContent: {
