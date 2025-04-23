@@ -183,7 +183,7 @@ const UltraFeedPostItem = ({
     documentId,
     collectionName: "Posts",
     apolloClient: isForeignCrosspost ? apolloClient : undefined,
-    fragmentName: isForeignCrosspost ? "SunshinePostsList" : "PostsExpandedHighlight",
+    fragmentName: isForeignCrosspost ? "PostsPage" : "UltraFeedPostFragment",
     fetchPolicy: "cache-first",
     skip: !isLoadingFull
   });
@@ -254,13 +254,13 @@ const UltraFeedPostItem = ({
       closeOnNavigate: true,
       contents: ({ onClose }) => (
         <Components.UltraFeedPostDialog
-          postId={post._id}
+          {...(fullPost ? { post: fullPost } : { postId: post._id })}
           textFragment={textFragment}
           onClose={onClose}
         />
       )
     });
-  }, [openDialog, post._id, captureEvent]);
+  }, [openDialog, post._id, captureEvent, fullPost]);
 
   const displayHtml = fullPost?.contents?.html || post.contents?.htmlHighlight;
   const displayWordCount = fullPost?.contents?.wordCount ?? post.contents?.wordCount;

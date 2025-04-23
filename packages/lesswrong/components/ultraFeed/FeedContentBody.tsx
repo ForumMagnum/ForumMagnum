@@ -2,15 +2,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
 // Constants for Text Fragment Generation
 const FRAGMENT_START_PHRASE_WORDS = 3; // Start phrase
 const FRAGMENT_END_PHRASE_WORDS = 1;   // End phrase
-const FRAGMENT_CONTINUATION_SEPARATION = 5; // Words between start and end
+const FRAGMENT_CONTINUATION_SEPARATION = 3; // Words between start and end
 const MIN_CONTINUATION_WORDS = FRAGMENT_START_PHRASE_WORDS + FRAGMENT_CONTINUATION_SEPARATION + FRAGMENT_END_PHRASE_WORDS; // Update minimum
 
 const limitImageHeightClass = (theme: ThemeType) => ({
@@ -96,7 +93,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
 }));
 
-type PostProps = { post: PostsList|UltraFeedPostFragment; comment?: never; tag?: never };
+type PostProps = { post: { _id: string }; comment?: never; tag?: never };
 type CommentProps = { post?: never; comment: CommentsList; tag?: never };
 type TagProps = { post?: never; comment?: never; tag: TagBasicInfo };
 
@@ -302,17 +299,6 @@ const FeedContentBody = ({
   } else {
     documentType = 'tag';
   }
-
-  const getDocumentUrl = () => {
-    if (post) {
-      return postGetPageUrl(post);
-    } else if (comment) {
-      return commentGetPageUrlFromIds({ postId: comment.postId, commentId: comment._id });
-    } else if (tag) {
-      return `/tag/${tag._id}`;
-    }
-    return '/';
-  };
 
   const handleExpand = useCallback(() => {
     if (isMaxLevel || !breakpoints.length) {

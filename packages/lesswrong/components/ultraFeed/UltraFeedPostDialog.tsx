@@ -87,7 +87,7 @@ type UltraFeedPostDialogProps = {
   textFragment?: string;
 } | {
   postId?: never;
-  post: UltraFeedPostFragment;
+  post: PostsPage | UltraFeedPostFragment;
   onClose: () => void;
   textFragment?: string;
 }
@@ -118,6 +118,12 @@ const UltraFeedPostDialog = ({
     fragmentName: "CommentsList",
     skip: !(postId ?? post?._id),
     enableTotal: true,
+  });
+
+
+  console.log('[UltraFeedPostDialog] postId:', {
+    postIsDefined: !!post,
+    fetchedIsPostDefined: !!fetchedPost
   });
 
   const fullPost = post ?? fetchedPost;
