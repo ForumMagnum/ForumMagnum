@@ -58,9 +58,9 @@ function RecentDiscussionTagRevisionItem({
     // Only a problem for the forum
     isEAForum &&
     // Only restrict the most active tag users
-    megaTagUsers.includes(revision.userId) &&
+    megaTagUsers.includes(revision.userId ?? '') &&
     // Restrict all from cleanup-only users, restrict small edits from other mega users
-    (onlyStyleEditors.includes(revision.userId) || revision.changeMetrics.added < 600)
+    (onlyStyleEditors.includes(revision.userId ?? '') || revision.changeMetrics.added < 600)
   ) {
     return null
   }

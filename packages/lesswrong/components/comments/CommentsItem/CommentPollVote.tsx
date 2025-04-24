@@ -26,7 +26,7 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
   const { document: forumEvent, loading } = useSingle({
-    documentId: comment.forumEventId,
+    documentId: comment.forumEventId ?? '',
     collectionName: "ForumEvents",
     fragmentName: 'ForumEventsMinimumInfo',
     skip: !comment.forumEventId

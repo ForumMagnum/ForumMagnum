@@ -309,7 +309,7 @@ const NotificationsPopover = ({
               )
               : (
                 <NoNotificationsPlaceholder
-                  subscribedToDigest={subscribedToDigest}
+                  subscribedToDigest={!!subscribedToDigest}
                 />
               )
           }

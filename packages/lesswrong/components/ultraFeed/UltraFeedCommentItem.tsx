@@ -233,7 +233,7 @@ const UltraFeedCommentItem = ({
       observe(currentElement, {
         documentId: comment._id,
         documentType: 'comment',
-        postId: comment.postId
+        postId: comment.postId ?? undefined
       });
     }
 
@@ -267,7 +267,7 @@ const UltraFeedCommentItem = ({
     trackExpansion({
       documentId: comment._id,
       documentType: 'comment',
-      postId: comment.postId,
+      postId: comment.postId ?? undefined,
       level,
       maxLevelReached: maxReached,
       wordCount,

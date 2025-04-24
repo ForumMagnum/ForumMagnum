@@ -49,7 +49,7 @@ export const RejectedCommentsList = ({classes}: {
             <MetaInfo>
               <FormatDate date={comment.postedAt}/>
             </MetaInfo>
-            <PostsTooltip postId={comment.postId}>
+            <PostsTooltip postId={comment.postId ?? undefined}>
               <MetaInfo>
                 <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                   {comment.post?.draft && "[Draft] "}

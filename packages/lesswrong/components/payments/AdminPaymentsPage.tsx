@@ -65,7 +65,7 @@ export const AdminPaymentsPage = ({classes}: {
     const email = getUserEmail(user)
 
     return displayName.toLowerCase().includes(searchLower) || 
-      username.toLowerCase().includes(searchLower) || 
+      username?.toLowerCase().includes(searchLower) || 
       previousDisplayName?.toLowerCase().includes(searchLower) ||
       slug.toLowerCase().includes(searchLower) ||
       paymentEmail?.toLowerCase().includes(searchLower) ||

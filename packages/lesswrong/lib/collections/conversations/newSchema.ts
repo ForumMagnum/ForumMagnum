@@ -71,6 +71,7 @@ const schema = {
     database: {
       type: "TIMESTAMPTZ",
       denormalized: true,
+      nullable: false,
     },
     graphql: {
       outputType: "Date",

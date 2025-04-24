@@ -370,7 +370,7 @@ const CommentsNewForm = ({
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
-    if (comment.deleted) {
+    if (comment.deleted && comment.deletedReason) {
       flash(comment.deletedReason);
     }
     if (successCallback) {
