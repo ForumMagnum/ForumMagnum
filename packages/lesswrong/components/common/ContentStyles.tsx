@@ -3,8 +3,9 @@ import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   base: {
     ...postBodyStyles(theme)
   },
@@ -71,21 +72,23 @@ const styles = (theme: ThemeType) => ({
   },
   ultraFeed: {
     ...commentBodyStyles(theme),
-    fontSize: '1.3rem',
-    '& h1, & h2, & h3, & h4': {
-      fontSize: "1.6rem",
-      marginBlockStart: "0 !important",
-      fontFamily: theme.palette.fonts.sansSerifStack,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "1.3rem",
+      '& h1, & h2, & h3, & h4': {
+        fontSize: "1.6rem",
+        marginBlockStart: "0 !important",
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      },
+      '& img, & iframe': {
+        maxWidth: '100%',
+        height: 'auto',
+      },
+      '& blockquote, & li': {
+        fontSize: '1.3rem'
+      }
     },
-    '& img, & iframe': {
-      maxWidth: '100%',
-      height: 'auto',
-    },
-    '& blockquote, & li': {
-      fontSize: '1.3rem'
-    }
   }
-});
+}), { stylePriority: -1 });
 
 export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed";
 
@@ -111,13 +114,14 @@ export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPo
 // so some things want to inherit all of the comment styles *except* for that.
 // (This hack exists to support spoiler blocks and we should probably clean it
 // up.)
-const ContentStyles = ({contentType, className, style, children, classes}: {
+const ContentStyles = ({contentType, className, style, children}: {
   contentType: ContentStyleType,
   className?: string,
   style?: CSSProperties,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <div style={style} className={classNames(
     className, classes.base, "content",
     contentType==="post" && classes.postBody,
@@ -134,10 +138,9 @@ const ContentStyles = ({contentType, className, style, children, classes}: {
   </div>;
 }
 
-const ContentStylesComponent = registerComponent('ContentStyles', ContentStyles, {
-  styles,
-  stylePriority: -1,
-});
+const ContentStylesComponent = registerComponent('ContentStyles', ContentStyles);
+
+export default ContentStylesComponent;
 
 declare global {
   interface ComponentTypes {

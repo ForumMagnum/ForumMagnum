@@ -119,7 +119,12 @@ export const useRecordPostView = (post: ViewablePost) => {
 
       const attributedUserId = currentUser?._id ?? clientId;
 
-      if (attributedUserId && recombeeEnabledSetting.get() && !recommendationOptions?.skip && isRecombeeRecommendablePost(post)) {
+      if (attributedUserId
+        && recombeeEnabledSetting.get()
+        && !recommendationOptions?.skip
+        && isRecombeeRecommendablePost(post)
+        && (!currentUser || !excludeUserFromRecombee(currentUser))
+      ) {
         void recombeeApi.createDetailView(post._id, attributedUserId, recommendationOptions?.recombeeOptions?.recommId);
       }
     } catch(error) {
@@ -145,6 +150,13 @@ export const useRecordPostView = (post: ViewablePost) => {
   };
   
   return { recordPostView, recordPostCommentsView, isRead };
+}
+
+/**
+ * If a user looks like a spambot, don't send their events to Recombee
+ */
+function excludeUserFromRecombee(user: UsersCurrent) {
+  return user.spamRiskScore <= 0.1;
 }
 
 

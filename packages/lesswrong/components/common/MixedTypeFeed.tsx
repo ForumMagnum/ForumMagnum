@@ -19,21 +19,6 @@ export interface FeedResponse<CutoffType, ResultType> {
   cutoff: CutoffType|null,
 }
 
-const logFeedResultStats = (resolverArgsValues: any, orderedResults: any[], captureEvent: (type: string | undefined, trackingProps: Record<string, any>) => void) => {
-  const stats = {
-    sessionId: resolverArgsValues?.sessionId,
-    sourceWeights: (JSON.parse(resolverArgsValues?.settings ?? '{}'))?.sourceWeights,
-    orderedResultsByType: orderedResults.reduce((acc: Record<string, number>, result: Record<string, number>) => {
-      const type = result.type;
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {}),
-  };
-  // eslint-disable-next-line no-console
-  console.log("Feed Result Stats", stats);
-  captureEvent('mixedTypeFeedResultsGenerated', {stats});
-};
-
 
 const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers}: {
   resolverName: string,
@@ -221,10 +206,14 @@ const MixedTypeFeed = (args: {
             const newResults = fetchMoreResult[resolverName].results;
             const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
             
+            // If the server sent back data, but none of it was new after deduplication, 
+            // treat it as the end of the feed by setting cutoff to null. This shouldn't happen though.
+            const newCutoff = (newResults.length > 0 && deduplicatedResults.length === 0) ? null : fetchMoreResult[resolverName].cutoff;
+
             return {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
-                cutoff: fetchMoreResult[resolverName].cutoff,
+                cutoff: newCutoff,
                 endOffset: fetchMoreResult[resolverName].endOffset,
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
@@ -244,8 +233,6 @@ const MixedTypeFeed = (args: {
   const results = (data && data[resolverName]?.results) || [];
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
-
-  logFeedResultStats(resolverArgsValues, orderedResults, captureEvent);
 
   return <div className={className}>
     {orderedResults.map((result, index) =>

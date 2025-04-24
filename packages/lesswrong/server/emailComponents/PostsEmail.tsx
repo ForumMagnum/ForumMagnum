@@ -124,7 +124,7 @@ function PostsEmailInner({
   const { results: posts } = useMulti({
     collectionName: "Posts",
     fragmentName: "PostsRevision",
-    terms: { postIds },
+    terms: { exactPostIds: postIds },
   });
 
   const { ContentStyles } = Components;

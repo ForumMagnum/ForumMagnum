@@ -2299,6 +2299,7 @@ fragment PostsExpandedHighlight on Post {
   contents {
     _id
     html
+    wordCount
   }
 }
 
@@ -4105,6 +4106,19 @@ fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
   userId
   event
   feedItemId
+}
+
+fragment UltraFeedPostFragment on Post {
+  ...PostsDetails
+  ...PostsListWithVotes
+  contents {
+    _id
+    html
+    htmlHighlight
+    wordCount
+  }
+  autoFrontpage
+  votingSystem
 }
 
 fragment UnclaimedReportsList on Report {

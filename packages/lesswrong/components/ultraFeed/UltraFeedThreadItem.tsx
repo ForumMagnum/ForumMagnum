@@ -19,15 +19,18 @@ const itemSeparator = (theme: ThemeType) => ({
 
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   commentsRoot: {
-    paddingLeft: 16,
+    paddingLeft: 20,
     paddingRight: 16,
     borderRadius: 4,
     backgroundColor: theme.palette.panelBackground.default,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 16,
+    },
   },
   commentsContainer: {
     display: 'flex',
-    flexDirection: 'row',
-    gap: 16,
+    flexDirection: 'column',
+    gap: "16px",
   },
   commentsList: {
     display: 'flex',
@@ -152,7 +155,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
 
   const postMetaInfo = {
     sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],
-    displayStatus: "expanded" as FeedItemDisplayStatus
+    displayStatus: "expanded" as FeedItemDisplayStatus,
   }
 
   const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos);
@@ -184,7 +187,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
       <Loading />
     </div>}
     {postExpanded && post && <div className={classes.postContainer}>
-      <UltraFeedPostItem post={post} index={index} postMetaInfo={postMetaInfo} />
+      <UltraFeedPostItem post={post} index={index} postMetaInfo={postMetaInfo} settings={settings}/>
     </div>}
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>

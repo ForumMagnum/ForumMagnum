@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import ModeCommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
-import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 
 const styles = (theme: ThemeType) => ({

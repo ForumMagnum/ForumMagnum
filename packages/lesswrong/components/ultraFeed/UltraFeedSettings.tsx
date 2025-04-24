@@ -55,6 +55,8 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     padding: 6,
     border: '1px solid ' + theme.palette.grey[400],
     borderRadius: 4,
+    color: theme.palette.text.primary,
+    background: theme.palette.background.default,
   },
   selectInput: {
     minWidth: 250,
@@ -62,6 +64,8 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     border: '1px solid ' + theme.palette.grey[400],
     borderRadius: 4,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.primary,
+    background: theme.palette.background.default,
   },
   buttonRow: {
     display: 'flex',
@@ -129,6 +133,8 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     border: '1px solid ' + theme.palette.grey[400],
     borderRadius: 4,
     justifySelf: 'start',
+    color: theme.palette.text.primary,
+    background: theme.palette.background.default,
   },
   sourceWeightDescription: {
     gridColumn: '2 / 3',
@@ -146,26 +152,54 @@ interface UltraFeedSettingsComponentProps {
   onClose?: () => void;
 }
 
-type FormValuesState = Omit<UltraFeedSettingsType, 'collapsedCommentTruncation' | 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights'> & {
-  collapsedCommentTruncation: number | '';
+type AlgorithmFieldValidationRules = Pick<UltraFeedSettingsType, 
+  'commentDecayFactor' | 
+  'commentDecayBiasHours' | 
+  'ultraFeedSeenPenalty' | 
+  'quickTakeBoost'
+>;
+
+type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'incognitoMode' | 'threadScoreAggregation' | 'threadScoreFirstN'> & {
   lineClampNumberOfLines: number | '';
   postTruncationBreakpoints: (number | '')[];
   commentTruncationBreakpoints: (number | '')[];
   sourceWeights: Record<FeedItemSourceType, number | '' >;
+  commentDecayFactor: number | '';
+  commentDecayBiasHours: number | '';
+  ultraFeedSeenPenalty: number | '';
+  quickTakeBoost: number | '';
+  incognitoMode: boolean;
+  threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
+  threadScoreFirstN: number | '';
 };
 
 const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, onClose }: UltraFeedSettingsComponentProps) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
-    const { collapsedCommentTruncation, lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints } = settings; 
+    const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, ultraFeedSeenPenalty, quickTakeBoost, incognitoMode, threadScoreAggregation, threadScoreFirstN } = settings;
+
+    // Ensure arrays have length 3
+    const ensureLength3 = (arr: (number | '')[]) => {
+      const newArr = [...arr];
+      while (newArr.length < 3) {
+        newArr.push('');
+      }
+      return newArr.slice(0, 3);
+    };
 
     return {
-      collapsedCommentTruncation,
       lineClampNumberOfLines,
-      postTruncationBreakpoints,
-      commentTruncationBreakpoints,
-      sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) }
+      postTruncationBreakpoints: ensureLength3(postTruncationBreakpoints),
+      commentTruncationBreakpoints: ensureLength3(commentTruncationBreakpoints),
+      sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) },
+      commentDecayFactor,
+      commentDecayBiasHours,
+      ultraFeedSeenPenalty,
+      quickTakeBoost,
+      incognitoMode,
+      threadScoreAggregation,
+      threadScoreFirstN,
     };
   });
 
@@ -175,13 +209,27 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       ...(settings.sourceWeights || {}),
     };
       
+    const ensureLength3 = (arr: (number | '')[]) => {
+      const newArr = [...arr];
+      while (newArr.length < 3) {
+        newArr.push('');
+      }
+      return newArr.slice(0, 3);
+    };
+
     setFormValues({
       ...settings,
-      collapsedCommentTruncation: settings.collapsedCommentTruncation,
       lineClampNumberOfLines: settings.lineClampNumberOfLines,
-      postTruncationBreakpoints: settings.postTruncationBreakpoints,
-      commentTruncationBreakpoints: settings.commentTruncationBreakpoints,
+      postTruncationBreakpoints: ensureLength3(settings.postTruncationBreakpoints),
+      commentTruncationBreakpoints: ensureLength3(settings.commentTruncationBreakpoints),
       sourceWeights: updatedSourceWeights,
+      commentDecayFactor: settings.commentDecayFactor,
+      commentDecayBiasHours: settings.commentDecayBiasHours,
+      ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty,
+      quickTakeBoost: settings.quickTakeBoost,
+      incognitoMode: settings.incognitoMode,
+      threadScoreAggregation: settings.threadScoreAggregation,
+      threadScoreFirstN: settings.threadScoreFirstN,
     });
   }, [settings]);
 
@@ -193,9 +241,15 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     return {
       postTruncationBreakpoints: [] as number[],
       commentTruncationBreakpoints: [] as number[],
-      collapsedCommentTruncation: false,
       lineClampNumberOfLines: false,
       sourceWeights: initialErrors,
+      commentDecayFactor: false,
+      commentDecayBiasHours: false,
+      ultraFeedSeenPenalty: false,
+      quickTakeBoost: false,
+      incognitoMode: false,
+      threadScoreAggregation: false,
+      threadScoreFirstN: false,
     }
   });
 
@@ -250,7 +304,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
   }, []);
 
   const handleNumberChange = useCallback((
-    key: 'collapsedCommentTruncation' | 'lineClampNumberOfLines',
+    key: 'lineClampNumberOfLines',
     value: string
   ) => {
     if (value === '') {
@@ -305,18 +359,59 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }));
   }, []);
 
+  const handleNumericSettingChange = useCallback(( 
+    key: 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'lineClampNumberOfLines' | 'threadScoreFirstN',
+    value: string,
+    min?: number,
+    max?: number
+  ) => {
+    if (value === '') {
+      setFormValues(prev => ({ ...prev, [key]: '' })); 
+      setErrors(prev => ({ ...prev, [key]: true }));
+    } else {
+      const useFloat = key === 'commentDecayFactor' || key === 'ultraFeedSeenPenalty' || key === 'quickTakeBoost' || key === 'commentDecayBiasHours';
+      const numValue = useFloat ? parseFloat(value) : parseInt(value, 10);
+      const newValue = isNaN(numValue) ? '' : numValue;
+      let isValid = !isNaN(numValue);
+
+      if (isValid) {
+        if (min !== undefined && numValue < min) isValid = false;
+        if (max !== undefined && numValue > max) isValid = false;
+      }
+
+      setFormValues(prev => ({ ...prev, [key]: newValue })); 
+      setErrors(prev => ({ ...prev, [key]: !isValid }));
+    }
+  }, []);
+
+  const handleBooleanChange = useCallback((key: 'incognitoMode', checked: boolean) => {
+    setFormValues(prev => ({ ...prev, [key]: checked }));
+  }, []);
+
+  const handleSelectChange = useCallback((key: 'threadScoreAggregation', value: string) => {
+    const validValues: Array<UltraFeedSettingsType['threadScoreAggregation']> = ['sum', 'max', 'logSum', 'avg'];
+    if (validValues.includes(value as any)) {
+      setFormValues(prev => ({ ...prev, [key]: value as UltraFeedSettingsType['threadScoreAggregation'] }));
+      setErrors(prev => ({ ...prev, [key]: false }));
+    } else {
+      setErrors(prev => ({ ...prev, [key]: true }));
+    }
+  }, []);
+
   const hasErrors = useMemo(() => {
-    
     const sourceWeightErrors = Object.entries(errors.sourceWeights).some(([key, hasError]) => {
-      
       return hasError && String(formValues.sourceWeights[key as FeedItemSourceType]) !== '';
     });
     
     return errors.postTruncationBreakpoints.length > 0 ||
            errors.commentTruncationBreakpoints.length > 0 ||
-           errors.collapsedCommentTruncation ||
            errors.lineClampNumberOfLines ||
-           sourceWeightErrors;
+           sourceWeightErrors ||
+           errors.commentDecayFactor ||
+           errors.commentDecayBiasHours ||
+           errors.ultraFeedSeenPenalty ||
+           errors.quickTakeBoost ||
+           errors.threadScoreFirstN;
   }, [errors, formValues.sourceWeights]);
 
   const handleSave = useCallback(() => {
@@ -327,30 +422,43 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       return acc;
     }, {} as Record<FeedItemSourceType, number>);
 
-    
     ['postTruncationBreakpoints', 'commentTruncationBreakpoints'].forEach(key => {
       const arrKey = key as 'postTruncationBreakpoints' | 'commentTruncationBreakpoints';
       const arr: (number|string)[] = formValues[arrKey]; 
       const validArr: number[] = [];
-      arr.forEach((val, index) => {
+      // Filter out empty strings *before* validation
+      const filteredArr = arr.filter(val => String(val) !== '');
+      
+      filteredArr.forEach((val, index) => {
         const numVal = parseInt(String(val), 10);
         if (isNaN(numVal)) {
            hasValidationErrors = true; 
            setErrors(prev => {
+             // Adjust error index if needed, though less critical now
             const fieldErrors = [...prev[arrKey]];
-            if (!fieldErrors.includes(index)) fieldErrors.push(index);
-            return { ...prev, [arrKey]: fieldErrors };
+            // Need to map original index to filtered index if precise error reporting is needed
+            // For now, just mark the whole field as having an error if any part fails
+            // A simpler approach might be to reset errors for the field and re-add if validation fails
+            // Let's simplify: indicate error on the field, not specific index
+            // This avoids complex index mapping after filtering
+            return { ...prev, [arrKey]: [0] }; // Indicate error without specific index
            });
         } else {
           validArr.push(numVal);
         }
       });
-      if (hasValidationErrors) { validatedValues[arrKey] = undefined } 
-      else { validatedValues[arrKey] = validArr; }
+
+      // Reset errors for the field if validation passed for all non-empty values
+      if (!hasValidationErrors) {
+        setErrors(prev => ({ ...prev, [arrKey]: [] }));
+      }
+      
+      // Always assign the validated array (which might be empty if all were empty or invalid)
+      validatedValues[arrKey] = validArr; 
     });
     
-    ['collapsedCommentTruncation', 'lineClampNumberOfLines'].forEach(key => {
-       const numKey = key as 'collapsedCommentTruncation' | 'lineClampNumberOfLines';
+    ['lineClampNumberOfLines', 'threadScoreFirstN'].forEach(key => {
+       const numKey = key as 'lineClampNumberOfLines' | 'threadScoreFirstN';
        const val: number | string = formValues[numKey];
        const numVal = parseInt(String(val), 10);
       if (isNaN(numVal)) {
@@ -363,7 +471,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     });
     
 
-    
     Object.entries(formValues.sourceWeights).forEach(([key, val]) => {
       const sourceKey = key as FeedItemSourceType;
       let weightValue = 0;
@@ -395,12 +502,46 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
         validatedValues.sourceWeights = undefined; 
     }
 
-    
+    const algorithmFields: (keyof AlgorithmFieldValidationRules)[] = [
+      'commentDecayFactor', 
+      'commentDecayBiasHours',
+      'ultraFeedSeenPenalty',
+      'quickTakeBoost'
+    ];
+    const algorithmFieldValidation: Record<keyof AlgorithmFieldValidationRules, {min?: number, max?: number}> = {
+      commentDecayFactor: { min: 0.1 },
+      commentDecayBiasHours: { min: 0 },
+      ultraFeedSeenPenalty: { min: 0.0, max: 1.0 },
+      quickTakeBoost: { min: 0.1 }
+    };
+
+    algorithmFields.forEach(key => {
+      const val = formValues[key];
+      const validation = algorithmFieldValidation[key]; 
+      const numVal = parseFloat(String(val));
+      let fieldError = isNaN(numVal);
+
+      if (!fieldError && validation) {
+        if (validation.min !== undefined && numVal < validation.min) fieldError = true;
+        if (validation.max !== undefined && numVal > validation.max) fieldError = true;
+      }
+
+      if (fieldError) {
+        hasValidationErrors = true;
+        setErrors(prev => ({ ...prev, [key]: true }));
+      } else {
+        validatedValues[key] = numVal;
+      }
+    });
+
+    validatedValues.threadScoreAggregation = formValues.threadScoreAggregation;
+
+    validatedValues.incognitoMode = formValues.incognitoMode;
+
     if (hasValidationErrors) {
       return; 
     }
 
-    
     const finalSettingsToUpdate: Partial<UltraFeedSettingsType> = {};
     if (validatedValues.postTruncationBreakpoints !== undefined) {
       finalSettingsToUpdate.postTruncationBreakpoints = validatedValues.postTruncationBreakpoints;
@@ -408,17 +549,34 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     if (validatedValues.commentTruncationBreakpoints !== undefined) {
       finalSettingsToUpdate.commentTruncationBreakpoints = validatedValues.commentTruncationBreakpoints;
     }
-    if (validatedValues.collapsedCommentTruncation !== undefined) {
-      finalSettingsToUpdate.collapsedCommentTruncation = validatedValues.collapsedCommentTruncation;
-    }
     if (validatedValues.lineClampNumberOfLines !== undefined) {
       finalSettingsToUpdate.lineClampNumberOfLines = validatedValues.lineClampNumberOfLines;
     }
     if (validatedValues.sourceWeights !== undefined) {
       finalSettingsToUpdate.sourceWeights = validatedValues.sourceWeights;
     }
+    if (validatedValues.commentDecayFactor !== undefined) {
+      finalSettingsToUpdate.commentDecayFactor = validatedValues.commentDecayFactor;
+    }
+    if (validatedValues.commentDecayBiasHours !== undefined) {
+      finalSettingsToUpdate.commentDecayBiasHours = validatedValues.commentDecayBiasHours;
+    }
+    if (validatedValues.ultraFeedSeenPenalty !== undefined) {
+      finalSettingsToUpdate.ultraFeedSeenPenalty = validatedValues.ultraFeedSeenPenalty;
+    }
+    if (validatedValues.quickTakeBoost !== undefined) {
+      finalSettingsToUpdate.quickTakeBoost = validatedValues.quickTakeBoost;
+    }
+    if (validatedValues.incognitoMode !== undefined) {
+      finalSettingsToUpdate.incognitoMode = validatedValues.incognitoMode;
+    }
+    if (validatedValues.threadScoreAggregation !== undefined) {
+      finalSettingsToUpdate.threadScoreAggregation = validatedValues.threadScoreAggregation;
+    }
+    if (validatedValues.threadScoreFirstN !== undefined) {
+      finalSettingsToUpdate.threadScoreFirstN = validatedValues.threadScoreFirstN;
+    }
 
-    
     if (Object.keys(finalSettingsToUpdate).length > 0) {
        updateSettings(finalSettingsToUpdate);
     }
@@ -427,7 +585,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       oldSettings: settings,
       newSettings: finalSettingsToUpdate
     });
-    
     
   }, [formValues, updateSettings, setErrors, captureEvent, settings]);
   
@@ -473,27 +630,6 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
         </div>
         
         <div className={classes.inputContainer}>
-          <div>
-            <label className={classes.inputLabel} style={{ display: 'block', marginBottom: '4px' }}>Line Clamp Lines:</label>
-            <input
-              type="number"
-              className={classNames(classes.numberInput, {
-                [classes.invalidInput]: errors.lineClampNumberOfLines
-              })}
-              value={formValues.lineClampNumberOfLines}
-              onChange={(e) => handleNumberChange('lineClampNumberOfLines', e.target.value)}
-              min={0}
-              max={10}
-            />
-            <p className={classes.inputDescription} style={{ paddingLeft: 0, marginTop: '4px' }}>
-              Number of lines to show in collapsed comments (0 disables line clamp, 2-10 lines recommended)
-            </p>
-            {errors.lineClampNumberOfLines && (
-              <p className={classes.errorMessage}>Field must contain a valid number between 0 and 10</p>
-            )}
-          </div>
-        </div>
-        <div className={classes.inputContainer}>
           <label className={classes.inputLabel}>Post truncation levels:</label>
           <div className={classes.arrayInput}>
             {formValues.postTruncationBreakpoints.map((value, index) => (
@@ -518,23 +654,22 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
         </div>
         <div className={classes.inputContainer}>
           <div>
-            <label className={classes.inputLabel} style={{ display: 'block', marginBottom: '4px' }}>Collapsed comment:</label>
-            <div className={classes.arrayInput}>
-              <input
-                type="number"
-                className={classNames(classes.numberInput, {
-                  [classes.invalidInput]: errors.collapsedCommentTruncation
-                })}
-                value={formValues.collapsedCommentTruncation}
-                onChange={(e) => handleNumberChange('collapsedCommentTruncation', e.target.value)}
-                min={1}
-              />
-            </div>
+            <label className={classes.inputLabel} style={{ display: 'block', marginBottom: '4px' }}>Comment Line Clamp Lines:</label>
+            <input
+              type="number"
+              className={classNames(classes.numberInput, {
+                [classes.invalidInput]: errors.lineClampNumberOfLines
+              })}
+              value={formValues.lineClampNumberOfLines}
+              onChange={(e) => handleNumberChange('lineClampNumberOfLines', e.target.value)}
+              min={0}
+              max={10}
+            />
             <p className={classes.inputDescription} style={{ paddingLeft: 0, marginTop: '4px' }}>
-              Default: {DEFAULT_SETTINGS.collapsedCommentTruncation} words
+              Number of lines to show in collapsed comments (0 disables line clamp, 2-10 lines recommended)
             </p>
-            {errors.collapsedCommentTruncation && (
-              <p className={classes.errorMessage}>Field must contain a valid number</p>
+            {errors.lineClampNumberOfLines && (
+              <p className={classes.errorMessage}>Field must contain a valid number between 0 and 10</p>
             )}
           </div>
         </div>
@@ -561,6 +696,151 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
             <p className={classes.errorMessage}>All fields must contain a valid number</p>
           )}
         </div>
+      </div>
+      
+      <div className={classes.settingGroup}>
+        <h3 className={classes.groupTitle}>Algorithm Tuning</h3>
+        <div className={classes.groupDescription}>
+          Parameters for comment scoring and ranking.
+        </div>
+
+        <div className={classes.inputContainer}>
+           <label className={classes.inputLabel}>Comment Decay Factor:</label>
+           <input
+             type="number"
+             step="0.1"
+             className={classNames(classes.numberInput, { [classes.invalidInput]: errors.commentDecayFactor })}
+             value={formValues.commentDecayFactor}
+             onChange={(e) => handleNumericSettingChange('commentDecayFactor', e.target.value, 0.1)}
+             min={0.1}
+           />
+           <p className={classes.inputDescription}>
+             HN-style decay exponent (e.g., 1.8). Higher values decay faster. Must be {`>`} 0.
+           </p>
+           {errors.commentDecayFactor && (
+             <p className={classes.errorMessage}>Must be a number greater than 0.</p>
+           )}
+        </div>
+
+        <div className={classes.inputContainer}>
+           <label className={classes.inputLabel}>Comment Decay Bias (Hours):</label>
+           <input
+             type="number"
+             step="0.5"
+             className={classNames(classes.numberInput, { [classes.invalidInput]: errors.commentDecayBiasHours })}
+             value={formValues.commentDecayBiasHours}
+             onChange={(e) => handleNumericSettingChange('commentDecayBiasHours', e.target.value, 0)}
+             min={0}
+           />
+           <p className={classes.inputDescription}>
+             HN-style age offset in hours (e.g., 2). Prevents infinite scores at age 0. Cannot be negative.
+           </p>
+           {errors.commentDecayBiasHours && (
+             <p className={classes.errorMessage}>Must be a non-negative number.</p>
+           )}
+        </div>
+
+        <div className={classes.inputContainer}>
+           <label className={classes.inputLabel}>Seen Penalty:</label>
+           <input
+             type="number"
+             step="0.05"
+             className={classNames(classes.numberInput, { [classes.invalidInput]: errors.ultraFeedSeenPenalty })}
+             value={formValues.ultraFeedSeenPenalty}
+             onChange={(e) => handleNumericSettingChange('ultraFeedSeenPenalty', e.target.value, 0.0, 1.0)}
+             min={0.0}
+             max={1.0}
+           />
+           <p className={classes.inputDescription}>
+             Multiplier applied to item score if viewed (e.g., 0.6 means 60% score retained). Range 0.0 - 1.0.
+           </p>
+           {errors.ultraFeedSeenPenalty && (
+             <p className={classes.errorMessage}>Must be a number between 0.0 and 1.0.</p>
+           )}
+        </div>
+
+        <div className={classes.inputContainer}>
+           <label className={classes.inputLabel}>Quick Take Boost:</label>
+           <input
+             type="number"
+             step="0.1"
+             className={classNames(classes.numberInput, { [classes.invalidInput]: errors.quickTakeBoost })}
+             value={formValues.quickTakeBoost}
+             onChange={(e) => handleNumericSettingChange('quickTakeBoost', e.target.value, 0.1)} 
+             min={0.1}
+           />
+           <p className={classes.inputDescription}>
+             Score multiplier for shortform comments/quick takes (e.g., 1.5 = 50% boost). Must be {`>`} 0.
+           </p>
+           {errors.quickTakeBoost && ( 
+             <p className={classes.errorMessage}>Must be a number greater than 0.</p>
+           )}
+        </div>
+      </div>
+      
+      {/* Thread Scoring Section */}
+      <div className={classes.settingGroup}>
+        <h3 className={classes.groupTitle}>Thread Scoring</h3>
+        <div className={classes.groupDescription}>
+          Parameters for calculating the overall score of a comment thread.
+        </div>
+
+        <div className={classes.inputContainer}>
+          <label className={classes.inputLabel} htmlFor="threadScoreAggregationSelect">Aggregation Method:</label>
+          <select
+            id="threadScoreAggregationSelect"
+            className={classes.selectInput}
+            value={formValues.threadScoreAggregation}
+            onChange={(e) => handleSelectChange('threadScoreAggregation', e.target.value)}
+          >
+            <option value="sum">Sum of comment scores</option>
+            <option value="max">Max comment score</option>
+            <option value="logSum">Log of Sum (log(sum + 1))</option>
+            <option value="avg">Average comment score</option>
+          </select>
+          <p className={classes.inputDescription}>
+            How to combine individual comment scores into a thread score.
+          </p>
+        </div>
+
+        <div className={classes.inputContainer}>
+           <label className={classes.inputLabel} htmlFor="threadScoreFirstNInput">Use First N Comments:</label>
+           <input
+             type="number"
+             id="threadScoreFirstNInput"
+             className={classNames(classes.numberInput, { [classes.invalidInput]: errors.threadScoreFirstN })}
+             value={formValues.threadScoreFirstN}
+             onChange={(e) => handleNumericSettingChange('threadScoreFirstN', e.target.value, 0)} 
+             min={0}
+             step={1}
+           />
+           <p className={classes.inputDescription}>
+             Aggregate scores from only the top N comments (by score). Set to 0 to use all comments in the thread.
+           </p>
+           {errors.threadScoreFirstN && ( 
+             <p className={classes.errorMessage}>Must be a non-negative whole number.</p>
+           )}
+        </div>
+      </div>
+      
+      {/* Incognito Mode Section */}
+      <div className={classes.settingGroup}>
+        <h3 className={classes.groupTitle}>Privacy</h3>
+        <div className={classes.inputContainer} style={{flexWrap: 'nowrap'}}> 
+          <input 
+            type="checkbox" 
+            id="incognitoModeCheckbox" 
+            checked={formValues.incognitoMode}
+            onChange={(e) => handleBooleanChange('incognitoMode', e.target.checked)}
+            style={{marginRight: '8px'}}
+          />
+          <label htmlFor="incognitoModeCheckbox" className={classes.inputLabel} style={{flex: '1 1 auto', cursor: 'pointer'}}>
+            Incognito Mode
+          </label>
+        </div>
+        <p className={classes.inputDescription} style={{paddingLeft: 0}}>
+          When enabled, no history (servings, views, expansions, etc.) is recorded for your account.
+        </p>
       </div>
       
       <div className={classes.buttonRow}>

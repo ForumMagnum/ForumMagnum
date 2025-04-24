@@ -2154,8 +2154,14 @@ interface MultiUserTagRelOutput {
   totalCount?: number | null;
 }
 
+interface UserSelectorUniqueInput {
+  _id?: string | null;
+  documentId?: string | null;
+  slug?: string | null;
+}
+
 interface SingleUserInput {
-  selector?: SelectorInput | null;
+  selector?: UserSelectorUniqueInput | null;
   resolverArgs?: any;
   allowNull?: boolean | null;
 }
@@ -4687,6 +4693,7 @@ interface GraphQLTypeMap {
   SingleUserTagRelOutput: SingleUserTagRelOutput;
   MultiUserTagRelInput: MultiUserTagRelInput;
   MultiUserTagRelOutput: MultiUserTagRelOutput;
+  UserSelectorUniqueInput: UserSelectorUniqueInput;
   SingleUserInput: SingleUserInput;
   SingleUserOutput: SingleUserOutput;
   MultiUserInput: MultiUserInput;

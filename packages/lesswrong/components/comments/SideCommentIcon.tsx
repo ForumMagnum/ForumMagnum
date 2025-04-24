@@ -5,7 +5,7 @@ import { useTheme } from '../themes/useTheme';
 import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
-import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
@@ -91,7 +91,7 @@ const BadgeWrapper = ({commentCount, classes, children}: {
 }) => {
   if (commentCount>1) {
     return <Badge
-      classes={{ badge: classes.badge }}
+      badgeClassName={classes.badge}
       badgeContent={commentCount}
     >{children}</Badge>
   } else {
