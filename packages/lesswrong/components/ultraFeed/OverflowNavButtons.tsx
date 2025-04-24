@@ -14,23 +14,27 @@ const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
     gap: "8px",
     zIndex: theme.zIndexes.overflowNavButtons,
   },
-  fixed: {
-    position: 'fixed',
-    right: 12,
+  both: {
+    position: 'sticky',
     bottom: 128,
+    float: 'right',
+    marginRight: -64,
     [theme.breakpoints.down('sm')]: {
+      position: 'fixed',
+      marginRight: 0,
+      right: 12,
       bottom: 24,
     },
   },
-  absoluteTop: {
+  onlyUp: {
     position: 'absolute',
-    right: 12,
-    top: 24,
-  },
-  absoluteBottom: {
-    position: 'absolute',
-    right: 12,
-    bottom: 24,
+    right: -48,
+    bottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      position: 'absolute',
+      right: 12,
+      bottom: 24,
+    },
   },
   button: {
     display: 'flex',
@@ -69,12 +73,7 @@ export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
     onTop();
   }, [onCollapse, onTop]);
 
-  let containerClass = classes.fixed;
-  if (showUp && !showDown) {
-    containerClass = classes.absoluteBottom;
-  } else if (showDown && !showUp) {
-    containerClass = classes.fixed;
-  }
+  const containerClass = (showUp && !showDown) ? classes.onlyUp : classes.both;
 
   return (
     <div className={classNames(classes.base, containerClass)}>
