@@ -73,9 +73,9 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   ultraFeed: {
     ...commentBodyStyles(theme),
     [theme.breakpoints.down('sm')]: {
-      fontSize: "1.3rem",
+      fontSize: 17,
       '& h1, & h2, & h3, & h4': {
-        fontSize: "1.6rem",
+        fontSize: 20.5,
         marginBlockStart: "0 !important",
         fontFamily: theme.palette.fonts.sansSerifStack,
       },
@@ -84,7 +84,7 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
         height: 'auto',
       },
       '& blockquote, & li': {
-        fontSize: '1.3rem'
+        fontSize: 17
       }
     },
   }
