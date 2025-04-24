@@ -224,8 +224,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
       // MenuItem component] a function that return an a tag once. It made the
       // entire sidebar fail on iOS. True story.
       to={tab.link}
-      disableGutters
-      rootClass={classNames(classes.menuItem, className, {
+      className={classNames(classes.menuItem, className, {
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,

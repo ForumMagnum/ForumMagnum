@@ -3099,7 +3099,7 @@ type Post {
   postCategory: String!
   title: String!
   viewCount: Float
-  lastCommentedAt: Date
+  lastCommentedAt: Date!
   clickCount: Float
   deletedDraft: Boolean!
   status: Float!
@@ -3593,7 +3593,7 @@ type Revision {
   documentId: String
   collectionName: String
   fieldName: String
-  editedAt: Date
+  editedAt: Date!
   updateType: String
   version: String!
   commitMessage: String
@@ -4543,7 +4543,7 @@ type User {
   profile: JSON
   services: JSON
   hasAuth0Id: Boolean
-  displayName: String
+  displayName: String!
   previousDisplayName: String
   email: String
   noindex: Boolean!
@@ -6852,7 +6852,7 @@ input CreateUserDataInput {
   biography: JSON
   username: String
   isAdmin: Boolean
-  displayName: String
+  displayName: String!
   previousDisplayName: String
   email: String
   groups: [String!]
@@ -8228,7 +8228,7 @@ fragment FeedPostFragment on FeedPost {
   _id
   postMetaInfo
   post {
-    ...UltraFeedPostFragment
+    ...PostsListWithVotes
   }
 }
 
@@ -9511,6 +9511,7 @@ fragment PostsExpandedHighlight on Post {
   contents {
     _id
     html
+    wordCount
   }
 }
 
@@ -11320,15 +11321,16 @@ fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
 }
 
 fragment UltraFeedPostFragment on Post {
+  ...PostsDetails
   ...PostsListWithVotes
   contents {
     _id
     html
     htmlHighlight
-    plaintextDescription
     wordCount
-    version
   }
+  autoFrontpage
+  votingSystem
 }
 
 fragment UnclaimedReportsList on Report {

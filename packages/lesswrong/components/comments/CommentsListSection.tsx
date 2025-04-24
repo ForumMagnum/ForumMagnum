@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
+import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
@@ -94,6 +94,7 @@ const CommentsListSection = ({
   newForm=true,
   newFormProps={},
   highlightDate,
+  hideDateHighlighting,
   setHighlightDate,
   classes,
 }: {
@@ -111,6 +112,7 @@ const CommentsListSection = ({
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
   highlightDate: Date|undefined,
+  hideDateHighlighting?: boolean,
   setHighlightDate: (newValue: Date|undefined) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -181,7 +183,7 @@ const CommentsListSection = ({
       >
         {commentSortNode}
       </Typography>
-      {post && <Typography
+      {post && !hideDateHighlighting && <Typography
         variant="body2"
         component='span'
         className={classes.clickToHighlightNewSince}

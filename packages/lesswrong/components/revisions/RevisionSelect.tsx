@@ -105,7 +105,7 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
                 </LWTooltip>
             </td>
             <td className={classes.username}>
-              <UsersName documentId={rev.userId}/>{" "}
+              <UsersName documentId={rev.userId ?? undefined}/>{" "}
             </td>
             <td className={classes.link}>
               <Link to={getRevisionUrl(rev)}>

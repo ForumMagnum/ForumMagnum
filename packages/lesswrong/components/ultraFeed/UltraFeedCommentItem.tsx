@@ -7,12 +7,16 @@ import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsType
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import { useOverflowNav } from "./OverflowNavObserverContext";
+import { useDialog } from "../common/withDialog";
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
 
+
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
+    position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
     display: 'flex',
     flexDirection: 'row',
@@ -121,12 +125,16 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   verticalLine: {
     width: 0,
-    borderLeft: `4px solid ${theme.palette.grey[300]}`,
+    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
     flex: 1,
-    marginLeft: -10
+    marginLeft: -10,
   },
-  verticalLineHighlighted: {
-    borderLeft: `4px solid ${theme.palette.secondary.light}8c`,
+  verticalLineHighlightedUnviewed: {
+    borderLeftColor: `${theme.palette.secondary.light}bc`,
+  },
+  verticalLineHighlightedViewed: {
+    borderLeftColor: `${theme.palette.secondary.light}6c`,
+    transition: 'border-left-color 1.0s ease-out',
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
@@ -146,6 +154,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
 }));
 
+type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
 
 const UltraFeedCompressedCommentsItem = ({
   numComments, 
@@ -206,11 +215,17 @@ const UltraFeedCommentItem = ({
   settings = DEFAULT_SETTINGS,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
-  const { observe, trackExpansion } = useUltraFeedObserver();
+  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter, OverflowNavButtons } = Components;
+  const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const { openDialog } = useDialog();
+  const overflowNav = useOverflowNav(elementRef);
   const { post } = comment;
   const { displayStatus } = metaInfo;
+
+  const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+  const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
+  const [resetSig, setResetSig] = useState(0);
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -218,16 +233,41 @@ const UltraFeedCommentItem = ({
       observe(currentElement, {
         documentId: comment._id,
         documentType: 'comment',
-        postId: comment.postId
+        postId: comment.postId ?? undefined
       });
     }
-  }, [observe, comment._id, comment.postId]);
+
+    return () => {
+      if (currentElement) {
+        unobserve(currentElement);
+      }
+    };
+  }, [observe, unobserve, comment._id, comment.postId]);
+
+  useEffect(() => {
+    const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
+    setHighlightState(initialHighlightState);
+
+    const handleLongView = () => {
+      setHighlightState(prevState => prevState === 'highlighted-unviewed' ? 'highlighted-viewed' : prevState);
+    };
+
+    if (initialHighlightState === 'highlighted-unviewed') {
+      subscribeToLongView(comment._id, handleLongView);
+    }
+
+    return () => {
+      if (initialHighlightState === 'highlighted-unviewed') {
+        unsubscribeFromLongView(comment._id, handleLongView);
+      }
+    };
+  }, [highlight, comment._id, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
     trackExpansion({
       documentId: comment._id,
       documentType: 'comment',
-      postId: comment.postId,
+      postId: comment.postId ?? undefined,
       level,
       maxLevelReached: maxReached,
       wordCount,
@@ -249,29 +289,45 @@ const UltraFeedCommentItem = ({
 
   }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus]);
 
-  const expanded = displayStatus === "expanded";
+  const handleContinueReadingClick = useCallback(() => {
+    captureEvent("ultraFeedCommentItemContinueReadingClicked", { commentId: comment._id, postId: comment.postId });
+    openDialog({
+      name: "UltraFeedCommentsDialog",
+      closeOnNavigate: true,
+      contents: ({ onClose }) => (
+        <Components.UltraFeedCommentsDialog 
+          document={comment}
+          collectionName="Comments"
+          onClose={onClose}
+        />
+      )
+    });
+  }, [openDialog, comment]);
 
   const truncationBreakpoints = useMemo(() => {
     return settings.commentTruncationBreakpoints || [];
   }, [settings.commentTruncationBreakpoints]);
 
-  const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
+  const collapseToFirst = () => {
+    setResetSig((s)=>s+1);
+    onChangeDisplayStatus('collapsed');
+  };
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
-    <div ref={elementRef} className={classNames(classes.root)} >
+    <div className={classNames(classes.root)} >
       <div className={classes.verticalLineContainer}>
         <div className={classNames(
           classes.verticalLine,
-          { 
-            [classes.verticalLineHighlighted]: highlight,
+          {
+            [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
+            [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
             [classes.verticalLineFirstComment]: isFirstComment,
             [classes.verticalLineLastComment]: isLastComment
           }
         )} />
       </div>
-      
-      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+      <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
         <div className={classes.commentHeader}>
           <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
           {showInLineCommentThreadTitle && !comment.shortform && post && (
@@ -287,16 +343,16 @@ const UltraFeedCommentItem = ({
         </div>
         <div className={classes.contentWrapper}>
           <FeedContentBody
-            comment={comment}
             html={comment.contents?.html ?? ""}
             breakpoints={truncationBreakpoints ?? []}
             wordCount={comment.contents?.wordCount ?? 0}
-            linkToDocumentOnFinalExpand={expanded}
             initialExpansionLevel={0}
             nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
+            clampOverride={settings.lineClampNumberOfLines}
             onExpand={handleContentExpand}
+            onContinueReadingClick={handleContinueReadingClick}
             hideSuffix={false}
+            resetSignal={resetSig}
           />
         </div>
         <UltraFeedItemFooter
@@ -306,6 +362,7 @@ const UltraFeedCommentItem = ({
           className={classes.footer}
         />
       </div>
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} />}
     </div>
     </AnalyticsContext>
   );

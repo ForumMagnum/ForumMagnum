@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import _filter from 'lodash/filter';
 import { isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
@@ -34,7 +33,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
 
   if (!comments) return null 
 
-  const newComments = user.reviewedAt ? _filter(comments, comment => comment.postedAt > user.reviewedAt) : comments
+  const newComments = user.reviewedAt ? comments.filter(comment => comment.postedAt > user.reviewedAt!) : comments
 
   return (
     <div className={classes.root}>

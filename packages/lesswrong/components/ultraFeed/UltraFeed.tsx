@@ -9,10 +9,13 @@ import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
+import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+
+const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
 const getStoredSettings = (): UltraFeedSettingsType => {
   if (!isClient) return DEFAULT_SETTINGS;
@@ -151,7 +154,13 @@ const UltraFeedContent = () => {
   
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [sessionId] = useState(() => randomId());
+  const [sessionId] = useState<string>(() => {
+    if (typeof window === 'undefined') return randomId();
+    const storage = window.sessionStorage;
+    const currentId = storage ? storage.getItem(ULTRAFEED_SESSION_ID_KEY) ?? randomId() : randomId();
+    storage.setItem(ULTRAFEED_SESSION_ID_KEY, currentId);
+    return currentId;
+  });
   
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
@@ -206,8 +215,8 @@ const UltraFeedContent = () => {
       
       {ultraFeedEnabled && <>
         <UltraFeedObserverProvider incognitoMode={settings.incognitoMode}>
+        <OverflowNavObserverProvider>
           <SingleColumnSection>
-            {/* place this higher than top feed so it properly scrolls into view */}
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
             {settingsVisible && (
               <div className={classes.settingsContainer}>
@@ -300,6 +309,7 @@ const UltraFeedContent = () => {
               />
             </div>
           </SingleColumnSection>
+        </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
       </>}
     </div>
@@ -309,7 +319,6 @@ const UltraFeedContent = () => {
 
 const UltraFeed = () => {
   return (
-    // TODO: possibly defer render shouldn't apply to the section title?
     <DeferRender ssr={false}>
       <UltraFeedContent />
     </DeferRender>

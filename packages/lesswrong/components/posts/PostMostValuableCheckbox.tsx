@@ -53,7 +53,7 @@ export const PostMostValuableCheckbox = ({post, classes}: {
     if (loading || createMostValuableLoading || setMostValuableLoading || !currentUser) return
     
     if (userVote) {
-      setChecked(userVote.deleted)
+      setChecked(!!userVote.deleted)
       void setMostValuable({
         selector: {
           _id: userVote._id

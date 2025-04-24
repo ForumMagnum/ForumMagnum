@@ -110,7 +110,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const isFirstCommentInBlock = idx === 0;
     const isLastCommentInBlock = idx === (responseCount - 1);
-    const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId);
+    const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId ?? '');
     const readerIsParticipant = currentUser && fullParticipantSet.has(currentUser._id);
 
     const showHeader = isFirstCommentInBlock;
