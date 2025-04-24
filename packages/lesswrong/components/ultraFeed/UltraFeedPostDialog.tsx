@@ -6,6 +6,7 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetLink } from "@/lib/collections/posts/helpers";
 import { useMulti } from "@/lib/crud/withMulti";
+import { useLocation, useNavigate } from "@/lib/routeUtil";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   '@global': {
@@ -13,7 +14,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     '::target-text': {
       backgroundColor: `${theme.palette.secondary.light}4c`,
     },
-    //fallback/common implementation
+    // fallback/common implementation
     'mark': {
       backgroundColor: `${theme.palette.secondary.light}4c`,
     }
@@ -32,7 +33,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     alignItems: 'center',
     marginBottom: 8,
   },
-  title: { 
+  title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: '1.4rem',
     fontWeight: 600,
@@ -101,20 +102,114 @@ type UltraFeedPostDialogProps = {
   textFragment?: string;
 }
 
+const UltraFeedDialogContent = ({
+  post,
+  comments,
+  commentsLoading,
+  commentsTotalCount,
+  textFragment,
+  onClose,
+}: {
+  post: PostsPage | UltraFeedPostFragment;
+  comments?: CommentsList[];
+  commentsLoading: boolean;
+  commentsTotalCount: number;
+  textFragment?: string;
+  onClose: () => void;
+}) => {
+  const { LWDialog, FeedContentBody, Loading, CommentsListSection, PostsVote } = Components;
+  const classes = useStyles(styles);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (textFragment) {
+      // it would be nice to use navigate here, but it doesn't work to trigger scrolling and highlighting
+      window.location.hash = textFragment;
+    }
+
+    return () => {
+      navigate({ hash: "" }, { replace: true });
+    };
+  }, [textFragment, navigate]);
+
+  return (
+    <LWDialog
+      open={true}
+      onClose={onClose}
+      fullWidth
+      dialogClasses={{
+        paper: classes.dialogPaper,
+      }}
+    >
+      <DialogContent className={classes.dialogContent}>
+        {post && <div>
+          <div className={classes.titleContainer}>
+            <Link
+              to={postGetLink(post)}
+              className={classes.title}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }
+              }>
+              {post.title}
+            </Link>
+            <span className={classes.closeButton} onClick={onClose}>
+              Close
+            </span>
+          </div>
+          {post?.contents?.html ? (
+            <FeedContentBody
+              post={post}
+              html={post.contents.html}
+              wordCount={post.contents.wordCount || 0}
+              linkToDocumentOnFinalExpand={false}
+              hideSuffix={true}
+            />
+          ) : (
+            <div>Post content not available.</div>
+          )}
+        </div>}
+        <div className={classes.voteBottom}>
+          {post && <PostsVote post={post} useHorizontalLayout={false} isFooter />}
+        </div>
+        {commentsLoading && <div className={classes.loadingContainer}><Loading /></div>}
+        {comments && (
+          <CommentsListSection
+            post={post}
+            comments={comments ?? []}
+            totalComments={commentsTotalCount ?? 0}
+            commentCount={(comments ?? []).length}
+            loadMoreComments={() => { }}
+            loadingMoreComments={false}
+            highlightDate={undefined}
+            setHighlightDate={() => { }}
+            hideDateHighlighting={true}
+            newForm={true}
+          />
+        )}
+      </DialogContent>
+    </LWDialog>
+  );
+
+}
+
+
 const UltraFeedPostDialog = ({
   postId,
   post,
   onClose,
   textFragment,
 }: UltraFeedPostDialogProps) => {
-  const { LWDialog, FeedContentBody, Loading, CommentsListSection, PostsVote } = Components;
+  const { Loading } = Components;
   const classes = useStyles(styles);
 
   const { document: fetchedPost, loading: loadingPost } = useSingle({
     documentId: postId,
     collectionName: "Posts",
     fragmentName: "UltraFeedPostFragment",
-    skip: !!post, 
+    skip: !!post,
   });
 
   const { results: comments, loading: isCommentsLoading, totalCount: commentsTotalCount } = useMulti({
@@ -130,101 +225,28 @@ const UltraFeedPostDialog = ({
   });
 
   const fullPost = post ?? fetchedPost;
-  const isLoading = !!postId && loadingPost && !post; 
+  const isLoading = !!postId && loadingPost && !post;
 
-  const previousHashRef = useRef<string | null>(null);
-  const appliedHashRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true; 
-    if (!isLoading && textFragment && textFragment !== appliedHashRef.current) {
-      const timeoutId = setTimeout(() => {
-        if (isMounted && !isLoading && textFragment && textFragment !== appliedHashRef.current) {
-            if (previousHashRef.current === null) { 
-               previousHashRef.current = window.location.hash; 
-            }
-            
-            window.location.hash = textFragment; 
-            appliedHashRef.current = textFragment; 
-        }
-      }, 10); 
-
-      return () => {
-        isMounted = false; 
-        clearTimeout(timeoutId);
-      };
-    }
-    return () => { isMounted = false; }; 
-  }, [textFragment, isLoading]);
-
-  // Effect specifically for cleanup on unmount
-  useEffect(() => {
-      return () => {
-          const originalHash = previousHashRef.current;
-          const restoreTo = originalHash || "";
-          window.history.replaceState(null, "", restoreTo);
-          appliedHashRef.current = null; 
-      };
-  }, []);
-
-  return (
-    <LWDialog
-      open={true}
+  return <>
+    {isLoading && <div className={classes.loadingContainer}>
+      <Loading />
+    </div>}
+    {fullPost && <UltraFeedDialogContent
+      post={fullPost}
+      comments={comments}
+      commentsLoading={isCommentsLoading}
+      commentsTotalCount={commentsTotalCount ?? 0}
+      textFragment={textFragment}
       onClose={onClose}
-      fullWidth
-      dialogClasses={{
-        paper: classes.dialogPaper,
-      }}
-    >
-      <DialogContent className={classes.dialogContent}>
-        {isLoading && <div className={classes.loadingContainer}><Loading /></div>}
-        {!isLoading && fullPost && <div>
-          <div className={classes.titleContainer}>
-            <Link to={postGetLink(fullPost)} className={classes.title} onClick={(e) => { e.stopPropagation(); onClose(); }}>
-              {fullPost.title}
-            </Link>
-            <span className={classes.closeButton} onClick={onClose}>
-              Close
-            </span>
-          </div>
-            {fullPost?.contents?.html ? (
-              <FeedContentBody
-                post={fullPost}
-                html={fullPost.contents.html}
-                wordCount={fullPost.contents.wordCount || 0}
-                linkToDocumentOnFinalExpand={false}
-                hideSuffix={true}
-              />
-            ) : (
-              <div>Post content not available.</div>
-            )}
-        </div>}
-        <div className={classes.voteBottom}>
-          {fullPost && <PostsVote post={fullPost} useHorizontalLayout={false} isFooter />}
-        </div>
-        {isCommentsLoading && !isLoading && <div className={classes.loadingContainer}><Loading /></div>}
-        {!isCommentsLoading && comments && (
-          <CommentsListSection 
-            post={fullPost}
-            comments={comments ?? []}
-            totalComments={commentsTotalCount ?? 0}
-            commentCount={(comments ?? []).length}
-            loadMoreComments={() => {}}
-            loadingMoreComments={false}
-            highlightDate={undefined}
-            setHighlightDate={() => {}}
-            hideDateHighlighting={true}
-            newForm={true}
-          />
-        )}
-      </DialogContent>
-    </LWDialog>
-  );
+    />}
+  </>
+
+
 };
 
 const UltraFeedPostDialogComponent = registerComponent("UltraFeedPostDialog", UltraFeedPostDialog);
 
-export default UltraFeedPostDialogComponent;
+export default UltraFeedPostDialog;
 
 declare global {
   interface ComponentTypes {

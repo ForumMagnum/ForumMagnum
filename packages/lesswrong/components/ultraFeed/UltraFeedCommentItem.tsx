@@ -343,7 +343,6 @@ const UltraFeedCommentItem = ({
         </div>
         <div className={classes.contentWrapper}>
           <FeedContentBody
-            comment={comment}
             html={comment.contents?.html ?? ""}
             breakpoints={truncationBreakpoints ?? []}
             wordCount={comment.contents?.wordCount ?? 0}

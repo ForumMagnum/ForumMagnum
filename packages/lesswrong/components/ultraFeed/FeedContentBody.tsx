@@ -27,6 +27,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     },
   },
   readMoreButton: {
+    fontSize: theme.typography.body2.fontSize,
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.link.color,
     cursor: 'pointer',
@@ -88,13 +89,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
 }));
 
-type PostProps = { post: { _id: string }; comment?: never; tag?: never };
-type CommentProps = { post?: never; comment: CommentsList; tag?: never };
-type TagProps = { post?: never; comment?: never; tag: TagBasicInfo };
-
-type DocumentProps = PostProps | CommentProps | TagProps;
-
-export interface BaseFeedContentBodyProps {
+export interface FeedContentBodyProps {
   html: string;
   breakpoints?: number[];
   initialExpansionLevel?: number;
@@ -102,7 +97,6 @@ export interface BaseFeedContentBodyProps {
   onContinueReadingClick?: (params: { textFragment?: string }) => void;
   wordCount: number;
   onExpand?: (level: number, maxLevelReached: boolean, wordCount: number) => void;
-  description?: string;
   nofollow?: boolean;
   className?: string;
   /** Override word truncation with line clamping (number of lines) */
@@ -113,41 +107,6 @@ export interface BaseFeedContentBodyProps {
   resetSignal?: number;
 }
 
-type FeedContentBodyProps = BaseFeedContentBodyProps & DocumentProps;
-
-interface RenderContinueReadingActionProps {
-  showContinueReadingAction: boolean;
-  onContinueReadingClick?: (params: { textFragment?: string }) => void;
-  fullHtmlForGeneration: string;
-  truncatedHtmlWithoutSuffix: string;
-  classes: Record<"readMoreButton", string>;
-  wordsLeft: number;
-}
-
-const renderContinueReadingAction = ({
-  showContinueReadingAction,
-  onContinueReadingClick,
-  fullHtmlForGeneration,
-  truncatedHtmlWithoutSuffix,
-  classes,
-  wordsLeft,
-}: RenderContinueReadingActionProps): React.ReactNode => {
-  if (!showContinueReadingAction || !onContinueReadingClick) return null;
-
-  return (
-    <div
-      className={classes.readMoreButton}
-      onClick={(e) => {
-        e.stopPropagation();
-        const generatedFragment = generateTextFragment(truncatedHtmlWithoutSuffix, fullHtmlForGeneration);
-        onContinueReadingClick({ textFragment: generatedFragment });
-      }}
-    >
-      {`(Continue Reading – ${wordsLeft} words more)`}
-    </div>
-  );
-};
-
 const FeedContentBody = ({
   html,
   breakpoints = [],
@@ -155,11 +114,7 @@ const FeedContentBody = ({
   linkToDocumentOnFinalExpand = true,
   onContinueReadingClick,
   wordCount,
-  post,
-  comment,
-  tag,
   onExpand,
-  description,
   nofollow = false,
   className,
   clampOverride,
@@ -169,7 +124,7 @@ const FeedContentBody = ({
 
   const classes = useStyles(styles);
   const [expansionLevel, setExpansionLevel] = useState(initialExpansionLevel);
-  
+
   useEffect(() => {
     if (resetSignal !== undefined) {
       setExpansionLevel(0);
@@ -179,29 +134,18 @@ const FeedContentBody = ({
   const isMaxLevel = expansionLevel >= breakpoints.length - 1;
   const currentWordLimit = breakpoints[expansionLevel];
 
-  const documentId = post?._id ?? comment?._id ?? tag?._id;
-
   const applyLineClamp = clampOverride && clampOverride > 0 && expansionLevel === 0;
-
-  let documentType: 'post' | 'comment' | 'tag';
-  if (post) {
-    documentType = 'post';
-  } else if (comment) {
-    documentType = 'comment';
-  } else {
-    documentType = 'tag';
-  }
 
   const handleExpand = useCallback(() => {
     if (isMaxLevel || !breakpoints.length) {
-        return; 
+      return;
     }
 
     const newLevel = Math.min(expansionLevel + 1, breakpoints.length - 1);
     const newMaxReached = newLevel >= breakpoints.length - 1;
     setExpansionLevel(newLevel);
     onExpand?.(newLevel, newMaxReached, wordCount);
-  }, [ expansionLevel, breakpoints.length, onExpand, isMaxLevel, wordCount ]);
+  }, [expansionLevel, breakpoints.length, onExpand, isMaxLevel, wordCount]);
 
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -234,7 +178,7 @@ const FeedContentBody = ({
       truncatedHtml = html; // Render full HTML for CSS clamping
     } else {
       // Word count truncation logic (applies if no clampOverride OR expansionLevel > 0)
-      if (hideSuffix || (isMaxLevel && linkToDocumentOnFinalExpand)) { 
+      if (hideSuffix || (isMaxLevel && linkToDocumentOnFinalExpand)) {
         suffix = '...';
       } else {
         suffix = `...<span class="read-more-suffix">${readMoreSuffixText}</span>`;
@@ -243,7 +187,7 @@ const FeedContentBody = ({
       const result = truncateWithGrace(
         html,
         currentWordLimit,
-        20, 
+        20,
         wordCount,
         suffix
       );
@@ -252,9 +196,9 @@ const FeedContentBody = ({
       wasTruncated = result.wasTruncated;
 
       if (wasTruncated) {
-         wordsLeft = Math.max(0, wordCount - currentWordLimit);
+        wordsLeft = Math.max(0, wordCount - currentWordLimit);
       } else {
-         wordsLeft = 0;
+        wordsLeft = 0;
       }
     }
 
@@ -266,7 +210,7 @@ const FeedContentBody = ({
   const truncatedHtmlWithoutSuffix = truncatedHtml.replace(suffix, '');
 
   const getLineClampClass = () => {
-    if (!applyLineClamp || !clampOverride) return ""; 
+    if (!applyLineClamp || !clampOverride) return "";
     switch (clampOverride) {
       case 1: return classes.lineClamp1;
       case 2: return classes.lineClamp2;
@@ -276,50 +220,49 @@ const FeedContentBody = ({
       case 6: return classes.lineClamp6;
       case 8: return classes.lineClamp8;
       case 10: return classes.lineClamp10;
-      default: 
+      default:
         // eslint-disable-next-line no-console
         console.warn(`No specific class for line clamp value: ${clampOverride}, using default`);
         return classes.lineClamp4;
     }
   };
 
-  const showContinueReadingAction = !applyLineClamp && isMaxLevel && wasTruncated;
+  const showContinueReadingAction = !applyLineClamp && isMaxLevel && wasTruncated && onContinueReadingClick;
   const isClickableForExpansion = !isMaxLevel;
-
-  const continueReadingAction = showContinueReadingAction ? renderContinueReadingAction({
-    showContinueReadingAction: true,
-    onContinueReadingClick,
-    fullHtmlForGeneration: html,
-    truncatedHtmlWithoutSuffix: truncatedHtmlWithoutSuffix,
-    classes,
-    wordsLeft,
-  }) : null;
+  const generatedFragment = onContinueReadingClick ? generateTextFragment(truncatedHtmlWithoutSuffix, html) : undefined;
 
   return (
     <div
       className={classNames(
         classes.root,
         className,
-        isClickableForExpansion && classes.clickableContent 
+        isClickableForExpansion && classes.clickableContent
       )}
       onClick={isClickableForExpansion ? handleContentClick : undefined}
     >
       <Components.ContentStyles contentType="ultraFeed">
         <div>
-            <Components.ContentItemBody
-              dangerouslySetInnerHTML={{ __html: truncatedHtml }}
-              description={description || `${documentType} ${documentId}`}
-              nofollow={nofollow}
-              className={classNames({
-                [classes.maxHeight]: !applyLineClamp && !isMaxLevel && wasTruncated,
-                [classes.lineClamp]: applyLineClamp && wasTruncated,
-                [getLineClampClass()]: applyLineClamp && wasTruncated,
-                [classes.levelZero]: expansionLevel === 0,
-              })}
-            />
+          <Components.ContentItemBody
+            dangerouslySetInnerHTML={{ __html: truncatedHtml }}
+            nofollow={nofollow}
+            className={classNames({
+              [classes.maxHeight]: !applyLineClamp && !isMaxLevel && wasTruncated,
+              [classes.lineClamp]: applyLineClamp && wasTruncated,
+              [getLineClampClass()]: applyLineClamp && wasTruncated,
+              [classes.levelZero]: expansionLevel === 0,
+            })}
+          />
         </div>
-        {continueReadingAction}
       </Components.ContentStyles>
+      {showContinueReadingAction && <div
+        className={classes.readMoreButton}
+        onClick={(e) => {
+          e.stopPropagation();
+          onContinueReadingClick({ textFragment: generatedFragment });
+        }}
+      >
+        {`(Continue Reading - ${wordsLeft} words more)`}
+      </div>}
     </div>
   );
 };

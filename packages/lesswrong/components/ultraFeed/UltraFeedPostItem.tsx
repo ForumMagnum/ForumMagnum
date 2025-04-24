@@ -321,7 +321,6 @@ const UltraFeedPostItem = ({
         </div>
       ) : (
         <FeedContentBody
-          post={post}
           html={displayHtml}
           breakpoints={settings.postTruncationBreakpoints}
           initialExpansionLevel={0}

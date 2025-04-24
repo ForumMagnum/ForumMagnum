@@ -29,10 +29,10 @@ export const OverflowNavObserverProvider = ({ children }: { children: ReactNode 
 
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof IntersectionObserver !== 'undefined') {
-        const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-            entries.forEach((entry) => {
-                const info = elementMapRef.current.get(entry.target);
-                if (!info) return;
+      const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+        entries.forEach((entry) => {
+          const info = elementMapRef.current.get(entry.target);
+          if (!info) return;
 
           if (info.kind === 'top') {
             info.pair.topIntersect = entry.isIntersecting;
@@ -99,31 +99,31 @@ export const useOverflowNav = (
   const { observer: sharedObserver, elementMap: sharedMap } = context;
 
   const pairStateRef = useRef<PairState>({
-      topIntersect: false,
-      bottomIntersect: false,
-      topViewportPos: 0,
-      bottomViewportPos: 0,
-      update: () => {
-        const target = targetRef.current;
-        if (!target) return;
-        const currentPairState = pairStateRef.current;
-        const rect = target.getBoundingClientRect();
-        const viewportH = window.innerHeight;
-        const isVisible = rect.bottom > 0 && rect.top < viewportH;
-        const isOversized = target.offsetHeight >= viewportH * ratio;
+    topIntersect: false,
+    bottomIntersect: false,
+    topViewportPos: 0,
+    bottomViewportPos: 0,
+    update: () => {
+      const target = targetRef.current;
+      if (!target) return;
+      const currentPairState = pairStateRef.current;
+      const rect = target.getBoundingClientRect();
+      const viewportH = window.innerHeight;
+      const isVisible = rect.bottom > 0 && rect.top < viewportH;
+      const isOversized = target.offsetHeight >= viewportH * ratio;
 
-        const localShowUp = isOversized && currentPairState.bottomIntersect && !currentPairState.topIntersect && isVisible;
-        const localShowBoth = isOversized && !currentPairState.topIntersect && !currentPairState.bottomIntersect && isVisible;
-        
-        setShowUp(prev => {
-          const nextShowUp = localShowUp || localShowBoth;
-          return prev !== nextShowUp ? nextShowUp : prev;
-        });
-        setShowDown(prev => {
-           const nextShowDown = localShowBoth;
-           return prev !== nextShowDown ? nextShowDown : prev;
-        });
-      },
+      const localShowUp = isOversized && currentPairState.bottomIntersect && !currentPairState.topIntersect && isVisible;
+      const localShowBoth = isOversized && !currentPairState.topIntersect && !currentPairState.bottomIntersect && isVisible;
+
+      setShowUp(prev => {
+        const nextShowUp = localShowUp || localShowBoth;
+        return prev !== nextShowUp ? nextShowUp : prev;
+      });
+      setShowDown(prev => {
+        const nextShowDown = localShowBoth;
+        return prev !== nextShowDown ? nextShowDown : prev;
+      });
+    },
   });
 
   useEffect(() => {
