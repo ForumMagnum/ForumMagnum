@@ -3581,6 +3581,7 @@ fragment TagEditFragment on Tag {
   tagFlagsIds
   postsDefaultSortOrder
   introSequenceId
+  canVoteOnRels
     
   autoTagModel
   autoTagPrompt

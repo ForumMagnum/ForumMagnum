@@ -45,20 +45,25 @@ export const graphqlTypeDefs = gql`
   }
 `
 
-export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption> = {
+export const TAG_POSTS_SORT_ORDER_OPTIONS = {
   relevance: { label: preferredHeadingCase("Most Relevant") },
   ...SORT_ORDER_OPTIONS,
-};
+} satisfies Record<string, SettingsOption>;
 
 
-const wikiGradeDefinitions: Partial<Record<number,string>> = {
+const wikiGradeDefinitions = {
   0: "Uncategorized",
   1: "Flagged",
   2: "Stub",
   3: "C-Class",
   4: "B-Class",
   5: "A-Class"
-};
+} satisfies Record<number, string>;
+
+export const wikiGradeOptions = Object.entries(wikiGradeDefinitions).map(([grade, name]) => ({
+  value: parseInt(grade),
+  label: name,
+}));
 
 async function getTagMultiDocuments(context: ResolverContext, tagId: string) {
   const { MultiDocuments } = context;

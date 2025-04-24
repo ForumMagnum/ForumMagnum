@@ -6,7 +6,7 @@ const styles = (theme: ThemeType) => ({
   root: {}
 })
 
-const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS);
+const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS) as (keyof typeof TAG_POSTS_SORT_ORDER_OPTIONS)[];
 
 const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sortedBy", classes}: {
   value: string

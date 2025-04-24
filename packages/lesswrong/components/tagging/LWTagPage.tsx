@@ -39,6 +39,7 @@ import { useDisplayedContributors } from "./ContributorsList";
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 import { LensForm } from "./lenses/LensForm";
+import { useSingle } from "@/lib/crud/withSingle";
 
 const AUDIO_PLAYER_WIDTH = 325;
 
@@ -547,6 +548,14 @@ const LWTagPage = () => {
   const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
   const { tag, loadingTag, tagError, refetchTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
+  const { document: editableTag } = useSingle({
+    documentId: tag?._id,
+    collectionName: 'Tags',
+    fragmentName: 'TagEditFragment',
+    skip: !tag,
+    ssr: false,
+  });
+
   const [truncated, setTruncated] = useState(false)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
@@ -748,10 +757,10 @@ const LWTagPage = () => {
 
   let editForm;
   if (selectedLens?._id === MAIN_TAB_ID) {
-    editForm = (
+    editForm = editableTag ? (
       <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
         <EditTagForm
-          tag={tag}
+          tag={editableTag}
           warnUnsavedChanges={true}
           successCallback={async () => {
             setEditing(false, false);
@@ -761,7 +770,7 @@ const LWTagPage = () => {
           changeCallback={() => formDirtyRef.current = true}
         />
       </span>
-    );
+    ) : <></>;
   } else if (selectedLens) {
     editForm = (
       <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>

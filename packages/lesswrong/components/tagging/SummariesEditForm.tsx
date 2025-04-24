@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useMulti } from "@/lib/crud/withMulti";
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
 import { gql, useMutation } from "@apollo/client";
@@ -108,18 +107,6 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
   },
-  submitButtons: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    marginTop: 4,
-    marginBottom: -6,
-    justifyContent: 'end',
-    height: 36,
-  },
-  submitButton: {
-    color: theme.palette.secondary.main
-  },
-  cancelButton: {},
   deleteButton: {
     color: theme.palette.error.main,
   },
@@ -173,25 +160,6 @@ const NO_SUMMARIES_TEXT = "There are no custom summaries written for this page, 
 const SUMMARIES_TEXT = "You can edit summaries by clicking on them, reorder them by dragging, or add a new one (up to 3).  By default you should avoid creating more than one summary unless the subject matter benefits substantially from multiple kinds of explanation.";
 const MAX_SUMMARIES_TEXT = "You can edit these summaries by clicking on them and reorder them by dragging.  Pages can have up to 3 summaries.";
 
-const SummarySubmitButtons = ({ submitForm, cancelCallback }: FormButtonProps) => {
-  const { Loading } = Components;
-  const classes = useStyles(styles);
-
-  const [loading, setLoading] = useState(false);
-
-  const wrappedSubmitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    setLoading(true);
-    await submitForm(e);
-    setLoading(false);
-  }
-
-  return <div className={classes.submitButtons}>
-    {!loading && <Button onClick={cancelCallback} className={classes.cancelButton}>Cancel</Button>}
-    {!loading && <Button onClick={wrappedSubmitForm} className={classes.submitButton}>Submit</Button>}
-    {loading && <Loading />}
-  </div>
-};
-
 const SummaryEditorRow = ({ summary, refetch }: {
   summary: MultiDocumentContentDisplay,
   refetch: () => Promise<void>,
@@ -241,7 +209,6 @@ interface NewSummaryEditorProps {
 }
 
 const NewSummaryEditor = ({ parentDocumentId, collectionName, refetchSummaries, setNewSummaryEditorOpen }: NewSummaryEditorProps) => {
-  const { WrappedSmartForm } = Components;
   const classes = useStyles(styles);
 
   const wrappedSuccessCallback = async () => {
@@ -384,4 +351,4 @@ declare global {
   }
 }
 
-export default SummariesEditFormComponent;
+export default SummariesEditForm;

@@ -5,7 +5,7 @@ import type { TypedFieldApi } from './BaseAppForm';
 
 export const TanStackSelect = ({ field, options, label }: {
   field: TypedFieldApi<string>;
-  options: { label: string; value: string }[];
+  options: { label: string; value: string | number }[];
   label?: string;
 }) => {
   const { MenuItem } = Components;

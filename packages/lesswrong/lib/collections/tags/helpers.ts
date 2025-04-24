@@ -93,7 +93,7 @@ export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag:
   return false
 }
 
-export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: DbTag): boolean => {
+export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: Pick<DbTag, "subforumModeratorIds">): boolean => {
   if (!user || !tag) return false;
   return tag.subforumModeratorIds?.includes(user._id);
 }

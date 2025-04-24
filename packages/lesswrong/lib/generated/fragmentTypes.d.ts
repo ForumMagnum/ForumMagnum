@@ -3308,6 +3308,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
   readonly introSequenceId: string,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
   readonly description: RevisionEdit|null,

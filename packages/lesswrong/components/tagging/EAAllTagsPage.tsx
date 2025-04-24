@@ -10,6 +10,7 @@ import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { useSingle } from '@/lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
@@ -59,6 +60,14 @@ const EAAllTagsPage = ({classes}: {
   const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
 
+  const { document: editableTag } = useSingle({
+    documentId: tag?._id,
+    collectionName: 'Tags',
+    fragmentName: 'TagEditFragment',
+    skip: !tag || !editing,
+    ssr: false,
+  });
+
   const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, Loading, CoreTagsSection, SingleColumnSection } = Components;
 
   const portalTitle = `EA Forum ${`${taggingNamePluralCapitalSetting.get()} `}Wiki`
@@ -96,8 +105,8 @@ const EAAllTagsPage = ({classes}: {
             {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
               Edit
             </a>}
-            {editing && tag ?
-              <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+            {editableTag ?
+              <EditTagForm tag={editableTag} successCallback={()=>setEditing(false)}/>
               :
               <ContentItemBody
                 dangerouslySetInnerHTML={{__html: htmlWithAnchors}}

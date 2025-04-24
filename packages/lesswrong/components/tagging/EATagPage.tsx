@@ -23,6 +23,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
+import { useSingle } from "@/lib/crud/withSingle";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -198,6 +199,7 @@ const EATagPage = ({classes}: {
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
+  const [editing, setEditing] = useState(!!query.edit)
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
@@ -218,9 +220,16 @@ const EATagPage = ({classes}: {
       contributorsLimit,
     },
   });
+
+  const { document: editableTag } = useSingle({
+    documentId: tag?._id,
+    collectionName: 'Tags',
+    fragmentName: 'TagEditFragment',
+    skip: !tag || !editing,
+    ssr: false,
+  });
   
   const [truncated, setTruncated] = useState(true)
-  const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
@@ -315,6 +324,17 @@ const EATagPage = ({classes}: {
     allPages: "allPages",
     myPages: "userPages"
   }
+
+  const editTagForm = editableTag
+    ? <EditTagForm
+        tag={editableTag}
+        successCallback={ async () => {
+          setEditing(false)
+          await client.resetStore()
+        }}
+        cancelCallback={() => setEditing(false)}
+      />
+  : <Loading />;
   
   return <AnalyticsContext
     pageContext='tagPage'
@@ -402,15 +422,8 @@ const EATagPage = ({classes}: {
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
               You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
             </div>}
-            {editing ? <div>
-              <EditTagForm
-                tag={tag}
-                successCallback={ async () => {
-                  setEditing(false)
-                  await client.resetStore()
-                }}
-                cancelCallback={() => setEditing(false)}
-              />
+            {editableTag ? <div>
+              {editTagForm}
               <TagVersionHistoryButton tagId={tag._id} />
             </div> :
             <div onClick={clickReadMore}>
