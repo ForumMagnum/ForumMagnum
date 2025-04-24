@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const getCommonStyles = (theme: ThemeType) => ({
+const styles = defineStyles('OverallVoteAxis', theme => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
@@ -31,14 +31,19 @@ const getCommonStyles = (theme: ThemeType) => ({
     display: "inline-block",
   },
   voteScore: { 
-    lineHeight: 1
+    lineHeight: 1,
+    fontSize: '1.1rem',
+    margin: '0 4px',
+    verticalAlign: 'baseline',
   },
   secondarySymbol: {
     fontFamily: theme.typography.body1.fontFamily,
   },
   secondaryScore: {
     marginLeft: 2,
-    marginRight: 14
+    marginRight: 14,
+    fontSize: '1.1rem',
+    display: 'initial',
   },
   secondaryScoreNumber: {
     marginLeft: 3,
@@ -54,38 +59,11 @@ const getCommonStyles = (theme: ThemeType) => ({
     transform: "translateY(-3px)",
   },
   verticalArrows: {
-    "& .LWTooltip-root": {
-    },
+    "& .LWTooltip-root": {},
     "& $voteScore": {
       display: "block",
     },
   },
-});
-
-const smallStylesDefinition = defineStyles('OverallVoteAxisSmall', theme => ({
-  ...getCommonStyles(theme),
-  voteScore: { 
-    ...getCommonStyles(theme).voteScore,
-    fontSize: '1.1rem',
-    margin: '0 4px', 
-  },
-  secondaryScore: {
-    ...getCommonStyles(theme).secondaryScore,
-    fontSize: '1.1rem',
-  },
-}));
-
-const largeStylesDefinition = defineStyles('OverallVoteAxisLarge', theme => ({
-  ...getCommonStyles(theme),
-  voteScore: { 
-    ...getCommonStyles(theme).voteScore,
-    fontSize: '1.3rem', 
-    margin: '0 7px', 
-  },
-  secondaryScore: { 
-    ...getCommonStyles(theme).secondaryScore,
-    fontSize: '1.3rem', 
-  }
 }));
 
 const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
@@ -98,8 +76,9 @@ const OverallVoteAxis = ({
   verticalArrows,
   largeArrows,
   hideAfScore,
-  size = 'small', // Default size
   className,
+  voteScoreClassName,
+  secondaryScoreClassName,
 }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
@@ -107,12 +86,12 @@ const OverallVoteAxis = ({
   showBox?: boolean,
   verticalArrows?: boolean,
   largeArrows?: boolean,
-  size?: 'small' | 'large',
   hideAfScore?: boolean,
   className?: string,
+  voteScoreClassName?: string,
+  secondaryScoreClassName?: string,
 }) => {
-  const stylesToUse = size === 'small' ? smallStylesDefinition : largeStylesDefinition;
-  const classes = useStyles(stylesToUse);
+  const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
   const { OverallVoteButton, LWTooltip } = Components;
@@ -126,7 +105,7 @@ const OverallVoteAxis = ({
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
 
-  let moveToAlignnmentUserId = ""
+  let moveToAlignnmentUserId: string | null = "";
   let documentTypeName = "comment";
   if (collectionName === "Comments") {
     const comment = document as CommentsList
@@ -200,7 +179,7 @@ const OverallVoteAxis = ({
             </div>
           }
         >
-          <span className={classes.secondaryScore}>
+          <span className={classNames(classes.secondaryScore, secondaryScoreClassName)}>
             <span className={classes.secondarySymbol}>Ω</span>
             <span className={classes.secondaryScoreNumber}>{afBaseScore || 0}</span>
           </span>
@@ -212,7 +191,7 @@ const OverallVoteAxis = ({
           placement={tooltipPlacement}
           className={classes.lwTooltip}
         >
-          <span className={classes.secondaryScore}>
+          <span className={classNames(classes.secondaryScore, secondaryScoreClassName)}>
             <span className={classes.secondarySymbol}>LW</span>
             <span className={classes.secondaryScoreNumber}>{document.baseScore || 0}</span>
           </span>
@@ -239,7 +218,7 @@ const OverallVoteAxis = ({
           <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
             {hideKarma
               ? <span>{' '}</span>
-              : <span className={classes.voteScore}>
+              : <span className={classNames(classes.voteScore, voteScoreClassName)}>
                   {karma}
                 </span>
             }

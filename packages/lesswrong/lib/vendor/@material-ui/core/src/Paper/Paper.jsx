@@ -2,13 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import warning from 'warning';
-import withStyles from '../styles/withStyles';
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-export const styles = theme => {
+export const styles = defineStyles("MuiPaper", theme => {
   const elevations = {};
   theme.shadows.forEach((shadow, index) => {
     elevations[`elevation${index}`] = {
       boxShadow: shadow,
+
+      ...(theme.themeOptions.name === "dark" && {
+        boxShadow: "none",
+      }),
     };
   });
 
@@ -23,17 +27,18 @@ export const styles = theme => {
     },
     ...elevations,
   };
-};
+}, {stylePriority: -10});
 
 function Paper(props) {
   const {
-    classes,
+    classes: classesOverrides,
     className: classNameProp,
-    component: Component,
-    square,
-    elevation,
+    component: Component = 'div',
+    square = false,
+    elevation = 2,
     ...other
   } = props;
+  const classes = useStyles(styles, classesOverrides);
 
   warning(
     elevation >= 0 && elevation < 25,
@@ -61,7 +66,7 @@ Paper.propTypes = {
    * Override or extend the styles applied to the component.
    * See [CSS API](#css-api) below for more details.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object,
   /**
    * @ignore
    */
@@ -82,10 +87,4 @@ Paper.propTypes = {
   square: PropTypes.bool,
 };
 
-Paper.defaultProps = {
-  component: 'div',
-  elevation: 2,
-  square: false,
-};
-
-export default withStyles(styles, { name: 'MuiPaper' })(Paper);
+export default Paper;

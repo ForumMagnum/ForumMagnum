@@ -712,7 +712,7 @@ const LWTagPage = () => {
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
   if (query.sortedBy || tag.postsDefaultSortOrder) {
-    query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+    query.sortedBy = (query.sortedBy || tag.postsDefaultSortOrder) ?? query.sortedBy
   }
 
   const terms = {

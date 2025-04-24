@@ -2444,7 +2444,7 @@ interface Post {
   postCategory: string;
   title: string;
   viewCount?: number | null;
-  lastCommentedAt?: Date | null;
+  lastCommentedAt: Date;
   clickCount?: number | null;
   deletedDraft: boolean;
   status: number;
@@ -2908,7 +2908,7 @@ interface Revision {
   documentId?: string | null;
   collectionName?: string | null;
   fieldName?: string | null;
-  editedAt?: Date | null;
+  editedAt: Date;
   updateType?: string | null;
   version: string;
   commitMessage?: string | null;
@@ -3768,7 +3768,7 @@ interface User {
   profile?: any;
   services?: any;
   hasAuth0Id?: boolean | null;
-  displayName?: string | null;
+  displayName: string;
   previousDisplayName?: string | null;
   email?: string | null;
   noindex: boolean;
@@ -4012,8 +4012,14 @@ interface User {
   recommendationSettings?: any;
 }
 
+interface UserSelectorUniqueInput {
+  _id?: string | null;
+  documentId?: string | null;
+  slug?: string | null;
+}
+
 interface SingleUserInput {
-  selector?: SelectorInput | null;
+  selector?: UserSelectorUniqueInput | null;
   resolverArgs?: any;
   allowNull?: boolean | null;
 }
@@ -5858,7 +5864,7 @@ interface CreateUserDataInput {
   biography?: CreateRevisionDataInput | null;
   username?: string | null;
   isAdmin?: boolean | null;
-  displayName?: string | null;
+  displayName: string;
   previousDisplayName?: string | null;
   email?: string | null;
   groups?: Array<string> | null;
@@ -6659,6 +6665,7 @@ interface GraphQLTypeMap {
   MultiUserTagRelInput: MultiUserTagRelInput;
   MultiUserTagRelOutput: MultiUserTagRelOutput;
   User: User;
+  UserSelectorUniqueInput: UserSelectorUniqueInput;
   SingleUserInput: SingleUserInput;
   SingleUserOutput: SingleUserOutput;
   MultiUserInput: MultiUserInput;

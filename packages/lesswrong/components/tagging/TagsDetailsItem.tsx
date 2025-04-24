@@ -8,6 +8,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
 import { useSingle } from '@/lib/crud/withSingle';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,7 +29,10 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
       maxWidth: "unset"
-    }
+    },
+    ...(isFriendlyUI && {
+      maxWidth: 490,
+    }),
   },
   collapsedDescription: {
     display: "flex",

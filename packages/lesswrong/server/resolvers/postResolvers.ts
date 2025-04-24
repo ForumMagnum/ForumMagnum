@@ -8,7 +8,8 @@ import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import { GoogleDocMetadata } from '../collections/revisions/helpers';
-import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
+import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
+import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
@@ -291,11 +292,13 @@ export const postGqlQueries = {
 
       return {
         post,
-        digestPost: {
-          _id: post.digestPostId,
-          emailDigestStatus: post.emailDigestStatus,
-          onsiteDigestStatus: post.onsiteDigestStatus
-        },
+        digestPost: post.digestPostId
+          ? {
+            _id: post.digestPostId,
+            emailDigestStatus: post.emailDigestStatus,
+            onsiteDigestStatus: post.onsiteDigestStatus
+          }
+          : null,
         rating: 0
       }
     })

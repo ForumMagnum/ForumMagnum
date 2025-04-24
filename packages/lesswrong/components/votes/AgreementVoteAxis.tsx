@@ -23,25 +23,19 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   },
   agreementScore: {
     lineHeight: 1,
-  },
-  agreementScoreSmall: {
     fontSize: "1.1rem",
     margin: '0 3px',
-  },
-  agreementScoreLarge: {
-    fontSize: "1.3rem",
-    margin: '0 7px',
   },
   tooltip: {
     transform: "translateY(-10px)",
   },
 }));
 
-const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, size='small', }: {
+const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScoreClassName, }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  size?: 'small' | 'large',
+  agreementScoreClassName?: string,
 }) => {
   const { AxisVoteButton, LWTooltip } = Components;
   const classes = useStyles(styles);
@@ -102,10 +96,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, size='small',
         />
       </TooltipIfEnabled>
 
-      <span className={classNames(
-        classes.agreementScore,
-        size === 'small' ? classes.agreementScoreSmall : classes.agreementScoreLarge
-      )}>
+      <span className={classNames(classes.agreementScore, agreementScoreClassName)}>
         <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
           {hideKarma
             ? <span>{' '}</span>

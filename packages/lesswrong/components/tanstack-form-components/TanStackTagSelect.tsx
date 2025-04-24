@@ -1,4 +1,4 @@
-import Chip from '@/lib/vendor/@material-ui/core/src/Chip/Chip';
+import { Chip } from '@/components/widgets/Chip';
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Components } from '../../lib/vulcan-lib/components';

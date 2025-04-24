@@ -613,6 +613,7 @@ declare global {
 
       postStyle: JssStyles,
       commentStyle: JssStyles,
+      ultraFeedMobileStyle: JssStyles,
       commentBlockquote: JssStyles,
       commentHeader: JssStyles,
       errorStyle: JssStyles,

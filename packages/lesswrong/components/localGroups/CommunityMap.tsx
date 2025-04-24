@@ -227,7 +227,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   
   return <React.Fragment>
     {spreadMapLocations.map(({lat, lng, data: user}) => {
-      const htmlBody = {__html: user.htmlMapMarkerText};
+      const htmlBody = {__html: user.htmlMapMarkerText ?? ''};
       return <React.Fragment key={user._id}>
         <Marker
           latitude={lat}

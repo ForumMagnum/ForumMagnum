@@ -910,9 +910,10 @@ const schema = {
   displayName: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       // On the EA Forum name changing is rate limited in rateLimitCallbacks
       canUpdate: ["sunshineRegiment", "admins", isEAForum ? 'members' : userHasntChangedName],

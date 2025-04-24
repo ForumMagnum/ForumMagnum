@@ -284,7 +284,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
                 </div>
               )}
               <ContentItemBody
-                dangerouslySetInnerHTML={{ __html: revision.html }}
+                dangerouslySetInnerHTML={{ __html: revision.html ?? '' }}
                 description="PostVersionHistory revision"
               />
             </>

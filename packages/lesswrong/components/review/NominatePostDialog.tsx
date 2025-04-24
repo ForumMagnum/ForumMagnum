@@ -1,6 +1,6 @@
 import React from 'react';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 

@@ -9,7 +9,7 @@ import { updateUser, createUser } from "../collections/users/mutations";
 
 export type IdFromProfile<P extends Profile> = (profile: P) => string | number;
 
-export type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbInsertion<DbUser>>>;
+export type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbInsertion<DbUser>> & { displayName: string }>;
 
 /**
  * If the user's email has been updated by their OAuth provider, change their

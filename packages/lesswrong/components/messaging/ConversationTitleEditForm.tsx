@@ -1,6 +1,6 @@
 import React from 'react';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useUpdate } from '@/lib/crud/withUpdate';
@@ -33,7 +33,6 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   onClose?: () => void,
   conversation: UpdateConversationDataInput & { _id: string },
 }) => {
-  const { Error404 } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 

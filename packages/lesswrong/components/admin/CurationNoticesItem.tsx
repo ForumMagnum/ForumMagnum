@@ -91,7 +91,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentItemBody, Button, BasicFormStyles } = Components;
+  const { ContentItemBody, BasicFormStyles, WrappedSmartForm } = Components;
 
   const currentUser = useCurrentUser();
 
@@ -150,7 +150,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     }
   }
 
-  if (curationNotice.post === null || !currentUser) return null;
+  if (curationNotice.post === null || curationNotice.postId === null || !currentUser) return null;
 
   const { _id, contents, commentId, deleted } = curationNotice;
 

@@ -98,46 +98,6 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      Header: {
-        titleLink: {
-          top: 0
-        }
-      },
-      MuiTooltip: {
-        tooltip: {
-          fontSize: 13
-        }
-      },
-      PostsVoteDefault: {
-        voteScores: {
-          fontVariantNumeric: "lining-nums",
-        }
-      },
-      SectionTitle: {
-        leftDivider: {
-          width: 18,
-          marginTop: 4
-        },
-        rightDivider: {
-          marginTop: 4,
-          marginRight: 8,
-        },
-        tailDivider: {
-          marginTop: 4,
-          width: 24,
-        }
-      },
-      SectionButton: {
-        root: {
-          marginTop: 4,
-          fontWeight: 500,
-        }
-      },
-      LoadMore: {
-        root: {
-          fontWeight: 500,
-        }
-      }
     }
   }),
 };

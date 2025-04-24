@@ -9,8 +9,13 @@ export const graphqlUserQueryTypeDefs = gql`
     ${getAllGraphQLFields(schema)}
   }
 
+  input UserSelectorUniqueInput {
+    _id: String
+    documentId: String
+    slug: String
+  }
   input SingleUserInput {
-    selector: SelectorInput
+    selector: UserSelectorUniqueInput
     resolverArgs: JSON
     allowNull: Boolean
   }

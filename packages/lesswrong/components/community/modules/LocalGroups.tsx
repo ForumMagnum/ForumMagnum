@@ -200,7 +200,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   let localGroups = results
   if (results && keywordSearch) {
     localGroups = results.filter(group => (
-      `${group.name.toLowerCase()} ${group.nameInAnotherLanguage?.toLowerCase() ?? ''} ${group.location?.toLowerCase() ?? ''}`.includes(keywordSearch.toLowerCase())
+      `${group.name?.toLowerCase()} ${group.nameInAnotherLanguage?.toLowerCase() ?? ''} ${group.location?.toLowerCase() ?? ''}`.includes(keywordSearch.toLowerCase())
     ))
   }
 

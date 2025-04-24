@@ -447,7 +447,7 @@ const Layout = ({currentUser, children, classes}: {
                     </DeferRender>
                   </StickyWrapper>
                 }
-                {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />}
+                {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,

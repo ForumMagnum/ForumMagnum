@@ -7,12 +7,22 @@ import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsType
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import { useOverflowNav } from "./OverflowNavObserverContext";
+import { useDialog } from "../common/withDialog";
+
+const commentHeaderPaddingDesktop = 12;
+const commentHeaderPaddingMobile = 12;
+
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
-    paddingTop: 12,
+    position: 'relative',
+    paddingTop: commentHeaderPaddingDesktop,
     display: 'flex',
     flexDirection: 'row',
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: commentHeaderPaddingMobile,
+    },
   },
   compressedRoot: {
     display: 'flex',
@@ -28,18 +38,26 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginBottom: 8,
   },
   contentWrapper: {
+    paddingRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      paddingRight: 0,
+    },
   },
   numComments: {
     fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: theme.typography.body2.fontSize,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: 6,
-    fontSize: '1.3rem',
+    padding: 8,
     opacity: 0.5,
     cursor: "pointer",
     '&:hover': {
       opacity: 1,
+    },
+    [theme.breakpoints.down('sm')]: {
+      padding: 6,
+      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
   },
   inlineCommentThreadTitle: {
@@ -47,7 +65,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginBottom: 12,
     marginRight: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.3rem',
+    fontSize: theme.typography.body2.fontSize,
     fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
     width: '100%',
@@ -56,6 +74,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
     fontStyle: 'italic',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
+    },
   },
   inlineCommentThreadTitleLink: {
     background: 'none',
@@ -84,38 +105,56 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     width: 0,
     display: 'flex',
     justifyContent: 'center',
-    marginRight: 2,
-    marginTop: -12,
+    marginRight: 6,
+    marginTop: -commentHeaderPaddingDesktop,
     marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 2,
+      marginTop: -commentHeaderPaddingMobile,
+    },
   },
   verticalLineContainerCompressed: {
     width: 0,
     display: 'flex',
     justifyContent: 'center',
-    marginRight: 2,
+    marginRight: 6,
     marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 2,
+    },
   },
   verticalLine: {
     width: 0,
-    borderLeft: `4px solid ${theme.palette.grey[300]}`,
+    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
     flex: 1,
-    marginLeft: -10
+    marginLeft: -10,
   },
-  verticalLineHighlighted: {
-    borderLeft: `4px solid ${theme.palette.secondary.light}8c`,
+  verticalLineHighlightedUnviewed: {
+    borderLeftColor: `${theme.palette.secondary.light}bc`,
+  },
+  verticalLineHighlightedViewed: {
+    borderLeftColor: `${theme.palette.secondary.light}6c`,
+    transition: 'border-left-color 1.0s ease-out',
   },
   verticalLineFirstComment: {
-    marginTop: 16,
+    marginTop: commentHeaderPaddingDesktop,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: commentHeaderPaddingMobile,
+    },
   },
   verticalLineLastComment: {
-    marginBottom: 16,
+    marginBottom: commentHeaderPaddingDesktop,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: commentHeaderPaddingMobile,
+    },
   },
   footer: {
-    paddingTop: 12,
+    paddingTop: 8,
     paddingBottom: 12,
   },
 }));
 
+type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
 
 const UltraFeedCompressedCommentsItem = ({
   numComments, 
@@ -176,11 +215,17 @@ const UltraFeedCommentItem = ({
   settings = DEFAULT_SETTINGS,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter } = Components;
-  const { observe, trackExpansion } = useUltraFeedObserver();
+  const { UltraFeedCommentsItemMeta, FeedContentBody, UltraFeedItemFooter, OverflowNavButtons } = Components;
+  const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
+  const { openDialog } = useDialog();
+  const overflowNav = useOverflowNav(elementRef);
   const { post } = comment;
   const { displayStatus } = metaInfo;
+
+  const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+  const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
+  const [resetSig, setResetSig] = useState(0);
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -188,16 +233,41 @@ const UltraFeedCommentItem = ({
       observe(currentElement, {
         documentId: comment._id,
         documentType: 'comment',
-        postId: comment.postId
+        postId: comment.postId ?? undefined
       });
     }
-  }, [observe, comment._id, comment.postId]);
+
+    return () => {
+      if (currentElement) {
+        unobserve(currentElement);
+      }
+    };
+  }, [observe, unobserve, comment._id, comment.postId]);
+
+  useEffect(() => {
+    const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
+    setHighlightState(initialHighlightState);
+
+    const handleLongView = () => {
+      setHighlightState(prevState => prevState === 'highlighted-unviewed' ? 'highlighted-viewed' : prevState);
+    };
+
+    if (initialHighlightState === 'highlighted-unviewed') {
+      subscribeToLongView(comment._id, handleLongView);
+    }
+
+    return () => {
+      if (initialHighlightState === 'highlighted-unviewed') {
+        unsubscribeFromLongView(comment._id, handleLongView);
+      }
+    };
+  }, [highlight, comment._id, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
     trackExpansion({
       documentId: comment._id,
       documentType: 'comment',
-      postId: comment.postId,
+      postId: comment.postId ?? undefined,
       level,
       maxLevelReached: maxReached,
       wordCount,
@@ -219,45 +289,45 @@ const UltraFeedCommentItem = ({
 
   }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus]);
 
-  const expanded = displayStatus === "expanded";
+  const handleContinueReadingClick = useCallback(() => {
+    captureEvent("ultraFeedCommentItemContinueReadingClicked", { commentId: comment._id, postId: comment.postId });
+    openDialog({
+      name: "UltraFeedCommentsDialog",
+      closeOnNavigate: true,
+      contents: ({ onClose }) => (
+        <Components.UltraFeedCommentsDialog 
+          document={comment}
+          collectionName="Comments"
+          onClose={onClose}
+        />
+      )
+    });
+  }, [openDialog, comment]);
 
   const truncationBreakpoints = useMemo(() => {
-    if (!post) {
-      // eslint-disable-next-line no-console
-      console.log("Missing post data:", comment._id);
-      return null;
-    }
+    return settings.commentTruncationBreakpoints || [];
+  }, [settings.commentTruncationBreakpoints]);
 
-    const fullBreakpoints = settings.commentTruncationBreakpoints || [];
-    const collapsedLimit = settings.collapsedCommentTruncation;
-
-    if (expanded) {
-      return fullBreakpoints;
-    } else {
-      // If collapsed, use the collapsed limit as the first breakpoint,
-      // followed by the rest of the standard breakpoints (skipping the first standard one).
-      const subsequentBreakpoints = fullBreakpoints.length > 1 ? fullBreakpoints.slice(1) : [];
-      return [collapsedLimit, ...subsequentBreakpoints];
-    }
-  }, [expanded, settings.commentTruncationBreakpoints, settings.collapsedCommentTruncation, post, comment._id]);
-
-  const shouldUseLineClamp = !expanded && settings.lineClampNumberOfLines > 0;
+  const collapseToFirst = () => {
+    setResetSig((s)=>s+1);
+    onChangeDisplayStatus('collapsed');
+  };
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
-    <div ref={elementRef} className={classNames(classes.root)} >
+    <div className={classNames(classes.root)} >
       <div className={classes.verticalLineContainer}>
         <div className={classNames(
           classes.verticalLine,
-          { 
-            [classes.verticalLineHighlighted]: highlight,
+          {
+            [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
+            [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
             [classes.verticalLineFirstComment]: isFirstComment,
             [classes.verticalLineLastComment]: isLastComment
           }
         )} />
       </div>
-      
-      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+      <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
         <div className={classes.commentHeader}>
           <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
           {showInLineCommentThreadTitle && !comment.shortform && post && (
@@ -273,16 +343,16 @@ const UltraFeedCommentItem = ({
         </div>
         <div className={classes.contentWrapper}>
           <FeedContentBody
-            comment={comment}
             html={comment.contents?.html ?? ""}
             breakpoints={truncationBreakpoints ?? []}
             wordCount={comment.contents?.wordCount ?? 0}
-            linkToDocumentOnFinalExpand={expanded}
             initialExpansionLevel={0}
             nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            clampOverride={shouldUseLineClamp ? settings.lineClampNumberOfLines : undefined}
+            clampOverride={settings.lineClampNumberOfLines}
             onExpand={handleContentExpand}
+            onContinueReadingClick={handleContinueReadingClick}
             hideSuffix={false}
+            resetSignal={resetSig}
           />
         </div>
         <UltraFeedItemFooter
@@ -292,6 +362,7 @@ const UltraFeedCommentItem = ({
           className={classes.footer}
         />
       </div>
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} />}
     </div>
     </AnalyticsContext>
   );

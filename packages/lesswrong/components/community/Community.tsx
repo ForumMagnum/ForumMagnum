@@ -15,7 +15,7 @@ import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
-import Chip from '@/lib/vendor/@material-ui/core/src/Chip';
+import { Chip } from "@/components/widgets/Chip";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";

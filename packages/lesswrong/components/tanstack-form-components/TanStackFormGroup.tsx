@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
+import { TooltipSpan } from "@/components/common/FMTooltip";
 import classNames from 'classnames';
 import { Components } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
@@ -113,11 +113,11 @@ export function TanStackFormGroup({
 
   const headingNode = showHeading
     ? helpText
-      ? (<Tooltip title={helpText}>
+      ? (<TooltipSpan title={helpText}>
           <span>
             <FormGroupHeader toggle={toggle} label={label} collapsed={collapsed} />
           </span>
-        </Tooltip>)
+        </TooltipSpan>)
       : (<FormGroupHeader toggle={toggle} label={label} collapsed={collapsed} />)
     : null;
 

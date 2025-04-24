@@ -7,23 +7,26 @@ import { useVote } from "../votes/withVote";
 import { VotingProps } from "../votes/votingProps";
 import { getNormalizedReactionsListFromVoteProps } from "@/lib/voting/namesAttachedReactions";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
-import { useNavigate } from "@/lib/routeUtil";
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
+import { useCurrentUser } from "../common/withUser";
+import { useCreate } from "../../lib/crud/withCreate";
+import { useDialog } from "../common/withDialog";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
     position: "relative",
     paddingLeft: 8,
     paddingRight: 8,
-    // paddingTop: 8,
-    // paddingBottom: 8,
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "space-between",
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "1.3rem !important",
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      ...theme.typography.ultraFeedMobileStyle,
+    },
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: `${theme.palette.linkHover.dim} !important`,
@@ -33,9 +36,13 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: "flex",
     alignItems: "center",
-    paddingBottom: 2,
     "& svg": {
-      height: 22,
+      height: 18,
+      marginBottom: 2,
+      [theme.breakpoints.down('sm')]: {
+        height: 22,
+        paddingBottom: 2,
+      },
     },
   },
   commentCountClickable: {
@@ -57,8 +64,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     },
     '& svg': {
       filter: 'opacity(1) !important',
-      height: 22,
-      width: 22,
+      [theme.breakpoints.down('sm')]: {
+        height: 22,
+        width: 22,
+      },
     }
   },
   reactionIcon: {
@@ -70,8 +79,15 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   bookmarkButton: {
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
+      height: 20,
+      [theme.breakpoints.down('sm')]: {
+        height: 22,
+      },
     },
-    marginBottom: -2,
+    marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: -2,
+    },
   },
   overallVoteButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
@@ -82,6 +98,34 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   agreementButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
     marginLeft: -8 // necessary to counter baked-in left margin from AgreementVoteAxis.tsx
+  },
+  // Styles to override OverallVoteAxis children, applied only on small screens
+  footerVoteScoreOverride: {
+    // Default style for this class (applies on large screens)
+    fontSize: `${theme.typography.body2.fontSize}px !important`, 
+    margin: '0 7px !important', // Use default small margin for large screens
+
+    // Override for small screens
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.3rem !important',
+      margin: '0 7px !important',
+    }
+  },
+  hideSecondaryScoreOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none !important',
+    }
+  },
+  // Styles to override AgreementVoteAxis score when used in footer
+  footerAgreementScoreOverride: {
+    // Default style for this class (applies on large screens)
+    fontSize: `${theme.typography.body2.fontSize}px !important`,
+    margin: '0 7px !important',
+    // Override for small screens
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1.3rem !important',
+      margin: '0 7px !important', // Keep same margin for small screens based on user change above
+    }
   },
 }));
 
@@ -108,10 +152,39 @@ const UltraFeedItemFooterCore = ({
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const { BookmarkButton, OverallVoteAxis, AgreementVoteAxis, AddReactionButton } = Components;
+  const currentUser = useCurrentUser();
+
+  const { create: createUltraFeedEvent } = useCreate({
+    collectionName: "UltraFeedEvents",
+    fragmentName: 'UltraFeedEventsDefaultFragment',
+  });
+
+  // TODO:the wrapping approach does not work with votes as click-handlers inside the vote bottons prevent an onClick at this level from firing
+  const handleInteractionLog = (interactionType: 'bookmarkClicked' | 'commentsClicked') => {
+    if (!currentUser || !voteProps.document) return;
+
+    const eventData = {
+      data: {
+        userId: currentUser._id,
+        eventType: 'interacted' as const,
+        documentId: voteProps.document._id,
+        collectionName: voteProps.collectionName as "Posts" | "Comments" | "Spotlights", 
+        event: { interactionType },
+      }
+    };
+    void createUltraFeedEvent(eventData);
+  };
+
+  const handleCommentsClick = () => {
+    if (onClickComments) {
+      handleInteractionLog('commentsClicked');
+      onClickComments();
+    }
+  };
 
   const commentCountIcon = (
     <div
-      onClick={onClickComments}
+      onClick={handleCommentsClick}
       className={classNames(classes.commentCount, { [classes.commentCountClickable]: !!onClickComments })}
     >
       <CommentIcon />
@@ -134,7 +207,8 @@ const UltraFeedItemFooterCore = ({
               voteProps={voteProps}
               verticalArrows
               largeArrows
-              size="large"
+              voteScoreClassName={classes.footerVoteScoreOverride}
+              secondaryScoreClassName={classes.hideSecondaryScoreOnMobile}
               hideAfScore={true}
             />
           </div>
@@ -143,7 +217,7 @@ const UltraFeedItemFooterCore = ({
               document={voteProps.document}
               hideKarma={hideKarma}
               voteProps={voteProps}
-              size="large"
+              agreementScoreClassName={classes.footerAgreementScoreOverride}
             />
           </div>
         </>
@@ -161,7 +235,7 @@ const UltraFeedItemFooterCore = ({
       )}
       
       { bookmarkDocument && (
-        <div className={classes.bookmarkButton}>
+        <div className={classes.bookmarkButton} onClick={() => handleInteractionLog('bookmarkClicked')}>
           <BookmarkButton post={bookmarkDocument} />
         </div>
       )}
@@ -171,7 +245,7 @@ const UltraFeedItemFooterCore = ({
 
 
 const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string }) => {
-  const navigate = useNavigate();
+  const { openDialog } = useDialog();
 
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
   const voteProps = useVote(post, "Posts", votingSystem);
@@ -179,7 +253,18 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
   const reactionCount = reacts ? Object.keys(reacts).length : 0;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions";
   const commentCount = post.commentCount ?? 0;
-  const onClickComments = () => navigate(`/posts/${post._id}#comments`)
+  
+  const onClickComments = () => {
+    openDialog({
+      name: "commentsDialog",
+      closeOnNavigate: true,
+      contents: ({onClose}) => <Components.UltraFeedCommentsDialog 
+        document={post}
+        collectionName="Posts"
+        onClose={onClose}
+      />
+    });
+  }
 
   return (
     <UltraFeedItemFooterCore
@@ -197,7 +282,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
 
 
 const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string }) => {
-  const navigate = useNavigate();
+  const { openDialog } = useDialog();
 
   const parentPost = comment.post;
   const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
@@ -207,7 +292,18 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
   const hideKarma = !!parentPost?.hideCommentKarma;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !hideKarma;
   const commentCount = metaInfo.directDescendentCount;
-  const onClickComments = () => navigate(`/posts/${comment?.postId}?commentId=${comment._id}`)
+  
+  const onClickComments = () => {
+    openDialog({
+      name: "UltraFeedCommentsDialog",
+      closeOnNavigate: true,
+      contents: ({onClose}) => <Components.UltraFeedCommentsDialog 
+        document={comment}
+        collectionName="Comments"
+        onClose={onClose}
+      />
+    });
+  }
 
   const bookmarkDocument = parentPost;
 

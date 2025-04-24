@@ -1,7 +1,7 @@
 import { MODERATOR_ACTION_TYPES } from '@/lib/collections/moderatorActions/newSchema';
 import { useCreate } from '@/lib/crud/withCreate';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
+import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';

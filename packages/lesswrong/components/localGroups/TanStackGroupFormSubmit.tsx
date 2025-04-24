@@ -1,6 +1,6 @@
 import React from 'react'
 import Button from '@/lib/vendor/@material-ui/core/src/Button'
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip'
+import { TooltipSpan } from "@/components/common/FMTooltip";
 import classNames from 'classnames'
 import { defineStyles, useStyles } from '../hooks/useStyles'
 import { AnyFormApi } from '@tanstack/react-form'
@@ -54,7 +54,7 @@ export function TanStackGroupFormSubmit({
   return (
     <div className={classes.root}>
       {formType === 'edit' && (
-        <Tooltip title={document.inactive
+        <TooltipSpan title={document.inactive
           ? 'Display the group on maps and lists again'
           : 'This will hide the group from all maps and lists'
         }>
@@ -65,7 +65,7 @@ export function TanStackGroupFormSubmit({
           >
             {document.inactive ? 'Reactivate group' : 'Mark group as inactive'}
           </Button>
-        </Tooltip>
+        </TooltipSpan>
       )}
       <Button
         type="submit"

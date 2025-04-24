@@ -11,6 +11,7 @@ import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useSingle } from '@/lib/crud/withSingle';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
@@ -39,7 +40,14 @@ const styles = (theme: ThemeType) => ({
         width: '100% !important',
         height: 'inherit !important'
       }
-    }
+    },
+    ...(isFriendlyUI && {
+      background: theme.palette.grey[0],
+      marginTop: 'unset',
+      marginBottom: 'unset',
+      padding: '20px',
+      boxShadow: `0 1px 5px ${theme.palette.greyAlpha(.025)}`,
+    }),
   },
   edit: {
     float: "right",

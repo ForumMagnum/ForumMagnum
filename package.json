@@ -240,6 +240,7 @@
     "json-stringify-deterministic": "^1.0.8",
     "jsonwebtoken": "^9.0.0",
     "juice": "^7.0.0",
+    "keycode": "^2.2.1",
     "later": "^1.2.0",
     "linkedom": "^0.16.11",
     "logrocket": "^1.0.0",
@@ -280,7 +281,6 @@
     "raf": "3.4.1",
     "react": "^18.2.0",
     "react-autosuggest": "^9.4.0",
-    "react-bootstrap": "1.0.0-beta.14",
     "react-confetti": "^6.2.2",
     "react-cookie": "^4.0.1",
     "react-copy-to-clipboard": "^5.1.0",
@@ -320,6 +320,7 @@
     "universal-cookie-express": "^2.2.0",
     "url": "^0.11.0",
     "uuid": "^7.0.0",
+    "warning": "^4.0.3",
     "zod": "^3.24.2",
     "zod-to-json-schema": "^3.23.5"
   },

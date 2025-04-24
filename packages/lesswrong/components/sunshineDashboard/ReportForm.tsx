@@ -1,6 +1,6 @@
 import { useCreate } from '@/lib/crud/withCreate';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
