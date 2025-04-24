@@ -87,7 +87,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
       this.props.onFocus(event);
     }
 
-    const { muiFormControl } = this.context;
+    const muiFormControl = this.context?.muiFormControl;
     if (muiFormControl && muiFormControl.onFocus) {
       muiFormControl.onFocus(event);
     }
@@ -98,7 +98,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
       this.props.onBlur(event);
     }
 
-    const { muiFormControl } = this.context;
+    const muiFormControl = this.context?.muiFormControl;
     if (muiFormControl && muiFormControl.onBlur) {
       muiFormControl.onBlur(event);
     }
@@ -140,7 +140,7 @@ class SwitchBase extends React.Component<SwitchBaseProps & WithStylesProps<typeo
       ...other
     } = this.props;
 
-    const { muiFormControl } = this.context;
+    const muiFormControl = this.context?.muiFormControl;
     let disabled = disabledProp;
 
     if (muiFormControl) {

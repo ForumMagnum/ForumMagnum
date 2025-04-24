@@ -213,7 +213,7 @@ function preventPageScrolling(event: AnyBecauseTodo) {
 }
 
 class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles>> {
-  containerRef: AnyBecauseTodo
+  containerRef = React.createRef<HTMLDivElement>();
 
   state = {
     currentState: 'initial',
@@ -222,13 +222,13 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
   jumpAnimationTimeoutId: AnyBecauseTodo = -1;
 
   componentDidMount() {
-    if (this.containerRef) {
-      this.containerRef.addEventListener('touchstart', preventPageScrolling, { passive: false });
+    if (this.containerRef.current) {
+      this.containerRef.current?.addEventListener('touchstart', preventPageScrolling, { passive: false });
     }
   }
 
   componentWillUnmount() {
-    this.containerRef.removeEventListener('touchstart', preventPageScrolling, { passive: false });
+    this.containerRef.current?.removeEventListener('touchstart', preventPageScrolling, { passive: false });
     document.body.removeEventListener('mousemove', this.handleMouseMove);
     document.body.removeEventListener('mouseup', this.handleMouseUp);
     clearTimeout(this.jumpAnimationTimeoutId);
@@ -295,7 +295,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
 
   handleClick = (event: AnyBecauseTodo) => {
     const { min=0, max=100, vertical } = this.props;
-    const percent = calculatePercent(this.containerRef, event, !!vertical, this.isReverted());
+    const percent = calculatePercent(this.containerRef.current!, event, !!vertical, this.isReverted());
     const value = percentToValue(percent, min, max);
 
     this.emitChange(event, value, () => {
@@ -340,7 +340,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
 
   handleMouseMove = (event: AnyBecauseTodo) => {
     const { min, max, vertical } = this.props;
-    const percent = calculatePercent(this.containerRef, event, !!vertical, this.isReverted());
+    const percent = calculatePercent(this.containerRef.current!, event, !!vertical, this.isReverted());
     const value = percentToValue(percent, min, max);
 
     this.emitChange(event, value);
@@ -475,9 +475,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
         onMouseDown={this.handleMouseDown}
         onTouchStartCapture={this.handleTouchStart}
         onTouchMove={this.handleMouseMove}
-        ref={ref => {
-          this.containerRef = ReactDOM.findDOMNode(ref);
-        }}
+        ref={this.containerRef}
         {...other}
       >
         <div className={containerClasses}>

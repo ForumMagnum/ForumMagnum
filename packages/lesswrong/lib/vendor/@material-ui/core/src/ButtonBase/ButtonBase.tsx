@@ -123,7 +123,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
   });
 
   componentDidMount() {
-    this.button = ReactDOM.findDOMNode(this);
+    /*this.button = ReactDOM.findDOMNode(this);
     listenForFocusKeys(ownerWindow(this.button));
 
     if (this.props.action) {
@@ -133,7 +133,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
           this.button.focus();
         },
       });
-    }
+    }*/
   }
 
   componentDidUpdate(prevProps: AnyBecauseTodo, prevState: AnyBecauseTodo) {

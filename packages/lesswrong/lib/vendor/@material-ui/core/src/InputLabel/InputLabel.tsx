@@ -115,7 +115,7 @@ function InputLabel(props: InputLabelProps) {
 
   const fcs = formControlState({
     props,
-    context,
+    context: muiFormControl,
     states: ['margin', 'variant'],
   });
 

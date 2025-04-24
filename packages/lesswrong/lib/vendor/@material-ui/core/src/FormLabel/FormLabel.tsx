@@ -76,7 +76,7 @@ function FormLabel(props: FormLabelProps) {
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
-  const { muiFormControl } = useContext(FormControlContext);
+  const muiFormControl = useContext(FormControlContext);
 
   const fcs = formControlState({
     props,

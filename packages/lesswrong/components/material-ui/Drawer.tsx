@@ -82,7 +82,9 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
   useEffect(() => {
     if (open) {
       if (mounted) {
-        setSlidIn(true);
+        setTimeout(() => {
+          setSlidIn(true);
+        }, 0);
       } else {
         setMounted(true);
       }

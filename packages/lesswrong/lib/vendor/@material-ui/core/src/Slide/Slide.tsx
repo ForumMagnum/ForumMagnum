@@ -79,6 +79,7 @@ export function setTranslateValue(props, node) {
  */
 class Slide extends React.Component<SlideProps> {
   mounted = false;
+  transitionRef = React.createRef<HTMLSpanElement>();
 
   handleResize = debounce(() => {
     // Skip configuration where the position is screen size invariant.
@@ -219,12 +220,11 @@ class Slide extends React.Component<SlideProps> {
           onExited={this.handleExited}
           appear
           style={style}
-          ref={ref => {
-            this.transitionRef = ReactDOM.findDOMNode(ref);
-          }}
           {...other}
         >
-          {children}
+          <span ref={this.transitionRef}>
+            {children}
+          </span>
         </Transition>
       </EventListener>
     );

@@ -254,7 +254,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
           .disabled &&
         formControlState({ props: nextProps, context: nextContext, states: ['disabled'] }).disabled
       ) {
-        const { muiFormControl } = this.context;
+        const muiFormControl = this.context?.muiFormControl;
         if (muiFormControl && muiFormControl.onBlur) {
           muiFormControl.onBlur();
         }
@@ -298,7 +298,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       this.props.onFocus(event);
     }
 
-    const { muiFormControl } = this.context;
+    const muiFormControl = this.context?.muiFormControl;
     if (muiFormControl && muiFormControl.onFocus) {
       muiFormControl.onFocus(event);
     }
@@ -310,7 +310,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       this.props.onBlur(event);
     }
 
-    const { muiFormControl } = this.context;
+    const muiFormControl = this.context?.muiFormControl;
     if (muiFormControl && muiFormControl.onBlur) {
       muiFormControl.onBlur(event);
     }
@@ -352,7 +352,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
   };
 
   checkDirty(obj) {
-    const { muiFormControl } = this.context;
+    const muiFormControl = this.context?.muiFormControl;
 
     if (isFilled(obj)) {
       if (muiFormControl && muiFormControl.onFilled) {
@@ -409,7 +409,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       ...other
     } = this.props;
 
-    const { muiFormControl } = this.context;
+    const muiFormControl = this.context?.muiFormControl;
     const fcs = formControlState({
       props: this.props,
       context: this.context,
