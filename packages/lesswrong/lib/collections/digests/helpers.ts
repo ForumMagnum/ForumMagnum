@@ -82,14 +82,19 @@ export const getEmailDigestPostListData = (posts: PostsListWithVotes[]) => {
  */
 export const getStatusFilterOptions = ({posts, postStatuses, statusFieldName}: {
   posts: PostsListBase[],
-  postStatuses: Record<string, DigestPost>,
+  postStatuses: Record<string, Partial<DigestPost>>,
   statusFieldName: StatusField
 }) => {
   // count how many posts have each status, to be displayed in the labels
   const counts: Record<string, number> = {}
   DIGEST_STATUS_OPTIONS.forEach(option => counts[option] = 0)
-  posts.forEach(p => counts[postStatuses[p._id][statusFieldName]]++)
-  
+  posts.forEach(p => {
+    const status = postStatuses[p._id][statusFieldName];
+    if (status) {
+      counts[status]++
+    }
+  })
+
   const options: Record<string, SettingsOption> = {}
   DIGEST_STATUS_OPTIONS.forEach((option: InDigestStatusOption) => {
     options[option] = {label: `${capitalize(option)} (${counts[option]})`}

@@ -22,7 +22,6 @@ import {
   getElasticIndexNameWithSorting,
   isValidElasticSorting,
 } from '../../lib/search/searchUtil';
-import Modal from '@/lib/vendor/@material-ui/core/src/Modal';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
@@ -280,7 +279,7 @@ const SearchPageTabbed = ({classes}: {
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, LWTooltip, ForumIcon
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, LWTooltip, ForumIcon, LWDialog
   } = Components;
 
   // we try to keep the URL synced with the search state
@@ -396,11 +395,9 @@ const SearchPageTabbed = ({classes}: {
 
         <div ref={scrollToRef} />
 
-        <Modal
+        <LWDialog
           open={modalOpen}
           onClose={() => setModalOpen(false)}
-          aria-labelledby="search-filters-modal"
-          aria-describedby="search-filters-modal"
           className={classNames(classes.filtersModal)}
           keepMounted
         >
@@ -415,7 +412,7 @@ const SearchPageTabbed = ({classes}: {
               setModalOpen={setModalOpen}
             />
           </div>
-        </Modal>
+        </LWDialog>
 
         <Tabs
           value={tab}

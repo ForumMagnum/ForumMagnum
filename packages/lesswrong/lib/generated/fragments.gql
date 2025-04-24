@@ -1016,7 +1016,7 @@ fragment FeedPostFragment on FeedPost {
   _id
   postMetaInfo
   post {
-    ...UltraFeedPostFragment
+    ...PostsListWithVotes
   }
 }
 
@@ -2299,6 +2299,7 @@ fragment PostsExpandedHighlight on Post {
   contents {
     _id
     html
+    wordCount
   }
 }
 
@@ -4108,15 +4109,16 @@ fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
 }
 
 fragment UltraFeedPostFragment on Post {
+  ...PostsDetails
   ...PostsListWithVotes
   contents {
     _id
     html
     htmlHighlight
-    plaintextDescription
     wordCount
-    version
   }
+  autoFrontpage
+  votingSystem
 }
 
 fragment UnclaimedReportsList on Report {
