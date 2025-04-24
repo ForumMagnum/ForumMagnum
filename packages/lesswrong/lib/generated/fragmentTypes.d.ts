@@ -2143,6 +2143,7 @@ interface PostsExpandedHighlight { // fragment on Posts
 interface PostsExpandedHighlight_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+  readonly wordCount: number,
 }
 
 interface PostsForAutocomplete { // fragment on Posts
@@ -3724,7 +3725,17 @@ interface UltraFeedEventsDefaultFragment { // fragment on UltraFeedEvents
   readonly feedItemId: string | null,
 }
 
-interface UltraFeedPostFragment extends PostsListWithVotes { // fragment on Posts
+interface UltraFeedPostFragment extends PostsDetails, PostsListWithVotes { // fragment on Posts
+  readonly contents: UltraFeedPostFragment_contents|null,
+  readonly autoFrontpage: "show" | "hide" | null,
+  readonly votingSystem: string,
+}
+
+interface UltraFeedPostFragment_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+  readonly htmlHighlight: string,
+  readonly wordCount: number,
 }
 
 interface UnclaimedReportsList { // fragment on Reports
