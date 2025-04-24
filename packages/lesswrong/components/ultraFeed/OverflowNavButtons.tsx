@@ -90,7 +90,6 @@ export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
   );
 };
 
-
 const OverflowNavButtonsComponent = registerComponent("OverflowNavButtons", OverflowNavButtons);
 
 export default OverflowNavButtonsComponent;

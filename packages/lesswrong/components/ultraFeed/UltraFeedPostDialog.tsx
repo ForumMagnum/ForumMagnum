@@ -161,7 +161,6 @@ const UltraFeedDialogContent = ({
           </div>
           {post?.contents?.html ? (
             <FeedContentBody
-              post={post}
               html={post.contents.html}
               wordCount={post.contents.wordCount || 0}
               linkToDocumentOnFinalExpand={false}
