@@ -57,6 +57,9 @@ const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
     opacity: '0 !important',
     pointerEvents: 'none',
   },
+  fontSmall: {
+    fontSize: 20,
+  },
 }));
 
 interface Props {
@@ -77,14 +80,14 @@ export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
 
   return (
     <div className={classNames(classes.base, containerClass)}>
-      {onCollapse && <div onClick={handleCollapse} className={classes.button} >
-          <UnfoldLessIcon fontSize="medium" />
-        </div>}
-      <div onClick={onTop} className={classNames(classes.button, { [classes.hidden]: !showUp })} >
-        <ArrowUpwardIcon fontSize="small" />
+      {onCollapse && <div onClick={handleCollapse} className={classes.button}>
+        <UnfoldLessIcon />
+      </div>}
+      <div onClick={onTop} className={classNames(classes.button, { [classes.hidden]: !showUp })}>
+        <ArrowUpwardIcon className={classes.fontSmall} />
       </div>
-      <div onClick={onBottom} className={classNames(classes.button, { [classes.hidden]: !showDown })} >
-        <ArrowDownwardIcon fontSize="small" />
+      <div onClick={onBottom} className={classNames(classes.button, { [classes.hidden]: !showDown })}>
+        <ArrowDownwardIcon className={classes.fontSmall} />
       </div>
     </div>
   );
