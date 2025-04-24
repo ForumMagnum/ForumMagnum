@@ -38,10 +38,12 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     alignItems: "center",
     "& svg": {
       height: 18,
-      marginBottom: 2,
+      position: "relative",
+      bottom: 2,
       [theme.breakpoints.down('sm')]: {
-        height: 22,
-        paddingBottom: 2,
+        height: 20,
+        width: 20,
+        top: 2,
       },
     },
   },
@@ -53,11 +55,15 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCountText: {
     marginLeft: 4,
+    [theme.breakpoints.down('sm')]: {
+      position: 'relative',
+    }
   },
   addReactionButton: {
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'flex',
-    margin: '0 6px',
+    marginRight: 6,
+    marginLeft: 6,
     alignItems: 'center',
     '& .react-hover-style': {
       filter: 'opacity(1) !important',
@@ -65,8 +71,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     '& svg': {
       filter: 'opacity(1) !important',
       [theme.breakpoints.down('sm')]: {
-        height: 22,
-        width: 22,
+        top: 5,
+        height: 21,
+        width: 21,
       },
     }
   },
@@ -74,7 +81,8 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     marginRight: 6,
   },
   reactionCount: {
-    marginTop: -2
+    position: "relative",
+    bottom: 2,
   },
   bookmarkButton: {
     "& svg": {
@@ -84,9 +92,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
         height: 22,
       },
     },
-    marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: -2,
+      position: "relative", 
+      top: 5,
     },
   },
   overallVoteButtons: {
@@ -107,7 +115,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
 
     // Override for small screens
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.3rem !important',
+      fontSize: '17px !important', // Explicitly set to 17px for mobile
       margin: '0 7px !important',
     }
   },
@@ -123,7 +131,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     margin: '0 7px !important',
     // Override for small screens
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.3rem !important',
+      fontSize: '17px !important', // Explicitly set to 17px for mobile
       margin: '0 7px !important', // Keep same margin for small screens based on user change above
     }
   },
