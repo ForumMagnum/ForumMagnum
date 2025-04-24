@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import Slide from '@/lib/vendor/@material-ui/core/src/Slide';
 
 export const styles = defineStyles("MuiSnackbar", theme => ({
   root: {

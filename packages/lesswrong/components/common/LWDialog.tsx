@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -21,6 +21,7 @@ const styles = defineStyles("LWDialog", theme => ({
     justifyContent: "center",
   },
   paper: {
+    position: "relative",
     display: "flex",
     flex: '0 1 auto',
     maxHeight: 'calc(100% - 96px)',
@@ -34,9 +35,6 @@ const styles = defineStyles("LWDialog", theme => ({
     height: '100%',
     maxHeight: 'none',
     borderRadius: 0,
-    '&$paperScrollBody': {
-      margin: 0,
-    },
   },
   paperFullWidth: {
     width: '100%',
@@ -58,7 +56,7 @@ const styles = defineStyles("LWDialog", theme => ({
 // providing that breaks the toolbar in CkEditor and DraftJS. Also provides a
 // centralized place to fix it if we discover other issues with MUI Dialog, or
 // want to write it ourselves.
-const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBackdropClick, disableEscapeKeyDown, className, paperClassName, onClose, keepMounted, children}: {
+const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBackdropClick, disableEscapeKeyDown, className, paperClassName, onClose, keepMounted, backdrop="darken", children}: {
   open: boolean,
   fullScreen?: boolean,
   title?: string,
@@ -70,10 +68,12 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
   paperClassName?: string,
   onClose?: () => void,
   keepMounted?: boolean,
+  backdrop?: "none"|"darken"|"blur",
   children: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
   const [everOpened, setEverOpened] = useState(false);
+  const openRecently = useDelayedHide(open, 0.5);
 
   useEffect(() => {
     if (open) {
@@ -88,7 +88,7 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
   });
   
   return <>
-    {open && <Backdrop visible={open}/>}
+    {backdrop!=="none" && openRecently && <Backdrop visible={open} style={backdrop}/>}
     {(open || (everOpened && keepMounted)) && createPortal(
       <div className={classNames(
         classes.dialogWrapper, className, {
@@ -99,22 +99,57 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
           if (!disableBackdropClick)
             onClose?.();
         }}>
-        <Paper
-          elevation={24}
-          className={classNames(classes.paper, paperClassName, {
-            [classes.paperWidthSm]: maxWidth==='sm',
-            [classes.paperWidthMd]: maxWidth==='md',
-            [classes.paperFullScreen]: fullScreen,
-            [classes.paperFullWidth]: fullWidth,
-          })}
-        >
-          {children}
-        </Paper>
+          <span><Paper
+            elevation={24}
+            className={classNames(classes.paper, paperClassName, {
+              [classes.paperWidthSm]: maxWidth==='sm',
+              [classes.paperWidthMd]: maxWidth==='md',
+              [classes.paperFullScreen]: fullScreen,
+              [classes.paperFullWidth]: fullWidth,
+            })}
+          >
+            {children}
+          </Paper></span>
         </ClickAwayListener>
       </div>,
       document.body
     )}
   </>;
+}
+
+/**
+ * Given an `open` flag, returns whether the flag is either currently set or
+ * was set at any time within the past `delay` seconds, using React effect
+ * hooks to manage timers.
+ */
+function useDelayedHide(open: boolean, delay: number): boolean {
+  const [delayedHide, setDelayedHide] = useState(open);
+  const timerRef = useRef<ReturnType<typeof setTimeout>|null>(null);
+
+  useEffect(() => {
+    // If open is true, immediately show
+    if (open) {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      setDelayedHide(true);
+    } else {
+      // When closing, set a timer to hide after delay
+      timerRef.current = setTimeout(() => {
+        setDelayedHide(false);
+        timerRef.current = null;
+      }, delay * 1000);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [open, delay]);
+
+  return delayedHide;
 }
 
 const LWDialogComponent = registerComponent('LWDialog', LWDialog);

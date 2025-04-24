@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import DialogContent from "@material-ui/core/DialogContent";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetLink } from "@/lib/collections/posts/helpers";
 import { useMulti } from "@/lib/crud/withMulti";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { DialogContent } from "../widgets/DialogContent";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   '@global': {
@@ -138,9 +138,7 @@ const UltraFeedDialogContent = ({
       open={true}
       onClose={onClose}
       fullWidth
-      dialogClasses={{
-        paper: classes.dialogPaper,
-      }}
+      paperClassName={classes.dialogPaper}
     >
       <DialogContent className={classes.dialogContent}>
         {post && <div>

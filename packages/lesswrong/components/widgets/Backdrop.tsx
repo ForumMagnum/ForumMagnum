@@ -19,25 +19,28 @@ const styles = defineStyles("Backdrop", (theme: ThemeType) => ({
   visible: {
     opacity: 1.0,
   },
+  blur: {
+    backdropFilter: "blur(4px)",
+  },
 }))
 
-export const Backdrop = ({visible}: {
+export const Backdrop = ({visible, style="darken"}: {
   visible: boolean
+  style?: "darken"|"blur"
 }) => {
   const classes = useStyles(styles);
   const [ready,setReady] = useState(false);
   
   useEffect(() => {
-    setReady(true);
+    setTimeout(() => {
+      setReady(true);
+    }, 0);
   }, []);
   
-  if (!ready) {
-    return null;
-  }
-
   return <>{createPortal(
     <div className={classNames(classes.root, {
-      [classes.visible]: visible,
+      [classes.visible]: visible && ready,
+      [classes.blur]: style==="blur" && ready,
     })}/>, document.body
   )}</>;
 }

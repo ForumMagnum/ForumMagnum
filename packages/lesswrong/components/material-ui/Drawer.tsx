@@ -90,7 +90,7 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
         clickAwayListenerActive.current++;
       }, 100);
       return () => {
-        // eslint-ignore-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         clickAwayListenerActive.current--;
       }
     } else {
