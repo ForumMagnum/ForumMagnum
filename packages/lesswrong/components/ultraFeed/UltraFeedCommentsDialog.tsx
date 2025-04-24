@@ -63,7 +63,7 @@ const UltraFeedCommentsDialog = ({
 
   const isPost = collectionName === "Posts";
   const comment = isPost ? null : (document as UltraFeedComment);
-  const postId = isPost ? document._id : comment?.postId;
+  const postId = isPost ? document._id : comment?.postId ?? undefined;
   const topLevelCommentId = comment?.topLevelCommentId ?? comment?._id;
   const postTitle = isPost ? document.title : comment?.post?.title;
   const targetCommentId = !isPost ? document._id : undefined;
