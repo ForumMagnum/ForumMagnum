@@ -147,9 +147,7 @@ const UltraFeedCommentsDialog = ({
       open={true}
       onClose={onClose}
       fullWidth
-      dialogClasses={{
-        paper: classes.dialogPaper,
-      }}
+      paperClassName={classes.dialogPaper}
     >
       <div className={classes.titleContainer}>
         <span className={classes.title}>{postTitle}</span>

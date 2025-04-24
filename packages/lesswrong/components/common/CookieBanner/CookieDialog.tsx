@@ -178,9 +178,7 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
     <LWDialog
       open
       onClose={onClose}
-      dialogClasses={{
-        paper: classes.dialog,
-      }}
+      paperClassName={classes.dialog}
     >
       <DialogTitle className={classes.title}>Cookie Settings</DialogTitle>
       <DialogContent className={classes.content}>

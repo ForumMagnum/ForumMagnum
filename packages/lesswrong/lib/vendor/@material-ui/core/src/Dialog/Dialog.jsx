@@ -123,7 +123,6 @@ function Dialog(props) {
     open,
     PaperProps,
     scroll,
-    TransitionComponent,
     transitionDuration,
     TransitionProps,
     ...other
@@ -145,7 +144,7 @@ function Dialog(props) {
       role="dialog"
       {...other}
     >
-      <TransitionComponent
+      <Fade
         appear
         in={open}
         timeout={transitionDuration}
@@ -168,7 +167,7 @@ function Dialog(props) {
         >
           {children}
         </Paper>
-      </TransitionComponent>
+      </Fade>
     </Modal>
   );
 }
@@ -265,10 +264,6 @@ Dialog.propTypes = {
    * Determine the container for scrolling the dialog.
    */
   scroll: PropTypes.oneOf(['body', 'paper']),
-  /**
-   * Transition component.
-   */
-  TransitionComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
   /**
    * The duration for the transition, in milliseconds.
    * You may specify a single timeout for all transitions, or individually with an object.

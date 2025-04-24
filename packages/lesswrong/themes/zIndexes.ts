@@ -33,7 +33,9 @@ export const defaultZIndexes = {
   nextUnread: 999,
   sunshineSidebar: 1000,
   reactionsFooter: 1001,
-  drawer: 1200,
+  backdrop: 1300,
+  modal: 1350,
+  drawer: 1350,
   intercomButton: 1400,
   blurredBackgroundModal: 1350, // lower than intercom
   confirmLogoutModal: 1351,

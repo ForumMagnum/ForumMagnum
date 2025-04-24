@@ -56,7 +56,7 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
       onClose={onClose}
       fullWidth
       maxWidth={isFriendlyUI ? "md" : "sm"}
-      dialogClasses={{ paper: classes.dialogPaper }}
+      paperClassName={classes.dialogPaper}
     >
       <DialogContent>
         <Typography variant="display2" className={classes.header}>

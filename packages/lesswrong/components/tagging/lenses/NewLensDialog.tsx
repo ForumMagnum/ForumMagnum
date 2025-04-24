@@ -63,7 +63,7 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
     fieldName: 'description',
   };
   
-  return <LWDialog open={true} onClose={onClose} dialogClasses={{ paper: classes.dialog }}>
+  return <LWDialog open={true} onClose={onClose} paperClassName={classes.dialog}>
     <DialogTitle className={classes.dialogTitle}>New Lens</DialogTitle>
     <DialogContent className={classes.dialogContent}>
       <DialogContentText>

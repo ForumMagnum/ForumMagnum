@@ -47,7 +47,7 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
   const { LWDialog, EAButton } = Components
 
   return (
-    <LWDialog open onClose={onClose} dialogClasses={{paper: classes.root}}>
+    <LWDialog open onClose={onClose} paperClassName={classes.root}>
       <DialogContent className={classes.text}>
         <div className={classes.heading}>
           Are you sure you want to publish this digest?
