@@ -24,8 +24,8 @@ interface OverflowNavObserverContextValue {
 const OverflowNavObserverContext = createContext<OverflowNavObserverContextValue | null>(null);
 
 export const OverflowNavObserverProvider = ({ children }: { children: ReactNode }) => {
-  const observerRef = useRef<IntersectionObserver | null>(null);
   const elementMapRef = useRef(new WeakMap<Element, SentinelInfo>());
+  const [observer, setObserver] = useState<IntersectionObserver | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof IntersectionObserver !== 'undefined') {
@@ -34,32 +34,40 @@ export const OverflowNavObserverProvider = ({ children }: { children: ReactNode 
                 const info = elementMapRef.current.get(entry.target);
                 if (!info) return;
 
-                if (info.kind === 'top') {
-                    info.pair.topIntersect = entry.isIntersecting;
-                    if (entry.isIntersecting) info.pair.topViewportPos = entry.boundingClientRect.top;
-                } else {
-                    info.pair.bottomIntersect = entry.isIntersecting;
-                    if (entry.isIntersecting) info.pair.bottomViewportPos = entry.boundingClientRect.top;
-                }
-                info.pair.update();
-            });
-        };
-        observerRef.current = new IntersectionObserver(handleIntersection, { threshold: 0 });
+          if (info.kind === 'top') {
+            info.pair.topIntersect = entry.isIntersecting;
+            if (entry.isIntersecting) info.pair.topViewportPos = entry.boundingClientRect.top;
+          } else {
+            info.pair.bottomIntersect = entry.isIntersecting;
+            if (entry.isIntersecting) info.pair.bottomViewportPos = entry.boundingClientRect.top;
+          }
+          info.pair.update();
+        });
+      };
+
+      const obs = new IntersectionObserver(handleIntersection, { threshold: 0 });
+      setObserver(obs);
     }
-    const currentObserver = observerRef.current;
+
     return () => {
-        currentObserver?.disconnect();
+      observer?.disconnect();
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
-  const value = {
-    observer: observerRef.current,
-    elementMap: elementMapRef.current
-  };
+  const value = React.useMemo(
+    () => ({
+      observer,
+      elementMap: elementMapRef.current,
+    }),
+    [observer],
+  );
 
-  return <OverflowNavObserverContext.Provider value={value}>
-    {children}
-  </OverflowNavObserverContext.Provider>;
+  return (
+    <OverflowNavObserverContext.Provider value={value}>
+      {children}
+    </OverflowNavObserverContext.Provider>
+  );
 };
 
 export interface OverflowNavResult {
@@ -103,8 +111,10 @@ export const useOverflowNav = (
         const viewportH = window.innerHeight;
         const isVisible = rect.bottom > 0 && rect.top < viewportH;
         const isOversized = target.offsetHeight >= viewportH * ratio;
+
         const localShowUp = isOversized && currentPairState.bottomIntersect && !currentPairState.topIntersect && isVisible;
         const localShowBoth = isOversized && !currentPairState.topIntersect && !currentPairState.bottomIntersect && isVisible;
+        
         setShowUp(prev => {
           const nextShowUp = localShowUp || localShowBoth;
           return prev !== nextShowUp ? nextShowUp : prev;
