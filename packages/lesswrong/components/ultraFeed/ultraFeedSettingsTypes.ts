@@ -21,6 +21,7 @@ export interface UltraFeedSettingsType {
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'hacker-news': 5,
   'recombee-lesswrong-custom': 5,
+  'bookmarks': 5,
   'recentComments': 10,
   'spotlights': 2,
 };
