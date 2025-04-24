@@ -11,7 +11,7 @@ import { useRecordPostView } from "../hooks/useRecordPostView";
 import classnames from "classnames";
 import { useSingle } from "../../lib/crud/withSingle";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
-import { useOverflowNav } from "./hooks/useOverflowNav";
+import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";

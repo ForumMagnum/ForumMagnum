@@ -7,7 +7,7 @@ import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsType
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
-import { useOverflowNav } from "./hooks/useOverflowNav";
+import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
 
 const commentHeaderPaddingDesktop = 12;

@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import ArrowUpwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowUpward';
 import ArrowDownwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDownward';
 import UnfoldLessIcon from '@/lib/vendor/@material-ui/icons/src/UnfoldLess';
-import type { OverflowNavResult } from './hooks/useOverflowNav';
+import type { OverflowNavResult } from './OverflowNavObserverContext'
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import classNames from 'classnames';
