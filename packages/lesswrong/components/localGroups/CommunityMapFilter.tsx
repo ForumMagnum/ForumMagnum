@@ -10,7 +10,6 @@ import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import PersonPinIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
