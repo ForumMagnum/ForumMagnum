@@ -374,10 +374,17 @@ export async function updateMailchimpSubscription(data: Partial<DbUser>, {oldDoc
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
   const mailchimpEANewsletterListId = mailchimpEAForumNewsletterListIdSetting.get();
-  const digestUpdateButNoListId = hasDigests && !mailchimpForumDigestListId
-  const newsletterUpdateButNoListId = hasNewsletter && !mailchimpEANewsletterListId
-  if (!mailchimpAPIKey || digestUpdateButNoListId || newsletterUpdateButNoListId) {
+
+  if (!mailchimpAPIKey) {
     return handleErrorCase("Error updating subscription: Mailchimp not configured")
+  }
+  if (hasDigests && !mailchimpForumDigestListId) {
+    // es-lint-disable-next-line no-console
+    console.error("Digest list not configured, failing to update subscription");
+  }
+  if (hasNewsletter && !mailchimpEANewsletterListId) {
+    // es-lint-disable-next-line no-console
+    console.error("Newsletter list not configured, failing to update subscription");
   }
 
   const email = getUserEmail(newDocument)
@@ -393,11 +400,8 @@ export async function updateMailchimpSubscription(data: Partial<DbUser>, {oldDoc
   const updates = [
     {noUpdate: noDigestUpdate, listId: mailchimpForumDigestListId, status: digestStatus},
     {noUpdate: noNewsletterUpdate, listId: mailchimpEANewsletterListId, status: newsletterStatus}
-  ].filter((u) => !!u.listId)
+  ].filter((u) => (!!u.listId && !u.noUpdate))
   for (const update of updates) {
-    if (update.noUpdate) {
-      continue;
-    }
     const res = await fetch(`https://us8.api.mailchimp.com/3.0/lists/${update.listId}/members/${emailHash}`, {
       method: 'PUT',
       body: JSON.stringify({
