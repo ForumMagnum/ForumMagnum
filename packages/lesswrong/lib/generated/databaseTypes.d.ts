@@ -193,6 +193,7 @@ interface DbComment extends DbObject {
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
     } | null,
   } | null
   hideAuthor: boolean
@@ -514,13 +515,14 @@ interface DbForumEvent extends DbObject {
   createdAt: Date
   customComponent: string | null
   darkColor: string
-  endDate: Date
+  endDate: Date | null
   eventFormat: "BASIC" | "POLL" | "STICKERS"
   frontpageDescription: EditableFieldContents | null
   frontpageDescriptionMobile: EditableFieldContents | null
   frontpageDescriptionMobile_latest: string | null
   frontpageDescription_latest: string | null
   includesPoll: boolean
+  isGlobal: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   lightColor: string
   maxStickersPerUser: number
@@ -2288,6 +2290,7 @@ interface DbUser extends DbObject {
   sortDraftsBy: string | null
   subforumPreferredLayout: "card" | "list" | null
   subscribedToDigest: boolean
+  subscribedToNewsletter: boolean
   sunshineFlagged: boolean
   sunshineNotes: string
   sunshineSnoozed: boolean

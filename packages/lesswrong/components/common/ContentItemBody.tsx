@@ -157,6 +157,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
 
       this.addCTAButtonEventListeners(element);
+      this.replaceForumEventPollPlaceholders(element);
 
       this.markScrollableBlocks(element);
       this.collapseFootnotes(element);
@@ -430,7 +431,27 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       })
     }
   }
-  
+
+  replaceForumEventPollPlaceholders = (element: HTMLElement) => {
+    const pollPlaceholders = element.getElementsByClassName('ck-poll');
+
+    const { ForumEventPostPagePollSection } = Components;
+
+    const forumEventIds = Array.from(pollPlaceholders).map(placeholder => ({
+      placeholder,
+      forumEventId: placeholder.getAttribute('data-internal-id')
+    }));
+
+    for (const { placeholder, forumEventId } of forumEventIds) {
+      if (!forumEventId) continue;
+
+      // Create the poll element with styling and context
+      const pollElement = <ForumEventPostPagePollSection id={forumEventId} forumEventId={forumEventId} />;
+
+      this.replaceElement(placeholder, pollElement);
+    }
+  }
+
   replaceSubstrings = (
     element: HTMLElement,
     replacedSubstrings: ContentReplacedSubstringComponentInfo[],
