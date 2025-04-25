@@ -55,6 +55,8 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     padding: 6,
     border: '1px solid ' + theme.palette.grey[400],
     borderRadius: 4,
+    color: theme.palette.text.primary,
+    background: theme.palette.background.default,
   },
   selectInput: {
     minWidth: 250,
@@ -62,6 +64,8 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     border: '1px solid ' + theme.palette.grey[400],
     borderRadius: 4,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.primary,
+    background: theme.palette.background.default,
   },
   buttonRow: {
     display: 'flex',
@@ -129,6 +133,8 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     border: '1px solid ' + theme.palette.grey[400],
     borderRadius: 4,
     justifySelf: 'start',
+    color: theme.palette.text.primary,
+    background: theme.palette.background.default,
   },
   sourceWeightDescription: {
     gridColumn: '2 / 3',

@@ -144,7 +144,7 @@ const EAHomeHandbook = ({ classes, documentId }: {
       <div className={classes.bannerContainer}>
         <div className={classes.bannerImgWrapper}>
           <CloudinaryImage2
-            publicId={document.bannerImageId}
+            publicId={document.bannerImageId ?? ''}
             height={bannerHeight}
             width={SECTION_WIDTH}
             objectFit='cover'

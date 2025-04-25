@@ -1,15 +1,17 @@
-import React from 'react';
-import SvgIcon from '@/lib/vendor/@material-ui/core/src/SvgIcon';
+import SvgIcon from '@/components/icons/SvgIcon';
+import React, { CSSProperties } from 'react';
 
 function createSvgIcon(path: React.ReactNode, displayName: string) {
-  let Icon = (props: any) => (
+  let Icon = (props: {
+    className?: string
+    style?: CSSProperties
+    onClick?: (ev: React.MouseEvent) => void
+    viewBox?: string
+  }) => (
     <SvgIcon {...props}>
       {path}
     </SvgIcon>
   );
-
-  (Icon as any).displayName = `${displayName}Icon`;
-  (Icon as any).muiName = 'SvgIcon';
 
   return Icon;
 };

@@ -70,7 +70,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
           {chapter.posts.map(post => {
             return <div key={chapter._id + post._id}>
-              <PostsItem sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
+              <PostsItem sequenceId={chapter.sequenceId ?? undefined} post={post} showReadCheckbox/>
             </div>
           })}
         </AnalyticsContext>

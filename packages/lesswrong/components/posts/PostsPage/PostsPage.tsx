@@ -276,7 +276,7 @@ export const styles = (theme: ThemeType) => ({
   },
   postBody: {
     ...(isFriendlyUI && {
-      width: "100%", // TODO remove, covered by https://github.com/ForumMagnum/ForumMagnum/pull/10775
+      width: "100%",
     }),
   },
   audioPlayerHidden: {
@@ -670,7 +670,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
-  const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  const debateResponseReplies = debateReplies?.filter(comment => comment.topLevelCommentId && debateResponseIds.has(comment.topLevelCommentId));
 
   const isDebateResponseLink = linkedCommentId && debateResponseIds.has(linkedCommentId);
   
@@ -792,7 +792,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         coauthors={post.coauthors
           ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
           .map(({displayName}) => displayName)}
-        date={post.createdAt}
+        date={post.createdAt ?? undefined}
       />
     </>}
     {/* Header/Title */}

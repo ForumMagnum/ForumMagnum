@@ -257,7 +257,7 @@ interface DbConversation extends DbObject {
   af: boolean | null
   archivedByIds: Array<string>
   createdAt: Date
-  latestActivity: Date | null
+  latestActivity: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   messageCount: number
   moderator: boolean | null
@@ -1026,7 +1026,7 @@ interface DbPost extends DbObject {
   isFuture: boolean
   joinEventLink: string | null
   lastCommentPromotedAt: Date | null
-  lastCommentedAt: Date | null
+  lastCommentedAt: Date
   legacy: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   legacyId: string | null
@@ -1249,7 +1249,7 @@ interface DbRevision extends DbObject {
   createdAt: Date
   documentId: string | null
   draft: boolean | null
-  editedAt: Date | null
+  editedAt: Date
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   fieldName: string | null
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1705,7 +1705,7 @@ interface DbUser extends DbObject {
   defaultToCKEditor: boolean | null
   deleteContent: boolean | null
   deleted: boolean
-  displayName: string | null
+  displayName: string
   draftsListShowArchived: boolean | null
   draftsListShowShared: boolean | null
   draftsListSorting: string | null

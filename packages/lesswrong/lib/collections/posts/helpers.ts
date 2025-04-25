@@ -296,7 +296,7 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
   }
   const organizerIds = post.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
-  return (userOwns(currentUser, post) || isPostGroupOrganizer) && post.draft
+  return (userOwns(currentUser, post) || isPostGroupOrganizer) && !!post.draft
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {

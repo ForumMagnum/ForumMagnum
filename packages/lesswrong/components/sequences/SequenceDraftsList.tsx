@@ -41,7 +41,7 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
     userId: userId ?? currentUser?._id,
     limit,
     sortDraftsBy: currentSorting,
-    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
+    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : (currentUser?.draftsListShowArchived ?? undefined),
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }
   

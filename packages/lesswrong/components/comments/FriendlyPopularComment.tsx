@@ -174,7 +174,7 @@ const FriendlyPopularComment = ({comment, classes}: {
           )
           : (
             <div className={classNames(classes.body, classes.bodyCollapsed)}>
-              {htmlToTextDefault(comment.contents?.html)}
+              {htmlToTextDefault(comment.contents?.html ?? undefined)}
             </div>
           )
         }
