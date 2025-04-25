@@ -1,4 +1,5 @@
 import { adminAccountSetting } from "@/lib/publicSettings";
+import { createDisplayName } from "@/lib/collections/users/newSchema";
 
 export const getAdminTeamAccount = async (context: ResolverContext) => {
   const { Users } = context;
@@ -6,15 +7,20 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
   if (!adminAccountData) {
     return null;
   }
+
+  // We need this dynamic require because the jargonTerms schema actually uses `getAdminTeamAccountId` when declaring the schema.
+  const { createUser }: typeof import("../collections/users/mutations") = require("../collections/users/mutations");
+
   let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
-    const { createMutator }: { createMutator: typeof import("../vulcan-lib/mutators").createMutator } = require("../vulcan-lib/mutators");
-    const newAccount = await createMutator({
-      collection: Users,
-      document: adminAccountData,
-      validate: false,
-    })
-    return newAccount.data
+    const newAccount = await createUser({
+      data: {
+        ...adminAccountData,
+        displayName: createDisplayName(adminAccountData)
+      },
+    }, context);
+    
+    return newAccount;
   }
   return account;
 }

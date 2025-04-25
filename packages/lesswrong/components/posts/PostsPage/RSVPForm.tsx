@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
 import { gql, useMutation } from '@apollo/client';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import { DialogActions } from '../../widgets/DialogActions';
+import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';

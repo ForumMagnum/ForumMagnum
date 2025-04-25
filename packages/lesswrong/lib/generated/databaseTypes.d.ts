@@ -193,6 +193,7 @@ interface DbComment extends DbObject {
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
     } | null,
   } | null
   hideAuthor: boolean
@@ -256,7 +257,7 @@ interface DbConversation extends DbObject {
   af: boolean | null
   archivedByIds: Array<string>
   createdAt: Date
-  latestActivity: Date | null
+  latestActivity: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   messageCount: number
   moderator: boolean | null
@@ -484,7 +485,7 @@ interface DbFeaturedResource extends DbObject {
   createdAt: Date
   ctaText: string
   ctaUrl: string
-  expiresAt: Date | null
+  expiresAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   title: string
 }
@@ -514,13 +515,14 @@ interface DbForumEvent extends DbObject {
   createdAt: Date
   customComponent: string | null
   darkColor: string
-  endDate: Date
+  endDate: Date | null
   eventFormat: "BASIC" | "POLL" | "STICKERS"
   frontpageDescription: EditableFieldContents | null
   frontpageDescriptionMobile: EditableFieldContents | null
   frontpageDescriptionMobile_latest: string | null
   frontpageDescription_latest: string | null
   includesPoll: boolean
+  isGlobal: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   lightColor: string
   maxStickersPerUser: number
@@ -663,12 +665,12 @@ interface DbLocalgroup extends DbObject {
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   inactive: boolean
   isOnline: boolean
-  lastActivity: Date | null
+  lastActivity: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   location: string | null
   meetupLink: string | null
   mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  name: string | null
+  name: string
   nameInAnotherLanguage: string | null
   organizerIds: Array<string>
   salesforceId: string | null
@@ -1024,7 +1026,7 @@ interface DbPost extends DbObject {
   isFuture: boolean
   joinEventLink: string | null
   lastCommentPromotedAt: Date | null
-  lastCommentedAt: Date | null
+  lastCommentedAt: Date
   legacy: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   legacyId: string | null
@@ -1247,12 +1249,11 @@ interface DbRevision extends DbObject {
   createdAt: Date
   documentId: string | null
   draft: boolean | null
-  editedAt: Date | null
+  editedAt: Date
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   fieldName: string | null
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   html: string | null
-  inactive: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   originalContents: {
     type: string,
@@ -1565,7 +1566,7 @@ interface DbUltraFeedEvent extends DbObject {
   createdAt: Date
   documentId: string
   event: any /*{"definitions":[{"blackbox":true}]}*/
-  eventType: "served" | "viewed" | "expanded"
+  eventType: "served" | "viewed" | "expanded" | "interacted"
   feedItemId: string | null
   userId: string
 }
@@ -1629,7 +1630,7 @@ interface DbUserRateLimit extends DbObject {
   __collectionName?: "UserRateLimits"
   actionsPerInterval: number
   createdAt: Date
-  endedAt: Date | null
+  endedAt: Date
   intervalLength: number
   intervalUnit: "minutes" | "hours" | "days" | "weeks"
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1647,7 +1648,7 @@ interface DbUserTagRel extends DbObject {
   subforumHideIntroPost: boolean
   subforumLastVisitedAt: Date | null
   subforumShowUnreadInSidebar: boolean
-  tagId: string | null
+  tagId: string
   userId: string
 }
 
@@ -1704,7 +1705,7 @@ interface DbUser extends DbObject {
   defaultToCKEditor: boolean | null
   deleteContent: boolean | null
   deleted: boolean
-  displayName: string | null
+  displayName: string
   draftsListShowArchived: boolean | null
   draftsListShowShared: boolean | null
   draftsListSorting: string | null

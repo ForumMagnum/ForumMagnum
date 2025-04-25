@@ -231,8 +231,9 @@ export const createNewPost = async (): Promise<PlaywrightPost> => {
       "draft",
       "wasEverUndrafted",
       "maxBaseScore",
-      "postedAt"
-    ) VALUES ($1, $2, $3, $4, $5, $6, 2, FALSE, FALSE, TRUE, 0, NOW())
+      "postedAt",
+      "lastCommentedAt"
+    ) VALUES ($1, $2, $3, $4, $5, $6, 2, FALSE, FALSE, TRUE, 0, NOW(), NOW())
   `, [_id, author._id, author.username, title, slug, contents, contents._id]);
 
   return {
@@ -259,8 +260,9 @@ export const createNewGroup = async ({
     INSERT INTO "Localgroups" (
       "_id",
       "name",
-      "organizerIds"
-    ) VALUES ($1, $2, $3)
+      "organizerIds",
+      "lastActivity"
+    ) VALUES ($1, $2, $3, NOW())
   `, [_id, name, organizerIds]);
 
   return {

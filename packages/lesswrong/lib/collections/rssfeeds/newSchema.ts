@@ -13,7 +13,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
@@ -40,7 +41,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
@@ -61,7 +63,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
@@ -80,7 +83,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
@@ -98,7 +101,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
@@ -132,7 +135,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "JSON",
+      outputType: "JSON!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
@@ -152,7 +155,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -173,7 +177,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
@@ -186,6 +191,6 @@ const schema = {
       control: "checkbox",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"RSSFeeds">>;
+} satisfies Record<string, CollectionFieldSpecification<"RSSFeeds">>;
 
 export default schema;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { Card } from "@/components/widgets/Paper";
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
@@ -77,8 +77,8 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
     }
     return ({
       user: user,
-      totalKarma: userTuple[1].reduce((value, review) => value + review.baseScore - getSelfUpvotePower(user), 0),
-      reviews: sortBy(userTuple[1], obj => -obj.baseScore)
+      totalKarma: userTuple[1].reduce((value, review) => value + (review.baseScore ?? 0) - getSelfUpvotePower(user), 0),
+      reviews: sortBy(userTuple[1], obj => -(obj.baseScore ?? 0))
     })}).filter((userRow): userRow is ReviewLeaderboardRow => userRow !== null)
 
   const NUM_DEFAULT_REVIEWS = 10
@@ -86,7 +86,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   const sortedUserRows = sortBy(userRowsMapping, obj => -obj.totalKarma)
   const truncatedRows = truncated ? sortedUserRows.slice(0,NUM_DEFAULT_REVIEWS) : sortedUserRows
 
-  const totalKarma = reviews?.reduce((v, r) => v + r.baseScore, 0)
+  const totalKarma = reviews?.reduce((v, r) => v + (r.baseScore ?? 0), 0)
 
   // TODO: move this to a separate component (it's slightly annoying to factor it out which is why we haven't done it yet)
   const reviewLeaderboardRow = (reviewUser: ReviewLeaderboardRow) => {
@@ -107,7 +107,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
           return <LWTooltip placement="bottom-start" title={<div className={classes.card}>
             <CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
             <a href={`/reviews/${reviewYear ?? "all"}#${review._id}`} onClick={() => setTruncated(true)}>
-              <MetaInfo>{review.baseScore - getSelfUpvotePower(review.user)}</MetaInfo>
+              <MetaInfo>{(review.baseScore ?? 0) - getSelfUpvotePower(review.user)}</MetaInfo>
             </a>
           </LWTooltip>
           })}</div>

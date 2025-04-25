@@ -40,16 +40,17 @@ import React, {
   useEffect,
   useCallback,
   ReactNode,
+  useMemo,
 } from 'react';
-import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from "../common/withUser";
+import { useCreate } from "../../lib/crud/withCreate";
 
 type DocumentType = 'post' | 'comment' | 'spotlight';
 
 interface ObserveData {
   documentId: string;
   documentType: DocumentType;
-  postId?: string; // Relevant for comments
+  postId?: string;
 }
 
 interface TrackExpansionData {
@@ -65,12 +66,19 @@ interface UltraFeedObserverContextType {
   observe: (element: Element, data: ObserveData) => void;
   unobserve: (element: Element) => void;
   trackExpansion: (data: TrackExpansionData) => void;
+  subscribeToLongView: (documentId: string, callback: () => void) => void;
+  unsubscribeFromLongView: (documentId: string, callback: () => void) => void;
+  hasBeenLongViewed: (documentId: string) => boolean;
 }
 
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
 
+// Minimum amount of the element (in pixels) that must be inside the viewport to
+// count as "visible enough" to register a view event.
+const MIN_VISIBLE_PX = 250;
+
 const VIEW_THRESHOLD_MS = 300;
-const INTERSECTION_THRESHOLD = 0.5;
+const LONG_VIEW_THRESHOLD_MS = 2500;
 
 const documentTypeToCollectionName = {
   post: "Posts",
@@ -78,19 +86,38 @@ const documentTypeToCollectionName = {
   spotlight: "Spotlights"
 } satisfies Record<DocumentType, "Posts" | "Comments" | "Spotlights">;
 
-export const UltraFeedObserverProvider = ({ children }: { children: ReactNode }) => {
+export const UltraFeedObserverProvider = ({ children, incognitoMode }: { children: ReactNode, incognitoMode: boolean }) => {
   const currentUser = useCurrentUser();
   
   const { create: createUltraFeedEvent } = useCreate({
-    collectionName: 'UltraFeedEvents',
+    collectionName: "UltraFeedEvents",
     fragmentName: 'UltraFeedEventsDefaultFragment',
   });
   
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const timerMapRef = useRef<Map<Element, NodeJS.Timeout>>(new Map());
+  const timerMapRef = useRef<Map<Element, { shortTimerId: NodeJS.Timeout | null, longTimerId: NodeJS.Timeout | null }>>(new Map());
   const elementDataMapRef = useRef<Map<Element, ObserveData>>(new Map());
-  const viewedItemsRef = useRef<Set<string>>(new Set());
+  const longViewedItemsRef = useRef<Set<string>>(new Set());
+  const shortViewedItemsRef = useRef<Set<string>>(new Set());
+
+  const longViewSubscriptionsRef = useRef<Map<string, Set<() => void>>>(new Map());
+
+  const logViewEvent = useCallback((elementData: ObserveData, durationMs: number) => {
+    if (!currentUser || incognitoMode || !elementData) return;
+
+    const eventPayload = {
+      data: {
+        eventType: 'viewed' as const,
+        documentId: elementData.documentId,
+        collectionName: documentTypeToCollectionName[elementData.documentType],
+        event: { 
+          durationMs: durationMs
+        }
+      }
+    };
+    void createUltraFeedEvent(eventPayload);
+  }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
     if (!currentUser) return;
@@ -99,68 +126,97 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
       const element = entry.target;
       const elementData = elementDataMapRef.current.get(element);
 
-      if (!elementData || viewedItemsRef.current.has(elementData.documentId)) {
+      if (!elementData || longViewedItemsRef.current.has(elementData.documentId)) {
         return;
       }
 
-      if (entry.isIntersecting && entry.intersectionRatio >= INTERSECTION_THRESHOLD) {
+      if (entry.isIntersecting) {
         if (!timerMapRef.current.has(element)) {
-          const timerId = setTimeout(() => {
-            if (elementDataMapRef.current.has(element) && !viewedItemsRef.current.has(elementData.documentId)) {
-              const eventData = {
-                userId: currentUser._id,
-                eventType: 'viewed' as const,
-                documentId: elementData.documentId,
-                collectionName: documentTypeToCollectionName[elementData.documentType],
-              };
+          if (!elementData) return;
+          
+          let shortTimerId: NodeJS.Timeout | null = null;
+          if (!shortViewedItemsRef.current.has(elementData.documentId)) {
+            shortTimerId = setTimeout(() => {
+              if (elementDataMapRef.current.has(element)) {
+                logViewEvent(elementData, VIEW_THRESHOLD_MS);
+                shortViewedItemsRef.current.add(elementData.documentId);
+                const timers = timerMapRef.current.get(element);
+                if (timers) {
+                  timers.shortTimerId = null;
+                }
+              }
+            }, VIEW_THRESHOLD_MS);
+          }
 
-              void createUltraFeedEvent({
-                data: eventData
-              });
-              
-              viewedItemsRef.current.add(elementData.documentId);
-              observerRef.current?.unobserve(element);
-              elementDataMapRef.current.delete(element);
-            }
-            timerMapRef.current.delete(element);
-          }, VIEW_THRESHOLD_MS);
-          timerMapRef.current.set(element, timerId);
+          const longTimerId = setTimeout(() => {
+             if (elementDataMapRef.current.has(element)) {
+               const currentElementData = elementDataMapRef.current.get(element);
+               if (!currentElementData) return;
+
+               logViewEvent(currentElementData, LONG_VIEW_THRESHOLD_MS);
+               const documentId = currentElementData.documentId;
+               longViewedItemsRef.current.add(documentId);
+
+               const subscriptions = longViewSubscriptionsRef.current.get(documentId);
+               if (subscriptions) {
+                 subscriptions.forEach(callback => callback());
+                 longViewSubscriptionsRef.current.delete(documentId);
+               }
+               
+               observerRef.current?.unobserve(element);
+               elementDataMapRef.current.delete(element);
+               timerMapRef.current.delete(element);
+             }
+          }, LONG_VIEW_THRESHOLD_MS);
+
+          timerMapRef.current.set(element, { shortTimerId, longTimerId });
         }
       } else {
         if (timerMapRef.current.has(element)) {
-          clearTimeout(timerMapRef.current.get(element)!);
+          const timers = timerMapRef.current.get(element)!;
+          if (timers.shortTimerId) {
+            clearTimeout(timers.shortTimerId);
+          }
+          if (timers.longTimerId) {
+            clearTimeout(timers.longTimerId);
+          }
           timerMapRef.current.delete(element);
         }
       }
     });
-  }, [createUltraFeedEvent, currentUser]);
+  }, [logViewEvent, currentUser]);
 
   useEffect(() => {
-    // Capture current ref values inside the effect
     const currentTimerMap = timerMapRef.current;
     const currentElementDataMap = elementDataMapRef.current;
-    const currentViewedItems = viewedItemsRef.current;
+    const currentLongViewedItems = longViewedItemsRef.current;
+    const currentShortViewedItems = shortViewedItemsRef.current;
 
-    // Create and assign the observer
+    // We shrink the effective viewport by MIN_VISIBLE_PX on the top and bottom.
+    // Consequently, `entry.isIntersecting === true` means the element has at
+    // least MIN_VISIBLE_PX pixels (or its full height if smaller) visible.
     observerRef.current = new IntersectionObserver(handleIntersection, {
       root: null,
-      threshold: INTERSECTION_THRESHOLD,
+      rootMargin: `-${MIN_VISIBLE_PX}px 0px -${MIN_VISIBLE_PX}px 0px`,
+      threshold: 0,
     });
-    // Capture the specific observer instance created in *this* effect run
     const observerInstance = observerRef.current;
 
-    // Cleanup function uses the captured values
     return () => {
       observerInstance?.disconnect();
-      currentTimerMap.forEach(clearTimeout);
+      currentTimerMap.forEach(timers => {
+        if (timers.shortTimerId) clearTimeout(timers.shortTimerId);
+        if (timers.longTimerId) clearTimeout(timers.longTimerId);
+      });
       currentTimerMap.clear();
       currentElementDataMap.clear();
-      currentViewedItems.clear();
+      currentLongViewedItems.clear();
+      currentShortViewedItems.clear();
     };
   }, [handleIntersection]);
 
   const observe = useCallback((element: Element, data: ObserveData) => {
-    if (observerRef.current && !viewedItemsRef.current.has(data.documentId) && !elementDataMapRef.current.has(element)) {
+    if (observerRef.current && !longViewedItemsRef.current.has(data.documentId) && !elementDataMapRef.current.has(element)) {
        elementDataMapRef.current.set(element, data);
        observerRef.current.observe(element);
     }
@@ -170,34 +226,63 @@ export const UltraFeedObserverProvider = ({ children }: { children: ReactNode })
     if (observerRef.current && elementDataMapRef.current.has(element)) {
       observerRef.current.unobserve(element);
       if (timerMapRef.current.has(element)) {
-        clearTimeout(timerMapRef.current.get(element)!);
+        const timers = timerMapRef.current.get(element)!;
+        if (timers.shortTimerId) clearTimeout(timers.shortTimerId);
+        if (timers.longTimerId) clearTimeout(timers.longTimerId);
         timerMapRef.current.delete(element);
       }
       elementDataMapRef.current.delete(element);
     }
   }, []);
 
+  const hasBeenLongViewed = useCallback((documentId: string): boolean => {
+    return longViewedItemsRef.current.has(documentId);
+  }, []);
+
+  const subscribeToLongView = useCallback((documentId: string, callback: () => void) => {
+    if (!longViewSubscriptionsRef.current.has(documentId)) {
+      longViewSubscriptionsRef.current.set(documentId, new Set());
+    }
+    longViewSubscriptionsRef.current.get(documentId)!.add(callback);
+  }, []);
+
+  const unsubscribeFromLongView = useCallback((documentId: string, callback: () => void) => {
+    if (longViewSubscriptionsRef.current.has(documentId)) {
+      const subscriptions = longViewSubscriptionsRef.current.get(documentId)!;
+      subscriptions.delete(callback);
+      if (subscriptions.size === 0) {
+        longViewSubscriptionsRef.current.delete(documentId);
+      }
+    }
+  }, []);
+
   const trackExpansion = useCallback((data: TrackExpansionData) => {
-    if (!currentUser) return;
+    if (!currentUser || incognitoMode) return;
     
     const eventData = {
-      userId: currentUser._id,
-      eventType: 'expanded' as const,
-      documentId: data.documentId,
-      collectionName: documentTypeToCollectionName[data.documentType],
-      event: {
-        expansionLevel: data.level,
-        maxExpansionReached: data.maxLevelReached,
-        wordCount: data.wordCount,
-      },
+      data: {
+        userId: currentUser._id,
+        eventType: 'expanded' as const,
+        documentId: data.documentId,
+        collectionName: documentTypeToCollectionName[data.documentType],
+        event: {
+          expansionLevel: data.level,
+          maxExpansionReached: data.maxLevelReached,
+          wordCount: data.wordCount,
+        }
+      }
     };
+    void createUltraFeedEvent(eventData);
+  }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
-    void createUltraFeedEvent({
-      data: eventData
-    });
-  }, [createUltraFeedEvent, currentUser]);
-
-  const contextValue = { observe, unobserve, trackExpansion };
+  const contextValue = useMemo(() => ({ 
+    observe, 
+    unobserve, 
+    trackExpansion, 
+    subscribeToLongView, 
+    unsubscribeFromLongView, 
+    hasBeenLongViewed 
+  }), [observe, unobserve, trackExpansion, subscribeToLongView, unsubscribeFromLongView, hasBeenLongViewed]);
 
   return (
     <UltraFeedObserverContext.Provider value={contextValue}>

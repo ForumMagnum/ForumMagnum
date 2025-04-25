@@ -11,6 +11,7 @@ import { configureDatadogRum } from '@/client/datadogRum';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,7 +46,11 @@ const UsersEditForm = ({terms, classes}: {
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
-  if(!userCanEditUser(currentUser, terms)) {
+  const userHasEditAccess = userCanEditUser(currentUser, terms);
+
+  const { user: userBySlug, loading: loadingUser } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersEdit', skip: !userHasEditAccess });
+
+  if(!userHasEditAccess) {
     return <ErrorAccessDenied />;
   }
   const isCurrentUser = (terms.slug === currentUser?.slug)
@@ -73,9 +78,10 @@ const UsersEditForm = ({terms, classes}: {
         {preferredHeadingCase("Reset Password")}
       </Button>}
 
-      <Components.WrappedSmartForm
+      {loadingUser && <Components.Loading />}
+      {!loadingUser && <Components.WrappedSmartForm
         collectionName="Users"
-        {...terms}
+        documentId={userBySlug?._id}
         removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
         successCallback={async (user: AnyBecauseTodo) => {
           if (user?.theme) {
@@ -97,7 +103,7 @@ const UsersEditForm = ({terms, classes}: {
         queryFragmentName={'UsersEdit'}
         mutationFragmentName={'UsersEdit'}
         showRemove={false}
-      />
+      />}
     </div>
   );
 };

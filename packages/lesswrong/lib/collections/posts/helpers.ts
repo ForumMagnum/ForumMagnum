@@ -59,7 +59,7 @@ export const postGetStatusName = function (post: DbPost): string {
 };
 
 // Check if a post is approved
-export const postIsApproved = function (post: DbPost): boolean {
+export const postIsApproved = function (post: Pick<DbPost, '_id' | 'status'>): boolean {
   return post.status === postStatuses.STATUS_APPROVED;
 };
 
@@ -275,7 +275,7 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
   }
   const organizerIds = post.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
-  return (userOwns(currentUser, post) || isPostGroupOrganizer) && post.draft
+  return (userOwns(currentUser, post) || isPostGroupOrganizer) && !!post.draft
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {
@@ -409,7 +409,7 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
   return false;
 }
 
-export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean => {
+export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase & keyof DbPost> | PostsBase): boolean => {
   // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
   // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
   // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
@@ -427,7 +427,7 @@ export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean =
   );
 };
 
-export const postIsPublic = (post: DbPost) => {
+export const postIsPublic = (post: Pick<DbPost, '_id' | 'draft' | 'status'>) => {
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 };
 

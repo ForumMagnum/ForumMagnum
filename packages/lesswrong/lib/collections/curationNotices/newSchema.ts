@@ -137,6 +137,6 @@ const schema = {
       control: "checkbox",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"CurationNotices">>;
+} satisfies Record<string, CollectionFieldSpecification<"CurationNotices">>;
 
 export default schema;

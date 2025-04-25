@@ -594,7 +594,7 @@ CREATE TABLE "Conversations" (
   "legacyData" JSONB,
   "title" TEXT,
   "participantIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "latestActivity" TIMESTAMPTZ,
+  "latestActivity" TIMESTAMPTZ NOT NULL,
   "af" BOOL,
   "messageCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "moderator" BOOL,
@@ -908,7 +908,7 @@ CREATE TABLE "FeaturedResources" (
   "body" TEXT,
   "ctaText" TEXT NOT NULL,
   "ctaUrl" TEXT NOT NULL,
-  "expiresAt" TIMESTAMPTZ
+  "expiresAt" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_FeaturedResources_schemaVersion"
@@ -951,7 +951,7 @@ CREATE TABLE "ForumEvents" (
   "postPageDescription_latest" TEXT,
   "title" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
-  "endDate" TIMESTAMPTZ NOT NULL,
+  "endDate" TIMESTAMPTZ,
   "darkColor" TEXT NOT NULL DEFAULT '#000000',
   "lightColor" TEXT NOT NULL DEFAULT '#ffffff',
   "bannerTextColor" TEXT NOT NULL DEFAULT '#ffffff',
@@ -960,6 +960,7 @@ CREATE TABLE "ForumEvents" (
   "postId" VARCHAR(27),
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
+  "isGlobal" BOOL NOT NULL DEFAULT TRUE,
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
   "pollQuestion_latest" TEXT,
   "pollAgreeWording" TEXT,
@@ -1155,10 +1156,10 @@ CREATE TABLE "Localgroups" (
   "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
-  "name" TEXT,
+  "name" TEXT NOT NULL,
   "nameInAnotherLanguage" TEXT,
   "organizerIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "lastActivity" TIMESTAMPTZ,
+  "lastActivity" TIMESTAMPTZ NOT NULL,
   "types" TEXT[] NOT NULL DEFAULT '{''LW''}',
   "categories" TEXT[],
   "isOnline" BOOL NOT NULL DEFAULT FALSE,
@@ -1608,7 +1609,7 @@ CREATE TABLE "Posts" (
   "postCategory" TEXT NOT NULL DEFAULT 'post',
   "title" VARCHAR(500) NOT NULL,
   "viewCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "lastCommentedAt" TIMESTAMPTZ,
+  "lastCommentedAt" TIMESTAMPTZ NOT NULL,
   "clickCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "deletedDraft" BOOL NOT NULL DEFAULT FALSE,
   "status" DOUBLE PRECISION NOT NULL,
@@ -2572,7 +2573,7 @@ CREATE TABLE "Revisions" (
   "documentId" TEXT,
   "collectionName" TEXT,
   "fieldName" TEXT,
-  "editedAt" TIMESTAMPTZ,
+  "editedAt" TIMESTAMPTZ NOT NULL,
   "autosaveTimeoutStart" TIMESTAMPTZ,
   "updateType" TEXT,
   "version" TEXT NOT NULL,
@@ -2589,7 +2590,6 @@ CREATE TABLE "Revisions" (
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
   "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
   "afVoteCount" DOUBLE PRECISION
@@ -3209,7 +3209,7 @@ CREATE TABLE "UserRateLimits" (
   "intervalUnit" TEXT NOT NULL,
   "intervalLength" DOUBLE PRECISION NOT NULL,
   "actionsPerInterval" DOUBLE PRECISION NOT NULL,
-  "endedAt" TIMESTAMPTZ
+  "endedAt" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_UserRateLimits_schemaVersion"
@@ -3224,7 +3224,7 @@ CREATE TABLE "UserTagRels" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "tagId" VARCHAR(27),
+  "tagId" VARCHAR(27) NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
   "subforumLastVisitedAt" TIMESTAMPTZ,
   "subforumShowUnreadInSidebar" BOOL NOT NULL DEFAULT TRUE,
@@ -3236,7 +3236,7 @@ CREATE TABLE "UserTagRels" (
 CREATE INDEX IF NOT EXISTS "idx_UserTagRels_schemaVersion" ON "UserTagRels" USING btree ("schemaVersion");
 
 -- Index "idx_UserTagRels_tagId_userId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree (COALESCE("tagId", ''), "userId");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree ("tagId", "userId");
 
 -- Table "Users"
 CREATE TABLE "Users" (
@@ -3259,7 +3259,7 @@ CREATE TABLE "Users" (
   "isAdmin" BOOL NOT NULL DEFAULT FALSE,
   "profile" JSONB,
   "services" JSONB,
-  "displayName" TEXT,
+  "displayName" TEXT NOT NULL,
   "previousDisplayName" TEXT,
   "email" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,

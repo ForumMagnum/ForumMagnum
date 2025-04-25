@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { FormGroupLayoutProps } from '../form-components/FormGroupLayout';
 import { FormComponentOverridesType } from './propTypes';
+import { TooltipSpan } from '../common/FMTooltip';
 
 const headerStyles = (theme: ThemeType) => ({
   formSectionHeading: {
@@ -116,9 +116,9 @@ const FormGroup = ({
     );
     if (helpText) {
       return (
-        <Tooltip title={helpText}>
-          <span>{component}</span>
-        </Tooltip>
+        <TooltipSpan title={helpText}>
+          {component}
+        </TooltipSpan>
       );
     }
     return component;

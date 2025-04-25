@@ -1,7 +1,8 @@
+import { FeedItemDisplayStatus } from "@/components/ultraFeed/ultraFeedTypes";
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 
 const ALLOWED_COLLECTION_NAMES = ["Posts", "Comments", "Spotlights"];
-const ALLOWED_EVENT_TYPES = ["served", "viewed", "expanded"];
+const ALLOWED_EVENT_TYPES = ["served", "viewed", "expanded", "interacted"];
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -59,7 +60,7 @@ const schema = {
     },
     graphql: {
       outputType: "String", 
-      inputType: "String!",
+      inputType: "String",
       canRead: ["admins"], 
       canCreate: ["members"],
     },
@@ -98,7 +99,7 @@ const schema = {
     },
   },
 
-} satisfies Record<string, NewCollectionFieldSpecification<"UltraFeedEvents">>;
+} satisfies Record<string, CollectionFieldSpecification<"UltraFeedEvents">>;
 
 export default schema;
 
@@ -108,6 +109,18 @@ interface ExpandedEventData {
   wordCount: number;
 }
 
+interface ServedEventData {
+  sessionId: string;    // The session ID for the feed load
+  itemIndex: number;    // The index of the item in the served results array
+  commentIndex?: number; // The index of the comment within a thread, if applicable
+  displayStatus?: FeedItemDisplayStatus;
+}
+
+// Define data for the new 'interacted' event type
+interface InteractedEventData {
+  interactionType: "bookmarkClicked" | "voteClicked" | "commentsClicked";
+}
+
 // Use Pick on the generated DB type (adjust type name 'DbUltraFeedEvent' if needed)
 type UltraFeedEventBase = Pick<DbUltraFeedEvent, '_id' | 'createdAt' | 'userId' | 'documentId' | 'collectionName' | 'feedItemId'>;
 
@@ -115,13 +128,17 @@ type UltraFeedEventBase = Pick<DbUltraFeedEvent, '_id' | 'createdAt' | 'userId' 
 export type UltraFeedEvent =
   | (UltraFeedEventBase & {
       eventType: "served";
-      event?: null | Record<string, never>;
+      event?: ServedEventData | null;
     })
   | (UltraFeedEventBase & {
       eventType: "viewed";
-      event?: null | Record<string, never>;
+      event: { durationMs: number } | null;
     })
   | (UltraFeedEventBase & {
       eventType: "expanded";
       event: ExpandedEventData;
+    })
+  | (UltraFeedEventBase & {
+      eventType: "interacted";
+      event: InteractedEventData;
     });

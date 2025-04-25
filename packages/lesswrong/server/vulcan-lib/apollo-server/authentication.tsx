@@ -1,12 +1,10 @@
 import React from 'react'
-import { createMutator } from "../mutators";
 import passport from 'passport'
 import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { getClientIP } from '@/server/utils/getClientIP';
-import { LWEvents } from "../../../server/collections/lwevents/collection";
 import Users from "../../../server/collections/users/collection";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../server/collections/legacyData/collection';
@@ -22,6 +20,10 @@ import { forumTitleSetting } from '../../../lib/instanceSettings';
 import {userFindOneByEmail} from "../../commonQueries";
 import UsersRepo from '../../repos/UsersRepo';
 import gql from 'graphql-tag';
+import { createLWEvent } from '@/server/collections/lwevents/mutations';
+import { computeContextFromUser } from './context';
+import { createUser } from '@/server/collections/users/mutations';
+import { createDisplayName } from '@/lib/collections/users/newSchema';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -263,30 +265,35 @@ export const loginDataGraphQLMutations = {
     }
 
     const { req, res } = context
-    const { data: user } = await createMutator({
-      collection: Users,
-      document: {
-        email,
-        services: {
-          password: {
-            bcrypt: await createPasswordHash(password)
-          },
-          resume: {
-            loginTokens: []
-          }
+
+    const userData = {
+      email,
+      services: {
+        password: {
+          bcrypt: await createPasswordHash(password)
         },
-        emails: [{
-          address: email, verified: false
-        }],
-        username: username,
-        emailSubscribedToCurated: subscribeToCurated,
-        signUpReCaptchaRating: recaptchaScore,
-        abTestKey,
+        resume: {
+          loginTokens: []
+        }
       },
-      validate: false,
-      currentUser: null,
-      context
-    })
+      emails: [{
+        address: email, verified: false
+      }],
+      username: username,
+      emailSubscribedToCurated: subscribeToCurated,
+      signUpReCaptchaRating: recaptchaScore,
+      abTestKey,
+    };
+
+    const displayName = createDisplayName(userData);
+    
+    const user = await createUser({
+      data: {
+        ...userData,
+        displayName,
+      },
+    }, context);
+
     const token = await createAndSetToken(req, res, user)
     return { 
       token
@@ -344,12 +351,9 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
       referrer: req.headers['referer']
     }
   }
-  void createMutator({
-    collection: LWEvents,
-    document: document,
-    currentUser: user,
-    validate: false,
-  })
+  void computeContextFromUser({ user, isSSR: false }).then(userContext => {
+    void createLWEvent({ data: document }, userContext);
+  });
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret

@@ -1,7 +1,6 @@
 import React from "react";
 import { hasDigests, hasNewsletter } from "@/lib/betas";
 import Conversations from "@/server/collections/conversations/collection";
-import Messages from "@/server/collections/messages/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
@@ -17,7 +16,7 @@ import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEma
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { CallbackValidationErrors, UpdateCallbackProperties } from "../mutationCallbacks";
+import { UpdateCallbackProperties } from "../mutationCallbacks";
 import { bellNotifyEmailVerificationRequired } from "../notificationCallbacks";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { recombeeApi } from "../recombee/client";
@@ -30,13 +29,18 @@ import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/modera
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import md5 from "md5";
 import { FieldChanges } from "@/server/collections/fieldChanges/collection";
-import { createAnonymousContext } from "../vulcan-lib/createContexts";
+import { createConversation } from "../collections/conversations/mutations";
+import { createMessage } from "../collections/messages/mutations";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updatePost } from "../collections/posts/mutations";
+import { updateComment } from "../collections/comments/mutations";
+import { createUser, updateUser } from "../collections/users/mutations";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 
 
@@ -81,12 +85,9 @@ async function sendWelcomeMessageTo(userId: string) {
     participantIds: [user._id, adminsAccount._id],
     title: subjectLine,
   }
-  const conversation = await createMutator({
-    collection: Conversations,
-    document: conversationData,
-    currentUser: adminsAccount,
-    validate: false
-  });
+
+  const adminAccountContext = await computeContextFromUser({ user: adminsAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+  const conversation = await createConversation({ data: conversationData }, adminAccountContext);
   
   const messageDocument = {
     userId: adminsAccount._id,
@@ -96,15 +97,11 @@ async function sendWelcomeMessageTo(userId: string) {
         data: welcomeMessageBody,
       }
     },
-    conversationId: conversation.data._id,
+    conversationId: conversation._id,
     noEmail: true,
-  }
-  await createMutator({
-    collection: Messages,
-    document: messageDocument,
-    currentUser: adminsAccount,
-    validate: false
-  })
+  };
+
+  await createMessage({ data: messageDocument }, adminAccountContext);
   
   // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
   // so we're not sending the email notification for this welcome PM
@@ -184,12 +181,8 @@ const utils = {
         displayName: "AI Alignment Forum",
         email: "aialignmentforum@lesswrong.com",
       }
-      const response = await createMutator({
-        collection: Users,
-        document: userData,
-        validate: false,
-      })
-      account = response.data
+      const response = await createUser({ data: userData }, context);
+      account = response
     }
     return account;
   },
@@ -206,16 +199,8 @@ const utils = {
   },
 };
 
-
-/* CREATE VALIDATE */
-
-/* CREATE BEFORE */
-
-// slugCreateBeforeCallbackFunction-Users
-// 4x editorSerializationBeforeCreate
-
 /* NEW SYNC */
-export async function makeFirstUserAdminAndApproved(user: DbUser, context: ResolverContext) {
+export async function makeFirstUserAdminAndApproved(user: CreateUserDataInput, context: ResolverContext) {
   const { Users } = context;
 
   if (isAnyTest) return user;
@@ -234,14 +219,6 @@ export async function makeFirstUserAdminAndApproved(user: DbUser, context: Resol
   return user;
 }
 
-/* CREATE AFTER */
-
-// editorSerializationAfterCreate
-// notifyUsersAboutMentions
-// x4
-
-/* NEW AFTER */
-
 /* CREATE ASYNC */
 export function createRecombeeUser({ document }: {document: DbUser}) {
   if (!recombeeEnabledSetting.get()) return;
@@ -254,8 +231,6 @@ export function createRecombeeUser({ document }: {document: DbUser}) {
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending created user to recombee', { e }));
 }
-
-// elasticSyncDocument
 
 /* NEW ASYNC */
 export async function subscribeOnSignup(user: DbUser) {
@@ -314,26 +289,21 @@ export async function sendWelcomingPM(user: DbUser) {
   });
 }
 
-// 4x convertImagesInObject
-
 /* UPDATE VALIDATE */
-export async function changeDisplayNameRateLimit(validationErrors: CallbackValidationErrors, { oldDocument, newDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
+export async function changeDisplayNameRateLimit({ oldDocument, newDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (oldDocument.displayName !== newDocument.displayName) {
     await utils.enforceDisplayNameRateLimit({ userToUpdate: oldDocument, currentUser: currentUser! }, context);
   }
-  return validationErrors;
 }
 
 /* UPDATE BEFORE */
-
-// slugUpdateBeforeCallbackFunction-Users
 
 /**
  * Handle subscribing/unsubscribing in mailchimp when either
  * `subscribedToDigest` or `subscribedToMailchimp` is changed, including cases
  * where this happens implicitly due to changing another field
  */
-export async function updateMailchimpSubscription(data: Partial<DbUser>, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
+export async function updateMailchimpSubscription(data: UpdateUserDataInput, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
   // Handle cases which force you to unsubscribe from both:
   // - When a user explicitly unsubscribes from all emails. If they want they
   //   can then explicitly re-subscribe while keeping "unsubscribeFromAll"
@@ -430,7 +400,7 @@ export async function updateMailchimpSubscription(data: Partial<DbUser>, {oldDoc
   return data;
 }
 
-export async function updateDisplayName(data: Partial<DbUser>, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
+export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
   const { Posts } = context;
 
   if (data.displayName !== undefined && data.displayName !== oldDocument.displayName) {
@@ -441,21 +411,17 @@ export async function updateDisplayName(data: Partial<DbUser>, { oldDocument, ne
       throw new Error("This display name is already taken");
     }
     if (data.shortformFeedId && !isLWorAF) {
-      void updateMutator({
-        collection: Posts,
-        documentId: data.shortformFeedId,
-        set: {title: userShortformPostTitle(newDocument)},
-        validate: false,
-      });
+      void updatePost({
+        data: {title: userShortformPostTitle(newDocument)},
+        selector: { _id: data.shortformFeedId }
+      }, createAnonymousContext());
     }
   }
   return data;
 }
 
-// 4x editorSerializationEdit
-
 /* EDIT SYNC */
-export function maybeSendVerificationEmail(modifier: MongoModifier<DbUser>, user: DbUser) {
+export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser) {
   const { $set: { whenConfirmationEmailSent } } = modifier;
   if (!whenConfirmationEmailSent) {
     return;
@@ -468,7 +434,7 @@ export function maybeSendVerificationEmail(modifier: MongoModifier<DbUser>, user
   }
 }
 
-export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier<DbUser>, user: DbUser) {
+export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier, user: DbUser) {
   const updatedKarmaChangeNotifierSettings = modifier.$set?.karmaChangeNotifierSettings;
   if (updatedKarmaChangeNotifierSettings) {
     const lastSettings = user.karmaChangeNotifierSettings;
@@ -480,7 +446,7 @@ export function clearKarmaChangeBatchOnSettingsChange(modifier: MongoModifier<Db
   return modifier;
 }
 
-export async function usersEditCheckEmail(modifier: MongoModifier<DbUser>, user: DbUser) {
+export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser) {
   // if email is being modified, update user.emails too
   if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
 
@@ -518,7 +484,7 @@ export async function usersEditCheckEmail(modifier: MongoModifier<DbUser>, user:
   return modifier;
 }
 
-export function syncProfileUpdatedAt(modifier: MongoModifier<DbUser>, user: DbUser) {
+export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
   for (const field of simpleUserProfileFields) {
     if (
       (field in modifier.$set && !isEqual(modifier.$set[field], user[field])) ||
@@ -537,19 +503,14 @@ export function syncProfileUpdatedAt(modifier: MongoModifier<DbUser>, user: DbUs
   return modifier;
 }
 
-/* UPDATE AFTER */
-
-// 4x notifyUsersAboutMentions
-
 /* UPDATE ASYNC */
-export function updateUserMayTriggerReview({document, data, context}: UpdateCallbackProperties<"Users">) {
+export function updateUserMayTriggerReview({newDocument, data, context}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
-    void triggerReviewIfNeeded(document._id, context);
+    void triggerReviewIfNeeded(newDocument._id, context);
   }
 }
 
-// updateAsync
 export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
   if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
     await nullifyVotesForUser(newDocument);
@@ -588,15 +549,13 @@ export async function approveUnreviewedSubmissions(newUser: DbUser, oldUser: DbU
     // to now so that it goes to the right place int he latest posts list.
     const unreviewedPosts = await Posts.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let post of unreviewedPosts) {
-      await updateMutator<"Posts">({
-        collection: Posts,
-        documentId: post._id,
-        set: {
+      await updatePost({
+        data: {
           authorIsUnreviewed: false,
           postedAt: new Date(),
         },
-        validate: false
-      });
+        selector: { _id: post._id }
+      }, context);
     }
     
     // For each comment by this author which has the authorIsUnreviewed flag set, clear the authorIsUnreviewed flag.
@@ -604,14 +563,10 @@ export async function approveUnreviewedSubmissions(newUser: DbUser, oldUser: DbU
     // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
     const unreviewedComments = await Comments.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let comment of unreviewedComments) {
-      await updateMutator<"Comments">({
-        collection: Comments,
-        documentId: comment._id,
-        set: {
-          authorIsUnreviewed: false,
-        },
-        validate: false
-      });
+      await updateComment({
+        data: { authorIsUnreviewed: false },
+        selector: { _id: comment._id }
+      }, context);
     }
   }
 }
@@ -640,13 +595,7 @@ export async function handleSetShortformPost(newUser: DbUser, oldUser: DbUser, c
     // So, don't bother checking for an old post in the shortformFeedId field.
     
     // Mark the post as shortform
-    await updateMutator({
-      collection: Posts,
-      documentId: post._id,
-      set: { shortform: true },
-      unset: {},
-      validate: false,
-    });
+    await updatePost({ data: { shortform: true }, selector: { _id: post._id } }, createAnonymousContext());
   }
 }
 
@@ -668,13 +617,7 @@ export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldU
   // we don't want this action to count toward their one username change
   const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset
   if (user.displayName !== oldUser.displayName && !isSettingUsername) {
-    await updateMutator({
-      collection: Users,
-      documentId: user._id,
-      set: {previousDisplayName: oldUser.displayName},
-      currentUser: user,
-      validate: false,
-    });
+    await updateUser({ data: {previousDisplayName: oldUser.displayName}, selector: { _id: user._id } }, context);
   }
 }
 
@@ -700,12 +643,9 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       participantIds: [newUser._id, lwAccount._id],
       title: `Welcome to the AI Alignment Forum!`
     }
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false,
-    });
+
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
     let firstMessageContent =
         `<div>
@@ -726,14 +666,10 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
           data: firstMessageContent
         }
       },
-      conversationId: conversation.data._id
-    }
-    void createMutator({
-      collection: Messages,
-      document: firstMessageData,
-      currentUser: lwAccount,
-      validate: false,
-    })
+      conversationId: conversation._id
+    };
+
+    void createMessage({ data: firstMessageData }, lwAccountContext);
   }
 }
 
@@ -741,22 +677,12 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
   const { Posts } = context;
   if (utils.isAlignmentForumMember(newUser) && !utils.isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
-      await updateMutator({
-        collection: Posts,
-        documentId: newUser.shortformFeedId,
-        set: {
-          af: true
-        },
-        unset: {},
-        validate: false,
-      })
+      await updatePost({ data: {
+                  af: true
+                }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext())
     }
   }
 }
-
-// 4x convertImagesInObject
-
-// elasticSyncDocument
 
 export async function reindexDeletedUserContent(newUser: DbUser, oldUser: DbUser, context: ResolverContext) {
   const { repos } = context;

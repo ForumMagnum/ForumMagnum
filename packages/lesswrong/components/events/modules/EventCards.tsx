@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib/component
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { Card } from "@/components/widgets/Paper";
 import CardContent from '@/lib/vendor/@material-ui/core/src/CardContent';
 import { useTimezone } from '../../common/withTimezone';
 import { isEAForum } from '../../../lib/instanceSettings';
@@ -164,7 +164,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
           </div>
         </PostsItemTooltipWrapper>
         <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
-        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name}>
+        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name ?? undefined}>
           <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
         </div>}
         <div className={classes.addToCal}>

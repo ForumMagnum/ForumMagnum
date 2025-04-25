@@ -97,7 +97,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -122,35 +123,12 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
-        allowedValues: [
-          "rateLimitOnePerDay",
-          "rateLimitOnePerThreeDays",
-          "rateLimitOnePerWeek",
-          "rateLimitOnePerFortnight",
-          "rateLimitOnePerMonth",
-          "rateLimitThreeCommentsPerPost",
-          "recentlyDownvotedContentAlert",
-          "lowAverageKarmaCommentAlert",
-          "lowAverageKarmaPostAlert",
-          "negativeUserKarmaAlert",
-          "movedPostToDraft",
-          "sentModeratorMessage",
-          "manualFlag",
-          "votingPatternWarningDelivered",
-          "flaggedForNDMs",
-          "autoBlockedFromSendingDMs",
-          "rejectedPost",
-          "rejectedComment",
-          "potentialTargetedDownvoting",
-          "exemptFromRateLimits",
-          "receivedSeniorDownvotesAlert",
-        ],
+        allowedValues: Object.keys(MODERATOR_ACTION_TYPES),
       },
     },
     form: {
@@ -187,6 +165,6 @@ const schema = {
       resolver: (doc) => isActionActive(doc),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ModeratorActions">>;
+} satisfies Record<string, CollectionFieldSpecification<"ModeratorActions">>;
 
 export default schema;

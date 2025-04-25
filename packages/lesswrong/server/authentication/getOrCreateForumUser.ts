@@ -2,22 +2,14 @@ import type { Profile } from "passport";
 import type { VerifyCallback } from "passport-oauth2";
 import { captureException } from "@sentry/core";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import Users from "../../server/collections/users/collection";
 import { promisify } from "util";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updateUser, createUser } from "../collections/users/mutations";
 
 export type IdFromProfile<P extends Profile> = (profile: P) => string | number;
 
-export type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbUser>>;
-
-const mergeAccount = async (profilePath: string, user: DbUser, profile: Profile) =>
-  updateMutator({
-    collection: Users,
-    documentId: user._id,
-    set: {[profilePath]: profile} as AnyBecauseTodo,
-    // Normal updates are not supposed to update services
-    validate: false,
-  });
+export type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbUser> & { displayName: string }>;
 
 /**
  * If the user's email has been updated by their OAuth provider, change their
@@ -27,6 +19,7 @@ const syncOAuthUser = async (user: DbUser, profile: Profile): Promise<DbUser> =>
   if (!profile.emails || !profile.emails.length) {
     return user
   }
+
   // I'm unable to find documenation of how to interpret the emails object. It's
   // plausible we should always set the users email to the first one, but it
   // could be that the ordering doesn't matter, in which case we'd want to avoid
@@ -41,17 +34,15 @@ const syncOAuthUser = async (user: DbUser, profile: Profile): Promise<DbUser> =>
     // with the same email.
     const preexistingAccountWithEmail = await userFindOneByEmail(profileEmails[0]);
     if (!preexistingAccountWithEmail) {
-      const updatedUserResponse = await updateMutator({
-        collection: Users,
-        documentId: user._id,
-        set: {
+      const updatedUserResponse = await updateUser({
+        data: {
           email: profileEmails[0],
           // Will overwrite other past emails which we don't actually want to support
           emails: [{address: profileEmails[0], verified: true}],
-        },
-        validate: false,
-      });
-      return updatedUserResponse.data;
+        } as UpdateUserDataInput,
+        selector: { _id: user._id }
+      }, createAnonymousContext());
+      return updatedUserResponse;
     }
   }
   return user;
@@ -90,19 +81,15 @@ export const getOrCreateForumUser = async <P extends Profile>(
         }
         const user = matchingUsers[0];
         if (user) {
-          const {data: userUpdated} = await mergeAccount(profilePath, user, profile);
+          const userUpdated = await updateUser({ data: {[profilePath]: profile}, selector: { _id: user._id } }, createAnonymousContext());
           if (user.banned && new Date(user.banned) > new Date()) {
             return callback(new Error("banned"));
           }
           return callback(null, userUpdated);
         }
       }
-      const {data: userCreated} = await createMutator({
-        collection: Users,
-        document: await getUserDataFromProfile(profile),
-        validate: false,
-        currentUser: null,
-      });
+
+      const userCreated = await createUser({ data: await getUserDataFromProfile(profile) }, createAnonymousContext());
       return callback(null, userCreated);
     }
     user = await syncOAuthUser(user, profile)

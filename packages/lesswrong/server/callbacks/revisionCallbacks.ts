@@ -1,23 +1,18 @@
-import { Revisions } from '../../server/collections/revisions/collection';
-import { Tags } from '../../server/collections/tags/collection';
-import { Users } from '../../server/collections/users/collection';
-import { afterCreateRevisionCallback } from '../editor/make_editable_callbacks';
 import { performVoteServer } from '../voteServer';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
-import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
-import { getCollectionHooks } from '../mutationCallbacks';
-import { recomputeContributorScoresFor } from './votingCallbacks';
-
-// TODO: Now that the make_editable callbacks use createMutator to create
-// revisions, we can now add these to the regular ${collection}.create.after
-// callbacks
+import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
+import { createForumEvent, updateForumEvent } from '../collections/forumEvents/mutations';
+import { UpdateCallbackProperties } from '../mutationCallbacks';
+import { hasPolls } from '@/lib/betas';
+import { cheerioParse } from '../utils/htmlUtil';
+import { z } from 'zod';
 
 // Users upvote their own tag-revisions
-afterCreateRevisionCallback.add(async ({revisionID}) => {
-  const revision = await Revisions.findOne({_id: revisionID});
-  if (!revision) return;
+export async function upvoteOwnTagRevision({revision, context}: {revision: DbRevision, context: ResolverContext}) {
+  const { Revisions, Users } = context;
   if (revision.collectionName !== 'Tags') return;
-  if (!revision.documentId) throw new Error("Revision is missing documentID");
+  // This might be the first revision for a tag, in which case it doesn't have a documentId until later (and in that case we call this function in `updateRevisionDocumentId`)
+  if (!revision.documentId) return;
   
   const userId = revision.userId;
   const user = await Users.findOne({_id:userId});
@@ -30,21 +25,18 @@ afterCreateRevisionCallback.add(async ({revisionID}) => {
     skipRateLimits: true,
     selfVote: true
   })
-});
+}
 
 // Update the denormalized htmlWithContributorAnnotations when a tag revision
 // is created or edited
-// Users upvote their own tag-revisions
-afterCreateRevisionCallback.add(async ({revisionID, skipDenormalizedAttributions, context}) => {
-  const revision = await Revisions.findOne({_id: revisionID});
-  if (!revision) return;
+export async function updateDenormalizedHtmlAttributionsDueToRev({revision, skipDenormalizedAttributions, context}: {revision: DbRevision, skipDenormalizedAttributions: boolean, context: ResolverContext}) {
   if (!skipDenormalizedAttributions) {
     await maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision, context);
   }
-});
+}
 
 async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevision, context: ResolverContext) {
-
+  const { Tags, MultiDocuments } = context;
   if (revision.collectionName === 'Tags') {
     const tag = await Tags.findOne({_id: revision.documentId});
     if (!tag) return;
@@ -56,9 +48,170 @@ async function maybeUpdateDenormalizedHtmlAttributionsDueToRev(revision: DbRevis
   }
 }
 
-getCollectionHooks("Revisions").updateAsync.add(async ({oldDocument, newDocument, context}) => {
+export async function recomputeWhenSkipAttributionChanged({oldDocument, newDocument, context}: UpdateCallbackProperties<'Revisions'>) {
   if (oldDocument.skipAttributions !== newDocument.skipAttributions) {
     await recomputeContributorScoresFor(newDocument, context);
     await maybeUpdateDenormalizedHtmlAttributionsDueToRev(newDocument, context);
   }
+};
+
+// Duplicate of ckEditor/src/ckeditor5-poll/poll.ts
+type PollProps = {
+  question: string;
+  agreeWording: string;
+  disagreeWording: string;
+  colorScheme: { darkColor: string; lightColor: string; bannerTextColor: string }
+  duration: { days: number; hours: number; minutes: number };
+};
+
+const PollPropsSchema = z.object({
+  question: z.string(),
+  agreeWording: z.string(),
+  disagreeWording: z.string(),
+  colorScheme: z.object({
+    darkColor: z.string(),
+    lightColor: z.string(),
+    bannerTextColor: z.string(),
+  }),
+  duration: z.object({
+    days: z.number().min(0),
+    hours: z.number().min(0),
+    minutes: z.number().min(0),
+  }),
 });
+
+const ONE_MINUTE_MS = 60 * 1000;
+const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
+const ONE_DAY_MS = 24 * ONE_HOUR_MS;
+
+// Upsert a ForumEvent with eventFormat = "POLL"
+async function upsertPoll({
+  _id,
+  post,
+  existingPoll,
+  question,
+  agreeWording,
+  disagreeWording,
+  colorScheme,
+  duration,
+}: {
+  _id: string;
+  existingPoll?: DbForumEvent;
+  post: DbPost;
+} & PollProps, context: ResolverContext) {
+  const endDateFromDuration = new Date(
+    Date.now() + (duration.days * ONE_DAY_MS) + (duration.hours * ONE_HOUR_MS) + (duration.minutes * ONE_MINUTE_MS)
+  );
+  // Start the timer when the post is published. If editing after that, don't update the end date
+  const endDate = existingPoll?.endDate ? existingPoll?.endDate : (post.draft ? null : endDateFromDuration);
+
+  if (existingPoll) {
+    return updateForumEvent(
+      {
+        selector: { _id: existingPoll._id },
+        data: {
+          eventFormat: "POLL",
+          pollQuestion: {
+            originalContents: {
+              data: `<p>${question}</p>`,
+              type: "ckEditorMarkup",
+            },
+          },
+          pollAgreeWording: agreeWording,
+          pollDisagreeWording: disagreeWording,
+          endDate,
+          ...colorScheme,
+          postId: post._id,
+        },
+      },
+      context
+    );
+  } else {
+    return createForumEvent(
+      {
+        data: {
+          // TODO Explicitly allow setting an _id. This does work currently, but the generated types don't recognise it
+          // @ts-expect-error
+          _id,
+          title: `New Poll for ${_id}`,
+          eventFormat: "POLL",
+          pollQuestion: {
+            originalContents: {
+              data: `<p>${question}</p>`,
+              type: "ckEditorMarkup",
+            },
+          },
+          startDate: new Date(),
+          endDate,
+          pollAgreeWording: agreeWording,
+          pollDisagreeWording: disagreeWording,
+          ...colorScheme,
+          postId: post._id,
+          isGlobal: false,
+        },
+      },
+      context
+    );
+  }
+}
+
+export async function upsertPolls({
+  revision,
+  context,
+}: {
+  revision: Pick<DbRevision, "documentId" | "collectionName" | "html">;
+  context: ResolverContext;
+}) {
+  if (!hasPolls) return;
+
+  if (revision.html && revision.collectionName === "Posts" && !!revision.documentId) {
+    const $ = cheerioParse(revision.html);
+    const pollData = $(".ck-poll[data-internal-id]")
+      .map((_, element) => {
+        const internalId = $(element).attr("data-internal-id");
+        const props = $(element).attr("data-props");
+
+        if (!props) return null;
+
+        try {
+          const rawParsedProps = JSON.parse(props);
+          const validationResult = PollPropsSchema.safeParse(rawParsedProps);
+          if (!validationResult.success) {
+            const errorMessage = `Invalid poll props found for internalId ${internalId}: ${JSON.stringify(validationResult.error.issues)}`;
+            throw new Error(errorMessage);
+          }
+
+          const parsedProps = validationResult.data;
+          return { _id: internalId, ...parsedProps };
+
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(`Error parsing poll props for internalId ${internalId}:`, error);
+          return null;
+        }
+      })
+      .get()
+      .filter((item): item is ({ _id: string } & PollProps) => item !== null);
+
+    if (!pollData?.length) return;
+
+    const [post, existingPolls] = await Promise.all([
+      context.loaders.Posts.load(revision.documentId),
+      context.loaders.ForumEvents.loadMany(pollData.map(d => d._id))
+    ]);
+
+    const validExistingPolls = existingPolls.filter((fe): fe is DbForumEvent => !(fe instanceof Error) && !!fe?._id);
+
+    if (!post) {
+      // eslint-disable-next-line no-console
+      console.error(`Post (${revision.documentId}) not found, cannot upsert polls`);
+      return;
+    }
+
+    // Upsert a poll for each internal id found in the HTML
+    for (const data of pollData) {
+      const existingPoll = validExistingPolls.find(poll => poll && poll._id === data._id);
+      await upsertPoll({ ...data, post, existingPoll }, context);
+    }
+  }
+};

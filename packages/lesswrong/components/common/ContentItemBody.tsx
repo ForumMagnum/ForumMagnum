@@ -157,6 +157,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
 
       this.addCTAButtonEventListeners(element);
+      this.replaceForumEventPollPlaceholders(element);
 
       this.markScrollableBlocks(element);
       this.collapseFootnotes(element);
@@ -430,7 +431,27 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       })
     }
   }
-  
+
+  replaceForumEventPollPlaceholders = (element: HTMLElement) => {
+    const pollPlaceholders = element.getElementsByClassName('ck-poll');
+
+    const { ForumEventPostPagePollSection } = Components;
+
+    const forumEventIds = Array.from(pollPlaceholders).map(placeholder => ({
+      placeholder,
+      forumEventId: placeholder.getAttribute('data-internal-id')
+    }));
+
+    for (const { placeholder, forumEventId } of forumEventIds) {
+      if (!forumEventId) continue;
+
+      // Create the poll element with styling and context
+      const pollElement = <ForumEventPostPagePollSection id={forumEventId} forumEventId={forumEventId} />;
+
+      this.replaceElement(placeholder, pollElement);
+    }
+  }
+
   replaceSubstrings = (
     element: HTMLElement,
     replacedSubstrings: ContentReplacedSubstringComponentInfo[],
@@ -531,7 +552,10 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
         }
       } else {
-        const ReplacementComponent = Components[replacement.componentName];
+        // The `AnyBecauseHard` is to avoid the type checker spending ~2 seconds
+        // uselessly checking whether you can spread `any`-typed props into 1200 different component types.
+        // (You can; we aren't getting any safety out of having it typed right now.)
+        const ReplacementComponent: AnyBecauseHard = Components[replacement.componentName];
         const replacementComponentProps = replacement.props;
         const str = replacement.replacedString;
   

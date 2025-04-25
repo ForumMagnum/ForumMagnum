@@ -6,7 +6,7 @@ import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
@@ -332,7 +332,7 @@ const FooterTagList = ({
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 
-  const postYear = new Date(post.createdAt).getFullYear(); // 2023
+  const postYear = new Date(post.createdAt!).getFullYear(); // 2023
   const currentYear = new Date().getFullYear(); // 2025
   const age = currentYear - postYear;
   const isRecent = age < 2;

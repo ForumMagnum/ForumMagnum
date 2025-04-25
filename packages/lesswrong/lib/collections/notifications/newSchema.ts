@@ -15,6 +15,7 @@ const schema = {
     database: DEFAULT_CREATED_AT_FIELD.database,
     graphql: {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
+      outputType: "Date",
       canRead: [userOwns],
     },
   },
@@ -179,6 +180,6 @@ const schema = {
       canRead: [userOwns],
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Notifications">>;
+} satisfies Record<string, CollectionFieldSpecification<"Notifications">>;
 
 export default schema;

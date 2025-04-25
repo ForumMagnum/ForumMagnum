@@ -69,7 +69,7 @@ import gql from "graphql-tag";
 // Anything else..
 ///////////////////////////////////////
 
-export const createDisplayName = (user: DbInsertion<DbUser>): string => {
+export const createDisplayName = (user: Partial<DbInsertion<DbUser>> | CreateUserDataInput | UpdateUserDataInput): string => {
   const profileName = getNestedProperty(user, "profile.name");
   const twitterName = getNestedProperty(user, "services.twitter.screenName");
   const linkedinFirstName = getNestedProperty(user, "services.linkedin.firstName");
@@ -536,7 +536,7 @@ const emailsSchema = new SimpleSchema({
   },
 });
 
-function userHasGoogleLocation(data: Partial<DbUser>) {
+function userHasGoogleLocation(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {
   return "googleLocation" in data;
 }
 
@@ -545,7 +545,7 @@ function convertGoogleToMongoLocation(user: DbUser) {
   return null;
 }
 
-function userHasMapLocation(data: Partial<DbUser>) {
+function userHasMapLocation(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {
   return "mapLocation" in data;
 }
 
@@ -553,7 +553,7 @@ function getMapLocationSet(user: DbUser) {
   return !!user.mapLocation;
 }
 
-function userHasMapMarkerText(data: Partial<DbUser>) {
+function userHasMapMarkerText(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {
   return "mapMarkerText" in data;
 }
 
@@ -562,7 +562,7 @@ async function convertMapMarkerTextToHtml(user: DbUser) {
   return await markdownToHtml(user.mapMarkerText);
 }
 
-function userHasNearbyEventsNotificationsLocation(data: Partial<DbUser>) {
+function userHasNearbyEventsNotificationsLocation(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {
   return "nearbyEventsNotificationsLocation" in data;
 }
 
@@ -701,8 +701,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
+      canCreate: ["admins"],
       canUpdate: ["admins"],
       slugCallbackOptions: {
         collectionsToAvoidCollisionsWith: ["Users"],
@@ -727,7 +729,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -791,11 +794,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"],
-      onCreate: ({ document: user }) => {
-        if (!user.username && user.services?.twitter?.screenName) {
-          return user.services.twitter.screenName;
-        }
-      },
       validation: {
         optional: true,
       },
@@ -813,7 +811,8 @@ const schema = {
       type: "JSONB[]",
     },
     graphql: {
-      outputType: "[JSON]",
+      outputType: "[JSON!]",
+      inputType: "[JSON!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       // FIXME
       // This is dead code and doesn't actually run, but we do have to implement something like this in a post Meteor world
@@ -842,7 +841,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "realAdmins"],
       canCreate: ["admins"],
@@ -905,9 +905,10 @@ const schema = {
   displayName: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       // On the EA Forum name changing is rate limited in rateLimitCallbacks
       canUpdate: ["sunshineRegiment", "admins", isEAForum ? 'members' : userHasntChangedName],
@@ -968,8 +969,8 @@ const schema = {
         return undefined;
       },
       onUpdate: (props) => {
-        const { data, document, oldDocument } = props;
-        if (oldDocument.email?.length && !document.email) {
+        const { data, newDocument, oldDocument } = props;
+        if (oldDocument.email?.length && !newDocument.email) {
           throw new Error("You cannot remove your email address");
         }
         return data.email;
@@ -995,7 +996,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {
@@ -1014,7 +1016,8 @@ const schema = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["alignmentForumAdmins", "admins", "realAdmins"],
       canCreate: ["admins"],
@@ -1329,7 +1332,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1354,7 +1358,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       validation: {
@@ -1421,7 +1426,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1444,7 +1450,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1467,7 +1474,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1490,7 +1498,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1534,7 +1543,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1558,7 +1568,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1582,7 +1593,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -1994,7 +2006,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -2105,7 +2118,8 @@ const schema = {
       type: "VARCHAR(27)[]",
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: [userOwnsAndInGroup("trustLevel1"), "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -2125,7 +2139,8 @@ const schema = {
       type: "VARCHAR(27)[]",
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: [userOwnsAndInGroup("canModeratePersonal"), "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -2149,7 +2164,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[JSON]",
+      outputType: "[JSON!]",
+      inputType: "[JSON!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -2193,7 +2209,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[JSON]",
+      outputType: "[JSON!]",
+      inputType: "[JSON!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -2248,7 +2265,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["members", "admins"],
       validation: {
@@ -2409,7 +2427,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -2432,7 +2451,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -2454,7 +2474,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -2989,7 +3010,6 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -3009,7 +3029,6 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -3029,7 +3048,6 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -3049,7 +3067,6 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean",
-      inputType: "Boolean!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -3305,7 +3322,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -3337,7 +3355,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -3369,7 +3388,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -3553,7 +3573,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -3921,7 +3942,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       validation: {
         optional: true,
@@ -4069,7 +4091,8 @@ const schema = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
+      inputType: "[String!]",
       canRead: ["admins", "sunshineRegiment"],
       validation: {
         optional: true,
@@ -4144,7 +4167,8 @@ const schema = {
       type: "JSONB[]",
     },
     graphql: {
-      outputType: "[JSON]",
+      outputType: "[JSON!]",
+      inputType: "[JSON!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns],
       validation: {
@@ -4317,7 +4341,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -4346,7 +4371,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4377,7 +4403,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       countOfReferences: {
         foreignCollectionName: "Posts",
@@ -4427,7 +4454,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4458,7 +4486,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       countOfReferences: {
         foreignCollectionName: "Comments",
@@ -4488,7 +4517,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -4512,11 +4542,9 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["admins"],
       onCreate: ({ document, context }) => {
-        if (!document.abTestKey) {
-          return getUserABTestKey({
-            clientId: context.clientId ?? randomId(),
-          });
-        }
+        return getUserABTestKey({
+          clientId: context.clientId ?? randomId(),
+        });
       },
       validation: {
         optional: true,
@@ -4693,8 +4721,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
-      inputType: "Date!",
+      outputType: "Date!",
+      inputType: "Date",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],
@@ -4773,7 +4801,7 @@ const schema = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -5019,7 +5047,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -5057,7 +5086,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -5095,7 +5125,7 @@ const schema = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -5349,7 +5379,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -5371,7 +5402,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -5403,7 +5435,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -5434,7 +5467,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -5465,7 +5499,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -5496,7 +5531,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -5725,6 +5761,6 @@ const schema = {
       hidden: true,
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Users">>;
+} satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

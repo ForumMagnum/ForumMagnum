@@ -11,10 +11,10 @@ const schema = {
     database: {
       type: "VARCHAR(27)",
       foreignKey: "Tags",
+      nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
@@ -33,8 +33,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
     },
@@ -118,6 +117,6 @@ const schema = {
       label: "Don't show the intro post at the top of topic feeds",
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"UserTagRels">>;
+} satisfies Record<string, CollectionFieldSpecification<"UserTagRels">>;
 
 export default schema;

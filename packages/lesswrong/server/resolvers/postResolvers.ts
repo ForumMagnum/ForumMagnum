@@ -1,24 +1,25 @@
 import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
-import { buildRevision } from '../editor/make_editable_callbacks';
+import { buildRevision } from '../editor/conversionUtils';
 import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { drive } from "@googleapis/drive";
-import Revisions from '../../server/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import { GoogleDocMetadata } from '../collections/revisions/helpers';
-import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
+import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
+import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
-import { createMutator } from "../vulcan-lib/mutators";
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
 import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
+import { createPost } from '../collections/posts/mutations';
+import { createRevision } from '../collections/revisions/mutations';
 
 interface VertexRecommendedPost {
   post: Partial<DbPost>;
@@ -291,11 +292,13 @@ export const postGqlQueries = {
 
       return {
         post,
-        digestPost: {
-          _id: post.digestPostId,
-          emailDigestStatus: post.emailDigestStatus,
-          onsiteDigestStatus: post.onsiteDigestStatus
-        },
+        digestPost: post.digestPostId
+          ? {
+            _id: post.digestPostId,
+            emailDigestStatus: post.emailDigestStatus,
+            onsiteDigestStatus: post.onsiteDigestStatus
+          }
+          : null,
         rating: 0
       }
     })
@@ -389,7 +392,13 @@ export const postGqlMutations = {
 
     if (postId) {
       const previousRev = await getLatestRev(postId, "contents", context)
-      const revisionType = "major"
+      // Revision type controls whether we increase the major or minor version
+      // number; if we increase the major version number it flags it to
+      // end-users and shows a version-history dropdown. This was built
+      // specifically for Sequences posts which had an editing pass long after
+      // the fact and doesn't make sense for Docs import, which usually happens
+      // before the post is undrafted for the first time.
+      const revisionType = "minor"
 
       const newRevision: Partial<DbRevision> = {
         ...(await buildRevision({
@@ -408,11 +417,7 @@ export const postGqlMutations = {
         googleDocMetadata: docMetadata
       };
 
-      await createMutator({
-        collection: Revisions,
-        document: newRevision,
-        validate: false,
-      });
+      await createRevision({ data: newRevision }, context);
 
       return await Posts.findOne({_id: postId})
     } else {
@@ -424,9 +429,8 @@ export const postGqlMutations = {
       }
 
       // Create a draft post if one doesn't exist. This runs `buildRevision` itself via a callback
-      const { data: post } = await createMutator({
-        collection: Posts,
-        document: {
+      const post = await createPost({
+        data: {
           _id: finalPostId,
           userId: currentUser._id,
           title: docMetadata.name,
@@ -441,10 +445,8 @@ export const postGqlMutations = {
           }),
           draft: true,
           ...afField,
-        },
-        currentUser,
-        validate: false,
-      })
+        }
+      }, context);
 
       return post;
     }

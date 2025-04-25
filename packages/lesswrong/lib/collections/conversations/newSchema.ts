@@ -15,6 +15,7 @@ const schema = {
     database: DEFAULT_CREATED_AT_FIELD.database,
     graphql: {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
+      outputType: "Date",
       canRead: ["members"],
     },
   },
@@ -44,7 +45,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
+      inputType: "[String!]",
       canRead: ["members"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -69,6 +71,7 @@ const schema = {
     database: {
       type: "TIMESTAMPTZ",
       denormalized: true,
+      nullable: false,
     },
     graphql: {
       outputType: "Date",
@@ -115,7 +118,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
       onCreate: () => 0,
       countOfReferences: {
@@ -153,7 +157,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -245,6 +250,6 @@ const schema = {
         }),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"Conversations">>;
+} satisfies Record<string, CollectionFieldSpecification<"Conversations">>;
 
 export default schema;

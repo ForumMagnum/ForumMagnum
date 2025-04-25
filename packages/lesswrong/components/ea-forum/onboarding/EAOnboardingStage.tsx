@@ -5,10 +5,10 @@ import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import classNames from "classnames";
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import DialogTitle from "@/lib/vendor/@material-ui/core/src/DialogTitle";
-import DialogContent from "@/lib/vendor/@material-ui/core/src/DialogContent";
-import DialogContentText from "@/lib/vendor/@material-ui/core/src/DialogContentText";
-import DialogActions from "@/lib/vendor/@material-ui/core/src/DialogActions";
+import { DialogContent } from '../../widgets/DialogContent';
+import { DialogContentText } from '../../widgets/DialogContentText';
+import { DialogActions } from '../../widgets/DialogActions';
+import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from "@/components/common/withUser";
 
 const styles = (theme: ThemeType) => ({

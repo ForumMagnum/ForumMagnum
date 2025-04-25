@@ -166,7 +166,7 @@ const StickyDigestAd = ({className, classes}: {
     </form>
   ) : (
     <div className={classes.form}>
-      <input value={currentUser.email} className={classes.formInput} disabled={true} required={true} />
+      <input value={currentUser.email ?? undefined} className={classes.formInput} disabled={true} required={true} />
       <div className={classes.formBtns}>
         <EAButton onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
           Sign up

@@ -2,7 +2,6 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { defaultEditorPlaceholder, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, RevisionStorageType } from "@/lib/editor/make_editable";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { EVENT_FORMATS } from "./types";
-import type { MakeEditableOptions } from "@/lib/editor/makeEditableOptions";
 
 const formGroups = {
   pollEventOptions: {
@@ -18,28 +17,6 @@ const formGroups = {
     startCollapsed: true,
   },
 } satisfies Partial<Record<string, FormGroupType<"ForumEvents">>>;
-
-const defaultProps = (nullable = false): CollectionFieldSpecification<"ForumEvents"> => ({
-  optional: nullable,
-  nullable,
-  canRead: ["guests"],
-  canUpdate: ["admins"],
-  canCreate: ["admins"],
-});
-
-const defaultEditableProps: Pick<
-  MakeEditableOptions<"ForumEvents">,
-  "commentEditor" | "commentStyles" | "hideControls" | "permissions"
-> = {
-  commentEditor: true,
-  commentStyles: true,
-  hideControls: true,
-  permissions: {
-    canRead: ["guests"],
-    canUpdate: ["admins"],
-    canCreate: ["admins"],
-  },
-};
 
 function getDefaultEditorPlaceholder() {
   return defaultEditorPlaceholder;
@@ -60,8 +37,8 @@ const schema = {
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "frontpageDescription"),
@@ -105,8 +82,8 @@ const schema = {
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "frontpageDescriptionMobile"),
@@ -150,8 +127,8 @@ const schema = {
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       editableFieldOptions: { pingbacks: false, normalized: false },
       arguments: "version: String",
       resolver: getDenormalizedEditableResolver("ForumEvents", "postPageDescription"),
@@ -191,11 +168,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
     },
     form: {
       control: "MuiTextField",
@@ -207,11 +183,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date",
-      inputType: "Date!",
+      outputType: "Date!",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
     },
     form: {
       form: { below: true },
@@ -221,14 +196,16 @@ const schema = {
   endDate: {
     database: {
       type: "TIMESTAMPTZ",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
       outputType: "Date",
-      inputType: "Date!",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
     },
     form: {
       form: { below: true },
@@ -243,11 +220,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
     },
     form: {
       label: "Primary background color",
@@ -264,11 +240,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
     },
     form: {
       label: "Secondary background color",
@@ -285,11 +260,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "String!",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
     },
     form: {
       tooltip:
@@ -305,8 +279,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -352,8 +326,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -377,8 +351,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -396,10 +370,32 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+    form: {
+      control: "FormComponentCheckbox",
+      hidden: true,
+    },
+  },
+  isGlobal: {
+    database: {
+      type: "BOOL",
+      defaultValue: true,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["members"], // newCheck ensures this can only be false for user-created events
       validation: {
         optional: true,
       },
@@ -417,10 +413,11 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         allowedValues: ["BASIC", "POLL", "STICKERS"],
         optional: true,
@@ -439,8 +436,8 @@ const schema = {
     graphql: {
       outputType: "Revision",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       editableFieldOptions: { pingbacks: false, normalized: true },
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("pollQuestion"),
@@ -482,8 +479,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -500,8 +497,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -518,10 +515,11 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
+      outputType: "Float!",
+      inputType: "Float",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -538,8 +536,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -554,8 +552,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -583,6 +581,7 @@ const schema = {
       outputType: "JSON",
       canRead: ["guests"],
       canCreate: ["members"],
+      canUpdate: ["members"],
       validation: {
         optional: true,
         blackbox: true,
@@ -599,6 +598,6 @@ const schema = {
       resolver: ({ publicData }) => (publicData ? Object.keys(publicData).length : 0),
     },
   },
-} satisfies Record<string, NewCollectionFieldSpecification<"ForumEvents">>;
+} satisfies Record<string, CollectionFieldSpecification<"ForumEvents">>;
 
 export default schema;

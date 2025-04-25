@@ -1,5 +1,5 @@
 import moment from "moment";
-import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "./schema";
+import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "./newSchema";
 import {DatabasePublicSetting} from '../../publicSettings.ts'
 
 /**
@@ -23,7 +23,7 @@ export function getTimeframeForRateLimit(type: AllRateLimitTypes): number {
 }
 
 export function getAverageContentKarma(content: VoteableType[]) {
-  const runningContentKarma = content.reduce((prev, curr) => prev + curr.baseScore, 0);
+  const runningContentKarma = content.reduce((prev, curr) => prev + (curr.baseScore ?? 0), 0);
   return runningContentKarma / content.length;
 }
 

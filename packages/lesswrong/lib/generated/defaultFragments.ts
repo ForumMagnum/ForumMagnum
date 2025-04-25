@@ -488,6 +488,7 @@ export const ForumEventsDefaultFragment = `
     postId
     bannerImageId
     includesPoll
+    isGlobal
     eventFormat
     pollQuestion_latest
     pollAgreeWording
