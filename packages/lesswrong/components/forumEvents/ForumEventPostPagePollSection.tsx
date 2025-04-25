@@ -63,7 +63,7 @@ const announcementPostUrl = '/posts/9ad4C4YknLM5fGG4v/announcing-animal-welfare-
  * This uses the theme name to set the root element's colors so you should NoSSR it.
  */
 export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ...divProps}: {
-  postId: string,
+  postId?: string,
   forumEventId?: string,
   classes: ClassesType<typeof styles>,
 } & React.HTMLAttributes<HTMLDivElement>) => {
