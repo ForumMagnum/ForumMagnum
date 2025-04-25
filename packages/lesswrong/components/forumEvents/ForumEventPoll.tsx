@@ -302,6 +302,9 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
     },
   },
+  loading: {
+    marginBottom: (USER_IMAGE_SIZE / 2) + 24
+  }
 });
 
 export type ForumEventVoteData = {
@@ -588,6 +591,8 @@ export const ForumEventPoll = ({
     [votersRef.current, event, currentUser, comments]
   );
 
+  const votesLoading = (voters === undefined && votersRef.current.length === 0) || !event || !event.publicData;
+
   const currentUserComment = useMemo(() => {
     return comments?.find(comment => comment.userId === currentUser?._id) || null;
   }, [comments, currentUser]);
@@ -736,7 +741,7 @@ export const ForumEventPoll = ({
   ]);
   useEventListener("pointerup", saveVotePos);
 
-  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventResultIcon } = Components;
+  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventResultIcon, Loading } = Components;
 
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
@@ -841,6 +846,7 @@ export const ForumEventPoll = ({
                 </div>
               ))}
             </div>
+            {resultsVisible && votesLoading && <Loading className={classes.loading} white />}
             <div className={classes.sliderLine} ref={sliderRef}>
               {/* Ticks */}
               <div className={classes.ticksContainer}>
