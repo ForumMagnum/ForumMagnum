@@ -96,6 +96,7 @@ const styles = (theme: ThemeType) => ({
   // Inner element needed so that extraVotesCircle can't expand horizontally
   extraVotesText: {
     position: "absolute",
+    whiteSpace: "nowrap",
     top: "50%",
     left: "50%",
     transform: "translate(-54%, -54%)",
@@ -104,6 +105,10 @@ const styles = (theme: ThemeType) => ({
     textOverflow: "ellipsis",
     [theme.breakpoints.down('sm')]: {
       fontSize: 10,
+    },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 7,
+      transform: "translate(-50%, -50%)",
     },
   },
   sliderLine: {
