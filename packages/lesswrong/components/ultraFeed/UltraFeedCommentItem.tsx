@@ -67,44 +67,25 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   inlineCommentThreadTitle: {
     marginRight: 12,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: theme.typography.body2.fontSize,
-    fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
-    width: '100%',
+    fontSize: theme.typography.body2.fontSize,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontStyle: 'italic',
+    textWrap: 'balance',
+    cursor: 'pointer',
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
-    fontStyle: 'italic',
     [theme.breakpoints.down('sm')]: {
       fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
   },
-  inlineCommentThreadTitleLink: {
-    background: 'none',
-    border: 'none',
-    padding: 0,
-    font: 'inherit',
-    cursor: 'pointer',
-    display: 'inline',
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
-    fontWeight: 'inherit',
-    color: theme.palette.link.dim,
-    fontStyle: 'italic',
-    textAlign: 'left',
-    width: '100%',
-
-    '& span': {
-      color: theme.palette.primary.main,
-    },
-    '-webkit-line-clamp': 2,
-  },
   inlineCommentThreadTitleLinkSpan: {
-    '-webkit-line-clamp': 2,
+    color: theme.palette.primary.main,
   },
   verticalLineContainer: {
+    fontStyle: 'italic',
     width: 0,
     display: 'flex',
     justifyContent: 'center',
@@ -315,6 +296,12 @@ const UltraFeedCommentItem = ({
     onChangeDisplayStatus('collapsed');
   };
 
+  const replyingToTitle = showInLineCommentThreadTitle && !comment.shortform && post && (
+    <div className={classes.inlineCommentThreadTitle} onClick={onPostTitleClick} >
+      Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
+    </div>
+  )
+
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
     <div className={classNames(classes.root)} >
@@ -331,17 +318,9 @@ const UltraFeedCommentItem = ({
       </div>
       <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
         <div className={classes.commentHeader}>
+          {/* {replyingToTitle} */}
           <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
-          {showInLineCommentThreadTitle && !comment.shortform && post && (
-            <div className={classes.inlineCommentThreadTitle}>
-              <button 
-                className={classes.inlineCommentThreadTitleLink}
-                onClick={onPostTitleClick}
-              >
-                Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
-              </button>
-            </div>
-          )}
+          {replyingToTitle}
         </div>
         <div className={classes.contentWrapper}>
           <FeedContentBody
