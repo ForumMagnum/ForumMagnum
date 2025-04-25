@@ -12,8 +12,6 @@
 </head>
 <body>
 
-<!-- TODO revert -->
-
 <h1>CKEditor 5 – balloon block editor build – development sample</h1>
 
 <div id="editor">
@@ -29,122 +27,44 @@
 			href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a>
 		works fine.</p>
 </div>
-<a onClick="if (window.editorInstance) { console.log(window.editorInstance.getData()); } else { console.log('Editor not loaded.'); }"> Log Contents </a>
-<button onClick="
-	if (window.editorInstance) {
-		window.savedEditorData = window.editorInstance.getData();
-		window.editorInstance.destroy()
-			.then(() => {
-				window.editorInstance = null; // Clear the instance reference
-				console.log('Editor state saved and editor destroyed.');
-			})
-			.catch(err => console.error('Error destroying editor:', err));
-	} else {
-		console.log('Editor not loaded.');
-	}
-"> Save State & Destroy </button>
-<button onClick="
-	if (window.savedEditorData !== undefined) {
-		if (!window.editorInstance) { // Only load if editor instance doesn't exist
-			createAndAttachEditor(window.savedEditorData);
-			console.log('Attempting to load editor from saved state...');
-		} else {
-			console.log('Editor already exists. Destroy it first to load state.');
-		}
-	} else {
-		console.log('No saved state found.');
-	}
-"> Load State </button>
+<a onClick="console.log(window.CKEditor.getData())"> Log Contents </a>
+<h1>CKEditor 5 – balloon block editor build – development sample (Comment Editor)</h1>
+
+<div id="comment-editor">
+	<h2>Sample Comment Editor</h2>
+	<p>This is an instance of the <a
+			href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#balloon-editor">balloon block
+			editor build</a>.</p>
+	<figure class="image"><img src="../tests/manual/sample.jpg" alt="Autumn fields"></figure>
+	<p>ab</p>
+	<p><span class="math-tex">\(\frac{31}{312}\)</span></p>
+	<script type="math/tex"> ws_* </script>
+	<p>You can use this sample to validate whether your <a
+			href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a>
+		works fine.</p>
+</div>
+<a onClick="console.log(window.CKEditorComment.getData())"> Log Contents </a>
 <script src="../build/ckeditor.js"></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script> -->
-<script src="https://unpkg.com/@ckeditor/ckeditor5-inspector/build/inspector.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script>
 <script>
-	// Declare the variable to hold the saved data globally for the window
-	window.savedEditorData = undefined;
-	// Use a separate variable for the editor instance
-	window.editorInstance = null;
-
-	// TODO revert
-	const postEditorToolbarConfig = {
-		blockToolbar: {
-			items: [
-			'imageUpload',
-			'insertTable',
-			'horizontalLine',
-			'mathDisplay',
-			'mediaEmbed',
-			'ctaButtonToolbarItem',
-			'pollToolbarItem',
-			'footnote',
-			'insertClaimButton',
-			],
-			icon: 'pilcrow'
-		},
-		toolbar: {
-			items: [
-			'restyledCommentButton',
-			'|',
-			'heading',
-			'|',
-			'bold',
-			'italic',
-			'strikethrough',
-			'|',
-			'link',
-			'|',
-			'blockQuote',
-			'bulletedList',
-			'numberedList',
-			'codeBlock',
-			'|',
-			'trackChanges',
-			'math',
-			'ctaButtonToolbarItem',
-			'footnote',
-			'insertClaimButton',
-			],
-			shouldNotGroupWhenFull: true,
-		},
-	};
-
-	// Function to create the editor, attach inspector, and set initial data
-	function createAndAttachEditor(initialData = null) {
-		const editorElement = document.querySelector('#editor');
-		if (!editorElement) {
-			console.error('Editor element #editor not found');
-			return;
-		}
-
-		// Use the CKEditor library entry point correctly
-		CKEditor.getPostEditor().create(editorElement, postEditorToolbarConfig)
-			.then(editor => {
-				window.editorInstance = editor; // Store the instance in our variable
-				CKEditorInspector.attach(editor);
-				if (initialData !== null) {
-					editor.setData(initialData);
-					console.log('Editor created and data loaded.');
-				} else {
-					console.log('Editor created with content from HTML.');
-				}
-				return editor;
-			})
-			.catch(err => {
-				console.error('Error creating editor:', err.stack);
-			});
-	}
-
-	// Initial editor creation on page load
-	createAndAttachEditor();
-
-	// CKEditor.getCommentEditor().create( document.querySelector( '#comment-editor' ) )
-	// 	.then( editor => {
-	// 		CKEditorInspector.attach(editor);
-	// 		window.CKEditorComment = editor
-	// 		return editor
-	// 	})
-	// 	.catch( err => {
-	// 		console.error( err.stack );
-	// 	} );
+	CKEditor.PostEditor.create( document.querySelector( '#editor' ) )
+		.then( editor => {
+			CKEditorInspector.attach(editor);
+			window.CKEditor = editor
+			return editor 
+		})
+		.catch( err => {
+			console.error( err.stack );
+		} );
+	CKEditor.CommentEditor.create( document.querySelector( '#comment-editor' ) )
+		.then( editor => {
+			CKEditorInspector.attach(editor);
+			window.CKEditorComment = editor
+			return editor 
+		})
+		.catch( err => {
+			console.error( err.stack );
+		} );
 </script>
 
 </body>
