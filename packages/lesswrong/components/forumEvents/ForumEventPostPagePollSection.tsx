@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   pollArea: {
-    paddingTop: 20,
+    paddingTop: 24,
     borderRadius: theme.borderRadius.default,
     '& .ForumEventPoll-question': {
       fontSize: 24,
