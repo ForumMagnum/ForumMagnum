@@ -50,6 +50,32 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
   },
   maxHeight: {
   },
+  lineClampHideQuote: {
+    display: '-webkit-box !important',
+    '-webkit-box-orient': 'vertical !important',
+    overflow: 'hidden !important',
+    // textOverflow: 'ellipsis !important', // might want to reenable
+    maxHeight: 'none !important',
+    paddingBottom: '0.1em !important',
+    /* Hide first blockquote entirely */
+    '& blockquote:first-child': {
+      display: 'none !important',
+    },
+    /* Remove whitespace left over after the hidden quote */
+    '& blockquote + p': {
+      marginTop: '0 !important',
+    },
+    '& blockquote + p > br:first-child': {
+      display: 'none !important',
+    },
+    '& p:last-child': {
+      marginBottom: '0 !important',
+    },
+    '& p:last-child br:last-child': {
+      display: 'none !important',
+    },
+    '& img': limitImageHeightClass(theme),
+  },
   lineClamp: {
     display: '-webkit-box !important',
     '-webkit-box-orient': 'vertical !important',
@@ -61,7 +87,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     '& blockquote:first-child': {
       margin: 0,
       paddingTop: 0,
-      paddingBottom: 0,
+      paddingBottom: 2,
       marginBottom: '.25em',
       display: '-webkit-box !important',
       '-webkit-box-orient': 'vertical !important',
@@ -76,7 +102,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     },
     // Remove whitespace left over after the hidden quote
     '& blockquote + p': {
-      marginTop: '0 !important',
+      // marginTop: '0 !important',
     },
     '& blockquote + p > br:first-child': {
       display: 'none !important',
@@ -276,7 +302,7 @@ const FeedContentBody = ({
             nofollow={nofollow}
             className={classNames({
               [classes.maxHeight]: !applyLineClamp && !isMaxLevel && wasTruncated,
-              [classes.lineClamp]: applyLineClamp && wasTruncated,
+              [classes.lineClampHideQuote]: applyLineClamp && wasTruncated,
               [getLineClampClass()]: applyLineClamp && wasTruncated,
               [classes.levelZero]: expansionLevel === 0,
             })}
