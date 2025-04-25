@@ -2291,7 +2291,7 @@ type ForumEvent {
   postPageDescription_latest: String
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -2302,6 +2302,7 @@ type ForumEvent {
   post: Post
   bannerImageId: String
   includesPoll: Boolean!
+  isGlobal: Boolean!
   eventFormat: String!
   pollQuestion(version: String): Revision
   pollQuestion_latest: String
@@ -5456,7 +5457,7 @@ input CreateForumEventDataInput {
   postPageDescription: JSON
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -5465,6 +5466,7 @@ input CreateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
+  isGlobal: Boolean!
   eventFormat: String
   pollQuestion: JSON
   pollAgreeWording: String
@@ -5495,6 +5497,7 @@ input UpdateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
+  isGlobal: Boolean
   eventFormat: String
   pollQuestion: JSON
   pollAgreeWording: String
@@ -5502,6 +5505,7 @@ input UpdateForumEventDataInput {
   maxStickersPerUser: Float
   customComponent: String
   commentPrompt: String
+  publicData: JSON
 }
 
 input UpdateForumEventInput {
@@ -7019,7 +7023,6 @@ input UpdateUserDataInput {
   groups: [String!]
   theme: JSON
   lastUsedTimezone: String
-  whenConfirmationEmailSent: Date
   legacy: Boolean
   commentSorting: String
   sortDraftsBy: String
@@ -8282,6 +8285,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   postId
   bannerImageId
   includesPoll
+  isGlobal
   eventFormat
   pollQuestion_latest
   pollAgreeWording
@@ -8318,6 +8322,7 @@ fragment ForumEventsDisplay on ForumEvent {
   pollQuestion {
     _id
     html
+    plaintextMainText
   }
 }
 
@@ -8352,6 +8357,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   eventFormat
   customComponent
   commentPrompt
+  isGlobal
 
   pollAgreeWording
   pollDisagreeWording
