@@ -19,14 +19,10 @@ import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
-    paddingLeft: 16,
-    paddingRight: 16,
+    padding: '12px 16px',
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
   },
   tripleDotMenu: {
     opacity: 0.7,
@@ -45,6 +41,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
+    marginBottom: '12px',
   },
   titleContainer: {
     display: 'flex',
@@ -95,6 +92,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     marginRight: 8,
   },
   footer: {
+    paddingTop: 12,
   },
   loadingContainer: {
     display: "flex",
@@ -112,6 +110,46 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
   },
 }));
+
+interface UltraFeedPostItemHeaderProps {
+  post: PostsListWithVotes;
+  isRead: boolean;
+  handleOpenDialog: (params?: { textFragment?: string }) => void;
+}
+
+const UltraFeedPostItemHeader = ({
+  post,
+  isRead,
+  handleOpenDialog,
+}: UltraFeedPostItemHeaderProps) => {
+  const { TruncatedAuthorsList, FormatDate } = Components;
+
+  const classes = useStyles(styles);
+  const authorListRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div className={classes.header}>
+      <div className={classes.titleContainer}>
+        <span
+          onClick={() => handleOpenDialog()}
+          className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+          role="button"
+          tabIndex={0}
+        >
+          {post.title}
+        </span>
+      </div>
+      <div className={classes.metaRow}>
+        <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
+        {post.postedAt && (
+          <span className={classes.metaDateContainer}>
+            <FormatDate date={post.postedAt} />
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const UltraFeedPostItem = ({
   post,
@@ -131,7 +169,6 @@ const UltraFeedPostItem = ({
 
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const metaLeftSectionRef = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
   const { captureEvent } = useTracking();
@@ -245,7 +282,6 @@ const UltraFeedPostItem = ({
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
     <div ref={elementRef} className={classes.root}>
-      {/* absolutely positioned triple dot menu to ensure matching other item components */}
       <AnalyticsContext pageElementContext="tripleDotMenu">
         <PostActionsButton
           post={post}
@@ -254,26 +290,11 @@ const UltraFeedPostItem = ({
         />
       </AnalyticsContext>
 
-      <div className={classes.header}>
-        <div className={classes.titleContainer}>
-          <span 
-            onClick={() => handleOpenDialog()}
-            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-            role="button"
-            tabIndex={0}
-          >
-            {post.title}
-          </span>
-        </div>
-        <div className={classes.metaRow}>
-          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaLeftSectionRef} className={classes.authorsList} />
-          {post.postedAt && (
-            <span className={classes.metaDateContainer}>
-              <FormatDate date={post.postedAt} />
-            </span>
-          )}
-        </div>
-      </div>
+      <UltraFeedPostItemHeader
+        post={post}
+        isRead={isRead}
+        handleOpenDialog={handleOpenDialog}
+      />
 
       {shouldShowLoading && loadingFullPost ? (
         <div className={classes.loadingContainer}>
@@ -292,6 +313,10 @@ const UltraFeedPostItem = ({
           resetSignal={resetSig}
         />
       )}
+      {loadingFullPost && <div className={classes.loadingContainer}>
+        <Loading />
+      </div>}
+
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={handleCollapse} />}
       <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
