@@ -72,6 +72,8 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   },
   ultraFeed: {
     ...commentBodyStyles(theme),
+    marginTop: 0,
+    marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
       fontSize: 17,
       '& h1, & h2, & h3, & h4': {

@@ -38,6 +38,9 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
       opacity: 1,
       textDecoration: 'none',
     },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 17
+    },
   },
   continueReadingLinkContainer: {
     marginTop: 8,

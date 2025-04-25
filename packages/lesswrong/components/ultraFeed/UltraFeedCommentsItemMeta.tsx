@@ -11,14 +11,12 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     position: "relative",
     display: "flex",
     flexWrap: "wrap",
-    marginBottom: 8,
     
     alignItems: "center",
-    rowGap: "6px",
     color: `${theme.palette.ultraFeed.dim} !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('sm')]: {
-      fontSize: "1.3rem !important",
+      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
     "& > *": {
       marginRight: 5,
@@ -28,24 +26,38 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
       color: `${theme.palette.linkHover.dim} !important`,
     },
   },
+  tripleDotMenu: {
+    position: 'absolute',
+    right: -12,
+    top: 0,
+    display: "flex",
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+    },
+  },
   leftSection: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "baseline",
     flexGrow: 1,
     flexWrap: "wrap",
   },
   commentShortformIconContainer: {
+    position: 'relative',
+    bottom: 1,
     marginRight: 2,
-    marginBottom: -2
   },
   commentShortformIcon: {
-    [theme.breakpoints.up('md')]: {
-      color: theme.palette.ultraFeed.dim,
-      cursor: "pointer",
-      height: 16,
-      marginRight: 4,
-      width: 16,
-      marginLeft: -2,
+    position: 'relative',
+    // [theme.breakpoints.up('md')]: {
+    //   color: theme.palette.ultraFeed.dim,
+    //   cursor: "pointer",
+    //   height: 16,
+    //   marginRight: 4,
+    //   width: 16,
+    //   marginLeft: -2,
+    // },
+    [theme.breakpoints.down('sm')]: {
+      bottom: 10
     },
   },
   username: {
@@ -55,18 +67,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
       color: theme.palette.link.unmarked,
     },
     fontWeight: 600,
-  },
-  rightSection: {
-    display: "flex",
-    flexGrow: 0,
-    marginRight: -2,
-    [theme.breakpoints.down('sm')]: {
-      marginRight: 0,
-    },
-  },
-  menu: {
-    marginLeft: 4,
-    marginRight: -10
   },
   moderatorHat: {
     marginLeft: 10,
@@ -115,6 +115,14 @@ const UltraFeedCommentsItemMeta = ({
 
   return (
     <div className={classes.root}>
+      {/* absolutely positioned triple dot menu to ensure matching other item components */}
+      <span className={classes.tripleDotMenu}>
+        {!hideActionsMenu && setShowEdit &&
+          <AnalyticsContext pageElementContext="tripleDotMenu">
+            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} />
+          </AnalyticsContext>
+        }
+      </span>
       <span className={classes.leftSection}>
         {comment.shortform && <div className={classes.commentShortformIconContainer}>
           <CommentShortformIcon comment={comment} post={post} iconClassName={classes.commentShortformIcon}/>
@@ -133,18 +141,6 @@ const UltraFeedCommentsItemMeta = ({
         }
       </span>
 
-      <span className={classes.rightSection}>
-        {!hideActionsMenu && setShowEdit &&
-          <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu
-              className={classes.menu}
-              comment={comment}
-              post={post}
-              showEdit={setShowEdit}
-            />
-          </AnalyticsContext>
-        }
-      </span>
     </div>
   );
 };

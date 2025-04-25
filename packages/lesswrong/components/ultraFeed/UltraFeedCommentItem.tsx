@@ -20,9 +20,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingTop: commentHeaderPaddingDesktop,
     display: 'flex',
     flexDirection: 'row',
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: commentHeaderPaddingMobile,
-    },
   },
   compressedRoot: {
     display: 'flex',
@@ -30,14 +27,22 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   commentContentWrapper: {
     flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    // gap: '12px',
+    // paddingBottom: '12px',
   },
   commentContentWrapperWithBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
   },
   commentHeader: {
-    marginBottom: 8,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
   },
   contentWrapper: {
+    marginTop: 12,
+    marginBottom: 12,
     paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
@@ -61,8 +66,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   inlineCommentThreadTitle: {
-    marginTop: 12,
-    marginBottom: 12,
     marginRight: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
@@ -149,8 +152,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   footer: {
-    paddingTop: 8,
-    paddingBottom: 12,
+    marginBottom: 12,
   },
 }));
 

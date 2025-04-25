@@ -19,32 +19,39 @@ import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
-    paddingTop: 12,
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  tripleDotMenu: {
+    position: 'absolute',
+    right: 0,
+    top: 2,
+    padding: 5,
+    marginLeft: 4,
+    "& svg": {
+      fontSize: 18,
+      cursor: "pointer",
+      color: theme.palette.text.dim,
+    }
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    gap: '12px',
   },
-  titleRow: {
+  titleContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: 4,
     },
-  },
-  titleContainer: {
-    flexGrow: 1,
-    paddingRight: 8,
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -59,8 +66,10 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       textDecoration: 'none',
       cursor: 'pointer',
     },
+    flexGrow: 1,
+    paddingRight: 8,
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.6rem',
+      fontSize: 20.5,
     },
   },
   titleIsRead: {
@@ -69,64 +78,22 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       opacity: 0.9,
     },
   },
-  headerRightSection: {
-    display: "flex",
-    flexGrow: 0,
-    marginRight: -8,
-    marginTop: -10,
-  },
-  tripleDotMenu: {
-    padding: 5,
-    marginLeft: 4,
-    marginRight: -10,
-    "& svg": {
-      fontSize: "1.4rem",
-      cursor: "pointer",
-      color: theme.palette.text.dim,
-    }
-  },
-  metaRoot: {
-    marginTop: 4,
-    position: "relative",
+  metaRow: {
     display: "flex",
     flexWrap: "wrap",
-    alignItems: "center",
+    alignItems: "baseline",
     rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    "& > *": {
-      marginRight: 5,
-    },
-    "& a:hover, & a:active": {
-      textDecoration: "none",
-      color: `${theme.palette.linkHover.dim} !important`,
-    },
     [theme.breakpoints.down('sm')]: {
       fontSize: "1.3rem",
     },
-  },
-  metaLeftSection: {
-    display: "flex",
-    alignItems: "center",
-    flex: "1 1 auto",
-    minWidth: 0,
-    flexWrap: "wrap",
-  },
-  metaKarma: {
-    display: "inline-block",
-    textAlign: "center",
-    flexGrow: 0,
-    flexShrink: 0,
-    paddingRight: 8,
-    marginRight: 4,
   },
   metaDateContainer: {
     marginRight: 8,
   },
   footer: {
-    paddingTop: 12,
-    paddingBottom: 12,
   },
   loadingContainer: {
     display: "flex",
@@ -277,41 +244,33 @@ const UltraFeedPostItem = ({
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
     <div ref={elementRef} className={classes.root}>
-      <div className={classes.header}>
-        <div className={classes.titleRow}>
-          <div className={classes.titleContainer}>
-            <span 
-              onClick={() => handleOpenDialog()}
-              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-              role="button"
-              tabIndex={0}
-            >
-              {post.title}
-            </span>
-            <div className={classes.metaRoot}>
-              <span className={classes.metaLeftSection} ref={metaLeftSectionRef}>
-                {showKarma && !post.rejected && <span className={classes.metaKarma}>
-                  {postGetKarma(post)}
-                </span>}
-                <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaLeftSectionRef} className={classes.authorsList} />
-                {post.postedAt && (
-                  <span className={classes.metaDateContainer}>
-                    <FormatDate date={post.postedAt} />
-                  </span>
-                )}
-              </span>
-            </div>
-          </div>
+      {/* absolutely positioned triple dot menu to ensure matching other item components */}
+      <AnalyticsContext pageElementContext="tripleDotMenu">
+        <PostActionsButton
+          post={post}
+          vertical={true}
+          className={classes.tripleDotMenu}
+        />
+      </AnalyticsContext>
 
-          <span className={classes.headerRightSection}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostActionsButton
-                post={post}
-                vertical={true}
-                className={classes.tripleDotMenu}
-              />
-            </AnalyticsContext>
+      <div className={classes.header}>
+        <div className={classes.titleContainer}>
+          <span 
+            onClick={() => handleOpenDialog()}
+            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+            role="button"
+            tabIndex={0}
+          >
+            {post.title}
           </span>
+        </div>
+        <div className={classes.metaRow}>
+          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaLeftSectionRef} className={classes.authorsList} />
+          {post.postedAt && (
+            <span className={classes.metaDateContainer}>
+              <FormatDate date={post.postedAt} />
+            </span>
+          )}
         </div>
       </div>
 
