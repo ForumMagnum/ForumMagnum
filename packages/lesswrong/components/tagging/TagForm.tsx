@@ -11,7 +11,7 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { DefaultFormGroupLayout } from "../tanstack-form-components/DefaultFormGroupLayout";
+import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
 import { TanStackEditor, useEditorFormCallbacks } from "../tanstack-form-components/TanStackEditor";
@@ -109,13 +109,13 @@ export const TagForm = ({
       ...initialData,
       ...(formType === 'new' ? prefilledProps : {}),
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: TagWithFlagsFragment;
 
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createTag.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['description', 'moderationGuidelines', 'subforumWelcomeText']);
@@ -190,7 +190,7 @@ export const TagForm = ({
       </div>
 
       {userIsAdminOrMod(currentUser) && (
-        <DefaultFormGroupLayout label="Advanced Options" startCollapsed={true}>
+        <LegacyFormGroupLayout label="Advanced Options" startCollapsed={true}>
           <div className={classes.fieldWrapper}>
             <form.Field name="slug">
               {(field) => (
@@ -519,11 +519,11 @@ export const TagForm = ({
               )}
             </form.Field>
           </div>}
-        </DefaultFormGroupLayout>
+        </LegacyFormGroupLayout>
       )}
 
       {showSubforumWelcomeTextField({ currentUser, editingTag: initialData }) && (
-        <DefaultFormGroupLayout label="Sidebar Welcome Message" startCollapsed={true}>
+        <LegacyFormGroupLayout label="Sidebar Welcome Message" startCollapsed={true}>
           <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
             <form.Field name="subforumWelcomeText">
               {(field) => (
@@ -544,10 +544,10 @@ export const TagForm = ({
               )}
             </form.Field>
           </div>
-        </DefaultFormGroupLayout>
+        </LegacyFormGroupLayout>
       )}
 
-      {initialData && isLWorAF && <DefaultFormGroupLayout label="Summaries" startCollapsed={true}>
+      {initialData && isLWorAF && <LegacyFormGroupLayout label="Summaries" startCollapsed={true}>
         <div className={classes.fieldWrapper}>
           {/* <form.Field name="summaries">
             {() => ( */}
@@ -558,7 +558,7 @@ export const TagForm = ({
             {/* )}
           </form.Field> */}
         </div>
-      </DefaultFormGroupLayout>}
+      </LegacyFormGroupLayout>}
 
       <div className="form-submit">
         {formType === 'edit' && <Button

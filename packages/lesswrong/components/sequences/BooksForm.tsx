@@ -62,13 +62,13 @@ export const BooksForm = ({
       ...initialData,
       ...(formType === 'new' ? { collectionId } : {}),
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: BookPageFragment;
 
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createBook.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['contents']);

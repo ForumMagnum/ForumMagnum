@@ -77,13 +77,13 @@ export const SummaryForm = ({
       ...initialData,
       ...(formType === 'new' ? { ...prefilledProps, fieldName: 'summary' as const } : {}),
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: MultiDocumentContentDisplay;
 
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createMultiDocument.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['contents']);

@@ -138,12 +138,12 @@ const InnerMessagesNewForm = ({
       ...prefilledProps,
       noEmail: false,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: messageListFragment;
 
-      const { data } = await create({ data: value });
+      const { data } = await create({ data: formApi.state.values });
       result = data?.createMessage.data;
 
       if (onSuccessCallback.current) {

@@ -71,13 +71,13 @@ export const SpotlightForm = ({
       ...initialData,
       ...newFormDefaults,
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: SpotlightEditQueryFragment;
 
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createSpotlight.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['description']);

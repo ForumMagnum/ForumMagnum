@@ -771,7 +771,6 @@ importComponent("FrontpageVotingPhase", () => require("../../components/review/F
 importComponent("GenerateImagesButton", () => require("../../components/review/GenerateImagesButton.tsx"));
 importComponent("LatestReview", () => require("../../components/review/LatestReview.tsx"));
 importComponent("NewLongformReviewForm", () => require("../../components/review/NewLongformReviewForm.tsx"));
-importComponent("NominatePostDialog", () => require("../../components/review/NominatePostDialog.tsx"));
 importComponent("Nominations2018", () => require("../../components/review/Nominations2018.tsx"));
 importComponent("Nominations2019", () => require("../../components/review/Nominations2019.tsx"));
 importComponent("NominationsPage", () => require("../../components/review/NominationsPage.tsx"));

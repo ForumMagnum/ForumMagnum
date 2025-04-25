@@ -1,7 +1,7 @@
 import { Components } from "@/lib/vulcan-lib/components";
 import React, { useState } from "react";
 
-export const DefaultFormGroupLayout = ({ label, startCollapsed, children }: {
+export const LegacyFormGroupLayout = ({ label, startCollapsed, children }: {
   label: string;
   startCollapsed?: boolean;
   children: React.ReactNode;

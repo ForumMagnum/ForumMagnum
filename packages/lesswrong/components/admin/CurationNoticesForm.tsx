@@ -63,12 +63,13 @@ export const CurationNoticesForm = ({
         postId,
       } : {}),
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: CurationNoticesFragment;
+
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createCurationNotice.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['contents']);

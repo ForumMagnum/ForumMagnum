@@ -61,13 +61,13 @@ export const ModerationTemplatesForm = ({
       ...initialData,
       ...newFormDefaults,
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: ModerationTemplateFragment;
 
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createModerationTemplate.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['contents']);

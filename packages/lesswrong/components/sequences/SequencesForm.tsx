@@ -68,13 +68,13 @@ export const SequencesForm = ({
       ...initialData,
       ...(formType === 'new' ? { userId: currentUser._id } : {}),
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: SequencesEdit;
 
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createSequence.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['contents']);

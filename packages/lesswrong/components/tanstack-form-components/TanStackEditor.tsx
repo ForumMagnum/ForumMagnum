@@ -617,7 +617,7 @@ function TanStackEditorInner<S, R>({
           collectionName={collectionName}
           fieldName={fieldName}
           initialEditorType={initialEditorType}
-          formProps={{ editorHintText, maxHeight, commentMinimalistStyle }}
+          formProps={{ maxHeight, commentMinimalistStyle }}
           isCollaborative={isCollabEditor}
           accessLevel={document.myEditorAccess}
           value={contents}

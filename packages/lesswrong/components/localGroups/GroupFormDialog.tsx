@@ -125,12 +125,13 @@ const TanStackGroupForm = ({
       isOnline: initialIsOnline ?? initialData?.isOnline ?? false,
       organizerIds: initialData ? initialData.organizerIds : [currentUser._id],
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: localGroupsHomeFragment;
+
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createLocalgroup.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['contents']);

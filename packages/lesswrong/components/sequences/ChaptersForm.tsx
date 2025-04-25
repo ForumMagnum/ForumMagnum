@@ -63,13 +63,13 @@ export const ChaptersForm = ({
       ...initialData,
       ...(formType === 'new' && prefilledProps ? prefilledProps : {}),
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: ChaptersEdit;
 
       if (formType === 'new') {
-        const { data } = await create({ data: value });
+        const { data } = await create({ data: formApi.state.values });
         result = data?.createChapter.data;
       } else {
         const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
