@@ -42,8 +42,8 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
       
       ...(isFriendlyUI && {
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingTop: 16,
+        paddingBottom: 16,
       }),
     },
     color: theme.palette.grey[isFriendlyUI ? 600 : 800],
