@@ -206,7 +206,16 @@ export const PostsListWithVotesAndSequence = () => frag`
 
 export const UltraFeedPostFragment = () => frag`
   fragment UltraFeedPostFragment on Post {
+    ${PostsDetails}
     ${PostsListWithVotes}
+    contents {
+      _id
+      html
+      htmlHighlight
+      wordCount
+    }
+    autoFrontpage
+    votingSystem
   }
 `
 
@@ -447,6 +456,7 @@ export const PostsExpandedHighlight = () => frag`
     contents {
       _id
       html
+      wordCount
     }
   }
 `

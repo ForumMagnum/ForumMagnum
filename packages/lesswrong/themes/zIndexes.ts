@@ -34,18 +34,20 @@ export const defaultZIndexes = {
   sunshineSidebar: 1000,
   reactionsFooter: 1001,
   drawer: 1200,
-  intercomButton: 1400,
   blurredBackgroundModal: 1350, // lower than intercom
   confirmLogoutModal: 1351,
+  overflowNavButtons: 1352,
   languageModelChatButton: 1030,
   sideCommentBox: 1040,
   languageModelChat: 1041,
   postItemMenu: 1050,
+  snackbar: 1400,
   searchResults: 1450, // higher than intercom
   tabNavigation: 1101,
   hideTableOfContentsButton: 1200,
   header: 1300,
   karmaChangeNotifier: 1400,
+  intercomButton: 1400,
   notificationsMenu: 1500,
   splashHeaderImageOptions: 2000,
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom

@@ -58,7 +58,7 @@ export const DebateTypingIndicator = ({classes, post}: {
 
   const otherUsers = typingIndicators.filter((typingIndicator) => {
     const twentySecondsAgo = Date.now() - INDICATOR_DISPLAY_PERIOD;
-    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated).getTime()) > twentySecondsAgo;
+    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated ?? 0).getTime()) > twentySecondsAgo;
     const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
     return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
   })

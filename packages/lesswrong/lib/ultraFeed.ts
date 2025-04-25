@@ -5,7 +5,7 @@ export const FeedPostFragment = () => frag`
     _id
     postMetaInfo
     post {
-      ...UltraFeedPostFragment
+      ...PostsListWithVotes
     }
   }
 `;

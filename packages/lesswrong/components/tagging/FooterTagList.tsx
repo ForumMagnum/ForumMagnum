@@ -332,7 +332,7 @@ const FooterTagList = ({
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 
-  const postYear = new Date(post.createdAt).getFullYear(); // 2023
+  const postYear = new Date(post.createdAt!).getFullYear(); // 2023
   const currentYear = new Date().getFullYear(); // 2025
   const age = currentYear - postYear;
   const isRecent = age < 2;
