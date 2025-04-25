@@ -76,11 +76,11 @@ const styles = (theme: ThemeType) => ({
     },
   },
   footer: {
+    padding: "0 16px",
     textAlign: 'center',
   },
   footerButton: {
     width: "100%",
-    maxWidth: 500,
     padding: "12px 20px",
     fontSize: 14,
     fontWeight: 600,
