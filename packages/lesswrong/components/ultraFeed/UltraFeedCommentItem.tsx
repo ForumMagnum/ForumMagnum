@@ -63,25 +63,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
       fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
   },
-  inlineCommentThreadTitle: {
-    marginRight: 12,
-    color: theme.palette.link.dim,
-    fontSize: theme.typography.body2.fontSize,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontStyle: 'italic',
-    textWrap: 'balance',
-    cursor: 'pointer',
-    overflow: "hidden",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
-    },
-  },
-  inlineCommentThreadTitleLinkSpan: {
-    color: theme.palette.primary.main,
-  },
   verticalLineContainer: {
     fontStyle: 'italic',
     width: 0,
@@ -294,12 +275,6 @@ const UltraFeedCommentItem = ({
     onChangeDisplayStatus('collapsed');
   };
 
-  const replyingToTitle = showInLineCommentThreadTitle && !comment.shortform && post && (
-    <div className={classes.inlineCommentThreadTitle} onClick={onPostTitleClick} >
-      Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
-    </div>
-  )
-
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
     <div className={classNames(classes.root)} >
@@ -316,9 +291,11 @@ const UltraFeedCommentItem = ({
       </div>
       <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
         <div className={classes.commentHeader}>
-          {/* {replyingToTitle} */}
-          <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
-          {replyingToTitle}
+          <UltraFeedCommentsItemMeta
+            comment={comment}
+            setShowEdit={() => {}}
+            showInLineCommentThreadTitle={showInLineCommentThreadTitle}
+            onPostTitleClick={onPostTitleClick} />
         </div>
         <div className={classes.contentWrapper}>
           <FeedContentBody
