@@ -275,7 +275,7 @@ export const styles = (theme: ThemeType) => ({
   },
   postBody: {
     ...(isFriendlyUI && {
-      width: "max-content",
+      width: "100%",
     }),
   },
   audioPlayerHidden: {
