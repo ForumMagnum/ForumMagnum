@@ -35,7 +35,7 @@ export type ForumEventCommentMetadata = {
     voteWhenPublished: number
     /** 0 to 1, in the case where the vote hasn't changed, latestVote will be null and voteWhenPublished will have the latest vote */
     latestVote?: number | null
-    /** FK to the revision of the question when the comment was published */
+    /** _id of the revision of the question when the comment was published */
     pollQuestionWhenPublished?: string | null
   } | null
 }

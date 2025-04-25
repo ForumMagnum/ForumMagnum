@@ -34,7 +34,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   // Derive the current forum event as the first event whose endDate is in the
   // future -- we know the start date is in the past from the view query.
   const now = new Date();
-  const currentForumEvent = forumEvents.find(event => event.endDate && (new Date(event.endDate) >= now)) || null;
+  const currentForumEvent = forumEvents.find(event => !event.endDate || new Date(event.endDate) >= now) || null;
 
   const isEventPost = useCallback((
     post: PostsBase,

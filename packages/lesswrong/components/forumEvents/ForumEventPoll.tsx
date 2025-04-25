@@ -615,13 +615,13 @@ export const ForumEventPoll = ({
   const clearVote = useCallback(
     async (e?: React.PointerEvent) => {
       try {
+        e?.stopPropagation();
         if (currentUser && event) {
           await removeVote({ variables: { forumEventId: event._id } });
           setVoteCount((count) => count - 1);
           setCommentFormOpen(false);
           refetch?.();
         }
-        e?.stopPropagation();
         setCurrentBucketIndex(DEFAULT_VOTE_INDEX);
         setCurrentUserVote(null);
       } catch (e) {

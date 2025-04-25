@@ -1,4 +1,3 @@
-import { hookToHoc } from "@/lib/hocUtils";
 import { createContext, useContext } from "react";
 
 type PostsPageContextPayload = {

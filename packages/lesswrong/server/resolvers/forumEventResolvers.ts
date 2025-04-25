@@ -6,14 +6,14 @@ export const forumEventGqlMutations = {
   AddForumEventVote: async (
     _root: void,
     {forumEventId, x, delta, postIds}: {forumEventId: string, x: number, delta?: number, postIds?: string[]},
-    {currentUser, repos}: ResolverContext
+    {currentUser, repos, loaders}: ResolverContext
   ) => {
     if (!currentUser) {
       throw new Error("Not logged in");
     }
 
     const [event, oldVote] = await Promise.all([
-      ForumEvents.findOne({ _id: forumEventId }),
+      loaders.ForumEvents.load(forumEventId),
       repos.forumEvents.getUserVote(forumEventId, currentUser._id)
     ]);
 
@@ -46,11 +46,11 @@ export const forumEventGqlMutations = {
     })
     return true
   },
-  RemoveForumEventVote: async (_root: void, {forumEventId}: {forumEventId: string}, {currentUser, repos}: ResolverContext) => {
+  RemoveForumEventVote: async (_root: void, {forumEventId}: {forumEventId: string}, {currentUser, repos, loaders}: ResolverContext) => {
     if (!currentUser) {
       throw new Error("Not logged in");
     }
-    const event = await ForumEvents.findOne({ _id: forumEventId });
+    const event = await loaders.ForumEvents.load(forumEventId);
 
     if (event?.endDate && new Date(event.endDate) < new Date()) {
       throw new Error("Cannot edit vote after voting has closed");

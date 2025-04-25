@@ -1,10 +1,11 @@
 import { performVoteServer } from '../voteServer';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
-import cheerio from 'cheerio';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { createForumEvent, updateForumEvent } from '../collections/forumEvents/mutations';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { hasPolls } from '@/lib/betas';
+import { cheerioParse } from '../utils/htmlUtil';
+import { z } from 'zod';
 
 // Users upvote their own tag-revisions
 export async function upvoteOwnTagRevision({revision, context}: {revision: DbRevision, context: ResolverContext}) {
@@ -62,6 +63,23 @@ type PollProps = {
   colorScheme: { darkColor: string; lightColor: string; bannerTextColor: string }
   duration: { days: number; hours: number; minutes: number };
 };
+
+const PollPropsSchema = z.object({
+  question: z.string(),
+  agreeWording: z.string(),
+  disagreeWording: z.string(),
+  colorScheme: z.object({
+    darkColor: z.string(),
+    lightColor: z.string(),
+    bannerTextColor: z.string(),
+  }),
+  duration: z.object({
+    days: z.number().min(0),
+    hours: z.number().min(0),
+    minutes: z.number().min(0),
+  }),
+});
+
 const ONE_MINUTE_MS = 60 * 1000;
 const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
 const ONE_DAY_MS = 24 * ONE_HOUR_MS;
@@ -113,7 +131,7 @@ async function upsertPoll({
       {
         data: {
           // TODO Explicitly allow setting an _id. This does work currently, but the generated types don't recognise it
-          // @ts-ignore
+          // @ts-expect-error
           _id,
           title: `New Poll for ${_id}`,
           eventFormat: "POLL",
@@ -147,7 +165,7 @@ export async function upsertPolls({
   if (!hasPolls) return;
 
   if (revision.html && revision.collectionName === "Posts" && !!revision.documentId) {
-    const $ = cheerio.load(revision.html);
+    const $ = cheerioParse(revision.html);
     const pollData = $(".ck-poll[data-internal-id]")
       .map((_, element) => {
         const internalId = $(element).attr("data-internal-id");
@@ -155,12 +173,25 @@ export async function upsertPolls({
 
         if (!props) return null;
 
-        const parsedProps = JSON.parse(props) as PollProps;
+        try {
+          const rawParsedProps = JSON.parse(props);
+          const validationResult = PollPropsSchema.safeParse(rawParsedProps);
+          if (!validationResult.success) {
+            const errorMessage = `Invalid poll props found for internalId ${internalId}: ${JSON.stringify(validationResult.error.issues)}`;
+            throw new Error(errorMessage);
+          }
 
-        return { _id: internalId, ...parsedProps };
+          const parsedProps = validationResult.data;
+          return { _id: internalId, ...parsedProps };
+
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(`Error parsing poll props for internalId ${internalId}:`, error);
+          return null;
+        }
       })
       .get()
-      .filter((item) => item !== null) as ({ _id: string } & PollProps)[];
+      .filter((item): item is ({ _id: string } & PollProps) => item !== null);
 
     if (!pollData?.length) return;
 
@@ -183,6 +214,4 @@ export async function upsertPolls({
       await upsertPoll({ ...data, post, existingPoll }, context);
     }
   }
-
-  return;
 };

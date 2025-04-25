@@ -31,7 +31,7 @@ async function editCheck(user: DbUser | null, document: DbForumEvent | null, con
 
   if (!post) return false;
 
-  return canUserEditPostMetadata(user, post) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, post, context)
+  return canUserEditPostMetadata(user, post) || await userIsPostGroupOrganizer(user, post, context)
 }
 
 
