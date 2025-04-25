@@ -550,12 +550,6 @@ fragment CommentsList on Comment {
   originalDialogueId
 
   forumEventId
-  forumEvent {
-    pollQuestion {
-      _id
-      html
-    }
-  }
   forumEventMetadata
 }
 

@@ -494,7 +494,6 @@ interface CommentsList { // fragment on Comments
   readonly modGPTRecommendation: string | null,
   readonly originalDialogueId: string | null,
   readonly forumEventId: string,
-  readonly forumEvent: CommentsList_forumEvent|null,
   readonly forumEventMetadata: {
     eventFormat: "BASIC" | "POLL" | "STICKERS",
     sticker: {
@@ -522,15 +521,6 @@ interface CommentsList_contents { // fragment on Revisions
   readonly html: string,
   readonly plaintextMainText: string,
   readonly wordCount: number,
-}
-
-interface CommentsList_forumEvent { // fragment on ForumEvents
-  readonly pollQuestion: CommentsList_forumEvent_pollQuestion|null,
-}
-
-interface CommentsList_forumEvent_pollQuestion { // fragment on Revisions
-  readonly _id: string,
-  readonly html: string,
 }
 
 interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on Comments
