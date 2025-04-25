@@ -15,21 +15,28 @@ import { useDialog } from "../common/withDialog";
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
     position: "relative",
-    paddingLeft: 8,
-    paddingRight: 8,
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    justifyContent: "space-between",
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      ...theme.typography.ultraFeedMobileStyle,
+    // every child except last has margin right applied
+    "& > *:not(:last-child)": {
+      marginRight: 16,
     },
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: `${theme.palette.linkHover.dim} !important`,
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 8,
+      paddingRight: 8,
+      justifyContent: "space-between",
+      ...theme.typography.ultraFeedMobileStyle,
+      "& > *:not(:last-child)": {
+        marginRight: 'unset',
+      },
     },
   },
   commentCount: {
@@ -60,12 +67,13 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     }
   },
   addReactionButton: {
+    opacity: 0.7,
     position: "relative",
     top: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'flex',
     marginRight: 6,
-    marginLeft: 6,
+    marginLeft: 'auto',
     alignItems: 'center',
     '& .react-hover-style': {
       filter: 'opacity(1) !important',
@@ -79,6 +87,8 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       },
     },
     [theme.breakpoints.down('sm')]: {
+      opacity: 1,
+      marginLeft: 6,
       top: 0,
     }
   },
@@ -92,6 +102,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   bookmarkButton: {
     position: "relative", 
     top: 3,
+    opacity: 0.7,
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
       height: 20,
@@ -101,6 +112,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       top: 5,
+      opacity: 1,
     },
   },
   overallVoteButtons: {

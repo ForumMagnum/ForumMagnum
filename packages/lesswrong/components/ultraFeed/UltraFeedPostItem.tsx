@@ -32,7 +32,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     opacity: 0.7,
     position: 'absolute',
     right: 2,
-    top: 4,
+    top: 5,
     padding: 5,
     marginLeft: 4,
     "& svg": {

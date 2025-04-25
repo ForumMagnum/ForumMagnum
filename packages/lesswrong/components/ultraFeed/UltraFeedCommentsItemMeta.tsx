@@ -39,7 +39,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     opacity: 0.7,
     position: 'absolute',
     right: -10,
-    top: 2,
+    top: 4,
 
     [theme.breakpoints.down('sm')]: {
       marginRight: 0,
