@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   scrollable: {
-    overflowY: "scroll",
+    overflowY: "auto",
     flexGrow: 1,
   },
   header: {
