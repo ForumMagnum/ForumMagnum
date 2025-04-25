@@ -349,11 +349,11 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
     return handleErrorCase("Error updating subscription: Mailchimp not configured")
   }
   if (hasDigests && !mailchimpForumDigestListId) {
-    // es-lint-disable-next-line no-console
+    // eslint-disable-next-line no-console
     console.error("Digest list not configured, failing to update subscription");
   }
   if (hasNewsletter && !mailchimpEANewsletterListId) {
-    // es-lint-disable-next-line no-console
+    // eslint-disable-next-line no-console
     console.error("Newsletter list not configured, failing to update subscription");
   }
 
