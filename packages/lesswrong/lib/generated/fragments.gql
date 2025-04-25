@@ -4565,6 +4565,7 @@ fragment UsersCurrent on User {
   hideFrontpageMap
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   emails
   whenConfirmationEmailSent

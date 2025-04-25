@@ -4036,6 +4036,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideFrontpageMap: boolean|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly emails: Array<{
     address: string,
@@ -4701,6 +4702,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly karmaChangeBatchStart: Date|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hideSubscribePoke: boolean|null,
   readonly hideMeetupsPoke: boolean|null,
@@ -4874,6 +4876,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly whenConfirmationEmailSent: Date|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hasAuth0Id: boolean|null,
   readonly moderatorAssistance: boolean|null,
@@ -6361,3 +6364,4 @@ type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContent
 type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
+
