@@ -62,7 +62,6 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
     <span className={classes.root}>
       {showStartPercentage && (
         <span className={classNames(startAgreement ? classes.agreePollVote : classes.disagreePollVote)}>
-          {/* TODO note that I would prefer to remove this */}
           <LWTooltip title="Vote when comment was posted" placement="top" popperClassName={classes.tooltip}>
             <s>
               {startPercentage}
