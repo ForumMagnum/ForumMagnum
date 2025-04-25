@@ -4,6 +4,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useMulti } from "../../lib/crud/withMulti";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -152,7 +154,10 @@ const UltraFeedCommentsDialog = ({
       }}
     >
       <div className={classes.titleContainer}>
-        <span className={classes.title}>{postTitle}</span>
+        {postDataForTree
+          ? <Link to={postGetPageUrl(postDataForTree)} className={classes.title}>{postTitle}</Link>
+          : <span className={classes.title}>{postTitle}</span>
+        }
         <span className={classes.closeButton} onClick={onClose}>
           Close
         </span>
