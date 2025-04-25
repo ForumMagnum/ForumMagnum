@@ -29,9 +29,10 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     gap: '12px',
   },
   tripleDotMenu: {
+    opacity: 0.7,
     position: 'absolute',
-    right: 0,
-    top: 2,
+    right: 2,
+    top: 4,
     padding: 5,
     marginLeft: 4,
     "& svg": {
@@ -43,7 +44,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   header: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '4px',
   },
   titleContainer: {
     display: 'flex',
