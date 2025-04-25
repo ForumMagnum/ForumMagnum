@@ -92,7 +92,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         }
       },
       ultraFeedMobileStyle: {
-        fontSize: "17px !important",
+        fontSize: 17,
       },
       errorStyle: {
         color: palette.error.main,
