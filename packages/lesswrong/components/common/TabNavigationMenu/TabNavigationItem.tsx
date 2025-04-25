@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
         paddingLeft: 16,
         paddingRight: 16,
       } : {
-        padding: 16,
+        padding: "10px 16px",
       }
     ),
     display: "flex",
