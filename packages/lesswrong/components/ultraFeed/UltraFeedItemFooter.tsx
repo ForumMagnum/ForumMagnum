@@ -37,9 +37,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     "& svg": {
-      height: 18,
       position: "relative",
-      bottom: 2,
+      height: 18,
+      top: 1,
       [theme.breakpoints.down('sm')]: {
         height: 20,
         width: 20,
@@ -60,6 +60,8 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     }
   },
   addReactionButton: {
+    position: "relative",
+    top: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'flex',
     marginRight: 6,
@@ -75,6 +77,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
         height: 21,
         width: 21,
       },
+    },
+    [theme.breakpoints.down('sm')]: {
+      top: 0,
     }
   },
   reactionIcon: {
@@ -85,6 +90,8 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     bottom: 2,
   },
   bookmarkButton: {
+    position: "relative", 
+    top: 3,
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
       height: 20,
@@ -93,7 +100,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       },
     },
     [theme.breakpoints.down('sm')]: {
-      position: "relative", 
       top: 5,
     },
   },
