@@ -1070,6 +1070,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   postId
   bannerImageId
   includesPoll
+  isGlobal
   eventFormat
   pollQuestion_latest
   pollAgreeWording
@@ -1106,6 +1107,7 @@ fragment ForumEventsDisplay on ForumEvent {
   pollQuestion {
     _id
     html
+    plaintextMainText
   }
 }
 
@@ -1140,6 +1142,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   eventFormat
   customComponent
   commentPrompt
+  isGlobal
 
   pollAgreeWording
   pollDisagreeWording
