@@ -29,8 +29,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    // gap: '12px',
-    // paddingBottom: '12px',
   },
   commentContentWrapperWithBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,

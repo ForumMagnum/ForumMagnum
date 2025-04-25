@@ -100,22 +100,17 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   overallVoteButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
-      // color: 'red', //`${theme.palette.ultraFeed.dim} !important`,
     }
   },
   agreementButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
-    marginLeft: -8 // necessary to counter baked-in left margin from AgreementVoteAxis.tsx
+    marginLeft: -8
   },
-  // Styles to override OverallVoteAxis children, applied only on small screens
   footerVoteScoreOverride: {
-    // Default style for this class (applies on large screens)
     fontSize: `${theme.typography.body2.fontSize}px !important`, 
-    margin: '0 7px !important', // Use default small margin for large screens
-
-    // Override for small screens
+    margin: '0 7px !important',
     [theme.breakpoints.down('sm')]: {
-      fontSize: '17px !important', // Explicitly set to 17px for mobile
+      fontSize: '17px !important',
       margin: '0 7px !important',
     }
   },
@@ -124,15 +119,12 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       display: 'none !important',
     }
   },
-  // Styles to override AgreementVoteAxis score when used in footer
   footerAgreementScoreOverride: {
-    // Default style for this class (applies on large screens)
     fontSize: `${theme.typography.body2.fontSize}px !important`,
     margin: '0 7px !important',
-    // Override for small screens
     [theme.breakpoints.down('sm')]: {
-      fontSize: '17px !important', // Explicitly set to 17px for mobile
-      margin: '0 7px !important', // Keep same margin for small screens based on user change above
+      fontSize: '17px !important',
+      margin: '0 7px !important',
     }
   },
 }));

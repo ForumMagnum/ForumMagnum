@@ -48,14 +48,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   },
   commentShortformIcon: {
     position: 'relative',
-    // [theme.breakpoints.up('md')]: {
-    //   color: theme.palette.ultraFeed.dim,
-    //   cursor: "pointer",
-    //   height: 16,
-    //   marginRight: 4,
-    //   width: 16,
-    //   marginLeft: -2,
-    // },
     [theme.breakpoints.down('sm')]: {
       bottom: 10
     },
