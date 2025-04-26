@@ -19,10 +19,16 @@ import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
-    padding: '12px 16px',
+    paddingLeft: 16,
+    paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
+  },
+  mainContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
   },
   tripleDotMenu: {
     opacity: 0.7,
@@ -41,7 +47,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
-    marginBottom: '12px',
   },
   titleContainer: {
     display: 'flex',
@@ -92,7 +97,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     marginRight: 8,
   },
   footer: {
-    paddingTop: 12,
   },
   loadingContainer: {
     display: "flex",
@@ -281,44 +285,46 @@ const UltraFeedPostItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
-    <div ref={elementRef} className={classes.root}>
-      <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton
+    <div className={classes.root}>
+      <div ref={elementRef} className={classes.mainContent}>
+        <AnalyticsContext pageElementContext="tripleDotMenu">
+          <PostActionsButton
+            post={post}
+            vertical={true}
+            className={classes.tripleDotMenu}
+          />
+        </AnalyticsContext>
+
+        <UltraFeedPostItemHeader
           post={post}
-          vertical={true}
-          className={classes.tripleDotMenu}
+          isRead={isRead}
+          handleOpenDialog={handleOpenDialog}
         />
-      </AnalyticsContext>
 
-      <UltraFeedPostItemHeader
-        post={post}
-        isRead={isRead}
-        handleOpenDialog={handleOpenDialog}
-      />
-
-      {shouldShowLoading && loadingFullPost ? (
-        <div className={classes.loadingContainer}>
+        {shouldShowLoading && loadingFullPost ? (
+          <div className={classes.loadingContainer}>
+            <Loading />
+          </div>
+        ) : (
+          <FeedContentBody
+            html={displayHtml}
+            breakpoints={settings.postTruncationBreakpoints}
+            initialExpansionLevel={0}
+            wordCount={displayWordCount}
+            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+            onContinueReadingClick={handleOpenDialog}
+            onExpand={handleContentExpand}
+            hideSuffix={false}
+            resetSignal={resetSig}
+          />
+        )}
+        {loadingFullPost && <div className={classes.loadingContainer}>
           <Loading />
-        </div>
-      ) : (
-        <FeedContentBody
-          html={displayHtml}
-          breakpoints={settings.postTruncationBreakpoints}
-          initialExpansionLevel={0}
-          wordCount={displayWordCount}
-          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-          onContinueReadingClick={handleOpenDialog}
-          onExpand={handleContentExpand}
-          hideSuffix={false}
-          resetSignal={resetSig}
-        />
-      )}
-      {loadingFullPost && <div className={classes.loadingContainer}>
-        <Loading />
-      </div>}
+        </div>}
 
+        <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
+      </div>
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={handleCollapse} />}
-      <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
     </div>
     </AnalyticsContext>
   );
