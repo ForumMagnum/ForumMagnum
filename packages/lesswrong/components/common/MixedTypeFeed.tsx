@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { useQuery, gql, ObservableQuery } from '@apollo/client';
+import { useQuery, gql, ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
@@ -121,6 +121,9 @@ const MixedTypeFeed = (args: {
 
   // Distance from bottom of viewport to trigger loading more items
   loadMoreDistanceProp?: number,
+
+  // Apollo fetch policy
+  fetchPolicy?: WatchQueryFetchPolicy;
 }) => {
   const {
     resolverName,
@@ -138,6 +141,7 @@ const MixedTypeFeed = (args: {
     disableLoadMore,
     className,
     loadMoreDistanceProp = defaultLoadMoreDistance,
+    fetchPolicy = "cache-and-network",
   } = args;
 
   // Reference to a bottom-marker used for checking scroll position.
@@ -160,7 +164,7 @@ const MixedTypeFeed = (args: {
       offset: 0,
       limit: firstPageSize,
     },
-    fetchPolicy: "cache-and-network",
+    fetchPolicy,
     nextFetchPolicy: "cache-only",
     ssr: true,
   });
