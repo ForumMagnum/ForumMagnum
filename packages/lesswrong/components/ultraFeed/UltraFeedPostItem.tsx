@@ -147,8 +147,6 @@ const UltraFeedPostItemHeader = ({
         {postTitlesAreModals ? (
           <a
             href={postGetPageUrl(post)}
-            target="_blank"
-            rel="noopener noreferrer"
             onClick={handleTitleClick}
             className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
           >
