@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { postGetLink, postGetKarma } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
@@ -15,6 +15,7 @@ import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -119,29 +120,48 @@ interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
   isRead: boolean;
   handleOpenDialog: (params?: { textFragment?: string }) => void;
+  postTitlesAreModals: boolean;
 }
 
 const UltraFeedPostItemHeader = ({
   post,
   isRead,
   handleOpenDialog,
+  postTitlesAreModals,
 }: UltraFeedPostItemHeaderProps) => {
   const { TruncatedAuthorsList, FormatDate } = Components;
 
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
 
+  const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+      event.preventDefault();
+      handleOpenDialog();
+    }
+  };
+
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        <span
-          onClick={() => handleOpenDialog()}
-          className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-          role="button"
-          tabIndex={0}
-        >
-          {post.title}
-        </span>
+        {postTitlesAreModals ? (
+          <a
+            href={postGetPageUrl(post)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={handleTitleClick}
+            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+          >
+            {post.title}
+          </a>
+        ) : (
+          <Link
+            to={postGetPageUrl(post)}
+            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+          >
+            {post.title}
+          </Link>
+        )}
       </div>
       <div className={classes.metaRow}>
         <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
@@ -299,6 +319,7 @@ const UltraFeedPostItem = ({
           post={post}
           isRead={isRead}
           handleOpenDialog={handleOpenDialog}
+          postTitlesAreModals={settings.postTitlesAreModals}
         />
 
         {shouldShowLoading && loadingFullPost ? (
