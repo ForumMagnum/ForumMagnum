@@ -159,7 +159,7 @@ type AlgorithmFieldValidationRules = Pick<UltraFeedSettingsType,
   'quickTakeBoost'
 >;
 
-type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'incognitoMode' | 'threadScoreAggregation' | 'threadScoreFirstN'> & {
+type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'postTruncationBreakpoints' | 'commentTruncationBreakpoints' | 'sourceWeights' | 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'incognitoMode' | 'threadScoreAggregation' | 'threadScoreFirstN' | 'postTitlesAreModals'> & {
   lineClampNumberOfLines: number | '';
   postTruncationBreakpoints: (number | '')[];
   commentTruncationBreakpoints: (number | '')[];
@@ -171,13 +171,14 @@ type FormValuesState = Omit<UltraFeedSettingsType, 'lineClampNumberOfLines' | 'p
   incognitoMode: boolean;
   threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
   threadScoreFirstN: number | '';
+  postTitlesAreModals: boolean;
 };
 
 const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, onClose }: UltraFeedSettingsComponentProps) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const [formValues, setFormValues] = useState<FormValuesState>(() => { 
-    const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, ultraFeedSeenPenalty, quickTakeBoost, incognitoMode, threadScoreAggregation, threadScoreFirstN } = settings;
+    const { lineClampNumberOfLines, postTruncationBreakpoints, commentTruncationBreakpoints, commentDecayFactor, commentDecayBiasHours, ultraFeedSeenPenalty, quickTakeBoost, incognitoMode, threadScoreAggregation, threadScoreFirstN, postTitlesAreModals } = settings;
 
     // Ensure arrays have length 3
     const ensureLength3 = (arr: (number | '')[]) => {
@@ -200,6 +201,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       incognitoMode,
       threadScoreAggregation,
       threadScoreFirstN,
+      postTitlesAreModals,
     };
   });
 
@@ -230,6 +232,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       incognitoMode: settings.incognitoMode,
       threadScoreAggregation: settings.threadScoreAggregation,
       threadScoreFirstN: settings.threadScoreFirstN,
+      postTitlesAreModals: settings.postTitlesAreModals,
     });
   }, [settings]);
 
@@ -250,6 +253,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
       incognitoMode: false,
       threadScoreAggregation: false,
       threadScoreFirstN: false,
+      postTitlesAreModals: false,
     }
   });
 
@@ -384,7 +388,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }
   }, []);
 
-  const handleBooleanChange = useCallback((key: 'incognitoMode', checked: boolean) => {
+  const handleBooleanChange = useCallback((key: 'incognitoMode' | 'postTitlesAreModals', checked: boolean) => {
     setFormValues(prev => ({ ...prev, [key]: checked }));
   }, []);
 
@@ -411,7 +415,8 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
            errors.commentDecayBiasHours ||
            errors.ultraFeedSeenPenalty ||
            errors.quickTakeBoost ||
-           errors.threadScoreFirstN;
+           errors.threadScoreFirstN ||
+           errors.postTitlesAreModals;
   }, [errors, formValues.sourceWeights]);
 
   const handleSave = useCallback(() => {
@@ -537,6 +542,7 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     validatedValues.threadScoreAggregation = formValues.threadScoreAggregation;
 
     validatedValues.incognitoMode = formValues.incognitoMode;
+    validatedValues.postTitlesAreModals = formValues.postTitlesAreModals;
 
     if (hasValidationErrors) {
       return; 
@@ -575,6 +581,9 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
     }
     if (validatedValues.threadScoreFirstN !== undefined) {
       finalSettingsToUpdate.threadScoreFirstN = validatedValues.threadScoreFirstN;
+    }
+    if (validatedValues.postTitlesAreModals !== undefined) {
+      finalSettingsToUpdate.postTitlesAreModals = validatedValues.postTitlesAreModals;
     }
 
     if (Object.keys(finalSettingsToUpdate).length > 0) {
@@ -840,6 +849,25 @@ const UltraFeedSettings = ({ settings, updateSettings, resetSettingsToDefault, o
         </div>
         <p className={classes.inputDescription} style={{paddingLeft: 0}}>
           When enabled, no history (servings, views, expansions, etc.) is recorded for your account.
+        </p>
+      </div>
+      
+      <div className={classes.settingGroup}>
+        <h3 className={classes.groupTitle}>UI Preferences</h3>
+        <div className={classes.inputContainer} style={{flexWrap: 'nowrap'}}> 
+          <input 
+            type="checkbox" 
+            id="postTitlesAreModalsCheckbox" 
+            checked={formValues.postTitlesAreModals}
+            onChange={(e) => handleBooleanChange('postTitlesAreModals', e.target.checked)}
+            style={{marginRight: '8px'}}
+          />
+          <label htmlFor="postTitlesAreModalsCheckbox" className={classes.inputLabel} style={{flex: '1 1 auto', cursor: 'pointer'}}>
+            Open post titles in modal on click
+          </label>
+        </div>
+        <p className={classes.inputDescription} style={{paddingLeft: 0}}>
+          If checked, clicking a post title opens it in a modal. If unchecked, it navigates directly to the post page like a normal link. Right-click/Cmd-click behavior is unaffected.
         </p>
       </div>
       
