@@ -74,8 +74,8 @@ const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 export const getPostDescription = (post: {
   contents?: { plaintextDescription: string | null } | null;
   customHighlight?: { plaintextDescription: string | null } | null;
-  socialPreviewData?: { text: string | null } | null;
-  shortform: boolean;
+  socialPreviewData?: { text?: string | null } | null;
+  shortform?: boolean | null;
   user: { displayName: string } | null;
 }) => {
   if (post.socialPreviewData?.text) {

@@ -80,9 +80,7 @@ export const CurationNoticesForm = ({
         result = data?.updateCurationNotice.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess?.(result);
     },

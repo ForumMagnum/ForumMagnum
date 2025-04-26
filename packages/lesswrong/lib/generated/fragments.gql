@@ -2270,6 +2270,9 @@ fragment PostsEdit on Post {
   }
   user {
     ...UsersMinimumInfo
+    moderationStyle
+    bannedUserIds
+    moderatorAssistance
   }
   usersSharedWith {
     ...UsersMinimumInfo
@@ -2805,22 +2808,14 @@ fragment RevisionDisplay on Revision {
 }
 
 fragment RevisionEdit on Revision {
-  _id
-  version
-  updateType
-  editedAt
-  userId
+  ...RevisionDisplay
   originalContents {
     type
     data
   }
-  html
   markdown
   draftJS
   ckEditorMarkup
-  wordCount
-  htmlHighlight
-  plaintextDescription
 }
 
 fragment RevisionHTML on Revision {

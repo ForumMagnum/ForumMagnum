@@ -88,9 +88,7 @@ export const LensForm = ({
         result = data?.updateMultiDocument.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

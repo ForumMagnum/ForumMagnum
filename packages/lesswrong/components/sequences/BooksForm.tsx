@@ -79,9 +79,7 @@ export const BooksForm = ({
         result = data?.updateBook.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess?.(result);
     },

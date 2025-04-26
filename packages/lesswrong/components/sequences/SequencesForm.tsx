@@ -85,9 +85,7 @@ export const SequencesForm = ({
         result = data?.updateSequence.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

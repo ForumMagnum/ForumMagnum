@@ -18,7 +18,7 @@ const styles = defineStyles('TanStackMuiTextField', (theme: ThemeType) => ({
   }
 }));
 
-interface TanStackMuiTextFieldProps<T extends string | number> {
+interface TanStackMuiTextFieldProps<T extends string | number | null> {
   field: TypedFieldApi<T>;
   label?: string;
   children?: ReactNode;
@@ -34,7 +34,7 @@ interface TanStackMuiTextFieldProps<T extends string | number> {
   overrideClassName?: string;
 }
 
-export function TanStackMuiTextField<T extends string | number>({
+export function TanStackMuiTextField<T extends string | number | null>({
   field,
   label,
   children,

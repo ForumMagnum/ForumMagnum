@@ -71,9 +71,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
         result = data?.updateTagFlag.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onClose?.();
     },

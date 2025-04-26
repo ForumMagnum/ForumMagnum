@@ -1,5 +1,5 @@
 import React, {FC, useCallback, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 import { userCanUseSharing } from '../../lib/betas';
@@ -8,14 +8,15 @@ import { SharingSettings, defaultSharingSettings } from '../../lib/collections/p
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import PropTypes from 'prop-types';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import { moderationEmail } from '../../lib/publicSettings';
-import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
+import { EditablePost, getPostCollaborateUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostSharingSettings', (theme: ThemeType) => ({
   linkSharingPreview: {
     fontFamily: theme.typography.fontFamily,
   },
@@ -74,7 +75,7 @@ const styles = (theme: ThemeType) => ({
   tooltipWrapped: {
     marginRight: 16
   }
-});
+}));
 
 const PostSharingIcon: FC<{
   className?: string,
@@ -98,17 +99,24 @@ const noSharePermissionTooltip = isFriendlyUI
   ? "You need at least 1 karma or to be approved by a moderator to share this post"
   : "You need at least 1 karma or to be approved by a mod to share";
 
-const PostSharingSettings = ({document, formType, value, updateCurrentValues, submitForm, classes}: FormComponentProps<SharingSettings> & {
-  document: PostsEditQueryFragment,
-  classes: ClassesType<typeof styles>
-}) => {
+interface PostSharingSettingsProps {
+  field: TypedFieldApi<SharingSettings, PostSubmitMeta>;
+  post: EditablePost;
+  formType: "new" | "edit";
+}
+
+export const PostSharingSettings = ({ field, post, formType }: PostSharingSettingsProps) => {
+  const classes = useStyles(styles);
+
+  const value = field.state.value;
+
   const {openDialog, closeDialog} = useDialog();
   const currentUser = useCurrentUser();
   const initialSharingSettings = value || defaultSharingSettings;
   const { flash } = useMessages();
   
   const onClickShare = useCallback(() => {
-    if (!document.title || !document.title.length) {
+    if (!post.title || !post.title.length) {
       flash("Please give this post a title before sharing.");
       return;
     }
@@ -122,7 +130,7 @@ const PostSharingSettings = ({document, formType, value, updateCurrentValues, su
     // either, it's a new, not-yet-edited post, and we have a separate error
     // message for that.
     // See also EditorFormComponent.
-    const editorType = (document as any).contents_type || (document as any).contents?.originalContents?.type;
+    const editorType = (post as any).contents_type || post.contents?.originalContents?.type;
     if (!editorType) {
       flash("Edit the document first to enable sharing");
       return;
@@ -133,36 +141,32 @@ const PostSharingSettings = ({document, formType, value, updateCurrentValues, su
     
     openDialog({
       name: "PostSharingSettingsDialog",
-      contents: ({onClose}) => <Components.PostSharingSettingsDialog
+      contents: ({onClose}) => <PostSharingSettingsDialog
         onClose={onClose}
-        post={document}
-        linkSharingKey={document.linkSharingKey ?? undefined}
+        post={post}
+        linkSharingKey={post.linkSharingKey ?? undefined}
         initialSharingSettings={initialSharingSettings}
         onConfirm={async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
-            await updateCurrentValues({
-              sharingSettings: newSharingSettings,
-              shareWithUsers: newSharedUsers
-            });
+            field.handleChange(newSharingSettings);
+            field.form.setFieldValue('shareWithUsers', newSharedUsers);
             
             // If this is an unbacked post (ie a new-post form,
             // no corresponding document ID yet), we're going to
             // mark it as a draft, then submit the form.
             if (formType==="new") {
-              await updateCurrentValues({ draft: true });
-              await submitForm(null, {redirectToEditor: true});
-            } else {
-              // Otherwise we're going to leave whether-this-is-a-draft
-              // unchanged, and subimt the form.
-              await submitForm(null, {redirectToEditor: true});
+              field.form.setFieldValue('draft', true);
             }
+            // Otherwise we're going to leave whether-this-is-a-draft
+            // unchanged, and subimt the form.
+            await field.form.handleSubmit({ redirectToEditor: true })
           }
           closeDialog();
         }}
-        initialShareWithUsers={document.shareWithUsers || []}
+        initialShareWithUsers={post.shareWithUsers || []}
       />
     });
-  }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
+  }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash]);
 
   const {LWTooltip, EAButton} = Components;
 
@@ -175,23 +179,24 @@ const PostSharingSettings = ({document, formType, value, updateCurrentValues, su
         disabled={!canUseSharing}
       >
         <PostSharingIcon className={classes.buttonInternalIcon} />
-        Share {document.draft ? " this draft" : ""}
+        Share {post.draft ? " this draft" : ""}
       </EAButton>
     </LWTooltip>
 }
 
-const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
+const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm}: {
   // postId: string,
-  post: PostsEditQueryFragment,
+  post: EditablePost,
   // linkSharingKey is only marked nullable for security-mindset reasons; in practice it's filled in by a callback and shouldn't be missing
   linkSharingKey?: string,
   initialSharingSettings: SharingSettings,
   initialShareWithUsers: string[],
   onClose: () => void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
-  classes: ClassesType<typeof styles>
 }) => {
   const { EditableUsersList, LWDialog, LWTooltip, MenuItem } = Components;
+
+  const classes = useStyles(styles);
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
   const [isChanged, setIsChanged] = useState(false);
@@ -300,14 +305,4 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
       </div>
     </div>
   </LWDialog>
-}
-
-const PostSharingSettingsComponent = registerComponent('PostSharingSettings', PostSharingSettings, {styles});
-const PostSharingSettingsDialogComponent = registerComponent('PostSharingSettingsDialog', PostSharingSettingsDialog, {styles});
-
-declare global {
-  interface ComponentTypes {
-    PostSharingSettings: typeof PostSharingSettingsComponent,
-    PostSharingSettingsDialog: typeof PostSharingSettingsDialogComponent
-  }
 }

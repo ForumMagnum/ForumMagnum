@@ -121,9 +121,7 @@ export const JargonTermForm = ({
         result = data?.updateJargonTerm.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

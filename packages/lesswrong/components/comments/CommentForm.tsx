@@ -110,8 +110,6 @@ interface CommentSubmitProps {
   type: string;
   loading: boolean;
   quickTakesSubmitButtonAtBottom?: boolean;
-  // submitLabel?: React.ReactNode;
-  // cancelLabel?: React.ReactNode;
 }
 
 interface InnerButtonProps {
@@ -285,9 +283,7 @@ export const CommentForm = ({
         throw error;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

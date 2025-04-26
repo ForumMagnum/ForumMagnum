@@ -80,9 +80,7 @@ export const ChaptersForm = ({
         result = data?.updateChapter.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

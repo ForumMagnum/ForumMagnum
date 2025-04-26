@@ -93,9 +93,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
       });
       result = data?.updateCollection.data;
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       successCallback(result);
     },

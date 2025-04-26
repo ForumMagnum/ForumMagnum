@@ -88,9 +88,7 @@ export const SpotlightForm = ({
         result = data?.updateSpotlight.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

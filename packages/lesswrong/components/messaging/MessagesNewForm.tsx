@@ -146,9 +146,7 @@ const InnerMessagesNewForm = ({
       const { data } = await create({ data: formApi.state.values });
       result = data?.createMessage.data;
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

@@ -126,9 +126,7 @@ export const TagForm = ({
         result = data?.updateTag.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

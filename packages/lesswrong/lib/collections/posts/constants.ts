@@ -153,3 +153,22 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 
 export const TOS_NOT_ACCEPTED_ERROR = 'You must accept the terms of use before you can publish this post';
 export const TOS_NOT_ACCEPTED_REMOTE_ERROR = 'You must read and accept the Terms of Use on the EA Forum in order to crosspost.  To do so, go to https://forum.effectivealtruism.org/newPost and accept the Terms of Use presented above the draft post.';
+
+export const MODERATION_GUIDELINES_OPTIONS = [
+  {
+    value: "",
+    label: "No Moderation",
+  },
+  {
+    value: "easy-going",
+    label: "Easy Going - I just delete obvious spam and trolling.",
+  },
+  {
+    value: "norm-enforcing",
+    label: "Norm Enforcing - I try to enforce particular rules (see below)",
+  },
+  {
+    value: "reign-of-terror",
+    label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
+  },
+];

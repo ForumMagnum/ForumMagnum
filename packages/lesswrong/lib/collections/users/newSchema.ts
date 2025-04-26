@@ -5083,7 +5083,7 @@ const schema = {
       hidden: true,
       group: () => formGroups.activity,
       order: 2,
-      control: "SelectLocalgroup",
+      // control: "SelectLocalgroup",
       label: "Organizer of",
       placeholder: 'Select groups to display',
       tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",

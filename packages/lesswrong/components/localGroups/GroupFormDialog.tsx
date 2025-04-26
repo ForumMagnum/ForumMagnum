@@ -142,9 +142,7 @@ const TanStackGroupForm = ({
         result = data?.updateLocalgroup.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

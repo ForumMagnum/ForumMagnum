@@ -289,7 +289,7 @@ export const postGetKarma = (post: PostsBase|DbPost): number => {
 //  2) The post does not exist yet
 //  Or if the post does exist
 //  3) The post doesn't have any comments yet
-export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
+export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post?: PostWithCommentCounts|null): boolean => {
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
 
@@ -321,7 +321,7 @@ export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: Coa
   return userIds.indexOf(user._id) >= 0;
 }
 
-export const isNotHostedHere = (post: PostsPage|DbPost) => {
+export const isNotHostedHere = (post: PostsEditQueryFragment|PostsPage|DbPost) => {
   return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
 }
 
@@ -437,4 +437,21 @@ export function isDialogueParticipant(userId: string, post: PostParticipantInfo)
   if (post.userId === userId) return true 
   if (getConfirmedCoauthorIds(post).includes(userId)) return true
   return false
+}
+
+export type EditablePost = UpdatePostDataInput & {
+  _id: string;
+  tags: Array<TagBasicInfo>;
+  autoFrontpage?: DbPost['autoFrontpage'];
+  socialPreviewData: Post['socialPreviewData'];
+  user: PostsEdit['user'];
+  commentCount: number;
+  afCommentCount: number;
+  contents: CreateRevisionDataInput & { html: string | null } | null;
+  debate: boolean;
+} & Pick<PostsListBase, 'postCategory' | 'createdAt'>;
+
+export interface PostSubmitMeta {
+  redirectToEditor?: boolean;
+  successCallback?: (editedPost: PostsEditMutationFragment) => void;
 }

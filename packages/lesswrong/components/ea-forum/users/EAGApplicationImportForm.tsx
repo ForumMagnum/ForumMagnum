@@ -487,7 +487,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
     })
   }
   
-  const { Typography, MultiSelect, EditorFormComponent, SelectLocalgroup, LocationPicker,
+  const { Typography, MultiSelect, EditorFormComponent, LocationPicker,
     PrefixedInput, ContentStyles, Loading } = Components
 
   if (!currentUser) {

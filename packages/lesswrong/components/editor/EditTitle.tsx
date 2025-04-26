@@ -1,14 +1,15 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useCallback, useState} from 'react';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { PostCategory } from '../../lib/collections/posts/helpers';
+import type { EditablePost, PostCategory } from '../../lib/collections/posts/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
+import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EditTitle', (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType) => ({
       overflowY: "hidden",
     },
   }
-})
+}));
 
 const placeholders: Record<PostCategory|"event", string> = {
   "post": "Post title",
@@ -38,17 +39,23 @@ const placeholders: Record<PostCategory|"event", string> = {
   "linkpost": "Linkpost title"
 }
 
-const EditTitle = ({document, value, path, updateCurrentValues, classes}: FormComponentProps<string> & {
-  document: PostsBase,
-  placeholder: string,
-  classes: ClassesType<typeof styles>
-}) => {
+interface EditTitleProps {
+  field: TypedFieldApi<string>;
+  document: EditablePost;
+}
+
+export const EditTitle = ({ field, document }: EditTitleProps) => {
+  const classes = useStyles(styles);
   const { flash } = useMessages()
-  const [lastSavedTitle, setLastSavedTitle] = useState<string|undefined>(document.title)
+  const [lastSavedTitle, setLastSavedTitle] = useState<string|undefined>(document.title ?? undefined)
+
+  const value = field.state.value;
+
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
   });
+
   const { isEvent, question, postCategory } = document;
 
   const effectiveCategory = isEvent ? "event" : question ? "question" as const : postCategory as PostCategory;
@@ -68,11 +75,7 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: FormCo
     className={classes.root}
     placeholder={displayPlaceholder}
     value={value}
-    onChange={(event) => {
-      void updateCurrentValues({
-        [path]: event.target.value
-      })
-    }}
+    onChange={(event) => field.handleChange(event.target.value)}
     onBlur={handleChangeTitle}
     disableUnderline
     multiline={
@@ -85,11 +88,3 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: FormCo
     }
   />
 };
-
-export const EditTitleComponent = registerComponent( "EditTitle", EditTitle, {styles} );
-
-declare global {
-  interface ComponentTypes {
-    EditTitle: typeof EditTitleComponent
-  }
-}

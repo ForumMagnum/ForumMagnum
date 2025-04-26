@@ -14,6 +14,7 @@ import { removeJargonDot } from './GlossarySidebar';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { JargonTermForm } from './JargonTermForm';
+import { EditablePost } from '@/lib/collections/posts/helpers';
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -282,7 +283,7 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
-  document: PostsEditQueryFragment,
+  document: EditablePost,
   showTitle?: boolean,
 }) => {
   const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;

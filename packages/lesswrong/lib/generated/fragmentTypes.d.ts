@@ -2121,10 +2121,16 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
     text: string | null,
   },
   readonly socialPreviewData: any,
-  readonly user: UsersMinimumInfo|null,
+  readonly user: PostsEdit_user|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
   readonly generateDraftJargon: boolean|null,
+}
+
+interface PostsEdit_user extends UsersMinimumInfo { // fragment on Users
+  readonly moderationStyle: string|null,
+  readonly bannedUserIds: Array<string>,
+  readonly moderatorAssistance: boolean|null,
 }
 
 interface PostsEditMutationFragment extends PostsEdit { // fragment on Posts
@@ -2580,20 +2586,11 @@ interface RevisionDisplay { // fragment on Revisions
   readonly plaintextDescription: string,
 }
 
-interface RevisionEdit { // fragment on Revisions
-  readonly _id: string,
-  readonly version: string,
-  readonly updateType: "initial" | "patch" | "minor" | "major" | null,
-  readonly editedAt: Date,
-  readonly userId: string|null,
+interface RevisionEdit extends RevisionDisplay { // fragment on Revisions
   readonly originalContents: any,
-  readonly html: string|null,
   readonly markdown: string|null,
   readonly draftJS: any,
   readonly ckEditorMarkup: string|null,
-  readonly wordCount: number,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
 }
 
 interface RevisionHTML { // fragment on Revisions

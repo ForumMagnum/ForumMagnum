@@ -484,9 +484,7 @@ export const ${className} = ({
         result = data?.update${collectionNameToTypeName[collectionName]}.data;
       }
       ${anyEditableFields ? `
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }`: ''}
+      onSuccessCallback.current?.(result);`: ''}
       
       onSuccess(result);
     },

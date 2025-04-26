@@ -100,13 +100,13 @@ interface TanStackEditorFormComponentProps<S, R> {
   hasToc?: boolean;
   setFieldEditorType?: (editorType: EditorTypeString) => void;
   addOnSubmitCallback: (fn: () => Promise<void>) => () => void;
-  addOnSuccessCallback: (fn: (result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => R) => () => void;
+  addOnSuccessCallback: (fn: (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
 }
 
 export function useEditorFormCallbacks<S, R>() {
   const onSubmitCallback = useRef<(() => Promise<void>)>();
-  const onSuccessCallback = useRef<((result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => R)>();
+  const onSuccessCallback = useRef<((result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void)>();
 
   const addOnSubmitCallback = (cb: () => Promise<void>) => {
     onSubmitCallback.current = cb;
@@ -115,7 +115,7 @@ export function useEditorFormCallbacks<S, R>() {
     };
   };
 
-  const addOnSuccessCallback = (cb: (result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => R) => {
+  const addOnSuccessCallback = (cb: (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void) => {
     onSuccessCallback.current = cb;
     return () => {
       onSuccessCallback.current = undefined;
@@ -503,7 +503,7 @@ function TanStackEditorInner<S, R>({
           field.setValue(updatedEditorData);
         }
       });
-      const cleanupSuccessForm = addOnSuccessCallback((result: R, submitOptions: { redirectToEditor?: boolean; noReload?: boolean }) => {
+      const cleanupSuccessForm = addOnSuccessCallback((result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => {
         getLocalStorageHandlers(currentEditorType).reset();
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
         if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {

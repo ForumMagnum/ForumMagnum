@@ -594,6 +594,9 @@ export const PostsEdit = () => frag`
     }
     user {
       ...UsersMinimumInfo
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
     }
     usersSharedWith {
       ...UsersMinimumInfo

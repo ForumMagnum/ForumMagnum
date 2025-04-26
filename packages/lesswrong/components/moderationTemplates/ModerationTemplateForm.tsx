@@ -78,9 +78,7 @@ export const ModerationTemplatesForm = ({
         result = data?.updateModerationTemplate.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess?.(result);
       formApi.reset(newFormDefaults);

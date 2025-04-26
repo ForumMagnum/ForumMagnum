@@ -100,7 +100,7 @@ const urlHintText = isEAForum
   ? "UrlHintText"
   : "Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don't click offsite links.)";
 
-const STICKY_PRIORITIES = {
+export const STICKY_PRIORITIES = {
   1: "Low",
   2: "Normal",
   3: "Elevated",
@@ -220,7 +220,7 @@ export interface SideCommentsResolverResult {
 /**
  * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
  */
-const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
+export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
   const currentKarmaThreshold = crosspostKarmaThreshold.get();
 
   return currentKarmaThreshold === null
@@ -537,7 +537,7 @@ const schema = {
       max: 500,
       form: { labels: { inactive: "Link-post?", active: "Add a linkpost URL" }, hintText: () => urlHintText },
       order: 12,
-      control: "EditLinkpostUrl",
+      // control: "EditLinkpostUrl",
       hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
       group: () => formGroups.options,
     },
@@ -562,7 +562,7 @@ const schema = {
     },
     form: {
       order: 9,
-      control: "EditPostCategory",
+      // control: "EditPostCategory",
       hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
       group: () => formGroups.category,
     },
@@ -581,7 +581,7 @@ const schema = {
     form: {
       max: 500,
       order: 10,
-      control: "EditTitle",
+      // control: "EditTitle",
       placeholder: "Title",
       group: () => formGroups.title,
     },
@@ -1842,7 +1842,7 @@ const schema = {
       },
     },
     form: {
-      control: "FormComponentPostEditorTagging",
+      // control: "FormComponentPostEditorTagging",
       hidden: ({ eventForm, document }) => eventForm || (isLWorAF && !!document?.collabEditorDialogue),
       group: () => formGroups.tags,
     },
@@ -2223,7 +2223,7 @@ const schema = {
       },
     },
     form: {
-      control: "PodcastEpisodeInput",
+      // control: "PodcastEpisodeInput",
       group: () => formGroups.audio,
     },
   },
@@ -2600,7 +2600,7 @@ const schema = {
     },
     form: {
       label: "Co-Authors",
-      control: "CoauthorsListEditor",
+      // control: "CoauthorsListEditor",
       group: () => formGroups.coauthors,
     },
   },
@@ -2698,7 +2698,7 @@ const schema = {
     form: {
       order: 4,
       label: "Social Preview Image",
-      control: "SocialPreviewUpload",
+      // control: "SocialPreviewUpload",
       hidden: ({ document }) => (isLWorAF && !!document?.collabEditorDialogue) || (isEAForum && !!document?.isEvent),
       group: () => formGroups.socialPreview,
     },
@@ -2758,7 +2758,7 @@ const schema = {
     },
     form: {
       order: 3,
-      control: "FMCrosspostControl",
+      // control: "FMCrosspostControl",
       hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
       group: () => formGroups.advancedOptions,
       tooltip: fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org") ?
@@ -3423,7 +3423,7 @@ const schema = {
     form: {
       order: 1,
       label: "Group",
-      control: "SelectLocalgroup",
+      // control: "SelectLocalgroup",
       hidden: isNotEventForm,
       group: () => formGroups.event,
     },
@@ -3940,7 +3940,7 @@ const schema = {
     form: {
       order: 15,
       label: "Sharing Settings",
-      control: "PostSharingSettings",
+      // control: "PostSharingSettings",
       hidden: (props) => !!props.debateForm,
       group: () => formGroups.category,
     },
@@ -4897,9 +4897,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Alignment Comment Count",
     },
   },
   afLastCommentedAt: {

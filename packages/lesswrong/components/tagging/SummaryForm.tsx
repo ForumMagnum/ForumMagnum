@@ -94,9 +94,7 @@ export const SummaryForm = ({
         result = data?.updateMultiDocument.data;
       }
 
-      if (onSuccessCallback.current) {
-        result = onSuccessCallback.current(result, {});
-      }
+      onSuccessCallback.current?.(result);
 
       onSuccess(result);
     },

@@ -8,6 +8,7 @@ import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
 import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { ClearInput } from './ClearInput';
 
 const styles = (theme: ThemeType) => ({
   input: {
@@ -336,7 +337,7 @@ const FormComponentDateTime = (
 }
 
 export const TanStackDatePicker = ({ field, label, name, below }: {
-  field: TypedFieldApi<Date | undefined>,
+  field: TypedFieldApi<Date | null>,
   label: string,
   name?: string,
   below?: boolean,
@@ -344,13 +345,16 @@ export const TanStackDatePicker = ({ field, label, name, below }: {
   const value = field.state.value;
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
 
-  return <Components.DatePicker
-    label={label}
-    name={name}
-    value={date}
-    onChange={field.handleChange}
-    below={below}
-  />
+  return (<>
+    <Components.DatePicker
+      label={label}
+      name={name}
+      value={date}
+      onChange={field.handleChange}
+      below={below}
+    />
+    <ClearInput clearField={() => field.handleChange(null)} />
+  </>);
 }
 
 const DatePickerComponent = registerComponent("DatePicker", DatePicker, {styles});

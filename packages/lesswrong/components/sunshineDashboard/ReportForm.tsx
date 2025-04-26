@@ -39,15 +39,17 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
     fragmentName: 'UnclaimedReportsList',
   });
 
+  const defaultValues = {
+    userId,
+    postId,
+    reportedUserId,
+    commentId,
+    link,
+    description: '',
+  };
+
   const form = useForm({
-    defaultValues: {
-      userId,
-      postId,
-      reportedUserId,
-      commentId,
-      link,
-      description: '',
-    },
+    defaultValues,
     onSubmit: async ({ value }) => {
       let result: UnclaimedReportsList;
 
@@ -73,7 +75,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
           <div className={classes.fieldWrapper}>
             <form.Field name="description">
               {(field) => (
-                <TanStackMuiTextField
+                <TanStackMuiTextField<string>
                   field={field}
                   placeholder="What are you reporting this comment for?"
                   label="Reason"

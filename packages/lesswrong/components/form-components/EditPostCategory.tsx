@@ -1,10 +1,11 @@
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import React, { useCallback, useRef } from "react";
-import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
 import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
-import { isPostCategory } from "../../lib/collections/posts/helpers";
+import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
+import React, { useCallback, useRef } from "react";
+import { EditablePost, isPostCategory } from "../../lib/collections/posts/helpers";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { TypedFieldApi } from "../tanstack-form-components/BaseAppForm";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EditPostCategory', (theme: ThemeType) => ({
   tabs: {
     width: "100%",
     "& .MuiTab-root": {
@@ -19,23 +20,14 @@ const styles = (theme: ThemeType) => ({
       gap: "24px",
     },
   },
-});
-const EditPostCategory = ({
-  document,
-  value,
-  path,
-  placeholder,
-  updateCurrentValues,
-  classes,
-}: {
-  document: PostsBase;
-  value: any;
-  path: string;
-  placeholder: string;
-  updateCurrentValues: Function;
-  classes: ClassesType<typeof styles>;
+}));
+
+export const EditPostCategory = ({ field, post }: {
+  field: TypedFieldApi<DbPost['postCategory']>;
+  post: EditablePost;
 }) => {
-  const { postCategory, url } = document;
+  const classes = useStyles(styles);
+  const { postCategory, url } = post;
   const lastUrlRef = useRef(url);
 
   const handleChangeTab = useCallback(
@@ -43,24 +35,25 @@ const EditPostCategory = ({
       if (!isPostCategory(value)) return; // Overkill but just to be safe
 
       const categoryQuestion = value === "question";
-      const documentQuestion = document.question;
+      const documentQuestion = post.question;
       const questionChanged = categoryQuestion !== documentQuestion;
 
       const isLinkpost = value === "linkpost";
 
+      field.handleChange(value);
+      if (questionChanged) {
+        field.form.setFieldValue('question', categoryQuestion);
+      }
+
       // Store the url value and restore it if they switch back to the linkpost tab
       if (!isLinkpost) {
-        lastUrlRef.current = document.url;
-        updateCurrentValues({ [path]: value, ...(questionChanged && { question: categoryQuestion }), url: "" });
+        lastUrlRef.current = post.url;
+        field.form.setFieldValue('url', '');
       } else {
-        updateCurrentValues({
-          [path]: value,
-          ...(questionChanged && { question: categoryQuestion }),
-          url: lastUrlRef.current,
-        });
+        field.form.setFieldValue('url', lastUrlRef.current);
       }
     },
-    [path, document.question, document.url, updateCurrentValues]
+    [post.question, post.url, field]
   );
 
   return (
@@ -77,11 +70,3 @@ const EditPostCategory = ({
     </Tabs>
   );
 };
-
-export const EditPostCategoryComponent = registerComponent("EditPostCategory", EditPostCategory, { styles });
-
-declare global {
-  interface ComponentTypes {
-    EditPostCategory: typeof EditPostCategoryComponent;
-  }
-}
