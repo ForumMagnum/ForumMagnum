@@ -35,6 +35,8 @@ export type ForumEventCommentMetadata = {
     voteWhenPublished: number
     /** 0 to 1, in the case where the vote hasn't changed, latestVote will be null and voteWhenPublished will have the latest vote */
     latestVote?: number | null
+    /** _id of the revision of the question when the comment was published */
+    pollQuestionWhenPublished?: string | null
   } | null
 }
 
@@ -81,9 +83,13 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
         optional: true,
         nullable: true
       },
+      pollQuestionWhenPublished: {
+        type: String,
+        optional: true,
+        nullable: true
+      }
     }),
     optional: true,
     nullable: true
   }
 });
-
