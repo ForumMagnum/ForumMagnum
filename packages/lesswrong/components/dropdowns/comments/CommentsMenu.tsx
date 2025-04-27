@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
-import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
+import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';

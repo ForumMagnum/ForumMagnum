@@ -193,6 +193,7 @@ interface DbComment extends DbObject {
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
     } | null,
   } | null
   hideAuthor: boolean
@@ -256,7 +257,7 @@ interface DbConversation extends DbObject {
   af: boolean | null
   archivedByIds: Array<string>
   createdAt: Date
-  latestActivity: Date | null
+  latestActivity: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   messageCount: number
   moderator: boolean | null
@@ -514,13 +515,14 @@ interface DbForumEvent extends DbObject {
   createdAt: Date
   customComponent: string | null
   darkColor: string
-  endDate: Date
+  endDate: Date | null
   eventFormat: "BASIC" | "POLL" | "STICKERS"
   frontpageDescription: EditableFieldContents | null
   frontpageDescriptionMobile: EditableFieldContents | null
   frontpageDescriptionMobile_latest: string | null
   frontpageDescription_latest: string | null
   includesPoll: boolean
+  isGlobal: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   lightColor: string
   maxStickersPerUser: number
@@ -1024,7 +1026,7 @@ interface DbPost extends DbObject {
   isFuture: boolean
   joinEventLink: string | null
   lastCommentPromotedAt: Date | null
-  lastCommentedAt: Date | null
+  lastCommentedAt: Date
   legacy: boolean
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   legacyId: string | null
@@ -1247,7 +1249,7 @@ interface DbRevision extends DbObject {
   createdAt: Date
   documentId: string | null
   draft: boolean | null
-  editedAt: Date | null
+  editedAt: Date
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   fieldName: string | null
   googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1703,7 +1705,7 @@ interface DbUser extends DbObject {
   defaultToCKEditor: boolean | null
   deleteContent: boolean | null
   deleted: boolean
-  displayName: string | null
+  displayName: string
   draftsListShowArchived: boolean | null
   draftsListShowShared: boolean | null
   draftsListSorting: string | null
@@ -2288,6 +2290,7 @@ interface DbUser extends DbObject {
   sortDraftsBy: string | null
   subforumPreferredLayout: "card" | "list" | null
   subscribedToDigest: boolean
+  subscribedToNewsletter: boolean
   sunshineFlagged: boolean
   sunshineNotes: string
   sunshineSnoozed: boolean

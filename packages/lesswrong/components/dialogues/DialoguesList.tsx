@@ -122,8 +122,8 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
   const dialogueSectionSettings = showSettings && (
     <DialoguesSectionFrontpageSettings
       hidden={false}
-      currentShowDialogues={currentUser.showDialoguesList}
-      currentShowMyDialogues={currentUser.showMyDialogues}
+      currentShowDialogues={!!currentUser.showDialoguesList}
+      currentShowMyDialogues={!!currentUser.showMyDialogues}
     />
   );
 

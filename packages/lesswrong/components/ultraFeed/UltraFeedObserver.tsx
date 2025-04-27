@@ -73,9 +73,12 @@ interface UltraFeedObserverContextType {
 
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
 
+// Minimum amount of the element (in pixels) that must be inside the viewport to
+// count as "visible enough" to register a view event.
+const MIN_VISIBLE_PX = 250;
+
 const VIEW_THRESHOLD_MS = 300;
-const LONG_VIEW_THRESHOLD_MS = 2500;
-const INTERSECTION_THRESHOLD = 0.5;
+const LONG_VIEW_THRESHOLD_MS = 2000;
 
 const documentTypeToCollectionName = {
   post: "Posts",
@@ -117,7 +120,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-    if (!currentUser || incognitoMode) return;
+    if (!currentUser) return;
     
     entries.forEach((entry) => {
       const element = entry.target;
@@ -127,7 +130,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         return;
       }
 
-      if (entry.isIntersecting && entry.intersectionRatio >= INTERSECTION_THRESHOLD) {
+      if (entry.isIntersecting) {
         if (!timerMapRef.current.has(element)) {
           if (!elementData) return;
           
@@ -181,7 +184,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         }
       }
     });
-  }, [logViewEvent, currentUser, incognitoMode]);
+  }, [logViewEvent, currentUser]);
 
   useEffect(() => {
     const currentTimerMap = timerMapRef.current;
@@ -189,9 +192,13 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
     const currentLongViewedItems = longViewedItemsRef.current;
     const currentShortViewedItems = shortViewedItemsRef.current;
 
+    // We shrink the effective viewport by MIN_VISIBLE_PX on the top and bottom.
+    // Consequently, `entry.isIntersecting === true` means the element has at
+    // least MIN_VISIBLE_PX pixels (or its full height if smaller) visible.
     observerRef.current = new IntersectionObserver(handleIntersection, {
       root: null,
-      threshold: INTERSECTION_THRESHOLD,
+      rootMargin: `-${MIN_VISIBLE_PX}px 0px -${MIN_VISIBLE_PX}px 0px`,
+      threshold: 0,
     });
     const observerInstance = observerRef.current;
 

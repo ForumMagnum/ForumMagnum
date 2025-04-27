@@ -2,46 +2,60 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { Link } from "../../lib/reactRouterWrapper";
-import { postGetLink, postGetKarma } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
-import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import classnames from "classnames";
 import { useSingle } from "../../lib/crud/withSingle";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
+import { useOverflowNav } from "./OverflowNavObserverContext";
+import { useDialog } from "../common/withDialog";
+import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
+import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
-    paddingTop: 12,
+    position: 'relative',
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
   },
+  mainContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  tripleDotMenu: {
+    opacity: 0.7,
+    position: 'absolute',
+    right: 2,
+    top: 5,
+    padding: 5,
+    marginLeft: 4,
+    "& svg": {
+      fontSize: 18,
+      cursor: "pointer",
+      color: theme.palette.text.dim,
+    }
+  },
   header: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    gap: '4px',
   },
-  titleRow: {
+  titleContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: 4,
     },
-  },
-  titleContainer: {
-    flexGrow: 1,
-    paddingRight: 8,
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -53,9 +67,13 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     width: '100%',
     '&:hover': {
       opacity: 0.9,
+      textDecoration: 'none',
+      cursor: 'pointer',
     },
+    flexGrow: 1,
+    paddingRight: 8,
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.6rem',
+      fontSize: 20.5,
     },
   },
   titleIsRead: {
@@ -64,64 +82,22 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       opacity: 0.9,
     },
   },
-  headerRightSection: {
-    display: "flex",
-    flexGrow: 0,
-    marginRight: -8,
-    marginTop: -10,
-  },
-  tripleDotMenu: {
-    padding: 5,
-    marginLeft: 4,
-    marginRight: -10,
-    "& svg": {
-      fontSize: "1.4rem",
-      cursor: "pointer",
-      color: theme.palette.text.dim,
-    }
-  },
-  metaRoot: {
-    marginTop: 4,
-    position: "relative",
+  metaRow: {
     display: "flex",
     flexWrap: "wrap",
-    alignItems: "center",
+    alignItems: "baseline",
     rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    "& > *": {
-      marginRight: 5,
-    },
-    "& a:hover, & a:active": {
-      textDecoration: "none",
-      color: `${theme.palette.linkHover.dim} !important`,
-    },
     [theme.breakpoints.down('sm')]: {
       fontSize: "1.3rem",
     },
-  },
-  metaLeftSection: {
-    display: "flex",
-    alignItems: "center",
-    flex: "1 1 auto",
-    minWidth: 0,
-    flexWrap: "wrap",
-  },
-  metaKarma: {
-    display: "inline-block",
-    textAlign: "center",
-    flexGrow: 0,
-    flexShrink: 0,
-    paddingRight: 8,
-    marginRight: 4,
   },
   metaDateContainer: {
     marginRight: 8,
   },
   footer: {
-    paddingTop: 12,
-    paddingBottom: 12,
   },
   loadingContainer: {
     display: "flex",
@@ -140,6 +116,63 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
 }));
 
+interface UltraFeedPostItemHeaderProps {
+  post: PostsListWithVotes;
+  isRead: boolean;
+  handleOpenDialog: (params?: { textFragment?: string }) => void;
+  postTitlesAreModals: boolean;
+}
+
+const UltraFeedPostItemHeader = ({
+  post,
+  isRead,
+  handleOpenDialog,
+  postTitlesAreModals,
+}: UltraFeedPostItemHeaderProps) => {
+  const { TruncatedAuthorsList, FormatDate } = Components;
+
+  const classes = useStyles(styles);
+  const authorListRef = useRef<HTMLDivElement>(null);
+
+  const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+      event.preventDefault();
+      handleOpenDialog();
+    }
+  };
+
+  return (
+    <div className={classes.header}>
+      <div className={classes.titleContainer}>
+        {postTitlesAreModals ? (
+          <a
+            href={postGetPageUrl(post)}
+            onClick={handleTitleClick}
+            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+          >
+            {post.title}
+          </a>
+        ) : (
+          <Link
+            to={postGetPageUrl(post)}
+            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+          >
+            {post.title}
+          </Link>
+        )}
+      </div>
+      <div className={classes.metaRow}>
+        <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
+        {post.postedAt && (
+          <span className={classes.metaDateContainer}>
+            <FormatDate date={post.postedAt} />
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const UltraFeedPostItem = ({
   post,
   postMetaInfo,
@@ -147,32 +180,41 @@ const UltraFeedPostItem = ({
   showKarma,
   settings = DEFAULT_SETTINGS,
 }: {
-  post: UltraFeedPostFragment,
+  post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
   index: number,
   showKarma?: boolean,
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading, TruncatedAuthorsList } = Components;
+  const { PostActionsButton, FeedContentBody, UltraFeedItemFooter, FormatDate, Loading, TruncatedAuthorsList, OverflowNavButtons } = Components;
 
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const metaLeftSectionRef = useRef<HTMLDivElement>(null);
+  const { openDialog } = useDialog();
+  const overflowNav = useOverflowNav(elementRef);
   const { captureEvent } = useTracking();
-  const { isAnon, authors } = usePostsUserAndCoauthors(post);
   const { recordPostView, isRead } = useRecordPostView(post);
   const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
-  const [isLoadingFull, setIsLoadingFull] = useState(false);
+  const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
+  const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost);
   const [shouldShowLoading, setShouldShowLoading] = useState(false);
-  const [expandLevel, setExpandLevel] = useState(0);
+  const [resetSig, setResetSig] = useState(0);
+
+
+  const apolloClient = useForeignApolloClient();
+  
+  const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
 
   const { document: fullPost, loading: loadingFullPost } = useSingle({
-    documentId: post._id,
+    documentId,
     collectionName: "Posts",
-    fragmentName: "PostsExpandedHighlight",
-    skip: !isLoadingFull,
+    apolloClient: isForeignCrosspost ? apolloClient : undefined,
+    fragmentName: isForeignCrosspost ? "PostsPage" : "UltraFeedPostFragment",
+    fetchPolicy: "cache-first",
+    skip: !isLoadingFull
   });
+
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -182,8 +224,6 @@ const UltraFeedPostItem = ({
   }, [observe, post._id]);
 
   const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
-    setExpandLevel(level);
-    
     // Start loading the full post on first expand
     if (level > 0 && !isLoadingFull && !fullPost) {
       setIsLoadingFull(true);
@@ -229,74 +269,81 @@ const UltraFeedPostItem = ({
     settings.postTruncationBreakpoints
   ]);
 
-  if (
-    !post?._id 
-    || !post.contents
-    || !post.contents.htmlHighlight
-    || !post.contents.wordCount
-    || post.contents.wordCount <= 0
-  ) {
-     return <div>No post content found for post with id: {post._id}</div>; 
+  const handleCollapse = () => {
+    setResetSig((s) => s + 1);
+  };
+
+  const handleOpenDialog = useCallback((params?: {textFragment?: string}) => {
+    const textFragment = params?.textFragment;
+    captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
+    openDialog({
+      name: "UltraFeedPostDialog",
+      closeOnNavigate: true,
+      contents: ({ onClose }) => (
+        <Components.UltraFeedPostDialog
+          {...(fullPost ? { post: fullPost } : { postId: post._id })}
+          textFragment={textFragment}
+          onClose={onClose}
+        />
+      )
+    });
+  }, [openDialog, post._id, captureEvent, fullPost]);
+
+  const displayHtml = fullPost?.contents?.html || post.contents?.htmlHighlight;
+  const displayWordCount = fullPost?.contents?.wordCount ?? post.contents?.wordCount;
+
+  if (!displayHtml) {
+    return <div>No post content found for post with id: {post._id}</div>; 
   }
 
-  const displayHtml = fullPost?.contents?.html || post.contents.htmlHighlight;
-  const displayWordCount = post.contents.wordCount;
+  // TODO: instead do something like set to 200 words and display and show warning
+  if (!displayWordCount) {
+    return <div>No word count found for post with id: {post._id}</div>;
+  }
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
-    <div ref={elementRef} className={classes.root}>
-      <div className={classes.header}>
-        <div className={classes.titleRow}>
-          <div className={classes.titleContainer}>
-            <Link to={postGetLink(post)} className={classnames(classes.title, { [classes.titleIsRead]: isRead })}>
-              {post.title}
-            </Link>
-            <div className={classes.metaRoot}>
-              <span className={classes.metaLeftSection} ref={metaLeftSectionRef}>
-                {showKarma && !post.rejected && <span className={classes.metaKarma}>
-                  {postGetKarma(post)}
-                </span>}
-                <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaLeftSectionRef} className={classes.authorsList} />
-                {post.postedAt && (
-                  <span className={classes.metaDateContainer}>
-                    <FormatDate date={post.postedAt} />
-                  </span>
-                )}
-              </span>
-            </div>
-          </div>
+    <div className={classes.root}>
+      <div ref={elementRef} className={classes.mainContent}>
+        <AnalyticsContext pageElementContext="tripleDotMenu">
+          <PostActionsButton
+            post={post}
+            vertical={true}
+            className={classes.tripleDotMenu}
+          />
+        </AnalyticsContext>
 
-          <span className={classes.headerRightSection}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostActionsButton
-                post={post}
-                vertical={true}
-                className={classes.tripleDotMenu}
-              />
-            </AnalyticsContext>
-          </span>
-        </div>
-      </div>
-
-      {shouldShowLoading && loadingFullPost ? (
-        <div className={classes.loadingContainer}>
-          <Loading />
-        </div>
-      ) : (
-        <FeedContentBody
+        <UltraFeedPostItemHeader
           post={post}
-          html={displayHtml}
-          breakpoints={settings.postTruncationBreakpoints}
-          initialExpansionLevel={0}
-          wordCount={displayWordCount}
-          linkToDocumentOnFinalExpand={true}
-          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-          onExpand={handleContentExpand}
-          hideSuffix={false}
+          isRead={isRead}
+          handleOpenDialog={handleOpenDialog}
+          postTitlesAreModals={settings.postTitlesAreModals}
         />
-      )}
-      
-      <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
+
+        {shouldShowLoading && loadingFullPost ? (
+          <div className={classes.loadingContainer}>
+            <Loading />
+          </div>
+        ) : (
+          <FeedContentBody
+            html={displayHtml}
+            breakpoints={settings.postTruncationBreakpoints}
+            initialExpansionLevel={0}
+            wordCount={displayWordCount}
+            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+            onContinueReadingClick={handleOpenDialog}
+            onExpand={handleContentExpand}
+            hideSuffix={false}
+            resetSignal={resetSig}
+          />
+        )}
+        {loadingFullPost && <div className={classes.loadingContainer}>
+          <Loading />
+        </div>}
+
+        <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
+      </div>
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={handleCollapse} />}
     </div>
     </AnalyticsContext>
   );

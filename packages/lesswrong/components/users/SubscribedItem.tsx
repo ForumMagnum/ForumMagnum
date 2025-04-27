@@ -39,8 +39,9 @@ const SubscribedItem = ({
 }) => {
   const {Loading, NotifyMeButton} = Components;
   const {document, loading} = useSingle({
-    documentId: subscription.documentId,
+    documentId: subscription.documentId ?? undefined,
     collectionName, fragmentName,
+    skip: !subscription.documentId,
   });
 
   if (!document && !loading) {

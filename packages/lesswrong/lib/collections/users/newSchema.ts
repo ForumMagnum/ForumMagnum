@@ -905,9 +905,10 @@ const schema = {
   displayName: {
     database: {
       type: "TEXT",
+      nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       // On the EA Forum name changing is rate limited in rateLimitCallbacks
       canUpdate: ["sunshineRegiment", "admins", isEAForum ? 'members' : userHasntChangedName],
@@ -3197,7 +3198,29 @@ const schema = {
       },
     },
     form: {
-      label: "Subscribe to the EA Forum Digest emails",
+      label: "Subscribe to the EA Forum Digest emails — once a week curated posts from the Forum",
+      hidden: !isEAForum,
+      group: () => formGroups.emails,
+    },
+  },
+  subscribedToNewsletter: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["members"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+    form: {
+      label: "Subscribe to the EA Newsletter — once a month emails with content from around the web",
       hidden: !isEAForum,
       group: () => formGroups.emails,
     },

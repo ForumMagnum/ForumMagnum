@@ -40,7 +40,7 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 function identifyUserToSentry(user: UsersCurrent | null) {
   // Set user in sentry scope, or clear user if they have logged out
   Sentry.configureScope((scope) => {
-    scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username} : null);
+    scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username ?? undefined} : null);
   });
 }
 

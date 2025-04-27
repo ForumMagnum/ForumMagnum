@@ -72,7 +72,7 @@ const AFSuggestPostsItem = ({post, classes}: {
   if (!currentUser) return null;
 
   const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
-  const userHasSelfSuggested = post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId)
+  const userHasSelfSuggested = post.suggestForAlignmentUsers && post.userId && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId)
 
   return (
     <span {...eventHandlers}>

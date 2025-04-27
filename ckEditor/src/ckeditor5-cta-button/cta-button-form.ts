@@ -14,7 +14,6 @@ import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
 import type { Editor } from "@ckeditor/ckeditor5-core";
 import type { Locale } from "@ckeditor/ckeditor5-utils";
 import type { Element } from "@ckeditor/ckeditor5-engine";
-import type { KeyEventData } from "@ckeditor/ckeditor5-engine/src/view/observer/keyobserver";
 import type Writer from "@ckeditor/ckeditor5-engine/src/model/writer";
 
 import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";

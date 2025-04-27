@@ -488,6 +488,7 @@ export const ForumEventsDefaultFragment = `
     postId
     bannerImageId
     includesPoll
+    isGlobal
     eventFormat
     pollQuestion_latest
     pollAgreeWording
@@ -1692,6 +1693,7 @@ export const UsersDefaultFragment = `
     karmaChangeBatchStart
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     hideSubscribePoke
     hideMeetupsPoke

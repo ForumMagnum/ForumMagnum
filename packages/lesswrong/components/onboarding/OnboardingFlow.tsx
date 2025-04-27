@@ -25,7 +25,7 @@ const OnboardingFlow = ({stages, viewAsAdmin, classes}: {
 
   useEffect(() => {
     // Set `isOnboarding` to true after a new user signs up.
-    setIsOnboarding((currentValue) => currentValue || currentUser?.usernameUnset)
+    setIsOnboarding((currentValue) => currentValue || !!currentUser?.usernameUnset)
   }, [currentUser?.usernameUnset])
 
   const onOnboardingComplete = useCallback(() => {

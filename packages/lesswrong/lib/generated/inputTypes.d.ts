@@ -2724,7 +2724,7 @@ interface CreateForumEventDataInput {
   postPageDescription?: any;
   title: string;
   startDate: Date;
-  endDate: Date;
+  endDate?: Date | null;
   darkColor: string;
   lightColor: string;
   bannerTextColor: string;
@@ -2733,6 +2733,7 @@ interface CreateForumEventDataInput {
   postId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
+  isGlobal: boolean;
   eventFormat?: string | null;
   pollQuestion?: any;
   pollAgreeWording?: string | null;
@@ -2763,6 +2764,7 @@ interface UpdateForumEventDataInput {
   postId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
+  isGlobal?: boolean | null;
   eventFormat?: string | null;
   pollQuestion?: any;
   pollAgreeWording?: string | null;
@@ -2770,6 +2772,7 @@ interface UpdateForumEventDataInput {
   maxStickersPerUser?: number | null;
   customComponent?: string | null;
   commentPrompt?: string | null;
+  publicData?: any;
 }
 
 interface UpdateForumEventInput {
@@ -3969,7 +3972,7 @@ interface CreateUserDataInput {
   biography?: any;
   username?: string | null;
   isAdmin?: boolean | null;
-  displayName?: string | null;
+  displayName: string;
   previousDisplayName?: string | null;
   email?: string | null;
   groups?: Array<string> | null;
@@ -4063,6 +4066,7 @@ interface CreateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -4235,6 +4239,7 @@ interface UpdateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;

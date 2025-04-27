@@ -11,41 +11,49 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     position: "relative",
     display: "flex",
     flexWrap: "wrap",
-    marginBottom: 8,
+    flexDirection: 'column',
     
-    alignItems: "center",
-    rowGap: "6px",
+    alignItems: "baseline",
+    justifyContent: 'space-between',
     color: `${theme.palette.ultraFeed.dim} !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
-      fontSize: "1.3rem !important",
+      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
     "& > *": {
-      marginRight: 5,
     },
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: `${theme.palette.linkHover.dim} !important`,
     },
   },
-  leftSection: {
-    display: "flex",
-    alignItems: "center",
-    flexGrow: 1,
-    flexWrap: "wrap",
+  metaRow: {
+    display: 'flex',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    position: 'relative',
+    width: '100%',
+  },
+  tripleDotMenu: {
+    opacity: 0.7,
+    position: 'absolute',
+    right: -10,
+    top: 4,
+
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+      right: 0,
+    },
   },
   commentShortformIconContainer: {
-    marginRight: 2,
-    marginBottom: -2
+    position: 'relative',
+    bottom: 0,
   },
   commentShortformIcon: {
-    [theme.breakpoints.up('md')]: {
-      color: theme.palette.ultraFeed.dim,
-      cursor: "pointer",
-      height: 16,
-      marginRight: 4,
-      width: 16,
-      marginLeft: -2,
+    position: 'relative',
+    [theme.breakpoints.down('sm')]: {
+      bottom: 10
     },
   },
   username: {
@@ -56,47 +64,118 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     },
     fontWeight: 600,
   },
-  rightSection: {
-    display: "flex",
-    flexGrow: 0,
-    marginRight: -2,
-    [theme.breakpoints.down('sm')]: {
-      marginRight: 0,
-    },
-  },
-  menu: {
-    marginLeft: 4,
-    marginRight: -10
-  },
   moderatorHat: {
     marginLeft: 10,
   },
   newContentDateStyling: {
   },
   date: {
+    marginRight: 24,
     fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       ...theme.typography.ultraFeedMobileStyle,
     },
   },
+  metaRowPostTitle: {
+    maxWidth: '70%',
+    position: 'relative',
+    marginLeft: 'auto',
+    marginRight: 16,
+    cursor: 'pointer',
+    overflow: "hidden",
+    wordBreak: 'break-all',
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 1,
+  },
+  inlinePostTitle: {
+    marginTop: 8,
+    marginRight: 12,
+    color: theme.palette.link.dim,
+    fontSize: theme.typography.body2.fontSize,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontStyle: 'italic',
+    textWrap: 'balance',
+    cursor: 'pointer',
+    overflow: "hidden",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
+    },
+  },
+  postTitleReplyTo: {
+    marginRight: 4,
+  },
+  postTitleLinkOrButtonSpan: {
+    color: theme.palette.primary.main,
+  },
+  hideOnDesktop: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'unset',
+    },
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
 }));
+
+const ReplyingToTitle = ({comment, showInLineCommentThreadTitle, onPostTitleClick, mobile}: {
+  comment: UltraFeedComment,
+  showInLineCommentThreadTitle?: boolean,
+  onPostTitleClick?: () => void,
+  mobile?: boolean,
+}) => {
+  const classes = useStyles(styles);
+
+  const { post } = comment;
+
+  if (!showInLineCommentThreadTitle || !post || post?.shortform) {
+    return null;
+  }
+  return (
+    <div 
+      className={classNames({
+        [classes.metaRowPostTitle]: !mobile,
+        [classes.hideOnMobile]: !mobile,
+        [classes.inlinePostTitle]: mobile,
+        [classes.hideOnDesktop]: mobile,
+      })}
+      onClick={onPostTitleClick}
+    >
+      {mobile && <span className={classes.postTitleReplyTo}>Replying to</span>}
+      <span className={classes.postTitleLinkOrButtonSpan} >
+        {post.title}
+      </span>
+    </div>
+  )
+}
 
 const UltraFeedCommentsItemMeta = ({
   comment,
   setShowEdit,
   hideDate,
   hideActionsMenu,
+  showInLineCommentThreadTitle,
+  onPostTitleClick,
 }: {
   comment: UltraFeedComment,
   setShowEdit?: () => void,
   hideDate?: boolean,
   hideActionsMenu?: boolean,
+  showInLineCommentThreadTitle?: boolean,
+  onPostTitleClick?: () => void,
 }) => {
   const classes = useStyles(styles);
   const { CommentsMenu, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components;
 
   const currentUser = useCurrentUser();
   const { post } = comment;
+
   if (!post) {
     return null;
   }
@@ -115,36 +194,32 @@ const UltraFeedCommentsItemMeta = ({
 
   return (
     <div className={classes.root}>
-      <span className={classes.leftSection}>
-        {comment.shortform && <div className={classes.commentShortformIconContainer}>
-          <CommentShortformIcon comment={comment} post={post} iconClassName={classes.commentShortformIcon}/>
-        </div>}
-        <CommentUserName
-          comment={comment}
-          className={classes.username}
-        />
-        {!hideDate && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
-          <CommentsItemDate comment={comment} post={post} className={classes.date}/>
-        </span>}
-        {showModeratorCommentAnnotation &&
-          <span className={classes.moderatorHat}>
-            {moderatorCommentAnnotation}
-          </span>
-        }
-      </span>
-
-      <span className={classes.rightSection}>
-        {!hideActionsMenu && setShowEdit &&
+      <div className={classes.tripleDotMenu}>
+        {!hideActionsMenu && setShowEdit && post &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu
-              className={classes.menu}
-              comment={comment}
-              post={post}
-              showEdit={setShowEdit}
-            />
+            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} />
           </AnalyticsContext>
         }
-      </span>
+      </div>
+      <div className={classes.metaRow}>
+          {comment.shortform && post && <div className={classes.commentShortformIconContainer}>
+            <CommentShortformIcon comment={comment} post={post} iconClassName={classes.commentShortformIcon}/>
+          </div>}
+          <CommentUserName
+            comment={comment}
+            className={classes.username}
+          />
+          {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
+            <CommentsItemDate comment={comment} post={post} className={classes.date}/>
+          </span>}
+          {showModeratorCommentAnnotation &&
+            <span className={classes.moderatorHat}>
+              {moderatorCommentAnnotation}
+            </span>
+          }
+          <ReplyingToTitle mobile={false} comment={comment} showInLineCommentThreadTitle={showInLineCommentThreadTitle} onPostTitleClick={onPostTitleClick} />
+      </div>
+      <ReplyingToTitle mobile={true} comment={comment} showInLineCommentThreadTitle={showInLineCommentThreadTitle} onPostTitleClick={onPostTitleClick} />
     </div>
   );
 };
