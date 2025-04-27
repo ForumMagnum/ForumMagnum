@@ -493,7 +493,7 @@ export const SpotlightItem = ({
   const {
     MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
     WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
-    Typography, LWTooltip, ForumIcon, CommentsNode
+    Typography, LWTooltip, ForumIcon, CommentsNode, UsersNameDisplay
   } = Components
 
   const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle
@@ -545,8 +545,8 @@ export const SpotlightItem = ({
                   />
                 }
               </div>}
-              {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
-                by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
+              {spotlight.showAuthor && spotlightDocument?.user && spotlight.post && <Typography variant='body2' className={classes.author}>
+                by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}><UsersNameDisplay user={spotlightDocument?.user as UsersMinimumInfo} /></Link> {spotlight.post?.contents?.wordCount ? Math.round(spotlight.post?.contents?.wordCount / 300) : 0} min read
               </Typography>}
               <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
             </div>

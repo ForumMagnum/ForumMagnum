@@ -10305,6 +10305,9 @@ fragment SpotlightDisplay on Spotlight {
   ...SpotlightMinimumInfo
   post {
     ...PostsMinimumInfo
+    contents {
+      wordCount
+    }
     user {
       _id
       displayName

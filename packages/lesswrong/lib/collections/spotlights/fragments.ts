@@ -58,6 +58,9 @@ export const SpotlightDisplay = () => frag`
     ...SpotlightMinimumInfo
     post {
       ...PostsMinimumInfo
+      contents {
+        wordCount
+      }
       user {
         _id
         displayName
