@@ -12,6 +12,7 @@ import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
 import { TanStackEditor, useEditorFormCallbacks } from "../tanstack-form-components/TanStackEditor";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('SummaryForm', (theme: ThemeType) => ({
   defaultFormSection: {
@@ -72,6 +73,8 @@ export const SummaryForm = ({
     fragmentName: 'MultiDocumentContentDisplay',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -80,23 +83,27 @@ export const SummaryForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: MultiDocumentContentDisplay;
+      try {
+        let result: MultiDocumentContentDisplay;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createMultiDocument.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateMultiDocument.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createMultiDocument.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateMultiDocument.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -110,6 +117,7 @@ export const SummaryForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.defaultFormSection}>
         <div className='input-tabTitle'>
           <form.Field name="tabTitle">

@@ -11,6 +11,7 @@ import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
 import { TanStackEditor, useEditorFormCallbacks } from "../tanstack-form-components/TanStackEditor";
 import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 interface CurationNoticesFormProps {
   initialData?: UpdateCurationNoticeDataInput & { _id: string; };
@@ -55,6 +56,8 @@ export const CurationNoticesForm = ({
     fragmentName: 'CurationNoticesFragment',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -66,23 +69,27 @@ export const CurationNoticesForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: CurationNoticesFragment;
+      try {
+        let result: CurationNoticesFragment;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createCurationNotice.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateCurationNotice.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createCurationNotice.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateCurationNotice.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess?.(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess?.(result);
     },
   });
 
@@ -96,7 +103,7 @@ export const CurationNoticesForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      {/* TODO: add custom validation (simpleSchema present) */}
+      {displayedErrorComponent}
       <div className={classes.fieldWrapper}>
         <form.Field name="contents">
           {(field) => (

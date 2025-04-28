@@ -1,7 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
-const surveyScheduleTargets = [
+export const surveyScheduleTargets = [
   { value: "allUsers", label: "All users" },
   { value: "loggedInOnly", label: "Logged-in users only" },
   { value: "loggedOutOnly", label: "Logged-out users only" },
@@ -30,7 +30,7 @@ const schema = {
   },
   survey: {
     graphql: {
-      outputType: "Survey!",
+      outputType: "Survey",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Surveys", fieldName: "surveyId" }),
     },
@@ -205,7 +205,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]",
-      inputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],

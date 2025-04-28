@@ -16,6 +16,7 @@ import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-compone
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
 import { TanStackSelect } from '../tanstack-form-components/TanStackSelect';
+import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -162,13 +163,15 @@ export const UserRateLimitsForm = ({
 
   const { create } = useCreate({
     collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitDisplay', // TODO: use correct fragment type
+    fragmentName: 'UserRateLimitDisplay',
   });
 
   const { mutate } = useUpdate({
     collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitDisplay', // TODO: use correct fragment type
+    fragmentName: 'UserRateLimitDisplay',
   });
+
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
@@ -176,21 +179,25 @@ export const UserRateLimitsForm = ({
       ...(formType === 'new' ? prefilledProps : {})
     },
     onSubmit: async ({ value, formApi }) => {
-      let result: UserRateLimitDisplay;
+      try {
+        let result: UserRateLimitDisplay;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: value });
-        result = data?.createUserRateLimit.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateUserRateLimit.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: value });
+          result = data?.createUserRateLimit.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateUserRateLimit.data;
+        }
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccess(result);
     },
   });
 
@@ -204,6 +211,7 @@ export const UserRateLimitsForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.defaultFormSection}>
         <div className={classNames('input-type', classes.fieldWrapper)}>
           <form.Field name="type">

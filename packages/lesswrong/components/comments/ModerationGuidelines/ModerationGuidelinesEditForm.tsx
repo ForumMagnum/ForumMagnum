@@ -14,6 +14,7 @@ import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSe
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useSingle } from '@/lib/crud/withSingle';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('ModerationGuidelinesEditForm', (theme: ThemeType) => ({
   formButton: {
@@ -62,6 +63,8 @@ const PostModerationGuidelinesForm = ({
     fragmentName: isPost ? 'PostsPage' : 'TagWithFlagsFragment',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -69,17 +72,21 @@ const PostModerationGuidelinesForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result;
+      try {
+        let result;
 
-      const updatedFields = getUpdatedFieldValues(formApi, ['moderationGuidelines']);
-      const { data } = await mutate({
-        selector: { _id: initialData?._id },
-        data: updatedFields,
-      });
-      result = data?.updatePost.data;
+        const updatedFields = getUpdatedFieldValues(formApi, ['moderationGuidelines']);
+        const { data } = await mutate({
+          selector: { _id: initialData?._id },
+          data: updatedFields,
+        });
+        result = data?.updatePost.data;
 
-      onSuccessCallback.current?.(result);
-      onSuccess?.();
+        onSuccessCallback.current?.(result);
+        onSuccess?.();
+      } catch (error) {
+        setCaughtError(error);
+      }
     },
   });
 
@@ -88,6 +95,7 @@ const PostModerationGuidelinesForm = ({
     e.stopPropagation();
     void form.handleSubmit();
   }}>
+    {displayedErrorComponent}
     <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
       <form.Field name="moderationGuidelines">
         {(field) => (

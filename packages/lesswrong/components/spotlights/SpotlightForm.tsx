@@ -16,6 +16,7 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
 import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
 import { TanStackColorPicker } from "../tanstack-form-components/TanStackColorPicker";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('SpotlightForm', (theme: ThemeType) => ({
   defaultFormSection: {
@@ -66,6 +67,8 @@ export const SpotlightForm = ({
   ? { documentType: 'Sequence' as const, duration: 3, lastPromotedAt: new Date(0), draft: true, imageFade: true }
   : {};
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -74,23 +77,27 @@ export const SpotlightForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: SpotlightEditQueryFragment;
+      try {
+        let result: SpotlightEditQueryFragment;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createSpotlight.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['description']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateSpotlight.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createSpotlight.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['description']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateSpotlight.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -104,6 +111,7 @@ export const SpotlightForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.defaultFormSection}>
         {!descriptionOnly && <>
           <div className={classNames('input-documentId', inputFieldClass)}>

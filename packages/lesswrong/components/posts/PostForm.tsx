@@ -42,6 +42,7 @@ import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
 import { DialogueSubmit } from "./dialogues/DialogueSubmit";
 import { PostSubmit } from "./PostSubmit";
 import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -141,6 +142,8 @@ export const PostForm = ({
     fragmentName: 'PostsEditMutationFragment',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -153,27 +156,31 @@ export const PostForm = ({
         onSubmitCallbackModerationGuidelines.current?.(),
       ]);
 
+      try {
       let result: PostsEditMutationFragment;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createPost.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents', 'customHighlight', 'moderationGuidelines']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updatePost.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createPost.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents', 'customHighlight', 'moderationGuidelines']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updatePost.data;
+        }
+
+        onSuccessCallback.current?.(result, meta);
+        onSuccessCallbackCustomHighlight.current?.(result, meta);
+        onSuccessCallbackModerationGuidelines.current?.(result, meta);
+
+        meta.successCallback?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result, meta);
-      onSuccessCallbackCustomHighlight.current?.(result, meta);
-      onSuccessCallbackModerationGuidelines.current?.(result, meta);
-
-      meta.successCallback?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -218,7 +225,6 @@ export const PostForm = ({
     </LegacyFormGroupLayout>
   );
 
-
   const postSubmit = <form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting, draft: s.values.draft })}>
     {({ canSubmit, isSubmitting, draft }) => {
       const draftLabel = getDraftLabel({ draft });
@@ -247,14 +253,13 @@ export const PostForm = ({
     }}
   </form.Subscribe>;
 
-   
-
   return (
     <form className="vulcan-form" onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <FormGroupPostTopBar>
         {!(isEvent || isDialogue) && <div className={classNames('form-input', classes.fieldWrapper)}>
           <form.Field name="postCategory">

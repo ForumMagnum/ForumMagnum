@@ -2,6 +2,7 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { useFormSubmitOnCmdEnter } from "@/components/hooks/useFormSubmitOnCmdEnter";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useWarnAboutUnsavedChanges } from "@/components/hooks/useWarnAboutUnsavedChanges";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { TanStackEditor, useEditorFormCallbacks } from "@/components/tanstack-form-components/TanStackEditor";
@@ -63,6 +64,8 @@ export const LensForm = ({
     fragmentName: 'MultiDocumentEdit',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -74,23 +77,27 @@ export const LensForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: MultiDocumentEdit;
+      try {
+        let result: MultiDocumentEdit;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createMultiDocument.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateMultiDocument.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createMultiDocument.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateMultiDocument.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -110,6 +117,7 @@ export const LensForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classNames('input-title', 'form-input', classes.fieldWrapper)}>
         <form.Field name="title">
           {(field) => (

@@ -8,6 +8,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
 import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
+import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 
 const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -39,6 +40,8 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
     fragmentName: 'UnclaimedReportsList',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const defaultValues = {
     userId,
     postId,
@@ -51,12 +54,16 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
   const form = useForm({
     defaultValues,
     onSubmit: async ({ value }) => {
-      let result: UnclaimedReportsList;
+      try {
+        let result: UnclaimedReportsList;
 
-      const { data } = await create({ data: value });
-      result = data?.createReport.data;
+        const { data } = await create({ data: value });
+        result = data?.createReport.data;
 
-      handleSubmit();
+        handleSubmit();
+      } catch (error) {
+        setCaughtError(error);
+      }
     },
   });
 
@@ -72,6 +79,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
           e.stopPropagation();
           void form.handleSubmit();
         }}>
+          {displayedErrorComponent}
           <div className={classes.fieldWrapper}>
             <form.Field name="description">
               {(field) => (

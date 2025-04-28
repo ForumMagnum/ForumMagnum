@@ -16,6 +16,7 @@ import { isLWorAF } from '@/lib/instanceSettings';
 import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
 import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 
 const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -41,6 +42,8 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
     fragmentName: 'ConversationsList',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...conversation,
@@ -48,10 +51,14 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
     onSubmit: async ({ value, formApi }) => {
       const updatedFields = getUpdatedFieldValues(formApi);
 
-      await mutate({
-        selector: { _id: conversation._id },
-        data: updatedFields,
-      });
+      try {
+        await mutate({
+          selector: { _id: conversation._id },
+          data: updatedFields,
+        });
+      } catch (error) {
+        setCaughtError(error);
+      }
 
       onClose?.();
     },
@@ -65,6 +72,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
         e.stopPropagation();
         void form.handleSubmit();
       }}>
+        {displayedErrorComponent}
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (

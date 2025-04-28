@@ -14,6 +14,7 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { TanStackPostsListEditor } from "../tanstack-form-components/TanStackPostsListEditor";
 import { TanStackSequencesListEditor } from "../tanstack-form-components/TanStackSequencesListEditor";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('BooksForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -57,6 +58,8 @@ export const BooksForm = ({
     fragmentName: 'BookPageFragment',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -65,23 +68,27 @@ export const BooksForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: BookPageFragment;
+      try {
+        let result: BookPageFragment;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createBook.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateBook.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createBook.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateBook.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess?.(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess?.(result);
     },
   });
 
@@ -95,6 +102,7 @@ export const BooksForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="contents">
           {(field) => (

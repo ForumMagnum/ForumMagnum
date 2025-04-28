@@ -15,6 +15,7 @@ import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
 import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-components/TanStackEditor';
 import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
 import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
+import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 
 const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -50,6 +51,8 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
     fragmentName: 'TagFlagFragment',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -57,23 +60,27 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: TagFlagFragment;
+      try {
+        let result: TagFlagFragment;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createTagFlag.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateTagFlag.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createTagFlag.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateTagFlag.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onClose?.();
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onClose?.();
     },
   });
 
@@ -97,6 +104,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
           e.stopPropagation();
           void form.handleSubmit();
         }}>
+          {displayedErrorComponent}
           <div className={classes.fieldWrapper}>
             <form.Field name="name">
               {(field) => (

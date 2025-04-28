@@ -14,6 +14,7 @@ import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
 import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -56,6 +57,8 @@ export const ModerationTemplatesForm = ({
   ? { order: 10 }
   : {};
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -64,24 +67,28 @@ export const ModerationTemplatesForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: ModerationTemplateFragment;
+      try {
+        let result: ModerationTemplateFragment;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createModerationTemplate.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateModerationTemplate.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createModerationTemplate.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateModerationTemplate.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess?.(result);
+        formApi.reset(newFormDefaults);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess?.(result);
-      formApi.reset(newFormDefaults);
     },
   });
 
@@ -95,6 +102,7 @@ export const ModerationTemplatesForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (

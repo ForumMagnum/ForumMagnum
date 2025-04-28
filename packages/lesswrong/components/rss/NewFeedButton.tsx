@@ -10,6 +10,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
 import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
 import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
+import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,15 +49,21 @@ const RSSFeedsForm = ({
     userId,
   };
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues,
     onSubmit: async ({ value }) => {
-      let result: newRSSFeedFragment;
+      try {
+        let result: newRSSFeedFragment;
 
-      const { data } = await create({ data: value });
-      result = data?.createRSSFeed.data;
+        const { data } = await create({ data: value });
+        result = data?.createRSSFeed.data;
 
-      onSuccess(result);
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
+      }
     },
   });
 
@@ -66,6 +73,7 @@ const RSSFeedsForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.fieldWrapper}>
         <form.Field name="nickname">
           {(field) => (

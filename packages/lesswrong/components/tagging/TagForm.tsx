@@ -23,6 +23,7 @@ import { TanStackTagSelect } from "../tanstack-form-components/TanStackTagSelect
 import { TanStackUserMultiselect } from "../tanstack-form-components/TanStackUserMultiSelect";
 import SummariesEditForm from "./SummariesEditForm";
 import { useCurrentUser } from "../common/withUser";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -104,6 +105,8 @@ export const TagForm = ({
     fragmentName: 'TagWithFlagsFragment',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -112,23 +115,27 @@ export const TagForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: TagWithFlagsFragment;
+      try {
+        let result: TagWithFlagsFragment;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createTag.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['description', 'moderationGuidelines', 'subforumWelcomeText']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateTag.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createTag.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['description', 'moderationGuidelines', 'subforumWelcomeText']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateTag.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -142,6 +149,7 @@ export const TagForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (

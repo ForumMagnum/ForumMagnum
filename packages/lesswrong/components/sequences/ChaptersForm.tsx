@@ -12,6 +12,7 @@ import { TanStackPostsListEditor } from "../tanstack-form-components/TanStackPos
 import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -58,6 +59,8 @@ export const ChaptersForm = ({
     fragmentName: 'ChaptersEdit',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -66,23 +69,27 @@ export const ChaptersForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: ChaptersEdit;
+      try {
+        let result: ChaptersEdit;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createChapter.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateChapter.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createChapter.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateChapter.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -96,6 +103,7 @@ export const ChaptersForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="contents">
           {(field) => (

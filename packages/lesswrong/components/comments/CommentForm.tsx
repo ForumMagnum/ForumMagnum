@@ -27,6 +27,7 @@ import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
 import { useDialog } from "../common/withDialog";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -255,6 +256,8 @@ export const CommentForm = ({
     fragmentName: 'CommentsList',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -264,9 +267,9 @@ export const CommentForm = ({
       await onSubmitCallback.current?.();
       onSubmit?.();
 
-      let result: CommentsList;
-
       try {
+        let result: CommentsList;
+
         if (formType === 'new') {
           const { data } = await create({ data: formApi.state.values });
           result = data?.createComment.data;
@@ -277,15 +280,15 @@ export const CommentForm = ({
             data: updatedFields,
           });
           result = data?.updateComment.data;
-        }  
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);  
       } catch (error) {
         onError?.();
-        throw error;
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -334,6 +337,7 @@ export const CommentForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <DefaultFormGroupLayout
         footer={<></>}
         heading={<></>}

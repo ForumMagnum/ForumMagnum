@@ -11,6 +11,7 @@ import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-compone
 import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
 import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
+import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 
 export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => ({
   newOrEditForm: {
@@ -77,6 +78,8 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
     fragmentName: 'CollectionsPageFragment',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -84,18 +87,22 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
     onSubmit: async ({ value, formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: CollectionsPageFragment;
+      try {
+        let result: CollectionsPageFragment;
 
-      const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-      const { data } = await mutate({
-        selector: { _id: initialData?._id },
-        data: updatedFields,
-      });
-      result = data?.updateCollection.data;
+        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+        const { data } = await mutate({
+          selector: { _id: initialData?._id },
+          data: updatedFields,
+        });
+        result = data?.updateCollection.data;
 
-      onSuccessCallback.current?.(result);
+        onSuccessCallback.current?.(result);
 
-      successCallback(result);
+        successCallback(result);
+      } catch (error) {
+        setCaughtError(error);
+      }
     },
   });
 
@@ -106,6 +113,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         e.stopPropagation();
         void form.handleSubmit();
       }}>
+        {displayedErrorComponent}
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (

@@ -9,6 +9,7 @@ import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTex
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('JargonTermForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -99,6 +100,8 @@ export const JargonTermForm = ({
     fragmentName: 'JargonTerms',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -107,23 +110,27 @@ export const JargonTermForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: JargonTerms;
+      try {
+        let result: JargonTerms;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createJargonTerm.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateJargonTerm.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createJargonTerm.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateJargonTerm.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -137,6 +144,7 @@ export const JargonTermForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.formWrapper}>
         <div className={classNames('form-component-EditorFormComponent', classes.editorField)}>
           <form.Field name="contents">

@@ -11,6 +11,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TanStackSelect } from '../tanstack-form-components/TanStackSelect';
 import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
 import { TanStackUserSelect } from '../tanstack-form-components/TanStackUserSelect';
+import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -29,13 +30,15 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
   onClose: () => void,
   userId: string
 }) => {
-  const { LWDialog, FormErrors } = Components;
+  const { LWDialog } = Components;
   const classes = useStyles(styles);
 
   const { create, error } = useCreate({
     collectionName: 'ModeratorActions',
     fragmentName: 'ModeratorActionDisplay',
   });
+
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const defaultValues: NullablePartial<DbInsertion<DbModeratorAction>> = {
     userId,
@@ -53,7 +56,7 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
         result = data?.createModeratorAction.data;
         onClose();
       } catch (error) {
-        formApi.setErrorMap({ onSubmit: error });
+        setCaughtError(error);
       }
     },
   });
@@ -63,7 +66,7 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
       <DialogTitle>
         New Moderator Action
       </DialogTitle>
-      {form.state.errors?.length ? <FormErrors errors={form.state.errors} getLabel={() => ''} /> : null}
+      {displayedErrorComponent}
       <div className={classes.dialogContent}>
         <form className="vulcan-form" onSubmit={(e) => {
           e.preventDefault();

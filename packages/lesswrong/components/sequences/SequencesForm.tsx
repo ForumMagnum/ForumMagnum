@@ -17,6 +17,7 @@ import { TanStackEditSequenceTitle } from "../tanstack-form-components/TanStackE
 import { TanStackUserSelect } from "../tanstack-form-components/TanStackUserSelect";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -63,6 +64,8 @@ export const SequencesForm = ({
     fragmentName: 'SequencesEdit',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -71,23 +74,27 @@ export const SequencesForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: SequencesEdit;
+      try {
+        let result: SequencesEdit;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createSequence.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateSequence.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createSequence.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateSequence.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -101,6 +108,7 @@ export const SequencesForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classNames('form-input', 'input-title', classes.fieldWrapper)}>
         <form.Field name="title">
           {(field) => (

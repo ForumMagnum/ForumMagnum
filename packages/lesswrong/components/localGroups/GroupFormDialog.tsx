@@ -1,11 +1,10 @@
 import { useMessages } from '../common/withMessages';
-import React, { useRef } from 'react';
+import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
-import { z } from 'zod';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
 import { useSingle } from '@/lib/crud/withSingle';
@@ -25,6 +24,7 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import { TanStackGroupFormSubmit } from './TanStackGroupFormSubmit';
 import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {
@@ -59,28 +59,6 @@ const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   },
 }));
 
-const groupValidationSchema = z.object({
-  name: z.string().min(1, "Group name is required"),
-  nameInAnotherLanguage: z.string().nullable(),
-  organizerIds: z.array(z.string()).min(1, "At least one organizer is required"),
-  types: z.array(z.string()).min(1, "At least one group type is required"),
-  categories: z.array(z.string()).or(z.undefined()),
-  isOnline: z.boolean().default(false),
-  googleLocation: z.any().optional(),
-  location: z.string().optional(),
-  contents: z.any().optional(),
-  contactInfo: z.string().optional(),
-  facebookLink: z.string().url("Must be a valid URL (e.g., https://...)").optional().or(z.literal('')),
-  facebookPageLink: z.string().url("Must be a valid URL (e.g., https://...)").optional().or(z.literal('')),
-  meetupLink: z.string().url("Must be a valid URL (e.g., https://...)").optional().or(z.literal('')),
-  slackLink: z.string().url("Must be a valid URL (e.g., https://...)").optional().or(z.literal('')),
-  website: z.string().url("Must be a valid URL (e.g., https://...)").optional().or(z.literal('')),
-  bannerImageId: z.string().optional(),
-  deleted: z.boolean().optional(),
-});
-
-type GroupFormValues = z.infer<typeof groupValidationSchema>;
-
 const TanStackGroupForm = ({
   initialData,
   isOnline: initialIsOnline,
@@ -114,11 +92,10 @@ const TanStackGroupForm = ({
     collectionName: 'Localgroups',
     fragmentName: 'localGroupsHomeFragment',
   });
+  
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
-    // validators: {
-    //   onChange: groupValidationSchema,
-    // },
     defaultValues: {
       ...initialData,
       types: initialData?.types ?? ["LW"],
@@ -128,23 +105,27 @@ const TanStackGroupForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: localGroupsHomeFragment;
+      try {
+        let result: localGroupsHomeFragment;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: formApi.state.values });
-        result = data?.createLocalgroup.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateLocalgroup.data;
+        if (formType === 'new') {
+          const { data } = await create({ data: formApi.state.values });
+          result = data?.createLocalgroup.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateLocalgroup.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -158,6 +139,7 @@ const TanStackGroupForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (

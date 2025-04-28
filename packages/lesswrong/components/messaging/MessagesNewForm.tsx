@@ -15,6 +15,7 @@ import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -133,6 +134,8 @@ const InnerMessagesNewForm = ({
     fragmentName: 'messageListFragment',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...prefilledProps,
@@ -141,14 +144,18 @@ const InnerMessagesNewForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: messageListFragment;
+      try {
+        let result: messageListFragment;
 
-      const { data } = await create({ data: formApi.state.values });
-      result = data?.createMessage.data;
+        const { data } = await create({ data: formApi.state.values });
+        result = data?.createMessage.data;
 
-      onSuccessCallback.current?.(result);
+        onSuccessCallback.current?.(result);
 
-      onSuccess(result);
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
+      }
     },
   });
 
@@ -158,6 +165,7 @@ const InnerMessagesNewForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="contents">
           {(field) => (

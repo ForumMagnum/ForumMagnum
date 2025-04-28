@@ -4,10 +4,16 @@ import { TanStackMuiTextField } from './TanStackMuiTextField';
 import type { TypedFieldApi } from './BaseAppForm';
 import { ClearInput } from '../form-components/ClearInput';
 
-export const TanStackSelect = ({ field, options, label }: {
+interface SelectOption {
+  label: string;
+  value: string | number;
+}
+
+export const TanStackSelect = ({ field, options, label, hideClear }: {
   field: TypedFieldApi<string | null>;
-  options: { label: string; value: string | number }[];
+  options: SelectOption[] | readonly SelectOption[];
   label?: string;
+  hideClear?: boolean;
 }) => {
   const { MenuItem } = Components;
 
@@ -19,6 +25,6 @@ export const TanStackSelect = ({ field, options, label }: {
         </MenuItem>
       ))}
     </TanStackMuiTextField>
-    <ClearInput clearField={() => field.handleChange(null)} />
+    {!hideClear && <ClearInput clearField={() => field.handleChange(null)} />}
   </>)
 };
