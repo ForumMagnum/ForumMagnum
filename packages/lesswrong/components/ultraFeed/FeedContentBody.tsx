@@ -176,15 +176,30 @@ const FeedContentBody = ({
     onExpand?.(newLevel, newMaxReached, wordCount);
   }, [expansionLevel, breakpoints.length, onExpand, isMaxLevel, wordCount]);
 
+  const handleExpandToMax = useCallback(() => {
+    const maxLevel = breakpoints.length - 1;
+    if (expansionLevel < maxLevel) {
+      setExpansionLevel(maxLevel);
+      onExpand?.(maxLevel, true, wordCount);
+    }
+  }, [breakpoints.length, expansionLevel, onExpand, wordCount]);
+
+  // By default links cause expansion to next level (until max), however clicks on links don't expand,
+  // just navigate, with the exeption of footnote links, which expand to max (because we need the full footnote for scrolling or modal)
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
+    const anchorElement = target.closest('a');
 
-    // if clicking on a link, don't expand, just allow default navigation
-    if (target.closest('a')) {
+    if (anchorElement) {
+      const href = anchorElement.getAttribute('href');
+      if (href && href.startsWith('#fn')) {
+        handleExpandToMax();
+      }
       return;
     }
+
     handleExpand();
-  }, [handleExpand]);
+  }, [handleExpand, handleExpandToMax]);
 
   const readMoreSuffixText = '(read more)';
 
