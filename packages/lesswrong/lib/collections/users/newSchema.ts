@@ -640,13 +640,16 @@ const schema = {
       hidden: true,
       order: 7,
       control: "EditorFormComponent",
-      label: "How others can help me",
       group: () => formGroups.aboutMe,
       form: {
+        label: "How others can help me",
         hintText: () => "Ex: I am looking for opportunities to do...",
-        formVariant: isFriendlyUI ? "grey" : undefined,
+        fieldName: "howOthersCanHelpMe",
+        collectionName: "Users",
         commentEditor: true,
         commentStyles: true,
+        hideControls: false,
+        formVariant: isFriendlyUI ? "grey" : undefined,
       },
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
@@ -679,13 +682,16 @@ const schema = {
     form: {
       hidden: true,
       order: 8,
-      label: "How I can help others",
       group: () => formGroups.aboutMe,
       form: {
+        label: "How I can help others",
         hintText: () => "Ex: Reach out to me if you have questions about...",
-        formVariant: isFriendlyUI ? "grey" : undefined,
+        fieldName: "howOthersCanHelpMe",
+        collectionName: "Users",
         commentEditor: true,
         commentStyles: true,
+        hideControls: false,
+        formVariant: isFriendlyUI ? "grey" : undefined,
       },
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("Users"),
