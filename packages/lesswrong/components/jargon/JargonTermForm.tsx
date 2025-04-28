@@ -87,7 +87,7 @@ export const JargonTermForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, JargonTerms>();
+  } = useEditorFormCallbacks<JargonTerms>();
 
   const { create } = useCreate({
     collectionName: 'JargonTerms',

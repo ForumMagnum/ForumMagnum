@@ -13,6 +13,7 @@ import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useSingle } from '@/lib/crud/withSingle';
 
 const styles = defineStyles('ModerationGuidelinesEditForm', (theme: ThemeType) => ({
   formButton: {
@@ -33,15 +34,20 @@ const styles = defineStyles('ModerationGuidelinesEditForm', (theme: ThemeType) =
   },
 }));
 
+interface ModerationGuidelinesFormProps {
+  documentType: 'post' | 'subforum';
+  initialData: EditablePost | UpdateTagDataInput & { _id: string };
+  onSuccess?: () => void;
+};
+
 const PostModerationGuidelinesForm = ({
+  documentType,
   initialData,
   onSuccess,
-}: {
-  initialData: EditablePost;
-  onSuccess: (doc: PostsPage) => void;
-}) => {
+}: ModerationGuidelinesFormProps) => {
   const classes = useStyles(styles);
   
+  const isPost = documentType === 'post';
   const formType = 'edit';
 
   const {
@@ -49,11 +55,11 @@ const PostModerationGuidelinesForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, PostsPage>();
+  } = useEditorFormCallbacks<PostsPage | TagWithFlagsFragment>();
 
   const { mutate } = useUpdate({
-    collectionName: 'Posts',
-    fragmentName: 'PostsPage',
+    collectionName: isPost ? 'Posts' : 'Tags',
+    fragmentName: isPost ? 'PostsPage' : 'TagWithFlagsFragment',
   });
 
   const form = useForm({
@@ -63,7 +69,7 @@ const PostModerationGuidelinesForm = ({
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
-      let result: PostsPage;
+      let result;
 
       const updatedFields = getUpdatedFieldValues(formApi, ['moderationGuidelines']);
       const { data } = await mutate({
@@ -73,12 +79,15 @@ const PostModerationGuidelinesForm = ({
       result = data?.updatePost.data;
 
       onSuccessCallback.current?.(result);
-
-      onSuccess(result);
+      onSuccess?.();
     },
   });
 
-  return (<>
+  return (<form className="vulcan-form" onSubmit={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    void form.handleSubmit();
+  }}>
     <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
       <form.Field name="moderationGuidelines">
         {(field) => (
@@ -99,8 +108,9 @@ const PostModerationGuidelinesForm = ({
         )}
       </form.Field>
     </div>
-    <div className={classes.fieldWrapper}>
-      <form.Field name="moderationStyle">
+    {isPost && (
+      <div className={classes.fieldWrapper}>
+        <form.Field name="moderationStyle">
         {(field) => (
           <TanStackSelect
             field={field}
@@ -108,40 +118,49 @@ const PostModerationGuidelinesForm = ({
             label="Style"
           />
         )}
-      </form.Field>
-    </div>
+        </form.Field>
+      </div>
+    )}
 
-    <div className="form-submit">
-      <Button
-        type="submit"
-        className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-      >
-        Submit
-      </Button>
-    </div>
-  </>);
+    <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+      {([canSubmit, isSubmitting]) => (
+        <div className="form-submit">
+          <Button
+            type="submit"
+            className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+            disabled={!canSubmit || isSubmitting}
+          >
+            Submit
+          </Button>
+        </div>
+      )}
+    </form.Subscribe>
+  </form>);
 };
 
-const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClose }: {
+export const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClose }: {
   commentType?: "post" | "subforum",
   documentId: string,
   onClose?: () => void,
 }) => {
-  const classes = useStyles(styles);
+  const isPost = commentType === "post";
 
-  const isPost = commentType === "post"
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const SubmitComponent = ({submitLabel = "Submit"}) => {
-    return <div className="form-submit">
-      <Button
-        type="submit"
-        className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-      >
-        {submitLabel}
-      </Button>
-    </div>
-  }
+  const useSingleArgs = isPost
+    ? {
+        collectionName: 'Posts',
+        fragmentName: 'PostsEditQueryFragment',
+        documentId,
+        extraVariables: { version: 'String' },
+        extraVariablesValues: { version: 'draft' },
+      } as const
+    : {
+        collectionName: 'Tags',
+        fragmentName: 'TagEditFragment',
+        documentId,
+      } as const;
+
+  const { document: editableDocument } = useSingle(useSingleArgs);
+
   return (
     <Components.LWDialog
       open={true}
@@ -154,24 +173,14 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
         <Components.Typography variant="body2">
           Edit the moderation guidelines specific to this {commentType}:
         </Components.Typography>
-        <Components.WrappedSmartForm
-          collectionName={isPost ? "Posts" : "Tags"}
-          documentId={documentId}
-          fields={['moderationGuidelines', ...(isPost ? ['moderationStyle'] : [])]}
-          queryFragmentName={isPost ? "PostsEditQueryFragment" : "TagEditFragment"}
-          mutationFragmentName={isPost ? "PostsPage" : "TagWithFlagsFragment"}
-          successCallback={onClose}
-          formComponents={{
-            FormSubmit: SubmitComponent,
-            FormGroupLayout: Components.FormGroupNoStyling
-          }}
-          extraVariables={isPost ? {
-            version: 'String'
-          } : {}}
-          extraVariablesValues={isPost ? {
-            version: 'draft'
-          } : {}}
-        />
+        {!editableDocument && <Components.Loading />}
+        {editableDocument && (
+          <PostModerationGuidelinesForm
+            documentType={commentType}
+            initialData={editableDocument}
+            onSuccess={onClose}
+          />
+        )}
       </DialogContent>
     </Components.LWDialog>
   )

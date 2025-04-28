@@ -115,21 +115,21 @@ export const PostForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, PostsEditMutationFragment>();
+  } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
   const {
     onSubmitCallback: onSubmitCallbackCustomHighlight,
     onSuccessCallback: onSuccessCallbackCustomHighlight,
     addOnSubmitCallback: addOnSubmitCallbackCustomHighlight,
     addOnSuccessCallback: addOnSuccessCallbackCustomHighlight
-  } = useEditorFormCallbacks<typeof form.state.values, PostsEditMutationFragment>();
+  } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
   const {
     onSubmitCallback: onSubmitCallbackModerationGuidelines,
     onSuccessCallback: onSuccessCallbackModerationGuidelines,
     addOnSubmitCallback: addOnSubmitCallbackModerationGuidelines,
     addOnSuccessCallback: addOnSuccessCallbackModerationGuidelines
-  } = useEditorFormCallbacks<typeof form.state.values, PostsEditMutationFragment>();
+  } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
   const { create } = useCreate({
     collectionName: 'Posts',

@@ -50,7 +50,7 @@ export const SpotlightForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, SpotlightEditQueryFragment>();
+  } = useEditorFormCallbacks<SpotlightEditQueryFragment>();
 
   const { create } = useCreate({
     collectionName: 'Spotlights',

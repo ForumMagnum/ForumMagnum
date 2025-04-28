@@ -38,7 +38,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, TagFlagFragment>();
+  } = useEditorFormCallbacks<TagFlagFragment>();
 
   const { create } = useCreate({
     collectionName: 'TagFlags',

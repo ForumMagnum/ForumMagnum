@@ -450,7 +450,7 @@ export const ${className} = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-    } = useEditorFormCallbacks<typeof form.state.values, ${collectionName}InvalidMutationFragment>();
+    } = useEditorFormCallbacks<${collectionName}InvalidMutationFragment>();
   `: ''}
 
   const { create } = useCreate({

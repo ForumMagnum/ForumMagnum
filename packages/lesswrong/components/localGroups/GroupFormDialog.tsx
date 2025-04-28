@@ -103,7 +103,7 @@ const TanStackGroupForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, localGroupsHomeFragment>();
+  } = useEditorFormCallbacks<localGroupsHomeFragment>();
 
   const { create } = useCreate({
     collectionName: 'Localgroups',

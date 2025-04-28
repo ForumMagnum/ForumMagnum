@@ -104,7 +104,7 @@ interface TanStackEditorFormComponentProps<S, R> {
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
 }
 
-export function useEditorFormCallbacks<S, R>() {
+export function useEditorFormCallbacks<R>() {
   const onSubmitCallback = useRef<(() => Promise<void>)>();
   const onSuccessCallback = useRef<((result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void)>();
 

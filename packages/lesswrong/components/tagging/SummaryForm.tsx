@@ -60,7 +60,7 @@ export const SummaryForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, MultiDocumentContentDisplay>();
+  } = useEditorFormCallbacks<MultiDocumentContentDisplay>();
 
   const { create } = useCreate({
     collectionName: 'MultiDocuments',

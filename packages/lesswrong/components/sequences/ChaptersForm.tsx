@@ -46,7 +46,7 @@ export const ChaptersForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, ChaptersEdit>();
+  } = useEditorFormCallbacks<ChaptersEdit>();
 
   const { create } = useCreate({
     collectionName: 'Chapters',

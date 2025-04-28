@@ -51,7 +51,7 @@ export const SequencesForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, SequencesEdit>();
+  } = useEditorFormCallbacks<SequencesEdit>();
 
   const { create } = useCreate({
     collectionName: 'Sequences',

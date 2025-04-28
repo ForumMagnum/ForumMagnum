@@ -40,7 +40,7 @@ export const ModerationTemplatesForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, ModerationTemplateFragment>();
+  } = useEditorFormCallbacks<ModerationTemplateFragment>();
 
   const { create } = useCreate({
     collectionName: 'ModerationTemplates',

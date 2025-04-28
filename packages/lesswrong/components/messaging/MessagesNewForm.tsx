@@ -126,7 +126,7 @@ const InnerMessagesNewForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, messageListFragment>();
+  } = useEditorFormCallbacks<messageListFragment>();
 
   const { create } = useCreate({
     collectionName: 'Messages',

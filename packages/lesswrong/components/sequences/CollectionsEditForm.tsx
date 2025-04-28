@@ -70,7 +70,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, CollectionsPageFragment>();
+  } = useEditorFormCallbacks<CollectionsPageFragment>();
 
   const { mutate } = useUpdate({
     collectionName: 'Collections',

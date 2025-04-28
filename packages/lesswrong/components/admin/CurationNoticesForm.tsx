@@ -43,7 +43,7 @@ export const CurationNoticesForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, CurationNoticesFragment>();
+  } = useEditorFormCallbacks<CurationNoticesFragment>();
 
   const { create } = useCreate({
     collectionName: 'CurationNotices',

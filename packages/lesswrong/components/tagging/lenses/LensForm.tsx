@@ -51,7 +51,7 @@ export const LensForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, MultiDocumentEdit>();
+  } = useEditorFormCallbacks<MultiDocumentEdit>();
 
   const { create } = useCreate({
     collectionName: 'MultiDocuments',

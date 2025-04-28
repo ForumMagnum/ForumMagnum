@@ -243,7 +243,7 @@ export const CommentForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, CommentsList>();
+  } = useEditorFormCallbacks<CommentsList>();
 
   const { create } = useCreate({
     collectionName: 'Comments',

@@ -92,7 +92,7 @@ export const TagForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, TagWithFlagsFragment>();
+  } = useEditorFormCallbacks<TagWithFlagsFragment>();
 
   const { create } = useCreate({
     collectionName: 'Tags',

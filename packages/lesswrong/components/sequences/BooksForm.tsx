@@ -45,7 +45,7 @@ export const BooksForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback
-  } = useEditorFormCallbacks<typeof form.state.values, BookPageFragment>();
+  } = useEditorFormCallbacks<BookPageFragment>();
 
   const { create } = useCreate({
     collectionName: 'Books',
