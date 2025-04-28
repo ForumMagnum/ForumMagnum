@@ -4066,6 +4066,7 @@ interface CreateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -4139,6 +4140,7 @@ interface UpdateUserDataInput {
   groups?: Array<string> | null;
   theme?: any;
   lastUsedTimezone?: string | null;
+  whenConfirmationEmailSent?: Date | null;
   legacy?: boolean | null;
   commentSorting?: string | null;
   sortDraftsBy?: string | null;
@@ -4237,6 +4239,7 @@ interface UpdateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;

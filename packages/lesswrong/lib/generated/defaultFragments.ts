@@ -1693,6 +1693,7 @@ export const UsersDefaultFragment = `
     karmaChangeBatchStart
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     hideSubscribePoke
     hideMeetupsPoke
