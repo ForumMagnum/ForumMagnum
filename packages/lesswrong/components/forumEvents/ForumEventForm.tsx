@@ -19,7 +19,7 @@ import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGro
 import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
 import { useSingle } from "@/lib/crud/withSingle";
 
-const styles = defineStyles('', (theme: ThemeType) => ({
+const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
   root: {},
   formTitle: {
     marginBottom: -30,
@@ -462,7 +462,6 @@ export const ForumEventForm = ({ documentId }: {
 const ForumEventFormComponent = registerComponent(
   "ForumEventForm",
   ForumEventForm,
-  { styles },
 );
 
 declare global {
