@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import toDictionary from '../../lib/utils/toDictionary';
-import mapValues from 'lodash/mapValues';
+import { Components } from '../../lib/vulcan-lib/components';
 import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
@@ -210,10 +208,9 @@ export const FormComponentPostEditorTagging = ({ field, postCategory, placeholde
         </>
       )}
       <TagMultiselect
-        path={'tagRelevance'}
         placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
         value={selectedOtherTagIds}
-        updateCurrentValues={onMultiselectUpdate}
+        updateCurrentValues={(values) => onMultiselectUpdate({ tagRelevance: values })}
         isVotingContext
       />
     </div>

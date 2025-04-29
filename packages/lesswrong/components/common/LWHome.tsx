@@ -42,7 +42,7 @@ const getStructuredData = () => ({
 
 const LWHome = () => {
   const { RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, EAPopularCommentsSection,
+    SingleColumnSection, EAPopularCommentsSection, DismissibleSpotlightItem,
     QuickTakesSection, LWHomePosts, HeadTags, UltraFeed
   } = Components;
 
@@ -61,9 +61,7 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-          <BestOfLessWrongAnnouncement />
-          {/* TODO: revert after removing BestofLessWrongAnnouncement */}
-          {/* <DismissibleSpotlightItem current/> */} 
+          <DismissibleSpotlightItem current/> 
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}

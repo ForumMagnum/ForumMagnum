@@ -3,7 +3,7 @@ import schema from "@/lib/collections/revisions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from "@/server/callbacks/revisionCallbacks";
+import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributionsDueToRev, upsertPolls, upvoteOwnTagRevision } from "@/server/callbacks/revisionCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -35,10 +35,16 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  await upvoteOwnTagRevision({
-    revision: documentWithId,
-    context
-  });
+  await Promise.all([
+    upsertPolls({
+      revision: documentWithId,
+      context
+    }),
+    upvoteOwnTagRevision({
+      revision: documentWithId,
+      context
+    })
+  ]);
 
   await updateDenormalizedHtmlAttributionsDueToRev({
     revision: documentWithId,

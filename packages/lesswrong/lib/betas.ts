@@ -97,8 +97,10 @@ export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = isFriendlyUI;
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;
-/** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
+/** Some Forums, notably the EA Forum, have a mailchimp email lists */
 export const hasDigests = isEAForum;
+export const hasNewsletter = isEAForum;
+
 /**
  * Whether the instance should have any features for integrating with twitter.
  * This is different to `twitterBot.enabled`, as there are features to help
@@ -118,6 +120,7 @@ export const hasSidenotes = isLWorAF;
 export const visitedLinksHaveFilledInCircle = isLWorAF;
 export const hasWikiLenses = isLWorAF;
 export const hasSubforums = isEAForum;
+export const hasPolls = isEAForum;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
 // check in tests as the tests run in EA Forum mode, but we want to be able to

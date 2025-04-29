@@ -239,6 +239,7 @@ const UltraFeedContent = () => {
                 refetchRef={refetchSubscriptionContentRef}
                 resolverArgsValues={{ sessionId, settings: JSON.stringify(settings) }}
                 loadMoreDistanceProp={1000}
+                fetchPolicy="cache-first"
                 renderers={{
                   feedCommentThread: {
                     fragmentName: 'FeedCommentThreadFragment',

@@ -12,10 +12,12 @@ interface SelectLocalgroupBaseProps {
   separator?: string;
   document: { _id?: string };
   label?: string;
+  placeholder?: string;
+  hideClear?: boolean;
 }
 
 type SelectLocalgroupProps = SelectLocalgroupBaseProps & (
-  { field: TypedFieldApi<string[]>; multiselect: true } |
+  { field: TypedFieldApi<string[] | null>; multiselect: true } |
   { field: TypedFieldApi<string | null>; multiselect?: false }
 );
 

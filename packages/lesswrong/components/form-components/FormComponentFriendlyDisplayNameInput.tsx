@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../ea-forum/users/DisplayNameWithMarkers";
 
@@ -34,6 +34,7 @@ const styles = (theme: ThemeType) => ({
 export const FormComponentFriendlyDisplayNameInput = ({
   value,
   classes,
+  updateCurrentValues,
   ...props
 }: {
   multiline?: boolean;
@@ -61,10 +62,14 @@ export const FormComponentFriendlyDisplayNameInput = ({
     </span>
   );
 
+  const updateCurrentValue = useCallback(async (value: string | null) => {
+    await updateCurrentValues({ displayName: value });
+  }, [updateCurrentValues]);
+
   return (
     <div>
       <div className={classes.inputRow}>
-        <FormComponentFriendlyTextInput value={value} {...props} className={classes.formInput} />
+        <FormComponentFriendlyTextInput value={value} updateCurrentValue={updateCurrentValue} {...props} className={classes.formInput} />
       </div>
       <div className={classes.blurb}>{blurbContent}</div>
     </div>

@@ -12,8 +12,10 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "& .form-submit": {
@@ -27,12 +29,17 @@ const styles = (theme: ThemeType) => ({
   resetButton: {
     marginBottom:theme.spacing.unit * 4
   },
-})
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+}));
 
-const UsersEditForm = ({terms, classes}: {
+const UsersEditForm = ({terms}: {
   terms: {slug: string},
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const navigate = useNavigate();
@@ -109,7 +116,7 @@ const UsersEditForm = ({terms, classes}: {
 };
 
 
-const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {styles});
+const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm);
 
 declare global {
   interface ComponentTypes {

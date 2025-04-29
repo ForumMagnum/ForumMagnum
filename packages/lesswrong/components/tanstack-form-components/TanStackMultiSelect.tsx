@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Components } from '../../lib/vulcan-lib/components';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -66,7 +66,7 @@ type MultiselectOption = {
 };
 
 interface TanStackMultiSelectProps {
-  field: TypedFieldApi<string[]>;
+  field: TypedFieldApi<string[] | null>;
   label?: string;
   placeholder?: string;
   separator?: string;
@@ -82,11 +82,11 @@ export function TanStackMultiSelect({
   options,
   variant = 'default',
 }: TanStackMultiSelectProps) {
-  const classes = useStyles(styles);
-  const value = field.state.value;
-  const isGrey = variant === 'grey';
-
   const { SectionTitle, PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption, MenuItem } = Components;
+
+  const classes = useStyles(styles);
+  const value = useMemo(() => field.state.value ?? [], [field.state.value]);
+  const isGrey = variant === 'grey';
 
   const renderValue = useCallback((selected: string[]) => {
     if (selected.length === 0) {

@@ -311,6 +311,7 @@ interface CommentsDefaultFragment { // fragment on Comments
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
     } | null,
   },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
@@ -505,6 +506,7 @@ interface CommentsList { // fragment on Comments
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
     } | null,
   },
 }
@@ -997,7 +999,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly postPageDescription_latest: string|null,
   readonly title: string,
   readonly startDate: Date,
-  readonly endDate: Date,
+  readonly endDate: Date|null,
   readonly darkColor: string,
   readonly lightColor: string,
   readonly bannerTextColor: string,
@@ -1006,6 +1008,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly postId: string|null,
   readonly bannerImageId: string|null,
   readonly includesPoll: boolean,
+  readonly isGlobal: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly pollQuestion_latest: string|null,
   readonly pollAgreeWording: string|null,
@@ -1045,6 +1048,7 @@ interface ForumEventsDisplay_postPageDescription { // fragment on Revisions
 interface ForumEventsDisplay_pollQuestion { // fragment on Revisions
   readonly _id: string,
   readonly html: string|null,
+  readonly plaintextMainText: string,
 }
 
 interface ForumEventsEdit extends ForumEventsMinimumInfo { // fragment on ForumEvents
@@ -1058,7 +1062,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly _id: string,
   readonly title: string,
   readonly startDate: Date,
-  readonly endDate: Date,
+  readonly endDate: Date|null,
   readonly darkColor: string,
   readonly lightColor: string,
   readonly bannerTextColor: string,
@@ -1069,6 +1073,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: string|null,
   readonly commentPrompt: string|null,
+  readonly isGlobal: boolean,
   readonly pollAgreeWording: string|null,
   readonly pollDisagreeWording: string|null,
   readonly maxStickersPerUser: number,
@@ -3199,7 +3204,7 @@ interface SurveyScheduleEdit extends SurveyScheduleMinimumInfo { // fragment on 
 
 interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly _id: string,
-  readonly survey: SurveyMinimumInfo,
+  readonly survey: SurveyMinimumInfo|null,
 }
 
 interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
@@ -4029,6 +4034,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideFrontpageMap: boolean|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly emails: Array<{
     address: string,
@@ -4694,6 +4700,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly karmaChangeBatchStart: Date|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hideSubscribePoke: boolean|null,
   readonly hideMeetupsPoke: boolean|null,
@@ -4867,6 +4874,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly whenConfirmationEmailSent: Date|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hasAuth0Id: boolean|null,
   readonly moderatorAssistance: boolean|null,

@@ -2291,7 +2291,7 @@ type ForumEvent {
   postPageDescription_latest: String
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -2302,6 +2302,7 @@ type ForumEvent {
   post: Post
   bannerImageId: String
   includesPoll: Boolean!
+  isGlobal: Boolean!
   eventFormat: String!
   pollQuestion(version: String): Revision
   pollQuestion_latest: String
@@ -3969,7 +3970,7 @@ type SurveySchedule {
   createdAt: Date!
   legacyData: JSON
   surveyId: String!
-  survey: Survey!
+  survey: Survey
   name: String
   impressionsLimit: Float
   maxVisitorPercentage: Float
@@ -4658,6 +4659,7 @@ type User {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -5456,7 +5458,7 @@ input CreateForumEventDataInput {
   postPageDescription: CreateRevisionDataInput
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -5465,6 +5467,7 @@ input CreateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
+  isGlobal: Boolean!
   eventFormat: String
   pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
@@ -5495,6 +5498,7 @@ input UpdateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
+  isGlobal: Boolean
   eventFormat: String
   pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
@@ -5502,6 +5506,7 @@ input UpdateForumEventDataInput {
   maxStickersPerUser: Float
   customComponent: String
   commentPrompt: String
+  publicData: JSON
 }
 
 input UpdateForumEventInput {
@@ -6469,7 +6474,7 @@ input CreateSurveyScheduleDataInput {
   startDate: Date
   endDate: Date
   deactivated: Boolean
-  clientIds: [String!]!
+  clientIds: [String!]
 }
 
 input CreateSurveyScheduleInput {
@@ -6959,6 +6964,7 @@ input CreateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -7131,6 +7137,7 @@ input UpdateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -8295,6 +8302,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   postId
   bannerImageId
   includesPoll
+  isGlobal
   eventFormat
   pollQuestion_latest
   pollAgreeWording
@@ -8331,6 +8339,7 @@ fragment ForumEventsDisplay on ForumEvent {
   pollQuestion {
     _id
     html
+    plaintextMainText
   }
 }
 
@@ -8365,6 +8374,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   eventFormat
   customComponent
   commentPrompt
+  isGlobal
 
   pollAgreeWording
   pollDisagreeWording
@@ -11783,6 +11793,7 @@ fragment UsersCurrent on User {
   hideFrontpageMap
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   emails
   whenConfirmationEmailSent
@@ -11990,6 +12001,7 @@ fragment UsersDefaultFragment on User {
   karmaChangeBatchStart
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   hideSubscribePoke
   hideMeetupsPoke
@@ -12131,6 +12143,7 @@ fragment UsersEdit on User {
   whenConfirmationEmailSent
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   hasAuth0Id
 

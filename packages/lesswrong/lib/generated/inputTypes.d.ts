@@ -1716,7 +1716,7 @@ interface ForumEvent {
   postPageDescription_latest?: string | null;
   title: string;
   startDate: Date;
-  endDate: Date;
+  endDate?: Date | null;
   darkColor: string;
   lightColor: string;
   bannerTextColor: string;
@@ -1727,6 +1727,7 @@ interface ForumEvent {
   post?: UpdatePostDataInput | null;
   bannerImageId?: string | null;
   includesPoll: boolean;
+  isGlobal: boolean;
   eventFormat: string;
   pollQuestion?: UpdateRevisionDataInput | null;
   pollQuestion_latest?: string | null;
@@ -3249,7 +3250,7 @@ interface SurveySchedule {
   createdAt: Date;
   legacyData?: any;
   surveyId: string;
-  survey: UpdateSurveyDataInput;
+  survey?: UpdateSurveyDataInput | null;
   name?: string | null;
   impressionsLimit?: number | null;
   maxVisitorPercentage?: number | null;
@@ -3883,6 +3884,7 @@ interface User {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -4606,7 +4608,7 @@ interface CreateForumEventDataInput {
   postPageDescription?: CreateRevisionDataInput | null;
   title: string;
   startDate: Date;
-  endDate: Date;
+  endDate?: Date | null;
   darkColor: string;
   lightColor: string;
   bannerTextColor: string;
@@ -4615,6 +4617,7 @@ interface CreateForumEventDataInput {
   postId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
+  isGlobal: boolean;
   eventFormat?: string | null;
   pollQuestion?: CreateRevisionDataInput | null;
   pollAgreeWording?: string | null;
@@ -4645,6 +4648,7 @@ interface UpdateForumEventDataInput {
   postId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
+  isGlobal?: boolean | null;
   eventFormat?: string | null;
   pollQuestion?: CreateRevisionDataInput | null;
   pollAgreeWording?: string | null;
@@ -4652,6 +4656,7 @@ interface UpdateForumEventDataInput {
   maxStickersPerUser?: number | null;
   customComponent?: string | null;
   commentPrompt?: string | null;
+  publicData?: any;
 }
 
 interface UpdateForumEventInput {
@@ -5517,7 +5522,7 @@ interface CreateSurveyScheduleDataInput {
   startDate?: Date | null;
   endDate?: Date | null;
   deactivated?: boolean | null;
-  clientIds: Array<string>;
+  clientIds?: Array<string> | null;
 }
 
 interface CreateSurveyScheduleInput {
@@ -5958,6 +5963,7 @@ interface CreateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -6130,6 +6136,7 @@ interface UpdateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
