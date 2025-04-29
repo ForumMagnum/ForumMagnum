@@ -312,6 +312,7 @@ interface CommentsDefaultFragment { // fragment on Comments
       voteWhenPublished: number,
       latestVote: number | null,
       pollQuestionWhenPublished: string | null,
+      commentPrompt: string | null,
     } | null,
   },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
@@ -507,6 +508,7 @@ interface CommentsList { // fragment on Comments
       voteWhenPublished: number,
       latestVote: number | null,
       pollQuestionWhenPublished: string | null,
+      commentPrompt: string | null,
     } | null,
   },
 }

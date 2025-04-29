@@ -194,6 +194,7 @@ interface DbComment extends DbObject {
       voteWhenPublished: number,
       latestVote: number | null,
       pollQuestionWhenPublished: string | null,
+      commentPrompt: string | null,
     } | null,
   } | null
   hideAuthor: boolean
