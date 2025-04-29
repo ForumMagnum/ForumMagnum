@@ -37,6 +37,8 @@ export type ForumEventCommentMetadata = {
     latestVote?: number | null
     /** _id of the revision of the question when the comment was published */
     pollQuestionWhenPublished?: string | null
+    /** The content that is prefilled into the comment box after voting */
+    commentPrompt?: string | null
   } | null
 }
 
@@ -84,6 +86,11 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
         nullable: true
       },
       pollQuestionWhenPublished: {
+        type: String,
+        optional: true,
+        nullable: true
+      },
+      commentPrompt: {
         type: String,
         optional: true,
         nullable: true

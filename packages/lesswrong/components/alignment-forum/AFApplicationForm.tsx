@@ -7,6 +7,7 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { DialogActions } from '../widgets/DialogActions';
+import { WithMessagesFunctions } from '../common/FlashMessages';
 
 const styles = (theme: ThemeType) => ({
   modalTextField: {
@@ -18,7 +19,7 @@ interface ExternalProps {
   onClose: any,
 }
 
-interface AFApplicationFormProps extends ExternalProps, WithMessagesProps, WithStylesProps, WithUpdateCurrentUserProps {
+interface AFApplicationFormProps extends ExternalProps, WithMessagesFunctions, WithStylesProps, WithUpdateCurrentUserProps {
 }
 interface AFApplicationFormState {
   applicationText: string,

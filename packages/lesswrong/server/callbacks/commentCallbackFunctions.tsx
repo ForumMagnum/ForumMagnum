@@ -528,6 +528,26 @@ export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
   }
 }
 
+export function newCommentsPollResponseCheck(comment: CreateCommentDataInput) {
+  const { data } = (comment.contents && comment.contents.originalContents) || {}
+  const commentPrompt = (comment.forumEventMetadata as ForumEventCommentMetadata)?.poll?.commentPrompt;
+
+  if (commentPrompt && data) {
+    // commentPrompt will be like `<blockquote>${plaintextQuestion}</blockquote><p></p>`
+    // If unedited, data will be like `<blockquote><p>${plaintextQuestion}</p></blockquote><p>&nbsp;</p>`
+
+    // Normalize both strings by removing HTML tags, replacing &nbsp;, and trimming/collapsing whitespace.
+    const normalize = (html: string) => html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+
+    const normalizedPrompt = normalize(commentPrompt);
+    const normalizedData = normalize(data);
+
+    if (normalizedPrompt && normalizedData === normalizedPrompt) {
+      throw new Error("Cannot submit only the prefilled text");
+    }
+  }
+}
+
 export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);

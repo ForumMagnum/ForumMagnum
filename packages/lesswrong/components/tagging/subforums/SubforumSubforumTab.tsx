@@ -108,7 +108,7 @@ const SubforumSubforumTab = ({
   // if no sort order was selected, try to use the tag page's default sort order for posts
   const sortBy: CommentSortingMode = (
     (sortByOptions.includes(query.sortedBy) && query.sortedBy)
-    || (tag.postsDefaultSortOrder && sortByOptions.includes(tag.postsDefaultSortOrder))
+    || (sortByOptions.includes(tag.postsDefaultSortOrder ?? '') && tag.postsDefaultSortOrder)
     || defaultSubforumSorting
   ) as CommentSortingMode;
   
