@@ -775,6 +775,7 @@ export const ForumEventPoll = ({
 
   if (!event) return null;
 
+  const commentPrompt = `<blockquote>${plaintextQuestion}</blockquote><p></p>`;
   const commentPrefilledProps: PartialDeep<DbComment> = !currentUserComment && currentUserVote !== null ? {
     forumEventMetadata: {
       eventFormat: "POLL",
@@ -782,14 +783,15 @@ export const ForumEventPoll = ({
       poll: {
         voteWhenPublished: currentUserVote,
         latestVote: null,
-        pollQuestionWhenPublished: event.pollQuestion?._id ?? null
+        pollQuestionWhenPublished: event.pollQuestion?._id ?? null,
+        commentPrompt
       }
     },
     ...(!event.isGlobal && {
       contents: {
         originalContents: {
           type: "ckEditorMarkup",
-          data: `<blockquote>${plaintextQuestion}</blockquote><p></p>`,
+          data: commentPrompt,
         }
       }
     }),
