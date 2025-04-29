@@ -929,6 +929,7 @@ const schema = {
     form: {
       order: 10,
       hidden: isFriendlyUI,
+      control: isFriendlyUI ? 'FormComponentFriendlyDisplayNameInput' : undefined,
       group: () => formGroups.default,
     },
   },
