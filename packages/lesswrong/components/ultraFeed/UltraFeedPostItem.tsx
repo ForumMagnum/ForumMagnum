@@ -289,17 +289,23 @@ const UltraFeedPostItem = ({
     });
   }, [openDialog, post._id, captureEvent, fullPost]);
 
-  const displayHtml = fullPost?.contents?.html || post.contents?.htmlHighlight;
-  const displayWordCount = fullPost?.contents?.wordCount ?? post.contents?.wordCount;
+  const shortformHtml = post.shortform 
+    ? `This is a special post for quick takes (aka "shortform"). Only the owner can create top-level comments.`
+    : undefined
+
+  const displayHtml = fullPost?.contents?.html ?? post.contents?.htmlHighlight ?? shortformHtml;
+  const displayWordCount = fullPost?.contents?.wordCount ?? post.contents?.wordCount ?? (post.shortform ? 0 : undefined);
 
   if (!displayHtml) {
     return <div>No post content found for post with id: {post._id}</div>; 
   }
 
+
   // TODO: instead do something like set to 200 words and display and show warning
-  if (!displayWordCount) {
+  if (!displayWordCount && (!post.shortform && displayWordCount === 0)) {
     return <div>No word count found for post with id: {post._id}</div>;
   }
+
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
@@ -329,7 +335,7 @@ const UltraFeedPostItem = ({
             html={displayHtml}
             breakpoints={settings.postTruncationBreakpoints}
             initialExpansionLevel={0}
-            wordCount={displayWordCount}
+            wordCount={displayWordCount!} // assertion because of shortform case that will at least be zero but isn't detected as such
             nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
             onContinueReadingClick={handleOpenDialog}
             onExpand={handleContentExpand}

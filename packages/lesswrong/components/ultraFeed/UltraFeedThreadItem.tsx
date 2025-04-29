@@ -222,7 +222,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                     metaInfo={commentMetaInfos?.[cId]}
                     onPostTitleClick={() => setPostExpanded(true)}
                     onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
-                    showInLineCommentThreadTitle={isFirstItem}
+                    showPostTitle={isFirstItem}
                     highlight={highlightStatuses[cId] || false}
                     isFirstComment={isFirstItem}
                     isLastComment={isLastItem}
