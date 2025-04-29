@@ -682,6 +682,7 @@ const schema = {
     form: {
       hidden: true,
       order: 8,
+      control: "EditorFormComponent",
       group: () => formGroups.aboutMe,
       form: {
         label: "How I can help others",
