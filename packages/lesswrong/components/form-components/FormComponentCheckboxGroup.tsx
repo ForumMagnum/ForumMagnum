@@ -12,13 +12,13 @@ const styles = defineStyles("FormComponentCheckboxGroup", (theme: ThemeType) => 
 }))
 
 export const FormComponentCheckboxGroup = ({ field, label, options }: {
-  field: TypedFieldApi<string[]>
+  field: TypedFieldApi<string[] | null>
   label: string
   options: Array<{value: string, label: string}>
 }) => {
   const classes = useStyles(styles);
 
-  const value = field.state.value;
+  const value = field.state.value ?? [];
   
   return <div>
     <div>{label}</div>

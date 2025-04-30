@@ -229,7 +229,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
   )
 }
 
-const CollectionsEditFormComponent = registerComponent('CollectionsEditForm', CollectionsEditForm, { styles });
+const CollectionsEditFormComponent = registerComponent('CollectionsEditForm', CollectionsEditForm);
 
 declare global {
   interface ComponentTypes {
