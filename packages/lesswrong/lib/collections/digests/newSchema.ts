@@ -91,7 +91,7 @@ const schema = {
       },
     },
     form: {
-      control: "ImageUpload",
+      // control: "ImageUpload",
     },
   },
   // primary color for the on-site digest background

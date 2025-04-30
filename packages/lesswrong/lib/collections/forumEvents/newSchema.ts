@@ -362,7 +362,7 @@ const schema = {
       },
     },
     form: {
-      control: "ImageUpload",
+      // control: "ImageUpload",
     },
   },
   /** @deprecated Set `eventFormat` to "POLL" instead */

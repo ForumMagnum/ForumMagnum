@@ -4774,7 +4774,7 @@ const schema = {
       order: isLWorAF ? 40 : 1,
       group: () => formGroups.default,
       label: "Profile Image",
-      control: "ImageUpload",
+      // control: "ImageUpload",
       form: {
         horizontal: true,
       },

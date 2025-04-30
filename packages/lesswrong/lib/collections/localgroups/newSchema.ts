@@ -429,7 +429,7 @@ const schema = {
       form: { croppingAspectRatio: 1.91 },
       label: isFriendlyUI ? "Banner image" : "Banner Image",
       tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
-      control: "ImageUpload",
+      // control: "ImageUpload",
     },
   },
   inactive: {

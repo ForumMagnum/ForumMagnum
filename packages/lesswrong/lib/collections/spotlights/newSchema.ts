@@ -560,7 +560,7 @@ const schema = {
     },
     form: {
       order: 90,
-      control: "ImageUpload",
+      // control: "ImageUpload",
     },
   },
   spotlightDarkImageId: {
@@ -579,7 +579,7 @@ const schema = {
     },
     form: {
       order: 100,
-      control: "ImageUpload",
+      // control: "ImageUpload",
     },
   },
   sequenceChapters: {

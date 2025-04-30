@@ -742,7 +742,7 @@ const schema = {
     form: {
       label: "Banner Image",
       tooltip: "Minimum 200x600 px",
-      control: "ImageUpload",
+      // control: "ImageUpload",
       hidden: () => !isEAForum,
       group: () => formGroups.advancedOptions,
     },
@@ -764,7 +764,7 @@ const schema = {
     form: {
       label: "Square Image",
       tooltip: "Minimum 200x200 px",
-      control: "ImageUpload",
+      // control: "ImageUpload",
       hidden: () => !isEAForum,
       group: () => formGroups.advancedOptions,
     },

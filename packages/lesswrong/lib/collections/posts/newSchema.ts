@@ -3863,7 +3863,7 @@ const schema = {
     form: {
       label: "Event Image",
       tooltip: "Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)",
-      control: "ImageUpload",
+      // control: "ImageUpload",
       hidden: (props) => !props.eventForm || !isEAForum,
       group: () => formGroups.event,
     },

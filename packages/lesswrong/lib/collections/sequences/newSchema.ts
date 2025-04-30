@@ -152,7 +152,7 @@ const schema = {
     },
     form: {
       label: "Banner Image",
-      control: "ImageUpload",
+      // control: "ImageUpload",
     },
   },
   // Cloudinary image id for the card image
@@ -171,7 +171,7 @@ const schema = {
     },
     form: {
       label: "Card Image",
-      control: "ImageUpload",
+      // control: "ImageUpload",
     },
   },
   hideFromAuthorPage: {
