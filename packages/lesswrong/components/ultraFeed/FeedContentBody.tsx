@@ -38,6 +38,9 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
       opacity: 1,
       textDecoration: 'none',
     },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 17
+    },
   },
   continueReadingLinkContainer: {
     marginTop: 8,
@@ -54,8 +57,34 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     // textOverflow: 'ellipsis !important', // might want to reenable
     maxHeight: 'none !important',
     paddingBottom: '0.1em !important',
-    // Hide first blockquote when line clamping is active
+    // Replace the first blockquote with a placeholder ellipsis when line-clamped
     '& blockquote:first-child': {
+      margin: 0,
+      paddingTop: 0,
+      paddingBottom: 2,
+      marginBottom: '.25em',
+      display: '-webkit-box !important',
+      '-webkit-box-orient': 'vertical !important',
+      WebkitLineClamp: '1 !important',
+      overflow: 'hidden !important',
+      textOverflow: 'ellipsis',
+      '& strong, & b, & em, & i, & h1, & h2, & h3, & h4, & h5, & h6': {
+        fontWeight: 'normal !important',
+        fontStyle: 'normal !important',
+        fontSize: 'inherit !important',
+      },
+    },
+    // Remove whitespace left over after the hidden quote
+    '& blockquote + p': {
+      // marginTop: '0 !important',
+    },
+    '& blockquote + p > br:first-child': {
+      display: 'none !important',
+    },
+    '& p:last-child': {
+      marginBottom: '0 !important',
+    },
+    '& p:last-child br:last-child': {
       display: 'none !important',
     },
     '& img': limitImageHeightClass(theme),

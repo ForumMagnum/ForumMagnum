@@ -138,7 +138,7 @@ const RecentDiscussionFeed = ({
               tagRevised: {
                 fragmentName: "RecentDiscussionRevisionTagFragment",
                 render: (revision: RecentDiscussionRevisionTagFragment) => <div>
-                  {revision.tag && <TagRevisionComponent
+                  {revision.tag && revision.documentId && <TagRevisionComponent
                     tag={revision.tag}
                     revision={revision}
                     headingStyle="full"

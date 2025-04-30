@@ -16,6 +16,7 @@ export interface UltraFeedSettingsType {
   incognitoMode: boolean;
   threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
   threadScoreFirstN: number;
+  postTitlesAreModals: boolean;
 }
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
@@ -38,6 +39,7 @@ export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
   incognitoMode: false,
   threadScoreAggregation: 'logSum',
   threadScoreFirstN: 0,
+  postTitlesAreModals: true,
 };
 
 export const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings'; 

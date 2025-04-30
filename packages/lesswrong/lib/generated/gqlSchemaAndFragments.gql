@@ -2291,7 +2291,7 @@ type ForumEvent {
   postPageDescription_latest: String
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -2302,6 +2302,7 @@ type ForumEvent {
   post: Post
   bannerImageId: String
   includesPoll: Boolean!
+  isGlobal: Boolean!
   eventFormat: String!
   pollQuestion(version: String): Revision
   pollQuestion_latest: String
@@ -3099,7 +3100,7 @@ type Post {
   postCategory: String!
   title: String!
   viewCount: Float
-  lastCommentedAt: Date
+  lastCommentedAt: Date!
   clickCount: Float
   deletedDraft: Boolean!
   status: Float!
@@ -3593,7 +3594,7 @@ type Revision {
   documentId: String
   collectionName: String
   fieldName: String
-  editedAt: Date
+  editedAt: Date!
   updateType: String
   version: String!
   commitMessage: String
@@ -4543,7 +4544,7 @@ type User {
   profile: JSON
   services: JSON
   hasAuth0Id: Boolean
-  displayName: String
+  displayName: String!
   previousDisplayName: String
   email: String
   noindex: Boolean!
@@ -4658,6 +4659,7 @@ type User {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -5456,7 +5458,7 @@ input CreateForumEventDataInput {
   postPageDescription: JSON
   title: String!
   startDate: Date!
-  endDate: Date!
+  endDate: Date
   darkColor: String!
   lightColor: String!
   bannerTextColor: String!
@@ -5465,6 +5467,7 @@ input CreateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
+  isGlobal: Boolean!
   eventFormat: String
   pollQuestion: JSON
   pollAgreeWording: String
@@ -5495,6 +5498,7 @@ input UpdateForumEventDataInput {
   postId: String
   bannerImageId: String
   includesPoll: Boolean
+  isGlobal: Boolean
   eventFormat: String
   pollQuestion: JSON
   pollAgreeWording: String
@@ -5502,6 +5506,7 @@ input UpdateForumEventDataInput {
   maxStickersPerUser: Float
   customComponent: String
   commentPrompt: String
+  publicData: JSON
 }
 
 input UpdateForumEventInput {
@@ -6852,7 +6857,7 @@ input CreateUserDataInput {
   biography: JSON
   username: String
   isAdmin: Boolean
-  displayName: String
+  displayName: String!
   previousDisplayName: String
   email: String
   groups: [String!]
@@ -6946,6 +6951,7 @@ input CreateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -7019,7 +7025,6 @@ input UpdateUserDataInput {
   groups: [String!]
   theme: JSON
   lastUsedTimezone: String
-  whenConfirmationEmailSent: Date
   legacy: Boolean
   commentSorting: String
   sortDraftsBy: String
@@ -7118,6 +7123,7 @@ input UpdateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -8282,6 +8288,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   postId
   bannerImageId
   includesPoll
+  isGlobal
   eventFormat
   pollQuestion_latest
   pollAgreeWording
@@ -8318,6 +8325,7 @@ fragment ForumEventsDisplay on ForumEvent {
   pollQuestion {
     _id
     html
+    plaintextMainText
   }
 }
 
@@ -8352,6 +8360,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   eventFormat
   customComponent
   commentPrompt
+  isGlobal
 
   pollAgreeWording
   pollDisagreeWording
@@ -11774,6 +11783,7 @@ fragment UsersCurrent on User {
   hideFrontpageMap
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   emails
   whenConfirmationEmailSent
@@ -11981,6 +11991,7 @@ fragment UsersDefaultFragment on User {
   karmaChangeBatchStart
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   hideSubscribePoke
   hideMeetupsPoke
@@ -12122,6 +12133,7 @@ fragment UsersEdit on User {
   whenConfirmationEmailSent
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   hasAuth0Id
 

@@ -44,6 +44,7 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
+import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -275,7 +276,7 @@ export const styles = (theme: ThemeType) => ({
   },
   postBody: {
     ...(isFriendlyUI && {
-      width: "max-content",
+      width: "100%",
     }),
   },
   audioPlayerHidden: {
@@ -444,6 +445,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const { recordPostView } = useRecordPostView(post);
   const [showDigestAd, setShowDigestAd] = useState(false)
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -668,7 +670,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
-  const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  const debateResponseReplies = debateReplies?.filter(comment => comment.topLevelCommentId && debateResponseIds.has(comment.topLevelCommentId));
 
   const isDebateResponseLink = linkedCommentId && debateResponseIds.has(linkedCommentId);
   
@@ -790,7 +792,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         coauthors={post.coauthors
           ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
           .map(({displayName}) => displayName)}
-        date={post.createdAt}
+        date={post.createdAt ?? undefined}
       />
     </>}
     {/* Header/Title */}
@@ -854,7 +856,10 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
   const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
-  
+
+  // Show poll if tagged with the tag of the current forum event
+  const showGlobalForumEventPoll = (currentForumEvent?.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0) >= 1;
+
   // JB: postBodySection, betweenPostAndCommentsSection, and commentsSection are represented as variables here
   // to support the forum-gating below, because the comments-ToC changes the page structure wrt the ToC column
   // components. When the forum gating is removed, each of these variables should have only a single usage,
@@ -939,9 +944,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         <PostPageReviewButton post={post} />
       </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-      <DeferRender ssr={false}>
+      {showGlobalForumEventPoll && <DeferRender ssr={false}>
         <ForumEventPostPagePollSection postId={post._id} />
-      </DeferRender>
+      </DeferRender>}
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">

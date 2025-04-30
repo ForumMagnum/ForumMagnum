@@ -15,21 +15,28 @@ import { useDialog } from "../common/withDialog";
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
     position: "relative",
-    paddingLeft: 8,
-    paddingRight: 8,
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    justifyContent: "space-between",
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      ...theme.typography.ultraFeedMobileStyle,
+    // every child except last has margin right applied
+    "& > *:not(:last-child)": {
+      marginRight: 16,
     },
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: `${theme.palette.linkHover.dim} !important`,
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 8,
+      paddingRight: 8,
+      justifyContent: "space-between",
+      ...theme.typography.ultraFeedMobileStyle,
+      "& > *:not(:last-child)": {
+        marginRight: 'unset',
+      },
     },
   },
   commentCount: {
@@ -37,11 +44,13 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     "& svg": {
+      position: "relative",
       height: 18,
-      marginBottom: 2,
+      top: 1,
       [theme.breakpoints.down('sm')]: {
-        height: 22,
-        paddingBottom: 2,
+        height: 20,
+        width: 20,
+        top: 2,
       },
     },
   },
@@ -53,11 +62,18 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCountText: {
     marginLeft: 4,
+    [theme.breakpoints.down('sm')]: {
+      position: 'relative',
+    }
   },
   addReactionButton: {
+    opacity: 0.7,
+    position: "relative",
+    top: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'flex',
-    margin: '0 6px',
+    marginRight: 6,
+    marginLeft: 'auto',
     alignItems: 'center',
     '& .react-hover-style': {
       filter: 'opacity(1) !important',
@@ -65,18 +81,28 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     '& svg': {
       filter: 'opacity(1) !important',
       [theme.breakpoints.down('sm')]: {
-        height: 22,
-        width: 22,
+        top: 5,
+        height: 21,
+        width: 21,
       },
+    },
+    [theme.breakpoints.down('sm')]: {
+      opacity: 1,
+      marginLeft: 6,
+      top: 0,
     }
   },
   reactionIcon: {
     marginRight: 6,
   },
   reactionCount: {
-    marginTop: -2
+    position: "relative",
+    bottom: 2,
   },
   bookmarkButton: {
+    position: "relative", 
+    top: 3,
+    opacity: 0.7,
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
       height: 20,
@@ -84,30 +110,25 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
         height: 22,
       },
     },
-    marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: -2,
+      top: 5,
+      opacity: 1,
     },
   },
   overallVoteButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
-      // color: 'red', //`${theme.palette.ultraFeed.dim} !important`,
     }
   },
   agreementButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
-    marginLeft: -8 // necessary to counter baked-in left margin from AgreementVoteAxis.tsx
+    marginLeft: -8
   },
-  // Styles to override OverallVoteAxis children, applied only on small screens
   footerVoteScoreOverride: {
-    // Default style for this class (applies on large screens)
     fontSize: `${theme.typography.body2.fontSize}px !important`, 
-    margin: '0 7px !important', // Use default small margin for large screens
-
-    // Override for small screens
+    margin: '0 7px !important',
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.3rem !important',
+      fontSize: '17px !important',
       margin: '0 7px !important',
     }
   },
@@ -116,15 +137,12 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       display: 'none !important',
     }
   },
-  // Styles to override AgreementVoteAxis score when used in footer
   footerAgreementScoreOverride: {
-    // Default style for this class (applies on large screens)
     fontSize: `${theme.typography.body2.fontSize}px !important`,
     margin: '0 7px !important',
-    // Override for small screens
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.3rem !important',
-      margin: '0 7px !important', // Keep same margin for small screens based on user change above
+      fontSize: '17px !important',
+      margin: '0 7px !important',
     }
   },
 }));

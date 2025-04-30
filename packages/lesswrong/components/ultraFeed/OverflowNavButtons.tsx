@@ -20,10 +20,8 @@ const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
     float: 'right',
     marginRight: -64,
     [theme.breakpoints.down('sm')]: {
-      position: 'fixed',
-      marginRight: 0,
-      right: 12,
-      bottom: 24,
+      width: "fit-content",
+      marginRight: -4,
     },
   },
   onlyUp: {
@@ -31,9 +29,16 @@ const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
     right: -48,
     bottom: 0,
     [theme.breakpoints.down('sm')]: {
-      position: 'absolute',
       right: 12,
       bottom: 24,
+    },
+  },
+  commentOnlyUp: {
+    /* unfortunate to need to adjust between post and comment items,
+    but better than having to force containing components to be structured exactly the same */
+    right: -64,
+    [theme.breakpoints.down('sm')]: {
+      right: -4,
     },
   },
   button: {
@@ -65,9 +70,11 @@ const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
 interface Props {
   nav: OverflowNavResult;
   onCollapse?: () => void;
+  // slightly different styles for comments
+  applyCommentStyle?: boolean;
 }
 
-export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
+export const OverflowNavButtons = ({ nav, onCollapse, applyCommentStyle }: Props) => {
   const { showUp, showDown, scrollToTop: onTop, scrollToBottom: onBottom } = nav;
   const classes = useStyles(styles);
 
@@ -76,7 +83,9 @@ export const OverflowNavButtons = ({ nav, onCollapse }: Props) => {
     onTop();
   }, [onCollapse, onTop]);
 
-  const containerClass = (showUp && !showDown) ? classes.onlyUp : classes.both;
+  const containerClass = (showUp && !showDown)
+    ? classNames(classes.onlyUp, { [classes.commentOnlyUp]: applyCommentStyle })
+    : classes.both;
 
   return (
     <div className={classNames(classes.base, containerClass)}>

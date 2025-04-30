@@ -34,7 +34,7 @@ export const CollectionTableOfContents = ({classes, collection}: {
   collection.books.forEach(book => {
     if (book.tocTitle || book.title) {
       sections.push(({
-        title: book.tocTitle || book.title,
+        title: (book.tocTitle || book.title) ?? undefined,
         anchor: getBookAnchor(book), // this needs to match the anchor in 
         level: 1
       }))

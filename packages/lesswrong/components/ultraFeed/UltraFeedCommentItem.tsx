@@ -18,11 +18,10 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
+  },
+  mainContent: {
     display: 'flex',
     flexDirection: 'row',
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: commentHeaderPaddingMobile,
-    },
   },
   compressedRoot: {
     display: 'flex',
@@ -30,14 +29,20 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   commentContentWrapper: {
     flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
   },
   commentContentWrapperWithBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
   },
   commentHeader: {
-    marginBottom: 8,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
   },
   contentWrapper: {
+    marginTop: 12,
+    marginBottom: 12,
     paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
@@ -60,48 +65,8 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
       fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
   },
-  inlineCommentThreadTitle: {
-    marginTop: 12,
-    marginBottom: 12,
-    marginRight: 12,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: theme.typography.body2.fontSize,
-    fontWeight: theme.typography.body1.fontWeight,
-    color: theme.palette.link.dim,
-    width: '100%',
-    overflow: "hidden",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
-    fontStyle: 'italic',
-    [theme.breakpoints.down('sm')]: {
-      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
-    },
-  },
-  inlineCommentThreadTitleLink: {
-    background: 'none',
-    border: 'none',
-    padding: 0,
-    font: 'inherit',
-    cursor: 'pointer',
-    display: 'inline',
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
-    fontWeight: 'inherit',
-    color: theme.palette.link.dim,
-    fontStyle: 'italic',
-    textAlign: 'left',
-    width: '100%',
-
-    '& span': {
-      color: theme.palette.primary.main,
-    },
-    '-webkit-line-clamp': 2,
-  },
-  inlineCommentThreadTitleLinkSpan: {
-    '-webkit-line-clamp': 2,
-  },
   verticalLineContainer: {
+    fontStyle: 'italic',
     width: 0,
     display: 'flex',
     justifyContent: 'center',
@@ -149,8 +114,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   footer: {
-    paddingTop: 8,
-    paddingBottom: 12,
+    marginBottom: 12,
   },
 }));
 
@@ -233,7 +197,7 @@ const UltraFeedCommentItem = ({
       observe(currentElement, {
         documentId: comment._id,
         documentType: 'comment',
-        postId: comment.postId
+        postId: comment.postId ?? undefined
       });
     }
 
@@ -267,7 +231,7 @@ const UltraFeedCommentItem = ({
     trackExpansion({
       documentId: comment._id,
       documentType: 'comment',
-      postId: comment.postId,
+      postId: comment.postId ?? undefined,
       level,
       maxLevelReached: maxReached,
       wordCount,
@@ -315,54 +279,51 @@ const UltraFeedCommentItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
-    <div className={classNames(classes.root)} >
-      <div className={classes.verticalLineContainer}>
-        <div className={classNames(
-          classes.verticalLine,
-          {
-            [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
-            [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
-            [classes.verticalLineFirstComment]: isFirstComment,
-            [classes.verticalLineLastComment]: isLastComment
-          }
-        )} />
-      </div>
-      <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-        <div className={classes.commentHeader}>
-          <UltraFeedCommentsItemMeta comment={comment} setShowEdit={() => {}} />
-          {showInLineCommentThreadTitle && !comment.shortform && post && (
-            <div className={classes.inlineCommentThreadTitle}>
-              <button 
-                className={classes.inlineCommentThreadTitleLink}
-                onClick={onPostTitleClick}
-              >
-                Replying to <span className={classes.inlineCommentThreadTitleLinkSpan}>{post.title}</span>
-              </button>
-            </div>
-          )}
+    <div className={classes.root}>
+      <div className={classes.mainContent}>
+        <div className={classes.verticalLineContainer}>
+          <div className={classNames(
+            classes.verticalLine,
+            {
+              [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
+              [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
+              [classes.verticalLineFirstComment]: isFirstComment,
+              [classes.verticalLineLastComment]: isLastComment
+            }
+          )} />
         </div>
-        <div className={classes.contentWrapper}>
-          <FeedContentBody
-            html={comment.contents?.html ?? ""}
-            breakpoints={truncationBreakpoints ?? []}
-            wordCount={comment.contents?.wordCount ?? 0}
-            initialExpansionLevel={0}
-            nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            clampOverride={settings.lineClampNumberOfLines}
-            onExpand={handleContentExpand}
-            onContinueReadingClick={handleContinueReadingClick}
-            hideSuffix={false}
-            resetSignal={resetSig}
+        <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+          <div className={classes.commentHeader}>
+            <UltraFeedCommentsItemMeta
+              comment={comment}
+              setShowEdit={() => {}}
+              showInLineCommentThreadTitle={showInLineCommentThreadTitle}
+              onPostTitleClick={onPostTitleClick} />
+          </div>
+          <div className={classes.contentWrapper}>
+            <FeedContentBody
+              html={comment.contents?.html ?? ""}
+              breakpoints={truncationBreakpoints ?? []}
+              wordCount={comment.contents?.wordCount ?? 0}
+              initialExpansionLevel={0}
+              nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+              clampOverride={settings.lineClampNumberOfLines}
+              onExpand={handleContentExpand}
+              onContinueReadingClick={handleContinueReadingClick}
+              hideSuffix={false}
+              resetSignal={resetSig}
+            />
+          </div>
+          <UltraFeedItemFooter
+            document={comment}
+            collectionName="Comments"
+            metaInfo={metaInfo}
+            className={classes.footer}
           />
         </div>
-        <UltraFeedItemFooter
-          document={comment}
-          collectionName="Comments"
-          metaInfo={metaInfo}
-          className={classes.footer}
-        />
       </div>
-      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} />}
+      {/* buttons are placed separately within root because display: flex disrupts their positioning */}
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} applyCommentStyle={true} />}
     </div>
     </AnalyticsContext>
   );

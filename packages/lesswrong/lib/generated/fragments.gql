@@ -1070,6 +1070,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   postId
   bannerImageId
   includesPoll
+  isGlobal
   eventFormat
   pollQuestion_latest
   pollAgreeWording
@@ -1106,6 +1107,7 @@ fragment ForumEventsDisplay on ForumEvent {
   pollQuestion {
     _id
     html
+    plaintextMainText
   }
 }
 
@@ -1140,6 +1142,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   eventFormat
   customComponent
   commentPrompt
+  isGlobal
 
   pollAgreeWording
   pollDisagreeWording
@@ -4562,6 +4565,7 @@ fragment UsersCurrent on User {
   hideFrontpageMap
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   emails
   whenConfirmationEmailSent
@@ -4769,6 +4773,7 @@ fragment UsersDefaultFragment on User {
   karmaChangeBatchStart
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   hideSubscribePoke
   hideMeetupsPoke
@@ -4910,6 +4915,7 @@ fragment UsersEdit on User {
   whenConfirmationEmailSent
   emailSubscribedToCurated
   subscribedToDigest
+  subscribedToNewsletter
   unsubscribeFromAll
   hasAuth0Id
 

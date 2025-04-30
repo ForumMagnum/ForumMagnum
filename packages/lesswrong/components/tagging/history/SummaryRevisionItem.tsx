@@ -19,7 +19,7 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
   const tagHistoryClasses = useStyles(tagHistoryStyles);
   const { CompareRevisions, ContentStyles, ForumIcon, TagRevisionItemShortMetadata } = Components;
   const [expanded, setExpanded] = useState(false);
-  const documentId = revision.documentId;
+  const documentId = revision.documentId ?? '';
 
   const summary = revision.summary;
   

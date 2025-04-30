@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
-import { postGetLink } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { useMulti } from "@/lib/crud/withMulti";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { DialogContent } from "../widgets/DialogContent";
@@ -144,7 +144,7 @@ const UltraFeedDialogContent = ({
         {post && <div>
           <div className={classes.titleContainer}>
             <Link
-              to={postGetLink(post)}
+              to={postGetPageUrl(post)}
               className={classes.title}
               onClick={(e) => {
                 e.stopPropagation();
