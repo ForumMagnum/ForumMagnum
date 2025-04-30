@@ -8,7 +8,7 @@ import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -403,7 +403,7 @@ export const CommentForm = ({
         {formType === 'edit' && userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="promoted">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Pinned"
               />
@@ -424,7 +424,7 @@ export const CommentForm = ({
         {showAfCheckbox && <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="AI Alignment Forum"
               />
@@ -448,7 +448,7 @@ export const CommentForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="hideAuthor">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide author"
               />

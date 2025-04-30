@@ -16,7 +16,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor/EditorFormComponent';
 import { TanStackLocation } from '@/components/tanstack-form-components/TanStackLocation';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
@@ -334,7 +334,7 @@ const UsersForm = ({
         {isLW && <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageMap">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide the frontpage map"
               />
@@ -345,7 +345,7 @@ const UsersForm = ({
         {isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageBook2020Ad">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide the frontpage book ad"
               />
@@ -357,7 +357,7 @@ const UsersForm = ({
           <form.Field name="noKibitz">
             {(field) => (
               <LWTooltip title="For if you want to not be biased. Adds an option to the user menu to temporarily disable. Does not work well on mobile" placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Hide author names until I hover over them"
                 />
@@ -369,7 +369,7 @@ const UsersForm = ({
         {isEAForum && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={classes.fieldWrapper}>
           <form.Field name="showHideKarmaOption">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Enable option on posts to hide karma visibility"
               />
@@ -381,7 +381,7 @@ const UsersForm = ({
           <form.Field name="beta">
             {(field) => (
               <LWTooltip title="Get early access to new in-development features" placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Opt into experimental (beta) features"
                 />
@@ -393,7 +393,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="hideIntercom">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide Intercom"
               />
@@ -404,7 +404,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="markDownPostEditor">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Activate Markdown Editor"
               />
@@ -415,7 +415,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="hideElicitPredictions">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide other users' Elicit predictions until I have predicted myself"
               />
@@ -426,7 +426,7 @@ const UsersForm = ({
         {isAF && <div className={classes.fieldWrapper}>
           <form.Field name="hideAFNonMemberInitialWarning">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide explanations of how AIAF submissions work for non-members"
               />
@@ -437,7 +437,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="noSingleLineComments">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Do not collapse comments to Single Line"
               />
@@ -448,7 +448,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="noCollapseCommentsPosts">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Do not truncate comments (in large threads on Post Pages)"
               />
@@ -459,7 +459,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="noCollapseCommentsFrontpage">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Do not truncate comments (on home page)"
               />
@@ -470,7 +470,7 @@ const UsersForm = ({
         {isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="hideCommunitySection">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide community section from the frontpage"
               />
@@ -481,7 +481,7 @@ const UsersForm = ({
         {isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="showCommunityInRecentDiscussion">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Show Community posts in Recent Discussion"
               />
@@ -492,7 +492,7 @@ const UsersForm = ({
         {hasPostRecommendations && <div className={classes.fieldWrapper}>
           <form.Field name="hidePostsRecommendations">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide recommendations from the posts page"
               />
@@ -503,7 +503,7 @@ const UsersForm = ({
         {hasSurveys && <div className={classes.fieldWrapper}>
           <form.Field name="optedOutOfSurveys">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Opt out of user surveys"
               />
@@ -514,7 +514,7 @@ const UsersForm = ({
         {userCanViewJargonTerms(form.state.values) && <div className={classes.fieldWrapper}>
           <form.Field name="postGlossariesPinned">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Pin glossaries on posts, and highlight all instances of each term"
               />
@@ -566,7 +566,7 @@ const UsersForm = ({
           <form.Field name="auto_subscribe_to_my_posts">
             {(field) => (<>
               <ManageSubscriptionsLink />
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Auto-subscribe to comments on my posts"
               />
@@ -577,7 +577,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="auto_subscribe_to_my_comments">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Auto-subscribe to replies to my comments"
               />
@@ -588,7 +588,7 @@ const UsersForm = ({
         {hasEventsSetting.get() && <div className={classes.fieldWrapper}>
           <form.Field name="autoSubscribeAsOrganizer">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Auto-subscribe to posts/events in groups I organize"
               />
@@ -860,7 +860,7 @@ const UsersForm = ({
         {isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="subscribedToDigest">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Subscribe to the EA Forum Digest emails"
               />
@@ -871,7 +871,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="unsubscribeFromAll">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Do not send me any emails (unsubscribe from all)"
               />
@@ -884,7 +884,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFromPeopleDirectory">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide my profile from the People directory"
               />
@@ -896,7 +896,7 @@ const UsersForm = ({
           <form.Field name="allowDatadogSessionReplay">
             {(field) => (
               <LWTooltip title="Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site." placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Allow Session Replay"
                 />
@@ -935,7 +935,7 @@ const UsersForm = ({
           <form.Field name="noindex">
             {(field) => (
               <LWTooltip title="Hide this user's profile from search engines" placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="No Index"
                 />
@@ -958,7 +958,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="sunshineFlagged">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Sunshine flagged"
               />
@@ -969,7 +969,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="needsReview">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Needs review"
               />
@@ -980,7 +980,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="sunshineSnoozed">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Sunshine snoozed"
               />
@@ -1038,7 +1038,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="viewUnreviewedComments">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="View unreviewed comments"
               />
@@ -1049,7 +1049,7 @@ const UsersForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="defaultToCKEditor">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Activate CKEditor by default"
               />
@@ -1085,7 +1085,7 @@ const UsersForm = ({
         {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="hideSunshineSidebar">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide Sunshine Sidebar"
               />
@@ -1127,7 +1127,7 @@ const UsersForm = ({
           <div className={classes.fieldWrapper} key={idx}>
             <form.Field name={fieldName}>
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label={label}
                 />
@@ -1141,7 +1141,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="nullifyVotes">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Nullify all past votes"
               />
@@ -1152,7 +1152,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="deleteContent">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Delete all user content"
               />
@@ -1209,7 +1209,7 @@ const UsersForm = ({
         {!isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="moderatorAssistance">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="I'm happy for site moderators to help enforce my policy"
               />
@@ -1220,7 +1220,7 @@ const UsersForm = ({
         {!isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="collapseModerationGuidelines">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="On my posts, collapse my moderation guidelines by default"
               />
@@ -1257,7 +1257,7 @@ const UsersForm = ({
         {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins')) && <div className={classes.fieldWrapper}>
           <form.Field name="isAdmin">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Admin"
               />
@@ -1283,7 +1283,7 @@ const UsersForm = ({
           <form.Field name="deleted">
             {(field) => (
               <LWTooltip title="Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible." placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Deactivate"
                 />

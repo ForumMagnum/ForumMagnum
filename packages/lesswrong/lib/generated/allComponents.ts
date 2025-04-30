@@ -377,7 +377,6 @@ importComponent("PrettyEventDateTime", () => require("../../components/events/mo
 importComponent("VirtualProgramCard", () => require("../../components/events/modules/VirtualProgramCard.tsx"));
 importComponent("BasicFormStyles", () => require("../../components/form-components/BasicFormStyles.tsx"));
 importComponent("DummyFormGroup", () => require("../../components/form-components/DummyFormGroup.tsx"));
-importComponent("FormComponentCheckbox", () => require("../../components/form-components/FormComponentCheckbox.tsx"));
 importComponent("FormComponentCheckboxGroup", () => require("../../components/form-components/FormComponentCheckboxGroup.tsx"));
 importComponent("FormComponentColorPicker", () => require("../../components/form-components/FormComponentColorPicker.tsx"));
 importComponent("FormComponentDate", () => require("../../components/form-components/FormComponentDate.tsx"));

@@ -6,7 +6,7 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -215,7 +215,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="displaySequencesAsGrid">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Display sequences as grid"
             />
@@ -226,7 +226,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="hideProgressBar">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Hide progress bar"
             />
@@ -237,7 +237,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="showChapters">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Show chapters"
             />

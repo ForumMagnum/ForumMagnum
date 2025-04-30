@@ -7,7 +7,7 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
@@ -103,7 +103,7 @@ const RSSFeedsForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="ownedByUser">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Owned by user"
             />
@@ -114,7 +114,7 @@ const RSSFeedsForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="displayFullContent">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Display full content"
             />
@@ -125,7 +125,7 @@ const RSSFeedsForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="setCanonicalUrl">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Set the canonical url tag on crossposted posts"
             />
@@ -136,7 +136,7 @@ const RSSFeedsForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="importAsDraft">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Import posts as draft"
             />

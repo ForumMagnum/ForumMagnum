@@ -8,7 +8,7 @@ import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { useSingle } from '@/lib/crud/withSingle';
-import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
 import { isEAForum, isLW } from '@/lib/instanceSettings';
 import { TanStackMultiSelectButtons } from '@/components/tanstack-form-components/TanStackMultiSelectButtons';
@@ -224,7 +224,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="isOnline">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="This is an online group"
             />
@@ -336,7 +336,7 @@ const TanStackGroupForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Delete Group"
               />

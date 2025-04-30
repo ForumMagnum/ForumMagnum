@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -182,7 +182,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         <div className={classes.fieldWrapper}>
           <form.Field name="hideStartReadingButton">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide start reading button"
               />
@@ -193,7 +193,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         <div className={classes.fieldWrapper}>
           <form.Field name="noindex">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Noindex"
               />

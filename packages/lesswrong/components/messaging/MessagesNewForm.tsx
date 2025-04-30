@@ -11,7 +11,7 @@ import { useCreate } from "@/lib/crud/withCreate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
@@ -194,7 +194,7 @@ const InnerMessagesNewForm = ({
       {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
         <form.Field name="noEmail">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="No email"
             />

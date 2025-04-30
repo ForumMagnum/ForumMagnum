@@ -31,7 +31,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { GlossaryEditFormWrapper } from "../jargon/GlossaryEditFormWrapper";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackLocation } from "@/components/tanstack-form-components/TanStackLocation";
@@ -357,7 +357,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Online event"
               />
@@ -393,7 +393,7 @@ export const PostForm = ({
           <form.Field name="activateRSVPs">
             {(field) => (
               <LWTooltip title="RSVPs are public, but the associated email addresses are only visible to organizers." placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Enable RSVPs for this event"
                 />
@@ -456,7 +456,7 @@ export const PostForm = ({
           <form.Field name="globalEvent">
             {(field) => (
               <LWTooltip title="By default, events are only advertised to people who are located nearby (for both in-person and online events). Check this to advertise it people located anywhere." placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="This event is intended for a global audience"
                 />
@@ -608,7 +608,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="sticky">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Sticky"
               />
@@ -619,7 +619,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="metaSticky">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Sticky (Meta)"
               />
@@ -630,7 +630,7 @@ export const PostForm = ({
         {isLWorAF && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForumAdmins')) && <div className={classes.fieldWrapper}>
           <form.Field name="afSticky">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Sticky (Alignment)"
               />
@@ -656,7 +656,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="unlisted">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Make only accessible via link"
               />
@@ -667,7 +667,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="legacy">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Legacy"
               />
@@ -678,7 +678,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="disableRecommendation">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Exclude from Recommendations"
               />
@@ -689,7 +689,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="forceAllowType3Audio">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Force allow type3 audio"
               />
@@ -700,7 +700,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="defaultRecommendation">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Include in default recommendations"
               />
@@ -711,7 +711,7 @@ export const PostForm = ({
         {isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="hideFromPopularComments">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide comments on this post from Popular Comments"
               />
@@ -769,7 +769,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="authorIsUnreviewed">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Author is unreviewed"
               />
@@ -815,7 +815,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="noIndex">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="No index"
               />
@@ -826,7 +826,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="onlyVisibleToLoggedIn">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide this post from users who are not logged in"
               />
@@ -837,7 +837,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="onlyVisibleToEstablishedAccounts">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide this post from logged out users and newly created accounts"
               />
@@ -848,7 +848,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFromRecentDiscussions">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide this post from recent discussions"
               />
@@ -938,7 +938,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="hideAuthor">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide author"
               />
@@ -949,7 +949,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="swrCachingEnabled">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="stale-while-revalidate caching enabled"
               />
@@ -1042,7 +1042,7 @@ export const PostForm = ({
         {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForum')) && <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Alignment Forum"
               />
@@ -1053,7 +1053,7 @@ export const PostForm = ({
         {hasSidenotes && <div className={classes.fieldWrapper}>
           <form.Field name="disableSidenotes">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Disable sidenotes"
               />
@@ -1117,7 +1117,7 @@ export const PostForm = ({
           <form.Field name="ignoreRateLimits">
             {(field) => (
               <LWTooltip title="Allow rate-limited users to comment freely on this post" placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Ignore rate limits"
                 />
@@ -1129,7 +1129,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageComments">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide frontpage comments"
               />
@@ -1140,7 +1140,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="commentsLocked">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Comments locked"
               />
@@ -1162,7 +1162,7 @@ export const PostForm = ({
         {isEAForum && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
           <form.Field name="hideCommentKarma">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Hide comment karma"
               />

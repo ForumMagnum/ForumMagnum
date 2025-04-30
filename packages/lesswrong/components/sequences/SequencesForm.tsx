@@ -7,7 +7,7 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
@@ -166,7 +166,7 @@ export const SequencesForm = ({
       <div className={classNames('form-input', 'input-hideFromAuthorPage', classes.fieldWrapper)}>
         <form.Field name="hideFromAuthorPage">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Hide from my user profile"
             />
@@ -177,7 +177,7 @@ export const SequencesForm = ({
       <div className={classNames('form-input', 'input-draft', classes.fieldWrapper)}>
         <form.Field name="draft">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Draft"
             />
@@ -188,7 +188,7 @@ export const SequencesForm = ({
       <div className={classNames('form-input', 'input-af', classes.fieldWrapper)}>
         <form.Field name="af">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Alignment Forum"
             />
@@ -260,7 +260,7 @@ export const SequencesForm = ({
           <form.Field name="hidden">
             {(field) => (
               <LWTooltip title="Hidden sequences don't show up on lists/search results on this site, but can still be accessed directly by anyone" placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Hidden"
                 />
@@ -272,7 +272,7 @@ export const SequencesForm = ({
         <div className={classNames('form-input', 'input-noindex', classes.fieldWrapper)}>
           <form.Field name="noindex">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Noindex"
               />
@@ -297,7 +297,7 @@ export const SequencesForm = ({
           <form.Field name="isDeleted">
             {(field) => (
               <LWTooltip title="Make sure you want to delete this sequence - it will be completely hidden from the forum." placement="left-start" inlineBlock={false}>
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Delete"
                 />

@@ -2,21 +2,21 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { TanStackCheckbox, TanStackCheckboxProps } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { FormComponentCheckbox, FormComponentCheckboxProps } from '@/components/form-components/FormComponentCheckbox';
 
-export const EmailConfirmationRequiredCheckbox = (props: TanStackCheckboxProps) => {
+export const EmailConfirmationRequiredCheckbox = (props: FormComponentCheckboxProps) => {
   const currentUser = useCurrentUser();
   let { label, ...otherProps } = props;
   
   if(userEmailAddressIsVerified(currentUser)) {
     return (
-      <TanStackCheckbox
+      <FormComponentCheckbox
         {...props}
       />
     );
   } else {
     return (
-      <TanStackCheckbox
+      <FormComponentCheckbox
         disabled
         {...otherProps}
         label={`${label} (verify your email address first)`}

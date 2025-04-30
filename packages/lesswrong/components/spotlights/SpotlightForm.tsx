@@ -7,7 +7,7 @@ import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
@@ -245,7 +245,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-draft', inputFieldClass)}>
             <form.Field name="draft">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Draft"
                 />
@@ -257,7 +257,7 @@ export const SpotlightForm = ({
             <form.Field name="deletedDraft">
               {(field) => (
                 <LWTooltip title="Remove from the spotlights page, but keep in the database." placement="left-start" inlineBlock={false}>
-                  <TanStackCheckbox
+                  <FormComponentCheckbox
                     field={field}
                     label="Deleted draft"
                   />
@@ -269,7 +269,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-showAuthor', inputFieldClass)}>
             <form.Field name="showAuthor">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Show author"
                 />
@@ -280,7 +280,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-imageFade', inputFieldClass)}>
             <form.Field name="imageFade">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Image fade"
                 />

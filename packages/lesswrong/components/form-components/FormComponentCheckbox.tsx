@@ -1,49 +1,56 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import { Components } from '../../lib/vulcan-lib/components';
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
   root: {
-    marginRight:theme.spacing.unit*3,
+    marginRight: theme.spacing.unit * 3,
     marginTop: 5,
     display: "flex",
     alignItems: "center"
   },
   size: {
-    width:36,
-    height:0
+    width: 36,
+    height: 0,
   },
   inline: {
     display: "inline",
     cursor: "pointer",
-  }
-})
+  },
+}));
 
-const FormComponentCheckbox = ({ classes, label, disabled=false, path, updateCurrentValues, value }: FormComponentProps<boolean> & {
-  classes: ClassesType<typeof styles>;
-}) => {
-  return <div className={classes.root}>
-    <Checkbox
-      className={classes.size}
-      checked={value}
-      onChange={(event, checked) => {
-        void updateCurrentValues({
-          [path]: checked
-        })
-      }}
-      disabled={disabled}
-      disableRipple
-    />
-    <Components.Typography className={classes.inline} variant="body2" component="label">{label}</Components.Typography>
-  </div>
+export interface FormComponentCheckboxProps {
+  field: TypedFieldApi<boolean> | TypedFieldApi<boolean | null>;
+  label?: string;
+  disabled?: boolean;
+  className?: string;
 }
 
-// Replaces FormComponentCheckbox from vulcan-ui-bootstrap
-const FormComponentCheckboxComponent = registerComponent("FormComponentCheckbox", FormComponentCheckbox, {styles});
+export function FormComponentCheckbox({
+  field,
+  label,
+  disabled = false,
+  className,
+}: FormComponentCheckboxProps) {
+  const classes = useStyles(styles);
 
-declare global {
-  interface ComponentTypes {
-    FormComponentCheckbox: typeof FormComponentCheckboxComponent
-  }
+  const id = `checkbox-${field.name}`;
+
+  return (
+    <div className={classNames(classes.root, className)}>
+      <Checkbox
+        id={id}
+        className={classes.size}
+        checked={!!field.state.value}
+        onChange={(_, checked) => field.handleChange(checked)}
+        onBlur={field.handleBlur}
+        disabled={disabled}
+        disableRipple
+      />
+      {label && <Components.Typography htmlFor={id} className={classes.inline} variant="body2" component="label">{label}</Components.Typography>}
+    </div>
+  );
 }
-

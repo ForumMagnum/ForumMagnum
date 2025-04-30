@@ -10,7 +10,7 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
@@ -210,7 +210,7 @@ const SurveySchedulesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="deactivated">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Deactivated"
             />

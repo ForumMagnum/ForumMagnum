@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useWarnAboutUnsavedChanges } from "@/components/hooks/useWarnAboutUnsavedChanges";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "@/components/editor/EditorFormComponent";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -194,7 +194,7 @@ export const LensForm = ({
       {initialData && userCanDeleteMultiDocument(currentUser, initialData) && <div className={classNames('input-deleted', 'form-input', classes.fieldWrapper)}>
         <form.Field name="deleted">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Deleted"
             />

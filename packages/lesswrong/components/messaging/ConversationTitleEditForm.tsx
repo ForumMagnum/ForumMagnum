@@ -7,7 +7,7 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
@@ -101,7 +101,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
         {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Af"
               />
@@ -112,7 +112,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
         {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="moderator">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Moderator"
               />

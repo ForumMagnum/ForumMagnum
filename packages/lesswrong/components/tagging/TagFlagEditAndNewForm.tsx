@@ -11,7 +11,7 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -119,7 +119,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
           <div className={classes.fieldWrapper}>
             <form.Field name="deleted">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Deleted"
                 />

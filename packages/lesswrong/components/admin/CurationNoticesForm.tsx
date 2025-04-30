@@ -7,7 +7,7 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
@@ -128,7 +128,7 @@ export const CurationNoticesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="deleted">
           {(field) => (
-            <TanStackCheckbox
+            <FormComponentCheckbox
               field={field}
               label="Deleted"
             />

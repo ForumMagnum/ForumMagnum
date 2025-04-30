@@ -9,7 +9,7 @@ import React from "react";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -162,7 +162,7 @@ export const SummaryForm = ({
         {initialData && userCanDeleteMultiDocument(currentUser, initialData) && <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (
-              <TanStackCheckbox
+              <FormComponentCheckbox
                 field={field}
                 label="Deleted"
               />

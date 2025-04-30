@@ -13,7 +13,7 @@ import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
@@ -233,7 +233,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="core">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Core Tag (moderators check whether it applies when reviewing new posts)"
                 />
@@ -244,7 +244,7 @@ export const TagForm = ({
           {isEAForum && <div className={classes.fieldWrapper}>
             <form.Field name="isPostType">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Is post type"
                 />
@@ -255,7 +255,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="suggestedAsFilter">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Suggested Filter (appears as a default option in filter settings without having to use the search box)"
                 />
@@ -292,7 +292,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="adminOnly">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Admin Only"
                 />
@@ -316,7 +316,7 @@ export const TagForm = ({
           {formType === 'edit' && <div className={classes.fieldWrapper}>
             <form.Field name="deleted">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Deleted"
                 />
@@ -327,7 +327,7 @@ export const TagForm = ({
           {formType === 'edit' && <div className={classes.fieldWrapper}>
             <form.Field name="needsReview">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Needs review"
                 />
@@ -350,7 +350,7 @@ export const TagForm = ({
           {showWikiOnlyField(currentUser, formType) && <div className={classes.fieldWrapper}>
             <form.Field name="wikiOnly">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Wiki only"
                 />
@@ -424,7 +424,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="isSubforum">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Is subforum"
                 />
@@ -495,7 +495,7 @@ export const TagForm = ({
             <form.Field name="noindex">
               {(field) => (
                 <LWTooltip title="Hide this wikitag from search engines" placement="left-start" inlineBlock={false}>
-                  <TanStackCheckbox
+                  <FormComponentCheckbox
                     field={field}
                     label="No Index"
                   />
@@ -518,7 +518,7 @@ export const TagForm = ({
           {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
             <form.Field name="forceAllowType3Audio">
               {(field) => (
-                <TanStackCheckbox
+                <FormComponentCheckbox
                   field={field}
                   label="Force Allow T3 Audio"
                 />
