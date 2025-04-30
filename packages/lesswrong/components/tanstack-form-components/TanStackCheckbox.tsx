@@ -22,8 +22,9 @@ const styles = defineStyles('TanStackCheckbox', (theme: ThemeType) => ({
   },
 }));
 
-interface TanStackCheckboxProps {
-  field: TypedFieldApi<boolean>;
+export type TanStackCheckboxProps = ({
+  field: TypedFieldApi<boolean> | TypedFieldApi<boolean | null>;
+}) & {
   label?: string;
   disabled?: boolean;
   className?: string;

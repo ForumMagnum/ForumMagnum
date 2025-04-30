@@ -9,8 +9,14 @@ interface SelectOption {
   value: string | number;
 }
 
-export const TanStackSelect = ({ field, options, label, hideClear }: {
-  field: TypedFieldApi<string | null>;
+export const TanStackSelect = ({ field, defaultValue, options, label, hideClear }: {
+  field: {
+    name: TypedFieldApi<string | null>['name'];
+    state: Pick<TypedFieldApi<string | null>['state'], 'value' | 'meta'>;
+    handleChange: TypedFieldApi<string | null>['handleChange'];
+    handleBlur: TypedFieldApi<string | null>['handleBlur'];
+  };
+  defaultValue?: string | number;
   options: SelectOption[] | readonly SelectOption[];
   label?: string;
   hideClear?: boolean;
@@ -18,7 +24,7 @@ export const TanStackSelect = ({ field, options, label, hideClear }: {
   const { MenuItem } = Components;
 
   return (<>
-    <TanStackMuiTextField select field={field} label={label}>
+    <TanStackMuiTextField select field={field} label={label} defaultValue={defaultValue}>
       {options.map((option) => (
         <MenuItem key={option.value} value={option.value}>
           {option.label}

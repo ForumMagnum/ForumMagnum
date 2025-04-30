@@ -145,10 +145,10 @@ export const useGoogleMaps = (): [boolean, any] => {
 };
 
 interface TanStackLocationProps {
-  field: TypedFieldApi<AnyBecauseTodo>;
+  field: TypedFieldApi<AnyBecauseHard>;
   label: string;
   /** Optional sibling field that stores the plain‑string version of the location */
-  stringVersionFieldName?: string | null;
+  stringVersionFieldName?: keyof localGroupsEdit | null;
   variant?: 'default' | 'grey';
   locationTypes?: QueryType[];
 }
@@ -162,7 +162,7 @@ export function TanStackLocation({
 }: TanStackLocationProps) {
   const classes = useStyles(styles);
   const [mapsLoaded] = useGoogleMaps();
-  const geosuggestEl = useRef<any>(null);
+  const geosuggestEl = useRef<Geosuggest>(null);
 
   const value = field.state.value as AnyBecauseTodo | null;
   const initialLocation =

@@ -12211,6 +12211,8 @@ fragment UsersEdit on User {
   notificationNewMention
   notificationNewDialogueChecks
   notificationYourTurnMatchForm
+  notificationDialogueMessages
+  notificationPublishedDialogueMessages
 
   hideFrontpageMap
   hideTaggingProgressBar

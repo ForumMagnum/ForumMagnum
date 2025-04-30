@@ -100,7 +100,7 @@ const noSharePermissionTooltip = isFriendlyUI
   : "You need at least 1 karma or to be approved by a mod to share";
 
 interface PostSharingSettingsProps {
-  field: TypedFieldApi<SharingSettings, PostSubmitMeta>;
+  field: TypedFieldApi<SharingSettings, EditablePost, PostSubmitMeta>;
   post: EditablePost;
   formType: "new" | "edit";
 }

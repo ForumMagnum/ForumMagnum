@@ -145,17 +145,28 @@ const formStyles = defineStyles('SurveySchedulesForm', (theme: ThemeType) => ({
   cancelButton: cancelButtonStyles(theme),
 }));
 
+type EditableUserRateLimit = Required<Omit<UpdateUserRateLimitDataInput, 'legacyData'>> & { _id: string; intervalUnit: DbUserRateLimit['intervalUnit']; type: DbUserRateLimit['type'] };
+
+type EditableUserRateLimitFormData = {
+  onSuccess: (doc: UserRateLimitDisplay) => void;
+  onCancel: () => void;
+} & (
+  | {
+    initialData: EditableUserRateLimit;
+    prefilledProps?: undefined;
+  }
+  | {
+    initialData?: undefined;
+    prefilledProps: RateLimitInput;
+  }
+);
+
 export const UserRateLimitsForm = ({
   initialData,
   prefilledProps,
   onSuccess,
   onCancel,
-}: {
-  initialData?: UpdateUserRateLimitDataInput & { _id: string; intervalUnit: DbUserRateLimit['intervalUnit']; type: DbUserRateLimit['type'] };
-  prefilledProps?: RateLimitInput;
-  onSuccess: (doc: UserRateLimitDisplay) => void;
-  onCancel: () => void;
-}) => {
+}: EditableUserRateLimitFormData) => {
   const classes = useStyles(formStyles);
   const { Error404 } = Components;
 
@@ -175,8 +186,7 @@ export const UserRateLimitsForm = ({
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
-      ...(formType === 'new' ? prefilledProps : {})
+      ...(initialData ? initialData : prefilledProps),
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -351,6 +361,9 @@ export const UserRateLimitItem = ({ userId, classes }: {
     return <Loading />;
   }
 
+  const existingRateLimit = existingRateLimits.find(rateLimit => rateLimit._id === editingExistingRateLimitId);
+  const existingOrDefaultValue = existingRateLimit ? { initialData: existingRateLimit } : { prefilledProps: prefilledCustomFormProps };
+
   return <div>
     {/** Doesn't have both a comment and post rate limit */}
     {existingRateLimits.length < 2 && <div>
@@ -376,8 +389,7 @@ export const UserRateLimitItem = ({ userId, classes }: {
     </div>}
     {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
       <UserRateLimitsForm
-        initialData={editingExistingRateLimitId ? existingRateLimits.find(rateLimit => rateLimit._id === editingExistingRateLimitId) : undefined}
-        prefilledProps={editingExistingRateLimitId ? undefined : prefilledCustomFormProps}
+        {...existingOrDefaultValue}
         onSuccess={async () => {
           await refetch();
           setCreateNewRateLimit(false);

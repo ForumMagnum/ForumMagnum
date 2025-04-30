@@ -19,10 +19,16 @@ const styles = defineStyles('TanStackMuiTextField', (theme: ThemeType) => ({
 }));
 
 interface TanStackMuiTextFieldProps<T extends string | number | null | undefined> {
-  field: TypedFieldApi<T>;
+  field: {
+    name: TypedFieldApi<T>['name'];
+    state: Pick<TypedFieldApi<T>['state'], 'value' | 'meta'>;
+    handleChange: TypedFieldApi<T>['handleChange'];
+    handleBlur: TypedFieldApi<T>['handleBlur'];
+  }
   label?: string;
   children?: ReactNode;
   select?: boolean;
+  defaultValue?: string | number;
   fullWidth?: boolean;
   multiLine?: boolean;
   rows?: number;
@@ -39,6 +45,7 @@ export function TanStackMuiTextField<T extends string | number | null | undefine
   label,
   children,
   select,
+  defaultValue,
   fullWidth,
   multiLine,
   rows,
@@ -63,6 +70,7 @@ export function TanStackMuiTextField<T extends string | number | null | undefine
       variant={variant || 'standard'}
       select={select}
       value={field.state.value ?? ""}
+      defaultValue={defaultValue}
       label={label}
       onChange={handleChange}
       onBlur={field.handleBlur}

@@ -42,7 +42,7 @@ const styles = defineStyles('TanStackMultiSelectButtons', (theme: ThemeType) => 
 }));
 
 interface TanStackMultiSelectButtonsProps {
-  field: TypedFieldApi<string[] | null>;
+  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
   label?: string;
   options: Array<{ value: string; label?: string }>;
   className?: string;

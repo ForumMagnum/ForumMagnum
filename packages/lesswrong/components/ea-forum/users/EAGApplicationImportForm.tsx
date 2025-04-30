@@ -710,10 +710,12 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
         <label className={classes.label}>LinkedIn profile</label>
         {/* @ts-ignore: We're skipping some props here, but it should be safe */}
         <PrefixedInput
-          value={formValues.linkedinProfileURL ?? ''}
+          field={{
+            name: 'linkedinProfileURL',
+            state: { value: formValues.linkedinProfileURL ?? '' },
+            handleChange: (newLinkedInProfileURL) => handleUpdateValue({ linkedinProfileURL: newLinkedInProfileURL }),
+          }}
           inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}
-          path="linkedinProfileURL"
-          updateCurrentValues={handleUpdateValue}
         />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'linkedinProfileURL')}>

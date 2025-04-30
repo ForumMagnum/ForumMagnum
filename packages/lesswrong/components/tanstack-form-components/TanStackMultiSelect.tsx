@@ -66,7 +66,7 @@ type MultiselectOption = {
 };
 
 interface TanStackMultiSelectProps {
-  field: TypedFieldApi<string[] | null>;
+  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
   label?: string;
   placeholder?: string;
   separator?: string;

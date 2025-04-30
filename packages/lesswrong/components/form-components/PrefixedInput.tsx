@@ -42,7 +42,11 @@ const PrefixedInput = ({
   smallBottomMargin,
   classes,
 }: {
-  field: TypedFieldApi<string | null>,
+  field: {
+    name: TypedFieldApi<string | null>['name'];
+    state: Pick<TypedFieldApi<string | null>['state'], 'value'>;
+    handleChange: TypedFieldApi<string | null>['handleChange'];
+  };
   inputPrefix?: string,
   heading?: string,
   smallBottomMargin?: boolean,

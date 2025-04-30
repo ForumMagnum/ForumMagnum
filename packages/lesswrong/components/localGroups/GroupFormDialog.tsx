@@ -99,8 +99,11 @@ const TanStackGroupForm = ({
     defaultValues: {
       ...initialData,
       types: initialData?.types ?? ["LW"],
+      categories: initialData?.categories ?? [],
       isOnline: initialIsOnline ?? initialData?.isOnline ?? false,
       organizerIds: initialData ? initialData.organizerIds : [currentUser._id],
+      bannerImageId: initialData?.bannerImageId ?? null,
+      deleted: initialData?.deleted ?? false,
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();

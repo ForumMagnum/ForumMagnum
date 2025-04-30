@@ -597,6 +597,8 @@ export const UsersEdit = () => frag`
     notificationNewMention
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
+    notificationDialogueMessages
+    notificationPublishedDialogueMessages
 
     hideFrontpageMap
     hideTaggingProgressBar

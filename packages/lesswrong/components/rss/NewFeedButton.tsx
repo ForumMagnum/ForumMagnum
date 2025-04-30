@@ -43,10 +43,14 @@ const RSSFeedsForm = ({
     fragmentName: 'newRSSFeedFragment',
   });
 
-  const defaultValues: CreateRSSFeedDataInput = {
+  const defaultValues: Required<Omit<CreateRSSFeedDataInput, 'legacyData' | 'rawFeed'>> = {
     nickname: '',
     url: '',
     userId,
+    ownedByUser: null,
+    displayFullContent: null,
+    setCanonicalUrl: null,
+    importAsDraft: null,
   };
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
@@ -113,17 +117,6 @@ const RSSFeedsForm = ({
             <TanStackCheckbox
               field={field}
               label="Display full content"
-            />
-          )}
-        </form.Field>
-      </div>
-
-      <div className={classes.fieldWrapper}>
-        <form.Field name="status">
-          {(field) => (
-            <TanStackMuiTextField
-              field={field}
-              label="Status"
             />
           )}
         </form.Field>

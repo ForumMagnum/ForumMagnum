@@ -1,4 +1,4 @@
-import { MODERATOR_ACTION_TYPES } from '@/lib/collections/moderatorActions/newSchema';
+import { MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '@/lib/collections/moderatorActions/newSchema';
 import { useCreate } from '@/lib/crud/withCreate';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogTitle } from "@/components/widgets/DialogTitle";
@@ -40,15 +40,15 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
-  const defaultValues: NullablePartial<DbInsertion<DbModeratorAction>> = {
+  const defaultValues: Required<Omit<CreateModeratorActionDataInput, 'legacyData'>> & { type: DbModeratorAction['type'] } = {
     userId,
-    type: null,
+    type: RATE_LIMIT_ONE_PER_DAY,
     endedAt: null,
   };
 
   const form = useForm({
     defaultValues,
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ value }) => {
       let result: ModeratorActionDisplay;
 
       try {
@@ -99,7 +99,6 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
             </form.Field>
           </div>
 
-          {/* TODO: 'datetime' not yet ported - implement TanStackdatetime */}
           <div className={classes.fieldWrapper}>
             <form.Field name="endedAt">
               {(field) => (
@@ -111,10 +110,7 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
             </form.Field>
           </div>
 
-
-          {/* TODO: check if there's a custom submit component */}
           <div className="form-submit">
-            {/* TODO: check if there's a cancel callback - if not, delete this */}
             <Button
               className={classNames("form-cancel", classes.cancelButton)}
               onClick={(e) => {

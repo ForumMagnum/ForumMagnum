@@ -47,6 +47,9 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   const form = useForm({
     defaultValues: {
       ...conversation,
+      participantIds: conversation.participantIds ?? [],
+      af: conversation.af ?? null,
+      moderator: conversation.moderator ?? null,
     },
     onSubmit: async ({ value, formApi }) => {
       const updatedFields = getUpdatedFieldValues(formApi);

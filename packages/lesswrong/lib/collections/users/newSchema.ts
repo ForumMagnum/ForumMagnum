@@ -97,8 +97,6 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes("sunshineRegiment") ?? false);
 };
 
-export const REACT_PALETTE_STYLES = ["listView", "gridView"];
-
 export const MAX_NOTIFICATION_RADIUS = 300;
 
 export type NotificationChannel = "onsite" | "email";
@@ -507,6 +505,20 @@ export const PROGRAM_PARTICIPATION = [
   { value: "localgroup", label: "Attended more than three meetings with a local EA group" },
   { value: "80k", label: "Received career coaching from 80,000 Hours" },
 ];
+
+export const SORT_DRAFTS_BY_OPTIONS = [
+  { value: "wordCount", label: "Wordcount" },
+  { value: "modifiedAt", label: "Last Modified" },
+];
+
+export const REACT_PALETTE_STYLE_OPTIONS = [
+  { value: "listView", label: "List View" },
+  { value: "iconView", label: "Icons" },
+];
+
+export const GROUP_OPTIONS = Object.keys(getAllUserGroups())
+  .filter(group => group !== "guests" && group !== "members" && group !== "admins")
+  .map((group) => ({ value: group, label: group }));
 
 export type RateLimitReason = "moderator" | "lowKarma" | "downvoteRatio" | "universal";
 

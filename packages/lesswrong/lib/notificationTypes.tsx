@@ -109,7 +109,7 @@ interface GetDialogueMessageProps {
 
 export interface NotificationType {
   name: string
-  userSettingField: keyof DbUser|null
+  userSettingField: (keyof DbUser & `notification${string}`)|null
   allowedChannels?: NotificationChannel[],
   getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>, context: ResolverContext}) => Promise<string>
   getIcon: () => ReactNode,
@@ -979,7 +979,7 @@ const notificationTypesArray: NotificationType[] = [
 const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
 
 function groupNotificationTypesByUserSetting(notificationTypes: Record<string,NotificationType>) {
-  const result: Partial<Record<keyof DbUser, NotificationType>> = {};
+  const result: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType>> = {};
   for (const notificationType of Object.values(notificationTypes)) {
     const { userSettingField } = notificationType;
     if (userSettingField) {
@@ -995,7 +995,7 @@ function groupNotificationTypesByUserSetting(notificationTypes: Record<string,No
   }
   return result;
 }
-const notificationTypesByUserSetting: Partial<Record<keyof DbUser, NotificationType>> = groupNotificationTypesByUserSetting(notificationTypes);
+const notificationTypesByUserSetting: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType>> = groupNotificationTypesByUserSetting(notificationTypes);
 
 
 export const getNotificationTypes = () => {
@@ -1009,7 +1009,7 @@ export const getNotificationTypeByName = (name: string) => {
     throw new Error(`Invalid notification type: ${name}`);
 }
 
-export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): NotificationType => {
+export const getNotificationTypeByUserSetting = (settingName: keyof DbUser & `notification${string}`): NotificationType => {
   const result = notificationTypesByUserSetting[settingName];
   if (!result) throw new Error("Setting does not correspond to a notification type");
   return result;

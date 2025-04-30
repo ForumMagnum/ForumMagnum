@@ -38,7 +38,7 @@ const SurveySchedulesForm = ({
   initialData,
   onSuccess,
 }: {
-  initialData?: UpdateSurveyScheduleDataInput & { _id: string; target?: DbSurveySchedule['target'] };
+  initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; target?: DbSurveySchedule['target'] };
   onSuccess: (doc: SurveyScheduleEdit) => void;
 }) => {
   const classes = useStyles(styles);
@@ -58,10 +58,12 @@ const SurveySchedulesForm = ({
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  const defaultValues = {
+    ...(initialData ?? { target: 'allUsers', startDate: null, endDate: null, deactivated: null } as const),
+  };
+
   const form = useForm({
-    defaultValues: {
-      ...initialData,
-    },
+    defaultValues,
     onSubmit: async ({ value, formApi }) => {
       try {
         let result: SurveyScheduleEdit;

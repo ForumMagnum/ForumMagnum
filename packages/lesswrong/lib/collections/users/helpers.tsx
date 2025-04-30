@@ -333,7 +333,7 @@ type DatadogUser = {
   name?: string,
   slug?: string,
 }
-export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): DatadogUser {
+export function getDatadogUser (user: UsersCurrent | UsersEdit | EditableUser | DbUser): DatadogUser {
   return {
     id: user._id,
     email: getUserEmail(user),
@@ -664,3 +664,14 @@ export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaC
     showNegativeKarma: false,
   },
 } as const);
+
+export type EditableUser = Omit<UpdateUserDataInput & UsersEdit, 'howOthersCanHelpMe' | 'howICanHelpOthers' | 'legacyData'> & {
+  _id: string;
+  hasAuth0Id?: boolean | null;
+  reactPaletteStyle?: DbUser['reactPaletteStyle'];
+  subforumPreferredLayout?: DbUser['subforumPreferredLayout'];
+};
+
+type foobar = {
+  [k in keyof EditableUser]: IfAny<EditableUser[k], k, never>
+}[keyof EditableUser];
