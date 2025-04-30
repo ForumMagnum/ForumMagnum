@@ -57,7 +57,6 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     // textOverflow: 'ellipsis !important', // might want to reenable
     maxHeight: 'none !important',
     paddingBottom: '0.1em !important',
-    // Replace the first blockquote with a placeholder ellipsis when line-clamped
     '& blockquote:first-child': {
       margin: 0,
       paddingTop: 0,
@@ -120,7 +119,7 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
 
 export interface FeedContentBodyProps {
   html: string;
-  breakpoints?: number[];
+  breakpoints?: (number | null)[];
   initialExpansionLevel?: number;
   linkToDocumentOnFinalExpand?: boolean;
   onContinueReadingClick?: (params: { textFragment?: string }) => void;
@@ -153,8 +152,13 @@ const FeedContentBody = ({
 
   const classes = useStyles(styles);
   const [expansionLevel, setExpansionLevel] = useState(initialExpansionLevel);
+  const firstRenderRef = React.useRef(true);
 
   useEffect(() => {
+    if (firstRenderRef.current) {
+      firstRenderRef.current = false;
+      return;
+    }
     if (resetSignal !== undefined) {
       setExpansionLevel(0);
     }
@@ -214,7 +218,7 @@ const FeedContentBody = ({
     let wordsLeft = 0;
     let suffix = '';
 
-    if (!breakpoints.length) {
+    if (!breakpoints.length || currentWordLimit == null) {
       return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0, suffix: '' };
     } else if (applyLineClamp) {
       wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
