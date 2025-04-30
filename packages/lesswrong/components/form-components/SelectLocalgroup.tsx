@@ -3,7 +3,7 @@ import { Components } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
+import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 
 interface SelectLocalgroupBaseProps {
@@ -49,7 +49,7 @@ export const SelectLocalgroup = (props: SelectLocalgroupProps) => {
     const options = groups?.map(group => {
       return {value: group._id, label: group.name ?? ''}
     })
-    return <TanStackMultiSelect {...props} options={options || []} />
+    return <FormComponentMultiSelect {...props} options={options || []} />
   }
 
   const selectOptions = groups?.map(group => {

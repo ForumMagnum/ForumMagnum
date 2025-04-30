@@ -20,7 +20,7 @@ import { getUpdatedFieldValues } from '@/components/tanstack-form-components/hel
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { FormComponentFriendlyTextInput } from '../form-components/FormComponentFriendlyTextInput';
-import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
+import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION } from '@/lib/collections/users/newSchema';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
@@ -285,7 +285,7 @@ const UserProfileForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="careerStage">
             {(field) => (
-              <TanStackMultiSelect
+              <FormComponentMultiSelect
                 field={field}
                 options={CAREER_STAGES}
                 label="Career stage"
@@ -444,7 +444,7 @@ const UserProfileForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="programParticipation">
             {(field) => (
-              <TanStackMultiSelect
+              <FormComponentMultiSelect
                 field={field}
                 options={PROGRAM_PARTICIPATION}
                 label="Program participation"

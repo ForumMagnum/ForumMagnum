@@ -12,7 +12,7 @@ import { FormComponentCheckbox } from '@/components/form-components/FormComponen
 import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
 import { isEAForum, isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
-import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
+import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
 import { GROUP_CATEGORIES } from '@/lib/collections/localgroups/newSchema';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
@@ -211,7 +211,7 @@ const TanStackGroupForm = ({
       {isEAForum && <div className={classes.fieldWrapper}>
         <form.Field name="categories">
           {(field) => (
-            <TanStackMultiSelect
+            <FormComponentMultiSelect
               field={field}
               label='Group type / intended audience:'
               options={GROUP_CATEGORIES}

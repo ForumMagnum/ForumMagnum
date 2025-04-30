@@ -211,7 +211,7 @@ const schema = {
     },
     form: {
       form: { label: "Group type / intended audience", options: () => GROUP_CATEGORIES },
-      control: "FormComponentMultiSelect",
+      // control: "FormComponentMultiSelect",
       placeholder: "Select all that apply",
       hidden: () => !isEAForum,
     },

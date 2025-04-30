@@ -4836,7 +4836,7 @@ const schema = {
     },
     form: {
       hidden: true,
-      control: "FormComponentMultiSelect",
+      // control: "FormComponentMultiSelect",
       group: () => formGroups.generalInfo,
       order: 4,
       label: "Career stage",
@@ -5162,7 +5162,7 @@ const schema = {
       hidden: true,
       group: () => formGroups.activity,
       order: 3,  
-      control: "FormComponentMultiSelect",
+      // control: "FormComponentMultiSelect",
       placeholder: "Which of these programs have you participated in?",
       form: {
         variant: "grey",
