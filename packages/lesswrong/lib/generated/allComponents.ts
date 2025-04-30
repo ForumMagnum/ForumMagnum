@@ -1103,6 +1103,7 @@ importComponent("UltraFeedPostDialog", () => require("../../components/ultraFeed
 importComponent("UltraFeedPostItem", () => require("../../components/ultraFeed/UltraFeedPostItem.tsx"));
 importComponent("UltraFeedSettings", () => require("../../components/ultraFeed/UltraFeedSettings.tsx"));
 importComponent("UltraFeedThreadItem", () => require("../../components/ultraFeed/UltraFeedThreadItem.tsx"));
+importComponent(["SourceWeightsSettings", "TruncationGridSettings", "AdvancedTruncationSettings", "MultipliersSettings", "MiscSettings"], () => require("../../components/ultraFeed/settingsComponents/UltraFeedSettingsComponents.tsx"));
 importComponent("Auth0PasswordResetPage", () => require("../../components/users/Auth0PasswordResetPage.tsx"));
 importComponent("BannedNotice", () => require("../../components/users/BannedNotice.tsx"));
 importComponent("CrosspostLoginPage", () => require("../../components/users/CrosspostLoginPage.tsx"));
