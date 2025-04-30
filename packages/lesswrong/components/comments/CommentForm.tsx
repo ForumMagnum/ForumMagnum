@@ -33,6 +33,7 @@ import Error404 from "../common/Error404";
 import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { hasDraftComments } from '@/lib/betas';
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -41,6 +42,29 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
+  submitMinimalist: {
+    height: 'fit-content',
+    marginTop: "auto",
+    marginBottom: 4,
+  },
+  formButtonMinimalist: {
+    padding: "2px",
+    fontSize: "16px",
+    minWidth: 28,
+    minHeight: 28,
+    marginLeft: "5px",
+    "&:hover": {
+      opacity: .8,
+      backgroundColor: theme.palette.lwTertiary.main,
+    },
+    backgroundColor: theme.palette.lwTertiary.main,
+    color: theme.palette.background.pageActiveAreaBackground,
+    overflowX: "hidden",  // to stop loading dots from wrapping around
+  },
+  submitSegmented: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
 }));
 
 const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType) => ({
@@ -107,6 +131,10 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     color: theme.palette.background.pageActiveAreaBackground,
     overflowX: "hidden",  // to stop loading dots from wrapping around
   },
+  submitSegmented: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
 }), { stylePriority: 1 });
 
 interface CommentSubmitProps {
@@ -171,7 +199,9 @@ const CommentSubmit = ({
       <Button
         type="submit"
         id="new-comment-submit"
-        className={classNames(formButtonClass, classes.submitButton)}
+        className={classNames(formButtonClass, classes.submitButton, {
+          [classes.submitSegmented]: hasDraftComments,
+        })}
         onClick={(ev) => {
           if (!currentUser) {
             openDialog({

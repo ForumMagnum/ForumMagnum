@@ -33,6 +33,7 @@ settings*.json
 scratch
 tmp
 .vscode/*
+.cursor/*
 .deploy
 .deploy/*
 ### Meteor template
