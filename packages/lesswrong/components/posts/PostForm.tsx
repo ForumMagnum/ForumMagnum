@@ -37,7 +37,7 @@ import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackLocation } from "@/components/tanstack-form-components/TanStackLocation";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { TanStackMultiSelectButtons } from "@/components/tanstack-form-components/TanStackMultiSelectButtons";
-import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { DialogueSubmit } from "./dialogues/DialogueSubmit";
 import { PostSubmit } from "./PostSubmit";
@@ -380,7 +380,7 @@ export const PostForm = ({
         {!isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="eventType">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={EVENT_TYPES}
                 label="Event Format"
@@ -641,7 +641,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="stickyPriority">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={Object.entries(STICKY_PRIORITIES).map(([level, name]) => ({
                   value: parseInt(level),
@@ -744,7 +744,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="status">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={postStatusLabels}
                 label="Status"
@@ -859,7 +859,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="votingSystem">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={getVotingSystemOptions(currentUser)}
                 label="Voting system"
@@ -1104,7 +1104,7 @@ export const PostForm = ({
         {!isFriendlyUI && !isDialogue && <div className={classes.fieldWrapper}>
           <form.Field name="moderationStyle">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={MODERATION_GUIDELINES_OPTIONS}
                 label="Style"

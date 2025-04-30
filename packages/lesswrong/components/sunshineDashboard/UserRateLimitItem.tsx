@@ -15,7 +15,7 @@ import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanS
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
-import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
+import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = (theme: ThemeType) => ({
@@ -226,7 +226,7 @@ export const UserRateLimitsForm = ({
         <div className={classNames('input-type', classes.fieldWrapper)}>
           <form.Field name="type">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={Object.entries(USER_RATE_LIMIT_TYPES).map(([value, label]) => ({ value, label }))}
                 label="Type"
@@ -238,7 +238,7 @@ export const UserRateLimitsForm = ({
         <div className={classNames('input-intervalUnit', classes.fieldWrapper)}>
           <form.Field name="intervalUnit">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={Object.entries(INTERVAL_UNITS).map(([value, label]) => ({ value, label }))}
                 label="Interval unit"

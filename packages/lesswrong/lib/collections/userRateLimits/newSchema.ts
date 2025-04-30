@@ -61,7 +61,7 @@ const schema = {
     },
     form: {
       options: () => dictionaryToSelectOptions(USER_RATE_LIMIT_TYPES),
-      control: "select",
+      // control: "select",
     },
   },
   intervalUnit: {
@@ -80,7 +80,7 @@ const schema = {
     },
     form: {
       options: () => dictionaryToSelectOptions(INTERVAL_UNITS),
-      control: "select",
+      // control: "select",
     },
   },
   intervalLength: {

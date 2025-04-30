@@ -87,7 +87,7 @@ const schema = {
             value: collectionName,
           })),
       },
-      control: "select",
+      // control: "select",
     },
   },
   order: {

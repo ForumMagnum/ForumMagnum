@@ -14,7 +14,7 @@ import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStack
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
-import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/newSchema";
 import { useSingle } from "@/lib/crud/withSingle";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -175,7 +175,7 @@ const SurveySchedulesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="target">
           {(field) => (
-            <TanStackSelect
+            <FormComponentSelect
               field={field}
               options={surveyScheduleTargets}
               hideClear={true}

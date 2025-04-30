@@ -1,28 +1,36 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components } from '../../lib/vulcan-lib/components';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { ClearInput } from '../form-components/ClearInput';
 
-const FormComponentSelect = (props: FormComponentProps<string> & {
-  form: any
-  options: any
+interface SelectOption {
+  label: string;
+  value: string | number;
+}
+
+export const FormComponentSelect = ({ field, defaultValue, options, label, hideClear }: {
+  field: {
+    name: TypedFieldApi<string | null>['name'];
+    state: Pick<TypedFieldApi<string | null>['state'], 'value' | 'meta'>;
+    handleChange: TypedFieldApi<string | null>['handleChange'];
+    handleBlur: TypedFieldApi<string | null>['handleBlur'];
+  };
+  defaultValue?: string | number;
+  options: SelectOption[] | readonly SelectOption[];
+  label?: string;
+  hideClear?: boolean;
 }) => {
-  const { form, options } = props
-  const { MenuItem, MuiTextField } = Components;
+  const { MenuItem } = Components;
 
-  const selectOptions = options || (form && form.options)
-
-  return <MuiTextField select {...props}>
-    {selectOptions.map((option: AnyBecauseTodo) => (
-      <MenuItem key={option.value} value={option.value}>
-        {option.label}
-      </MenuItem>
-    ))}
-  </MuiTextField>
-}
-
-const FormComponentSelectComponent = registerComponent("FormComponentSelect", FormComponentSelect);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentSelect: typeof FormComponentSelectComponent
-  }
-}
+  return (<>
+    <TanStackMuiTextField select field={field} label={label} defaultValue={defaultValue}>
+      {options.map((option) => (
+        <MenuItem key={option.value} value={option.value}>
+          {option.label}
+        </MenuItem>
+      ))}
+    </TanStackMuiTextField>
+    {!hideClear && <ClearInput clearField={() => field.handleChange(null)} />}
+  </>)
+};

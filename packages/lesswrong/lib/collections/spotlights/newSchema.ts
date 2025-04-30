@@ -199,7 +199,7 @@ const schema = {
         options: () => SPOTLIGHT_DOCUMENT_TYPES.map((documentType) => ({ label: documentType, value: documentType })),
       },
       order: 20,
-      control: "select",
+      // control: "select",
     },
   },
   position: {

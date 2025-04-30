@@ -14,7 +14,7 @@ import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanS
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
-import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { TanStackColorPicker } from "@/components/tanstack-form-components/TanStackColorPicker";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
@@ -128,7 +128,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-documentType', inputFieldClass)}>
             <form.Field name="documentType">
               {(field) => (
-                <TanStackSelect
+                <FormComponentSelect
                   field={field}
                   options={[
                     { label: 'Sequence', value: 'Sequence' },

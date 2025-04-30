@@ -16,7 +16,7 @@ import { TanStackTagSelect } from "@/components/tanstack-form-components/TanStac
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
 import { TanStackColorPicker } from "@/components/tanstack-form-components/TanStackColorPicker";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { useSingle } from "@/lib/crud/withSingle";
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
@@ -299,7 +299,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="eventFormat">
           {(field) => (
-            <TanStackSelect
+            <FormComponentSelect
               field={field}
               options={[
                 { value: 'BASIC', label: 'BASIC' },

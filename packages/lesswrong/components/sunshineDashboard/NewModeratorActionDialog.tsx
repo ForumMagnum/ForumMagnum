@@ -8,7 +8,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
+import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { TanStackUserSelect } from '@/components/tanstack-form-components/TanStackUserSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
@@ -87,7 +87,7 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
           <div className={classes.fieldWrapper}>
             <form.Field name="type">
               {(field) => (
-                <TanStackSelect
+                <FormComponentSelect
                   field={field}
                   options={Object.entries(MODERATOR_ACTION_TYPES).map(([value, label]) => ({
                     value,

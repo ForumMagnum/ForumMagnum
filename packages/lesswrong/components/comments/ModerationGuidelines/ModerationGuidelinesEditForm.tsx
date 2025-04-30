@@ -10,7 +10,7 @@ import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
-import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
+import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useSingle } from '@/lib/crud/withSingle';
@@ -120,7 +120,7 @@ const PostModerationGuidelinesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="moderationStyle">
         {(field) => (
-          <TanStackSelect
+          <FormComponentSelect
             field={field}
             options={MODERATION_GUIDELINES_OPTIONS}
             label="Style"

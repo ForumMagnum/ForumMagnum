@@ -137,7 +137,7 @@ const schema = {
           value,
           label,
         })),
-      control: "select",
+      // control: "select",
     },
   },
   endedAt: {

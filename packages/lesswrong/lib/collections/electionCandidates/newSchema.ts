@@ -26,7 +26,7 @@ const schema = {
           label: "EA Giving Season 2024",
         },
       ],
-      control: "select",
+      // control: "select",
     },
   },
   /** The name of this candidate */

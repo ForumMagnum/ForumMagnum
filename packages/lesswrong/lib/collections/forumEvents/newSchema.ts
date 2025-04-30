@@ -433,7 +433,7 @@ const schema = {
           value: ef,
           label: ef,
         })),
-      control: "select",
+      // control: "select",
     },
   },
   pollQuestion: {

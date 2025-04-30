@@ -140,7 +140,7 @@ const schema = {
     },
     form: {
       form: { options: () => surveyScheduleTargets, hideClear: true },
-      control: "select",
+      // control: "select",
     },
   },
   startDate: {

@@ -686,7 +686,7 @@ const schema = {
     },
     form: {
       options: () => postStatusLabels,
-      control: "select",
+      // control: "select",
       group: () => formGroups.adminOptions,
     },
   },
@@ -791,7 +791,7 @@ const schema = {
           label: name,
         })),
       order: 11,
-      control: "select",
+      // control: "select",
       group: () => formGroups.adminOptions,
     },
   },
@@ -2184,7 +2184,7 @@ const schema = {
           }));
         },
       },
-      control: "select",
+      // control: "select",
       group: () => formGroups.adminOptions,
     },
   },
@@ -3452,7 +3452,7 @@ const schema = {
       form: { options: () => EVENT_TYPES },
       order: 2,
       label: "Event Format",
-      control: "select",
+      // control: "select",
       hidden: (props) => !props.eventForm || isLWorAF,
       group: () => formGroups.event,
     },
@@ -4288,7 +4288,7 @@ const schema = {
       hidden: true,
       label: "Replies in sidebar",
       group: () => formGroups.advancedOptions,
-      control: "select",
+      // control: "select",
       form: {
         options: () => {
           return [
@@ -4365,7 +4365,7 @@ const schema = {
       },
       order: 55,
       label: "Style",
-      control: "select",
+      // control: "select",
       hidden: ({ document }) => isFriendlyUI || !!document?.collabEditorDialogue,
       group: () => formGroups.moderationGroup,
     },

@@ -12,7 +12,7 @@ import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFor
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
-import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
@@ -138,7 +138,7 @@ export const ModerationTemplatesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="collectionName">
           {(field) => (
-            <TanStackSelect
+            <FormComponentSelect
               field={field}
               options={ALLOWABLE_COLLECTIONS.map((collectionName) => ({
                 label: collectionName,

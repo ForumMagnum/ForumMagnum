@@ -17,7 +17,7 @@ import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStack
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
-import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { TanStackTagSelect } from "@/components/tanstack-form-components/TanStackTagSelect";
 import { TanStackUserMultiselect } from "@/components/tanstack-form-components/TanStackUserMultiSelect";
@@ -338,7 +338,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="wikiGrade">
               {(field) => (
-                <TanStackSelect
+                <FormComponentSelect
                   field={field}
                   options={wikiGradeOptions}
                   label="Wiki grade"
@@ -398,7 +398,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="postsDefaultSortOrder">
               {(field) => (
-                <TanStackSelect
+                <FormComponentSelect
                   field={field}
                   options={Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).map(([key, val]) => ({
                     value: key,

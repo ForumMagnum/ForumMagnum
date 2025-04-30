@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { themeMetadata, getDefaultThemeOptions } from '../../themes/themeNames';
 import { useThemeOptions } from '../themes/useTheme';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
+import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 
 const getValue = (field: TypedFieldApi<ThemeField>): string => {
   if (field.state.value.name) {
@@ -40,7 +40,7 @@ export const ThemeSelect = ({ field }: ThemeSelectProps) => {
   }
 
   return (
-    <TanStackSelect
+    <FormComponentSelect
       field={{
         name: field.name,
         state: {

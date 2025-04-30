@@ -26,7 +26,7 @@ import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
-import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
+import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { TanStackDatePicker } from '@/components/form-components/FormComponentDateTime';
 import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
@@ -310,7 +310,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="commentSorting">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={getCommentViewOptions()}
                 label="Comment sorting"
@@ -322,7 +322,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="sortDraftsBy">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={SORT_DRAFTS_BY_OPTIONS}
                 label="Sort Drafts by"
@@ -551,7 +551,7 @@ const UsersForm = ({
         {!isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="reactPaletteStyle">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={REACT_PALETTE_STYLE_OPTIONS}
                 label="React Palette Style"
@@ -1197,7 +1197,7 @@ const UsersForm = ({
         {!isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="moderationStyle">
             {(field) => (
-              <TanStackSelect
+              <FormComponentSelect
                 field={field}
                 options={MODERATION_GUIDELINES_OPTIONS}
                 label="Style"
