@@ -17,9 +17,8 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
-import { TanStackImageUpload } from '@/components/tanstack-form-components/TanStackImageUpload';
+import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { FormComponentFriendlyTextInput } from '../form-components/FormComponentFriendlyTextInput';
 import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION } from '@/lib/collections/users/newSchema';
@@ -237,7 +236,7 @@ const UserProfileForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="profileImageId">
             {(field) => (
-              <TanStackImageUpload
+              <ImageUpload
                 field={field}
                 label="Profile Image"
                 horizontal

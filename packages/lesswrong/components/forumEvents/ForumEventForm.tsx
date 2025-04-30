@@ -10,7 +10,7 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { TanStackTagSelect } from "@/components/tanstack-form-components/TanStackTagSelect";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
@@ -288,7 +288,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="bannerImageId">
           {(field) => (
-            <TanStackImageUpload
+            <ImageUpload
               field={field}
               label="Banner image ID"
             />

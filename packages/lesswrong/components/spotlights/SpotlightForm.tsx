@@ -9,7 +9,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -315,7 +315,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-spotlightImageId', inputFieldClass)}>
             <form.Field name="spotlightImageId">
               {(field) => (
-                <TanStackImageUpload
+                <ImageUpload
                   field={field}
                   label="Spotlight image ID"
                 />
@@ -361,7 +361,7 @@ export const SpotlightForm = ({
         {!descriptionOnly && <div className={classNames('input-spotlightDarkImageId', inputFieldClass)}>
           <form.Field name="spotlightDarkImageId">
             {(field) => (
-              <TanStackImageUpload
+              <ImageUpload
                 field={field}
                 label="Spotlight dark image ID"
               />

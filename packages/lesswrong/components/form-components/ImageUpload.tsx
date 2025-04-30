@@ -1,6 +1,5 @@
-import React, { FC, useState } from 'react';
-import PropTypes from 'prop-types';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import React, { FC } from 'react';
+import { Components } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ImageIcon from '@/lib/vendor/@material-ui/icons/src/Image';
 import classNames from 'classnames';
@@ -10,9 +9,10 @@ import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { CloudinaryPropsType } from '../common/CloudinaryImage2';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ImageUpload', (theme: ThemeType) => ({
   root: {
     paddingTop: 4,
     marginLeft: 8,
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
   imageIcon: {
     fontSize: 18,
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing.unit,
   },
   removeButton: {
     color: theme.palette.icon.dim,
@@ -78,53 +78,25 @@ const styles = (theme: ThemeType) => ({
       alignItems: "flex-start",
     },
   },
-});
+}));
 
 export const formPreviewSizeByImageType: Record<
   ImageType,
-  {width: number | "auto", height: number, imgProps?: CloudinaryPropsType}
+  { width: number | "auto"; height: number; imgProps?: any }
 > = {
-  gridImageId: {
-    width: 250,
-    height: 100
-  },
-  bannerImageId: {
-    width: 1600,
-    height: 380,
-    imgProps: {g: 'custom', dpr: '2.0'}
-  },
-  squareImageId: {
-    width: 90,
-    height: 90
-  },
-  profileImageId: {
-    width: 90,
-    height: 90
-  },
-  socialPreviewImageId: {
-    width: 153,
-    height: 80
-  },
-  eventImageId: {
-    width: 373,
-    height: 195
-  },
-  spotlightImageId: {
-    width: 345,
-    height: 234
-  },
-  spotlightDarkImageId: {
-    width: 345,
-    height: 234
-  },
-  onsiteDigestImageId: {
-    width: 200,
-    height: 300
-  }
+  gridImageId: { width: 250, height: 100 },
+  bannerImageId: { width: 1600, height: 380, imgProps: { g: 'custom', dpr: '2.0' } },
+  squareImageId: { width: 90, height: 90 },
+  profileImageId: { width: 90, height: 90 },
+  socialPreviewImageId: { width: 153, height: 80 },
+  eventImageId: { width: 373, height: 195 },
+  spotlightImageId: { width: 345, height: 234 },
+  spotlightDarkImageId: { width: 345, height: 234 },
+  onsiteDigestImageId: { width: 200, height: 300 },
 }
 
 const FormProfileImage: FC<{
-  document: Partial<UsersMinimumInfo>,
+  document?: Partial<UsersMinimumInfo>,
   profileImageId: string,
   size: number,
 }> = ({document, profileImageId, size}) => {
@@ -132,7 +104,7 @@ const FormProfileImage: FC<{
     collectionName: "Users",
     fragmentName: "UsersMinimumInfo",
     fetchPolicy: "cache-and-network",
-    documentId: document._id,
+    documentId: document?._id,
   });
   return (
     <Components.UsersProfileImage
@@ -148,8 +120,8 @@ const TriggerButton: FC<{
   uploadImage: () => void,
   label?: string,
   horizontal?: boolean,
-  classes: ClassesType<typeof styles>,
-}> = ({imageType, imageId, uploadImage, label, horizontal, classes}) => {
+}> = ({imageType, imageId, uploadImage, label, horizontal}) => {
+  const classes = useStyles(styles);
   let mainClass = classes.button;
   let showIcon = true;
   if (isFriendlyUI && imageType === "profileImageId") {
@@ -176,11 +148,12 @@ const RemoveButton: FC<{
   imageType: ImageType,
   imageId?: string,
   removeImage: () => void,
-  classes: ClassesType<typeof styles>,
-}> = ({imageType, imageId, removeImage, classes}) => {
+}> = ({imageType, imageId, removeImage}) => {
+  const classes = useStyles(styles);
   if (!imageId) {
     return null;
   }
+
   const mainClass = isFriendlyUI && imageType === "profileImageId"
     ? classes.removeProfileImageButton
     : classes.removeButton;
@@ -195,28 +168,29 @@ const RemoveButton: FC<{
   );
 }
 
-const ImageUpload = ({
-  name,
+interface TanStackImageUploadProps {
+  field: TypedFieldApi<string | null>;
+  document?: Partial<UsersMinimumInfo>;
+  label?: string;
+  croppingAspectRatio?: number;
+  horizontal?: boolean;
+}
+
+
+export const ImageUpload = ({
+  field,
   document,
-  updateCurrentValues,
-  clearField,
   label,
   croppingAspectRatio,
-  horizontal,
-  classes,
-}: FormComponentProps<string> & {
-  clearField: Function,
-  croppingAspectRatio?: number,
-  horizontal?: boolean,
-  classes: ClassesType<typeof styles>
-}) => {
-  const imageType = name as ImageType;
+  horizontal = false,
+}: TanStackImageUploadProps) => {
+  const classes = useStyles(styles);
+  const imageType = field.name as ImageType;
   const currentUser = useCurrentUser();
   const {uploadImage, ImageUploadScript} = useImageUpload({
-    imageType: imageType,
+    imageType,
     onUploadSuccess: (publicImageId: string) => {
-      setImageId(publicImageId);
-      void updateCurrentValues({[name]: publicImageId});
+      field.handleChange(publicImageId);
     },
     onUploadError: (error: Error) => {
       // eslint-disable-next-line no-console
@@ -225,28 +199,17 @@ const ImageUpload = ({
     croppingAspectRatio,
   });
 
-  const chooseDefaultImg = (newImageId: string) => {
-    setImageId(newImageId)
-    void updateCurrentValues({[name]: newImageId})
-  }
+  const { openDialog } = useDialog();
+  const imageId = field.state.value || '';
 
   const removeImg = () => {
-    clearField()
-    setImageId(null)
-  }
+    field.handleChange(null);
+  };
 
-  const { openDialog } = useDialog()
-  const [imageId, setImageId] = useState(() => {
-    if (document && document[name]) {
-      return document[name];
-    }
-    return ''
-  })
-
-  const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
+  const formPreviewSize = formPreviewSizeByImageType[imageType];
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
 
-  const showUserProfileImage = isFriendlyUI && name === "profileImageId";
+  const showUserProfileImage = isFriendlyUI && imageType === "profileImageId";
 
   return (
     <div className={classes.root}>
@@ -277,25 +240,24 @@ const ImageUpload = ({
           uploadImage={uploadImage}
           label={label}
           horizontal={horizontal}
-          classes={classes}
         />
-        {(name === 'eventImageId') && <Button
+        {(imageType === 'eventImageId') && <Button
           variant="outlined"
           onClick={() => openDialog({
             name: "ImageUploadDefaultsDialog",
-            contents: ({onClose}) => <Components.ImageUploadDefaultsDialog onClose={onClose} onSelect={chooseDefaultImg} />
+            contents: ({onClose}) => <Components.ImageUploadDefaultsDialog onClose={onClose} onSelect={(id: string) => field.handleChange(id)} />
           })}
         >
           Choose from ours
         </Button>}
-        {userHasDefaultProfilePhotos(currentUser) && name === 'profileImageId' &&
+        {userHasDefaultProfilePhotos(currentUser) && imageType === 'profileImageId' &&
           <Button
             variant="outlined"
             onClick={() => openDialog({
               name: "ImageUploadDefaultsDialog",
               contents: ({onClose}) => <Components.ImageUploadDefaultsDialog
                 onClose={onClose}
-                onSelect={chooseDefaultImg}
+                onSelect={(id: string) => field.handleChange(id)}
                 type={"Profile"}
               />
             })}
@@ -307,17 +269,8 @@ const ImageUpload = ({
           imageType={imageType}
           imageId={imageId}
           removeImage={removeImg}
-          classes={classes}
         />
       </div>
     </div>
   );
-};
-
-const ImageUploadComponent = registerComponent("ImageUpload", ImageUpload, {styles});
-
-declare global {
-  interface ComponentTypes {
-    ImageUpload: typeof ImageUploadComponent
-  }
 }

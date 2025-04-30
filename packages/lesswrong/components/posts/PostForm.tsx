@@ -33,7 +33,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackLocation } from "@/components/tanstack-form-components/TanStackLocation";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { TanStackMultiSelectButtons } from "@/components/tanstack-form-components/TanStackMultiSelectButtons";
@@ -531,7 +531,7 @@ export const PostForm = ({
           <form.Field name="eventImageId">
             {(field) => (
               <LWTooltip title="Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)" placement="left-start" inlineBlock={false}>
-                <TanStackImageUpload
+                <ImageUpload
                   field={field}
                   label="Event Image"
                 />

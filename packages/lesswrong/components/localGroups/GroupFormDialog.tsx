@@ -17,7 +17,7 @@ import { GROUP_CATEGORIES } from '@/lib/collections/localgroups/newSchema';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
 import { TanStackLocation } from '@/components/tanstack-form-components/TanStackLocation';
-import { TanStackImageUpload } from '@/components/tanstack-form-components/TanStackImageUpload';
+import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
@@ -321,7 +321,7 @@ const TanStackGroupForm = ({
         <form.Field name="bannerImageId">
           {(field) => (
             <LWTooltip inlineBlock={false} placement="left-start" title='Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)'>
-              <TanStackImageUpload
+              <ImageUpload
                 field={field}
                 label={isFriendlyUI ? "Banner image" : "Banner Image"}
                 croppingAspectRatio={1.91}

@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -144,7 +144,7 @@ export const SequencesForm = ({
       <div className={classNames('form-input', 'input-bannerImageId', classes.fieldWrapper)}>
         <form.Field name="bannerImageId">
           {(field) => (
-            <TanStackImageUpload
+            <ImageUpload
               field={field}
               label="Banner Image"
             />
@@ -155,7 +155,7 @@ export const SequencesForm = ({
       <div className={classNames('form-input', 'input-gridImageId', classes.fieldWrapper)}>
         <form.Field name="gridImageId">
           {(field) => (
-            <TanStackImageUpload
+            <ImageUpload
               field={field}
               label="Card Image"
             />

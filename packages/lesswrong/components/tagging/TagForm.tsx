@@ -15,7 +15,7 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -362,7 +362,7 @@ export const TagForm = ({
             <form.Field name="bannerImageId">
               {(field) => (
                 <LWTooltip title="Minimum 200x600 px" placement="left-start" inlineBlock={false}>
-                  <TanStackImageUpload
+                  <ImageUpload
                     field={field}
                     label="Banner Image"
                   />
@@ -375,7 +375,7 @@ export const TagForm = ({
             <form.Field name="squareImageId">
               {(field) => (
                 <LWTooltip title="Minimum 200x200 px" placement="left-start" inlineBlock={false}>
-                  <TanStackImageUpload
+                  <ImageUpload
                     field={field}
                     label="Square Image"
                   />
