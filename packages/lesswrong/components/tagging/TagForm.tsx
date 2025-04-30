@@ -16,7 +16,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { TagSelect } from "@/components/form-components/TagSelect";
@@ -153,7 +153,7 @@ export const TagForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Name"
             />
@@ -200,7 +200,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="slug">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Slug"
                 />
@@ -211,7 +211,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="shortName">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Short name"
                 />
@@ -222,7 +222,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="subtitle">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Subtitle"
                 />
@@ -267,7 +267,7 @@ export const TagForm = ({
             <form.Field name="defaultOrder">
               {(field) => (
                 <LWTooltip title="Rank this wikitag higher in lists of wikitags?" placement="left-start" inlineBlock={false}>
-                  <TanStackMuiTextField
+                  <MuiTextField
                     field={field}
                     type="number"
                     label="Default order"
@@ -280,7 +280,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="descriptionTruncationCount">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   type="number"
                   label="Description truncation count"
@@ -387,7 +387,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="introSequenceId">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Intro sequence ID"
                 />
@@ -413,7 +413,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="canVoteOnRels">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Can vote on rels"
                 />
@@ -447,7 +447,7 @@ export const TagForm = ({
             <form.Field name="subforumIntroPostId">
               {(field) => (
                 <LWTooltip title="Dismissable intro post that will appear at the top of the subforum feed" placement="left-start" inlineBlock={false}>
-                  <TanStackMuiTextField
+                  <MuiTextField
                     field={field}
                     label="Subforum intro post ID"
                   />
@@ -472,7 +472,7 @@ export const TagForm = ({
           {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
             <form.Field name="autoTagModel">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Auto-tag classifier model ID"
                 />
@@ -483,7 +483,7 @@ export const TagForm = ({
           {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
             <form.Field name="autoTagPrompt">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Auto-tag classifier prompt string"
                 />
@@ -507,7 +507,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="coreTagId">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Core tag ID"
                 />

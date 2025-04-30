@@ -9,7 +9,7 @@ import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
@@ -106,7 +106,7 @@ export const ModerationTemplatesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Name"
             />
@@ -153,7 +153,7 @@ export const ModerationTemplatesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="order">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               type="number"
               label="Order"

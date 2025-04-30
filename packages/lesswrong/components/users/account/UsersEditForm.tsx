@@ -19,7 +19,7 @@ import { getUpdatedFieldValues } from '@/components/tanstack-form-components/hel
 import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor/EditorFormComponent';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
@@ -231,7 +231,7 @@ const UsersForm = ({
         {!isFriendlyUI && (userHasntChangedName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Display name"
               />
@@ -242,7 +242,7 @@ const UsersForm = ({
         {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="previousDisplayName">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Previous display name"
               />
@@ -253,7 +253,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="email">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 disabled={isEAForum && !form.state.values.hasAuth0Id}
                 label="Email"
@@ -265,7 +265,7 @@ const UsersForm = ({
         {isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="fullName">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Full name"
               />
@@ -923,7 +923,7 @@ const UsersForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="slug">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Slug"
               />
@@ -947,7 +947,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="sunshineNotes">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Sunshine notes"
               />
@@ -991,7 +991,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="snoozedUntilContentCount">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="Snoozed until content count"
@@ -1003,7 +1003,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewedByUserId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Reviewed by user ID"
               />
@@ -1027,7 +1027,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="shortformFeedId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Quick takes feed ID"
               />
@@ -1061,7 +1061,7 @@ const UsersForm = ({
           <form.Field name="signUpReCaptchaRating">
             {(field) => (
               <LWTooltip title="Edit this number to '1' if you're confiden they're not a spammer" placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   type="number"
                   label="Sign up re captcha rating"
@@ -1074,7 +1074,7 @@ const UsersForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="abTestKey">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Ab test key"
               />
@@ -1099,7 +1099,7 @@ const UsersForm = ({
           <form.Field name="paymentEmail">
             {(field) => (
               <LWTooltip title="An email you'll definitely check where you can receive information about receiving payments" placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Payment Contact Email"
                 />
@@ -1112,7 +1112,7 @@ const UsersForm = ({
           <form.Field name="paymentInfo">
             {(field) => (
               <LWTooltip title="Your PayPal account info, for sending small payments" placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="PayPal Info"
                 />

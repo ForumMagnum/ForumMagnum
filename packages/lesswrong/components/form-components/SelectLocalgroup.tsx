@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 
 interface SelectLocalgroupBaseProps {
   useDocumentAsUser?: boolean;
@@ -58,11 +58,11 @@ export const SelectLocalgroup = (props: SelectLocalgroupProps) => {
     </MenuItem>
   })
   const {variant, separator, ...textFieldProps} = props;
-  return <TanStackMuiTextField
+  return <MuiTextField
     select
     {...textFieldProps}
     {...!selectOptions?.length ? {disabled: true} : {}}
   >
     {selectOptions || []}
-  </TanStackMuiTextField>
+  </MuiTextField>
 }

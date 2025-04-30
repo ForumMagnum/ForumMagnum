@@ -5,7 +5,7 @@ import { useForm } from "@tanstack/react-form";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
@@ -169,7 +169,7 @@ export const JargonTermForm = ({
 
         <form.Field name="term">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Term"
               overrideClassName={classes.textField}
@@ -180,7 +180,7 @@ export const JargonTermForm = ({
         <form.Field name="altTerms">
           {(field) => (
             <LWTooltip title="Comma-separated, no spaces" placement="left-start" inlineBlock={false}>
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Alternative Terms"
                 overrideClassName={classes.textField}

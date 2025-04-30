@@ -8,7 +8,7 @@ import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { PostsListEditor } from "@/components/form-components/PostsListEditor";
@@ -139,7 +139,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="title">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Title"
             />
@@ -150,7 +150,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="subtitle">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Subtitle"
             />
@@ -161,7 +161,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="tocTitle">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Toc title"
             />
@@ -172,7 +172,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="collectionId">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Collection ID"
             />
@@ -183,7 +183,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="number">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               type="number"
               label="Number"

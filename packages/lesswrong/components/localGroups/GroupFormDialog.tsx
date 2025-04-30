@@ -6,7 +6,7 @@ import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { useSingle } from '@/lib/crud/withSingle';
 import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
@@ -146,7 +146,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Group Name"
             />
@@ -157,7 +157,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="nameInAnotherLanguage">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Group name in another language (optional)"
             />
@@ -254,7 +254,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="contactInfo">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Contact Info"
             />
@@ -265,7 +265,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="facebookLink">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Facebook Group"
             />
@@ -276,7 +276,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="facebookPageLink">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Facebook Page"
             />
@@ -287,7 +287,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="meetupLink">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Meetup.com Group"
             />
@@ -298,7 +298,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="slackLink">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Slack Workspace"
             />
@@ -309,7 +309,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="website">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Website"
             />

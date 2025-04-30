@@ -35,7 +35,7 @@ import { FormComponentCheckbox } from "@/components/form-components/FormComponen
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { MultiSelectButtons } from "@/components/form-components/MultiSelectButtons";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -430,7 +430,7 @@ export const PostForm = ({
           <form.Field name="eventRegistrationLink">
             {(field) => (
               <LWTooltip title="https://..." placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Event Registration Link"
                 />
@@ -443,7 +443,7 @@ export const PostForm = ({
           <form.Field name="joinEventLink">
             {(field) => (
               <LWTooltip title="https://..." placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Join Online Event Link"
                 />
@@ -480,7 +480,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="contactInfo">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Contact Info"
               />
@@ -492,7 +492,7 @@ export const PostForm = ({
           <form.Field name="facebookLink">
             {(field) => (
               <LWTooltip title="https://www.facebook.com/events/..." placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Facebook Event"
                 />
@@ -505,7 +505,7 @@ export const PostForm = ({
           <form.Field name="meetupLink">
             {(field) => (
               <LWTooltip title="https://www.meetup.com/..." placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Meetup.com Event"
                 />
@@ -518,7 +518,7 @@ export const PostForm = ({
           <form.Field name="website">
             {(field) => (
               <LWTooltip title="https://..." placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Website"
                 />
@@ -722,7 +722,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="slug">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Slug"
               />
@@ -757,7 +757,7 @@ export const PostForm = ({
           <form.Field name="userId">
             {(field) => (
               <LWTooltip title="The user id of the author" placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="User ID"
                 />
@@ -781,7 +781,7 @@ export const PostForm = ({
           <form.Field name="readTimeMinutesOverride">
             {(field) => (
               <LWTooltip title="By default, this is calculated from the word count. Enter a value to override." placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Read time (minutes)"
                 />
@@ -793,7 +793,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="canonicalSource">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Canonical source"
               />
@@ -804,7 +804,7 @@ export const PostForm = ({
         {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="manifoldReviewMarketId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Manifold review market ID"
               />
@@ -871,7 +871,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="feedId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Feed ID"
               />
@@ -882,7 +882,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="feedLink">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Feed link"
               />
@@ -916,7 +916,7 @@ export const PostForm = ({
         {(!isEAForum || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="reviewForCuratedUserId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Curated Review UserId"
               />
@@ -927,7 +927,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="commentSortOrder">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Comment sort order"
               />
@@ -962,7 +962,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="collectionTitle">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Collection title"
               />
@@ -973,7 +973,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalSequenceId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Canonical sequence ID"
               />
@@ -984,7 +984,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalCollectionSlug">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Canonical collection slug"
               />
@@ -995,7 +995,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalBookId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Canonical book ID"
               />
@@ -1006,7 +1006,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalNextPostSlug">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Canonical next post slug"
               />
@@ -1017,7 +1017,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="canonicalPrevPostSlug">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Canonical prev post slug"
               />

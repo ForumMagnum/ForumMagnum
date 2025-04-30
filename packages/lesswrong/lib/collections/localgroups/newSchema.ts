@@ -102,7 +102,7 @@ const schema = {
     form: {
       order: 10,
       label: isFriendlyUI ? "Group name" : "Group Name",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   nameInAnotherLanguage: {
@@ -122,7 +122,7 @@ const schema = {
       order: 11,
       label: "Group name in another language (optional)",
       tooltip: "Useful for multilingual groups - this will help people find your group in search",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   organizerIds: {
@@ -309,7 +309,7 @@ const schema = {
     },
     form: {
       label: isFriendlyUI ? "Contact info" : "Contact Info",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   facebookLink: {
@@ -329,7 +329,7 @@ const schema = {
     form: {
       label: isFriendlyUI ? "Facebook group" : "Facebook Group",
       tooltip: "https://www.facebook.com/groups/...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   facebookPageLink: {
@@ -349,7 +349,7 @@ const schema = {
     form: {
       label: isFriendlyUI ? "Facebook page" : "Facebook Page",
       tooltip: "https://www.facebook.com/...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   meetupLink: {
@@ -369,7 +369,7 @@ const schema = {
     form: {
       label: isFriendlyUI ? "Meetup.com group" : "Meetup.com Group",
       tooltip: "https://www.meetup.com/...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   slackLink: {
@@ -389,7 +389,7 @@ const schema = {
     form: {
       label: isFriendlyUI ? "Slack workspace" : "Slack Workspace",
       tooltip: "https://...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   website: {
@@ -408,7 +408,7 @@ const schema = {
     },
     form: {
       tooltip: "https://...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   // Cloudinary image id for the banner image (high resolution)

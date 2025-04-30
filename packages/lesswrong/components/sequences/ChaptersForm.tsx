@@ -7,7 +7,7 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { PostsListEditor } from "@/components/form-components/PostsListEditor";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -162,7 +162,7 @@ export const ChaptersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 placeholder="Title"
                 label="Title"
@@ -174,7 +174,7 @@ export const ChaptersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="subtitle">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 placeholder="Subtitle"
                 label="Subtitle"
@@ -186,7 +186,7 @@ export const ChaptersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="number">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="Number"

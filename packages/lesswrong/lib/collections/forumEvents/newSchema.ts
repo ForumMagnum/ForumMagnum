@@ -178,7 +178,7 @@ const schema = {
       canCreate: ["members"],
     },
     form: {
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   startDate: {

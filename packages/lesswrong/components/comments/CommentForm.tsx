@@ -10,7 +10,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
@@ -461,7 +461,7 @@ export const CommentForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewForAlignmentUserId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="AF Review UserId"
               />

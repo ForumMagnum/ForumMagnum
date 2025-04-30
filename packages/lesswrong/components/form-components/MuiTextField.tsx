@@ -1,9 +1,11 @@
-import React, { ChangeEventHandler, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import React, { ReactNode } from 'react';
 import TextField, { TextFieldProps } from '@/lib/vendor/@material-ui/core/src/TextField';
 import classnames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { Updater } from '@tanstack/react-form';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('MuiTextField', (theme: ThemeType) => ({
   textField: {
     fontSize: "15px",
     width: 350,
@@ -14,9 +16,16 @@ const styles = (theme: ThemeType) => ({
   fullWidth: {
     width: "100%",
   }
-})
+}));
 
-const MuiTextField = ({ value, updateCurrentValues, path, children, select, defaultValue, label, fullWidth, multiLine, rows, variant, type, disabled=false, InputLabelProps, classes }: FormComponentProps<string> & {
+interface MuiTextFieldProps<T extends string | number | null | undefined> {
+  field: {
+    name: TypedFieldApi<T>['name'];
+    state: Pick<TypedFieldApi<T>['state'], 'value' | 'meta'>;
+    handleChange: TypedFieldApi<T>['handleChange'];
+    handleBlur: TypedFieldApi<T>['handleBlur'];
+  }
+  label?: string;
   children?: ReactNode;
   select?: boolean;
   defaultValue?: string | number;
@@ -25,43 +34,63 @@ const MuiTextField = ({ value, updateCurrentValues, path, children, select, defa
   rows?: number;
   variant?: "standard" | "outlined" | "filled";
   type?: string;
+  disabled?: boolean;
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
-  classes: ClassesType<typeof styles>;
-}) => {
-  const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
-    void updateCurrentValues({
-      [path]: event.target.value
-    })
-  }
-
-  return <TextField
-    variant={variant || 'standard'}
-    select={select}
-    value={value ?? ""}
-    defaultValue={defaultValue}
-    label={label}
-    onChange={onChange}
-    multiline={multiLine}
-    rows={rows}
-    type={type}
-    fullWidth={fullWidth}
-    InputLabelProps={{
-      ...InputLabelProps
-    }}
-    className={classnames(
-      classes.textField,
-      {[classes.fullWidth] :fullWidth}
-    )}
-    disabled={disabled}
-  >
-    {children}
-  </TextField>
-};
-
-const MuiTextFieldComponent = registerComponent("MuiTextField", MuiTextField, {styles});
-
-declare global {
-  interface ComponentTypes {
-    MuiTextField: typeof MuiTextFieldComponent
-  }
+  placeholder?: string;
+  overrideClassName?: string;
 }
+
+export function MuiTextField<T extends string | number | null | undefined>({
+  field,
+  label,
+  children,
+  select,
+  defaultValue,
+  fullWidth,
+  multiLine,
+  rows,
+  variant,
+  type,
+  disabled = false,
+  InputLabelProps,
+  placeholder,
+  overrideClassName: className,
+}: MuiTextFieldProps<T>) {
+  const classes = useStyles(styles);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const value = type === 'number' ? (event.target as HTMLInputElement).valueAsNumber : event.target.value;
+    field.handleChange(value as Updater<T>);
+  };
+
+  const error = field.state.meta.errors[0];
+
+  return (
+    <TextField
+      name={field.name}
+      variant={variant || 'standard'}
+      select={select}
+      value={field.state.value ?? ""}
+      defaultValue={defaultValue}
+      label={label}
+      onChange={handleChange}
+      onBlur={field.handleBlur}
+      multiline={multiLine}
+      rows={rows}
+      type={type}
+      fullWidth={fullWidth}
+      InputLabelProps={{
+        ...InputLabelProps
+      }}
+      className={classnames(
+        className ?? classes.textField,
+        { [classes.fullWidth]: fullWidth }
+      )}
+      disabled={disabled}
+      error={!!error}
+      helperText={error?.message}
+      placeholder={placeholder}
+    >
+      {children}
+    </TextField>
+  );
+};

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
@@ -83,7 +83,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
           <div className={classes.fieldWrapper}>
             <form.Field name="description">
               {(field) => (
-                <TanStackMuiTextField<string>
+                <MuiTextField<string>
                   field={field}
                   placeholder="What are you reporting this comment for?"
                   label="Reason"

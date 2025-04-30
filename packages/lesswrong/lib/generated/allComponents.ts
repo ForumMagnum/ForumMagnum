@@ -396,7 +396,6 @@ importComponent("ImageUpload2", () => require("../../components/form-components/
 importComponent("ImageUploadDefaultsDialog", () => require("../../components/form-components/ImageUploadDefaultsDialog.tsx"));
 importComponent("LocationPicker", () => require("../../components/form-components/LocationFormComponent.tsx"));
 importComponent("ManageSubscriptionsLink", () => require("../../components/form-components/ManageSubscriptionsLink.tsx"));
-importComponent("MuiTextField", () => require("../../components/form-components/MuiTextField.tsx"));
 importComponent("PrefixedInput", () => require("../../components/form-components/PrefixedInput.tsx"));
 importComponent("SearchSingleUser", () => require("../../components/form-components/SearchSingleUser.tsx"));
 importComponent("SectionFooterCheckbox", () => require("../../components/form-components/SectionFooterCheckbox.tsx"));

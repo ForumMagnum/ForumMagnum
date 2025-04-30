@@ -11,7 +11,7 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
@@ -250,7 +250,7 @@ export const UserRateLimitsForm = ({
         <div className={classNames('input-intervalLength', classes.fieldWrapper)}>
           <form.Field name="intervalLength">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="Interval length"
@@ -262,7 +262,7 @@ export const UserRateLimitsForm = ({
         <div className={classNames('input-actionsPerInterval', classes.fieldWrapper)}>
           <form.Field name="actionsPerInterval">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="Actions per interval"

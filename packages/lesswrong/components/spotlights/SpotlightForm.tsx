@@ -10,7 +10,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
@@ -117,7 +117,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-documentId', inputFieldClass)}>
             <form.Field name="documentId">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Document ID"
                 />
@@ -144,7 +144,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-position', inputFieldClass)}>
             <form.Field name="position">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   type="number"
                   label="Position"
@@ -156,7 +156,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-duration', inputFieldClass)}>
             <form.Field name="duration">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   type="number"
                   label="Duration"
@@ -168,7 +168,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-customTitle', inputFieldClass)}>
             <form.Field name="customTitle">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Custom title"
                 />
@@ -179,7 +179,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-customSubtitle', inputFieldClass)}>
             <form.Field name="customSubtitle">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Custom subtitle"
                 />
@@ -190,7 +190,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-subtitleUrl', inputFieldClass)}>
             <form.Field name="subtitleUrl">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Subtitle url"
                 />
@@ -201,7 +201,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-headerTitle', inputFieldClass)}>
             <form.Field name="headerTitle">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Header title"
                 />
@@ -212,7 +212,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-headerTitleLeftColor', inputFieldClass)}>
             <form.Field name="headerTitleLeftColor">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Header title left color"
                 />
@@ -223,7 +223,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-headerTitleRightColor', inputFieldClass)}>
             <form.Field name="headerTitleRightColor">
               {(field) => (
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Header title right color"
                 />
@@ -303,7 +303,7 @@ export const SpotlightForm = ({
             <form.Field name="spotlightSplashImageUrl">
               {(field) => (
                 <LWTooltip title="Note: Large images can cause slow loading of the front page. Consider using the Cloudinary uploader instead (which will automatically resize the image)" placement="left-start" inlineBlock={false}>
-                  <TanStackMuiTextField
+                  <MuiTextField
                     field={field}
                     label="Spotlight splash image url"
                   />

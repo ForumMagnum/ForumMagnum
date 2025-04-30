@@ -8,7 +8,7 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -79,7 +79,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label={isFriendlyUI ? "Conversation title (visible to all)" : "Conversation Title"}
               />

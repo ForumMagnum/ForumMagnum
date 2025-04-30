@@ -11,7 +11,7 @@ import classNames from "classnames";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
@@ -101,7 +101,7 @@ const SurveySchedulesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="surveyId">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Survey ID"
             />
@@ -112,7 +112,7 @@ const SurveySchedulesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Schedule name"
             />
@@ -124,7 +124,7 @@ const SurveySchedulesForm = ({
         <form.Field name="impressionsLimit">
           {(field) => (
             <LWTooltip title="The maximum number of visitors who'll see this survey" placement="left-start" inlineBlock={false}>
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="Impressions limit"
@@ -138,7 +138,7 @@ const SurveySchedulesForm = ({
         <form.Field name="maxVisitorPercentage">
           {(field) => (
             <LWTooltip title="The maximum percentage of visitors this survey will be shown to" placement="left-start" inlineBlock={false}>
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="Max visitor percentage"
@@ -151,7 +151,7 @@ const SurveySchedulesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="minKarma">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               type="number"
               label="Min karma"
@@ -163,7 +163,7 @@ const SurveySchedulesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="maxKarma">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               type="number"
               label="Max karma"

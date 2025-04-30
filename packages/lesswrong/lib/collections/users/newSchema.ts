@@ -3568,7 +3568,7 @@ const schema = {
     form: {
       hidden: true,
       label: "Your text on the community map",
-      control: "MuiTextField",
+      // control: "MuiTextField",
       order: 44,
     },
   },

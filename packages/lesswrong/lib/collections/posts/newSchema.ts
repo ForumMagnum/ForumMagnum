@@ -3629,7 +3629,7 @@ const schema = {
     form: {
       label: "Event Registration Link",
       tooltip: "https://...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
       hidden: isNotEventForm,
       group: () => formGroups.event,
     },
@@ -3651,7 +3651,7 @@ const schema = {
     form: {
       label: "Join Online Event Link",
       tooltip: "https://...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
       hidden: isNotEventForm,
       group: () => formGroups.event,
     },
@@ -3777,7 +3777,7 @@ const schema = {
     },
     form: {
       label: "Contact Info",
-      control: "MuiTextField",
+      // control: "MuiTextField",
       hidden: isNotEventForm,
       group: () => formGroups.event,
     },
@@ -3799,7 +3799,7 @@ const schema = {
     form: {
       label: "Facebook Event",
       tooltip: "https://www.facebook.com/events/...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
       hidden: isNotEventForm,
       group: () => formGroups.event,
     },
@@ -3821,7 +3821,7 @@ const schema = {
     form: {
       label: "Meetup.com Event",
       tooltip: "https://www.meetup.com/...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
       hidden: isNotEventForm,
       group: () => formGroups.event,
     },
@@ -3842,7 +3842,7 @@ const schema = {
     },
     form: {
       tooltip: "https://...",
-      control: "MuiTextField",
+      // control: "MuiTextField",
       hidden: isNotEventForm,
       group: () => formGroups.event,
     },

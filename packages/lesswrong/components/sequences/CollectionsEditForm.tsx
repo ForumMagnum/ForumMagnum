@@ -8,7 +8,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
@@ -138,7 +138,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         <div className={classNames('input-title',classes.fieldWrapper)}>
           <form.Field name="title">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Title"
               />
@@ -149,7 +149,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         <div className={classes.fieldWrapper}>
           <form.Field name="slug">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Slug"
               />
@@ -160,7 +160,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         <div className={classes.fieldWrapper}>
           <form.Field name="gridImageId">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Grid image ID"
               />
@@ -171,7 +171,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         <div className={classes.fieldWrapper}>
           <form.Field name="firstPageLink">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="First page link"
               />

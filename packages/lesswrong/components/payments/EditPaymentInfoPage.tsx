@@ -12,7 +12,7 @@ import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 
 const styles = defineStyles('EditPaymentInfoPage', (theme: ThemeType) => ({
@@ -81,7 +81,7 @@ const UserPaymentInfoForm = ({
           <form.Field name="paymentEmail">
             {(field) => (
               <LWTooltip title="An email you'll definitely check where you can receive information about receiving payments" placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="Payment Contact Email"
                 />
@@ -94,7 +94,7 @@ const UserPaymentInfoForm = ({
           <form.Field name="paymentInfo">
             {(field) => (
               <LWTooltip title="Your PayPal account info, for sending small payments" placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label="PayPal Info"
                 />

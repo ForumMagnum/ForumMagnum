@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../../lib/vulcan-lib/components';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { ClearInput } from '../form-components/ClearInput';
 
@@ -24,13 +24,13 @@ export const FormComponentSelect = ({ field, defaultValue, options, label, hideC
   const { MenuItem } = Components;
 
   return (<>
-    <TanStackMuiTextField select field={field} label={label} defaultValue={defaultValue}>
+    <MuiTextField select field={field} label={label} defaultValue={defaultValue}>
       {options.map((option) => (
         <MenuItem key={option.value} value={option.value}>
           {option.label}
         </MenuItem>
       ))}
-    </TanStackMuiTextField>
+    </MuiTextField>
     {!hideClear && <ClearInput clearField={() => field.handleChange(null)} />}
   </>)
 };

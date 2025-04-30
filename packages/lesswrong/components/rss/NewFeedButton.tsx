@@ -8,7 +8,7 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
-import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
@@ -81,7 +81,7 @@ const RSSFeedsForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="nickname">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Nickname"
             />
@@ -92,7 +92,7 @@ const RSSFeedsForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="url">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Url"
             />

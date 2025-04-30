@@ -11,7 +11,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('SummaryForm', (theme: ThemeType) => ({
@@ -122,7 +122,7 @@ export const SummaryForm = ({
         <div className='input-tabTitle'>
           <form.Field name="tabTitle">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Tab title"
               />

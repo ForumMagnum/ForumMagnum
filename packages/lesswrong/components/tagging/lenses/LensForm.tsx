@@ -6,7 +6,7 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "@/components/editor/EditorFormComponent";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/newSchema";
 import { useCreate } from "@/lib/crud/withCreate";
@@ -121,7 +121,7 @@ export const LensForm = ({
       <div className={classNames('input-title', 'form-input', classes.fieldWrapper)}>
         <form.Field name="title">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Title"
             />
@@ -132,7 +132,7 @@ export const LensForm = ({
       <div className={classNames('input-tabTitle', 'form-input', classes.fieldWrapper)}>
         <form.Field name="tabTitle">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Tab title"
             />
@@ -143,7 +143,7 @@ export const LensForm = ({
       <div className={classNames('input-tabSubtitle', 'form-input', classes.fieldWrapper)}>
         <form.Field name="tabSubtitle">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Tab subtitle"
             />
@@ -154,7 +154,7 @@ export const LensForm = ({
       {userIsAdmin(currentUser) && <div className={classNames('input-slug', 'form-input', classes.fieldWrapper)}>
         <form.Field name="slug">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Slug"
             />

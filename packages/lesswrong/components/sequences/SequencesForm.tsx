@@ -10,7 +10,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { EditSequenceTitle } from "@/components/sequenceEditor/EditSequenceTitle";
@@ -222,7 +222,7 @@ export const SequencesForm = ({
         {userIsAdmin(currentUser) && <div className={classNames('form-input', 'input-curatedOrder', classes.fieldWrapper)}>
           <form.Field name="curatedOrder">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="Curated order"
@@ -234,7 +234,7 @@ export const SequencesForm = ({
         <div className={classNames('form-input', 'input-userProfileOrder', classes.fieldWrapper)}>
           <form.Field name="userProfileOrder">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="User profile order"
@@ -247,7 +247,7 @@ export const SequencesForm = ({
           <form.Field name="canonicalCollectionSlug">
             {(field) => (
               <LWTooltip title="The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right." placement="left-start" inlineBlock={false}>
-                <TanStackMuiTextField
+                <MuiTextField
                   field={field}
                   label={preferredHeadingCase("Collection Slug")}
                 />

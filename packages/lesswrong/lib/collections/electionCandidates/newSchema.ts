@@ -43,7 +43,7 @@ const schema = {
     },
     form: {
       label: "Candidate name",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   /** URL for this candidates logo */
@@ -60,7 +60,7 @@ const schema = {
     },
     form: {
       label: "Logo image URL",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   /** Link for this candidate (i.e. to the org's website) */
@@ -77,7 +77,7 @@ const schema = {
     },
     form: {
       label: "Candidate website URL",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   /** Link for this candidate's GWWC fundraiser page */
@@ -97,7 +97,7 @@ const schema = {
     },
     form: {
       label: "GWWC fundraiser URL",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   /** Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international) */
@@ -117,7 +117,7 @@ const schema = {
     },
     form: {
       label: "GWWC charity link",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   /**
@@ -140,7 +140,7 @@ const schema = {
     },
     form: {
       label: 'GWWC fundraiser ID ("Parfit slug")',
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   /** Short plaintext description */
@@ -158,7 +158,7 @@ const schema = {
     form: {
       form: { multiLine: true, rows: 4 },
       label: "Candidate description",
-      control: "MuiTextField",
+      // control: "MuiTextField",
     },
   },
   /** The user who created this candidate (this is required by makeVoteable) */

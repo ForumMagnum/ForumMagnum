@@ -11,7 +11,7 @@ import classNames from "classnames";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
-import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { TagSelect } from "@/components/form-components/TagSelect";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentColorPicker } from "@/components/form-components/FormComponentColorPicker";
@@ -181,7 +181,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="title">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Title"
             />
@@ -277,7 +277,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="postId">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Choose post ID"
             />
@@ -342,7 +342,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="customComponent">
           {(field) => (
-            <TanStackMuiTextField
+            <MuiTextField
               field={field}
               label="Custom component"
             />
@@ -354,7 +354,7 @@ const InnerForumEventForm = ({
         <form.Field name="commentPrompt">
           {(field) => (
             <LWTooltip title={`For events with comments, the title in the comment box (defaults to "Add your comment")`} placement="left-start" inlineBlock={false}>
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Comment prompt"
               />
@@ -367,7 +367,7 @@ const InnerForumEventForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="pollAgreeWording">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Poll agree wording"
               />
@@ -378,7 +378,7 @@ const InnerForumEventForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="pollDisagreeWording">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 label="Poll disagree wording"
               />
@@ -391,7 +391,7 @@ const InnerForumEventForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="maxStickersPerUser">
             {(field) => (
-              <TanStackMuiTextField
+              <MuiTextField
                 field={field}
                 type="number"
                 label="Max stickers per user"
