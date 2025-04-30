@@ -32,7 +32,7 @@ import { GlossaryEditFormWrapper } from "../jargon/GlossaryEditFormWrapper";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
-import { TanStackEditor, useEditorFormCallbacks } from "../tanstack-form-components/TanStackEditor";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
 import { TanStackLocation } from "../tanstack-form-components/TanStackLocation";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
@@ -330,11 +330,12 @@ export const PostForm = ({
         <div className={classNames('form-input', 'input-contents', 'form-component-EditorFormComponent', classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="contents"
                 formType={formType}
                 document={form.state.values}
+                setFieldEditorType={(editorType) => form.setFieldValue('contents_type', editorType)}
                 addOnSubmitCallback={addOnSubmitCallback}
                 addOnSuccessCallback={addOnSuccessCallback}
                 hasToc={true}
@@ -584,7 +585,7 @@ export const PostForm = ({
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="customHighlight">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="customHighlight"
                 formType={formType}
@@ -1082,7 +1083,7 @@ export const PostForm = ({
         {!isFriendlyUI && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="moderationGuidelines"
                 formType={formType}

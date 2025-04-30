@@ -620,7 +620,7 @@ const schema = {
         hideControls: false,
       },
       order: 50,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: () => !hasAuthorModeration,
       group: () => formGroups.moderationGroup,
       editableFieldOptions: {
@@ -654,7 +654,7 @@ const schema = {
     form: {
       hidden: true,
       order: 7,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       group: () => formGroups.aboutMe,
       form: {
         label: "How others can help me",
@@ -698,7 +698,7 @@ const schema = {
     form: {
       hidden: true,
       order: 8,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       group: () => formGroups.aboutMe,
       form: {
         label: "How I can help others",
@@ -798,7 +798,7 @@ const schema = {
         formVariant: isFriendlyUI ? "grey" : undefined,
       },
       order: isEAForum ? 6 : 40,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: () => isEAForum,
       group: () => (isEAForum ? formGroups.aboutMe : formGroups.default),
       editableFieldOptions: {

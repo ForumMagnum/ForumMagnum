@@ -119,7 +119,7 @@ const schema = {
         hideControls: false,
       },
       order: 10,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: (tag, name) => {
@@ -183,7 +183,7 @@ const schema = {
         hideControls: false,
       },
       order: 0,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       group: () => formGroups.subforumWelcomeMessage,
       editableFieldOptions: {
@@ -217,7 +217,7 @@ const schema = {
     },
     form: {
       hidden: true,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       order: 50,
       group: () => formGroups.subforumModerationGuidelines,
       form: {

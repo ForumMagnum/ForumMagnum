@@ -5,7 +5,7 @@ import { useWarnAboutUnsavedChanges } from "@/components/hooks/useWarnAboutUnsav
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
-import { TanStackEditor, useEditorFormCallbacks } from "@/components/tanstack-form-components/TanStackEditor";
+import { EditorFormComponent, useEditorFormCallbacks } from "@/components/editor/EditorFormComponent";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/newSchema";
@@ -165,7 +165,7 @@ export const LensForm = ({
       <div className={classNames("form-component-EditorFormComponent", 'form-input', classes.fieldWrapper)}>
         <form.Field name="contents" listeners={{ onChange }}>
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="contents"
               formType={formType}

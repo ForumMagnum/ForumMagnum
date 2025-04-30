@@ -6,7 +6,7 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
+import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
 import { TanStackPostsListEditor } from "../tanstack-form-components/TanStackPostsListEditor";
 import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
@@ -107,7 +107,7 @@ export const ChaptersForm = ({
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="contents">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="contents"
               formType={formType}

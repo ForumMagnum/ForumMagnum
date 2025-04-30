@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import { useForm } from '@tanstack/react-form';
-import { TanStackEditor, useEditorFormCallbacks } from '@/components/tanstack-form-components/TanStackEditor';
+import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
@@ -99,7 +99,7 @@ const PostModerationGuidelinesForm = ({
     <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
       <form.Field name="moderationGuidelines">
         {(field) => (
-          <TanStackEditor
+          <EditorFormComponent
             field={field}
             name="moderationGuidelines"
             formType={formType}

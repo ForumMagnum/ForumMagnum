@@ -1,16 +1,24 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
-import { getEditableFieldInCollection } from '@/lib/editor/editableSchemaFieldHelpers';
-import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
+import { debateEditorPlaceholder, defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
-  getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
-  EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
-import withErrorBoundary from '../common/withErrorBoundary';
+import {
+  Editor,
+  EditorChangeEvent,
+  getUserDefaultEditor,
+  getInitialEditorContents,
+  getBlankEditorContents,
+  EditorContents,
+  isBlank,
+  serializeEditorContents,
+  EditorTypeString,
+  styles,
+  shouldSubmitContents,
+} from '../editor/Editor';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
@@ -21,9 +29,11 @@ import { useMessages } from '../common/withMessages';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
-import { CKEditorPortalProvider } from './CKEditorPortalProvider';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
+import { Components } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -65,53 +75,103 @@ const getPostPlaceholder = (post: PostsBase) => {
   if (effectiveCategory === "question") return questionEditorPlaceholder;
   if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
   return defaultEditorPlaceholder;
+};
+
+const definedStyles = defineStyles('EditorFormComponent', styles);
+
+type EditorSubmitCallback = () => Promise<void>;
+type EditorSuccessCallback<R> = (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void;
+
+interface EditorFormComponentProps<S, R> {
+  field: TypedFieldApi<any>;
+  commentEditor?: boolean;
+  commentStyles?: boolean;
+  commentMinimalistStyle?: boolean;
+  collectionName: CollectionNameString;
+  hideControls?: boolean;
+  formType: 'new' | 'edit';
+  editorHintText?: string;
+  maxHeight?: boolean;
+  document: any;
+  name: string;
+  fieldName: string;
+  hintText: string;
+  placeholder?: string;
+  label?: string;
+  formVariant?: 'default' | 'grey';
+  revisionsHaveCommitMessages?: boolean;
+  hasToc?: boolean;
+  setFieldEditorType?: (editorType: EditorTypeString) => void;
+  addOnSubmitCallback: (fn: EditorSubmitCallback) => () => void;
+  addOnSuccessCallback: (fn: EditorSuccessCallback<R>) => () => void;
+  getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
 }
 
-export const EditorFormComponent = ({
-  form,
+export function useEditorFormCallbacks<R>() {
+  const onSubmitCallback = useRef<EditorSubmitCallback>();
+  const onSuccessCallback = useRef<EditorSuccessCallback<R>>();
+
+  const addOnSubmitCallback = (cb: EditorSubmitCallback) => {
+    onSubmitCallback.current = cb;
+    return () => {
+      onSubmitCallback.current = undefined;
+    };
+  };
+
+  const addOnSuccessCallback = (cb: EditorSuccessCallback<R>) => {
+    onSuccessCallback.current = cb;
+    return () => {
+      onSuccessCallback.current = undefined;
+    };
+  };
+
+  return {
+    onSubmitCallback,
+    onSuccessCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback,
+  };
+};
+
+function InnerEditorFormComponent<S, R>({
+  field,
+  commentEditor,
+  commentStyles,
+  commentMinimalistStyle,
+  collectionName,
+  hideControls,
   formType,
-  formProps,
+  editorHintText,
+  maxHeight,
   document,
   name,
   fieldName,
-  value,
   hintText,
   placeholder,
   label,
   formVariant,
-  commentStyles,
-  updateCurrentValues,
-  submitForm,
-  addToSubmitForm,
-  addToSuccessForm,
-  classes,
-}: FormComponentProps<any> & {
-  form: any,
-  formProps: FormProps,
-  document: any,
-  fieldName: any,
-  hintText: string,
-  formVariant?: "default" | "grey",
-  commentStyles: boolean,
-  classes: ClassesType<typeof styles>,
-}) => {
-  const { commentEditor, collectionName, hideControls } = (form || {});
-  const { editorHintText, maxHeight } = (formProps || {});
-  const { flash } = useMessages()
+  revisionsHaveCommitMessages,
+  hasToc,
+  setFieldEditorType,
+  addOnSubmitCallback,
+  addOnSuccessCallback,
+  getLocalStorageId,
+}: EditorFormComponentProps<S, R>) {
+  const classes = useStyles(definedStyles);
+  const { flash } = useMessages();
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
   const { captureEvent } = useTracking()
-  const { form: { editableFieldOptions } } = getEditableFieldInCollection(collectionName, fieldName)!;
+
+  const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);
 
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
-    const getLocalStorageId = editableFieldOptions.getLocalStorageId;
-    return getLSHandlers(getLocalStorageId, document, name,
+    return getLSHandlers(localStorageIdGenerator, document, name,
       getLSKeyPrefix(editorType)
     );
-  }, [document, name, editableFieldOptions.getLocalStorageId]);
-
+  }, [document, localStorageIdGenerator, name]);
 
   const getNewPostLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
     // It would be nice to check that it's a post and not a comment, but it should be fine
@@ -125,15 +185,14 @@ export const EditorFormComponent = ({
       };
     }
     // pass in {_id: null} to getLocalStorageId to treat this like a new post, without having to change how makeEditableOptions works
-    const getLocalStorageId = (_: any, name: string) => editableFieldOptions.getLocalStorageId?.({_id: null}, name);
-    return getLSHandlers(getLocalStorageId, document, name,
-      getLSKeyPrefix(editorType)
-    );
-  }, [document, name, editableFieldOptions, formType]);
-  
+    const getLocalStorageId = (_: AnyBecauseIsInput, name: string) => localStorageIdGenerator({ _id: null }, name);
+    return getLSHandlers(getLocalStorageId, document, name, getLSKeyPrefix(editorType));
+  }, [document, name, localStorageIdGenerator, formType]);
+
   const [contents,setContents] = useState(() => getInitialEditorContents(
-    value, document, fieldName, currentUser
+    field.state.value, document, fieldName, currentUser
   ));
+
   const autosaveContentsRef = useRef(contents);
   const [initialEditorType] = useState(contents.type);
   const [updatedFormType, setUpdatedFormType] = useState(formType);
@@ -183,10 +242,11 @@ export const EditorFormComponent = ({
       }
     }
   )
-  
+
+  const [cookies] = useCookiesWithConsent([HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE]);
+
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
-  const [cookies] = useCookiesWithConsent([HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE])
   const checkIsCriticism = useCallback((contents: EditorContents) => {
     // The "Useful links" card appears on the "new post" form by default,
     // in the same area as the criticism tips card. If the user hasn't dismissed it,
@@ -226,7 +286,6 @@ export const EditorFormComponent = ({
   ])
 
   // Run this check up to once per 20 min.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledCheckIsCriticism = useDebouncedCallback(checkIsCriticism, {
     rateLimitMs: 1000*60*20,
     callOnLeadingEdge: true,
@@ -234,7 +293,6 @@ export const EditorFormComponent = ({
     allowExplicitCallAfterUnmount: false,
   });
   // Run this check up to once per 2 min (called only when there is a significant amount of text added).
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledCheckIsCriticismLargeDiff = useDebouncedCallback(checkIsCriticism, {
     rateLimitMs: 1000*60*2,
     callOnLeadingEdge: true,
@@ -274,7 +332,6 @@ export const EditorFormComponent = ({
     ${fragmentTextForQuery('RevisionEdit')}
   `);
 
-  // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
   const saveRemoteBackup = useCallback(async (newContents: EditorContents): Promise<void> => {
     // If a post hasn't ever been saved before, "submit" the form in order to create a draft post
     // Afterwards, check whatever revision was loaded for display
@@ -295,20 +352,23 @@ export const EditorFormComponent = ({
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
    * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
    */
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSetContentsValue = useDebouncedCallback(async (_: {}) => {
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
     
     // Preserve other fields in "contents" which may have been sent from the server
-    void updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
+    const newFieldValue = {
+      ...(document[fieldName] || {}),
+      ...(await editorRef.current.submitData()),
+    };
+    
+    field.handleChange(newFieldValue);
   }, {
     rateLimitMs: autosaveInterval,
     callOnLeadingEdge: true,
     onUnmount: "cancelPending",
     allowExplicitCallAfterUnmount: false,
   });
-  
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   const throttledSaveBackup = useDebouncedCallback(saveBackup, {
     rateLimitMs: autosaveInterval,
     callOnLeadingEdge: false,
@@ -316,7 +376,6 @@ export const EditorFormComponent = ({
     allowExplicitCallAfterUnmount: false,
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSaveRemoteBackup = useDebouncedCallback(saveRemoteBackup, {
     rateLimitMs: remoteAutosaveInterval,
     callOnLeadingEdge: false,
@@ -326,7 +385,7 @@ export const EditorFormComponent = ({
   
   const wrappedSetContents = useStabilizedCallback((change: EditorChangeEvent) => {
     const {contents: newContents, autosave} = change;
-    if (dynamicTableOfContents && editableFieldOptions.hasToc) {
+    if (dynamicTableOfContents && hasToc) {
       dynamicTableOfContents.setToc(change.contents);
     }
     setContents(newContents);
@@ -345,13 +404,12 @@ export const EditorFormComponent = ({
     // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
-    void updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
+    setFieldEditorType?.(newContents?.type)
     void throttledSetContentsValue({})
     
     if (autosave) {
       throttledSaveBackup(newContents);
       // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
-      // TODO: come back to this after the React 18 upgrade and test it properly
       if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
     }
     
@@ -368,11 +426,11 @@ export const EditorFormComponent = ({
   
   const hasGeneratedFirstToC = useRef({generated: false});
   useEffect(() => {
-    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.hasToc) {
+    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && hasToc) {
       dynamicTableOfContents.setToc(contents);
       hasGeneratedFirstToC.current.generated = true;
     }
-  }, [contents, dynamicTableOfContents, editableFieldOptions.hasToc]);
+  }, [contents, dynamicTableOfContents, hasToc]);
 
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
@@ -413,16 +471,13 @@ export const EditorFormComponent = ({
   
   useEffect(() => {
     if (editorRef.current) {
-      const cleanupSubmitForm = addToSubmitForm(async (submission: any) => {
-        if (editorRef.current && shouldSubmitContents(editorRef.current))
-          return {
-            ...submission,
-            [fieldName]: await editorRef.current.submitData()
-          };
-        else
-          return submission;
+      const cleanupSubmitForm = addOnSubmitCallback(async () => {
+        if (editorRef.current && shouldSubmitContents(editorRef.current)) {
+          const updatedEditorData = await editorRef.current.submitData();
+          field.setValue(updatedEditorData);
+        }
       });
-      const cleanupSuccessForm = addToSuccessForm((result: any, form: any, submitOptions: any) => {
+      const cleanupSuccessForm = addOnSuccessCallback((result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => {
         getLocalStorageHandlers(currentEditorType).reset();
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
         if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
@@ -467,9 +522,9 @@ export const EditorFormComponent = ({
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!editorRef.current, fieldName, initialEditorType, addToSuccessForm, addToSubmitForm]);
+  }, [!!editorRef.current, fieldName, initialEditorType, addOnSuccessCallback, addOnSubmitCallback]);
   
-  const fieldHasCommitMessages = editableFieldOptions.revisionsHaveCommitMessages;
+  const fieldHasCommitMessages = revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || updatedFormType==="edit");
@@ -481,7 +536,7 @@ export const EditorFormComponent = ({
       setAutosaveEditorState((_) => () => new Promise((resolve, reject) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current)) {
           void editorRef.current?.submitData()
-            .then(({ originalContents: { type, data: value }}) => ({ type, value }))
+            .then(({ originalContents: { type, data: value } }) => ({ type, value }))
             .then(saveRemoteBackup)
             .then(resolve)
             .catch(reject);
@@ -494,12 +549,10 @@ export const EditorFormComponent = ({
     }
   }, [isCollabEditor, collectionName, fieldName, saveRemoteBackup, setAutosaveEditorState]);
 
-  // document isn't necessarily defined. TODO: clean up rest of file
-  // to not rely on document
   if (!document) return null;
 
   return <div className={classes.root}>
-    {showEditorWarning &&
+    {showEditorWarning && 
       <Components.LastEditedInWarning
         initialType={initialEditorType}
         currentType={contents.type}
@@ -507,7 +560,7 @@ export const EditorFormComponent = ({
         value={contents} setValue={wrappedSetContents}
       />
     }
-    {!isCollabEditor &&<Components.LocalStorageCheck
+    {!isCollabEditor && <Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
       onRestoreNewPostLegacy={onRestoreNewPostLegacy}
@@ -525,7 +578,7 @@ export const EditorFormComponent = ({
       collectionName={collectionName}
       fieldName={fieldName}
       initialEditorType={initialEditorType}
-      formProps={formProps}
+      formProps={{ maxHeight, commentMinimalistStyle }}
       isCollaborative={isCollabEditor}
       accessLevel={document.myEditorAccess}
       value={contents}
@@ -541,15 +594,15 @@ export const EditorFormComponent = ({
       document={document}
     />
     </CKEditorPortalProvider>
-    {!hideControls && formVariant !== "grey" &&
+    {!hideControls && formVariant !== "grey" && (
       <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
-    }
-    {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
+    )}
+    {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id && (
       <Components.PostVersionHistoryButton
         post={document}
         postId={document._id}
       />
-    }
+    )}
     <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
       {(state) => <Components.PostsEditBotTips
         handleDismiss={handleDismissCriticismTips}
@@ -560,12 +613,15 @@ export const EditorFormComponent = ({
   </div>
 }
 
-export const EditorFormComponentComponent = registerComponent('EditorFormComponent', EditorFormComponent, {
-  hocs: [withErrorBoundary], styles
-});
+export function EditorFormComponent<S, R>(props: EditorFormComponentProps<S, R>) {
+  const { ErrorBoundary } = Components;
 
-declare global {
-  interface ComponentTypes {
-    EditorFormComponent: typeof EditorFormComponentComponent
+  const { field, formType, ...rest } = props;
+  if (typeof field.state.value !== 'object' && formType === 'edit') {
+    return null;
   }
+
+  return <ErrorBoundary>
+    <InnerEditorFormComponent<S, R> {...{ field, formType, ...rest }} />
+  </ErrorBoundary>;
 }

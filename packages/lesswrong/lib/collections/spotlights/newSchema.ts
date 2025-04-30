@@ -75,7 +75,7 @@ const schema = {
         hideControls: true,
       },
       order: 100,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: (spotlight) => {

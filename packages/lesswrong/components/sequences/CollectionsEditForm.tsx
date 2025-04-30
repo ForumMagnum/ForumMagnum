@@ -7,7 +7,7 @@ import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
-import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-components/TanStackEditor';
+import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
 import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
@@ -117,7 +117,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="contents"
                 formType='edit'

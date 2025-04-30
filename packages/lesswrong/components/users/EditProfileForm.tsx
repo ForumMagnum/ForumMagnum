@@ -24,7 +24,7 @@ import { FormComponentFriendlyTextInput } from '../form-components/FormComponent
 import { TanStackMultiSelect } from '../tanstack-form-components/TanStackMultiSelect';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION } from '@/lib/collections/users/newSchema';
 import { TanStackLocation } from '../tanstack-form-components/TanStackLocation';
-import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-components/TanStackEditor';
+import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
 import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 import { useSingle } from '@/lib/crud/withSingle';
@@ -315,7 +315,7 @@ const UserProfileForm = ({
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="biography"
                 fieldName="biography"
@@ -333,7 +333,7 @@ const UserProfileForm = ({
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="howOthersCanHelpMe">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="howOthersCanHelpMe"
                 fieldName="howOthersCanHelpMe"
@@ -351,7 +351,7 @@ const UserProfileForm = ({
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="howICanHelpOthers">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="howICanHelpOthers"
                 fieldName="howICanHelpOthers"

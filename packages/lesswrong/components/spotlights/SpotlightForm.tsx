@@ -8,7 +8,7 @@ import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
-import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
+import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
 import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
@@ -328,7 +328,7 @@ export const SpotlightForm = ({
         <div className={classNames("form-component-EditorFormComponent", 'input-description', inputFieldClass)}>
           <form.Field name="description">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="description"
                 formType={formType}

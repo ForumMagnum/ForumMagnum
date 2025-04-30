@@ -12,7 +12,7 @@ import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
-import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
+import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
@@ -172,7 +172,7 @@ const InnerMessagesNewForm = ({
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="contents">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="contents"
               formType='new'

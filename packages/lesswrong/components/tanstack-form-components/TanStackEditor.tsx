@@ -16,7 +16,6 @@ import {
   styles,
   shouldSubmitContents,
 } from '../editor/Editor';
-import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -79,6 +78,9 @@ const getPostPlaceholder = (post: PostsBase) => {
 
 const definedStyles = defineStyles('TanStackEditor', styles);
 
+type EditorSubmitCallback = () => Promise<void>;
+type EditorSuccessCallback<R> = (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void;
+
 interface TanStackEditorFormComponentProps<S, R> {
   field: TypedFieldApi<any>;
   commentEditor?: boolean;
@@ -99,23 +101,23 @@ interface TanStackEditorFormComponentProps<S, R> {
   revisionsHaveCommitMessages?: boolean;
   hasToc?: boolean;
   setFieldEditorType?: (editorType: EditorTypeString) => void;
-  addOnSubmitCallback: (fn: () => Promise<void>) => () => void;
-  addOnSuccessCallback: (fn: (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void) => () => void;
+  addOnSubmitCallback: (fn: EditorSubmitCallback) => () => void;
+  addOnSuccessCallback: (fn: EditorSuccessCallback<R>) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
 }
 
 export function useEditorFormCallbacks<R>() {
-  const onSubmitCallback = useRef<(() => Promise<void>)>();
-  const onSuccessCallback = useRef<((result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void)>();
+  const onSubmitCallback = useRef<EditorSubmitCallback>();
+  const onSuccessCallback = useRef<EditorSuccessCallback<R>>();
 
-  const addOnSubmitCallback = (cb: () => Promise<void>) => {
+  const addOnSubmitCallback = (cb: EditorSubmitCallback) => {
     onSubmitCallback.current = cb;
     return () => {
       onSubmitCallback.current = undefined;
     };
   };
 
-  const addOnSuccessCallback = (cb: (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void) => {
+  const addOnSuccessCallback = (cb: EditorSuccessCallback<R>) => {
     onSuccessCallback.current = cb;
     return () => {
       onSuccessCallback.current = undefined;
@@ -290,6 +292,7 @@ function TanStackEditorInner<S, R>({
     checkPostIsCriticism,  
   ]);
 
+  // Run this check up to once per 20 min.
   const throttledCheckIsCriticism = useDebouncedCallback(checkIsCriticism, {
     rateLimitMs: 1000 * 60 * 20,
     callOnLeadingEdge: true,
@@ -297,6 +300,7 @@ function TanStackEditorInner<S, R>({
     allowExplicitCallAfterUnmount: false,
   });
 
+  // Run this check up to once per 2 min (called only when there is a significant amount of text added).
   const throttledCheckIsCriticismLargeDiff = useDebouncedCallback(checkIsCriticism, {
     rateLimitMs: 1000 * 60 * 2,
     callOnLeadingEdge: true,
@@ -305,6 +309,7 @@ function TanStackEditorInner<S, R>({
   });
 
   useEffect(() => {
+    // check when loading the post edit form
     if (contents?.value?.length > 300) {
       throttledCheckIsCriticism(contents);
     }
@@ -413,7 +418,6 @@ function TanStackEditorInner<S, R>({
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
     setFieldEditorType?.(newContents?.type);
-    // field.form.setFieldValue(`${fieldName}_type`, newContents?.type);
     void throttledSetContentsValue({});
 
     if (autosave) {
@@ -666,10 +670,14 @@ function TanStackEditorInner<S, R>({
 }
 
 export function TanStackEditor<S, R>(props: TanStackEditorFormComponentProps<S, R>) {
+  const { ErrorBoundary } = Components;
+
   const { field, formType, ...rest } = props;
   if (typeof field.state.value !== 'object' && formType === 'edit') {
     return null;
   }
 
-  return <TanStackEditorInner<S, R> {...{ field, formType, ...rest }} />;
+  return <ErrorBoundary>
+    <TanStackEditorInner<S, R> {...{ field, formType, ...rest }} />
+  </ErrorBoundary>;
 }

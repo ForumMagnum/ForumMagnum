@@ -60,7 +60,7 @@ const schema = {
         hideControls: true,
       },
       order: 0,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: (forumEvent) => {
@@ -106,7 +106,7 @@ const schema = {
         hideControls: true,
       },
       order: 0,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: (forumEvent) => {
@@ -152,7 +152,7 @@ const schema = {
         hideControls: true,
       },
       order: 0,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: (forumEvent) => {
@@ -462,7 +462,7 @@ const schema = {
         commentStyles: true,
         hideControls: true,
       },
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: (forumEvent) => {

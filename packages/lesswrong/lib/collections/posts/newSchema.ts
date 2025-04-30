@@ -329,7 +329,7 @@ const schema = {
         hideControls: false,
       },
       order: 25,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       group: () => formGroups.content,
       editableFieldOptions: {
@@ -394,7 +394,7 @@ const schema = {
         hideControls: false,
       },
       order: 50,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: () => isFriendlyUI,
       group: () => formGroups.moderationGroup,
       editableFieldOptions: {
@@ -435,7 +435,7 @@ const schema = {
         hideControls: false,
       },
       order: 0,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       group: () => formGroups.highlight,
       editableFieldOptions: {

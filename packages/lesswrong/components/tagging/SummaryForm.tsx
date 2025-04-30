@@ -10,7 +10,7 @@ import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
-import { TanStackEditor, useEditorFormCallbacks } from "../tanstack-form-components/TanStackEditor";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
 import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
@@ -133,7 +133,7 @@ export const SummaryForm = ({
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="contents"
                 formType={formType}

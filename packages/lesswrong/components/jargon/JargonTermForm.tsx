@@ -4,7 +4,7 @@ import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
+import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
@@ -149,7 +149,7 @@ export const JargonTermForm = ({
         <div className={classNames('form-component-EditorFormComponent', classes.editorField)}>
           <form.Field name="contents">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 fieldName="contents"
                 name="contents"

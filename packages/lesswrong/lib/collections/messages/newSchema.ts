@@ -47,7 +47,7 @@ const schema = {
         hideControls: false,
       },
       order: 2,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("Messages"),

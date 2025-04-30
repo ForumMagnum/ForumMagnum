@@ -8,7 +8,7 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
-import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
+import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
@@ -123,7 +123,7 @@ export const SequencesForm = ({
       <div className={classNames('form-input', 'input-contents', 'form-component-EditorFormComponent', classes.fieldWrapper)}>
         <form.Field name="contents">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="contents"
               formType={formType}

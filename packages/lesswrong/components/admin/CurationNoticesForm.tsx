@@ -8,7 +8,7 @@ import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
-import { TanStackEditor, useEditorFormCallbacks } from "../tanstack-form-components/TanStackEditor";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
@@ -107,7 +107,7 @@ export const CurationNoticesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="contents">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               document={form.state.values}
               formType={formType}

@@ -14,7 +14,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
 import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
-import { TanStackEditor, useEditorFormCallbacks } from "../tanstack-form-components/TanStackEditor";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
 import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
@@ -164,7 +164,7 @@ export const TagForm = ({
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="description" listeners={{ onChange }}>
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="description"
               formType={formType}
@@ -533,7 +533,7 @@ export const TagForm = ({
           <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
             <form.Field name="subforumWelcomeText">
               {(field) => (
-                <TanStackEditor
+                <EditorFormComponent
                   field={field}
                   name="subforumWelcomeText"
                   formType={formType}

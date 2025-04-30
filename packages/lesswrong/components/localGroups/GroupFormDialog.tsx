@@ -18,7 +18,7 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { TanStackUserMultiselect } from '../tanstack-form-components/TanStackUserMultiSelect';
 import { TanStackLocation } from '../tanstack-form-components/TanStackLocation';
 import { TanStackImageUpload } from '../tanstack-form-components/TanStackImageUpload';
-import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-components/TanStackEditor';
+import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { TanStackGroupFormSubmit } from './TanStackGroupFormSubmit';
@@ -179,7 +179,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="contents">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               fieldName='contents'
               name='contents'

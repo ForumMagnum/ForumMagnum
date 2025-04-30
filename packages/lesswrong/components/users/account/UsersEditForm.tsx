@@ -17,7 +17,7 @@ import { submitButtonStyles } from '@/components/tanstack-form-components/TanSta
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
-import { useEditorFormCallbacks, TanStackEditor } from '@/components/tanstack-form-components/TanStackEditor';
+import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor/EditorFormComponent';
 import { TanStackLocation } from '@/components/tanstack-form-components/TanStackLocation';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
@@ -276,7 +276,7 @@ const UsersForm = ({
         {!isEAForum && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="biography"
                 formType={formType}
@@ -1176,7 +1176,7 @@ const UsersForm = ({
         {!isEAForum && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
-              <TanStackEditor
+              <EditorFormComponent
                 field={field}
                 name="moderationGuidelines"
                 formType={formType}

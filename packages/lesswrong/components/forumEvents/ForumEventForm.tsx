@@ -9,7 +9,7 @@ import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { useEditorFormCallbacks, TanStackEditor } from "../tanstack-form-components/TanStackEditor";
+import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
 import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
 import { TanStackTagSelect } from "../tanstack-form-components/TanStackTagSelect";
@@ -100,7 +100,7 @@ const InnerForumEventForm = ({
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="frontpageDescription">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="frontpageDescription"
               formType={formType}
@@ -127,7 +127,7 @@ const InnerForumEventForm = ({
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="frontpageDescriptionMobile">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="frontpageDescriptionMobile"
               formType={formType}
@@ -154,7 +154,7 @@ const InnerForumEventForm = ({
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="postPageDescription">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="postPageDescription"
               formType={formType}
@@ -315,7 +315,7 @@ const InnerForumEventForm = ({
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="pollQuestion">
           {(field) => (
-            <TanStackEditor
+            <EditorFormComponent
               field={field}
               name="pollQuestion"
               formType={formType}

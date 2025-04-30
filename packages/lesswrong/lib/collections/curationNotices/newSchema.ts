@@ -40,7 +40,7 @@ const schema = {
         hideControls: true,
       },
       order: 20,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("CurationNotices"),

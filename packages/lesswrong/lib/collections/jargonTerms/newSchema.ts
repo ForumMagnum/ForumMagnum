@@ -41,7 +41,7 @@ const schema = {
         hideControls: true,
       },
       order: 10,
-      control: "EditorFormComponent",
+      // control: "EditorFormComponent",
       hidden: false,
       editableFieldOptions: {
         getLocalStorageId: getDefaultLocalStorageIdGenerator("JargonTerms"),
