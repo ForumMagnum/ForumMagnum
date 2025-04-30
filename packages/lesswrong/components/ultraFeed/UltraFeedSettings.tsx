@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { useTracking } from '@/lib/analyticsEvents';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import { useMessages } from '../common/withMessages';
 
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
@@ -63,6 +64,15 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     fontSize: '1.2rem',
     fontWeight: 600,
     marginBottom: 8,
+    fontFamily: 'inherit',
+  },
+  subsectionTitle: {
+    fontSize: '1.0rem',
+    fontWeight: 600,
+    marginTop: theme.spacing.unit * 2.5,
+    marginBottom: theme.spacing.unit * 1.5,
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
+    paddingTop: theme.spacing.unit * 1.5,
     fontFamily: 'inherit',
   },
   groupDescription: {
@@ -124,11 +134,10 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     marginTop: theme.spacing.unit * 3,
   },
   button: {
+    minWidth: 100,
     padding: '8px 16px',
     border: 'none',
     borderRadius: 4,
-    // backgroundColor: theme.palette.primary.main,
-    // color: theme.palette.primary.contrastText,
     cursor: 'pointer',
     fontFamily: 'inherit',
     fontSize: 14,
@@ -143,6 +152,7 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   saveButton: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
+    fontWeight: 600,
   },
   resetButton: {
     // backgroundColor: theme.palette.grey[400],
@@ -303,15 +313,16 @@ const sourceWeightConfigs: SourceWeightConfig[] = [
     description: "Tailored for you based on interaction history, includes Quick Takes."
   },
 ];
-// --- End Combined Configuration ---
 
-// --- Truncation Level Configuration ---
-export type TruncationLevel =
-  'Very Short' | 'Short' | 'Medium' | 'Long' | 'Full' | 'Unset';
-export const truncationLevels: TruncationLevel[] =
-  ['Very Short', 'Short', 'Medium', 'Long', 'Full', 'Unset'];
+export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full', 'Unset'] as const;
+export type TruncationLevel = typeof truncationLevels[number];
 
-// --- Comment Mappings ---
+// We define valid default breakpoints to ensure that default settings (ultrafeedSettingTypes.ts) always map to valid "simple" settings
+const validDefaultPostBreakpoints = [50, 100, 200, 2000] as const;
+const validDefaultCommentBreakpoints = [50, 100, 200, 1000] as const;
+export type ValidDefaultPostBreakpoint = typeof validDefaultPostBreakpoints[number];
+export type ValidDefaultCommentBreakpoint = typeof validDefaultCommentBreakpoints[number];
+
 const levelToCommentLinesMap: Record<TruncationLevel, number> = {
   'Very Short': 2, // Only this sets a line clamp
   'Short': 0,      // Others disable line clamp
@@ -321,27 +332,24 @@ const levelToCommentLinesMap: Record<TruncationLevel, number> = {
   'Unset': 0,
 };
 
-const levelToCommentBreakpointMap = {
+const levelToCommentBreakpointMap: Record<TruncationLevel, ValidDefaultCommentBreakpoint | null | undefined> = {
   'Very Short': 50,
-  'Short': 50,
+  'Short': 100,
   'Medium': 200,
   'Long': 1000,
   'Full': null,       // explicit "show all"
   'Unset': undefined  // not present
-} as const;
+};
 
-// --- Post Mappings ---
-const levelToPostBreakpointMap = {
+const levelToPostBreakpointMap: Record<TruncationLevel, ValidDefaultPostBreakpoint | null | undefined> = {
   'Very Short': 50,
   'Short': 100,
-  'Medium': 300,
+  'Medium': 200,
   'Long': 2000,
   'Full': null,       // explicit "show all"
   'Unset': undefined  // not present
-} as const;
+};
 
-// --- Helper Functions ---
-// Helper for comment lines
 const getCommentLevelFromLines = (lines: number): TruncationLevel => {
   if (lines === 2) {
      return 'Very Short';
@@ -410,6 +418,9 @@ interface SettingsFormState {
   lineClampNumberOfLines: number | '';
   postBreakpoints: (number | null | '')[];
   commentBreakpoints: (number | null | '')[];
+  // Misc settings
+  ultraFeedSeenPenalty: number | '';
+  postTitlesAreModals: boolean;
 }
 
 interface SettingsFormErrors {
@@ -425,26 +436,21 @@ interface SettingsFormErrors {
   lineClampNumberOfLines?: boolean;
   postBreakpoints?: boolean;
   commentBreakpoints?: boolean;
+  // Misc errors
+  ultraFeedSeenPenalty?: boolean;
 }
 interface SourceWeightsSettingsProps {
   weights: Record<FeedItemSourceType, number | ''>;
   errors: Record<FeedItemSourceType, boolean>;
   onChange: (key: FeedItemSourceType, value: string | number) => void;
-  classes: Record<string, string>; // Pass relevant classes
-  quickTakeBoost: number;
-  quickTakeBoostError: boolean;
-  onQuickTakeBoostChange: (value: number | string) => void;
 }
 
 const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
   weights,
   errors,
   onChange,
-  classes,
-  quickTakeBoost,
-  quickTakeBoostError,
-  onQuickTakeBoostChange,
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.settingGroup}>
       <h3 className={classes.groupTitle}>Source Weights</h3>
@@ -489,36 +495,6 @@ const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
           </div>
         );
       })}
-
-      {/* Quick Take Boost */}
-      <div className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Quick Take Boost</label>
-          <Slider
-            className={classes.sourceWeightSlider}
-            value={quickTakeBoost}
-            onChange={(_, val) => onQuickTakeBoostChange(val as number)}
-            min={0.5}
-            max={3.0}
-            step={0.1}
-          />
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, {
-              [classes.invalidInput]: quickTakeBoostError
-            })}
-            value={quickTakeBoost}
-            onChange={(e) => onQuickTakeBoostChange(parseFloat(e.target.value))}
-            min={0.5}
-            max={3.0}
-            step={0.1}
-          />
-        </div>
-        <p className={classes.sourceWeightDescription}>Multiplier applied to Quick Takes comments.</p>
-        {quickTakeBoostError && (
-          <p className={classes.errorMessage}>Value must be between 0.5 and 3.0</p>
-        )}
-      </div>
     </div>
   );
 };
@@ -531,16 +507,15 @@ type TruncationGridFields =
 interface TruncationGridSettingsProps {
   levels: Pick<SettingsFormState, 'postLevel0' | 'postLevel1' | 'postLevel2' | 'commentLevel0' | 'commentLevel1' | 'commentLevel2'>;
   onChange: (field: TruncationGridFields, value: TruncationLevel) => void;
-  classes: Record<string, string>;
   originalSettings: UltraFeedSettingsType;
 }
 
 const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   levels,
   onChange,
-  classes,
   originalSettings,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
   // Format option labels with counts
@@ -824,6 +799,98 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
   );
 };
 
+interface MultipliersSettingsProps {
+  quickTakeBoost: {
+    value: number;
+    error: boolean;
+    onChange: (value: number | string) => void;
+  };
+  seenPenalty: {
+    value: number | '';
+    error: boolean;
+    onChange: (value: number | string) => void;
+  };
+}
+
+const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
+  quickTakeBoost,
+  seenPenalty,
+}) => {
+  const classes = useStyles(styles);
+  return (
+    <div className={classes.settingGroup}>
+      <h3 className={classes.groupTitle}>Multipliers</h3>
+      <p className={classes.groupDescription}>
+        Adjust scoring multipliers for specific content types or states.
+      </p>
+
+      {/* Quick Take Boost */}
+      <div className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Quick Take Boost</label>
+          <Slider
+            className={classes.sourceWeightSlider}
+            value={quickTakeBoost.value}
+            onChange={(_, val) => quickTakeBoost.onChange(val as number)}
+            min={0.5}
+            max={3.0}
+            step={0.1}
+          />
+          <input
+            type="number"
+            className={classNames(classes.sourceWeightInput, {
+              [classes.invalidInput]: quickTakeBoost.error
+            })}
+            value={quickTakeBoost.value}
+            onChange={(e) => quickTakeBoost.onChange(parseFloat(e.target.value))}
+            min={0.5}
+            max={3.0}
+            step={0.1}
+          />
+        </div>
+        <p className={classes.sourceWeightDescription}>Multiplier applied to Quick Takes comments.</p>
+        {quickTakeBoost.error && (
+          <p className={classes.errorMessage}>Value must be between 0.5 and 3.0</p>
+        )}
+      </div>
+
+      {/* Seen Penalty Slider */}
+      <div className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Seen Penalty</label>
+          <Slider
+            className={classes.sourceWeightSlider}
+            value={typeof seenPenalty.value === 'number' ? seenPenalty.value : 0} // Default slider to 0 if empty
+            onChange={(_, val) => seenPenalty.onChange(val as number)}
+            min={0}
+            max={1}
+            step={0.05}
+            aria-labelledby="seen-penalty-slider"
+          />
+          <input
+            type="number"
+            className={classNames(classes.sourceWeightInput, {
+              [classes.invalidInput]: seenPenalty.error
+            })}
+            value={seenPenalty.value} // Show number or empty string
+            onChange={(e) => seenPenalty.onChange(e.target.value)} // Pass string value
+            min={0}
+            max={1}
+            step={0.05}
+          />
+        </div>
+        <p className={classes.sourceWeightDescription}>
+          Score multiplier for items already marked as seen (0 to 1). Default: {DEFAULT_SETTINGS.ultraFeedSeenPenalty}
+        </p>
+        {seenPenalty.error && (
+          <p className={classes.errorMessage}>Value must be between 0 and 1</p>
+        )}
+      </div>
+    </div>
+  );
+};
+// --- End Multipliers Settings Component ---
+
 const UltraFeedSettings = ({
   settings,
   updateSettings,
@@ -840,6 +907,8 @@ const UltraFeedSettings = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const { LWTooltip } = Components; // Slider is imported directly now
+
+  const { flash } = useMessages();
 
   const [viewMode, setViewMode] = useState<'simple' | 'advanced'>(() => {
     // Check localStorage only on the client-side
@@ -875,6 +944,9 @@ const UltraFeedSettings = ({
     lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
     postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
     commentBreakpoints: [...(settings.commentTruncationBreakpoints || [])],
+    // Misc
+    ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty ?? DEFAULT_SETTINGS.ultraFeedSeenPenalty,
+    postTitlesAreModals: settings.postTitlesAreModals ?? DEFAULT_SETTINGS.postTitlesAreModals,
   }));
 
   // Initialize local error state
@@ -895,6 +967,8 @@ const UltraFeedSettings = ({
       lineClampNumberOfLines: false,
       postBreakpoints: false,
       commentBreakpoints: false,
+      // Misc
+      ultraFeedSeenPenalty: false,
   }));
 
   // Update local state if relevant props change
@@ -921,6 +995,9 @@ const UltraFeedSettings = ({
       lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
       postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
       commentBreakpoints: [...(settings.commentTruncationBreakpoints || [])],
+      // Misc
+      ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty ?? DEFAULT_SETTINGS.ultraFeedSeenPenalty,
+      postTitlesAreModals: settings.postTitlesAreModals ?? DEFAULT_SETTINGS.postTitlesAreModals,
     }));
   }, [
       settings.sourceWeights,
@@ -928,7 +1005,9 @@ const UltraFeedSettings = ({
       settings.commentTruncationBreakpoints,
       settings.postTruncationBreakpoints,
       settings.incognitoMode,
-      settings.quickTakeBoost
+      settings.quickTakeBoost,
+      settings.ultraFeedSeenPenalty,
+      settings.postTitlesAreModals
      ]);
 
   // --- Handlers ---
@@ -1002,6 +1081,22 @@ const UltraFeedSettings = ({
     // Only update if it's a valid number
     if (!isNaN(numValue)) {
       setFormValues(prev => ({ ...prev, quickTakeBoost: numValue }));
+    }
+  }, []);
+
+  const handleSeenPenaltyChange = useCallback((value: number | string) => {
+    const strValue = String(value).trim();
+    if (strValue === '') {
+      setFormValues(prev => ({ ...prev, ultraFeedSeenPenalty: '' }));
+    } else if (typeof value === 'number') { 
+      // Direct number input from Slider
+      setFormValues(prev => ({ ...prev, ultraFeedSeenPenalty: value }));
+    } else { // String input from text field
+      const numValue = parseFloat(strValue);
+      // Update only if it's a valid number parseable from string
+      if (!isNaN(numValue)) { 
+        setFormValues(prev => ({ ...prev, ultraFeedSeenPenalty: numValue }));
+      }
     }
   }, []);
 
@@ -1151,6 +1246,35 @@ const UltraFeedSettings = ({
       setErrors(prev => ({ ...prev, commentBreakpoints: false }));
     }
 
+    // --- Validate Misc Settings ---
+    // Seen Penalty: number 0-10 or empty string (maps to default)
+    const usp = formValues.ultraFeedSeenPenalty;
+    let seenPenaltyValid = false;
+    let finalSeenPenaltyValue = DEFAULT_SETTINGS.ultraFeedSeenPenalty; // Default if empty/invalid
+    if (usp === '') {
+      seenPenaltyValid = true;
+      finalSeenPenaltyValue = DEFAULT_SETTINGS.ultraFeedSeenPenalty; // Explicitly use default
+    } else if (typeof usp === 'number') {
+      if (usp >= 0 && usp <= 10) { // Allow float between 0 and 10
+        seenPenaltyValid = true;
+        finalSeenPenaltyValue = usp;
+      } else {
+        seenPenaltyValid = false;
+      }
+    } else {
+      seenPenaltyValid = false;
+    }
+
+    if (!seenPenaltyValid) {
+      hasErrors = true;
+      setErrors(prev => ({ ...prev, ultraFeedSeenPenalty: true }));
+    } else {
+      setErrors(prev => ({ ...prev, ultraFeedSeenPenalty: false }));
+    }
+    
+    // Post Titles are Modals: No validation needed (boolean)
+    // Incognito Mode: No validation needed (boolean)
+
     // --- Prepare Update Object ---
     const settingsToUpdate: Partial<UltraFeedSettingsType> = {
       sourceWeights: finalWeights,
@@ -1160,6 +1284,9 @@ const UltraFeedSettings = ({
       postTruncationBreakpoints: uniquePostBreakpoints, // Default from simple view (overwritten below)
       incognitoMode: formValues.incognitoMode,
       quickTakeBoost: formValues.quickTakeBoost,
+      // Misc Settings (always save these regardless of view mode)
+      ultraFeedSeenPenalty: finalSeenPenaltyValue, 
+      postTitlesAreModals: formValues.postTitlesAreModals,
     };
 
     // If in advanced view, use the direct values instead of the calculated ones from simple view
@@ -1181,34 +1308,36 @@ const UltraFeedSettings = ({
     console.log("Saving settings:", settingsToUpdate);
     updateSettings(settingsToUpdate);
 
+    flash("Settings saved");
+
     captureEvent("ultraFeedSettingsUpdated", {
       oldSettings: settings,
       newSettings: settingsToUpdate
     });
     // Optionally call onClose()
-  }, [formValues, updateSettings, captureEvent, settings, errors, viewMode]);
+  }, [formValues, updateSettings, captureEvent, settings, errors, viewMode, flash]);
   
   const handleReset = useCallback(() => {
     resetSettingsToDefault();
-    // The useEffect above should reset formValues based on the updated 'settings' prop
-    // Reset local errors
     setErrors(() => ({
-        sourceWeights: Object.keys(DEFAULT_SOURCE_WEIGHTS).reduce((acc, key) => {
-            acc[key as FeedItemSourceType] = false;
-            return acc;
-        }, {} as Record<FeedItemSourceType, boolean>),
-        // Reset truncation errors
-        postLevel0: false,
-        postLevel1: false,
-        postLevel2: false,
-        commentLevel0: false,
-        commentLevel1: false,
-        commentLevel2: false,
-        quickTakeBoost: false,
-        // Advanced
-        lineClampNumberOfLines: false,
-        postBreakpoints: false,
-        commentBreakpoints: false,
+      sourceWeights: Object.keys(DEFAULT_SOURCE_WEIGHTS).reduce((acc, key) => {
+          acc[key as FeedItemSourceType] = false;
+          return acc;
+      }, {} as Record<FeedItemSourceType, boolean>),
+      // Reset truncation errors
+      postLevel0: false,
+      postLevel1: false,
+      postLevel2: false,
+      commentLevel0: false,
+      commentLevel1: false,
+      commentLevel2: false,
+      quickTakeBoost: false,
+      // Advanced
+      lineClampNumberOfLines: false,
+      postBreakpoints: false,
+      commentBreakpoints: false,
+      // Misc
+      ultraFeedSeenPenalty: false,
     }));
   }, [resetSettingsToDefault]);
   
@@ -1218,15 +1347,10 @@ const UltraFeedSettings = ({
         weights={formValues.sourceWeights}
         errors={errors.sourceWeights}
         onChange={handleSourceWeightChange}
-        classes={classes} // Pass necessary classes
-        quickTakeBoost={formValues.quickTakeBoost}
-        quickTakeBoostError={errors.quickTakeBoost ?? false}
-        onQuickTakeBoostChange={handleQuickTakeBoostChange}
       />
       <TruncationGridSettings
         levels={formValues}
         onChange={handleTruncationLevelChange}
-        classes={classes}
         originalSettings={settings} // Pass original settings down
       />
     </>
@@ -1277,24 +1401,6 @@ const UltraFeedSettings = ({
     });
   }, []);
 
-  const addBreakpoint = useCallback((kind: 'post' | 'comment') => {
-    setFormValues(prev => {
-      const field = kind === 'post' ? 'postBreakpoints' : 'commentBreakpoints';
-      return { 
-        ...prev, 
-        [field]: [...prev[field], ''] // Add empty string for new input
-      };
-    });
-  }, []);
-
-  const removeBreakpoint = useCallback((kind: 'post' | 'comment', index: number) => {
-    setFormValues(prev => {
-      const field = kind === 'post' ? 'postBreakpoints' : 'commentBreakpoints';
-      const newArray = [...prev[field]];
-      newArray.splice(index, 1);
-      return { ...prev, [field]: newArray };
-    });
-  }, []);
 
   const renderAdvancedView = () => (
     <>
@@ -1302,10 +1408,18 @@ const UltraFeedSettings = ({
         weights={formValues.sourceWeights}
         errors={errors.sourceWeights}
         onChange={handleSourceWeightChange}
-        classes={classes}
-        quickTakeBoost={formValues.quickTakeBoost}
-        quickTakeBoostError={errors.quickTakeBoost ?? false}
-        onQuickTakeBoostChange={handleQuickTakeBoostChange}
+      />
+      <MultipliersSettings
+        quickTakeBoost={{
+          value: formValues.quickTakeBoost,
+          error: errors.quickTakeBoost ?? false,
+          onChange: handleQuickTakeBoostChange,
+        }}
+        seenPenalty={{
+          value: formValues.ultraFeedSeenPenalty,
+          error: errors.ultraFeedSeenPenalty ?? false,
+          onChange: handleSeenPenaltyChange,
+        }}
       />
       
       {/* Add the Advanced Truncation Settings component */}
@@ -1324,31 +1438,46 @@ const UltraFeedSettings = ({
         }}
       />
       
-      {/* Add Privacy Inputs (Incognito, Seen Penalty) */}
-
-      {/* --- Privacy Section --- */}
+      {/* --- Misc Section --- */}
       <div className={classes.settingGroup}>
-        <h3 className={classes.groupTitle}>Privacy</h3>
+        <h3 className={classes.groupTitle}>Misc</h3>
+        
+        {/* Post Titles are Modals */}
         <div className={classes.checkboxContainer}>
           <Checkbox
-            id="incognitoModeCheckbox" 
-             className={classes.checkboxInput}
+            id="postTitlesAreModalsCheckbox"
+            className={classes.checkboxInput}
+            checked={formValues.postTitlesAreModals}
+            onChange={(e) => handleBooleanChange('postTitlesAreModals', e.target.checked)}
+            color="primary"
+          />
+          <label htmlFor="postTitlesAreModalsCheckbox" className={classes.checkboxLabel}>
+            Open Post Titles in Modals
+          </label>
+        </div>
+        <p className={classes.groupDescription} style={{marginTop: 0, marginBottom: 16}}>
+          When disabled, clicking a post title navigates directly to the post page.
+        </p>
+
+        {/* Incognito Mode */}
+        <div className={classes.checkboxContainer}>
+          <Checkbox
+            id="incognitoModeCheckbox"
+            className={classes.checkboxInput}
             checked={formValues.incognitoMode}
             onChange={(e) => handleBooleanChange('incognitoMode', e.target.checked)}
-             color="primary" // Use theme\'s primary color
+            color="primary"
           />
           <label htmlFor="incognitoModeCheckbox" className={classes.checkboxLabel}>
             Incognito Mode
           </label>
         </div>
-        <p className={classes.groupDescription}>
+        <p className={classes.groupDescription} style={{marginTop: 0, marginBottom: 0}}>
           When enabled, the feed algorithm does not log viewing behavior (votes and comments will still influence it). This does not disable standard LessWrong analytics separate from the feed.
         </p>
-        {/* Add Seen Penalty here later */}
-      </div>
-      {/* --- End Privacy Section --- */}
 
-      {/* Add UI Preference Inputs Placeholder (postTitlesAreModals) */}
+      </div>
+      {/* --- End Misc Section --- */}
     </>
   );
 
@@ -1383,7 +1512,7 @@ const UltraFeedSettings = ({
           className={classNames(classes.button, classes.resetButton)}
           onClick={handleReset}
         >
-          Reset to Defaults
+          Reset
         </button>
         <button 
           className={classNames(classes.button, classes.saveButton, {
@@ -1392,7 +1521,7 @@ const UltraFeedSettings = ({
           onClick={handleSave}
           disabled={hasAnyErrors}
         >
-          Save Changes
+          Save
         </button>
       </div>
     </div>
