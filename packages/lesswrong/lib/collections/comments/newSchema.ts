@@ -1245,7 +1245,7 @@ const schema = {
       },
     },
     form: {
-      control: "FormComponentQuickTakesTags",
+      // control: "FormComponentQuickTakesTags",
       hidden: ({ document }) => !quickTakesTagsEnabledSetting.get() || !document?.shortform,
     },
   },

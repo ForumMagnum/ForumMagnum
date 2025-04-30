@@ -16,7 +16,7 @@ import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
-import { TanStackQuickTakesTags } from "@/components/tanstack-form-components/TanStackQuickTakesTags";
+import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
@@ -414,7 +414,7 @@ export const CommentForm = ({
         {quickTakesTagsEnabledSetting.get() && form.state.values.shortform && <div className={classes.fieldWrapper}>
           <form.Field name="relevantTagIds">
             {(field) => (
-              <TanStackQuickTakesTags
+              <FormComponentQuickTakesTags
                 field={field}
               />
             )}

@@ -386,7 +386,6 @@ importComponent("FormComponentFriendlyDisplayNameInput", () => require("../../co
 importComponent("FormComponentFriendlyTextInput", () => require("../../components/form-components/FormComponentFriendlyTextInput.tsx"));
 importComponent(["MultiSelect", "FormComponentMultiSelect"], () => require("../../components/form-components/FormComponentMultiSelect.tsx"));
 importComponent("FormComponentNumber", () => require("../../components/form-components/FormComponentNumber.tsx"));
-importComponent("FormComponentQuickTakesTags", () => require("../../components/form-components/FormComponentQuickTakesTags.tsx"));
 importComponent("FormComponentRadioGroup", () => require("../../components/form-components/FormComponentRadioGroup.tsx"));
 importComponent("FormGroupFriendlyUserProfile", () => require("../../components/form-components/FormGroupFriendlyUserProfile.tsx"));
 importComponent("FormGroupLayout", () => require("../../components/form-components/FormGroupLayout.tsx"));
