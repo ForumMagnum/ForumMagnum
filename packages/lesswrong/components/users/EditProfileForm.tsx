@@ -28,6 +28,7 @@ import { TanStackEditor, useEditorFormCallbacks } from '../tanstack-form-compone
 import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
 import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
 import { useSingle } from '@/lib/crud/withSingle';
+import { FormComponentFriendlyDisplayNameInput } from '../form-components/FormComponentFriendlyDisplayNameInput';
 
 const styles = defineStyles('EditProfileForm', (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -248,7 +249,7 @@ const UserProfileForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
             {(field) => (
-              <TanStackMuiTextField
+              <FormComponentFriendlyDisplayNameInput
                 field={field}
                 label="Display name"
               />

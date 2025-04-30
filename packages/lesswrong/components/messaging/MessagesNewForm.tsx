@@ -147,7 +147,10 @@ const InnerMessagesNewForm = ({
       try {
         let result: messageListFragment;
 
-        const { data } = await create({ data: formApi.state.values });
+        const { noEmail, ...rest } = formApi.state.values;
+        const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail } : rest;
+
+        const { data } = await create({ data: submitData });
         result = data?.createMessage.data;
 
         onSuccessCallback.current?.(result);

@@ -235,6 +235,8 @@ export const CommentForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
+  const showAfCheckbox = !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+
   const DefaultFormGroupLayout = quickTakesFormGroup
     ? FormGroupQuickTakes
     : FormGroupNoStyling;
@@ -271,7 +273,10 @@ export const CommentForm = ({
         let result: CommentsList;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
+          const { af, ...rest } = formApi.state.values;
+          const submitData = showAfCheckbox ? { ...rest, af } : rest;
+          
+          const { data } = await create({ data: submitData });
           result = data?.createComment.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
@@ -295,8 +300,6 @@ export const CommentForm = ({
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
   }
-
-  const showAfCheckbox = !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
   const showAlignmentOptionsGroup = isLWorAF && formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
 

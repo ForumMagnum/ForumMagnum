@@ -698,8 +698,8 @@ const schema = {
     form: {
       hidden: true,
       order: 8,
-      group: () => formGroups.aboutMe,
       control: "EditorFormComponent",
+      group: () => formGroups.aboutMe,
       form: {
         label: "How I can help others",
         hintText: () => "Ex: Reach out to me if you have questions about...",
@@ -947,6 +947,7 @@ const schema = {
     form: {
       order: 10,
       hidden: () => isFriendlyUI,
+      control: isFriendlyUI ? 'FormComponentFriendlyDisplayNameInput' : undefined,
       group: () => formGroups.default,
     },
   },

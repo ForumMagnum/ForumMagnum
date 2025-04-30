@@ -12,6 +12,7 @@ import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
+import { WithMessagesFunctions } from '../common/FlashMessages';
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType) => ({
 
 interface ExternalProps {
 }
-interface CommunityHomeProps extends ExternalProps, WithMessagesProps, WithLocationProps, WithDialogProps {
+interface CommunityHomeProps extends ExternalProps, WithMessagesFunctions, WithLocationProps, WithDialogProps {
 }
 interface CommunityHomeState {
   currentUserLocation: any,
