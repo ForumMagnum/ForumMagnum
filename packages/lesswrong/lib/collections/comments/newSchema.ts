@@ -1217,7 +1217,7 @@ const schema = {
     form: {
       max: 500,
       order: 10,
-      control: "EditCommentTitle",
+      // control: "EditCommentTitle",
       placeholder: "Title (optional)",
       hidden: (props) => {
         // Currently only allow titles for top level subforum comments
