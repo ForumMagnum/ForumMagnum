@@ -403,7 +403,6 @@ importComponent("PostsListEditor", () => require("../../components/form-componen
 importComponent("PrefixedInput", () => require("../../components/form-components/PrefixedInput.tsx"));
 importComponent("SearchSingleUser", () => require("../../components/form-components/SearchSingleUser.tsx"));
 importComponent("SectionFooterCheckbox", () => require("../../components/form-components/SectionFooterCheckbox.tsx"));
-importComponent("SequencesListEditor", () => require("../../components/form-components/SequencesListEditor.tsx"));
 importComponent("SequencesListEditorItem", () => require("../../components/form-components/SequencesListEditorItem.tsx"));
 importComponent("SingleTagItem", () => require("../../components/form-components/SingleTagItem.tsx"));
 importComponent("SingleUsersItem", () => require("../../components/form-components/SingleUsersItem.tsx"));

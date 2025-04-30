@@ -198,7 +198,7 @@ const schema = {
       },
     },
     form: {
-      control: "SequencesListEditor",
+      // control: "SequencesListEditor",
     },
   },
   sequences: {

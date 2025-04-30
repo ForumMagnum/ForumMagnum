@@ -12,7 +12,7 @@ import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanS
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { TanStackPostsListEditor } from "@/components/tanstack-form-components/TanStackPostsListEditor";
-import { TanStackSequencesListEditor } from "@/components/tanstack-form-components/TanStackSequencesListEditor";
+import { SequencesListEditor } from "@/components/form-components/SequencesListEditor";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
@@ -205,7 +205,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="sequenceIds">
           {(field) => (
-            <TanStackSequencesListEditor
+            <SequencesListEditor
               field={field}
             />
           )}
