@@ -132,7 +132,7 @@ const schema = {
     },
     form: {
       order: 10,
-      control: "EditSequenceTitle",
+      // control: "EditSequenceTitle",
       placeholder: preferredHeadingCase("Sequence Title"),
     },
   },

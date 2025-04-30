@@ -13,7 +13,7 @@ import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { TanStackEditSequenceTitle } from "@/components/tanstack-form-components/TanStackEditSequenceTitle";
+import { EditSequenceTitle } from "@/components/sequenceEditor/EditSequenceTitle";
 import { FormUserSelect } from "@/components/form-components/UserSelect";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
@@ -112,7 +112,7 @@ export const SequencesForm = ({
       <div className={classNames('form-input', 'input-title', classes.fieldWrapper)}>
         <form.Field name="title">
           {(field) => (
-            <TanStackEditSequenceTitle
+            <EditSequenceTitle
               field={field}
               placeholder={preferredHeadingCase("Sequence title")}
             />

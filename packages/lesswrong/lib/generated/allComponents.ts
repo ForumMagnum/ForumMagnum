@@ -838,7 +838,6 @@ importComponent("PetrovGameWrapper", () => require("../../components/seasonal/pe
 importComponent("PetrovLaunchConsole", () => require("../../components/seasonal/petrovDay/PetrovLaunchConsole.tsx"));
 importComponent("PetrovWarningConsole", () => require("../../components/seasonal/petrovDay/PetrovWarningConsole.tsx"));
 importComponent("PetrovWorldmapWrapper", () => require("../../components/seasonal/petrovDay/PetrovWorldmapWrapper.tsx"));
-importComponent("EditSequenceTitle", () => require("../../components/sequenceEditor/EditSequenceTitle.tsx"));
 importComponent("AddDraftPostDialog", () => require("../../components/sequences/AddDraftPostDialog.tsx"));
 importComponent("Books", () => require("../../components/sequences/Books.tsx"));
 importComponent("BooksItem", () => require("../../components/sequences/BooksItem.tsx"));
