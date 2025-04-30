@@ -165,7 +165,7 @@ const schema = {
       onCreate: arrayOfForeignKeysOnCreate,
     },
     form: {
-      control: "PostsListEditor",
+      // control: "PostsListEditor",
     },
   },
   posts: {

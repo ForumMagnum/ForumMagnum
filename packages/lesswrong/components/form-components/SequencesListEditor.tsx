@@ -4,7 +4,7 @@ import { Components } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = defineStyles('TanStackSequencesListEditor', (theme: ThemeType) => ({
+const styles = defineStyles('SequencesListEditor', (theme: ThemeType) => ({
   root: {
   },
   item: {

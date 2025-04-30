@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
-import { TanStackPostsListEditor } from "@/components/tanstack-form-components/TanStackPostsListEditor";
+import { PostsListEditor } from "@/components/form-components/PostsListEditor";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
@@ -140,7 +140,7 @@ export const ChaptersForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="postIds" listeners={{ onChange: ({ value }) => onChange?.(value ?? []) }}>
           {(field) => (
-            <TanStackPostsListEditor
+            <PostsListEditor
               field={field}
             />
           )}

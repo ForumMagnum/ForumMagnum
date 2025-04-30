@@ -169,7 +169,7 @@ const schema = {
       },
     },
     form: {
-      control: "PostsListEditor",
+      // control: "PostsListEditor",
     },
   },
   posts: {

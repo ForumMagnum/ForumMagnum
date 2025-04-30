@@ -2,7 +2,7 @@ import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 
-const styles = defineStyles('TanStackColorPicker', (theme: ThemeType) => ({
+const styles = defineStyles('FormComponentColorPicker', (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
   },

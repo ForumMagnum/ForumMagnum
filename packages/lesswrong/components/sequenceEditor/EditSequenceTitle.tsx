@@ -5,7 +5,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { sequencesImageScrim } from '../sequences/SequencesPage';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = defineStyles('TanStackEditSequenceTitle', (theme: ThemeType) => ({
+const styles = defineStyles('EditSequenceTitle', (theme: ThemeType) => ({
   root: {
     marginTop: 65,
     backgroundColor: theme.palette.panelBackground.darken25,

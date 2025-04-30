@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { defineStyles, useStyles } from '../hooks/useStyles'
 import type { AnyFormApi } from '@tanstack/react-form'
 
-const styles = defineStyles('TanStackGroupFormSubmit', (theme: ThemeType) => ({
+const styles = defineStyles('GroupFormSubmit', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     marginTop: 20,

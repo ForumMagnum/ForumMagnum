@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = defineStyles('TanStackUserSelect', (theme: ThemeType) => ({
+const styles = defineStyles('FormUserSelect', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"

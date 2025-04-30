@@ -11,7 +11,7 @@ import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFor
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { TanStackPostsListEditor } from "@/components/tanstack-form-components/TanStackPostsListEditor";
+import { PostsListEditor } from "@/components/form-components/PostsListEditor";
 import { SequencesListEditor } from "@/components/form-components/SequencesListEditor";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -195,7 +195,7 @@ export const BooksForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="postIds">
           {(field) => (
-            <TanStackPostsListEditor
+            <PostsListEditor
               field={field}
             />
           )}
