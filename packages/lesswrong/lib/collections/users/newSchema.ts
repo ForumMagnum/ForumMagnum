@@ -3471,7 +3471,7 @@ const schema = {
       form: { stringVersionFieldName: "location" },
       order: 100,
       label: "Account location (used for location-based recommendations)",
-      control: "LocationFormComponent",
+      // control: "LocationFormComponent",
       hidden: () => !hasEventsSetting.get(),
       group: () => formGroups.siteCustomizations,
     },
@@ -3513,7 +3513,7 @@ const schema = {
       form: { variant: "grey" },
       order: isLWorAF ? 101 : 5,
       label: isLWorAF ? "Public map location" : "Location",
-      control: "LocationFormComponent",
+      // control: "LocationFormComponent",
       hidden: () => isEAForum,
       group: () => (isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo),
     },
@@ -3628,7 +3628,7 @@ const schema = {
     },
     form: {
       hidden: true,
-      control: "LocationFormComponent",
+      // control: "LocationFormComponent",
     },
   },
   nearbyEventsNotificationsMongoLocation: {

@@ -34,7 +34,7 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
-import { TanStackLocation } from "@/components/tanstack-form-components/TanStackLocation";
+import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { TanStackMultiSelectButtons } from "@/components/tanstack-form-components/TanStackMultiSelectButtons";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
@@ -468,7 +468,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="googleLocation">
             {(field) => (
-              <TanStackLocation
+              <LocationFormComponent
                 field={field}
                 stringVersionFieldName="location"
                 label="Event Location"

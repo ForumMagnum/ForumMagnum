@@ -3740,7 +3740,7 @@ const schema = {
     form: {
       form: { stringVersionFieldName: "location" },
       label: "Event Location",
-      control: "LocationFormComponent",
+      // control: "LocationFormComponent",
       hidden: isNotEventForm,
       group: () => formGroups.event,
     },

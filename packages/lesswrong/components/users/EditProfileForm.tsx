@@ -22,7 +22,7 @@ import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { FormComponentFriendlyTextInput } from '../form-components/FormComponentFriendlyTextInput';
 import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION } from '@/lib/collections/users/newSchema';
-import { TanStackLocation } from '@/components/tanstack-form-components/TanStackLocation';
+import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
@@ -300,7 +300,7 @@ const UserProfileForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="mapLocation">
             {(field) => (
-              <TanStackLocation
+              <LocationFormComponent
                 field={field}
                 label="Location"
                 variant="grey"

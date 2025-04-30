@@ -384,7 +384,7 @@ const schema = {
       },
     },
     form: {
-      control: "FormComponentCheckbox",
+      // control: "FormComponentCheckbox",
       hidden: true,
     },
   },
@@ -405,7 +405,7 @@ const schema = {
       },
     },
     form: {
-      control: "FormComponentCheckbox",
+      // control: "FormComponentCheckbox",
       hidden: true,
     },
   },

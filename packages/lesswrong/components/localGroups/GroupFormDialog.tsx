@@ -16,7 +16,7 @@ import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanSt
 import { GROUP_CATEGORIES } from '@/lib/collections/localgroups/newSchema';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
-import { TanStackLocation } from '@/components/tanstack-form-components/TanStackLocation';
+import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { useCreate } from '@/lib/crud/withCreate';
@@ -241,7 +241,7 @@ const TanStackGroupForm = ({
           return <div className={classes.fieldWrapper}>
             <form.Field name="googleLocation">
               {(field) => (
-                <TanStackLocation
+                <LocationFormComponent
                   field={field}
                   label={isFriendlyUI ? "Group location" : "Group Location"}
                 />

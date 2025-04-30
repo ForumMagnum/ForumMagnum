@@ -1486,11 +1486,11 @@ addRoute(
     path:'/postsListEditorTest',
     componentName: 'PostsListEditor'
   },
-  {
-    name: 'imageUploadTest',
-    path: '/imageUpload',
-    componentName: 'ImageUpload'
-  },
+  // {
+  //   name: 'imageUploadTest',
+  //   path: '/imageUpload',
+  //   componentName: 'ImageUpload'
+  // },
 );
 
 addRoute(

@@ -155,8 +155,8 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
         case 'number':
           return Components.FormComponentNumber;
 
-        case 'checkbox':
-          return Components.FormComponentCheckbox;
+        // case 'checkbox':
+        //   return Components.FormComponentCheckbox;
 
         case 'checkboxgroup':
           return Components.FormComponentCheckboxGroup;
@@ -164,8 +164,8 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
         case 'radiogroup':
           return Components.FormComponentRadioGroup
 
-        case 'select':
-          return Components.FormComponentSelect;
+        // case 'select':
+        //   return Components.FormComponentSelect;
 
         case 'datetime':
           return Components.FormComponentDateTime;

@@ -18,7 +18,7 @@ import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/Leg
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor/EditorFormComponent';
-import { TanStackLocation } from '@/components/tanstack-form-components/TanStackLocation';
+import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
 import { useUpdate } from '@/lib/crud/withUpdate';
@@ -525,7 +525,7 @@ const UsersForm = ({
         {hasEventsSetting.get() && <div className={classes.fieldWrapper}>
           <form.Field name="googleLocation">
             {(field) => (
-              <TanStackLocation
+              <LocationFormComponent
                 field={field}
                 stringVersionFieldName="location"
                 label="Account location (used for location-based recommendations)"
@@ -539,7 +539,7 @@ const UsersForm = ({
         {!isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="mapLocation">
             {(field) => (
-              <TanStackLocation
+              <LocationFormComponent
                 field={field}
                 variant="grey"
                 label="Public map location"

@@ -4,10 +4,12 @@ import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
-import { DatabasePublicSetting, mapsAPIKeySetting } from '../../lib/publicSettings';
+import { mapsAPIKeySetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = (theme: ThemeType) => ({
@@ -227,17 +229,89 @@ const LocationPicker = ({
   );
 }
 
-const LocationFormComponent = (props: FormComponentProps<AnyBecauseTodo> & {
-  stringVersionFieldName?: string|null,
-  variant?: "default" | "grey",
-}) => <Components.LocationPicker {...props}/>
-
 const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
-const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});
 
 declare global {
   interface ComponentTypes {
     LocationPicker: typeof LocationPickerComponent
-    LocationFormComponent: typeof LocationFormComponentComponent
   }
+}
+
+interface TanStackLocationProps {
+  field: TypedFieldApi<AnyBecauseHard>;
+  label: string;
+  /** Optional sibling field that stores the plain‑string version of the location */
+  stringVersionFieldName?: keyof localGroupsEdit | null;
+  variant?: 'default' | 'grey';
+  locationTypes?: QueryType[];
+}
+
+const formStyles = defineStyles('LocationFormComponent', styles);
+
+export const LocationFormComponent = ({
+  field,
+  label,
+  stringVersionFieldName = null,
+  variant = 'default',
+  locationTypes,
+}: TanStackLocationProps) => {
+  const classes = useStyles(formStyles);
+  const [mapsLoaded] = useGoogleMaps();
+  const geosuggestEl = useRef<Geosuggest>(null);
+
+  const value = field.state.value as AnyBecauseTodo | null;
+  const initialLocation =
+    value?.formatted_address ??
+    '';
+
+  useEffect(() => {
+    if (geosuggestEl.current) {
+      geosuggestEl.current.update(value?.formatted_address);
+    }
+  }, [value]);
+
+  const form = field.form;
+
+  const updateSibling = useCallback((val: any) => {
+    if (stringVersionFieldName && form?.setFieldValue) {
+      form.setFieldValue(stringVersionFieldName, val);
+    }
+  }, [stringVersionFieldName, form]);
+
+  const handleCheckClear = useCallback((v: AnyBecauseTodo) => {
+    if (v === '') {
+      updateSibling(null);
+      field.handleChange(null);
+    }
+  }, [field, updateSibling]);
+
+  const handleSuggestSelect = useCallback((suggestion: Suggest) => {
+    if (suggestion && suggestion.gmaps) {
+      updateSibling(suggestion.label);
+      field.handleChange(suggestion.gmaps);
+    }
+  }, [field, updateSibling]);
+
+  const { Loading, SectionTitle } = Components;
+
+  if (!mapsLoaded) return <Loading />;
+
+  const isGrey = variant === 'grey';
+  const labelNode = isGrey
+    ? <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
+    : value && <FormLabel className={classes.label}>{label}</FormLabel>;
+
+  return (
+    <div className={classNames(classes.root, isGrey && classes.greyRoot)}>
+      {label && labelNode}
+      <Geosuggest
+        ref={geosuggestEl}
+        placeholder={label}
+        onChange={handleCheckClear}
+        onSuggestSelect={handleSuggestSelect}
+        initialValue={initialLocation}
+        types={locationTypes}
+      />
+    </div>
+  );
 }

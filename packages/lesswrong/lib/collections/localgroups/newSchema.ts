@@ -273,7 +273,7 @@ const schema = {
     form: {
       form: { stringVersionFieldName: "location" },
       label: isFriendlyUI ? "Group location" : "Group Location",
-      control: "LocationFormComponent",
+      // control: "LocationFormComponent",
       hidden: (data) => !!data.document?.isOnline,
     },
   },
