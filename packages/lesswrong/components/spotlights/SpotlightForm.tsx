@@ -15,7 +15,7 @@ import { submitButtonStyles } from "@/components/tanstack-form-components/TanSta
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
-import { TanStackColorPicker } from "@/components/tanstack-form-components/TanStackColorPicker";
+import { FormComponentColorPicker } from "@/components/form-components/FormComponentColorPicker";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('SpotlightForm', (theme: ThemeType) => ({
@@ -291,7 +291,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-imageFadeColor', inputFieldClass)}>
             <form.Field name="imageFadeColor">
               {(field) => (
-                <TanStackColorPicker
+                <FormComponentColorPicker
                   field={field}
                   label="Image fade color"
                 />

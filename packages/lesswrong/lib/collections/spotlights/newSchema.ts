@@ -541,7 +541,7 @@ const schema = {
     },
     form: {
       order: 87,
-      control: "FormComponentColorPicker",
+      // control: "FormComponentColorPicker",
     },
   },
   spotlightImageId: {

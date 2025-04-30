@@ -378,7 +378,6 @@ importComponent("VirtualProgramCard", () => require("../../components/events/mod
 importComponent("BasicFormStyles", () => require("../../components/form-components/BasicFormStyles.tsx"));
 importComponent("DummyFormGroup", () => require("../../components/form-components/DummyFormGroup.tsx"));
 importComponent("FormComponentCheckboxGroup", () => require("../../components/form-components/FormComponentCheckboxGroup.tsx"));
-importComponent("FormComponentColorPicker", () => require("../../components/form-components/FormComponentColorPicker.tsx"));
 importComponent("FormComponentDate", () => require("../../components/form-components/FormComponentDate.tsx"));
 importComponent(["DatePicker", "FormComponentDateTime"], () => require("../../components/form-components/FormComponentDateTime.tsx"));
 importComponent("FormComponentDefault", () => require("../../components/form-components/FormComponentDefault.tsx"));

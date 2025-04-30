@@ -111,7 +111,7 @@ const schema = {
       },
     },
     form: {
-      control: "FormComponentColorPicker",
+      // control: "FormComponentColorPicker",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Digests">>;

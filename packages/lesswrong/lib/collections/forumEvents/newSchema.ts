@@ -233,7 +233,7 @@ const schema = {
       label: "Primary background color",
       tooltip:
         'Used as the background of the banner for basic events. Sometimes used as a text color with "Secondary background color" ("lightColor" in the schema) as the background, so these should be roughly inverses of each other.',
-      control: "FormComponentColorPicker",
+      // control: "FormComponentColorPicker",
     },
   },
   lightColor: {
@@ -253,7 +253,7 @@ const schema = {
       label: "Secondary background color",
       tooltip:
         'Used as the background in some places (e.g. topic tabs) with "Primary background color" as the foreground, so these should be roughly inverses of each other.',
-      control: "FormComponentColorPicker",
+      // control: "FormComponentColorPicker",
     },
   },
   bannerTextColor: {
@@ -272,7 +272,7 @@ const schema = {
     form: {
       tooltip:
         'Color of the text on the main banner, and for some event types the text in the header (e.g. "Effective Altruism Forum"). For many events its ok to leave this as white, it may be useful to set for events where the primary background color is light.',
-      control: "FormComponentColorPicker",
+      // control: "FormComponentColorPicker",
     },
   },
   contrastColor: {
@@ -291,7 +291,7 @@ const schema = {
     },
     form: {
       label: "Accent color (optional, used very rarely)",
-      control: "FormComponentColorPicker",
+      // control: "FormComponentColorPicker",
     },
   },
   tagId: {

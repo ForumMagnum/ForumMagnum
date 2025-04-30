@@ -1,7 +1,8 @@
-import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import React from "react";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TanStackColorPicker', (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
@@ -10,49 +11,29 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 4,
     fontSize: 10,
   },
-});
+}));
 
-type FormComponentColorPickerProps = Pick<
-  FormComponentProps<string|null>,
-  "value"|"label"|"updateCurrentValues"|"path"|"disabled"
-> & {
-  classes: ClassesType<typeof styles>,
+interface FormComponentColorPickerProps {
+  field: TypedFieldApi<string | null>;
+  label: string;
+  disabled?: boolean;
 }
 
 export const FormComponentColorPicker = ({
-  value,
+  field,
   label,
-  updateCurrentValues,
-  path,
   disabled,
-  classes,
 }: FormComponentColorPickerProps) => {
-  const onChange = useCallback(async (ev: React.ChangeEvent<HTMLInputElement>) => {
-    await updateCurrentValues({
-      [path]: ev.target.value,
-    });
-  }, [updateCurrentValues, path]);
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       {label && <div className={classes.label}>{label}</div>}
       <input
         type="color"
-        value={value ?? "#ffffff"}
-        onChange={onChange}
+        value={field.state.value || "#ffffff"}
+        onChange={(e) => field.handleChange(e.target.value)}
         disabled={disabled}
       />
     </div>
   );
-}
-
-const FormComponentColorPickerComponent = registerComponent(
-  "FormComponentColorPicker",
-  FormComponentColorPicker,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentColorPicker: typeof FormComponentColorPickerComponent
-  }
 }

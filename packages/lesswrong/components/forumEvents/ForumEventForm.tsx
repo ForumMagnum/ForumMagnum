@@ -14,7 +14,7 @@ import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { TagSelect } from "@/components/form-components/TagSelect";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
-import { TanStackColorPicker } from "@/components/tanstack-form-components/TanStackColorPicker";
+import { FormComponentColorPicker } from "@/components/form-components/FormComponentColorPicker";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { useSingle } from "@/lib/crud/withSingle";
@@ -217,7 +217,7 @@ const InnerForumEventForm = ({
         <form.Field name="darkColor">
           {(field) => (
             <LWTooltip title={`Used as the background of the banner for basic events. Sometimes used as a text color with "Secondary background color" ("lightColor" in the schema) as the background, so these should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
-              <TanStackColorPicker
+              <FormComponentColorPicker
                 field={field}
                 label="Primary background color"
               />
@@ -230,7 +230,7 @@ const InnerForumEventForm = ({
         <form.Field name="lightColor">
           {(field) => (
             <LWTooltip title={`Used as the background in some places (e.g. topic tabs) with "Primary background color" as the foreground, so these should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
-              <TanStackColorPicker
+              <FormComponentColorPicker
                 field={field}
                 label="Secondary background color"
               />
@@ -243,7 +243,7 @@ const InnerForumEventForm = ({
         <form.Field name="bannerTextColor">
           {(field) => (
             <LWTooltip title={`Color of the text on the main banner, and for some event types the text in the header (e.g. "Effective Altruism Forum"). For many events its ok to leave this as white, it may be useful to set for events where the primary background color is light.`} placement="left-start" inlineBlock={false}>
-              <TanStackColorPicker
+              <FormComponentColorPicker
                 field={field}
                 label="Banner text color"
               />
@@ -255,7 +255,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="contrastColor">
           {(field) => (
-            <TanStackColorPicker
+            <FormComponentColorPicker
               field={field}
               label="Accent color (optional, used very rarely)"
             />
