@@ -21,7 +21,7 @@ import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
-import { TanStackGroupFormSubmit } from './TanStackGroupFormSubmit';
+import { GroupFormSubmit } from './GroupFormSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
@@ -348,7 +348,7 @@ const TanStackGroupForm = ({
       {/* <div className={classes.formSubmit}> */}
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
-            <TanStackGroupFormSubmit
+            <GroupFormSubmit
               formApi={form}
               document={form.state.values}
               formType={formType}

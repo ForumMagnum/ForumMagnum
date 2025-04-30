@@ -463,7 +463,6 @@ importComponent("EventTime", () => require("../../components/localGroups/EventTi
 importComponent("EventVicinity", () => require("../../components/localGroups/EventVicinity.tsx"));
 importComponent("GroupFormDialog", () => require("../../components/localGroups/GroupFormDialog.tsx"));
 importComponent("GroupFormLink", () => require("../../components/localGroups/GroupFormLink.tsx"));
-importComponent("GroupFormSubmit", () => require("../../components/localGroups/GroupFormSubmit.tsx"));
 importComponent("GroupLinks", () => require("../../components/localGroups/GroupLinks.tsx"));
 importComponent("GroupsMap", () => require("../../components/localGroups/GroupsMap.tsx"));
 importComponent("LocalEventMarker", () => require("../../components/localGroups/LocalEventMarker.tsx"));
