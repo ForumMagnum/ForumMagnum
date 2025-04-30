@@ -16,7 +16,7 @@ import gql from 'graphql-tag';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
 import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
-import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedSettingsType } from '@/components/ultraFeed/ultraFeedSettingsTypes';
+import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings, getResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { ReadStatuses } from '../collections/readStatus/collection';
@@ -140,14 +140,26 @@ const weightedSample = (
   return finalFeed;
 }
 
-const parseUltraFeedSettings = (settingsJson?: string): UltraFeedSettingsType => {
-  let parsedSettings: UltraFeedSettingsType = DEFAULT_ULTRAFEED_SETTINGS;
+// Define resolver-specific defaults by extracting from the full defaults
+const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = getResolverSettings(DEFAULT_ULTRAFEED_SETTINGS);
+
+// Update the function signature and logic
+const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSettings => {
+  let parsedSettings: UltraFeedResolverSettings = DEFAULT_RESOLVER_SETTINGS; // Start with resolver defaults
   if (settingsJson) {
     try {
       const settingsFromArg = JSON.parse(settingsJson);
-      parsedSettings = { ...DEFAULT_ULTRAFEED_SETTINGS, ...settingsFromArg };
+      // Merge parsed resolver settings onto resolver defaults
+      // Ensure only keys from UltraFeedResolverSettings are potentially merged
+      const resolverKeys = Object.keys(DEFAULT_RESOLVER_SETTINGS) as Array<keyof UltraFeedResolverSettings>;
+      const filteredSettings: Partial<UltraFeedResolverSettings> = {};
+      resolverKeys.forEach(key => {
+         if (settingsFromArg[key] !== undefined) {
+            filteredSettings[key] = settingsFromArg[key];
+         }
+      });
+      parsedSettings = { ...DEFAULT_RESOLVER_SETTINGS, ...filteredSettings };
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error("UltraFeedResolver: Failed to parse settings argument", e);
     }
   }
@@ -425,7 +437,6 @@ interface UltraFeedArgs {
   settings: string;
 }
 
-
 const calculateFetchLimits = (
   sourceWeights: Record<string, number>,
   totalLimit: number,
@@ -455,8 +466,6 @@ const calculateFetchLimits = (
   };
 };
 
-
-
 /**
  * UltraFeed resolver
  */
@@ -479,7 +488,6 @@ export const ultraFeedGraphQLQueries = {
 
       const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bufferMultiplier } = calculateFetchLimits(sourceWeights, limit);
 
-
       if (totalWeight <= 0) {
         // eslint-disable-next-line no-console
         console.warn("UltraFeedResolver: Total source weight is zero. No items can be fetched or sampled. Returning empty results.");
@@ -495,7 +503,6 @@ export const ultraFeedGraphQLQueries = {
       const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id, sessionId);
 
       const combinedPostFetchLimit = recombeePostFetchLimit + hackerNewsPostFetchLimit;
-
 
       const [allPostItems, commentThreadsItems, spotlightItems] = await Promise.all([
         combinedPostFetchLimit > 0 ? getUltraFeedPostThreads( context, recombeePostFetchLimit, hackerNewsPostFetchLimit, parsedSettings) : Promise.resolve([]),

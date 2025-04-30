@@ -10,7 +10,7 @@ import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
-import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
+import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY, getResolverSettings } from './ultraFeedSettingsTypes';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
@@ -186,6 +186,8 @@ const UltraFeedContent = () => {
     const defaultSettings = saveSettings(DEFAULT_SETTINGS);
     setSettings(defaultSettings);
   };
+
+  const resolverSettings = getResolverSettings(settings);
   
   const customTitle = <>
     <div className={classes.titleContainer}>
@@ -218,7 +220,7 @@ const UltraFeedContent = () => {
         <OverflowNavObserverProvider>
           <SingleColumnSection>
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
-            {settingsVisible && (
+            {true && (
               <div className={classes.settingsContainer}>
                 <UltraFeedSettings 
                   settings={settings}
@@ -237,7 +239,7 @@ const UltraFeedContent = () => {
                 firstPageSize={15}
                 pageSize={30}
                 refetchRef={refetchSubscriptionContentRef}
-                resolverArgsValues={{ sessionId, settings: JSON.stringify(settings) }}
+                resolverArgsValues={{ sessionId, settings: JSON.stringify(resolverSettings) }}
                 loadMoreDistanceProp={1000}
                 fetchPolicy="cache-first"
                 renderers={{
