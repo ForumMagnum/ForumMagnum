@@ -528,7 +528,7 @@ const schema = {
     form: {
       label: "Restrict to these authors",
       tooltip: "Only these authors will be able to edit the topic",
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
       group: () => formGroups.advancedOptions,
     },
   },
@@ -1101,7 +1101,7 @@ const schema = {
     },
     form: {
       label: "Subforum Moderators",
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
       group: () => formGroups.advancedOptions,
     },
   },

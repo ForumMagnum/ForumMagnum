@@ -10,7 +10,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
-import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
+import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
@@ -90,7 +90,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
         <div className={classes.fieldWrapper}>
           <form.Field name="participantIds">
             {(field) => (
-              <TanStackUserMultiselect
+              <FormUserMultiselect
                 field={field}
                 label="Participants"
               />

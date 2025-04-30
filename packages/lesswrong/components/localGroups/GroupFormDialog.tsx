@@ -15,7 +15,7 @@ import { MultiSelectButtons } from '@/components/form-components/MultiSelectButt
 import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
 import { GROUP_CATEGORIES } from '@/lib/collections/localgroups/newSchema';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
+import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
@@ -168,7 +168,7 @@ const TanStackGroupForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="organizerIds">
           {(field) => (
-            <TanStackUserMultiselect
+            <FormUserMultiselect
               field={field}
               label={preferredHeadingCase("Add Organizers")}
             />

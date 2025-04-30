@@ -143,7 +143,7 @@ const schema = {
     form: {
       order: 20,
       label: preferredHeadingCase("Add Organizers"),
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
     },
   },
   organizers: {

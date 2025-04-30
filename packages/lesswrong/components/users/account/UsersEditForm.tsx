@@ -20,7 +20,7 @@ import { FormComponentCheckbox } from '@/components/form-components/FormComponen
 import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor/EditorFormComponent';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
-import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
+import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { useForm } from '@tanstack/react-form';
@@ -1231,7 +1231,7 @@ const UsersForm = ({
         {(userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={classes.fieldWrapper}>
           <form.Field name="bannedUserIds">
             {(field) => (
-              <TanStackUserMultiselect
+              <FormUserMultiselect
                 field={field}
                 label="Banned Users (All)"
               />
@@ -1243,7 +1243,7 @@ const UsersForm = ({
           <form.Field name="bannedPersonalUserIds">
             {(field) => (
               <LWTooltip title="Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)" placement="left-start" inlineBlock={false}>
-                <TanStackUserMultiselect
+                <FormUserMultiselect
                   field={field}
                   label="Banned Users (Personal)"
                 />

@@ -1447,7 +1447,7 @@ const schema = {
     form: {
       hidden: true,
       label: "Suggested for Alignment by",
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
       group: () => alignmentOptionsGroup,  
     },
   },

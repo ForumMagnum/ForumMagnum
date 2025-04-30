@@ -2478,7 +2478,7 @@ const schema = {
     },
     form: {
       label: "Suggested for Curated by",
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
       group: () => formGroups.adminOptions,
     },
   },
@@ -3395,7 +3395,7 @@ const schema = {
     },
     form: {
       hidden: true,
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
       group: () => formGroups.event,
     },
   },
@@ -4968,7 +4968,7 @@ const schema = {
     form: {
       hidden: true,
       label: "Suggested for Alignment by",
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
       group: () => formGroups.adminOptions,
     },
   },

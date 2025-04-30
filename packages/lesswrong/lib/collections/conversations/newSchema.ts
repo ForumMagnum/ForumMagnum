@@ -57,7 +57,7 @@ const schema = {
     },
     form: {
       label: "Participants",
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
     },
   },
   participants: {

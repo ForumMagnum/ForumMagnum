@@ -2154,7 +2154,7 @@ const schema = {
     },
     form: {
       label: "Banned Users (All)",
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
       group: () => formGroups.moderationGroup,
     },
   },
@@ -2177,7 +2177,7 @@ const schema = {
       label: "Banned Users (Personal)",
       tooltip:
         "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)",
-      control: "FormUserMultiselect",
+      // control: "FormUserMultiselect",
       group: () => formGroups.moderationGroup,
     },
   },

@@ -20,7 +20,7 @@ import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanS
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { TanStackTagSelect } from "@/components/tanstack-form-components/TanStackTagSelect";
-import { TanStackUserMultiselect } from "@/components/tanstack-form-components/TanStackUserMultiSelect";
+import { FormUserMultiselect } from "@/components/form-components/UserMultiselect";
 import SummariesEditForm from "./SummariesEditForm";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -304,7 +304,7 @@ export const TagForm = ({
             <form.Field name="canEditUserIds">
               {(field) => (
                 <LWTooltip title="Only these authors will be able to edit the topic" placement="left-start" inlineBlock={false}>
-                  <TanStackUserMultiselect
+                  <FormUserMultiselect
                     field={field}
                     label="Restrict to these authors"
                   />
@@ -435,7 +435,7 @@ export const TagForm = ({
           <div className={classes.fieldWrapper}>
             <form.Field name="subforumModeratorIds">
               {(field) => (
-                <TanStackUserMultiselect
+                <FormUserMultiselect
                   field={field}
                   label="Subforum Moderators"
                 />
