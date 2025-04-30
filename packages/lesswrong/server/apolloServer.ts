@@ -55,6 +55,7 @@ import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { addAutocompleteEndpoint } from './autocompleteEndpoint';
+import { addSimilarPostsEndpoint } from './similarPostsEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
@@ -351,6 +352,7 @@ export function startWebserver() {
 
   addServerSentEventsEndpoint(app);
   addAutocompleteEndpoint(app);
+  addSimilarPostsEndpoint(app);
   
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
