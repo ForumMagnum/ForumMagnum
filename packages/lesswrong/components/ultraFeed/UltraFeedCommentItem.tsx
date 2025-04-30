@@ -305,7 +305,7 @@ const UltraFeedCommentItem = ({
               html={comment.contents?.html ?? ""}
               breakpoints={truncationBreakpoints ?? []}
               wordCount={comment.contents?.wordCount ?? 0}
-              initialExpansionLevel={0}
+              initialExpansionLevel={displayStatus === "expanded" ? 1 : 0}
               nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
               clampOverride={settings.lineClampNumberOfLines}
               onExpand={handleContentExpand}
