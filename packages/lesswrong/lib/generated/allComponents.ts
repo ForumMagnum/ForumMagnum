@@ -396,7 +396,6 @@ importComponent("FormGroupNoStyling", () => require("../../components/form-compo
 importComponent("FormGroupPostTopBar", () => require("../../components/form-components/FormGroupPostTopBar.tsx"));
 importComponent("FormGroupQuickTakes", () => require("../../components/form-components/FormGroupQuickTakes.tsx"));
 importComponent("FormSubmit", () => require("../../components/form-components/FormSubmit.tsx"));
-importComponent("ImageUpload", () => require("../../components/form-components/ImageUpload.tsx"));
 importComponent("ImageUpload2", () => require("../../components/form-components/ImageUpload2.tsx"));
 importComponent("ImageUploadDefaultsDialog", () => require("../../components/form-components/ImageUploadDefaultsDialog.tsx"));
 importComponent(["LocationPicker", "LocationFormComponent"], () => require("../../components/form-components/LocationFormComponent.tsx"));
