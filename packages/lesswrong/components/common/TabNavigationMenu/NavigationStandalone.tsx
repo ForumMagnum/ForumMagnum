@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import Slide from '@/lib/vendor/@material-ui/core/src/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
@@ -9,6 +8,7 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
@@ -62,13 +62,7 @@ const NavigationStandalone = ({
 
   return <>
     <div className={classNames({[classes.sidebarWrapper]: isFriendlyUI})}>
-      <Slide
-        direction='right'
-        in={!sidebarHidden}
-        appear={false}
-        mountOnEnter
-        unmountOnExit
-      >
+      <Slide slidIn={!sidebarHidden}>
         <div className={classNames(classes.sidebar, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
           {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
           <TabNavigationMenu
@@ -79,6 +73,37 @@ const NavigationStandalone = ({
       </Slide>
     </div>
   </>
+}
+
+const slideStyles = defineStyles("Slide", (theme: ThemeType) => ({
+  wrapper: {
+    position: "relative",
+  },
+  slider: {
+    transition: "left 0.3s ease-in-out",
+    position: "relative",
+  },
+  slidOut: {
+    left: "-100%",
+  },
+  slidIn: {
+    left: 0,
+  },
+}));
+
+const Slide = ({slidIn, children}: {
+  slidIn: boolean,
+  children: React.ReactNode
+}) => {
+  const classes = useStyles(slideStyles);
+  return <div className={classes.wrapper}>
+    <div className={classNames(classes.slider, {
+      [classes.slidOut]: !slidIn,
+      [classes.slidIn]: slidIn,
+    })}>
+      {children}
+    </div>
+  </div>
 }
 
 const NavigationStandaloneComponent = registerComponent(
