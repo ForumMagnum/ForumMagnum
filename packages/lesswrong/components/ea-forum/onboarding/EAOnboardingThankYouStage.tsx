@@ -26,12 +26,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 12,
   },
   section: {
-    background: theme.palette.panelBackground.onboardingSection,
-    borderRadius: theme.borderRadius.default,
-    padding: "12px 16px",
     marginBottom: 12,
     display: "flex",
-    gap: '20px',
+    gap: 16,
     alignItems: "center",
     textAlign: "left",
     "& > *:first-child": {
@@ -53,6 +50,21 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 20,
     },
   },
+  helpImproveForum: {
+    background: theme.palette.panelBackground.onboardingSection,
+    borderRadius: theme.borderRadius.default,
+    padding: 12,
+    marginTop: 32,
+    // win a specificity battle with EAOnboardingStage
+    '&& a': {
+      textDecoration: 'none',
+    },
+  },
+  helpImproveForumButton: {
+    fontWeight: 600,
+    marginTop: 12,
+    padding: '8px 16px',
+  },
   podcasts: {
     display: "flex",
     gap: "4px",
@@ -64,11 +76,11 @@ const styles = (theme: ThemeType) => ({
     },
   },
   footer: {
+    padding: "0 16px",
     textAlign: 'center',
   },
   footerButton: {
     width: "100%",
-    maxWidth: 500,
     padding: "12px 20px",
     fontSize: 14,
     fontWeight: 600,
@@ -86,7 +98,8 @@ export const EAOnboardingThankYouStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentStage, goToNextStage, currentUser, updateCurrentUser, captureOnboardingEvent, viewAsAdmin} = useEAOnboarding();
-  const [subscribed, setSubscribed] = useState(true);
+  const [subscribedToDigest, setSubscribedToDigest] = useState(true);
+  const [subscribedToNewsletter, setSubscribedToNewsletter] = useState(false);
 
   useEffect(() => {
     // Default to subscribing to the digest (unless this is an admin testing)
@@ -98,13 +111,21 @@ export const EAOnboardingThankYouStage = ({classes}: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStage]);
 
-  const setSubscribedToDigest = useCallback((value: boolean) => {
-    setSubscribed(value);
+  const toggleSubscribedToDigest = useCallback((value: boolean) => {
+    setSubscribedToDigest(value);
     // If this is an admin testing, don't make any changes
     !viewAsAdmin && void updateCurrentUser({
       subscribedToDigest: value,
     });
     captureOnboardingEvent("toggleDigest", {subscribed: value});
+  }, [updateCurrentUser, captureOnboardingEvent, viewAsAdmin]);
+
+  const toggleSubscribedToNewsletter = useCallback((value: boolean) => {
+    setSubscribedToNewsletter(value);
+    !viewAsAdmin && void updateCurrentUser({
+      subscribedToNewsletter: value,
+    });
+    captureOnboardingEvent("toggleNewsletter", {subscribed: value});
   }, [updateCurrentUser, captureOnboardingEvent, viewAsAdmin]);
 
   const onComplete = useCallback(() => {
@@ -134,23 +155,51 @@ export const EAOnboardingThankYouStage = ({classes}: {
         <div className={classes.thanks}>
           Thanks for joining the discussion!
         </div>
-        <SectionTitle title="Other ways to read posts" titleClassName={classes.title} />
+        <SectionTitle title="Email updates" titleClassName={classes.title} />
         <div className={classes.section}>
           <div>
             <div className={classes.heading}>
-              Get the best posts in your email with the Forum Digest
+              Weekly top Forum posts
             </div>
             <div className={classes.subheading}>
-              A weekly email curated by the Forum team
+              The Forum Digest is curated by the Forum team
             </div>
           </div>
           <ToggleSwitch
-            value={subscribed}
-            setValue={setSubscribedToDigest}
+            value={subscribedToDigest}
+            setValue={toggleSubscribedToDigest}
             className={classes.toggle}
           />
         </div>
-        <div className={classNames(classes.section, classes.mobileColumn)}>
+        <div className={classes.section}>
+          <div>
+            <div className={classes.heading}>
+              Monthly EA Newsletter
+            </div>
+            <div className={classes.subheading}>
+              Jobs, opportunities, the month's best articles, and more
+            </div>
+          </div>
+          <ToggleSwitch
+            value={subscribedToNewsletter}
+            setValue={toggleSubscribedToNewsletter}
+            className={classes.toggle}
+          />
+        </div>
+        <div className={classes.helpImproveForum}>
+          <div>
+            <div className={classes.heading}>
+              Help us improve the Forum
+            </div>
+            <div className={classes.subheading}>
+              A 20-min call on what you hope to get from EA and the Forum.
+            </div>
+          </div>
+          <EAButton style="grey" className={classes.helpImproveForumButton} href="https://tally.so/r/mDMR55">
+            Sign up here
+          </EAButton>
+        </div>
+        {/* <div className={classNames(classes.section, classes.mobileColumn)}>
           <div>
             <div className={classes.heading}>
               Listen to posts anywhere
@@ -163,7 +212,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
             <EAOnboardingPodcast podcast={getPodcastDataByName("Spotify")} />
             <EAOnboardingPodcast podcast={getPodcastDataByName("Apple Podcasts")} />
           </div>
-        </div>
+        </div> */}
       </div>
     </EAOnboardingStage>
   );

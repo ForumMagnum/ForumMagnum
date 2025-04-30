@@ -78,7 +78,7 @@ const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | nu
 const MIN_VISIBLE_PX = 250;
 
 const VIEW_THRESHOLD_MS = 300;
-const LONG_VIEW_THRESHOLD_MS = 2500;
+const LONG_VIEW_THRESHOLD_MS = 2000;
 
 const documentTypeToCollectionName = {
   post: "Posts",

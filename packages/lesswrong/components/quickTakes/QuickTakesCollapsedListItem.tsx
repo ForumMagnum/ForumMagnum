@@ -114,7 +114,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
   const primaryTag = quickTake.relevantTags?.[0];
-  const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
+  const displayHoverOver = hover && (quickTake.baseScore ?? 0) > -5 && !isMobile();
 
   const commentsUrl = quickTake.post
     ? `${postGetPageUrl(quickTake.post)}#${quickTake._id}`

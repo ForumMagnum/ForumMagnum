@@ -99,7 +99,7 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
     fragmentName: "SubscriptionState",
   });
 
-  const existingSubscriptionIds = results?.map(sub => sub.documentId) ?? [];
+  const existingSubscriptionIds = results?.map(sub => sub.documentId).filter(id => id !== null) ?? [];
   
 
   // When this appears, yield to the event loop once, use getElementsByTagName

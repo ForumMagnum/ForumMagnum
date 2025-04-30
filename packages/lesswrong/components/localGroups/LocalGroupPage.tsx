@@ -292,7 +292,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   if (!group || group.deleted) return <Error404 />
 
   const { html = ""} = group.contents || {}
-  const htmlBody = {__html: html}
+  const htmlBody = {__html: html ?? ""}
   const isAdmin = userIsAdmin(currentUser);
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
 

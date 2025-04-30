@@ -165,7 +165,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   // filter the list of groups if the user has typed in a keyword
   let onlineGroups = results
   if (results && keywordSearch) {
-    onlineGroups = results.filter(group => group.name.toLowerCase().includes(keywordSearch.toLowerCase()))
+    onlineGroups = results.filter(group => group.name?.toLowerCase().includes(keywordSearch.toLowerCase()))
   }
   
   if (!loading && !onlineGroups?.length) {

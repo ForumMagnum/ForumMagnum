@@ -173,7 +173,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
           }
         </div>}
         {revision && <ContentItemBody
-          dangerouslySetInnerHTML={{__html: revision.html}}
+          dangerouslySetInnerHTML={{__html: revision.html ?? ''}}
           description="TagVersionHistory revision"
         />}
       </div>

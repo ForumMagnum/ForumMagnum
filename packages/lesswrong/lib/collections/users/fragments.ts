@@ -154,6 +154,7 @@ export const UsersCurrent = () => frag`
     hideFrontpageMap
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     emails
     whenConfirmationEmailSent
@@ -528,6 +529,7 @@ export const UsersEdit = () => frag`
     whenConfirmationEmailSent
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     hasAuth0Id
 

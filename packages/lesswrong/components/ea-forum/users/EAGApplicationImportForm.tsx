@@ -551,7 +551,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>Role</label>
-        <Input name="jobTitle" value={formValues.jobTitle} onChange={(e) => handleChangeField(e, 'jobTitle')} />
+        <Input name="jobTitle" value={formValues.jobTitle ?? undefined} onChange={(e) => handleChangeField(e, 'jobTitle')} />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'jobTitle')}>
             <ArrowBack className={classes.arrowIcon} />
@@ -562,7 +562,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
     
       <div className={classes.formRow}>
         <label className={classes.label}>Organization</label>
-        <Input name="organization" value={formValues.organization} onChange={(e) => handleChangeField(e, 'organization')} />
+        <Input name="organization" value={formValues.organization ?? undefined} onChange={(e) => handleChangeField(e, 'organization')} />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'organization')}>
             <ArrowBack className={classes.arrowIcon} />

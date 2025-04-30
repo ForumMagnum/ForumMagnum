@@ -5,7 +5,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (_theme: ThemeType) => ({
   root: {
-    margin: isFriendlyUI ? `6px 0` : undefined,
+    margin: isFriendlyUI ? `6px 0 !important` : undefined,
   },
 });
 
