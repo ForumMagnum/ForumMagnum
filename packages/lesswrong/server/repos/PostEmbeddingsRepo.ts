@@ -59,6 +59,56 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     LIMIT $(limit)
   `;
 
+  async getNearestPostIdsAndInfoWeightedByQuality(
+    inputEmbedding: number[],
+    limit = 5,
+  ): Promise<{_id: string, raw_distance: number, quality_adjusted_score: number}[]> {
+    const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
+      -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
+      WITH embedding_distances AS (
+        SELECT
+          pe."postId", 
+          pe.embeddings <#> $(inputEmbedding)::VECTOR(1536) AS distance
+        FROM public."PostEmbeddings" pe
+        ORDER BY distance
+        LIMIT 200 
+      )
+      ${this.postIdsByEmbeddingDistanceSelector}
+    `, { inputEmbedding, limit });
+  
+    return results.map(({ _id, raw_distance, quality_adjusted_score }) => ({ _id, raw_distance, quality_adjusted_score }));
+  }
+  
+  async getNearestPostIdsAndProductsByPostId(
+    postId: string,
+    limit = 5
+  ): Promise<{_id: string, product: number}[]> {
+    const results = await this.getRawDb().any<{_id: string, product: number}>(`
+      -- PostEmbeddingsRepo.getNearestPostsByPostId
+      WITH source_embedding AS (
+        SELECT embeddings
+        FROM public."PostEmbeddings"
+        WHERE "postId" = $(postId)
+      ),
+      embedding_products AS (
+        SELECT
+          pe."postId", 
+          pe.embeddings <#> (SELECT embeddings FROM source_embedding) AS product 
+        FROM public."PostEmbeddings" pe
+        WHERE pe."postId" != $(postId)
+        ORDER BY product
+        LIMIT $(limit)
+      )
+      SELECT p._id, -ep.product as product
+      FROM embedding_products ep
+      LEFT JOIN "Posts" p ON p._id = ep."postId"
+      WHERE p."draft" = false
+      ORDER BY product
+      LIMIT $(limit)
+    `, { postId, limit });
+  
+    return results.map(({ _id, product }) => ({ _id, product }));
+  }
   async getNearestPostIdsWeightedByQuality(
     inputEmbedding: number[],
     limit = 5,

@@ -1648,6 +1648,15 @@ addRoute(
     subtitle: 'LLM Conversations',
     noFooter: true,
     noIndex: true,
+  },
+  {
+    name: 'llmModerationComparison',
+    path: '/admin/llmModerationComparison',
+    componentName: 'LlmModerationComparisonPage',
+    title: 'LLM Moderation Comparison',
+    subtitle: 'LLM Moderation Comparison',
+    noFooter: true,
+    noIndex: true,
   }
 );
 

@@ -45,7 +45,7 @@ export type SendLLMMessagesArgs<
   ZodType = any
 > = SendOpenAIMessages<ToolUse, ZodType> | SendAnthropicMessages<ToolUse, ZodType>;
 
-type SendLLMMessageReturnTypes<T extends SendLLMMessagesArgs> = T['zodParser'] extends undefined ? string : z.infer<Exclude<T['zodParser'], undefined>> | null;
+type SendLLMMessageReturnTypes<T extends SendLLMMessagesArgs> = T['zodParser'] extends undefined ? string : z.infer<Exclude<T['zodParser'], undefined>> | null | string;
 
 function convertAnthropicToolsToOpenAI(tools: Exclude<AnthropicSendMessagesParams['tools'], undefined>): OpenAISendMessagesParams['tools'] {
   return tools.map(tool => {
@@ -99,7 +99,7 @@ export function convertZodParserToAnthropicTool(zodParser: z.ZodType<any>, name:
   };
 }
 
-export async function sendMessagesToLlm<T extends SendLLMMessagesArgs>(args: T): Promise<SendLLMMessageReturnTypes<T>> {
+export async function sendMessagesToLlm<T extends SendLLMMessagesArgs>(args: T): Promise<SendLLMMessageReturnTypes<T> > {
   if (args.provider === 'openai') {
     const client = await getOpenAI();
     if (!client) {
@@ -152,7 +152,7 @@ export async function sendMessagesToLlm<T extends SendLLMMessagesArgs>(args: T):
   if (zodParser) {
     const tool = convertZodParserToAnthropicTool(zodParser, name);
     const tools = [tool];
-    const toolChoice: AnthropicSendMessagesParams['tool_choice'] = { name, type: 'tool' };
+    // const toolChoice: AnthropicSendMessagesParams['tool_choice'] = { name, type: 'tool' };
 
     const response = await client.messages.create({
       model,
@@ -160,7 +160,6 @@ export async function sendMessagesToLlm<T extends SendLLMMessagesArgs>(args: T):
       messages,
       system,
       tools,
-      tool_choice: toolChoice,
     });
 
     const [firstContentBlock] = response.content;
@@ -169,11 +168,20 @@ export async function sendMessagesToLlm<T extends SendLLMMessagesArgs>(args: T):
       throw new Error('Response from Anthropic has no content blocks!');
     }
 
-    if (firstContentBlock.type !== 'tool_use') {
+    // if (firstContentBlock.type !== 'tool_use') {
+    //   throw new Error('Got unexpected non-tool-use response from Anthropic!');
+    // }
+
+    if (firstContentBlock.type !== 'tool_use' && response.content.every(block => block.type !== 'tool_use')) {
+      return firstContentBlock.text;
+    }
+
+    const toolUseBlock = response.content.find(block => block.type === 'tool_use');
+    if (!toolUseBlock) {
       throw new Error('Got unexpected non-tool-use response from Anthropic!');
     }
 
-    const responseContent = firstContentBlock.input;
+    const responseContent = toolUseBlock.input;
     const validatedTerm = zodParser.safeParse(responseContent);
     if (!validatedTerm.success) {
       throw new Error('Invalid tool use response from Anthropic!');
