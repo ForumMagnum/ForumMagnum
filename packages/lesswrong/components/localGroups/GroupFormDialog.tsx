@@ -11,7 +11,7 @@ import { useSingle } from '@/lib/crud/withSingle';
 import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
 import { isEAForum, isLW } from '@/lib/instanceSettings';
-import { TanStackMultiSelectButtons } from '@/components/tanstack-form-components/TanStackMultiSelectButtons';
+import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
 import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
 import { GROUP_CATEGORIES } from '@/lib/collections/localgroups/newSchema';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
@@ -199,7 +199,7 @@ const TanStackGroupForm = ({
       {isLW && <div className={classes.fieldWrapper}>
         <form.Field name="types">
           {(field) => (
-            <TanStackMultiSelectButtons
+            <MultiSelectButtons
               field={field}
               label='Group Type:'
               options={localGroupTypeFormOptions}

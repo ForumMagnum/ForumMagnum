@@ -36,7 +36,7 @@ import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFor
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
-import { TanStackMultiSelectButtons } from "@/components/tanstack-form-components/TanStackMultiSelectButtons";
+import { MultiSelectButtons } from "@/components/form-components/MultiSelectButtons";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { DialogueSubmit } from "./dialogues/DialogueSubmit";
@@ -543,7 +543,7 @@ export const PostForm = ({
         {isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="types">
             {(field) => (
-              <TanStackMultiSelectButtons
+              <MultiSelectButtons
                 field={field}
                 options={localGroupTypeFormOptions}
                 label="Group Type:"

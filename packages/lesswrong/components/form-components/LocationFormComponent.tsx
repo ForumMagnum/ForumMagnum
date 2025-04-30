@@ -83,7 +83,7 @@ export const geoSuggestStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LocationFormComponent', (theme: ThemeType) => ({
   root: {
     ...geoSuggestStyles(theme),
     ...theme.typography.commentStyle
@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
-});
+}));
 
 let mapsLoadingState: "unloaded"|"loading"|"loaded" = "unloaded";
 let onMapsLoaded: Array<() => void> = [];
@@ -157,14 +157,14 @@ const LocationPicker = ({
   updateCurrentValues,
   stringVersionFieldName,
   variant = "default",
-  classes,
   locationTypes,
 }: Pick<FormComponentProps<AnyBecauseTodo>, "document" | "path" | "label" | "value" | "updateCurrentValues"> & {
   stringVersionFieldName?: string|null,
   variant?: "default" | "grey",
   locationTypes?: QueryType[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // if this location field has a matching field that just stores the string version of the location,
   // make sure to update the matching field along with this one
   const locationFieldName: string|null = stringVersionFieldName || null;
@@ -229,7 +229,7 @@ const LocationPicker = ({
   );
 }
 
-const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
+const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker);
 
 declare global {
   interface ComponentTypes {
@@ -246,8 +246,6 @@ interface TanStackLocationProps {
   locationTypes?: QueryType[];
 }
 
-const formStyles = defineStyles('LocationFormComponent', styles);
-
 export const LocationFormComponent = ({
   field,
   label,
@@ -255,7 +253,7 @@ export const LocationFormComponent = ({
   variant = 'default',
   locationTypes,
 }: TanStackLocationProps) => {
-  const classes = useStyles(formStyles);
+  const classes = useStyles(styles);
   const [mapsLoaded] = useGoogleMaps();
   const geosuggestEl = useRef<Geosuggest>(null);
 

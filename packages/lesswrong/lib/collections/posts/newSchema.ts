@@ -3884,7 +3884,7 @@ const schema = {
     form: {
       form: { options: () => localGroupTypeFormOptions },
       label: "Group Type:",
-      control: "MultiSelectButtons",
+      // control: "MultiSelectButtons",
       hidden: (props) => !isLWorAF || !props.eventForm,
       group: () => formGroups.event,
     },

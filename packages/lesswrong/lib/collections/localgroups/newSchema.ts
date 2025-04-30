@@ -192,7 +192,7 @@ const schema = {
       minCount: 1, // Ensure that at least one type is selected
       form: { options: () => localGroupTypeFormOptions },
       label: "Group Type:",
-      control: "MultiSelectButtons",
+      // control: "MultiSelectButtons",
       hidden: () => !isLW,
     },
   },

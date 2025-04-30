@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
   button: {
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
@@ -35,28 +36,39 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
     },
   },
-});
+}));
 
-const MultiSelectButtons = ({ value, label, options, path, updateCurrentValues, classes }: FormComponentProps<string> & {
+interface TanStackMultiSelectButtonsProps {
+  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
+  label?: string;
   options: Array<{ value: string; label?: string }>;
-  classes: ClassesType<typeof styles>;
-}) => {
-  const handleClick = (option: string) => {    
-    if (value && value.includes(option)) {
-      void updateCurrentValues({
-        [path]: _.without(value, option)
-      })
-    } else {
-      void updateCurrentValues({
-        [path]: [...value, option]
-      })
-    }
-  }
+  className?: string;
+  disabled?: boolean;
+}
 
-  return <div className="multi-select-buttons">
+export const MultiSelectButtons = ({
+  field,
+  label,
+  options,
+  className,
+  disabled = false,
+}: TanStackMultiSelectButtonsProps) => {
+  const classes = useStyles(styles);
+
+  const currentValue = field.state.value;
+
+  const handleClick = (option: string) => {
+    const newValue = currentValue?.includes(option)
+      ? _.without(currentValue, option)
+      : [...(currentValue ?? []), option];
+
+    field.handleChange(newValue);
+  };
+
+  return <div className={classnames('multi-select-buttons', className)}>
     {label && <label className="multi-select-buttons-label">{label}</label>}
     {options.map((option) => {
-      const selected = value && value.includes(option.value);
+      const selected = currentValue?.includes(option.value) ?? false;
       return <Button
         className={classnames(
           "multi-select-buttons-button",
@@ -66,19 +78,13 @@ const MultiSelectButtons = ({ value, label, options, path, updateCurrentValues, 
             [classes.notSelected]: !selected,
           }
         )}
+        disabled={disabled}
         onClick={() => handleClick(option.value)}
+        onBlur={field.handleBlur}
         key={option.value}
       >
         {option.label || option.value}
       </Button>
     })}
   </div>
-}
-
-const MultiSelectButtonsComponent = registerComponent("MultiSelectButtons", MultiSelectButtons, {styles});
-
-declare global {
-  interface ComponentTypes {
-    MultiSelectButtons: typeof MultiSelectButtonsComponent
-  }
 }

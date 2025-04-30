@@ -399,7 +399,6 @@ importComponent("ImageUploadDefaultsDialog", () => require("../../components/for
 importComponent("LocationPicker", () => require("../../components/form-components/LocationFormComponent.tsx"));
 importComponent("ManageSubscriptionsLink", () => require("../../components/form-components/ManageSubscriptionsLink.tsx"));
 importComponent("MuiTextField", () => require("../../components/form-components/MuiTextField.tsx"));
-importComponent("MultiSelectButtons", () => require("../../components/form-components/MultiSelectButtons.tsx"));
 importComponent("PostsListEditor", () => require("../../components/form-components/PostsListEditor.tsx"));
 importComponent("PrefixedInput", () => require("../../components/form-components/PrefixedInput.tsx"));
 importComponent("SearchSingleUser", () => require("../../components/form-components/SearchSingleUser.tsx"));
