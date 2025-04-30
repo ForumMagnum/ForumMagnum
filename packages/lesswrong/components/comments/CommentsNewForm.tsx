@@ -20,6 +20,8 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { borderBottomRightRadius, borderTopRightRadius } from 'html2canvas/dist/types/css/property-descriptors/border-radius';
+import { hasDraftComments } from '@/lib/betas';
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -126,6 +128,10 @@ const styles = (theme: ThemeType) => ({
       opacity: .5,
     }
   } : {},
+  submitSegmented: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",
@@ -208,13 +214,18 @@ const CommentSubmit = ({
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
-  const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   // by default, the EA Forum uses MUI contained buttons here
   const cancelBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
   const submitBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
   if (formDisabledDueToRateLimit) {
     submitBtnProps.disabled = true;
   }
+
+  const submitClassName = classNames(
+    classes.submit,
+    isMinimalist ? classes.formButtonMinimalist : classes.formButton,
+    hasDraftComments && classes.submitSegmented
+  );
 
   return (
     <div
@@ -227,7 +238,7 @@ const CommentSubmit = ({
       {type === "reply" && !isMinimalist && (
         <Button
           onClick={cancelCallback}
-          className={classNames(formButtonClass, classes.cancelButton)}
+          className={classNames(classes.formButton, classes.cancelButton)}
           {...cancelBtnProps}
         >
           {cancelLabel}
@@ -236,7 +247,7 @@ const CommentSubmit = ({
       <Button
         type="submit"
         id="new-comment-submit"
-        className={classNames(formButtonClass, classes.submitButton)}
+        className={classNames(submitClassName, classes.submitButton)}
         onClick={(ev) => {
           if (!currentUser) {
             openDialog({
