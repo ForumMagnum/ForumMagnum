@@ -1,7 +1,9 @@
 import React, {useCallback} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TanStackUserSelect', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -10,14 +12,15 @@ const styles = (theme: ThemeType) => ({
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
   },
-});
+}));
 
-const UserSelect = ({ value, setValue, label, classes }: {
+const UserSelect = ({ value, setValue, label }: {
   value: string | null,
   setValue: (newValue: string | null, result: SearchUser | null) => void,
   label: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
@@ -35,15 +38,16 @@ const UserSelect = ({ value, setValue, label, classes }: {
   );
 };
 
-const FormUserSelect = ({value, path, label, updateCurrentValues}: {
-  value: string | null,
-  path: string,
-  label: string,
-  updateCurrentValues: UpdateCurrentValues,
-}) => {
+interface FormUserSelectProps {
+  field: TypedFieldApi<string | null>;
+  label: string;
+}
+
+export const FormUserSelect = ({ field, label }: FormUserSelectProps) => {
+  const value = field.state.value;
   const setValue = useCallback((newValue: string | null) => {
-    void updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
+    field.handleChange(newValue);
+  }, [field]);
 
   return <Components.UserSelect
     value={value}
@@ -52,12 +56,10 @@ const FormUserSelect = ({value, path, label, updateCurrentValues}: {
   />
 };
 
-const UserSelectComponent = registerComponent("UserSelect", UserSelect, {styles});
-const FormUserSelectComponent = registerComponent("FormUserSelect", FormUserSelect, {styles});
+const UserSelectComponent = registerComponent("UserSelect", UserSelect);
 
 declare global {
   interface ComponentTypes {
     UserSelect: typeof UserSelectComponent
-    FormUserSelect: typeof FormUserSelectComponent
   }
 }

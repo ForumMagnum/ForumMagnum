@@ -10,7 +10,7 @@ import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
-import { TanStackUserSelect } from '@/components/tanstack-form-components/TanStackUserSelect';
+import { FormUserSelect } from '@/components/form-components/UserSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
@@ -76,7 +76,7 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
           <div className={classes.fieldWrapper}>
             <form.Field name="userId">
               {(field) => (
-                <TanStackUserSelect
+                <FormUserSelect
                   field={field}
                   label="User ID"
                 />

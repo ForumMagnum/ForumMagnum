@@ -108,7 +108,7 @@ const schema = {
     },
     form: {
       form: { label: "Set author" },
-      control: "FormUserSelect",
+      // control: "FormUserSelect",
       group: () => formGroups.adminOptions,
     },
   },
