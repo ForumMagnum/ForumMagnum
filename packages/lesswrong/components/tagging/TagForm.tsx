@@ -19,7 +19,7 @@ import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
-import { TanStackTagSelect } from "@/components/tanstack-form-components/TanStackTagSelect";
+import { TagSelect } from "@/components/form-components/TagSelect";
 import { FormUserMultiselect } from "@/components/form-components/UserMultiselect";
 import SummariesEditForm from "./SummariesEditForm";
 import { useCurrentUser } from "../common/withUser";
@@ -460,7 +460,7 @@ export const TagForm = ({
             <form.Field name="parentTagId">
               {(field) => (
                 <LWTooltip title="Parent tag which will also be applied whenever this tag is applied to a post for the first time" placement="left-start" inlineBlock={false}>
-                  <TanStackTagSelect
+                  <TagSelect
                     field={field}
                     label="Parent Tag"
                   />

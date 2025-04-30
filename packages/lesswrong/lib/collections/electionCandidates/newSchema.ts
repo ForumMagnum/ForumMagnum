@@ -219,7 +219,7 @@ const schema = {
     },
     form: {
       label: "Tag (type to search)",
-      control: "TagSelect",
+      // control: "TagSelect",
     },
   },
   tag: {

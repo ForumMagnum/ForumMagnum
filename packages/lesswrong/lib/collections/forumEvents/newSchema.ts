@@ -311,7 +311,7 @@ const schema = {
     },
     form: {
       label: "Choose tag",
-      control: "TagSelect",
+      // control: "TagSelect",
     },
   },
   tag: {

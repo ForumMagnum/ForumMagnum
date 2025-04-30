@@ -1180,7 +1180,7 @@ const schema = {
     form: {
       label: "Parent Tag",
       tooltip: "Parent tag which will also be applied whenever this tag is applied to a post for the first time",
-      control: "TagSelect",
+      // control: "TagSelect",
       group: () => formGroups.advancedOptions,
     },
   },

@@ -409,7 +409,6 @@ importComponent("SingleTagItem", () => require("../../components/form-components
 importComponent("SingleUsersItem", () => require("../../components/form-components/SingleUsersItem.tsx"));
 importComponent("TagFlagToggleList", () => require("../../components/form-components/TagFlagToggleList.tsx"));
 importComponent("TagMultiselect", () => require("../../components/form-components/TagMultiselect.tsx"));
-importComponent("TagSelect", () => require("../../components/form-components/TagSelect.tsx"));
 importComponent("ThemeSelect", () => require("../../components/form-components/ThemeSelect.tsx"));
 importComponent("UserMultiselect", () => require("../../components/form-components/UserMultiselect.tsx"));
 importComponent(["UserSelect", "FormUserSelect"], () => require("../../components/form-components/UserSelect.tsx"));

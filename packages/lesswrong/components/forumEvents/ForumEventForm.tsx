@@ -12,7 +12,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
-import { TanStackTagSelect } from "@/components/tanstack-form-components/TanStackTagSelect";
+import { TagSelect } from "@/components/form-components/TagSelect";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
 import { TanStackColorPicker } from "@/components/tanstack-form-components/TanStackColorPicker";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
@@ -266,7 +266,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="tagId">
           {(field) => (
-            <TanStackTagSelect
+            <TagSelect
               field={field}
               label="Choose tag"
             />
