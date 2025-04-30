@@ -11,11 +11,11 @@ import { useCreate } from "@/lib/crud/withCreate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const styles = (theme: ThemeType) => ({
   root: {

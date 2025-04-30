@@ -6,7 +6,7 @@ import type { EditablePost, PostCategory } from '../../lib/collections/posts/hel
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('EditTitle', (theme: ThemeType) => ({

@@ -9,15 +9,15 @@ import { useUpdate } from "@/lib/crud/withUpdate";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { useStyles, defineStyles } from "../hooks/useStyles";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
-import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
+import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
 import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/newSchema";
 import { useSingle } from "@/lib/crud/withSingle";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const styles = defineStyles('SurveyScheduleEditPage', (theme: ThemeType) => ({
   root: {

@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../ea-forum/users/DisplayNameWithMarkers";
-import { TypedFieldApi } from "../tanstack-form-components/BaseAppForm";
+import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 
 const styles = defineStyles('FormComponentFriendlyDisplayNameInput', (theme: ThemeType) => ({

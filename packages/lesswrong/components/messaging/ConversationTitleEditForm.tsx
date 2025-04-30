@@ -7,16 +7,16 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
-import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
-import { TanStackUserMultiselect } from '../tanstack-form-components/TanStackUserMultiSelect';
+import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
+import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isLWorAF } from '@/lib/instanceSettings';
-import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) => ({
   fieldWrapper: {

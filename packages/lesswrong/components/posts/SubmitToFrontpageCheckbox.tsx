@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => ({

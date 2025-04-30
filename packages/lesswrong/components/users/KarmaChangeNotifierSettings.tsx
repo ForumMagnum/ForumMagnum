@@ -12,7 +12,7 @@ import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('KarmaChangeNotifierSettings', (theme: ThemeType) => ({

@@ -10,10 +10,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
-import { LegacyFormGroupLayout } from '../tanstack-form-components/LegacyFormGroupLayout';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
-import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
+import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 
 const styles = defineStyles('EditPaymentInfoPage', (theme: ThemeType) => ({
   root: {

@@ -7,10 +7,10 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
-import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
-import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
+import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = (theme: ThemeType) => ({
   root: {

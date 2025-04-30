@@ -13,7 +13,7 @@ import { moderationEmail } from '../../lib/publicSettings';
 import { EditablePost, getPostCollaborateUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('PostSharingSettings', (theme: ThemeType) => ({

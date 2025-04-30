@@ -15,7 +15,7 @@ import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
-import { TypedFieldApi } from "../tanstack-form-components/BaseAppForm";
+import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 
 const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({

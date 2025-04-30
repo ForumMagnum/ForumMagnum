@@ -5,11 +5,11 @@ import { useForm } from "@tanstack/react-form";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('JargonTermForm', (theme: ThemeType) => ({
   fieldWrapper: {

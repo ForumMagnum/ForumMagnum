@@ -3,7 +3,7 @@ import { Components } from '../../lib/vulcan-lib/components';
 import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('FormComponentPostEditorTagging', (_theme: ThemeType) => ({

@@ -29,20 +29,20 @@ import { SelectLocalgroup } from "../form-components/SelectLocalgroup";
 import { SocialPreviewUpload } from "../form-components/SocialPreviewUpload";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { GlossaryEditFormWrapper } from "../jargon/GlossaryEditFormWrapper";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
-import { TanStackLocation } from "../tanstack-form-components/TanStackLocation";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { TanStackMultiSelectButtons } from "../tanstack-form-components/TanStackMultiSelectButtons";
-import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
-import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { TanStackLocation } from "@/components/tanstack-form-components/TanStackLocation";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { TanStackMultiSelectButtons } from "@/components/tanstack-form-components/TanStackMultiSelectButtons";
+import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { DialogueSubmit } from "./dialogues/DialogueSubmit";
 import { PostSubmit } from "./PostSubmit";
 import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {

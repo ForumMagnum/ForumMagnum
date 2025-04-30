@@ -6,12 +6,12 @@ import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
+import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
-import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
-import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
-import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => ({
   newOrEditForm: {

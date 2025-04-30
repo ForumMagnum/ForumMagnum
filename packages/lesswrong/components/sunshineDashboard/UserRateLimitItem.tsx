@@ -10,13 +10,13 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
-import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
-import { TanStackSelect } from '../tanstack-form-components/TanStackSelect';
-import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
+import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {

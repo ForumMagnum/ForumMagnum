@@ -3,7 +3,7 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import without from 'lodash/without';
-import type { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles("FormComponentCheckboxGroup", (theme: ThemeType) => ({
   checkbox: {

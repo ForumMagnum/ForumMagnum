@@ -33,7 +33,7 @@ import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
 import { Components } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -208,7 +208,7 @@ function InnerEditorFormComponent<S, R>({
   // is error prone and we don't want to encourage it. We no longer support draftJS
   // but some old posts still are using it so we show the warning for them too.
   const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
-  
+
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
   const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)

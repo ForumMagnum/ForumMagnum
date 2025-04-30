@@ -6,7 +6,7 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components } from '../../lib/vulcan-lib/components';
 import debounce from 'lodash/debounce';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditablePost } from '@/lib/collections/posts/helpers';
 

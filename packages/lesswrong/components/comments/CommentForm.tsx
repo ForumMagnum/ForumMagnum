@@ -7,16 +7,16 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
-import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
-import { TanStackEditCommentTitle } from "../tanstack-form-components/TanStackEditCommentTitle";
-import { TanStackQuickTakesTags } from "../tanstack-form-components/TanStackQuickTakesTags";
+import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
+import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
+import { TanStackQuickTakesTags } from "@/components/tanstack-form-components/TanStackQuickTakesTags";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
@@ -27,7 +27,7 @@ import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
 import { useDialog } from "../common/withDialog";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -350,7 +350,7 @@ export const CommentForm = ({
         {initialData && commentAllowTitle(initialData) && <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (
-              <TanStackEditCommentTitle
+              <EditCommentTitle
                 field={field}
                 placeholder="Title (optional)"
               />

@@ -3,7 +3,7 @@ import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
 import React, { useCallback, useRef } from "react";
 import { EditablePost, isPostCategory } from "../../lib/collections/posts/helpers";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TypedFieldApi } from "../tanstack-form-components/BaseAppForm";
+import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 
 const styles = defineStyles('EditPostCategory', (theme: ThemeType) => ({
   tabs: {

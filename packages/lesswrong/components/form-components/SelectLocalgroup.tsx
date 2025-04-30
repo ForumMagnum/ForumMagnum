@@ -2,9 +2,9 @@ import React from 'react';
 import { Components } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
-import { TanStackMultiSelect } from '../tanstack-form-components/TanStackMultiSelect';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 
 interface SelectLocalgroupBaseProps {
   useDocumentAsUser?: boolean;

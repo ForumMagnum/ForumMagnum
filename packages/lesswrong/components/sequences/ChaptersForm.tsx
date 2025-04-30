@@ -7,12 +7,12 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { TanStackPostsListEditor } from "../tanstack-form-components/TanStackPostsListEditor";
-import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { TanStackPostsListEditor } from "@/components/tanstack-form-components/TanStackPostsListEditor";
+import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
   fieldWrapper: {

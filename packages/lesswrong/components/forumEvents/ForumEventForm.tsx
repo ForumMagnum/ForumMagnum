@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { TanStackTagSelect } from "../tanstack-form-components/TanStackTagSelect";
+import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { TanStackTagSelect } from "@/components/tanstack-form-components/TanStackTagSelect";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
-import { TanStackColorPicker } from "../tanstack-form-components/TanStackColorPicker";
-import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
-import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
+import { TanStackColorPicker } from "@/components/tanstack-form-components/TanStackColorPicker";
+import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
+import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
 import { useSingle } from "@/lib/crud/withSingle";
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({

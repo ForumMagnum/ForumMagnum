@@ -6,7 +6,7 @@ import find from 'lodash/find';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
-import type { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', (theme: ThemeType) => ({

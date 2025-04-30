@@ -8,11 +8,11 @@ import classNames from "classnames";
 import React from "react";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('SummaryForm', (theme: ThemeType) => ({
   defaultFormSection: {

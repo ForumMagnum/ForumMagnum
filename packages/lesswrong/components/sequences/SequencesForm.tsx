@@ -7,17 +7,17 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { TanStackEditSequenceTitle } from "../tanstack-form-components/TanStackEditSequenceTitle";
-import { TanStackUserSelect } from "../tanstack-form-components/TanStackUserSelect";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
+import { TanStackEditSequenceTitle } from "@/components/tanstack-form-components/TanStackEditSequenceTitle";
+import { TanStackUserSelect } from "@/components/tanstack-form-components/TanStackUserSelect";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
   fieldWrapper: {

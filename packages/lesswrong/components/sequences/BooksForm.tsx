@@ -6,15 +6,15 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { TanStackPostsListEditor } from "../tanstack-form-components/TanStackPostsListEditor";
-import { TanStackSequencesListEditor } from "../tanstack-form-components/TanStackSequencesListEditor";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { TanStackPostsListEditor } from "@/components/tanstack-form-components/TanStackPostsListEditor";
+import { TanStackSequencesListEditor } from "@/components/tanstack-form-components/TanStackSequencesListEditor";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('BooksForm', (theme: ThemeType) => ({
   fieldWrapper: {

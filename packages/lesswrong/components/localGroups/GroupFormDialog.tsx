@@ -6,25 +6,25 @@ import { useNavigate } from '../../lib/routeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
 import { useSingle } from '@/lib/crud/withSingle';
-import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
+import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
 import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
 import { isEAForum, isLW } from '@/lib/instanceSettings';
-import { TanStackMultiSelectButtons } from '../tanstack-form-components/TanStackMultiSelectButtons';
-import { TanStackMultiSelect } from '../tanstack-form-components/TanStackMultiSelect';
+import { TanStackMultiSelectButtons } from '@/components/tanstack-form-components/TanStackMultiSelectButtons';
+import { TanStackMultiSelect } from '@/components/tanstack-form-components/TanStackMultiSelect';
 import { GROUP_CATEGORIES } from '@/lib/collections/localgroups/newSchema';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { TanStackUserMultiselect } from '../tanstack-form-components/TanStackUserMultiSelect';
-import { TanStackLocation } from '../tanstack-form-components/TanStackLocation';
-import { TanStackImageUpload } from '../tanstack-form-components/TanStackImageUpload';
+import { TanStackUserMultiselect } from '@/components/tanstack-form-components/TanStackUserMultiSelect';
+import { TanStackLocation } from '@/components/tanstack-form-components/TanStackLocation';
+import { TanStackImageUpload } from '@/components/tanstack-form-components/TanStackImageUpload';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import { TanStackGroupFormSubmit } from './TanStackGroupFormSubmit';
-import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {

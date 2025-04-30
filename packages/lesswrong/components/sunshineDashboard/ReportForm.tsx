@@ -6,9 +6,9 @@ import classNames from 'classnames';
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
-import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
-import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   fieldWrapper: {

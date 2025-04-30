@@ -9,7 +9,7 @@ import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost } from '@/lib/collections/posts/helpers.ts';
-import type { TypedFormApi } from '../tanstack-form-components/BaseAppForm.tsx';
+import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({

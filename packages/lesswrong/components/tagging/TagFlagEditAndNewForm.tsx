@@ -10,12 +10,12 @@ import React from 'react';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { getUpdatedFieldValues } from '../tanstack-form-components/helpers';
-import { TanStackCheckbox } from '../tanstack-form-components/TanStackCheckbox';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
+import { TanStackCheckbox } from '@/components/tanstack-form-components/TanStackCheckbox';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
-import { TanStackMuiTextField } from '../tanstack-form-components/TanStackMuiTextField';
-import { submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
-import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
+import { TanStackMuiTextField } from '@/components/tanstack-form-components/TanStackMuiTextField';
+import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
   fieldWrapper: {

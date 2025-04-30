@@ -15,7 +15,7 @@ import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
-import type { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditableUser } from '@/lib/collections/users/helpers';
 import { DeepKeys, DeepValue } from '@tanstack/react-form';
 

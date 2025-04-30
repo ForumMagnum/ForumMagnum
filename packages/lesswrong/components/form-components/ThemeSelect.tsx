@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { themeMetadata, getDefaultThemeOptions } from '../../themes/themeNames';
 import { useThemeOptions } from '../themes/useTheme';
-import type { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
-import { TanStackSelect } from '../tanstack-form-components/TanStackSelect';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
 
 const getValue = (field: TypedFieldApi<ThemeField>): string => {
   if (field.state.value.name) {

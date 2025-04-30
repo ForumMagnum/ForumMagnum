@@ -7,14 +7,14 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
-import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) => ({
   fieldWrapper: {

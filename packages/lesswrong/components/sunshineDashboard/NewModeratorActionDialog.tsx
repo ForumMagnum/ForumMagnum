@@ -8,10 +8,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TanStackSelect } from '../tanstack-form-components/TanStackSelect';
-import { cancelButtonStyles, submitButtonStyles } from '../tanstack-form-components/TanStackSubmit';
-import { TanStackUserSelect } from '../tanstack-form-components/TanStackUserSelect';
-import { useFormErrors } from '../tanstack-form-components/BaseAppForm';
+import { TanStackSelect } from '@/components/tanstack-form-components/TanStackSelect';
+import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
+import { TanStackUserSelect } from '@/components/tanstack-form-components/TanStackUserSelect';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
   dialogContent: {

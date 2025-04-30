@@ -6,17 +6,17 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
+import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
-import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
-import { TanStackColorPicker } from "../tanstack-form-components/TanStackColorPicker";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { TanStackColorPicker } from "@/components/tanstack-form-components/TanStackColorPicker";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('SpotlightForm', (theme: ThemeType) => ({
   defaultFormSection: {

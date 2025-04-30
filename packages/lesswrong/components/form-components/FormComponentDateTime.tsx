@@ -7,7 +7,7 @@ import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
-import { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { ClearInput } from './ClearInput';
 
 const styles = (theme: ThemeType) => ({

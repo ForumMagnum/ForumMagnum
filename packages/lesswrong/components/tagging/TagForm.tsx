@@ -11,19 +11,19 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
-import { getUpdatedFieldValues } from "../tanstack-form-components/helpers";
-import { TanStackCheckbox } from "../tanstack-form-components/TanStackCheckbox";
+import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { TanStackCheckbox } from "@/components/tanstack-form-components/TanStackCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { TanStackImageUpload } from "../tanstack-form-components/TanStackImageUpload";
-import { TanStackMuiTextField } from "../tanstack-form-components/TanStackMuiTextField";
-import { TanStackSelect } from "../tanstack-form-components/TanStackSelect";
-import { cancelButtonStyles, submitButtonStyles } from "../tanstack-form-components/TanStackSubmit";
-import { TanStackTagSelect } from "../tanstack-form-components/TanStackTagSelect";
-import { TanStackUserMultiselect } from "../tanstack-form-components/TanStackUserMultiSelect";
+import { TanStackImageUpload } from "@/components/tanstack-form-components/TanStackImageUpload";
+import { TanStackMuiTextField } from "@/components/tanstack-form-components/TanStackMuiTextField";
+import { TanStackSelect } from "@/components/tanstack-form-components/TanStackSelect";
+import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
+import { TanStackTagSelect } from "@/components/tanstack-form-components/TanStackTagSelect";
+import { TanStackUserMultiselect } from "@/components/tanstack-form-components/TanStackUserMultiSelect";
 import SummariesEditForm from "./SummariesEditForm";
 import { useCurrentUser } from "../common/withUser";
-import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 
 const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   fieldWrapper: {

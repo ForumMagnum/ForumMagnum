@@ -17,7 +17,7 @@ import { ckEditorName } from "../editor/Editor";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { Components } from "../../lib/vulcan-lib/components";
 import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
-import type { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 

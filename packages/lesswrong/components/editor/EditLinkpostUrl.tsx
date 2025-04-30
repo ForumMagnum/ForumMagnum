@@ -3,7 +3,7 @@ import { Components } from "../../lib/vulcan-lib/components";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import type { EditablePost } from '../../lib/collections/posts/helpers';
-import type { TypedFieldApi } from '../tanstack-form-components/BaseAppForm';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail")
