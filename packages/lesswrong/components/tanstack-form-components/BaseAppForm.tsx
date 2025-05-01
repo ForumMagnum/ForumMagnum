@@ -1,8 +1,8 @@
-import type { AnyFieldApi, DeepKeys, DeepValue, FieldApi, FormApi, Updater } from "@tanstack/react-form";
+import type { DeepKeys, DeepValue, FieldApi, FormApi, Updater } from "@tanstack/react-form";
 import React, { useMemo, useState } from "react";
 import { Components } from "@/lib/vulcan-lib/components";
 
-export type TypedFieldApi<TValue extends DeepValue<TData, keyof TData>, TData = any, TParentSubmitMeta = any> = Omit<AnyFieldApi, 'state'> & {
+export type TypedFieldApi<TValue extends DeepValue<TData, keyof TData>, TData = any, TParentSubmitMeta = any> = Omit<FieldApi<any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, TParentSubmitMeta>, 'state'> & {
   name: DeepKeys<TData>;
   state: {
     value: TValue;
@@ -11,7 +11,7 @@ export type TypedFieldApi<TValue extends DeepValue<TData, keyof TData>, TData = 
     }
   };
   handleChange: (value: Updater<TValue>) => void;
-};// FieldApi<TData, keyof TData & string, TValue, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, TParentSubmitMeta>;
+};
 
 export type TypedFormApi<TFormData, TSubmitMeta = never> = FormApi<TFormData, any, any, any, any, any, any, any, any, TSubmitMeta>;
 

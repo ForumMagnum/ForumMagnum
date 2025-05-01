@@ -276,7 +276,7 @@ interface FormFieldSpecification<N extends CollectionNameString> {
 interface CollectionFieldSpecification<N extends CollectionNameString> {
   database?: DatabaseFieldSpecification<N>,
   graphql?: GraphQLFieldSpecification<N>,
-  form?: FormFieldSpecification<N>,
+  // form?: FormFieldSpecification<N>,
 }
 
 /** Field specification for a Form field, created from the collection schema */

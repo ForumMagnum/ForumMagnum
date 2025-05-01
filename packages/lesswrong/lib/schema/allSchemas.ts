@@ -235,7 +235,7 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
 }
 
 function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionNameString>) {
-  return field.form || !!field.graphql?.canCreate?.length || !!field.graphql?.canUpdate?.length;
+  return /*field.form ||*/ !!field.graphql?.canCreate?.length || !!field.graphql?.canUpdate?.length;
 }
 
 function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
@@ -269,7 +269,7 @@ function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<s
 
     const fieldSchemaDefinition: SchemaDefinition = {
       ...originalTypeDef,
-      ...value.form,
+      // ...value.form,
       ...implicitOptionalProp,
       // This needs to be included even if false because it's used for type codegen in a way that relies on the difference between undefined and false
       // (i.e. the implicit default value of `nullable` in the context of database type codegen is `true`)
