@@ -289,19 +289,45 @@ const TruncationLevelDropdown: React.FC<TruncationLevelDropdownProps> = ({
   
   return (
     <div className={classes.truncationGridCell}>
-    <select
-      className={classes.truncationOptionSelect}
-      value={value}
-      onChange={(e) => onChange(field, e.target.value as TruncationLevel)}
-    >
-      {truncationLevels.map(levelOption => (
-        <option key={levelOption} value={levelOption}>
+      <select
+        className={classes.truncationOptionSelect}
+        value={value}
+        onChange={(e) => onChange(field, e.target.value as TruncationLevel)}
+      >
+        {truncationLevels.map(levelOption => (
+          <option key={levelOption} value={levelOption}>
             {getLabel(levelOption)}
           </option>
         ))}
       </select>
     </div>
   );
+};
+
+const arrayHasUnsupported = (
+  arr: (number | null | undefined)[] | undefined,
+  allowed: Set<number | null>
+) => {
+  if (!arr) return false;
+  if (arr.length > 3) return true;
+  
+  return arr.some(v => {
+    if (v === undefined) return true;
+    return !allowed.has(v);
+  });
+};
+
+const checkMismatch = (originalSettings: UltraFeedSettingsType) => {
+  const allowedLineClamps = new Set(Object.values(levelToCommentLinesMap));
+  const allowedCommentValues = new Set(Object.values(levelToCommentBreakpointMap).filter(v => v !== undefined));
+  const allowedPostValues = new Set(Object.values(levelToPostBreakpointMap).filter(v => v !== undefined));
+
+  if (!allowedLineClamps.has(originalSettings.lineClampNumberOfLines)) return true;
+
+  if (arrayHasUnsupported(originalSettings.commentTruncationBreakpoints, allowedCommentValues)) return true;
+  if (arrayHasUnsupported(originalSettings.postTruncationBreakpoints, allowedPostValues)) return true;
+
+  return false;
 };
 
 type TruncationGridFields = 'postLevel0' | 'postLevel1' | 'postLevel2' | 'commentLevel0' | 'commentLevel1' | 'commentLevel2';
@@ -317,30 +343,7 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   originalSettings,
 }) => {
   const classes = useStyles(styles);
-
-  const checkMismatch = () => {
-    const allowedLineClamps = new Set(Object.values(levelToCommentLinesMap)); // {0,2}
-    const allowedCommentValues = new Set( Object.values(levelToCommentBreakpointMap).filter(v => v !== undefined));
-    const allowedPostValues = new Set(Object.values(levelToPostBreakpointMap).filter(v => v !== undefined));
-
-    const arrayHasUnsupported = (
-      arr: (number | null | undefined)[] | undefined,
-      allowed: Set<number | null>
-    ) => {
-      if (!arr) return false;
-      if (arr.length > 3) return true;
-      return arr.some(v => !allowed.has(v === undefined ? undefined as any : v));
-    };
-
-    if (!allowedLineClamps.has(originalSettings.lineClampNumberOfLines)) return true;
-
-    if (arrayHasUnsupported(originalSettings.commentTruncationBreakpoints, allowedCommentValues)) return true;
-    if (arrayHasUnsupported(originalSettings.postTruncationBreakpoints, allowedPostValues)) return true;
-
-    return false;
-  };
-
-  const showWarning = checkMismatch();
+  const showWarning = checkMismatch(originalSettings);
 
   return (
     <div className={classes.settingGroup}>

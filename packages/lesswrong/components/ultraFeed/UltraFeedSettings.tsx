@@ -130,9 +130,9 @@ const UltraFeedSettings = ({
 
   const { flash } = useMessages();
 
-  const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState( 'ultraFeedSettingsViewMode', (key) => key, initialViewMode );
+  const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
   const viewMode = ultraFeedSettingsViewMode && ['simple', 'advanced'].includes(ultraFeedSettingsViewMode) ? ultraFeedSettingsViewMode : initialViewMode;
-  const setViewMode = (mode: 'simple' | 'advanced') => setUltraFeedSettingsViewMode(mode) ;
+  const setViewMode = (mode: 'simple' | 'advanced') => setUltraFeedSettingsViewMode(mode);
 
   const [formValues, setFormValues] = useState<SettingsFormState>(() => ({
     sourceWeights: { ...DEFAULT_SOURCE_WEIGHTS, ...(settings.sourceWeights || {}) },
@@ -226,19 +226,19 @@ const UltraFeedSettings = ({
     }));
   }, []);
 
-  const handleSourceWeightChange = useCallback((key: FeedItemSourceType, value: number | string ) => {
+  const handleSourceWeightChange = useCallback((key: FeedItemSourceType, value: number | string) => {
     let numValue: number | '' = '';
     const strValue = String(value).trim();
     if (strValue === '') {
-      numValue = ''; 
+      numValue = '';
     } else {
       const parsedValue = parseInt(strValue, 10);
-      numValue = (!isNaN(parsedValue) && Number.isInteger(Number(strValue))) ? parsedValue : ''; 
+      numValue = (!isNaN(parsedValue) && Number.isInteger(Number(strValue))) ? parsedValue : '';
     }
 
     updateForm('sourceWeights', prev => ({
       ...prev,
-      [key]: numValue, 
+      [key]: numValue,
     }));
   }, [updateForm]);
 
@@ -250,7 +250,7 @@ const UltraFeedSettings = ({
   }, [updateForm]);
 
   const handleBooleanChange = useCallback((
-    field: keyof SettingsFormState, 
+    field: keyof SettingsFormState,
     checked: boolean
   ) => {
     updateForm(field, checked);
@@ -452,13 +452,12 @@ const UltraFeedSettings = ({
       <div className={classes.viewModeToggle}>
         <div
           onClick={() => setViewMode('simple')}
-          className={classNames( classes.viewModeButton, viewMode === 'simple' ? classes.viewModeButtonActive : classes.viewModeButtonInactive
-          )}
+          className={classNames(classes.viewModeButton, viewMode === 'simple' ? classes.viewModeButtonActive : classes.viewModeButtonInactive)}
         >
            Simple
         </div>
-        <div 
-          onClick={() => setViewMode('advanced')} 
+        <div
+          onClick={() => setViewMode('advanced')}
           className={classNames(classes.viewModeButton, viewMode === 'advanced' ? classes.viewModeButtonActive : classes.viewModeButtonInactive)}
         >
           Advanced
@@ -468,13 +467,13 @@ const UltraFeedSettings = ({
       {viewMode === 'simple' ? renderSimpleView() : renderAdvancedView()}
 
       <div className={classes.buttonRow}>
-        <button 
+        <button
           className={classNames(classes.button, classes.resetButton)}
           onClick={handleReset}
         >
           Reset
         </button>
-        <button 
+        <button
           className={classNames(classes.button, classes.saveButton, {
             [classes.buttonDisabled]: hasAnyErrors
           })}
