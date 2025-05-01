@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
+import Papa from "papaparse"; // Add this import
 
 interface Post {
   _id: string;
@@ -95,9 +96,56 @@ export const ModerationResults = ({
     );
   }, [tableRows]);
 
+  const handleDownloadCSV = () => {
+    // Prepare data for CSV
+    const csvData = tableRows.map(({ post, predictedLabel, trueLabel, outcome }) => ({
+      Title: post.title,
+      Link: `https://www.lesswrong.com/posts/${post._id}`,
+      Predicted: predictedLabel,
+      True: trueLabel,
+      Outcome: outcome,
+      Author: post.user.displayName,
+      Karma: post.user.karma,
+      CreatedAt: post.user.createdAt,
+      Reason: post.reason || ""
+    }));
+    
+    // Generate CSV string using papaparse
+    const csv = Papa.unparse(csvData);
+    
+    // Create a blob and download link
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${moderationType}-moderation-results.csv`);
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="moderation-results">
-      <h2>{moderationType === "frontpage" ? "Frontpage" : "Rejection"} Moderation Results</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <h2 style={{ margin: 0 }}>{moderationType === "frontpage" ? "Frontpage" : "Rejection"} Moderation Results</h2>
+        <button 
+          onClick={handleDownloadCSV}
+          style={{
+            backgroundColor: "#5f9eee",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            padding: "8px 16px",
+            cursor: "pointer",
+            fontSize: "14px",
+          }}
+        >
+          Download CSV
+        </button>
+      </div>
       <p>
         Processed {processedCount} / {relevantPostsCount} – Correct Positive: {outcomeCounts.correctPositive} – Correct Negative: {outcomeCounts.correctNegative} – FP: {outcomeCounts.falsePositive}
         – FN: {outcomeCounts.falseNegative}
