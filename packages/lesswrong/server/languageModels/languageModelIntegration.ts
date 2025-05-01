@@ -1,23 +1,23 @@
 import OpenAI from "openai";
 import { dataToMarkdown } from '../editor/conversionUtils';
-import { DatabaseServerSetting, openAIApiKey, openAIOrganizationId } from '../databaseSettings';
+// import { DatabaseServerSetting, openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import { encode as gpt3encode, decode as gpt3decode } from 'gpt-3-encoder'
 import drop from 'lodash/drop';
 import take from 'lodash/take';
 
 let openAIApi: OpenAI|null = null;
 export async function getOpenAI(): Promise<OpenAI|null> {
-  if (!openAIApi){
-    const apiKey = openAIApiKey.get();
-    const organizationId = openAIOrganizationId.get();
+  // if (!openAIApi){
+  //   const apiKey = openAIApiKey.get();
+  //   const organizationId = openAIOrganizationId.get();
     
-    if (apiKey) {
-      openAIApi = new OpenAI({
-        apiKey,
-        organization: organizationId ?? undefined,
-      });
-    }
-  }
+  //   if (apiKey) {
+  //     openAIApi = new OpenAI({
+  //       apiKey,
+  //       organization: organizationId ?? undefined,
+  //     });
+  //   }
+  // }
   return openAIApi;
 }
 

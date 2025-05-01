@@ -91,8 +91,8 @@ function validateSettings(registeredSettings: Record<string, "server" | "public"
   console.log(groupBy(Object.keys(registeredSettings), key => registeredSettings[key]))
 }
 
-export const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
-export const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
+// export const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
+// export const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
 
 export const vertexDocumentServiceParentPathSetting = new DatabaseServerSetting<string | null>('googleVertex.documentServiceParentPath', null);
 export const vertexUserEventServiceParentPathSetting = new DatabaseServerSetting<string | null>('googleVertex.userEventServiceParentPath', null);

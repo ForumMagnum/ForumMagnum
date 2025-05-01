@@ -1353,6 +1353,21 @@ function currentOpenThread(terms: PostsViewTerms) {
   }
 }
 
+function moderationTest(terms: PostsViewTerms) {
+  return {
+    selector: {
+      status: null, // allow sunshines to see posts marked as spam
+      authorIsUnreviewed: null,
+      groupId: null,
+      rejected: null,
+    },
+    options: {
+      sort: { postedAt: -1 },
+    }
+  }
+
+}
+
 export const PostsViews = new CollectionViewSet('Posts', {
   userPosts,
   magic,
@@ -1415,4 +1430,5 @@ export const PostsViews = new CollectionViewSet('Posts', {
   myBookmarkedPosts,
   alignmentSuggestedPosts,
   currentOpenThread,
+  moderationTest,
 }, defaultView);

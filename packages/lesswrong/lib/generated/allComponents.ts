@@ -4,6 +4,7 @@ import { importComponent } from '../vulcan-lib/components';
 importComponent("LWBackgroundImage", () => require("../../components/LWBackgroundImage.tsx"));
 importComponent("Layout", () => require("../../components/Layout.tsx"));
 importComponent("LlmModerationComparisonPage", () => require("../../components/LlmModerationComparisonPage.tsx"));
+importComponent("ModerationResults", () => require("../../components/ModerationResults.tsx"));
 importComponent("AdminGoogleServiceAccount", () => require("../../components/admin/AdminGoogleServiceAccount.tsx"));
 importComponent("AdminHome", () => require("../../components/admin/AdminHome.tsx"));
 importComponent("AdminMetadata", () => require("../../components/admin/AdminMetadata.tsx"));

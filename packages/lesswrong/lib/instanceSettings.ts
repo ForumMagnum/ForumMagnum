@@ -322,3 +322,6 @@ export const hyperbolicApiKey = new PublicInstanceSetting<string>('hyperbolic.ap
 
 export const twitterBotEnabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
 export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaThreshold", 40, "optional");
+
+export const openAIApiKey = new PublicInstanceSetting<string|null>('languageModels.openai.apiKey', null, "optional");
+export const openAIOrganizationId = new PublicInstanceSetting<string|null>('languageModels.openai.organizationId', null, "optional");
