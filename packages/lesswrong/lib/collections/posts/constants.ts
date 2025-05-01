@@ -172,3 +172,14 @@ export const MODERATION_GUIDELINES_OPTIONS = [
     label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
   },
 ];
+
+export const EVENT_TYPES = [
+  { value: "presentation", label: "Presentation" },
+  { value: "discussion", label: "Discussion" },
+  { value: "workshop", label: "Workshop" },
+  { value: "social", label: "Social" },
+  { value: "coworking", label: "Coworking" },
+  { value: "course", label: "Course" },
+  { value: "conference", label: "Conference" },
+];
+

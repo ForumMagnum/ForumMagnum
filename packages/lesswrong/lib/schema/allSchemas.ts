@@ -4,6 +4,7 @@
 // Helper imports
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { isAnyTest, isCodegen } from '../executionEnvironment';
+import '../utils/extendSimpleSchemaOptions';
 
 // Collection imports
 import { default as AdvisorRequests } from '../collections/advisorRequests/newSchema';

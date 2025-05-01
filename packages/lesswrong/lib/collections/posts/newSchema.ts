@@ -22,13 +22,15 @@ import {
   postGetDefaultStatus,
   getSocialPreviewImage,
   isNotHostedHere,
-  isDialogueParticipant
+  isDialogueParticipant,
+  MINIMUM_COAUTHOR_KARMA,
+  DEFAULT_QUALITATIVE_VOTE,
+  userPassesCrosspostingKarmaThreshold
 } from "./helpers";
 import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "simpl-schema";
-import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/newSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { getVotingSystemByName } from '../../voting/getVotingSystem';
 import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
@@ -43,7 +45,6 @@ import {
   getNextPostIdFromNextSequence,
 } from "../sequences/helpers";
 import { allOf } from "../../utils/functionUtils";
-import { crosspostKarmaThreshold } from "../../publicSettings";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { hasSideComments, userCanViewJargonTerms } from "../../betas";
 import { stableSortTags } from "../tags/helpers";
@@ -53,7 +54,6 @@ import mapValues from "lodash/mapValues";
 import groupBy from "lodash/groupBy";
 import {
   documentIsNotDeleted,
-  userOverNKarmaFunc,
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
@@ -86,13 +86,6 @@ export const graphqlTypeDefs = gql`
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
 
-export const STICKY_PRIORITIES = {
-  1: "Low",
-  2: "Normal",
-  3: "Elevated",
-  4: "Max",
-};
-
 export function getDefaultVotingSystem() {
   return forumSelect({
     EAForum: "eaEmojis",
@@ -102,14 +95,6 @@ export function getDefaultVotingSystem() {
   });
 }
 
-export interface RSVPType {
-  name: string;
-  email: string;
-  nonPublic: boolean;
-  response: "yes" | "maybe" | "no";
-  userId: string;
-  createdAt: Date;
-}
 const rsvpType = new SimpleSchema({
   name: {
     type: String,
@@ -162,18 +147,6 @@ const crosspostSchema = new SimpleSchema({
   foreignPostId: { type: String, optional: true, nullable: true },
 });
 
-export const MINIMUM_COAUTHOR_KARMA = 1;
-
-export const EVENT_TYPES = [
-  { value: "presentation", label: "Presentation" },
-  { value: "discussion", label: "Discussion" },
-  { value: "workshop", label: "Workshop" },
-  { value: "social", label: "Social" },
-  { value: "coworking", label: "Coworking" },
-  { value: "course", label: "Course" },
-  { value: "conference", label: "Conference" },
-];
-
 export async function getLastReadStatus(post: DbPost, context: ResolverContext) {
   const { currentUser, ReadStatuses } = context;
   if (!currentUser) return null;
@@ -202,19 +175,6 @@ export interface SideCommentsResolverResult {
   commentsByBlock: Record<string, string[]>;
   highKarmaCommentsByBlock: Record<string, string[]>;
 }
-
-/**
- * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
- */
-export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
-  const currentKarmaThreshold = crosspostKarmaThreshold.get();
-
-  return currentKarmaThreshold === null
-    ? true
-    : // userOverNKarmaFunc checks greater than, while we want greater than or equal to, since that's the check we're performing elsewhere
-      // so just subtract one
-      userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
-};
 
 const fmCrosspostOnCreate = getFillIfMissing({ isCrosspost: false });
 const fmCrosspostOnUpdate = throwIfSetToNull;

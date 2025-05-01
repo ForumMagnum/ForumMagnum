@@ -1,5 +1,4 @@
-import { userIsSubforumModerator } from "@/lib/collections/tags/helpers";
-import { TAG_POSTS_SORT_ORDER_OPTIONS, wikiGradeOptions } from "@/lib/collections/tags/newSchema";
+import { userIsSubforumModerator, TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
@@ -65,6 +64,20 @@ function showSubforumWelcomeTextField({ currentUser, editingTag }: ShowSubforumW
 
   return userIsSubforumModerator(currentUser, { subforumModeratorIds }) || userIsAdminOrMod(currentUser);
 }
+
+const wikiGradeDefinitions = {
+  0: "Uncategorized",
+  1: "Flagged",
+  2: "Stub",
+  3: "C-Class",
+  4: "B-Class",
+  5: "A-Class"
+} satisfies Record<number, string>;
+
+const wikiGradeOptions = Object.entries(wikiGradeDefinitions).map(([grade, name]) => ({
+  value: parseInt(grade),
+  label: name,
+}));
 
 export const TagForm = ({
   initialData,

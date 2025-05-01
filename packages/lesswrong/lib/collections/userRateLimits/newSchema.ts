@@ -1,18 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
-export const USER_RATE_LIMIT_TYPES = {
-  allComments: "Comments",
-  allPosts: "Posts",
-};
-
-export const INTERVAL_UNITS = {
-  minutes: "minutes",
-  hours: "hours",
-  days: "days",
-  weeks: "weeks",
-};
-
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,

@@ -1,10 +1,9 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import { SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from '../../../lib/collections/users/helpers';
+import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from "@/lib/collections/users/helpers";
 import ArrowBack from '@/lib/vendor/@material-ui/icons/src/ArrowBack'
 import pick from 'lodash/pick';
-import { CAREER_STAGES } from '../../../lib/collections/users/newSchema';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';

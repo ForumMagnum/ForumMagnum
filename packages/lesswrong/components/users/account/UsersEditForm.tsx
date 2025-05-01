@@ -1,5 +1,5 @@
 import { useMessages } from '@/components/common/withMessages';
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -27,10 +27,9 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
-import { userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { getAllUserGroups, userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
 import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
-import { GROUP_OPTIONS, REACT_PALETTE_STYLE_OPTIONS, SORT_DRAFTS_BY_OPTIONS } from '@/lib/collections/users/newSchema';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { EmailConfirmationRequiredCheckbox } from '../EmailConfirmationRequiredCheckbox';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
@@ -103,6 +102,20 @@ const privilegeCheckboxFields = [
   { fieldName: "commentingOnOtherUsersDisabled", label: "Commenting on other users disabled" },
   { fieldName: "conversationsDisabled", label: "Conversations disabled" },
 ] as const;
+
+export const GROUP_OPTIONS = Object.keys(getAllUserGroups())
+  .filter(group => group !== "guests" && group !== "members" && group !== "admins")
+  .map((group) => ({ value: group, label: group }));
+
+export const SORT_DRAFTS_BY_OPTIONS = [
+  { value: "wordCount", label: "Wordcount" },
+  { value: "modifiedAt", label: "Last Modified" },
+];
+
+export const REACT_PALETTE_STYLE_OPTIONS = [
+  { value: "listView", label: "List View" },
+  { value: "iconView", label: "Icons" },
+];
 
 const UsersForm = ({
   initialData,

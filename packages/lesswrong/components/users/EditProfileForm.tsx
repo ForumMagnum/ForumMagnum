@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetProfileUrl, CAREER_STAGES, PROGRAM_PARTICIPATION } from '../../lib/collections/users/helpers';
 import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
@@ -21,7 +21,6 @@ import { submitButtonStyles } from '@/components/tanstack-form-components/TanSta
 import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { FormComponentFriendlyTextInput } from '../form-components/FormComponentFriendlyTextInput';
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
-import { CAREER_STAGES, PROGRAM_PARTICIPATION } from '@/lib/collections/users/newSchema';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { SelectLocalgroup } from '../form-components/SelectLocalgroup';

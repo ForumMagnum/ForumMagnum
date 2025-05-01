@@ -18,7 +18,6 @@ export function isEditableField<N extends CollectionNameString>(field: [string, 
 export const getEditableFieldsByCollection = (() => {
   let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
   return () => {
-    // const { allSchemas }: typeof import('../schema/allSchemas') = require('../schema/allSchemas');
     if (!editableFieldsByCollection) {
       editableFieldsByCollection = Object.entries(getAllSchemas()).reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, [collectionName, schema]) => {
         const editableFields = Object.entries(schema).filter(isEditableField);

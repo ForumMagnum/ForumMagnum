@@ -1,4 +1,4 @@
-import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/newSchema";
+import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/helpers";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";

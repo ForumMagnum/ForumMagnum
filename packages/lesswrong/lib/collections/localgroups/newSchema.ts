@@ -10,18 +10,6 @@ import {
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 
-export const GROUP_CATEGORIES = [
-  { value: "national", label: "National" },
-  { value: "regional", label: "Regional" },
-  { value: "city", label: "City" },
-  { value: "university", label: "University" },
-  { value: "high-school", label: "High School" },
-  { value: "workplace", label: "Workplace" },
-  { value: "professional", label: "Professional" },
-  { value: "cause-area", label: "Cause Area" },
-  { value: "affiliation", label: "Affiliation" },
-];
-
 function groupHasGoogleLocation(data: Partial<DbLocalgroup> | UpdateLocalgroupDataInput) {
   return "googleLocation" in data;
 }

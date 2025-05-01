@@ -2,15 +2,15 @@ import { isServer } from '../../executionEnvironment';
 import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
-import { Components } from '../../vulcan-lib/components';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+import type { ForumIconName } from '@/components/common/ForumIcon';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -268,34 +268,6 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   }
 
   return true
-}
-
-export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|null): JSX.Element => {
-  if (!user) {
-    return <>Can't recognize user</>
-  }
-
-  if (userIsBannedFromPost(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting.</>
-  }
-
-  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting.</>
-  }
-
-  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting on any of their personal blog posts.</>
-  }
-
-  if (post?.commentsLocked) {
-    return <>Comments on this post are disabled.</>
-  }
-
-  if (post?.commentsLockedToAccountsCreatedAfter) {
-    return <>Comments on this post are disabled to accounts created after <Components.CalendarDate date={post.commentsLockedToAccountsCreatedAfter}/></>
-  }
-
-  return <>You cannot comment at this time</>
 }
 
 // Return true if the user's account has at least one verified email address.
@@ -672,6 +644,97 @@ export type EditableUser = Omit<UpdateUserDataInput & UsersEdit, 'howOthersCanHe
   subforumPreferredLayout?: DbUser['subforumPreferredLayout'];
 };
 
-type foobar = {
-  [k in keyof EditableUser]: IfAny<EditableUser[k], k, never>
-}[keyof EditableUser];
+export const CAREER_STAGES: CareerStage[] = [
+  { value: "highSchool", label: "In high school", icon: "School", EAGLabel: "Student (high school)" },
+  {
+    value: "associateDegree",
+    label: "Pursuing an associate's degree",
+    icon: "School",
+    EAGLabel: "Pursuing an associates degree",
+  },
+  {
+    value: "undergradDegree",
+    label: "Pursuing an undergraduate degree",
+    icon: "School",
+    EAGLabel: "Pursuing an undergraduate degree",
+  },
+  {
+    value: "professionalDegree",
+    label: "Pursuing a professional degree",
+    icon: "School",
+    EAGLabel: "Pursuing a professional degree",
+  },
+  {
+    value: "graduateDegree",
+    label: "Pursuing a graduate degree (e.g. Master's)",
+    icon: "School",
+    EAGLabel: "Pursuing a graduate degree (e.g. Masters)",
+  },
+  {
+    value: "doctoralDegree",
+    label: "Pursuing a doctoral degree (e.g. PhD)",
+    icon: "School",
+    EAGLabel: "Pursuing a doctoral degree (e.g. PhD)",
+  },
+  {
+    value: "otherDegree",
+    label: "Pursuing other degree/diploma",
+    icon: "School",
+    EAGLabel: "Pursuing other degree/diploma",
+  },
+  { value: "earlyCareer", label: "Working (0-5 years)", icon: "Work", EAGLabel: "Working (0-5 years of experience)" },
+  { value: "midCareer", label: "Working (6-15 years)", icon: "Work", EAGLabel: "Working (6-15 years of experience)" },
+  { value: "lateCareer", label: "Working (15+ years)", icon: "Work", EAGLabel: "Working (6-15 years of experience)" },
+  { value: "seekingWork", label: "Seeking work", icon: "Work", EAGLabel: "Not employed, but looking" },
+  { value: "retired", label: "Retired", icon: "Work", EAGLabel: "Retired" },
+];
+
+export const PROGRAM_PARTICIPATION = [
+  { value: "vpIntro", label: "Completed the Introductory EA Virtual Program" },
+  { value: "vpInDepth", label: "Completed the In-Depth EA Virtual Program" },
+  { value: "vpPrecipice", label: "Completed the Precipice Reading Group" },
+  { value: "vpLegal", label: "Completed the Legal Topics in EA Virtual Program" },
+  { value: "vpAltProtein", label: "Completed the Alt Protein Fundamentals Virtual Program" },
+  { value: "vpAGISafety", label: "Completed the AGI Safety Fundamentals Virtual Program" },
+  { value: "vpMLSafety", label: "Completed the ML Safety Scholars Virtual Program" },
+  { value: "eag", label: "Attended an EA Global conference" },
+  { value: "eagx", label: "Attended an EAGx conference" },
+  { value: "localgroup", label: "Attended more than three meetings with a local EA group" },
+  { value: "80k", label: "Received career coaching from 80,000 Hours" },
+];
+
+export type CareerStageValue =
+  "highSchool" |
+  "associateDegree" |
+  "undergradDegree" |
+  "professionalDegree" |
+  "graduateDegree" |
+  "doctoralDegree" |
+  "otherDegree" |
+  "earlyCareer" |
+  "midCareer" |
+  "lateCareer" |
+  "seekingWork" |
+  "retired";
+
+// list of career stage options from EAG
+type EAGCareerStage = "Student (high school)" |
+  "Pursuing an associates degree" |
+  "Pursuing an undergraduate degree" |
+  "Pursuing a professional degree" |
+  "Pursuing a graduate degree (e.g. Masters)" |
+  "Pursuing a doctoral degree (e.g. PhD)" |
+  "Pursuing other degree/diploma" |
+  "Working (0-5 years of experience)" |
+  "Working (6-15 years of experience)" |
+  "Working (15+ years of experience)" |
+  "Not employed, but looking" |
+  "Retired";
+
+export type CareerStage = {
+  value: CareerStageValue;
+  label: string;
+  icon: ForumIconName;
+  EAGLabel: EAGCareerStage;
+};
+

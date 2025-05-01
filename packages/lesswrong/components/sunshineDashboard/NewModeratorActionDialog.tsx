@@ -1,4 +1,4 @@
-import { MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from '@/lib/collections/moderatorActions/newSchema';
+import { MODERATOR_ACTION_TYPES, RATE_LIMIT_ONE_PER_DAY } from "@/lib/collections/moderatorActions/constants";
 import { useCreate } from '@/lib/crud/withCreate';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogTitle } from "@/components/widgets/DialogTitle";

@@ -8,7 +8,7 @@ import { FormComponentCheckbox } from "@/components/form-components/FormComponen
 import { EditorFormComponent, useEditorFormCallbacks } from "@/components/editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
-import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/newSchema";
+import { userCanDeleteMultiDocument } from "@/lib/collections/multiDocuments/helpers";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";

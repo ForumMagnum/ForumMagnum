@@ -1,9 +1,9 @@
 import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userOverNKarmaFunc } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
-import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting } from '../../publicSettings';
+import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold } from '../../publicSettings';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
@@ -455,3 +455,31 @@ export interface PostSubmitMeta {
   redirectToEditor?: boolean;
   successCallback?: (editedPost: PostsEditMutationFragment) => void;
 }
+
+export const DEFAULT_QUALITATIVE_VOTE = 4;
+
+export const MINIMUM_COAUTHOR_KARMA = 1;
+
+export interface RSVPType {
+  name: string;
+  email: string;
+  nonPublic: boolean;
+  response: "yes" | "maybe" | "no";
+  userId: string;
+  createdAt: Date;
+}
+
+/**
+ * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
+ */
+export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
+  const currentKarmaThreshold = crosspostKarmaThreshold.get();
+
+  return currentKarmaThreshold === null
+    ? true
+    : // userOverNKarmaFunc checks greater than, while we want greater than or equal to, since that's the check we're performing elsewhere
+
+    // so just subtract one
+    userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
+};
+

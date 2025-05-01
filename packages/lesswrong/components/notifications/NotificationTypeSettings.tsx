@@ -5,19 +5,18 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import {
   DayOfWeek,
   NotificationTypeSettings,
-  LegacyNotificationTypeSettings,
-  legacyToNewNotificationTypeSettings,
   NotificationBatchingFrequency,
   NotificationChannel,
-  NotificationChannelSettings
-} from '../../lib/collections/users/newSchema';
+  NotificationChannelSettings,
+  LegacyNotificationTypeSettings,
+  legacyToNewNotificationTypeSettings
+} from "@/lib/collections/users/notificationFieldHelpers";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditableUser } from '@/lib/collections/users/helpers';
-import { DeepKeys, DeepValue } from '@tanstack/react-form';
 
 const styles = (theme: ThemeType) => ({
   root: {

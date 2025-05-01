@@ -1,8 +1,7 @@
 import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
-import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels } from "@/lib/collections/posts/constants";
-import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta } from "@/lib/collections/posts/helpers";
-import { EVENT_TYPES, MINIMUM_COAUTHOR_KARMA, STICKY_PRIORITIES, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/newSchema";
+import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
+import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
@@ -94,6 +93,13 @@ function getDraftLabel(post: { draft?: boolean | null } | null) {
   if (!post.draft) return "Move to Drafts";
   return "Save Draft";
 }
+
+const STICKY_PRIORITIES = {
+  1: "Low",
+  2: "Normal",
+  3: "Elevated",
+  4: "Max",
+};
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
 

@@ -22,7 +22,6 @@ import { postStatuses } from "../posts/constants";
 import { REVIEW_YEAR } from "../../reviewUtils";
 import uniqBy from "lodash/uniqBy";
 import { userThemeSettings } from "../../../themes/themeNames";
-import type { ForumIconName } from "../../../components/common/ForumIcon";
 import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
 import { getNestedProperty } from "../../vulcan-lib/utils";
@@ -33,8 +32,8 @@ import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils"
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
 import GraphQLJSON from "graphql-type-json";
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
+import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -73,214 +72,6 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes("sunshineRegiment") ?? false);
 };
 
-export const MAX_NOTIFICATION_RADIUS = 300;
-
-export type NotificationChannel = "onsite" | "email";
-
-const NOTIFICATION_BATCHING_FREQUENCIES = new TupleSet([
-  "realtime",
-  "daily",
-  "weekly",
-] as const);
-export type NotificationBatchingFrequency = UnionOf<typeof NOTIFICATION_BATCHING_FREQUENCIES>;
-
-const DAYS_OF_WEEK = new TupleSet(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const);
-export type DayOfWeek = UnionOf<typeof DAYS_OF_WEEK>;
-
-export type NotificationChannelSettings = {
-  enabled: boolean,
-  /**
-   * Frequency at which we send batched notifications. When enabled is false, this doesn't apply, but is persisted
-   * so the user can restore their old settings
-   */
-  batchingFrequency: NotificationBatchingFrequency,
-  /** Time of day at which daily/weekly batched updates are released. A number of hours [0,24), always in GMT. */
-  timeOfDayGMT: number,
-  /** Day of week at which weekly updates are released, always in GMT */
-  dayOfWeekGMT: DayOfWeek
-}
-
-const notificationChannelSettingsSchema = new SimpleSchema({
-  enabled: {
-    type: Boolean,
-  },
-  batchingFrequency: {
-    type: String,
-    allowedValues: Array.from(NOTIFICATION_BATCHING_FREQUENCIES),
-  },
-  timeOfDayGMT: {
-    type: SimpleSchema.Integer,
-    min: 0,
-    max: 23
-  },
-  dayOfWeekGMT: {
-    type: String,
-    allowedValues: Array.from(DAYS_OF_WEEK)
-  },
-})
-
-export type NotificationTypeSettings = Record<NotificationChannel, NotificationChannelSettings>
-
-const notificationTypeSettingsSchema = new SimpleSchema({
-  onsite: {
-    type: notificationChannelSettingsSchema,
-  },
-  email: {
-    type: notificationChannelSettingsSchema,
-  },
-});
-
-export const defaultNotificationTypeSettings: NotificationTypeSettings = {
-  onsite: {
-    enabled: true,
-    batchingFrequency: "realtime",
-    timeOfDayGMT: 12,
-    dayOfWeekGMT: "Monday",
-  },
-  email: {
-    enabled: false,
-    batchingFrequency: "realtime",
-    timeOfDayGMT: 12,
-    dayOfWeekGMT: "Monday",
-  }
-};
-
-const bothChannelsEnabledNotificationTypeSettings: NotificationTypeSettings = {
-  onsite: {
-    enabled: true,
-    batchingFrequency: "realtime",
-    timeOfDayGMT: 12,
-    dayOfWeekGMT: "Monday",
-  },
-  email: {
-    enabled: true,
-    batchingFrequency: "realtime",
-    timeOfDayGMT: 12,
-    dayOfWeekGMT: "Monday",
-  }
-};
-
-
-///////////////////////////////////////////////
-// Migration of NotificationTypeSettings     //
-//                                           //
-// This section is here to support migrating //
-// NotificationTypeSettings to a new format, //
-// and will be deleted shortly               //
-///////////////////////////////////////////////
-
-export type LegacyNotificationTypeSettings = {
-  channel: "none" | "onsite" | "email" | "both";
-  batchingFrequency: "realtime" | "daily" | "weekly";
-  timeOfDayGMT: number; // 0 to 23
-  dayOfWeekGMT: DayOfWeek;
-};
-
-
-export const legacyDefaultNotificationTypeSettings: LegacyNotificationTypeSettings = {
-  channel: "onsite",
-  batchingFrequency: "realtime",
-  timeOfDayGMT: 12,
-  dayOfWeekGMT: "Monday",
-};
-
-const legacyBothChannelNotificationTypeSettings: LegacyNotificationTypeSettings = {
-  channel: "both",
-  batchingFrequency: "realtime",
-  timeOfDayGMT: 12,
-  dayOfWeekGMT: "Monday",
-};
-
-export function isNewNotificationTypeSettings(value: AnyBecauseIsInput): value is NotificationTypeSettings {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'onsite' in value &&
-    'email' in value &&
-    typeof value.onsite === 'object' &&
-    typeof value.email === 'object' &&
-    'batchingFrequency' in value.onsite &&
-    'timeOfDayGMT' in value.onsite &&
-    'dayOfWeekGMT' in value.onsite
-  );
-}
-
-export function legacyToNewNotificationTypeSettings(notificationSettings: LegacyNotificationTypeSettings | NotificationTypeSettings | null): NotificationTypeSettings {
-  if (!notificationSettings) return defaultNotificationTypeSettings;
-  if (isNewNotificationTypeSettings(notificationSettings)) return notificationSettings
-
-  const { channel, batchingFrequency, timeOfDayGMT, dayOfWeekGMT } = notificationSettings;
-
-  const onsiteEnabled = (channel === "both" || channel === "onsite");
-  const emailEnabled = (channel === "both" || channel === "email");
-
-  return {
-    onsite: {
-      enabled: onsiteEnabled,
-      batchingFrequency,
-      timeOfDayGMT,
-      dayOfWeekGMT,
-    },
-    email: {
-      enabled: emailEnabled,
-      batchingFrequency,
-      timeOfDayGMT,
-      dayOfWeekGMT,
-    },
-  };
-};
-
-export function isLegacyNotificationTypeSettings(value: AnyBecauseIsInput): value is LegacyNotificationTypeSettings {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'channel' in value &&
-    'batchingFrequency' in value &&
-    'timeOfDayGMT' in value &&
-    'dayOfWeekGMT' in value
-  );
-}
-
-export function newToLegacyNotificationTypeSettings(newFormat: LegacyNotificationTypeSettings | NotificationTypeSettings | null): LegacyNotificationTypeSettings {
-  if (!newFormat) return legacyDefaultNotificationTypeSettings;
-  if (isLegacyNotificationTypeSettings(newFormat)) return newFormat;
-
-  const { onsite, email } = newFormat;
-
-  let channel: "none" | "onsite" | "email" | "both" = "none";
-  if (onsite.enabled && email.enabled) {
-    channel = "both";
-  } else if (onsite.enabled) {
-    channel = "onsite";
-  } else if (email.enabled) {
-    channel = "email";
-  }
-
-  // Not a one-to-one mapping here because the old format doesn't support different settings for each channel
-  // when both are enabled. If this is the case, choose the faster frequency for both
-  let batchingFrequency: NotificationBatchingFrequency = legacyDefaultNotificationTypeSettings.batchingFrequency;
-  if (channel === "both") {
-    const frequencies = [onsite.batchingFrequency, email.batchingFrequency];
-    if (frequencies.includes("realtime")) {
-      batchingFrequency = "realtime";
-    } else if (frequencies.includes("daily")) {
-      batchingFrequency = "daily";
-    } else {
-      batchingFrequency = "weekly";
-    }
-  } else {
-    batchingFrequency = channel === "onsite" ? onsite.batchingFrequency : email.batchingFrequency;
-  }
-
-  // Use onsite settings as the default for time and day, assuming they are the same for both
-  return {
-    channel,
-    batchingFrequency,
-    timeOfDayGMT: onsite.timeOfDayGMT,
-    dayOfWeekGMT: onsite.dayOfWeekGMT,
-  };
-}
-
 const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
   outputType: "JSON",
   canRead: [userOwns, "admins"],
@@ -294,20 +85,6 @@ const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
     blackbox: true,
   },
 } satisfies GraphQLFieldSpecification<"Users">;
-
-const dailyEmailBatchNotificationSettingOnCreate = {
-  onsite: defaultNotificationTypeSettings.onsite,
-  email: { ...defaultNotificationTypeSettings.email, enabled: true, batchingFrequency: "daily" },
-};
-
-const emailEnabledNotificationSettingOnCreate = {
-  onsite: defaultNotificationTypeSettings.onsite,
-  email: { ...defaultNotificationTypeSettings.email, enabled: true },
-};
-
-///////////////////////////////////////////////
-// End migration of NotificationTypeSettings //
-///////////////////////////////////////////////
 
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
@@ -386,115 +163,6 @@ const userTheme = new SimpleSchema({
     blackbox: true,
   },
 });
-
-export type CareerStageValue =
-  | "highSchool"
-  | "associateDegree"
-  | "undergradDegree"
-  | "professionalDegree"
-  | "graduateDegree"
-  | "doctoralDegree"
-  | "otherDegree"
-  | "earlyCareer"
-  | "midCareer"
-  | "lateCareer"
-  | "seekingWork"
-  | "retired";
-
-// list of career stage options from EAG
-type EAGCareerStage =
-  | "Student (high school)"
-  | "Pursuing an associates degree"
-  | "Pursuing an undergraduate degree"
-  | "Pursuing a professional degree"
-  | "Pursuing a graduate degree (e.g. Masters)"
-  | "Pursuing a doctoral degree (e.g. PhD)"
-  | "Pursuing other degree/diploma"
-  | "Working (0-5 years of experience)"
-  | "Working (6-15 years of experience)"
-  | "Working (15+ years of experience)"
-  | "Not employed, but looking"
-  | "Retired";
-
-type CareerStage = {
-  value: CareerStageValue;
-  label: string;
-  icon: ForumIconName;
-  EAGLabel: EAGCareerStage;
-};
-
-export const CAREER_STAGES: CareerStage[] = [
-  { value: "highSchool", label: "In high school", icon: "School", EAGLabel: "Student (high school)" },
-  {
-    value: "associateDegree",
-    label: "Pursuing an associate's degree",
-    icon: "School",
-    EAGLabel: "Pursuing an associates degree",
-  },
-  {
-    value: "undergradDegree",
-    label: "Pursuing an undergraduate degree",
-    icon: "School",
-    EAGLabel: "Pursuing an undergraduate degree",
-  },
-  {
-    value: "professionalDegree",
-    label: "Pursuing a professional degree",
-    icon: "School",
-    EAGLabel: "Pursuing a professional degree",
-  },
-  {
-    value: "graduateDegree",
-    label: "Pursuing a graduate degree (e.g. Master's)",
-    icon: "School",
-    EAGLabel: "Pursuing a graduate degree (e.g. Masters)",
-  },
-  {
-    value: "doctoralDegree",
-    label: "Pursuing a doctoral degree (e.g. PhD)",
-    icon: "School",
-    EAGLabel: "Pursuing a doctoral degree (e.g. PhD)",
-  },
-  {
-    value: "otherDegree",
-    label: "Pursuing other degree/diploma",
-    icon: "School",
-    EAGLabel: "Pursuing other degree/diploma",
-  },
-  { value: "earlyCareer", label: "Working (0-5 years)", icon: "Work", EAGLabel: "Working (0-5 years of experience)" },
-  { value: "midCareer", label: "Working (6-15 years)", icon: "Work", EAGLabel: "Working (6-15 years of experience)" },
-  { value: "lateCareer", label: "Working (15+ years)", icon: "Work", EAGLabel: "Working (6-15 years of experience)" },
-  { value: "seekingWork", label: "Seeking work", icon: "Work", EAGLabel: "Not employed, but looking" },
-  { value: "retired", label: "Retired", icon: "Work", EAGLabel: "Retired" },
-];
-
-export const PROGRAM_PARTICIPATION = [
-  { value: "vpIntro", label: "Completed the Introductory EA Virtual Program" },
-  { value: "vpInDepth", label: "Completed the In-Depth EA Virtual Program" },
-  { value: "vpPrecipice", label: "Completed the Precipice Reading Group" },
-  { value: "vpLegal", label: "Completed the Legal Topics in EA Virtual Program" },
-  { value: "vpAltProtein", label: "Completed the Alt Protein Fundamentals Virtual Program" },
-  { value: "vpAGISafety", label: "Completed the AGI Safety Fundamentals Virtual Program" },
-  { value: "vpMLSafety", label: "Completed the ML Safety Scholars Virtual Program" },
-  { value: "eag", label: "Attended an EA Global conference" },
-  { value: "eagx", label: "Attended an EAGx conference" },
-  { value: "localgroup", label: "Attended more than three meetings with a local EA group" },
-  { value: "80k", label: "Received career coaching from 80,000 Hours" },
-];
-
-export const SORT_DRAFTS_BY_OPTIONS = [
-  { value: "wordCount", label: "Wordcount" },
-  { value: "modifiedAt", label: "Last Modified" },
-];
-
-export const REACT_PALETTE_STYLE_OPTIONS = [
-  { value: "listView", label: "List View" },
-  { value: "iconView", label: "Icons" },
-];
-
-export const GROUP_OPTIONS = Object.keys(getAllUserGroups())
-  .filter(group => group !== "guests" && group !== "members" && group !== "admins")
-  .map((group) => ({ value: group, label: group }));
 
 export type RateLimitReason = "moderator" | "lowKarma" | "downvoteRatio" | "universal";
 

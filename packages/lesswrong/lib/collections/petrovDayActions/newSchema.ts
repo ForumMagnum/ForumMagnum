@@ -1,20 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-
-const ACTION_TYPES = [
-  "optIn",
-  "hasRole",
-  "hasSide",
-  "nukeTheWest",
-  "nukeTheEast",
-  "eastPetrovAllClear",
-  "eastPetrovNukesIncoming",
-  "westPetrovAllClear",
-  "westPetrovNukesIncoming",
-] as const;
-
-const ACTION_TYPES_SET = new TupleSet(ACTION_TYPES);
-export type PetrovDayActionType = UnionOf<typeof ACTION_TYPES_SET>;
+import { ACTION_TYPES } from "./constants";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -32,17 +17,7 @@ const schema = {
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
-        allowedValues: [
-          "optIn",
-          "hasRole",
-          "hasSide",
-          "nukeTheWest",
-          "nukeTheEast",
-          "eastPetrovAllClear",
-          "eastPetrovNukesIncoming",
-          "westPetrovAllClear",
-          "westPetrovNukesIncoming",
-        ],
+        allowedValues: [...ACTION_TYPES],
       },
     },
   },

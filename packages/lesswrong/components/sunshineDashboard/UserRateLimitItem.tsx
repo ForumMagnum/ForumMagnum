@@ -1,7 +1,6 @@
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { INTERVAL_UNITS, USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/newSchema';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
@@ -72,6 +71,18 @@ const styles = (theme: ThemeType) => ({
     },
   },
 });
+
+const USER_RATE_LIMIT_TYPES = {
+  allComments: "Comments",
+  allPosts: "Posts",
+};
+
+const INTERVAL_UNITS = {
+  minutes: "minutes",
+  hours: "hours",
+  days: "days",
+  weeks: "weeks",
+};
 
 const COMMENTS_THREE_PER_DAY = 'comments_3_per_day';
 const COMMENTS_ONE_PER_DAY = 'comments_1_per_day';

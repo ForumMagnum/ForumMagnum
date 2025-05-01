@@ -13,8 +13,8 @@ import Collapse from "@/lib/vendor/@material-ui/core/src/Collapse";
 import range from "lodash/range";
 import {
   SurveyQuestionFormat,
-  surveyQuestionFormats,
-} from "@/lib/collections/surveyQuestions/newSchema";
+  surveyQuestionFormats
+} from "@/lib/collections/surveyQuestions/constants";
 
 const styles = (theme: ThemeType) => ({
   root: {

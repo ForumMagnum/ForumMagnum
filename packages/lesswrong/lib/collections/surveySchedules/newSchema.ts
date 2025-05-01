@@ -1,14 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
-export const surveyScheduleTargets = [
-  { value: "allUsers", label: "All users" },
-  { value: "loggedInOnly", label: "Logged-in users only" },
-  { value: "loggedOutOnly", label: "Logged-out users only" },
-] as const;
-
-export type SurveyScheduleTarget = (typeof surveyScheduleTargets)[number]["value"];
-
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,

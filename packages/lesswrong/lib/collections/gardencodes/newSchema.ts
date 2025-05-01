@@ -15,17 +15,6 @@ function generateCode(length: number) {
   return result;
 }
 
-export const eventTypes = [
-  {
-    value: "public",
-    label: "Displayed on the public Garden Calendar",
-  },
-  {
-    value: "private",
-    label: "Displayed only to you",
-  },
-];
-
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,

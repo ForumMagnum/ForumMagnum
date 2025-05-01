@@ -15,7 +15,7 @@ import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
-import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/newSchema";
+import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/constants";
 import { useSingle } from "@/lib/crud/withSingle";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { z } from "zod";

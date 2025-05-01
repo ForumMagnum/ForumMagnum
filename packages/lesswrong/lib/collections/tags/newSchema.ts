@@ -7,9 +7,7 @@ import {
 } from "../../utils/schemaUtils";
 import { getWithLoader } from "../../loaders";
 import moment from "moment";
-import { SORT_ORDER_OPTIONS, SettingsOption } from "../posts/dropdownOptions";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPagesField";
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
 import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtField";
@@ -43,26 +41,6 @@ export const graphqlTypeDefs = gql`
     displayName: String!
   }
 `
-
-export const TAG_POSTS_SORT_ORDER_OPTIONS = {
-  relevance: { label: preferredHeadingCase("Most Relevant") },
-  ...SORT_ORDER_OPTIONS,
-} satisfies Record<string, SettingsOption>;
-
-
-const wikiGradeDefinitions = {
-  0: "Uncategorized",
-  1: "Flagged",
-  2: "Stub",
-  3: "C-Class",
-  4: "B-Class",
-  5: "A-Class"
-} satisfies Record<number, string>;
-
-export const wikiGradeOptions = Object.entries(wikiGradeDefinitions).map(([grade, name]) => ({
-  value: parseInt(grade),
-  label: name,
-}));
 
 async function getTagMultiDocuments(context: ResolverContext, tagId: string) {
   const { MultiDocuments } = context;

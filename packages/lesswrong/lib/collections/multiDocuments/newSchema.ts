@@ -5,25 +5,12 @@ import {
 import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtField";
 import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPagesField";
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
-import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { getNormalizedEditableResolver, getNormalizedEditableSqlResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { getToCforMultiDocument } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
-
-const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
-
-export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: Pick<DbMultiDocument, "userId" | "createdAt">) {
-  if (userIsAdminOrMod(user)) {
-    return true;
-  }
-
-  const deletableUntil = new Date(document.createdAt).getTime() + MULTI_DOCUMENT_DELETION_WINDOW;
-  const withinDeletionWindow = deletableUntil > Date.now();
-
-  return userOwns(user, document) && withinDeletionWindow;
-}
+import { userCanDeleteMultiDocument } from "./helpers";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
