@@ -9,6 +9,7 @@ import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAp
 const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
   root: {
     marginRight: theme.spacing.unit * 3,
+    marginLeft: 0,
     marginTop: 5,
     display: "flex",
     alignItems: "center"
