@@ -74,14 +74,26 @@ export const baseTheme: BaseThemeSpecification = {
         },
         body1: {
           fontSize: 18.2,
-          lineHeight: "26px"
+          lineHeight: "26px",
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          color: palette.text.primary,
         },
         body2: {
           fontWeight: 400,
           fontSize: 14.3,
           lineHeight: "19.5px",
+
+          fontFamily: palette.fonts.sansSerifStack,
+          color: palette.text.primary,
         },
-        headline: {},
+        headline: {
+          fontSize: "1.5rem",
+          fontWeight: 400,
+          fontFamily: palette.fonts.serifStack,
+          lineHeight: `1.35417em`,
+          color: palette.text.primary,
+        },
         postsItemTitle: {
           fontSize: 16.9
         },
@@ -118,25 +130,46 @@ export const baseTheme: BaseThemeSpecification = {
         display1: {
           color: palette.grey[800],
           fontSize: 26,
-          marginTop: '1em'
+          marginTop: '1em',
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.20588em`,
         },
         display2: {
           color: palette.grey[800],
           fontSize: 36.4,
-          marginTop: '1em'
+          marginTop: '1em',
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.13333em`,
+          marginLeft: '-.02em',
         },
         display3: {
           color: palette.grey[800],
           marginTop: '1.2em',
-          fontSize: 39
+          fontSize: 39,
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          letterSpacing: '-.02em',
+          lineHeight: `$1.30357em`,
+          marginLeft: '-.02em',
         },
         display4: {
           color: palette.grey[800],
+          fontSize: "7rem",
+          fontWeight: 300,
+          fontFamily: palette.fonts.sansSerifStack,
+          letterSpacing: '-.04em',
+          lineHeight: `1.14286em`,
+          marginLeft: '-.04em',
         },
         title: {
           fontSize: 18,
           fontWeight: 400,
           marginBottom: 3,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.16667em`,
+          color: palette.text.primary,
         },
         // Used for ui text that's (on LW) serifed rather than the primary
         // sans-serif ui font. On the EA Forum this is overridden with sans-serif
@@ -145,6 +178,10 @@ export const baseTheme: BaseThemeSpecification = {
         },
         caption: {
           fontSize: 11.7,
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.375em`,
+          color: palette.text.secondary,
         },
         button: {
           fontSize: "0.875rem",
@@ -199,8 +236,11 @@ export const baseTheme: BaseThemeSpecification = {
           fontWeight:500,
         },
         subheading: {
-          fontSize:15,
-          color: palette.grey[600]
+          fontSize: 15,
+          color: palette.grey[600],
+          fontWeight: 400,
+          fontFamily: palette.fonts.sansSerifStack,
+          lineHeight: `1.5em`,
         },
         headerStyle: {},
         subtitle: {
