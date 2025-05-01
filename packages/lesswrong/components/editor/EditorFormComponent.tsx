@@ -399,7 +399,7 @@ function InnerEditorFormComponent<S, R>({
       }
     }
     
-    // Hack: Fill in ${fieldName}_type with the editor type on every keystroke, to enable other
+    // Update the parent form's state with the editor type on every keystroke, to enable other
     // form components (in particular PostSharingSettings) to check whether we're
     // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
     // callback to improve performance. Note that the contents are always recalculated on

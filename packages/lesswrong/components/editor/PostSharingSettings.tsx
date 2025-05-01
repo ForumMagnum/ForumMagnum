@@ -103,9 +103,10 @@ interface PostSharingSettingsProps {
   field: TypedFieldApi<SharingSettings, EditablePost, PostSubmitMeta>;
   post: EditablePost;
   formType: "new" | "edit";
+  editorType?: string;
 }
 
-export const PostSharingSettings = ({ field, post, formType }: PostSharingSettingsProps) => {
+export const PostSharingSettings = ({ field, post, formType, editorType }: PostSharingSettingsProps) => {
   const classes = useStyles(styles);
 
   const value = field.state.value;
@@ -123,18 +124,18 @@ export const PostSharingSettings = ({ field, post, formType }: PostSharingSettin
     
     // Check whether we're using CkEditor, or something else.
     // HACK: This isn't stored in a reliable place, until you edit.
-    // EditorFormComponent puts it in contents_type for us on edit, but if the
+    // EditorFormComponent tries to put it in the parent form's state for us on edit, but if the
     // contents haven't been edited yet it's not there. So we check
     // originalContents.type, which, if it's an edit form (as opposed to a new
     // form) will have the contents as they were on load. If it's not there
     // either, it's a new, not-yet-edited post, and we have a separate error
     // message for that.
     // See also EditorFormComponent.
-    const editorType = (post as any).contents_type || post.contents?.originalContents?.type;
-    if (!editorType) {
+    const derivedEditorType = editorType || post.contents?.originalContents?.type;
+    if (!derivedEditorType) {
       flash("Edit the document first to enable sharing");
       return;
-    } else if(editorType !== "ckEditorMarkup") {
+    } else if (derivedEditorType !== "ckEditorMarkup") {
       flash(`Change the editor type to ${ckEditorName} to enable sharing`);
       return;
     }
@@ -166,7 +167,7 @@ export const PostSharingSettings = ({ field, post, formType }: PostSharingSettin
         initialShareWithUsers={post.shareWithUsers || []}
       />
     });
-  }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash]);
+  }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash, editorType]);
 
   const {LWTooltip, EAButton} = Components;
 
@@ -185,7 +186,6 @@ export const PostSharingSettings = ({ field, post, formType }: PostSharingSettin
 }
 
 const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm}: {
-  // postId: string,
   post: EditablePost,
   // linkSharingKey is only marked nullable for security-mindset reasons; in practice it's filled in by a callback and shouldn't be missing
   linkSharingKey?: string,

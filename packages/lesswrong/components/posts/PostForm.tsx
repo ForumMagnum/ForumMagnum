@@ -14,7 +14,7 @@ import { userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React from "react";
+import React, { useState } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
 import { EditTitle } from "../editor/EditTitle";
@@ -107,6 +107,7 @@ export const PostForm = ({
   const { LWTooltip, Error404, FormGroupPostTopBar, FooterTagList } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const [editorType, setEditorType] = useState<string>();
 
   // TODO: maybe this is just an edit form?
   const formType = initialData ? 'edit' : 'new';
@@ -158,8 +159,6 @@ export const PostForm = ({
 
       try {
         let result: PostsEditMutationFragment;
-
-        formApi.deleteField('contents_type');
 
         if (formType === 'new') {
           const { data } = await create({ data: formApi.state.values });
@@ -249,7 +248,6 @@ export const PostForm = ({
               submitLabel={submitLabel}
               saveDraftLabel={draftLabel}
               feedbackLabel={"Get Feedback"}
-              // cancelCallback={onCancel}
             />
           </div>
     }}
@@ -281,6 +279,7 @@ export const PostForm = ({
                 field={field}
                 post={form.state.values}
                 formType={formType}
+                editorType={editorType}
               />
             )}
           </form.Field>
@@ -337,7 +336,7 @@ export const PostForm = ({
                 name="contents"
                 formType={formType}
                 document={form.state.values}
-                setFieldEditorType={(editorType) => form.setFieldValue('contents_type', editorType)}
+                setFieldEditorType={setEditorType}
                 addOnSubmitCallback={addOnSubmitCallback}
                 addOnSuccessCallback={addOnSuccessCallback}
                 hasToc={true}
