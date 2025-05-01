@@ -19,7 +19,6 @@ import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHe
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings, getResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
-import { ReadStatuses } from '../collections/readStatus/collection';
 
 export const ultraFeedGraphQLTypeDefs = gql`
   type FeedPost {
@@ -140,17 +139,13 @@ const weightedSample = (
   return finalFeed;
 }
 
-// Define resolver-specific defaults by extracting from the full defaults
 const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = getResolverSettings(DEFAULT_ULTRAFEED_SETTINGS);
 
-// Update the function signature and logic
 const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSettings => {
   let parsedSettings: UltraFeedResolverSettings = DEFAULT_RESOLVER_SETTINGS; // Start with resolver defaults
   if (settingsJson) {
     try {
       const settingsFromArg = JSON.parse(settingsJson);
-      // Merge parsed resolver settings onto resolver defaults
-      // Ensure only keys from UltraFeedResolverSettings are potentially merged
       const resolverKeys = Object.keys(DEFAULT_RESOLVER_SETTINGS) as Array<keyof UltraFeedResolverSettings>;
       const filteredSettings: Partial<UltraFeedResolverSettings> = {};
       resolverKeys.forEach(key => {
@@ -160,6 +155,7 @@ const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSetting
       });
       parsedSettings = { ...DEFAULT_RESOLVER_SETTINGS, ...filteredSettings };
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error("UltraFeedResolver: Failed to parse settings argument", e);
     }
   }
@@ -178,7 +174,6 @@ const createSourcesMap = (
   const sources = {} as Record<FeedItemSourceType, WeightedSource>;
   const commentSourceType: FeedItemSourceType = 'recentComments';
   
-  // Initialize sources with empty item arrays based on sourceWeights
   Object.entries(sourceWeights).forEach(([source, weight]) => {
     const sourceType = source as FeedItemSourceType;
     if (weight <= 0) return;
@@ -203,12 +198,10 @@ const createSourcesMap = (
     };
   });
 
-  // Add spotlight items
   if (sources.spotlights && spotlightItems.length > 0) {
     sources.spotlights.items = spotlightItems;
   }
 
-  // Add post items to their sources
   postThreadsItems.forEach(postItem => {
     const itemSources = postItem.postMetaInfo?.sources;
     if (Array.isArray(itemSources)) {
@@ -544,7 +537,6 @@ export const ultraFeedGraphQLQueries = {
         }
       });
       
-      // Transform sampled items into final results
       const results = transformItemsForResolver(sampledItems, spotlightsById, commentsById);
       
       if (!incognitoMode) {

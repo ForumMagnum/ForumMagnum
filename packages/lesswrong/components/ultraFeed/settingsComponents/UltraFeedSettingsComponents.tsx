@@ -255,6 +255,55 @@ const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
 };
 const SourceWeightsSettingsComponent = registerComponent('SourceWeightsSettings', SourceWeightsSettings);
 
+const getCommentLevelLabel = (level: TruncationLevel): string => {
+  if (level === 'Very Short') return `${level} (2 lines)`;
+  if (level === 'Full') return `${level} (no limit)`;
+  if (level === 'Unset') return level;
+  
+  const wordCount = levelToCommentBreakpointMap[level];
+  return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
+};
+
+const getPostLevelLabel = (level: TruncationLevel): string => {
+  if (level === 'Full') return `${level} (no limit)`;
+  if (level === 'Unset') return level;
+  
+  const wordCount = levelToPostBreakpointMap[level];
+  return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
+};
+
+interface TruncationLevelDropdownProps {
+  field: TruncationGridFields;
+  value: TruncationLevel;
+  onChange: (field: TruncationGridFields, value: TruncationLevel) => void;
+}
+
+const TruncationLevelDropdown: React.FC<TruncationLevelDropdownProps> = ({
+  field,
+  value,
+  onChange
+}) => {
+  const classes = useStyles(styles);
+  const isPostDropdown = field.startsWith('post');
+  const getLabel = isPostDropdown ? getPostLevelLabel : getCommentLevelLabel;
+  
+  return (
+    <div className={classes.truncationGridCell}>
+    <select
+      className={classes.truncationOptionSelect}
+      value={value}
+      onChange={(e) => onChange(field, e.target.value as TruncationLevel)}
+    >
+      {truncationLevels.map(levelOption => (
+        <option key={levelOption} value={levelOption}>
+            {getLabel(levelOption)}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
+
 type TruncationGridFields = 'postLevel0' | 'postLevel1' | 'postLevel2' | 'commentLevel0' | 'commentLevel1' | 'commentLevel2';
 interface TruncationGridSettingsProps {
   levels: Pick<SettingsFormState, TruncationGridFields>;
@@ -268,42 +317,6 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   originalSettings,
 }) => {
   const classes = useStyles(styles);
-
-  const getCommentLevelLabel = (level: TruncationLevel): string => {
-    if (level === 'Very Short') return `${level} (2 lines)`;
-    if (level === 'Full') return `${level} (no limit)`;
-    if (level === 'Unset') return level;
-    
-    const wordCount = levelToCommentBreakpointMap[level];
-    return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
-  };
-  
-  const getPostLevelLabel = (level: TruncationLevel): string => {
-    if (level === 'Full') return `${level} (no limit)`;
-    if (level === 'Unset') return level;
-    
-    const wordCount = levelToPostBreakpointMap[level];
-    return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
-  };
-
-  const renderDropdown = (field: TruncationGridFields) => {
-    const isPostDropdown = field.startsWith('post');
-    const getLabel = isPostDropdown ? getPostLevelLabel : getCommentLevelLabel;
-    
-    return (
-      <select
-        className={classes.truncationOptionSelect}
-        value={levels[field]}
-        onChange={(e) => onChange(field, e.target.value as TruncationLevel)}
-      >
-        {truncationLevels.map(levelOption => (
-          <option key={levelOption} value={levelOption}>
-            {getLabel(levelOption)}
-          </option>
-        ))}
-      </select>
-    );
-  };
 
   const checkMismatch = () => {
     const allowedLineClamps = new Set(Object.values(levelToCommentLinesMap)); // {0,2}
@@ -354,16 +367,16 @@ const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
         <div className={classes.truncationGridHeader}>Comments</div>
 
         <div className={classes.truncationGridRowHeader}>Level 0</div>
-        <div className={classes.truncationGridCell}>{renderDropdown('postLevel0')}</div>
-        <div className={classes.truncationGridCell}>{renderDropdown('commentLevel0')}</div>
+        <TruncationLevelDropdown field="postLevel0" value={levels.postLevel0} onChange={onChange} />
+        <TruncationLevelDropdown field="commentLevel0" value={levels.commentLevel0} onChange={onChange} />
 
         <div className={classes.truncationGridRowHeader}>Level 1</div>
-        <div className={classes.truncationGridCell}>{renderDropdown('postLevel1')}</div>
-        <div className={classes.truncationGridCell}>{renderDropdown('commentLevel1')}</div>
-        
+        <TruncationLevelDropdown field="postLevel1" value={levels.postLevel1} onChange={onChange} />
+        <TruncationLevelDropdown field="commentLevel1" value={levels.commentLevel1} onChange={onChange} />
+
         <div className={classes.truncationGridRowHeader}>Level 2</div>
-        <div className={classes.truncationGridCell}>{renderDropdown('postLevel2')}</div>
-        <div className={classes.truncationGridCell}>{renderDropdown('commentLevel2')}</div>
+        <TruncationLevelDropdown field="postLevel2" value={levels.postLevel2} onChange={onChange} />
+        <TruncationLevelDropdown field="commentLevel2" value={levels.commentLevel2} onChange={onChange} />
       </div>
     </div>
   );
