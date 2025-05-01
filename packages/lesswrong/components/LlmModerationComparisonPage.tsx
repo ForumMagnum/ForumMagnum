@@ -99,8 +99,9 @@ export const LlmModerationComparisonPage = () => {
   const [rejectionProcessedCount, setRejectionProcessedCount] = useState(0);
   const [activeTab, setActiveTab] = useState<"frontpage" | "rejection">("frontpage");
 
-  const { data, loading } = useQuery(gql`
-    query LlmModerationComparisonPage {
+  // Query for rejection moderation (with moderationTest view)
+  const { data: rejectionData, loading: rejectionLoading } = useQuery(gql`
+    query LlmRejectionModerationPage {
       posts(input: { terms: { view: "moderationTest", limit: 100, after: "2020-01-01", before: "2025-01-01" } }) {
         results {
           _id
@@ -119,17 +120,46 @@ export const LlmModerationComparisonPage = () => {
     }
   `);
 
-  const relevantPosts = useMemo(() => data?.posts?.results.filter((d: any) => !d.draft) || [], [data]);
+  // Query for frontpage moderation (without moderationTest view)
+  const { data: frontpageData, loading: frontpageLoading } = useQuery(gql`
+    query LlmFrontpageModerationPage {
+      posts(input: { terms: { limit: 100, after: "2020-01-01", before: "2025-01-01" } }) {
+        results {
+          _id
+          title
+          frontpageDate
+          createdAt
+          baseScore
+          commentCount
+          contents {
+            markdown
+          }
+          draft
+          rejected
+        }
+      }
+    }
+  `);
+
+  const relevantRejectionPosts = useMemo(
+    () => rejectionData?.posts?.results.filter((d: any) => !d.draft) || [], 
+    [rejectionData]
+  );
+
+  const relevantFrontpagePosts = useMemo(
+    () => frontpageData?.posts?.results.filter((d: any) => !d.draft) || [], 
+    [frontpageData]
+  );
 
   // Process posts for frontpage moderation
   useEffect(() => {
     const processFrontpagePosts = async () => {
-      if (!relevantPosts.length) return;
+      if (!relevantFrontpagePosts.length) return;
 
       setFrontpageProcessedCount(0);
-      setFrontpagePosts(relevantPosts);
+      setFrontpagePosts(relevantFrontpagePosts);
 
-      for (const post of relevantPosts) {
+      for (const post of relevantFrontpagePosts) {
         try {
           const processedPost = await processPost(post, "frontpage");
           setFrontpagePosts((currentPosts) => currentPosts.map((p) => (p._id === post._id ? processedPost : p)));
@@ -142,17 +172,17 @@ export const LlmModerationComparisonPage = () => {
     };
 
     void processFrontpagePosts();
-  }, [relevantPosts]);
+  }, [relevantFrontpagePosts]);
 
   // Process posts for rejection moderation
   useEffect(() => {
     const processRejectionPosts = async () => {
-      if (!relevantPosts.length) return;
+      if (!relevantRejectionPosts.length) return;
 
       setRejectionProcessedCount(0);
-      setRejectionPosts(relevantPosts);
+      setRejectionPosts(relevantRejectionPosts);
 
-      for (const post of relevantPosts) {
+      for (const post of relevantRejectionPosts) {
         try {
           const processedPost = await processPost(post, "rejection");
           setRejectionPosts((currentPosts) => currentPosts.map((p) => (p._id === post._id ? processedPost : p)));
@@ -165,7 +195,7 @@ export const LlmModerationComparisonPage = () => {
     };
 
     void processRejectionPosts();
-  }, [relevantPosts]);
+  }, [relevantRejectionPosts]);
 
   return (
     <div className="llm-moderation-comparison">
@@ -185,14 +215,14 @@ export const LlmModerationComparisonPage = () => {
           moderationType="frontpage"
           posts={frontpagePosts as Post[]}
           processedCount={frontpageProcessedCount}
-          relevantPostsCount={relevantPosts.length}
+          relevantPostsCount={relevantFrontpagePosts.length}
         />
       ) : (
         <ModerationResults
           moderationType="rejection"
           posts={rejectionPosts as Post[]}
           processedCount={rejectionProcessedCount}
-          relevantPostsCount={relevantPosts.length}
+          relevantPostsCount={relevantRejectionPosts.length}
         />
       )}
 
