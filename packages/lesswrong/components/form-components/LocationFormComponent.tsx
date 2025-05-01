@@ -10,6 +10,7 @@ import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = (theme: ThemeType) => ({
@@ -158,7 +159,12 @@ const LocationPicker = ({
   stringVersionFieldName,
   variant = "default",
   locationTypes,
-}: Pick<FormComponentProps<AnyBecauseTodo>, "document" | "path" | "label" | "value" | "updateCurrentValues"> & {
+}: {
+  document: AnyBecauseHard,
+  path: string,
+  label?: string,
+  value: AnyBecauseHard,
+  updateCurrentValues: UpdateCurrentValues,
   stringVersionFieldName?: string|null,
   variant?: "default" | "grey",
   locationTypes?: QueryType[],

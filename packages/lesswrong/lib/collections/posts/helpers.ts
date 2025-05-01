@@ -1,6 +1,6 @@
 import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userOverNKarmaFunc } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold } from '../../publicSettings';
@@ -483,3 +483,6 @@ export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimum
     userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 };
 
+export function userCanEditCoauthors(user: UsersCurrent | null) {
+  return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA);
+}

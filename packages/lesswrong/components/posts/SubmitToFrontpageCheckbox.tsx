@@ -83,12 +83,6 @@ const forumDefaultTooltip: ForumOptions<FC<{classes?: ClassesType<typeof styles[
 
 const defaultTooltip = forumSelect(forumDefaultTooltip);
 
-export interface SubmitToFrontpageCheckboxProps extends FormButtonProps, WithStylesProps {
-  fieldName?: string,
-  label: any,
-  tooltip: any,
-}
-
 export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
   field: TypedFieldApi<boolean>;
   label?: string;

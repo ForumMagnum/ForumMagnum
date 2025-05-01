@@ -1,4 +1,6 @@
+// @ts-nocheck
 /* eslint-disable no-console */
+
 /**
  * Code‑gen script that rebuilds (very) basic TanStack forms from the
  * form‑spec parts of collection schemas.
@@ -15,7 +17,6 @@
  */
 
 import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
-import { formProperties } from '@/lib/vulcan-forms/schema_utils';
 import * as fs from 'fs';
 import * as path from 'path';
 import SimpleSchema from 'simpl-schema';
@@ -25,6 +26,30 @@ import { forumTypeSetting } from '@/lib/instanceSettings';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { userOwns } from '@/lib/vulcan-users/permissions';
+
+const formProperties = [
+  'optional',
+  'min',
+  'max',
+  'minCount',
+  'maxCount',
+  'allowedValues',
+  'regEx',
+  'blackbox',
+  'defaultValue',
+  'form', // form placeholder
+  'control', // SmartForm control (String or React component)
+  'order', // position in the form
+  'group', // form fieldset group
+  'description',
+  'beforeComponent',
+  'afterComponent',
+  'placeholder',
+  'options',
+  'tooltip',
+  'editableFieldOptions',
+] as const;
+
 
 const exec = util.promisify(execSync);
 
@@ -277,7 +302,7 @@ function jsxLiteral(value: any): string {
  *  1. explicit control
  *  2. fallback heuristic (same as FormComponent.getInputType logic)
  */
-function getComponentName(fieldName: string, fieldSpec: DerivedSimpleSchemaFieldType, collectionName: string): { component: string; props?: string[]; todo?: string } {
+function getComponentName(fieldName: string, fieldSpec: AnyBecauseObsolete, collectionName: string): { component: string; props?: string[]; todo?: string } {
   const control = fieldSpec.control as string;
 
   // 1. direct mapping
@@ -392,7 +417,7 @@ const sharedFieldStyles = defineStyles('GeneratedFormFieldStyles', (theme: Theme
 
     // Derive groups: name -> { groupSpec, fieldList[] }
     type GroupInfo = {
-      spec?: FormGroupType<CollectionNameString>; // the object returned by group()
+      spec?: AnyBecauseObsolete; // the object returned by group()
       fields: Array<[string, DerivedSimpleSchemaFieldType]>;
     };
     const groups = new Map<string, GroupInfo>();

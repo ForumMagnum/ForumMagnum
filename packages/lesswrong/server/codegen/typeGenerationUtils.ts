@@ -42,10 +42,18 @@ export function generateAllowedValuesTypeString(allowedValues: string[], fieldSc
   return maybeNullable(fieldType, nullable);
 }
 
+interface InternalSimpleSchemaType {
+  singleType: Function | string | SimpleSchema,
+  definitions: Array<{
+    type: SimpleSchemaType<CollectionNameString>,
+    allowedValues: string[]
+  }>
+}
+
 export function simplSchemaTypeToTypescript(
   schema: DerivedSimpleSchemaType<SchemaType<CollectionNameString>>,
   fieldName: string,
-  simplSchemaType: DerivedSimpleSchemaFieldType['type'],
+  simplSchemaType: InternalSimpleSchemaType,
   indent = 2,
   DbType = false,
 ): string {

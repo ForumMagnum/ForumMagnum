@@ -1,7 +1,7 @@
 import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
-import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
+import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
@@ -65,10 +65,6 @@ function getFooterTagListPostInfo(post: EditablePost) {
   } = post;
 
   return { _id, createdAt, tags, curatedDate, frontpageDate, reviewedByUserId, postCategory, isEvent: isEvent ?? false };
-}
-
-function userCanEditCoauthors(user: UsersCurrent | null) {
-  return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA);
 }
 
 function userCanEditCrosspostSettings(user: UsersCurrent | null) {

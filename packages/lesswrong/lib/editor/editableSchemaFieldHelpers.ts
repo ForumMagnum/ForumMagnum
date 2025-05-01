@@ -1,18 +1,15 @@
 import { getAllSchemas } from '../schema/allSchemas';
-import type { EditableFieldCallbackOptions, EditableFieldClientOptions } from './makeEditableOptions';
+import type { EditableFieldCallbackOptions } from './makeEditableOptions';
 
 export interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   graphql: GraphQLFieldSpecification<N> & {
     editableFieldOptions: EditableFieldCallbackOptions;
   }
-  // form: FormFieldSpecification<N> & {
-  //   editableFieldOptions: EditableFieldClientOptions;
-  // }
 };
 
 export function isEditableField<N extends CollectionNameString>(field: [string, CollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
   const { graphql } = field[1];
-  return !!graphql && 'editableFieldOptions' in graphql && !!graphql.editableFieldOptions; // && !!form?.editableFieldOptions;
+  return !!graphql && 'editableFieldOptions' in graphql && !!graphql.editableFieldOptions;
 }
 
 export const getEditableFieldsByCollection = (() => {
