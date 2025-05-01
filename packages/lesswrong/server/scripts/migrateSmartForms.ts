@@ -383,7 +383,7 @@ const sharedFieldStyles = defineStyles('GeneratedFormFieldStyles', (theme: Theme
     const fields = Object.entries(schema._schema);
 
     // Only keep fields that have a `form` key
-    const formFieldNames = new Set(Object.keys(collectionSchema).filter(fieldName => !!collectionSchema[fieldName].form));
+    const formFieldNames = new Set(Object.keys(collectionSchema).filter(fieldName => !!(collectionSchema[fieldName] as AnyBecauseObsolete).form));
     const formFields = Object.entries(schema._schema)
       .filter(([fieldName, fieldSpec]) => formFieldNames.has(fieldName) && fieldSpec.hidden !== true)
       .sort(([, a], [, b]) => (a?.order ?? 9999) - (b?.order ?? 9999));
