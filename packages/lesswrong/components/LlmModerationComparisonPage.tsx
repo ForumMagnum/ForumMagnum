@@ -38,6 +38,22 @@ You should respond with a JSON object with the following properties:
 - reason: A string value that provides a short explanation of why the post was assigned this decision. It should be no more than 100 words.
 
 The most common reasons for completely rejecting a post is unclear exposition, crackpot-ish ideas, spam, or content that is hostile or inflammatory. Content about Artificial Intelligence is generally held to a higher standard, especially from new users.
+
+Most posts should not be rejected. The bar for rejection is high.
+
+The three most common reasons for rejecting a post are:
+* Content that is spam 
+* Content that is written by an AI
+* Content that is crackpot-ish and claims to solve some big problem without good evidence
+
+Content being informal, low-key, and meandering is not a reason to reject a post. Collections of links or external resources are also fine. Short posts are also fine. Event announcements are also fine.
+
+It is often difficult to detect whether a post was written by an AI. Common tells are: 
+* Overuse of headings and subheadings
+* Turns of phrases like "delve", "transformative" and other grandiose language
+
+Content by new users is much more likely to be rejected, as they have not established themselves with positive contributions.
+
 `;
 
 // Define a post type to use throughout the component
@@ -47,6 +63,11 @@ interface Post {
   contents: { markdown: string };
   frontpageDate: string | null;
   rejected: boolean;
+  user: {
+    displayName: string;
+    createdAt: string;
+    karma: number;
+  };
 }
 
 interface PostWithDecision extends Post {
@@ -73,10 +94,21 @@ const processPost = async (post: Post, moderationType: "frontpage" | "rejection"
   };
 
   const response = await openAIClient.chat.completions.create({
-    model: "gpt-4.1-nano-2025-04-14",
+    model: "o4-mini",
     messages: [
       { role: "system", content: prompt },
-      { role: "user", content: `${post.title}\n\n${post.contents.markdown}` },
+      { role: "user", content: `
+<Author information>
+Author name: ${post.user.displayName}
+Author karma: ${post.user.karma}
+Author created at: ${post.user.createdAt}
+</Author information>
+
+<Post>
+${post.title}
+${post.contents.markdown}
+</Post>
+` },
     ],
     response_format: {
       type: "json_schema",
@@ -91,6 +123,52 @@ const processPost = async (post: Post, moderationType: "frontpage" | "rejection"
   };
 };
 
+// Batching helper to process posts in parallel
+const BATCH_SIZE = 10;
+
+const processPostsInBatches = async (
+  posts: Post[],
+  moderationType: "frontpage" | "rejection",
+  setPosts: React.Dispatch<React.SetStateAction<PostWithDecision[]>>,
+  setProcessedCount: React.Dispatch<React.SetStateAction<number>>, // keeps track of number of finished posts (success or error)
+  batchSize: number = BATCH_SIZE,
+) => {
+  for (let start = 0; start < posts.length; start += batchSize) {
+    const batch = posts.slice(start, start + batchSize);
+
+    // Run the whole batch in parallel
+    const results = await Promise.allSettled(
+      batch.map((post) => processPost(post, moderationType)),
+    );
+
+    // Collect successfully processed posts
+    const successful: PostWithDecision[] = [];
+    results.forEach((result, idx) => {
+      if (result.status === "fulfilled") {
+        successful.push(result.value);
+      } else {
+        console.error(
+          `Error processing post "${batch[idx].title}" for ${moderationType}:`,
+          result.reason,
+        );
+      }
+    });
+
+    // Update post list state with new decisions
+    if (successful.length) {
+      setPosts((currentPosts) =>
+        currentPosts.map((p) => {
+          const updated = successful.find((u) => u._id === p._id);
+          return updated ?? p;
+        }),
+      );
+    }
+
+    // Update processed counter (include successes + failures to indicate progress)
+    setProcessedCount((count) => count + batch.length);
+  }
+};
+
 export const LlmModerationComparisonPage = () => {
   const { ModerationResults } = Components;
   const [frontpagePosts, setFrontpagePosts] = useState<PostWithDecision[]>([]);
@@ -102,7 +180,7 @@ export const LlmModerationComparisonPage = () => {
   // Query for rejection moderation (with moderationTest view)
   const { data: rejectionData, loading: rejectionLoading } = useQuery(gql`
     query LlmRejectionModerationPage {
-      posts(input: { terms: { view: "moderationTest", limit: 100, after: "2020-01-01", before: "2025-01-01" } }) {
+      posts(input: { terms: { view: "moderationTest", limit: 100, after: "2020-01-01" } }) {
         results {
           _id
           title
@@ -112,6 +190,11 @@ export const LlmModerationComparisonPage = () => {
           commentCount
           contents {
             markdown
+          }
+          user {
+            displayName
+            createdAt
+            karma
           }
           draft
           rejected
@@ -123,7 +206,7 @@ export const LlmModerationComparisonPage = () => {
   // Query for frontpage moderation (without moderationTest view)
   const { data: frontpageData, loading: frontpageLoading } = useQuery(gql`
     query LlmFrontpageModerationPage {
-      posts(input: { terms: { limit: 100, after: "2020-01-01", before: "2025-01-01" } }) {
+      posts(input: { terms: { limit: 100, after: "2020-01-01" } }) {
         results {
           _id
           title
@@ -133,6 +216,11 @@ export const LlmModerationComparisonPage = () => {
           commentCount
           contents {
             markdown
+          }
+          user {
+            displayName
+            createdAt
+            karma
           }
           draft
           rejected
@@ -159,16 +247,12 @@ export const LlmModerationComparisonPage = () => {
       setFrontpageProcessedCount(0);
       setFrontpagePosts(relevantFrontpagePosts);
 
-      for (const post of relevantFrontpagePosts) {
-        try {
-          const processedPost = await processPost(post, "frontpage");
-          setFrontpagePosts((currentPosts) => currentPosts.map((p) => (p._id === post._id ? processedPost : p)));
-          setFrontpageProcessedCount((count) => count + 1);
-        } catch (error) {
-          console.error(`Error processing post "${post.title}" for frontpage:`, error);
-          setFrontpageProcessedCount((count) => count + 1);
-        }
-      }
+      await processPostsInBatches(
+        relevantFrontpagePosts,
+        "frontpage",
+        setFrontpagePosts,
+        setFrontpageProcessedCount,
+      );
     };
 
     void processFrontpagePosts();
@@ -182,16 +266,12 @@ export const LlmModerationComparisonPage = () => {
       setRejectionProcessedCount(0);
       setRejectionPosts(relevantRejectionPosts);
 
-      for (const post of relevantRejectionPosts) {
-        try {
-          const processedPost = await processPost(post, "rejection");
-          setRejectionPosts((currentPosts) => currentPosts.map((p) => (p._id === post._id ? processedPost : p)));
-          setRejectionProcessedCount((count) => count + 1);
-        } catch (error) {
-          console.error(`Error processing post "${post.title}" for rejection:`, error);
-          setRejectionProcessedCount((count) => count + 1);
-        }
-      }
+      await processPostsInBatches(
+        relevantRejectionPosts,
+        "rejection",
+        setRejectionPosts,
+        setRejectionProcessedCount,
+      );
     };
 
     void processRejectionPosts();
