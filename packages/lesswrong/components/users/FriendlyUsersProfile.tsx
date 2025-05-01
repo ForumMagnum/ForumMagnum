@@ -267,7 +267,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
     ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
-    UserNotifyDropdown, FooterTag, DisplayNameWithMarkers, ForumIcon,
+    UserNotifyDropdown, FooterTag, DisplayNameWithMarkers, CommentsDraftList,
   } = Components
 
   if (loading) {
@@ -345,6 +345,12 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 3}} showLoadMore={true} />
+      <div className={classes.sectionSubHeadingRow}>
+        <Typography variant="headline" className={classes.sectionSubHeading}>Draft comments</Typography>
+      </div>
+      <AnalyticsContext pageElementContext="userCommentDrafts">
+        <CommentsDraftList userId={user._id} initialLimit={5} />
+      </AnalyticsContext>
     </>
   }]
   if (userOrganizesGroups?.length) {
