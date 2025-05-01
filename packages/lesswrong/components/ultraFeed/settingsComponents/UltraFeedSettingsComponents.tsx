@@ -608,7 +608,7 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
           color="primary"
         />
         <label htmlFor="postTitlesAreModalsCheckbox" className={classes.checkboxLabel}>
-          Open Post Titles in Modals
+          Open post titles in modals (on mobile)
         </label>
       </div>
       <p className={classes.groupDescription} style={{marginTop: 0, marginBottom: 16}}>
