@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
 
 const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes}: {
   name: string,
-  screenshotRef: RefObject<HTMLElement>,
+  screenshotRef: RefObject<HTMLElement|null>,
   onRendered?: (canvas: HTMLCanvasElement) => void,
   className?: string,
   classes: ClassesType<typeof styles>,

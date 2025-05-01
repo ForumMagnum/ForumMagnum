@@ -134,13 +134,13 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   constructor(props: SmartFormProps<N>) {
     super(props);
 
-    this.formRef = React.createRef<HTMLFormElement>();
+    this.formRef = React.createRef<HTMLFormElement|null>();
     this.state = {
       ...getInitialStateFromProps(props)
     };
   }
 
-  formRef: React.RefObject<HTMLFormElement>
+  formRef: React.RefObject<HTMLFormElement|null>
   unblock: any
   
   defaultValues: any = {};

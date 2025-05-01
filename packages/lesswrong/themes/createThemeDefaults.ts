@@ -146,6 +146,13 @@ export const baseTheme: BaseThemeSpecification = {
         caption: {
           fontSize: 11.7,
         },
+        button: {
+          fontSize: "0.875rem",
+          textTransform: 'uppercase',
+          fontWeight: 500,
+          fontFamily: palette.fonts.sansSerifStack,
+          color: palette.text.primary,
+        },
         blockquote: {
           fontWeight: 400,
           paddingTop: spacingUnit*2,

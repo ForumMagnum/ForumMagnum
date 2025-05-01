@@ -2,14 +2,23 @@
 
 import React from 'react';
 import classNames from 'classnames';
-import Transition, { type TransitionProps } from 'react-transition-group/Transition';
+import Transition from 'react-transition-group/Transition';
 import { duration } from '../styles/transitions';
 import { getTransitionProps } from '../transitions/utils';
+import type { TransitionProps } from "../transitions/transition";
 import type { StandardProps } from '..';
 import { defineStyles, withStyles } from '@/components/hooks/useStyles';
+import { withTheme } from '@/components/themes/useTheme';
 
-export interface CollapseProps extends StandardProps<TransitionProps, CollapseClassKey, 'timeout'> {
+export interface CollapseProps {
   children?: React.ReactNode;
+  in?: boolean;
+  className?: string;
+  onEnter?: (node: AnyBecauseTodo) => void;
+  onEntered?: (node: AnyBecauseTodo) => void;
+  onEntering?: (node: AnyBecauseTodo) => void;
+  onExit?: (node: AnyBecauseTodo) => void;
+  onExiting?: (node: AnyBecauseTodo) => void;
   collapsedHeight?: string;
   component?: React.ComponentType<CollapseProps>;
   timeout?: TransitionProps['timeout'] | 'auto';
@@ -44,7 +53,7 @@ export const styles = defineStyles("MuiCollapse", theme => ({
  * [Vertical Stepper](/demos/steppers#vertical-stepper) StepContent component.
  * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
  */
-class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof styles>> {
+class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof styles> & {theme: ThemeType}> {
   timer: AnyBecauseTodo
   wrapperRef: AnyBecauseTodo
   autoTransitionDuration: AnyBecauseTodo
@@ -54,7 +63,7 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
   }
 
   handleEnter = (node: AnyBecauseTodo) => {
-    node.style.height = this.props.collapsedHeight;
+    node.style.height = this.props.collapsedHeight ?? "0px";
 
     if (this.props.onEnter) {
       this.props.onEnter(node);
@@ -119,7 +128,7 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
         typeof transitionDuration === 'string' ? transitionDuration : `${transitionDuration}ms`;
     }
 
-    node.style.height = this.props.collapsedHeight;
+    node.style.height = this.props.collapsedHeight ?? "0px";
 
     if (this.props.onExiting) {
       this.props.onExiting(node);
@@ -137,16 +146,14 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
       children,
       classes,
       className,
-      collapsedHeight,
-      component: Component,
+      collapsedHeight="0px",
       onEnter,
       onEntered,
       onEntering,
       onExit,
       onExiting,
-      style,
       theme,
-      timeout,
+      timeout=duration.standard,
       ...other
     } = this.props;
 
@@ -163,7 +170,7 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
       >
         {(state, childProps) => {
           return (
-            <Component
+            <div
               className={classNames(
                 classes.container,
                 {
@@ -172,7 +179,6 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
                 className,
               )}
               style={{
-                ...style,
                 minHeight: collapsedHeight,
               }}
               {...childProps}
@@ -185,7 +191,7 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
               >
                 <div className={classes.wrapperInner}>{children}</div>
               </div>
-            </Component>
+            </div>
           );
         }}
       </Transition>
@@ -193,12 +199,6 @@ class Collapse extends React.Component<CollapseProps & WithStylesProps<typeof st
   }
 }
 
-Collapse.defaultProps = {
-  collapsedHeight: '0px',
-  component: 'div',
-  timeout: duration.standard,
-};
+(Collapse as any).muiSupportAuto = true;
 
-Collapse.muiSupportAuto = true;
-
-export default withStyles(styles, Collapse);
+export default withTheme(withStyles(styles, Collapse));

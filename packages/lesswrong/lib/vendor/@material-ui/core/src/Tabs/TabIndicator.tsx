@@ -6,7 +6,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface TabIndicatorProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, TabIndicatorClassKey> {
-  color: 'secondary' | 'primary' | string;
+  color: 'secondary' | 'primary';
   style: { left: number; width: number };
 }
 
@@ -38,7 +38,14 @@ function TabIndicator(props: TabIndicatorProps) {
 
   return (
     <span
-      className={classNames(classes.root, classes[`color${capitalize(color)}`], className)}
+      className={classNames(
+        classes.root,
+        {
+          [classes.colorPrimary]: color === 'primary',
+          [classes.colorSecondary]: color === 'secondary',
+        },
+        className,
+      )}
       {...other}
     />
   );

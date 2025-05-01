@@ -256,14 +256,15 @@ function Button(props: ButtonProps) {
     children,
     classes: classesOverride,
     className: classNameProp,
-    color,
-    disabled,
-    disableFocusRipple,
-    fullWidth,
+    color='default',
+    disabled=false,
+    disableFocusRipple=false,
+    fullWidth=false,
     focusVisibleClassName,
-    mini,
-    size,
-    variant,
+    mini=false,
+    size='medium',
+    variant='text',
+    type='button',
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
@@ -308,22 +309,12 @@ function Button(props: ButtonProps) {
       focusRipple={!disableFocusRipple}
       focusVisibleClassName={classNames(classes.focusVisible, focusVisibleClassName)}
       component="button"
+      type={type}
       {...other}
     >
       <span className={classes.label}>{children}</span>
     </ButtonBase>
   );
 }
-
-Button.defaultProps = {
-  color: 'default',
-  disabled: false,
-  disableFocusRipple: false,
-  fullWidth: false,
-  mini: false,
-  size: 'medium',
-  type: 'button',
-  variant: 'text',
-};
 
 export default Button;

@@ -649,6 +649,7 @@ declare global {
       smallText: JssStyles,
       tinyText: JssStyles,
       caption: JssStyles,
+      button: JssStyles,
       blockquote: JssStyles,
       italic: JssStyles,
       smallCaps: JssStyles,

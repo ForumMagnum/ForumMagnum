@@ -153,6 +153,7 @@ export const EditorFormComponent = ({
   // and if so we show a little card with tips on how to make it more likely to go well.
   const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
   const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(!!currentUser?.criticismTipsDismissed)
+  const tipsNodeRef = useRef<HTMLElement|null>(null);
   const updateCurrentUser = useUpdateCurrentUser()
   
   const handleDismissCriticismTips = () => {
@@ -549,10 +550,11 @@ export const EditorFormComponent = ({
         postId={document._id}
       />
     }
-    <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
+    <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear nodeRef={tipsNodeRef}>
       {(state) => <Components.PostsEditBotTips
         handleDismiss={handleDismissCriticismTips}
         postId={document._id}
+        nodeRef={tipsNodeRef}
         className={classes[`${state}BotTips`]}
       />}
     </Transition>

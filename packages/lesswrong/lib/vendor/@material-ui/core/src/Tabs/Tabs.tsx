@@ -22,7 +22,7 @@ export interface TabsProps
   children?: React.ReactNode;
   component?: React.Component<TabsProps>;
   fullWidth?: boolean;
-  indicatorColor?: 'secondary' | 'primary' | string;
+  indicatorColor?: 'secondary' | 'primary';
   onChange?: (event: React.ChangeEvent<{}>, value: any) => void;
   scrollable?: boolean;
   scrollButtons?: 'auto' | 'on' | 'off';
@@ -413,7 +413,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
   }
 }
 
-Tabs.defaultProps = {
+(Tabs as any).defaultProps = {
   centered: false,
   component: 'div',
   fullWidth: false,

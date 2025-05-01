@@ -34,25 +34,4 @@ function CardContent(props: CardContentProps) {
   return <div className={classNames(classes.root, className)} {...other} />;
 }
 
-CardContent.propTypes = {
-  /**
-   * Override or extend the styles applied to the component.
-   * See [CSS API](#css-api) below for more details.
-   */
-  classes: PropTypes.object.isRequired,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-};
-
-CardContent.defaultProps = {
-  component: 'div',
-};
-
 export default CardContent;

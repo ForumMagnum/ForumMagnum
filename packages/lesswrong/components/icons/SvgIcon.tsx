@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -20,11 +20,13 @@ export const styles = defineStyles("MuiSvgIcon", (theme: any) => ({
 function SvgIcon(props: {
   className?: string
   viewBox?: string
+  nodeRef?: RefObject<SVGSVGElement|null>,
 } & React.SVGProps<SVGSVGElement>) {
   const classes = useStyles(styles);
   const {
     className,
     viewBox='0 0 24 24',
+    nodeRef,
     ...other
   } = props;
 
@@ -37,6 +39,7 @@ function SvgIcon(props: {
     viewBox={viewBox}
     aria-hidden={'true'}
     role={'presentation'}
+    ref={nodeRef}
     {...other}
   />
 }

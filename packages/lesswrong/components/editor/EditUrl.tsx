@@ -64,7 +64,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   tooltip?: string,
 }) => {
   const [active, setActive] = useState(!!value);
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement|null>(null);
   let HintTextComponent: React.ComponentClass | React.FC;
   if (hintText && (hintText in ComponentsTable || hintText in DeferredComponentsTable)) {
     HintTextComponent = Components[hintText as keyof ComponentTypes]

@@ -6,7 +6,6 @@ import { Typography } from '@/components/common/Typography';
 
 export interface InputAdornmentProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, InputAdornmentClassKey> {
-  component?: React.ComponentType<InputAdornmentProps>;
   disableTypography?: boolean;
   position: 'start' | 'end';
   variant?: "standard"|"outline"|"filled";
@@ -45,7 +44,6 @@ export const styles = defineStyles("MuiInputAdornment", theme => ({
 export function InputAdornment(props: InputAdornmentProps) {
   const {
     children,
-    component: Component='div',
     className,
     disableTypography=false,
     position,
@@ -55,7 +53,7 @@ export function InputAdornment(props: InputAdornmentProps) {
   const classes = useStyles(styles, props.classes);
 
   return (
-    <Component
+    <div
       className={classNames(
         classes.root,
         {
@@ -72,7 +70,7 @@ export function InputAdornment(props: InputAdornmentProps) {
       ) : (
         children
       )}
-    </Component>
+    </div>
   );
 }
 

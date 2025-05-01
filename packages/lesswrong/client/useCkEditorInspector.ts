@@ -3,7 +3,7 @@ import { useGlobalKeydown } from "@/components/common/withGlobalKeydown";
 import CKEditorInspector from "@ckeditor/ckeditor5-inspector";
 import type CKEditor from "@/lib/vendor/ckeditor5-react/ckeditor";
 
-export function useCkEditorInspector(editorRef: RefObject<CKEditor<any>>) {
+export function useCkEditorInspector(editorRef: RefObject<CKEditor<any>|null>) {
   useGlobalKeydown(ev => {
     if (bundleIsProduction) {
       return;

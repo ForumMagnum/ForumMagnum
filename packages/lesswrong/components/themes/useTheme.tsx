@@ -7,8 +7,6 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
-import { isClient } from '@/lib/executionEnvironment';
-import { hookToHoc } from '@/lib/hocUtils';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -30,10 +28,11 @@ export const useTheme = (): ThemeType => {
   return themeContext.theme;
 }
 
-export const withTheme = <T extends {}>(Component: React.ComponentType<T>) => {
+export const withTheme = <T extends {theme: ThemeType}>(Component: React.ComponentType<T>) => {
   return forwardRef((props, ref) => {
     const theme = useTheme();
-    return <Component ref={ref} {...props} theme={theme}/>
+    const ComponentUntyped = Component as any;
+    return <ComponentUntyped ref={ref} {...props} theme={theme}/>
   }) as React.ComponentType<Omit<T,"theme">>;
 }
 
@@ -101,7 +100,6 @@ export const ThemeContextProvider = ({options, children}: {
 }) => {
   const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
   const [themeOptions, setThemeOptions] = useState(options);
-  const [sheetsManager] = useState(new Map());
   const prefersDarkMode = usePrefersDarkMode();
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 

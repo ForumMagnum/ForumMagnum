@@ -1,14 +1,23 @@
-function easeInOutSin(time) {
+function easeInOutSin(time: number) {
   return (1 + Math.sin(Math.PI * time - Math.PI / 2)) / 2;
 }
 
-function animate(prop, element, to, options = {}, cb = () => {}) {
+function animate(
+  prop: AnyBecauseTodo,
+  element: AnyBecauseTodo,
+  to: AnyBecauseTodo,
+  options: {
+    ease?: (time: number) => number
+    duration?: number
+  } = {},
+  cb: (error?: Error|null) => void = () => {}
+) {
   const {
     ease = easeInOutSin,
     duration = 300, // standard
   } = options;
 
-  let start = null;
+  let start: number|null = null;
   const from = element[prop];
   let cancelled = false;
 
@@ -16,7 +25,7 @@ function animate(prop, element, to, options = {}, cb = () => {}) {
     cancelled = true;
   };
 
-  const step = timestamp => {
+  const step = (timestamp: number) => {
     if (cancelled) {
       cb(new Error('Animation cancelled'));
       return;

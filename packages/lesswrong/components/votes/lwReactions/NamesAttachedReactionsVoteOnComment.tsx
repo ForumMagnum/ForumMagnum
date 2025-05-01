@@ -354,7 +354,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   numberShown: number,
   voteProps: VotingProps<VoteableTypeClient>,
   quote: QuoteLocator|null,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBody|null>|null,
   classes: ClassesType<typeof styles>,
 }) => {
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
@@ -479,7 +479,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   react: EmojiReactName,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null
+  commentBodyRef?: React.RefObject<ContentItemBody|null>|null
 }) => {
   const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);

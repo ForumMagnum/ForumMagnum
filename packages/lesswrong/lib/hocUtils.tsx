@@ -11,14 +11,14 @@ import React from 'react';
  */
 export function hookToHoc<P, HP, HR>(
   hookFn: (hookParams?: HP) => HR,
-  componentPropsToHookParams?: (props: P) => HP
+  componentPropsToHookParams?: (props: React.PropsWithoutRef<P>) => HP
 ) {
   return (Component: React.ComponentType<P & HR>) => {
-    const WithHook = (props: P, ref: React.Ref<any>) => {
-      const hookParams = componentPropsToHookParams ? componentPropsToHookParams(props) : undefined;
+    const WithHook = React.forwardRef<any, P>((props, ref) => {
+      const hookParams = componentPropsToHookParams ? componentPropsToHookParams(props as React.PropsWithoutRef<P>) : undefined;
       const hookProps = hookParams !== undefined ? hookFn(hookParams) : hookFn();
-      return <Component ref={ref} {...props} {...hookProps} />;
-    };
-    return React.forwardRef(WithHook);
+      return <Component ref={ref as any} {...(props as P)} {...hookProps} />;
+    });
+    return WithHook;
   }
 }
