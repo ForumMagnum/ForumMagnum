@@ -132,6 +132,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
   onPostTitleClick?: () => void,
 }) => {
   const classes = useStyles(styles);
+  const { PostsTooltip } = Components;
 
   const { post } = comment;
 
@@ -156,14 +157,16 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
         [classes.hideOnDesktop]: position === 'below',
       })}
     >
-      {position === 'below' && <span className={classes.postTitleReplyTo}>Replying to</span>}
-      <a
-        href={postGetPageUrl(post)}
-        onClick={handleTitleClick}
-        className={classes.postTitleLinkOrButtonSpan}
-      >
-        {post.title}
-      </a>
+      <PostsTooltip post={post as PostsList} placement="top" As="span">
+        {position === 'below' && <span className={classes.postTitleReplyTo}>Replying to</span>}
+          <a
+            href={postGetPageUrl(post)}
+            onClick={handleTitleClick}
+            className={classes.postTitleLinkOrButtonSpan}
+          >
+            {post.title}
+          </a>
+      </PostsTooltip>
     </div>
   )
 }
