@@ -5,6 +5,7 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -76,7 +77,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
       ...theme.typography.ultraFeedMobileStyle,
     },
   },
-  metaRowPostTitle: {
+  sameRowPostTitle: {
     maxWidth: '70%',
     position: 'relative',
     marginLeft: 'auto',
@@ -88,7 +89,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 1,
   },
-  inlinePostTitle: {
+  belowPostTitle: {
     marginTop: 8,
     marginRight: 12,
     color: theme.palette.link.dim,
@@ -124,33 +125,45 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   },
 }));
 
-const ReplyingToTitle = ({comment, showInLineCommentThreadTitle, onPostTitleClick, mobile}: {
+const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
   comment: UltraFeedComment,
-  showInLineCommentThreadTitle?: boolean,
+  position: 'metarow' | 'below',
+  enabled?: boolean,
   onPostTitleClick?: () => void,
-  mobile?: boolean,
 }) => {
   const classes = useStyles(styles);
 
   const { post } = comment;
 
-  if (!showInLineCommentThreadTitle || !post || post?.shortform) {
+  const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+      if (onPostTitleClick) {
+        event.preventDefault();
+        onPostTitleClick();
+      }
+    }
+  };
+
+  if (!enabled || !post ) {
     return null;
   }
   return (
     <div 
       className={classNames({
-        [classes.metaRowPostTitle]: !mobile,
-        [classes.hideOnMobile]: !mobile,
-        [classes.inlinePostTitle]: mobile,
-        [classes.hideOnDesktop]: mobile,
+        [classes.sameRowPostTitle]: position === 'metarow',
+        [classes.hideOnMobile]: position === 'metarow' && !post.shortform,
+        [classes.belowPostTitle]: position === 'below',
+        [classes.hideOnDesktop]: position === 'below',
       })}
-      onClick={onPostTitleClick}
     >
-      {mobile && <span className={classes.postTitleReplyTo}>Replying to</span>}
-      <span className={classes.postTitleLinkOrButtonSpan} >
+      {position === 'below' && <span className={classes.postTitleReplyTo}>Replying to</span>}
+      <a
+        href={postGetPageUrl(post)}
+        onClick={handleTitleClick}
+        className={classes.postTitleLinkOrButtonSpan}
+      >
         {post.title}
-      </span>
+      </a>
     </div>
   )
 }
@@ -160,14 +173,14 @@ const UltraFeedCommentsItemMeta = ({
   setShowEdit,
   hideDate,
   hideActionsMenu,
-  showInLineCommentThreadTitle,
+  showPostTitle,
   onPostTitleClick,
 }: {
   comment: UltraFeedComment,
   setShowEdit?: () => void,
   hideDate?: boolean,
   hideActionsMenu?: boolean,
-  showInLineCommentThreadTitle?: boolean,
+  showPostTitle?: boolean,
   onPostTitleClick?: () => void,
 }) => {
   const classes = useStyles(styles);
@@ -217,9 +230,9 @@ const UltraFeedCommentsItemMeta = ({
               {moderatorCommentAnnotation}
             </span>
           }
-          <ReplyingToTitle mobile={false} comment={comment} showInLineCommentThreadTitle={showInLineCommentThreadTitle} onPostTitleClick={onPostTitleClick} />
+          <ReplyingToTitle enabled={showPostTitle} position="metarow" comment={comment} onPostTitleClick={onPostTitleClick} />
       </div>
-      <ReplyingToTitle mobile={true} comment={comment} showInLineCommentThreadTitle={showInLineCommentThreadTitle} onPostTitleClick={onPostTitleClick} />
+      <ReplyingToTitle enabled={showPostTitle && !post?.shortform} position="below" comment={comment} onPostTitleClick={onPostTitleClick} />
     </div>
   );
 };
