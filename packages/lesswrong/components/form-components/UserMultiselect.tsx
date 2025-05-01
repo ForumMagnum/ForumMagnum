@@ -1,8 +1,9 @@
 import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UserMultiselect", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -15,22 +16,23 @@ const styles = (theme: ThemeType) => ({
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
   },
-});
+}));
 
 export const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
     return <li className={classes.item}>
       <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
 
-const UserMultiselect = ({value, setValue, label, classes}: {
+const UserMultiselect = ({value, setValue, label}: {
   value: string[],
   setValue: (newValue: string[]) => void
   label: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
@@ -69,8 +71,8 @@ const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
   />
 };
 
-const UserMultiselectComponent = registerComponent("UserMultiselect", UserMultiselect, {styles});
-const FormUserMultiselectComponent = registerComponent("FormUserMultiselect", FormUserMultiselect, {styles});
+const UserMultiselectComponent = registerComponent("UserMultiselect", UserMultiselect);
+const FormUserMultiselectComponent = registerComponent("FormUserMultiselect", FormUserMultiselect);
 
 declare global {
   interface ComponentTypes {

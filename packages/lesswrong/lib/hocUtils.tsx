@@ -15,9 +15,9 @@ export function hookToHoc<P, HP, HR>(
 ) {
   return (Component: React.ComponentType<P & HR>) => {
     const WithHook = React.forwardRef<any, P>((props, ref) => {
-      const hookParams = componentPropsToHookParams ? componentPropsToHookParams(props as React.PropsWithoutRef<P>) : undefined;
+      const hookParams = componentPropsToHookParams ? componentPropsToHookParams(props) : undefined;
       const hookProps = hookParams !== undefined ? hookFn(hookParams) : hookFn();
-      return <Component ref={ref as any} {...(props as P)} {...hookProps} />;
+      return <Component ref={ref} {...(props as P)} {...hookProps} />;
     });
     return WithHook;
   }

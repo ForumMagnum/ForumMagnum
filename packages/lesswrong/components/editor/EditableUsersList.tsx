@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { makeSortableListComponent } from '../form-components/sortableList';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EditableUsersList', theme => ({
   listEditor: {
     display: "flex"
   },
@@ -14,24 +15,27 @@ const styles = (theme: ThemeType) => ({
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
   },
-});
+}));
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => <li className={classes.item}>
-    <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
-  </li>
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
+    return <li className={classes.item}>
+      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
+    </li>
+  }
 });
 
 /**
  * An editable list of users, with a straightforward getValue/setValue
  * and no form-system integration.
  */
-export function EditableUsersList({value, setValue, label, classes}: {
+export function EditableUsersList({value, setValue, label}: {
   value: string[],
   setValue: (newValue: string[]) => void,
-  label: string,
-  classes: ClassesType<typeof styles>,
+  label: string
 }) {
+  const classes = useStyles(styles);
   const {ErrorBoundary, UsersSearchAutoComplete} = Components;
   
   return <span className={classes.listEditor}>
@@ -53,7 +57,7 @@ export function EditableUsersList({value, setValue, label, classes}: {
   </span>
 }
 
-const EditableUsersListComponent = registerComponent('EditableUsersList', EditableUsersList, {styles});
+const EditableUsersListComponent = registerComponent('EditableUsersList', EditableUsersList);
 
 declare global {
   interface ComponentTypes {

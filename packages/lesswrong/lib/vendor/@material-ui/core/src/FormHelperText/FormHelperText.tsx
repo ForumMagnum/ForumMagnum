@@ -65,7 +65,7 @@ export const styles = defineStyles("MuiFormHelperText", theme => ({
   required: {},
 }), {stylePriority: -10});
 
-function FormHelperText(props: FormHelperTextProps, context) {
+function FormHelperText(props: FormHelperTextProps) {
   const {
     classes: classesOverride,
     className: classNameProp,
@@ -79,11 +79,9 @@ function FormHelperText(props: FormHelperTextProps, context) {
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
-  const muiFormControl = useContext(FormControlContext);
 
   const fcs = formControlState({
     props,
-    context: {muiFormControl},
     states: ['variant', 'margin', 'disabled', 'error', 'filled', 'focused', 'required'],
   });
 

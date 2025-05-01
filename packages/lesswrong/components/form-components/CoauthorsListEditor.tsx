@@ -5,8 +5,9 @@ import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const coauthorsListEditorStyles = (theme: ThemeType) => ({
+const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', theme => ({
   root: {
     display: 'flex',
     marginLeft: 8,
@@ -32,7 +33,7 @@ const coauthorsListEditorStyles = (theme: ThemeType) => ({
     color: theme.palette.text.normal,
     cursor: 'pointer'
   },
-});
+}));
 
 type CoauthorListItem = {
   userId: string
@@ -41,18 +42,19 @@ type CoauthorListItem = {
 }
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(coauthorsListEditorStyles);
     return <li className={classes.item}>
       <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
     </li>
   }
 });
 
-const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<CoauthorListItem> & {
+const CoauthorsListEditor = ({ value, path, document, label, updateCurrentValues }: FormComponentProps<CoauthorListItem> & {
   value: CoauthorListItem[],
   document: Partial<DbPost>,
-  classes: ClassesType<typeof coauthorsListEditorStyles>,
 }) => {
+  const classes = useStyles(coauthorsListEditorStyles);
   const [initialValue] = useState(value);
   const hasPermission = !!document.hasCoauthorPermission;
   
@@ -115,9 +117,7 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, updateCurr
   );
 }
 
-const CoauthorsListEditorComponent = registerComponent('CoauthorsListEditor', CoauthorsListEditor, {
-  styles: coauthorsListEditorStyles,
-});
+const CoauthorsListEditorComponent = registerComponent('CoauthorsListEditor', CoauthorsListEditor);
 
 declare global {
   interface ComponentTypes {

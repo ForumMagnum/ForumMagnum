@@ -1,8 +1,9 @@
 import React from 'react';
 import { makeSortableListComponent } from './sortableList';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SequencesListEditor", (theme: ThemeType) => ({
   root: {
   },
   item: {
@@ -10,19 +11,19 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     padding: 5,
   },
-});
+}));
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
     return <li className={classes.item}>
       <Components.SequencesListEditorItem documentId={contents} removeItem={removeItem} />
     </li>
   }
 });
 
-const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
-  classes: ClassesType<typeof styles>,
-}) => {
+const SequencesListEditor = ({value, path, updateCurrentValues}: FormComponentProps<string[]>) => {
+  const classes = useStyles(styles);
   return <div className={classes.root}>
     <SortableList
       value={value}
@@ -41,7 +42,7 @@ const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormCo
 
 // TODO: Does not work in nested contexts because it doesn't use the
 // vulcan-forms APIs correctly.
-const SequencesListEditorComponent = registerComponent("SequencesListEditor", SequencesListEditor, {styles});
+const SequencesListEditorComponent = registerComponent("SequencesListEditor", SequencesListEditor);
 
 declare global {
   interface ComponentTypes {

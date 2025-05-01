@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { Backdrop } from '../widgets/Backdrop';
 import ClickAwayListener from '@/lib/vendor/react-click-away-listener';
 import { createPortal } from 'react-dom';
+import { Paper } from '../widgets/Paper';
 
 const styles = defineStyles("Drawer", theme => ({
   containerLeft: {

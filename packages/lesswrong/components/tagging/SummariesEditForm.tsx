@@ -350,7 +350,8 @@ const SummariesEditForm = ({ document }: {
   // We need to do this inside of the component to get the summary by id, to pass through to SummaryEditorRow
   // Our sortable list wrapper currently only deal with arrays of strings, and it doesn't seem worth refactoring right now.
   const SortableSummaryRowList = makeSortableListComponent({
-    renderItem: ({contents, removeItem, classes}) => {
+    RenderItem: ({contents, removeItem}) => {
+      const classes = useStyles(styles);
       return <li className={classes.sortableListItem}>
         <SortableRowHandle />
         <SummaryEditorRow summary={summariesById[contents]} refetch={refetch} />

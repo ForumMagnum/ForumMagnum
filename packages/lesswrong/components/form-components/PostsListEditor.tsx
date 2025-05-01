@@ -1,8 +1,9 @@
 import React from 'react';
 import { makeSortableListComponent } from './sortableList';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsListEditor", (theme: ThemeType) => ({
   editor: {
     "& .ais-InstantSearch__root": {
       margin: "20px 0",
@@ -14,19 +15,19 @@ const styles = (theme: ThemeType) => ({
     padding: 5,
     cursor: "pointer",
   },
-});
+}));
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
     return <li className={classes.item}>
       <Components.PostsItemWrapper documentId={contents} removeItem={removeItem} />
     </li>
   }
 });
 
-const PostsListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
-  classes: ClassesType<typeof styles>,
-}) => {
+const PostsListEditor = ({value, path, updateCurrentValues}: FormComponentProps<string[]>) => {
+  const classes = useStyles(styles);
   return <div className={classes.editor}>
     <SortableList
       value={value}
@@ -45,7 +46,7 @@ const PostsListEditor = ({value, path, updateCurrentValues, classes}: FormCompon
 
 // TODO: Does not work in nested contexts because it doesn't use the
 // vulcan-forms APIs correctly.
-const PostsListEditorComponent = registerComponent("PostsListEditor", PostsListEditor, {styles});
+const PostsListEditorComponent = registerComponent("PostsListEditor", PostsListEditor);
 
 declare global {
   interface ComponentTypes {
