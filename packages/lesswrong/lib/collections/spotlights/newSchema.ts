@@ -5,7 +5,7 @@ import {
   accessFilterMultiple
 } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 
 const SPOTLIGHT_DOCUMENT_TYPES = ["Sequence", "Post", "Tag"] as const;
@@ -65,34 +65,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "description",
-        collectionName: "Spotlights",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 100,
-      // control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (spotlight) => {
-          if (spotlight._id) {
-            return {
-              id: `spotlight:${spotlight._id}`,
-              verify: true,
-            };
-          }
-          return {
-            id: `spotlight:create`,
-            verify: true,
-          };
-        },
-        revisionsHaveCommitMessages: false,
-      },
-    },
   },
   description_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   documentId: {
@@ -105,9 +77,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-    },
-    form: {
-      order: 10,
     },
   },
   // TODO: remove `document` once old clients have cycled out and aren't querying this field anymore
@@ -194,13 +163,6 @@ const schema = {
         allowedValues: [...SPOTLIGHT_DOCUMENT_TYPES],
       },
     },
-    form: {
-      form: {
-        options: () => SPOTLIGHT_DOCUMENT_TYPES.map((documentType) => ({ label: documentType, value: documentType })),
-      },
-      order: 20,
-      // control: "select",
-    },
   },
   position: {
     database: {
@@ -274,9 +236,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 30,
-    },
   },
   duration: {
     database: {
@@ -290,9 +249,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-    },
-    form: {
-      order: 40,
     },
   },
   customTitle: {
@@ -309,9 +265,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 50,
-    },
   },
   customSubtitle: {
     database: {
@@ -326,9 +279,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 60,
     },
   },
   subtitleUrl: {
@@ -345,9 +295,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 61,
-    },
   },
   headerTitle: {
     database: {
@@ -362,9 +309,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 65,
     },
   },
   headerTitleLeftColor: {
@@ -381,9 +325,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 66,
-    },
   },
   headerTitleRightColor: {
     database: {
@@ -398,9 +339,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 67,
     },
   },
   lastPromotedAt: {
@@ -417,10 +355,6 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
     },
-    form: {
-      order: 70,
-      control: "datetime",
-    },
   },
   spotlightSplashImageUrl: {
     database: {
@@ -436,11 +370,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 88,
-      tooltip:
-        "Note: Large images can cause slow loading of the front page. Consider using the Cloudinary uploader instead (which will automatically resize the image)",
-    },
   },
   draft: {
     database: {
@@ -454,9 +383,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],
-    },
-    form: {
-      order: 80,
     },
   },
   deletedDraft: {
@@ -475,10 +401,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 80,
-      tooltip: "Remove from the spotlights page, but keep in the database.",
-    },
   },
   showAuthor: {
     database: {
@@ -496,9 +418,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 85,
     },
   },
   imageFade: {
@@ -521,9 +440,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 86,
-    },
   },
   imageFadeColor: {
     database: {
@@ -538,10 +454,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 87,
-      // control: "FormComponentColorPicker",
     },
   },
   spotlightImageId: {
@@ -558,10 +470,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 90,
-      // control: "ImageUpload",
-    },
   },
   spotlightDarkImageId: {
     database: {
@@ -576,10 +484,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 100,
-      // control: "ImageUpload",
     },
   },
   sequenceChapters: {

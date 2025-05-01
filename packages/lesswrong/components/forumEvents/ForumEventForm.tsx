@@ -18,6 +18,7 @@ import { FormComponentColorPicker } from "@/components/form-components/FormCompo
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { useSingle } from "@/lib/crud/withSingle";
+import { EVENT_FORMATS } from "@/lib/collections/forumEvents/types";
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
   root: {},
@@ -301,11 +302,10 @@ const InnerForumEventForm = ({
           {(field) => (
             <FormComponentSelect
               field={field}
-              options={[
-                { value: 'BASIC', label: 'BASIC' },
-                { value: 'POLL', label: 'POLL' },
-                { value: 'STICKERS', label: 'STICKERS' }
-              ]}
+              options={EVENT_FORMATS.map((format) => ({
+                value: format,
+                label: format,
+              }))}
               label="Event format"
             />
           )}

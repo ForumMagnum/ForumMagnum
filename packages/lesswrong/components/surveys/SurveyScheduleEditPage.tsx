@@ -18,6 +18,7 @@ import { FormComponentSelect } from "@/components/form-components/FormComponentS
 import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/newSchema";
 import { useSingle } from "@/lib/crud/withSingle";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { z } from "zod";
 
 const styles = defineStyles('SurveyScheduleEditPage', (theme: ThemeType) => ({
   root: {
@@ -121,7 +122,7 @@ const SurveySchedulesForm = ({
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field name="impressionsLimit">
+        <form.Field name="impressionsLimit" validators={{ onChange: z.number().min(0).nullable() }}>
           {(field) => (
             <LWTooltip title="The maximum number of visitors who'll see this survey" placement="left-start" inlineBlock={false}>
               <MuiTextField
@@ -135,7 +136,7 @@ const SurveySchedulesForm = ({
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field name="maxVisitorPercentage">
+        <form.Field name="maxVisitorPercentage" validators={{ onChange: z.number().min(0).max(100).nullable() }}>
           {(field) => (
             <LWTooltip title="The maximum percentage of visitors this survey will be shown to" placement="left-start" inlineBlock={false}>
               <MuiTextField

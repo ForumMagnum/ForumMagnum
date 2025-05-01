@@ -1,8 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
-import { ALLOWABLE_COLLECTIONS } from "./constants";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -30,23 +29,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "ModerationTemplates",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 20,
-      // control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("ModerationTemplates"),
-        revisionsHaveCommitMessages: false,
-      },
-    },
   },
   contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   name: {
@@ -59,9 +41,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-    },
-    form: {
-      order: 1,
     },
   },
   // This field is misnamed - it doesn't have anything to do with objects on foreign collections.  It's just a "type".
@@ -78,16 +57,6 @@ const schema = {
       validation: {
         allowedValues: ["Messages", "Comments", "Rejections"],
       },
-    },
-    form: {
-      form: {
-        options: () =>
-          ALLOWABLE_COLLECTIONS.map((collectionName) => ({
-            label: collectionName,
-            value: collectionName,
-          })),
-      },
-      // control: "select",
     },
   },
   order: {
@@ -107,7 +76,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   deleted: {
     database: {
@@ -125,7 +93,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
 } satisfies Record<string, CollectionFieldSpecification<"ModerationTemplates">>;
 

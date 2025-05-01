@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
@@ -50,23 +50,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "GardenCodes",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 20,
-      // control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("GardenCodes"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -136,10 +119,6 @@ const schema = {
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
-    form: {
-      order: 10,
-      label: "Event Name",
-    },
   },
   userId: {
     database: {
@@ -178,11 +157,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 20,
-      label: "Start Time",
-      control: "datetime",
-    },
   },
   endTime: {
     database: {
@@ -201,11 +175,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 25,
-      label: "End Time",
-      control: "datetime",
-    },
   },
   fbLink: {
     database: {
@@ -219,10 +188,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 25,
-      label: "FB Event Link",
     },
   },
   type: {
@@ -242,12 +207,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: { options: () => eventTypes },
-      order: 30,
-      label: "Event Visibility:",
-      control: "radiogroup",
-    },
   },
   hidden: {
     database: {
@@ -264,10 +223,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 32,
-      hidden: true,
     },
   },
   deleted: {
@@ -286,9 +241,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 35,
-    },
   },
   afOnly: {
     database: {
@@ -306,11 +258,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 36,
-      label: "Limit attendance to AI Alignment Forum members",
-      control: "checkbox",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"GardenCodes">>;

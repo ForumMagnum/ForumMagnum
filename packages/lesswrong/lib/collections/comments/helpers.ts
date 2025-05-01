@@ -98,7 +98,7 @@ export const commentGetKarma = (comment: CommentsList|DbComment): number => {
   return baseScore || 0
 }
 
-export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
+export const commentAllowTitle = (comment: {tagCommentType?: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
 
 /**
  * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.

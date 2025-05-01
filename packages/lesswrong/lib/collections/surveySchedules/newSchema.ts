@@ -26,7 +26,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {},
   },
   survey: {
     graphql: {
@@ -47,9 +46,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {
-      label: "Schedule name",
-    },
   },
   impressionsLimit: {
     database: {
@@ -64,10 +60,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      min: 0,
-      tooltip: "The maximum number of visitors who'll see this survey",
     },
   },
   maxVisitorPercentage: {
@@ -84,11 +76,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      min: 0,
-      max: 100,
-      tooltip: "The maximum percentage of visitors this survey will be shown to",
-    },
   },
   minKarma: {
     database: {
@@ -104,7 +91,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   maxKarma: {
     database: {
@@ -120,7 +106,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   target: {
     database: {
@@ -138,10 +123,6 @@ const schema = {
         allowedValues: ["allUsers", "loggedInOnly", "loggedOutOnly"],
       },
     },
-    form: {
-      form: { options: () => surveyScheduleTargets, hideClear: true },
-      // control: "select",
-    },
   },
   startDate: {
     database: {
@@ -157,9 +138,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "datetime",
-    },
   },
   endDate: {
     database: {
@@ -174,9 +152,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
     },
   },
   deactivated: {
@@ -194,7 +169,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   clientIds: {
     database: {
@@ -210,9 +184,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
       onCreate: arrayOfForeignKeysOnCreate,
-    },
-    form: {
-      hidden: true,
     },
   },
   clients: {

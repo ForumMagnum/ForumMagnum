@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
@@ -27,34 +27,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "TagFlags",
-        commentEditor: false,
-        commentStyles: false,
-        hideControls: false,
-      },
-      order: 30,
-      // control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (tagFlag, name) => {
-          if (tagFlag._id) {
-            return {
-              id: `${tagFlag._id}_${name}`,
-              verify: true,
-            };
-          }
-          return {
-            id: `tagFlag: ${name}`,
-            verify: false,
-          };
-        },
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -92,9 +64,6 @@ const schema = {
       canUpdate: ["members", "admins", "sunshineRegiment"],
       canCreate: ["members", "admins", "sunshineRegiment"],
     },
-    form: {
-      order: 1,
-    },
   },
   deleted: {
     database: {
@@ -113,9 +82,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 2,
-    },
   },
   order: {
     database: {
@@ -131,7 +97,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
 } satisfies Record<string, CollectionFieldSpecification<"TagFlags">>;
 

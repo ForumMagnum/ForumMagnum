@@ -18,6 +18,11 @@ const styles = defineStyles('MuiTextField', (theme: ThemeType) => ({
   }
 }));
 
+function getUpdatedNumericValue(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  const value = 'valueAsNumber' in event.target ? event.target.valueAsNumber : parseFloat(event.target.value);
+  return isNaN(value) ? null : value;
+}
+
 interface MuiTextFieldProps<T extends string | number | null | undefined> {
   field: {
     name: TypedFieldApi<T>['name'];
@@ -33,7 +38,7 @@ interface MuiTextFieldProps<T extends string | number | null | undefined> {
   multiLine?: boolean;
   rows?: number;
   variant?: "standard" | "outlined" | "filled";
-  type?: string;
+  type?: "number";
   disabled?: boolean;
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
   placeholder?: string;
@@ -58,7 +63,7 @@ export function MuiTextField<T extends string | number | null | undefined>({
 }: MuiTextFieldProps<T>) {
   const classes = useStyles(styles);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const value = type === 'number' ? (event.target as HTMLInputElement).valueAsNumber : event.target.value;
+    const value = type === 'number' ? getUpdatedNumericValue(event) : event.target.value;
     field.handleChange(value as Updater<T>);
   };
 

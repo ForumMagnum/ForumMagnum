@@ -416,7 +416,7 @@ export const PostForm = ({
           </form.Field>
         </div>
 
-        <div className={classes.fieldWrapper}>
+        {form.state.values.eventType !== "course" && <div className={classes.fieldWrapper}>
           <form.Field name="endTime">
             {(field) => (
               <FormComponentDatePicker
@@ -425,7 +425,7 @@ export const PostForm = ({
               />
             )}
           </form.Field>
-        </div>
+        </div>}
 
         <div className={classes.fieldWrapper}>
           <form.Field name="eventRegistrationLink">

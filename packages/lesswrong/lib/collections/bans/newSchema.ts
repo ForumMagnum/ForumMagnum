@@ -19,9 +19,6 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
-    form: {
-      control: "datetime",
-    },
   },
   userId: {
     database: {
@@ -75,9 +72,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Reason (shown to the user)",
-    },
   },
   comment: {
     database: {
@@ -95,9 +89,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Comment (shown to other mods)",
     },
   },
   properties: {

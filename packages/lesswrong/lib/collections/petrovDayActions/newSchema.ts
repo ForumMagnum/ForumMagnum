@@ -45,11 +45,6 @@ const schema = {
         ],
       },
     },
-    form: {
-      form: {
-        options: () => [...ACTION_TYPES].map((key) => ({ label: key, value: key })),
-      },
-    },
   },
   data: {
     database: {

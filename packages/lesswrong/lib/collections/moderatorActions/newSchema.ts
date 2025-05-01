@@ -106,9 +106,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "SearchSingleUser",
-    },
   },
   user: {
     graphql: {
@@ -131,14 +128,6 @@ const schema = {
         allowedValues: Object.keys(MODERATOR_ACTION_TYPES),
       },
     },
-    form: {
-      options: () =>
-        Object.entries(MODERATOR_ACTION_TYPES).map(([value, label]) => ({
-          value,
-          label,
-        })),
-      // control: "select",
-    },
   },
   endedAt: {
     database: {
@@ -153,9 +142,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
     },
   },
   active: {

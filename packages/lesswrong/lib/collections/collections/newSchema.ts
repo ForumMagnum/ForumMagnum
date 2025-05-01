@@ -1,7 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { getWithCustomLoader } from "../../loaders";
 import { accessFilterMultiple, generateIdResolverSingle } from "../../utils/schemaUtils";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
@@ -14,9 +14,6 @@ const schema = {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
       canUpdate: ["admins"],
       canCreate: ["admins"],
-    },
-    form: {
-      hidden: true,
     },
   },
   legacyData: DEFAULT_LEGACY_DATA_FIELD,
@@ -39,23 +36,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "Collections",
-        commentEditor: false,
-        commentStyles: false,
-        hideControls: false,
-      },
-      order: 20,
-      // control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Collections"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -93,7 +73,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {},
   },
   slug: {
     database: {
@@ -106,7 +85,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {},
   },
   books: {
     graphql: {
@@ -181,7 +159,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   firstPageLink: {
     database: {
@@ -198,7 +175,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   hideStartReadingButton: {
     database: {
@@ -213,7 +189,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   noindex: {
     database: {
@@ -232,7 +207,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
 } satisfies Record<string, CollectionFieldSpecification<"Collections">>;
 

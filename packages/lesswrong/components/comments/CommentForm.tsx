@@ -347,7 +347,7 @@ export const CommentForm = ({
         collapsed={false}
         hasErrors={false}
       >
-        {initialData && commentAllowTitle(initialData) && <div className={classes.fieldWrapper}>
+        {commentAllowTitle(form.state.values) && <div className={classes.fieldWrapper}>
           <form.Field name="title">
             {(field) => (
               <EditCommentTitle

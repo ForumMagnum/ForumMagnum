@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
@@ -37,23 +37,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "Messages",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: false,
-      },
-      order: 2,
-      // control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Messages"),
-        revisionsHaveCommitMessages: false,
-      },
-    },
   },
   contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   userId: {
@@ -69,9 +52,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   user: {
@@ -92,9 +72,6 @@ const schema = {
       inputType: "String!",
       canRead: ["members"],
       canCreate: ["members"],
-    },
-    form: {
-      hidden: true,
     },
   },
   conversation: {
@@ -119,7 +96,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
 } satisfies Record<string, CollectionFieldSpecification<"Messages">>;
 

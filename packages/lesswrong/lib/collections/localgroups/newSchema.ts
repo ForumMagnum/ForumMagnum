@@ -7,11 +7,8 @@ import {
   getDenormalizedFieldOnCreate,
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
-import { localGroupTypeFormOptions } from "./groupTypes";
-import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
-import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
-import { isEAForum, isLW } from "@/lib/instanceSettings";
 
 export const GROUP_CATEGORIES = [
   { value: "national", label: "National" },
@@ -24,15 +21,6 @@ export const GROUP_CATEGORIES = [
   { value: "cause-area", label: "Cause Area" },
   { value: "affiliation", label: "Affiliation" },
 ];
-
-const formGroups = {
-  advancedOptions: {
-    name: "advancedOptions",
-    order: 2,
-    label: isFriendlyUI ? "Advanced options" : "Advanced Options",
-    startCollapsed: true,
-  },
-} satisfies Partial<Record<string, FormGroupType<"Localgroups">>>;
 
 function groupHasGoogleLocation(data: Partial<DbLocalgroup> | UpdateLocalgroupDataInput) {
   return "googleLocation" in data;
@@ -69,23 +57,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        hintText: () => "Short description",
-        fieldName: "contents",
-        collectionName: "Localgroups",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: false,
-      },
-      order: 25,
-      // control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Localgroups"),
-        revisionsHaveCommitMessages: false,
-      },
-    },
   },
   contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   name: {
@@ -98,11 +69,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-    },
-    form: {
-      order: 10,
-      label: isFriendlyUI ? "Group name" : "Group Name",
-      // control: "MuiTextField",
     },
   },
   nameInAnotherLanguage: {
@@ -117,12 +83,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 11,
-      label: "Group name in another language (optional)",
-      tooltip: "Useful for multilingual groups - this will help people find your group in search",
-      // control: "MuiTextField",
     },
   },
   organizerIds: {
@@ -139,11 +99,6 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       onCreate: arrayOfForeignKeysOnCreate,
-    },
-    form: {
-      order: 20,
-      label: preferredHeadingCase("Add Organizers"),
-      // control: "FormUserMultiselect",
     },
   },
   organizers: {
@@ -170,9 +125,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   types: {
     database: {
@@ -188,13 +140,6 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
     },
-    form: {
-      minCount: 1, // Ensure that at least one type is selected
-      form: { options: () => localGroupTypeFormOptions },
-      label: "Group Type:",
-      // control: "MultiSelectButtons",
-      hidden: () => !isLW,
-    },
   },
   categories: {
     database: {
@@ -208,12 +153,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      form: { label: "Group type / intended audience", options: () => GROUP_CATEGORIES },
-      // control: "FormComponentMultiSelect",
-      placeholder: "Select all that apply",
-      hidden: () => !isEAForum,
     },
   },
   isOnline: {
@@ -232,9 +171,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "This is an online group",
     },
   },
   mongoLocation: {
@@ -270,12 +206,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      form: { stringVersionFieldName: "location" },
-      label: isFriendlyUI ? "Group location" : "Group Location",
-      // control: "LocationFormComponent",
-      hidden: (data) => !!data.document?.isOnline,
-    },
   },
   location: {
     database: {
@@ -290,9 +220,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   contactInfo: {
     database: {
@@ -306,10 +233,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: isFriendlyUI ? "Contact info" : "Contact Info",
-      // control: "MuiTextField",
     },
   },
   facebookLink: {
@@ -326,11 +249,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: isFriendlyUI ? "Facebook group" : "Facebook Group",
-      tooltip: "https://www.facebook.com/groups/...",
-      // control: "MuiTextField",
-    },
   },
   facebookPageLink: {
     database: {
@@ -345,11 +263,6 @@ const schema = {
         regEx: SimpleSchema.RegEx.Url,
         optional: true,
       },
-    },
-    form: {
-      label: isFriendlyUI ? "Facebook page" : "Facebook Page",
-      tooltip: "https://www.facebook.com/...",
-      // control: "MuiTextField",
     },
   },
   meetupLink: {
@@ -366,11 +279,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: isFriendlyUI ? "Meetup.com group" : "Meetup.com Group",
-      tooltip: "https://www.meetup.com/...",
-      // control: "MuiTextField",
-    },
   },
   slackLink: {
     database: {
@@ -385,11 +293,6 @@ const schema = {
         regEx: SimpleSchema.RegEx.Url,
         optional: true,
       },
-    },
-    form: {
-      label: isFriendlyUI ? "Slack workspace" : "Slack Workspace",
-      tooltip: "https://...",
-      // control: "MuiTextField",
     },
   },
   website: {
@@ -406,10 +309,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      tooltip: "https://...",
-      // control: "MuiTextField",
-    },
   },
   // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
@@ -424,12 +323,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      form: { croppingAspectRatio: 1.91 },
-      label: isFriendlyUI ? "Banner image" : "Banner Image",
-      tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
-      // control: "ImageUpload",
     },
   },
   inactive: {
@@ -449,9 +342,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   deleted: {
     database: {
@@ -469,10 +359,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",
-      group: () => formGroups.advancedOptions,
     },
   },
   // used by the EA Forum to associate groups with their listing in salesforce - currently only populated via script

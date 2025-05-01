@@ -4,25 +4,9 @@ import {
   accessFilterMultiple, generateIdResolverSingle
 } from "../../utils/schemaUtils";
 import { getWithCustomLoader } from "../../loaders";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
-
-const formGroups = {
-  adminOptions: {
-    name: "adminOptions",
-    order: 2,
-    label: preferredHeadingCase("Admin Options"),
-    startCollapsed: false,
-  },
-  advancedOptions: {
-    name: "advancedOptions",
-    order: 3,
-    label: preferredHeadingCase("Advanced Options"),
-    startCollapsed: true,
-  },
-} satisfies Partial<Record<string, FormGroupType<"Sequences">>>;
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -50,23 +34,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "Sequences",
-        commentEditor: false,
-        commentStyles: false,
-        hideControls: false,
-      },
-      order: 20,
-      // control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Sequences"),
-        revisionsHaveCommitMessages: false,
-      },
-    },
   },
   contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   lastUpdated: {
@@ -86,9 +53,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   userId: {
     database: {
@@ -105,11 +69,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      form: { label: "Set author" },
-      // control: "FormUserSelect",
-      group: () => formGroups.adminOptions,
     },
   },
   user: {
@@ -130,11 +89,6 @@ const schema = {
       canUpdate: [userOwns, "admins", "sunshineRegiment"],
       canCreate: ["members"],
     },
-    form: {
-      order: 10,
-      // control: "EditSequenceTitle",
-      placeholder: preferredHeadingCase("Sequence Title"),
-    },
   },
   // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
@@ -150,10 +104,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Banner Image",
-      // control: "ImageUpload",
-    },
   },
   // Cloudinary image id for the card image
   gridImageId: {
@@ -168,10 +118,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Card Image",
-      // control: "ImageUpload",
     },
   },
   hideFromAuthorPage: {
@@ -191,9 +137,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Hide from my user profile",
-    },
   },
   draft: {
     database: {
@@ -211,9 +154,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "checkbox",
     },
   },
   isDeleted: {
@@ -233,12 +173,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Delete",
-      tooltip: "Make sure you want to delete this sequence - it will be completely hidden from the forum.",
-      control: "checkbox",
-      group: () => formGroups.advancedOptions,
-    },
   },
   curatedOrder: {
     database: {
@@ -252,9 +186,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   userProfileOrder: {
@@ -270,9 +201,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    },
   },
   canonicalCollectionSlug: {
     database: {
@@ -287,13 +215,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: preferredHeadingCase("Collection Slug"),
-      tooltip: "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
-      control: "text",
-      hidden: false,
-      group: () => formGroups.adminOptions,
     },
   },
   canonicalCollection: {
@@ -326,10 +247,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      tooltip: "Hidden sequences don't show up on lists/search results on this site, but can still be accessed directly by anyone",
-      group: () => formGroups.adminOptions,
-    },
   },
   noindex: {
     database: {
@@ -347,9 +264,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   postsCount: {
@@ -421,9 +335,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Alignment Forum",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Sequences">>;

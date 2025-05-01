@@ -24,21 +24,16 @@ import {
   isNotHostedHere,
   isDialogueParticipant
 } from "./helpers";
-import { postStatuses, postStatusLabels, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
+import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
-import { formGroups } from "./formGroups";
 import SimpleSchema from "simpl-schema";
 import { DEFAULT_QUALITATIVE_VOTE } from "../reviewVotes/newSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { getVotingSystems, getVotingSystemByName } from '../../voting/getVotingSystem';
-import {
-  eaFrontpageDateDefault, fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum,
-  isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting
-} from "../../instanceSettings";
+import { getVotingSystemByName } from '../../voting/getVotingSystem';
+import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
 import { forumSelect } from "../../forumTypeUtils";
 import * as _ from "underscore";
-import { localGroupTypeFormOptions } from "../localgroups/groupTypes";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
   sequenceGetNextPostID,
@@ -50,11 +45,7 @@ import {
 import { allOf } from "../../utils/functionUtils";
 import { crosspostKarmaThreshold } from "../../publicSettings";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
-import {
-  hasAuthorModeration, hasSideComments, hasSidenotes, userCanCreateAndEditJargonTerms,
-  userCanViewJargonTerms
-} from "../../betas";
-import { isFriendlyUI } from "../../../themes/forumTheme";
+import { hasSideComments, userCanViewJargonTerms } from "../../betas";
 import { stableSortTags } from "../tags/helpers";
 import { getLatestContentsRevision } from "../../../server/collections/revisions/helpers";
 import { marketInfoLoader } from "./annualReviewMarkets";
@@ -66,10 +57,9 @@ import {
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
-import { SmartFormProps } from "@/components/vulcan-forms/propTypes";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { languageModelGenerateText } from "@/server/languageModels/languageModelIntegration";
@@ -95,10 +85,6 @@ export const graphqlTypeDefs = gql`
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
-
-const urlHintText = isEAForum
-  ? "UrlHintText"
-  : "Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don't click offsite links.)";
 
 export const STICKY_PRIORITIES = {
   1: "Low",
@@ -233,20 +219,8 @@ export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimum
 const fmCrosspostOnCreate = getFillIfMissing({ isCrosspost: false });
 const fmCrosspostOnUpdate = throwIfSetToNull;
 
-function shouldHideEndTime(props: SmartFormProps<"Posts">): boolean {
-  return !props.eventForm || props.document?.eventType === "course";
-}
-
-function getDefaultEditorPlaceholder() {
-  return defaultEditorPlaceholder;
-}
-
 function getCurrentDate() {
   return new Date();
-}
-
-function isNotEventForm(props: SmartFormProps<"Posts">) {
-  return !props.eventForm;
 }
 
 function postHasStartTimeOrGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
@@ -319,25 +293,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        hintText: getDefaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "Posts",
-        commentEditor: false,
-        commentStyles: false,
-        hideControls: false,
-      },
-      order: 25,
-      // control: "EditorFormComponent",
-      hidden: false,
-      group: () => formGroups.content,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Posts"),
-        hasToc: true,
-        revisionsHaveCommitMessages: false,
-      },
-    },
   },
   contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   revisions: {
@@ -384,24 +339,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        hintText: getDefaultEditorPlaceholder,
-        fieldName: "moderationGuidelines",
-        collectionName: "Posts",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: false,
-      },
-      order: 50,
-      // control: "EditorFormComponent",
-      hidden: () => isFriendlyUI,
-      group: () => formGroups.moderationGroup,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Posts"),
-        revisionsHaveCommitMessages: false,
-      },
-    },
   },
   moderationGuidelines_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   customHighlight: {
@@ -423,24 +360,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: getDefaultEditorPlaceholder,
-        fieldName: "customHighlight",
-        collectionName: "Posts",
-        commentEditor: false,
-        commentStyles: false,
-        hideControls: false,
-      },
-      order: 0,
-      // control: "EditorFormComponent",
-      hidden: false,
-      group: () => formGroups.highlight,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Posts"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -467,9 +386,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    }
   },
   postedAt: {
     database: {
@@ -497,10 +413,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
-      group: () => formGroups.adminOptions,
     },
   },
   modifiedAt: {
@@ -533,14 +445,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      max: 500,
-      form: { labels: { inactive: "Link-post?", active: "Add a linkpost URL" }, hintText: () => urlHintText },
-      order: 12,
-      // control: "EditLinkpostUrl",
-      hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
-      group: () => formGroups.options,
-    },
   },
   postCategory: {
     database: {
@@ -560,12 +464,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 9,
-      // control: "EditPostCategory",
-      hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
-      group: () => formGroups.category,
-    },
   },
   title: {
     database: {
@@ -577,13 +475,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
-    },
-    form: {
-      max: 500,
-      order: 10,
-      // control: "EditTitle",
-      placeholder: "Title",
-      group: () => formGroups.title,
     },
   },
   viewCount: {
@@ -653,9 +544,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
   status: {
@@ -683,11 +571,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      options: () => postStatusLabels,
-      // control: "select",
-      group: () => formGroups.adminOptions,
     },
   },
   isFuture: {
@@ -759,11 +642,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 10,
-      control: "checkbox",
-      group: () => formGroups.adminOptions,
-    },
   },
   // Priority of the stickied post. Higher priorities will be sorted before
   // lower priorities.
@@ -783,16 +661,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      options: () =>
-        Object.entries(STICKY_PRIORITIES).map(([level, name]) => ({
-          value: parseInt(level),
-          label: name,
-        })),
-      order: 11,
-      // control: "select",
-      group: () => formGroups.adminOptions,
     },
   },
   userIP: {
@@ -864,11 +732,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      tooltip: "The user id of the author",
-      control: "text",
-      group: () => formGroups.adminOptions,
     },
   },
   user: {
@@ -963,9 +826,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   authorIsUnreviewed: {
     database: {
@@ -985,9 +845,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    },
   },
   // By default, the read time for a post is calculated automatically from the word count.
   // Sometimes this incorrect (often due to link posts, videos, etc.) so it can be overridden
@@ -1004,12 +861,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Read time (minutes)",
-      tooltip: "By default, this is calculated from the word count. Enter a value to override.",
-      // control: "FormComponentNumber",
-      group: () => formGroups.adminOptions,
     },
   },
   readTimeMinutes: {
@@ -1106,9 +957,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // (I'm not totally sure but this is my understanding of what this field is for):
   // Back when we had a form where you could create a related question from a question post,
@@ -1132,9 +980,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   originalPostRelationSourceId: {
     database: {
@@ -1147,9 +992,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   sourcePostRelations: {
@@ -1199,9 +1041,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   canonicalSource: {
     database: {
@@ -1215,9 +1054,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   nominationCount2018: {
@@ -1458,10 +1294,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: () => !isLWorAF,
-      group: () => formGroups.adminOptions,
-    },
   },
   annualReviewMarketProbability: {
     graphql: {
@@ -1543,11 +1375,6 @@ const schema = {
       validation: {
         optional: true,
       }
-    },
-    form: {
-      control: "GlossaryEditFormWrapper",
-      hidden: ({ currentUser }) => !userCanCreateAndEditJargonTerms(currentUser),
-      group: () => formGroups.glossary,
     },
   },
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
@@ -1841,11 +1668,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      // control: "FormComponentPostEditorTagging",
-      hidden: ({ eventForm, document }) => eventForm || (isLWorAF && !!document?.collabEditorDialogue),
-      group: () => formGroups.tags,
-    },
   },
   lastPromotedComment: {
     graphql: {
@@ -1925,9 +1747,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    },
   },
   rsvps: {
     database: {
@@ -1969,13 +1788,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Enable RSVPs for this event",
-      tooltip: "RSVPs are public, but the associated email addresses are only visible to organizers.",
-      control: "checkbox",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
-    },
   },
   nextDayReminderSent: {
     database: {
@@ -1993,9 +1805,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   onlyVisibleToLoggedIn: {
@@ -2015,10 +1824,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Hide this post from users who are not logged in",
-      group: () => formGroups.adminOptions,
-    },
   },
   onlyVisibleToEstablishedAccounts: {
     database: {
@@ -2037,10 +1842,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Hide this post from logged out users and newly created accounts",
-      group: () => formGroups.adminOptions,
-    },
   },
   hideFromRecentDiscussions: {
     database: {
@@ -2058,11 +1859,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Hide this post from recent discussions",
-      control: "checkbox",
-      group: () => formGroups.adminOptions,
     },
   },
   currentUserReviewVote: {
@@ -2171,22 +1967,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      form: {
-        options: ({ currentUser }) => {
-          const votingSystems = getVotingSystems();
-          const filteredVotingSystems = currentUser?.isAdmin
-            ? votingSystems
-            : votingSystems.filter((votingSystem) => votingSystem.userCanActivate);
-          return filteredVotingSystems.map((votingSystem) => ({
-            label: votingSystem.description,
-            value: votingSystem.name,
-          }));
-        },
-      },
-      // control: "select",
-      group: () => formGroups.adminOptions,
-    },
   },
   myEditorAccess: {
     graphql: {
@@ -2222,10 +2002,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      // control: "PodcastEpisodeInput",
-      group: () => formGroups.audio,
-    },
   },
   podcastEpisode: {
     graphql: {
@@ -2258,12 +2034,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 13,
-      control: "checkbox",
-      hidden: false,
-      group: () => formGroups.adminOptions,
-    },
   },
   // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
@@ -2283,12 +2053,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 12,
-      control: "checkbox",
-      hidden: false,
-      group: () => formGroups.adminOptions,
-    },
   },
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
@@ -2303,9 +2067,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // Legacy Spam: True if the original post in the legacy LW database had this post
@@ -2327,9 +2088,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // Feed Id: If this post was automatically generated by an integrated RSS feed
   // then this field will have the ID of the relevant feed
@@ -2346,9 +2104,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   feed: {
@@ -2372,9 +2127,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   // lastVisitedAt: If the user is logged in and has viewed this post, the date
@@ -2434,10 +2186,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "datetime",
-      group: () => formGroups.adminOptions,
-    },
   },
   // metaDate: Date at which the post was marked as meta (null or false if it
   // never has been marked as meta)
@@ -2453,10 +2201,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
-      group: () => formGroups.adminOptions,
     },
   },
   suggestForCuratedUserIds: {
@@ -2475,11 +2219,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Suggested for Curated by",
-      // control: "FormUserMultiselect",
-      group: () => formGroups.adminOptions,
     },
   },
   suggestForCuratedUsernames: {
@@ -2541,10 +2280,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "datetime",
-      hidden: true,
-    },
   },
   autoFrontpage: {
     database: {
@@ -2561,9 +2296,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   collectionTitle: {
     database: {
@@ -2577,9 +2309,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.canonicalSequence,
     },
   },
   coauthorStatuses: {
@@ -2597,11 +2326,6 @@ const schema = {
         simpleSchema: [coauthorStatusSchema],
         optional: true,
       },
-    },
-    form: {
-      label: "Co-Authors",
-      // control: "CoauthorsListEditor",
-      group: () => formGroups.coauthors,
     },
   },
   coauthors: {
@@ -2635,9 +2359,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // Cloudinary image id for an image that will be used as the OpenGraph image
   // DEPRECATED: use socialPreview.imageId instead
@@ -2654,12 +2375,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      label: "Social Preview Image",
-      group: () => formGroups.socialPreview,
-      order: 4,
-    }
   },
   // Autoset OpenGraph image, derived from the first post image in a callback
   socialPreviewImageAutoUrl: {
@@ -2676,10 +2391,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Social Preview Image Auto-generated URL",
-      hidden: true,
-    },
   },
   socialPreview: {
     database: {
@@ -2694,13 +2405,6 @@ const schema = {
         simpleSchema: socialPreviewSchema,
         optional: true,
       },
-    },
-    form: {
-      order: 4,
-      label: "Social Preview Image",
-      // control: "SocialPreviewUpload",
-      hidden: ({ document }) => (isLWorAF && !!document?.collabEditorDialogue) || (isEAForum && !!document?.isEvent),
-      group: () => formGroups.socialPreview,
     },
   },
   socialPreviewData: {
@@ -2756,15 +2460,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 3,
-      // control: "FMCrosspostControl",
-      hidden: (props) => !fmCrosspostSiteNameSetting.get() || props.eventForm,
-      group: () => formGroups.advancedOptions,
-      tooltip: fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org") ?
-        "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it." :
-        undefined,
-    },
   },
   canonicalSequenceId: {
     database: {
@@ -2779,11 +2474,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "text",
-      hidden: false,
-      group: () => formGroups.canonicalSequence,
     },
   },
   canonicalSequence: {
@@ -2806,11 +2496,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "text",
-      hidden: false,
-      group: () => formGroups.canonicalSequence,
     },
   },
   canonicalCollection: {
@@ -2838,11 +2523,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "text",
-      hidden: false,
-      group: () => formGroups.canonicalSequence,
-    },
   },
   canonicalBook: {
     graphql: {
@@ -2865,11 +2545,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "text",
-      hidden: false,
-      group: () => formGroups.canonicalSequence,
-    },
   },
   canonicalPrevPostSlug: {
     database: {
@@ -2884,11 +2559,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "text",
-      hidden: false,
-      group: () => formGroups.canonicalSequence,
     },
   },
   /**
@@ -3046,12 +2716,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 11,
-      label: "Make only accessible via link",
-      control: "checkbox",
-      group: () => formGroups.adminOptions,
-    },
   },
   // disableRecommendation: If true, this post will never appear as a
   // recommended post (but will still appear in all other places, ie on its
@@ -3075,12 +2739,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 12,
-      label: "Exclude from Recommendations",
-      control: "checkbox",
-      group: () => formGroups.adminOptions,
-    },
   },
   // defaultRecommendation: If true, always include this post in the recommendations
   defaultRecommendation: {
@@ -3100,12 +2758,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 13,
-      label: "Include in default recommendations",
-      control: "checkbox",
-      group: () => formGroups.adminOptions,
-    },
   },
   hideFromPopularComments: {
     database: {
@@ -3123,13 +2775,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 14,
-      label: "Hide comments on this post from Popular Comments",
-      control: "checkbox",
-      hidden: () => !isEAForum,
-      group: () => formGroups.adminOptions,
-    },
   },
   draft: {
     database: {
@@ -3146,10 +2791,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      label: "Save to Drafts",
     },
   },
   // If the post has ever been undrafted and published
@@ -3169,9 +2810,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   meta: {
     database: {
@@ -3190,11 +2828,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      label: "Publish to meta",
-      control: "checkbox",
-    },
   },
   hideFrontpageComments: {
     database: {
@@ -3212,10 +2845,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "checkbox",
-      group: () => formGroups.moderationGroup,
     },
   },
   // maxBaseScore: Highest baseScore this post ever had, used for RSS feed generation
@@ -3334,10 +2963,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      group: () => formGroups.moderationGroup,
-    },
   },
   commentsLocked: {
     database: {
@@ -3352,10 +2977,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "checkbox",
-      group: () => formGroups.moderationGroup,
-    },
   },
   commentsLockedToAccountsCreatedAfter: {
     database: {
@@ -3369,10 +2990,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
-      group: () => formGroups.moderationGroup,
     },
   },
   organizerIds: {
@@ -3392,11 +3009,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      // control: "FormUserMultiselect",
-      group: () => formGroups.event,
     },
   },
   organizers: {
@@ -3420,13 +3032,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 1,
-      label: "Group",
-      // control: "SelectLocalgroup",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
-    },
   },
   group: {
     graphql: {
@@ -3447,14 +3052,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      form: { options: () => EVENT_TYPES },
-      order: 2,
-      label: "Event Format",
-      // control: "select",
-      hidden: (props) => !props.eventForm || isLWorAF,
-      group: () => formGroups.event,
     },
   },
   isEvent: {
@@ -3484,10 +3081,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      group: () => formGroups.event,
-    }
   },
   reviewedByUserId: {
     database: {
@@ -3502,9 +3095,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   reviewedByUser: {
@@ -3528,10 +3118,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Curated Review UserId",
-      group: () => formGroups.adminOptions,
-    },
   },
   startTime: {
     database: {
@@ -3546,13 +3132,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Start Time",
-      tooltip: "For courses/programs, this is the application deadline.",
-      control: "datetime",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
     },
   },
   localStartTime: {
@@ -3587,12 +3166,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "End Time",
-      control: "datetime",
-      hidden: (props) => shouldHideEndTime(props),
-      group: () => formGroups.event,
-    },
   },
   localEndTime: {
     database: {
@@ -3626,13 +3199,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Event Registration Link",
-      tooltip: "https://...",
-      // control: "MuiTextField",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
-    },
   },
   joinEventLink: {
     database: {
@@ -3647,13 +3213,6 @@ const schema = {
         regEx: SimpleSchema.RegEx.Url,
         optional: true,
       },
-    },
-    form: {
-      label: "Join Online Event Link",
-      tooltip: "https://...",
-      // control: "MuiTextField",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
     },
   },
   onlineEvent: {
@@ -3673,11 +3232,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 0,
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
-    },
   },
   globalEvent: {
     database: {
@@ -3695,13 +3249,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "This event is intended for a global audience",
-      tooltip:
-        "By default, events are only advertised to people who are located nearby (for both in-person and online events). Check this to advertise it people located anywhere.",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
     },
   },
   mongoLocation: {
@@ -3737,13 +3284,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      form: { stringVersionFieldName: "location" },
-      label: "Event Location",
-      // control: "LocationFormComponent",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
-    },
   },
   location: {
     database: {
@@ -3758,9 +3298,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   contactInfo: {
     database: {
@@ -3774,12 +3311,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Contact Info",
-      // control: "MuiTextField",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
     },
   },
   facebookLink: {
@@ -3796,13 +3327,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Facebook Event",
-      tooltip: "https://www.facebook.com/events/...",
-      // control: "MuiTextField",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
-    },
   },
   meetupLink: {
     database: {
@@ -3817,13 +3341,6 @@ const schema = {
         regEx: SimpleSchema.RegEx.Url,
         optional: true,
       },
-    },
-    form: {
-      label: "Meetup.com Event",
-      tooltip: "https://www.meetup.com/...",
-      // control: "MuiTextField",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
     },
   },
   website: {
@@ -3840,12 +3357,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      tooltip: "https://...",
-      // control: "MuiTextField",
-      hidden: isNotEventForm,
-      group: () => formGroups.event,
-    },
   },
   eventImageId: {
     database: {
@@ -3860,13 +3371,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Event Image",
-      tooltip: "Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)",
-      // control: "ImageUpload",
-      hidden: (props) => !props.eventForm || !isEAForum,
-      group: () => formGroups.event,
-    },
   },
   types: {
     database: {
@@ -3880,13 +3384,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      form: { options: () => localGroupTypeFormOptions },
-      label: "Group Type:",
-      // control: "MultiSelectButtons",
-      hidden: (props) => !isLWorAF || !props.eventForm,
-      group: () => formGroups.event,
     },
   },
   metaSticky: {
@@ -3916,12 +3413,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 10,
-      label: "Sticky (Meta)",
-      control: "checkbox",
-      group: () => formGroups.adminOptions,
-    },
   },
   sharingSettings: {
     database: {
@@ -3936,13 +3427,6 @@ const schema = {
         optional: true,
         blackbox: true,
       },
-    },
-    form: {
-      order: 15,
-      label: "Sharing Settings",
-      // control: "PostSharingSettings",
-      hidden: (props) => !!props.debateForm,
-      group: () => formGroups.category,
     },
   },
   shareWithUsers: {
@@ -3962,10 +3446,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      order: 15,
     },
   },
   usersSharedWith: {
@@ -3990,9 +3470,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // linkSharingKeyUsedBy: An array of user IDs who have used the link-sharing key
@@ -4023,9 +3500,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.adminOptions,
-    },
   },
   // hideAuthor: Post stays online, but doesn't show on your user profile anymore, and doesn't
   // link back to your account
@@ -4045,9 +3519,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.adminOptions,
     },
   },
   tableOfContents: {
@@ -4284,20 +3755,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      hidden: true,
-      label: "Replies in sidebar",
-      group: () => formGroups.advancedOptions,
-      // control: "select",
-      form: {
-        options: () => {
-          return [
-            {value: "highKarma", label: "10+ karma (default)"},
-            {value: "hidden", label: "Hide all"},
-          ];
-        }
-      }
-    },
   },
   /**
    * Author-controlled option to disable sidenotes (display of footnotes in the
@@ -4321,10 +3778,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: () => !hasSidenotes,
-      group: () => formGroups.advancedOptions,
-    },
   },
   moderationStyle: {
     database: {
@@ -4340,35 +3793,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      form: {
-        options: function () {
-          return [
-            {
-              value: "",
-              label: "No Moderation",
-            },
-            {
-              value: "easy-going",
-              label: "Easy Going - I just delete obvious spam and trolling.",
-            },
-            {
-              value: "norm-enforcing",
-              label: "Norm Enforcing - I try to enforce particular rules (see below)",
-            },
-            {
-              value: "reign-of-terror",
-              label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
-            },
-          ];
-        },
-      },
-      order: 55,
-      label: "Style",
-      // control: "select",
-      hidden: ({ document }) => isFriendlyUI || !!document?.collabEditorDialogue,
-      group: () => formGroups.moderationGroup,
-    },
   },
   ignoreRateLimits: {
     database: {
@@ -4383,12 +3807,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 60,
-      tooltip: "Allow rate-limited users to comment freely on this post",
-      hidden: ({ document }) => isEAForum || !!document?.collabEditorDialogue,
-      group: () => formGroups.moderationGroup,
     },
   },
   hideCommentKarma: {
@@ -4408,10 +3826,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: () => !isEAForum,
-      group: () => formGroups.moderationGroup,
     },
   },
   commentCount: {
@@ -4561,9 +3975,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // This flag corresponds to the collab-editor dialogue type, not to be confused
   // with comments-in-the-post style dialogues (which is the `debate`) flag.
@@ -4583,9 +3994,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   totalDialogueResponseCount: {
@@ -4674,9 +4082,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   rejectedReason: {
     database: {
@@ -4691,9 +4096,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   rejectedByUserId: {
@@ -4714,9 +4116,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   rejectedByUser: {
@@ -4812,9 +4211,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   subforumTag: {
     graphql: {
@@ -4840,12 +4236,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 10,
-      label: "Alignment Forum",
-      control: "checkbox",
-      group: () => formGroups.advancedOptions,
-    },
   },
   afDate: {
     database: {
@@ -4859,12 +4249,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      label: "Alignment Forum",
-      group: () => formGroups.advancedOptions,
-      order: 10,
     },
   },
   afCommentCount: {
@@ -4939,13 +4323,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 10,
-      label: "Sticky (Alignment)",
-      control: "checkbox",
-      hidden: () => isEAForum,
-      group: () => formGroups.adminOptions,
-    },
   },
   suggestForAlignmentUserIds: {
     database: {
@@ -4964,12 +4341,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      label: "Suggested for Alignment by",
-      // control: "FormUserMultiselect",
-      group: () => formGroups.adminOptions,
     },
   },
   suggestForAlignmentUsers: {
@@ -4992,11 +4363,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "AF Review UserId",
-      hidden: () => isEAForum,
-      group: () => formGroups.adminOptions,
-    },
   },
   agentFoundationsId: {
     database: {
@@ -5010,9 +4376,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   /**
@@ -5034,10 +4397,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "stale-while-revalidate caching enabled",
-      group: () => formGroups.adminOptions,
-    },
   },
   generateDraftJargon: {
     database: {
@@ -5054,9 +4413,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   curationNotices: {

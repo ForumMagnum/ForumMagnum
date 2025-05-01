@@ -29,7 +29,7 @@ import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
-import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
+import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
 import { GROUP_OPTIONS, REACT_PALETTE_STYLE_OPTIONS, SORT_DRAFTS_BY_OPTIONS } from '@/lib/collections/users/newSchema';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { EmailConfirmationRequiredCheckbox } from '../EmailConfirmationRequiredCheckbox';
@@ -1128,7 +1128,7 @@ const UsersForm = ({
       </LegacyFormGroupLayout>}
 
       <LegacyFormGroupLayout label={preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation & Moderation Guidelines")} startCollapsed={true}>
-        {!isEAForum && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        {hasAuthorModeration && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
               <EditorFormComponent
@@ -1149,7 +1149,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {!isEAForum && <div className={classes.fieldWrapper}>
+        {hasAuthorModeration && <div className={classes.fieldWrapper}>
           <form.Field name="moderationStyle">
             {(field) => (
               <FormComponentSelect
@@ -1161,7 +1161,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {!isEAForum && <div className={classes.fieldWrapper}>
+        {hasAuthorModeration && <div className={classes.fieldWrapper}>
           <form.Field name="moderatorAssistance">
             {(field) => (
               <FormComponentCheckbox
@@ -1172,7 +1172,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {!isEAForum && <div className={classes.fieldWrapper}>
+        {hasAuthorModeration && <div className={classes.fieldWrapper}>
           <form.Field name="collapseModerationGuidelines">
             {(field) => (
               <FormComponentCheckbox
