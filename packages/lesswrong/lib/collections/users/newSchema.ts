@@ -7,7 +7,7 @@ import {
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { getAllUserGroups, userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
+import { userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
 import * as _ from "underscore";
 import { isAF, isEAForum, verifyEmailsSetting } from "../../instanceSettings";
 import {
@@ -109,46 +109,6 @@ const karmaChangeSettingsType = new SimpleSchema({
   },
 });
 
-const expandedFrontpageSectionsSettings = new SimpleSchema({
-  community: { type: Boolean, optional: true, nullable: true },
-  recommendations: { type: Boolean, optional: true, nullable: true },
-  quickTakes: { type: Boolean, optional: true, nullable: true },
-  quickTakesCommunity: { type: Boolean, optional: true, nullable: true },
-  popularComments: { type: Boolean, optional: true, nullable: true },
-});
-
-
-const partiallyReadSequenceItem = new SimpleSchema({
-  sequenceId: {
-    type: String,
-    foreignKey: "Sequences",
-    optional: true,
-  },
-  collectionId: {
-    type: String,
-    foreignKey: "Collections",
-    optional: true,
-  },
-  lastReadPostId: {
-    type: String,
-    foreignKey: "Posts",
-  },
-  nextPostId: {
-    type: String,
-    foreignKey: "Posts",
-  },
-  numRead: {
-    type: SimpleSchema.Integer,
-  },
-  numTotal: {
-    type: SimpleSchema.Integer,
-  },
-  lastReadTime: {
-    type: Date,
-    optional: true,
-  },
-});
-
 const userTheme = new SimpleSchema({
   name: {
     type: String,
@@ -171,15 +131,51 @@ export const graphqlTypeDefs = gql`
     lat: Float!
     lng: Float!
   }
-`;
 
-const postsMetadataSchema = new SimpleSchema({
-  postId: {
-    type: String,
-    foreignKey: "Posts",
-    optional: true,
-  },
-});
+  input ExpandedFrontpageSectionsSettingsInput {
+    community: Boolean
+    recommendations: Boolean
+    quickTakes: Boolean
+    quickTakesCommunity: Boolean
+    popularComments: Boolean
+  }
+
+  type ExpandedFrontpageSectionsSettingsOutput {
+    community: Boolean
+    recommendations: Boolean
+    quickTakes: Boolean
+    quickTakesCommunity: Boolean
+    popularComments: Boolean
+  }
+
+  input PartiallyReadSequenceItemInput {
+    sequenceId: String
+    collectionId: String
+    lastReadPostId: String!
+    nextPostId: String!
+    numRead: Int!
+    numTotal: Int!
+    lastReadTime: Date
+  }
+
+  type PartiallyReadSequenceItemOutput {
+    sequenceId: String
+    collectionId: String
+    lastReadPostId: String
+    nextPostId: String
+    numRead: Int
+    numTotal: Int
+    lastReadTime: Date
+  }
+
+  input PostMetadataInput {
+    postId: String!
+  }
+
+  type PostMetadataOutput {
+    postId: String!
+  }
+`;
 
 const emailsSchema = new SimpleSchema({
   address: {
@@ -922,14 +918,11 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "JSON",
+      outputType: "ExpandedFrontpageSectionsSettingsOutput",
+      inputType: "ExpandedFrontpageSectionsSettingsInput",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      validation: {
-        simpleSchema: expandedFrontpageSectionsSettings,
-        optional: true,
-      },
     },
   },
   // On the EA Forum, we default to hiding posts tagged with "Community" from Recent Discussion
@@ -1412,8 +1405,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[JSON!]",
-      inputType: "[JSON!]",
+      outputType: "[PostMetadataOutput!]",
+      inputType: "[PostMetadataInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -1421,10 +1414,6 @@ const schema = {
         if (data?.bookmarkedPostsMetadata) {
           return _.uniq(data?.bookmarkedPostsMetadata, "postId");
         }
-      },
-      validation: {
-        optional: true,
-        simpleSchema: [postsMetadataSchema],
       },
     },
   },
@@ -1454,8 +1443,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[JSON!]",
-      inputType: "[JSON!]",
+      outputType: "[PostMetadataOutput!]",
+      inputType: "[PostMetadataInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
@@ -1463,10 +1452,6 @@ const schema = {
         if (data?.hiddenPostsMetadata) {
           return uniqBy(data?.hiddenPostsMetadata, "postId");
         }
-      },
-      validation: {
-        optional: true,
-        simpleSchema: [postsMetadataSchema],
       },
     },
   },
@@ -3007,14 +2992,10 @@ const schema = {
       type: "JSONB[]",
     },
     graphql: {
-      outputType: "[JSON!]",
-      inputType: "[JSON!]",
+      outputType: "[PartiallyReadSequenceItemOutput!]",
+      inputType: "[PartiallyReadSequenceItemInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns],
-      validation: {
-        simpleSchema: [partiallyReadSequenceItem],
-        optional: true,
-      },
     },
   },
   beta: {

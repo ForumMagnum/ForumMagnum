@@ -81,6 +81,40 @@ export const graphqlTypeDefs = gql`
     imageUrl: String
     text: String
   }
+
+  input CoauthorStatusInput {
+    userId: String!
+    confirmed: Boolean!
+    requested: Boolean!
+  }
+
+  input SocialPreviewInput {
+    imageId: String
+    text: String
+  }
+
+  input CrosspostInput {
+    isCrosspost: Boolean!
+    hostedHere: Boolean
+    foreignPostId: String
+  }
+
+  type CoauthorStatusOutput {
+    userId: String!
+    confirmed: Boolean!
+    requested: Boolean!
+  }
+
+  type SocialPreviewOutput {
+    imageId: String
+    text: String
+  }
+
+  type CrosspostOutput {
+    isCrosspost: Boolean!
+    hostedHere: Boolean
+    foreignPostId: String
+  }
 `
 
 // TODO: This disagrees with the value used for the book progress bar
@@ -120,31 +154,6 @@ const rsvpType = new SimpleSchema({
     type: Date,
     optional: true,
   },
-});
-
-const coauthorStatusSchema = new SimpleSchema({
-  userId: String,
-  confirmed: Boolean,
-  requested: Boolean,
-});
-
-const socialPreviewSchema = new SimpleSchema({
-  imageId: {
-    type: String,
-    optional: true,
-    nullable: true,
-  },
-  text: {
-    type: String,
-    optional: true,
-    nullable: true,
-  },
-});
-
-const crosspostSchema = new SimpleSchema({
-  isCrosspost: Boolean,
-  hostedHere: { type: Boolean, optional: true, nullable: true },
-  foreignPostId: { type: String, optional: true, nullable: true },
 });
 
 export async function getLastReadStatus(post: DbPost, context: ResolverContext) {
@@ -2277,15 +2286,11 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "[JSON!]",
-      inputType: "[JSON!]",
+      outputType: "[CoauthorStatusOutput!]",
+      inputType: "[CoauthorStatusInput!]",
       canRead: [documentIsNotDeleted],
       canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
       canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
-      validation: {
-        simpleSchema: [coauthorStatusSchema],
-        optional: true,
-      },
     },
   },
   coauthors: {
@@ -2357,14 +2362,11 @@ const schema = {
       type: "JSONB",
     },
     graphql: {
-      outputType: "JSON",
+      outputType: "SocialPreviewOutput",
+      inputType: "SocialPreviewInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
-      validation: {
-        simpleSchema: socialPreviewSchema,
-        optional: true,
-      },
     },
   },
   socialPreviewData: {
@@ -2391,7 +2393,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "JSON",
+      outputType: "CrosspostOutput",
+      inputType: "CrosspostInput",
       canRead: [documentIsNotDeleted],
       canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), "admins"],
       canCreate: [userPassesCrosspostingKarmaThreshold, "admins"],
@@ -2414,10 +2417,6 @@ const schema = {
           throw new Error("Cannot change the foreign post ID of a crosspost");
         }
         return fmCrosspostOnUpdate<'Posts'>(args);
-      },
-      validation: {
-        simpleSchema: crosspostSchema,
-        optional: true,
       },
     },
   },

@@ -5,7 +5,6 @@ import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { getSimpleSchema } from '@/lib/schema/allSchemas';
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -70,15 +69,12 @@ const DatatableHeader = ({ collectionName, column }: {
   const columnName = getColumnName(column);
   
   if (collectionName) {
-    const schema = getSimpleSchema(collectionName);
-
     /*
 
     use either:
 
     1. the column name translation : collectionName.columnName, global.columnName, columnName
-    2. the column name label in the schema (if the column name matches a schema field)
-    3. the raw column name.
+    2. the raw column name.
 
     */
     const formattedLabel = formatLabel({fieldName: columnName, collectionName});

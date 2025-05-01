@@ -293,7 +293,7 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
 
-export type CoauthoredPost = Partial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
+export type CoauthoredPost = NullablePartial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
 
 export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
   if (post.hasCoauthorPermission) {
@@ -431,7 +431,7 @@ export const postIsPublic = (post: Pick<DbPost, '_id' | 'draft' | 'status'>) => 
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 };
 
-export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>;
+export type PostParticipantInfo = NullablePartial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>;
 
 export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
   if (post.userId === userId) return true 

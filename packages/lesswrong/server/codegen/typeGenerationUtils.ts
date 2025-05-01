@@ -160,9 +160,10 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
         if (graphqlType === "JSON") {
           return "any";
         }
+        return graphqlType;
         // TODO
         //throw new Error("Unrecognized type: "+graphqlType);
-        return `any /*${graphqlType}*/`;
+        // return `any /*${graphqlType}*/`;
       }
   }
 }

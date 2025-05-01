@@ -34,6 +34,40 @@ interface SocialPreviewType {
   text?: string | null;
 }
 
+interface CoauthorStatusInput {
+  userId: string;
+  confirmed: boolean;
+  requested: boolean;
+}
+
+interface SocialPreviewInput {
+  imageId?: string | null;
+  text?: string | null;
+}
+
+interface CrosspostInput {
+  isCrosspost: boolean;
+  hostedHere?: boolean | null;
+  foreignPostId?: string | null;
+}
+
+interface CoauthorStatusOutput {
+  userId: string;
+  confirmed: boolean;
+  requested: boolean;
+}
+
+interface SocialPreviewOutput {
+  imageId?: string | null;
+  text?: string | null;
+}
+
+interface CrosspostOutput {
+  isCrosspost: boolean;
+  hostedHere?: boolean | null;
+  foreignPostId?: string | null;
+}
+
 interface ContentType {
   type?: string | null;
   data?: ContentTypeData | null;
@@ -60,6 +94,50 @@ interface UserLikingTag {
 interface LatLng {
   lat: number;
   lng: number;
+}
+
+interface ExpandedFrontpageSectionsSettingsInput {
+  community?: boolean | null;
+  recommendations?: boolean | null;
+  quickTakes?: boolean | null;
+  quickTakesCommunity?: boolean | null;
+  popularComments?: boolean | null;
+}
+
+interface ExpandedFrontpageSectionsSettingsOutput {
+  community?: boolean | null;
+  recommendations?: boolean | null;
+  quickTakes?: boolean | null;
+  quickTakesCommunity?: boolean | null;
+  popularComments?: boolean | null;
+}
+
+interface PartiallyReadSequenceItemInput {
+  sequenceId?: string | null;
+  collectionId?: string | null;
+  lastReadPostId: string;
+  nextPostId: string;
+  numRead: number;
+  numTotal: number;
+  lastReadTime?: Date | null;
+}
+
+interface PartiallyReadSequenceItemOutput {
+  sequenceId?: string | null;
+  collectionId?: string | null;
+  lastReadPostId?: string | null;
+  nextPostId?: string | null;
+  numRead?: number | null;
+  numTotal?: number | null;
+  lastReadTime?: Date | null;
+}
+
+interface PostMetadataInput {
+  postId: string;
+}
+
+interface PostMetadataOutput {
+  postId: string;
 }
 
 interface RecommendResumeSequence {
@@ -761,6 +839,13 @@ interface UltraFeedEntryType {
   feedCommentThread?: FeedCommentThread | null;
   feedPost?: FeedPost | null;
   feedSpotlight?: FeedSpotlightItem | null;
+}
+
+interface ElicitQuestionPredictionCreator {
+  _id: string;
+  displayName: string;
+  isQuestionCreator: boolean;
+  sourceUserId?: string | null;
 }
 
 interface AdvisorRequest {
@@ -1583,7 +1668,7 @@ interface ElicitQuestionPrediction {
   prediction?: number | null;
   createdAt: Date;
   notes?: string | null;
-  creator?: any;
+  creator: ElicitQuestionPredictionCreator;
   userId?: string | null;
   user?: UpdateUserDataInput | null;
   sourceUrl?: string | null;
@@ -2542,14 +2627,14 @@ interface Post {
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
-  coauthorStatuses?: Array<any> | null;
+  coauthorStatuses?: Array<CoauthorStatusOutput> | null;
   coauthors?: Array<UpdateUserDataInput> | null;
   hasCoauthorPermission: boolean;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;
-  socialPreview?: any;
+  socialPreview?: SocialPreviewOutput | null;
   socialPreviewData?: SocialPreviewType | null;
-  fmCrosspost?: any;
+  fmCrosspost?: CrosspostOutput | null;
   canonicalSequenceId?: string | null;
   canonicalSequence?: UpdateSequenceDataInput | null;
   canonicalCollectionSlug?: string | null;
@@ -3796,7 +3881,7 @@ interface User {
   noCollapseCommentsPosts: boolean;
   noCollapseCommentsFrontpage: boolean;
   hideCommunitySection: boolean;
-  expandedFrontpageSections?: any;
+  expandedFrontpageSections?: ExpandedFrontpageSectionsSettingsOutput | null;
   showCommunityInRecentDiscussion: boolean;
   hidePostsRecommendations: boolean;
   petrovOptOut: boolean;
@@ -3828,9 +3913,9 @@ interface User {
   collapseModerationGuidelines?: boolean | null;
   bannedUserIds?: Array<string> | null;
   bannedPersonalUserIds?: Array<string> | null;
-  bookmarkedPostsMetadata?: Array<any> | null;
+  bookmarkedPostsMetadata?: Array<PostMetadataOutput> | null;
   bookmarkedPosts?: Array<UpdatePostDataInput> | null;
-  hiddenPostsMetadata?: Array<any> | null;
+  hiddenPostsMetadata?: Array<PostMetadataOutput> | null;
   hiddenPosts?: Array<UpdatePostDataInput> | null;
   legacyId?: string | null;
   deleted: boolean;
@@ -3936,7 +4021,7 @@ interface User {
   shortformFeedId?: string | null;
   shortformFeed?: UpdatePostDataInput | null;
   viewUnreviewedComments?: boolean | null;
-  partiallyReadSequences?: Array<any> | null;
+  partiallyReadSequences?: Array<PartiallyReadSequenceItemOutput> | null;
   beta?: boolean | null;
   reviewVotesQuadratic?: boolean | null;
   reviewVotesQuadratic2019?: boolean | null;
@@ -5003,12 +5088,12 @@ interface CreatePostDataInput {
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
-  coauthorStatuses?: Array<any> | null;
+  coauthorStatuses?: Array<CoauthorStatusInput> | null;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;
-  socialPreview?: any;
-  fmCrosspost?: any;
+  socialPreview?: SocialPreviewInput | null;
+  fmCrosspost?: CrosspostInput | null;
   canonicalSequenceId?: string | null;
   canonicalCollectionSlug?: string | null;
   canonicalBookId?: string | null;
@@ -5118,12 +5203,12 @@ interface UpdatePostDataInput {
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
-  coauthorStatuses?: Array<any> | null;
+  coauthorStatuses?: Array<CoauthorStatusInput> | null;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;
-  socialPreview?: any;
-  fmCrosspost?: any;
+  socialPreview?: SocialPreviewInput | null;
+  fmCrosspost?: CrosspostInput | null;
   canonicalSequenceId?: string | null;
   canonicalCollectionSlug?: string | null;
   canonicalBookId?: string | null;
@@ -5886,7 +5971,7 @@ interface CreateUserDataInput {
   noCollapseCommentsPosts?: boolean | null;
   noCollapseCommentsFrontpage?: boolean | null;
   hideCommunitySection?: boolean | null;
-  expandedFrontpageSections?: any;
+  expandedFrontpageSections?: ExpandedFrontpageSectionsSettingsInput | null;
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
   petrovOptOut?: boolean | null;
@@ -6053,7 +6138,7 @@ interface UpdateUserDataInput {
   noCollapseCommentsPosts?: boolean | null;
   noCollapseCommentsFrontpage?: boolean | null;
   hideCommunitySection?: boolean | null;
-  expandedFrontpageSections?: any;
+  expandedFrontpageSections?: ExpandedFrontpageSectionsSettingsInput | null;
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
   petrovOptOut?: boolean | null;
@@ -6083,8 +6168,8 @@ interface UpdateUserDataInput {
   collapseModerationGuidelines?: boolean | null;
   bannedUserIds?: Array<string> | null;
   bannedPersonalUserIds?: Array<string> | null;
-  bookmarkedPostsMetadata?: Array<any> | null;
-  hiddenPostsMetadata?: Array<any> | null;
+  bookmarkedPostsMetadata?: Array<PostMetadataInput> | null;
+  hiddenPostsMetadata?: Array<PostMetadataInput> | null;
   legacyId?: string | null;
   deleted?: boolean | null;
   permanentDeletionRequestedAt?: Date | null;
@@ -6163,7 +6248,7 @@ interface UpdateUserDataInput {
   fullName?: string | null;
   shortformFeedId?: string | null;
   viewUnreviewedComments?: boolean | null;
-  partiallyReadSequences?: Array<any> | null;
+  partiallyReadSequences?: Array<PartiallyReadSequenceItemInput> | null;
   beta?: boolean | null;
   reviewVotesQuadratic?: boolean | null;
   reviewVotesQuadratic2019?: boolean | null;
@@ -6233,11 +6318,23 @@ interface GraphQLTypeMap {
   ArbitalLinkedPage: ArbitalLinkedPage;
   ArbitalLinkedPages: ArbitalLinkedPages;
   SocialPreviewType: SocialPreviewType;
+  CoauthorStatusInput: CoauthorStatusInput;
+  SocialPreviewInput: SocialPreviewInput;
+  CrosspostInput: CrosspostInput;
+  CoauthorStatusOutput: CoauthorStatusOutput;
+  SocialPreviewOutput: SocialPreviewOutput;
+  CrosspostOutput: CrosspostOutput;
   ContentType: ContentType;
   TagContributor: TagContributor;
   TagContributorsList: TagContributorsList;
   UserLikingTag: UserLikingTag;
   LatLng: LatLng;
+  ExpandedFrontpageSectionsSettingsInput: ExpandedFrontpageSectionsSettingsInput;
+  ExpandedFrontpageSectionsSettingsOutput: ExpandedFrontpageSectionsSettingsOutput;
+  PartiallyReadSequenceItemInput: PartiallyReadSequenceItemInput;
+  PartiallyReadSequenceItemOutput: PartiallyReadSequenceItemOutput;
+  PostMetadataInput: PostMetadataInput;
+  PostMetadataOutput: PostMetadataOutput;
   RecommendResumeSequence: RecommendResumeSequence;
   CommentCountTag: CommentCountTag;
   TopCommentedTagUser: TopCommentedTagUser;
@@ -6344,6 +6441,7 @@ interface GraphQLTypeMap {
   FeedSpotlightItem: FeedSpotlightItem;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntryType: UltraFeedEntryType;
+  ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;

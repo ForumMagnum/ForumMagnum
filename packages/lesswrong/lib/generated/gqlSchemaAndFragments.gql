@@ -48,6 +48,40 @@ type SocialPreviewType {
   text: String
 }
 
+input CoauthorStatusInput {
+  userId: String!
+  confirmed: Boolean!
+  requested: Boolean!
+}
+
+input SocialPreviewInput {
+  imageId: String
+  text: String
+}
+
+input CrosspostInput {
+  isCrosspost: Boolean!
+  hostedHere: Boolean
+  foreignPostId: String
+}
+
+type CoauthorStatusOutput {
+  userId: String!
+  confirmed: Boolean!
+  requested: Boolean!
+}
+
+type SocialPreviewOutput {
+  imageId: String
+  text: String
+}
+
+type CrosspostOutput {
+  isCrosspost: Boolean!
+  hostedHere: Boolean
+  foreignPostId: String
+}
+
 scalar ContentTypeData
 
 type ContentType {
@@ -76,6 +110,50 @@ type UserLikingTag {
 type LatLng {
   lat: Float!
   lng: Float!
+}
+
+input ExpandedFrontpageSectionsSettingsInput {
+  community: Boolean
+  recommendations: Boolean
+  quickTakes: Boolean
+  quickTakesCommunity: Boolean
+  popularComments: Boolean
+}
+
+type ExpandedFrontpageSectionsSettingsOutput {
+  community: Boolean
+  recommendations: Boolean
+  quickTakes: Boolean
+  quickTakesCommunity: Boolean
+  popularComments: Boolean
+}
+
+input PartiallyReadSequenceItemInput {
+  sequenceId: String
+  collectionId: String
+  lastReadPostId: String!
+  nextPostId: String!
+  numRead: Int!
+  numTotal: Int!
+  lastReadTime: Date
+}
+
+type PartiallyReadSequenceItemOutput {
+  sequenceId: String
+  collectionId: String
+  lastReadPostId: String
+  nextPostId: String
+  numRead: Int
+  numTotal: Int
+  lastReadTime: Date
+}
+
+input PostMetadataInput {
+  postId: String!
+}
+
+type PostMetadataOutput {
+  postId: String!
 }
 
 type RecommendResumeSequence {
@@ -1233,6 +1311,13 @@ extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
 }
 
+type ElicitQuestionPredictionCreator {
+  _id: String!
+  displayName: String!
+  isQuestionCreator: Boolean!
+  sourceUserId: String
+}
+
 type AdvisorRequest {
   _id: String!
   schemaVersion: Float!
@@ -2143,7 +2228,7 @@ type ElicitQuestionPrediction {
   prediction: Float
   createdAt: Date!
   notes: String
-  creator: JSON!
+  creator: ElicitQuestionPredictionCreator!
   userId: String
   user: User
   sourceUrl: String
@@ -3197,14 +3282,14 @@ type Post {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusOutput!]
   coauthors: [User!]
   hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
+  socialPreview: SocialPreviewOutput
   socialPreviewData: SocialPreviewType
-  fmCrosspost: JSON
+  fmCrosspost: CrosspostOutput
   canonicalSequenceId: String
   canonicalSequence: Sequence
   canonicalCollectionSlug: String
@@ -4571,7 +4656,7 @@ type User {
   noCollapseCommentsPosts: Boolean!
   noCollapseCommentsFrontpage: Boolean!
   hideCommunitySection: Boolean!
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput
   showCommunityInRecentDiscussion: Boolean!
   hidePostsRecommendations: Boolean!
   petrovOptOut: Boolean!
@@ -4603,9 +4688,9 @@ type User {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [JSON!]
+  bookmarkedPostsMetadata: [PostMetadataOutput!]
   bookmarkedPosts: [Post!]
-  hiddenPostsMetadata: [JSON!]
+  hiddenPostsMetadata: [PostMetadataOutput!]
   hiddenPosts: [Post!]
   legacyId: String
   deleted: Boolean!
@@ -4711,7 +4796,7 @@ type User {
   shortformFeedId: String
   shortformFeed: Post
   viewUnreviewedComments: Boolean
-  partiallyReadSequences: [JSON!]
+  partiallyReadSequences: [PartiallyReadSequenceItemOutput!]
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -5908,12 +5993,12 @@ input CreatePostDataInput {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusInput!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
-  fmCrosspost: JSON
+  socialPreview: SocialPreviewInput
+  fmCrosspost: CrosspostInput
   canonicalSequenceId: String
   canonicalCollectionSlug: String
   canonicalBookId: String
@@ -6023,12 +6108,12 @@ input UpdatePostDataInput {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusInput!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
-  fmCrosspost: JSON
+  socialPreview: SocialPreviewInput
+  fmCrosspost: CrosspostInput
   canonicalSequenceId: String
   canonicalCollectionSlug: String
   canonicalBookId: String
@@ -6887,7 +6972,7 @@ input CreateUserDataInput {
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
   hideCommunitySection: Boolean
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
@@ -7054,7 +7139,7 @@ input UpdateUserDataInput {
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
   hideCommunitySection: Boolean
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
@@ -7084,8 +7169,8 @@ input UpdateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [JSON!]
-  hiddenPostsMetadata: [JSON!]
+  bookmarkedPostsMetadata: [PostMetadataInput!]
+  hiddenPostsMetadata: [PostMetadataInput!]
   legacyId: String
   deleted: Boolean
   permanentDeletionRequestedAt: Date
@@ -7164,7 +7249,7 @@ input UpdateUserDataInput {
   fullName: String
   shortformFeedId: String
   viewUnreviewedComments: Boolean
-  partiallyReadSequences: [JSON!]
+  partiallyReadSequences: [PartiallyReadSequenceItemInput!]
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
