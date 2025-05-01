@@ -34,6 +34,7 @@ import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { hasDraftComments } from '@/lib/betas';
+import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -69,7 +70,8 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
 
 const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType) => ({
   submit: {
-    textAlign: 'right',
+    display: 'flex',
+    justifyContent: 'end',
   },
   submitQuickTakes: {
     background: theme.palette.grey[100],
@@ -135,6 +137,9 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
   },
+  submitWrapper: {
+    display: "flex",
+  },
 }), { stylePriority: 1 });
 
 interface CommentSubmitProps {
@@ -172,7 +177,6 @@ const CommentSubmit = ({
   const { openDialog } = useDialog();
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  // by default, the EA Forum uses MUI contained buttons here
   const cancelBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
   const submitBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
   if (formDisabledDueToRateLimit || loading) {
@@ -196,25 +200,28 @@ const CommentSubmit = ({
           {cancelLabel}
         </Button>
       )}
-      <Button
-        type="submit"
-        id="new-comment-submit"
-        className={classNames(formButtonClass, classes.submitButton, {
-          [classes.submitSegmented]: hasDraftComments,
-        })}
-        onClick={(ev) => {
-          if (!currentUser) {
-            openDialog({
-              name: "LoginPopup",
-              contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
-            });
-            ev.preventDefault();
-          }
-        }}
-        {...submitBtnProps}
-      >
-        {loading ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
-      </Button>
+      <div className={classes.submitWrapper}>
+        <Button
+          type="submit"
+          id="new-comment-submit"
+          className={classNames(formButtonClass, classes.submitButton, {
+            [classes.submitSegmented]: hasDraftComments,
+          })}
+          onClick={(ev) => {
+            if (!currentUser) {
+              openDialog({
+                name: "LoginPopup",
+                contents: ({onClose}) => <LoginPopup onClose={onClose}/>,
+              });
+              ev.preventDefault();
+            }
+          }}
+          {...submitBtnProps}
+        >
+          {loading ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
+        </Button>
+        {hasDraftComments && <CommentsSubmitDropdown />}
+      </div>
     </div>
   );
 }
