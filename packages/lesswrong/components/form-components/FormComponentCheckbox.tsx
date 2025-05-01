@@ -3,6 +3,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
@@ -37,20 +38,27 @@ export function FormComponentCheckbox({
 }: FormComponentCheckboxProps) {
   const classes = useStyles(styles);
 
+  // For some reason the `htmlFor` attribute doesn't seem to make the label clickable,
+  // so I've gone ahead and wrapped the checkbox in a FormControlLabel.
   const id = `checkbox-${field.name}`;
 
+  const checkbox = <Checkbox
+    id={id}
+    className={classes.size}
+    checked={!!field.state.value}
+    onChange={(_, checked) => field.handleChange(checked)}
+    onBlur={field.handleBlur}
+    disabled={disabled}
+    disableRipple
+  />;
+
+  const displayedLabel = label && <Components.Typography htmlFor={id} className={classes.inline} variant="body2" component="label">{label}</Components.Typography>;
+
   return (
-    <div className={classNames(classes.root, className)}>
-      <Checkbox
-        id={id}
-        className={classes.size}
-        checked={!!field.state.value}
-        onChange={(_, checked) => field.handleChange(checked)}
-        onBlur={field.handleBlur}
-        disabled={disabled}
-        disableRipple
-      />
-      {label && <Components.Typography htmlFor={id} className={classes.inline} variant="body2" component="label">{label}</Components.Typography>}
-    </div>
+    <FormControlLabel
+      className={classNames(classes.root, className)}
+      control={checkbox}
+      label={displayedLabel}
+    />
   );
 }

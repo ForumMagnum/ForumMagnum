@@ -53,7 +53,6 @@ async function clientStartup() {
 
   initAutoRefresh();
   rememberScrollPositionOnPageReload();
-  addClickHandlerToCheckboxLabels();
   initLegacyRoutes();
   hydrateClient();
   

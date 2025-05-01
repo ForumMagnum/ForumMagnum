@@ -484,8 +484,6 @@ const UsersForm = ({
           </div>
         </HighlightableField>}
 
-        {/* TODO: add custom validation (simpleSchema present) */}
-        {/* TODO: custom hidden prop; implement conditional visibility for mapLocation */}
         {!isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="mapLocation">
             {(field) => (
@@ -795,7 +793,6 @@ const UsersForm = ({
       </LegacyFormGroupLayout>
 
       <LegacyFormGroupLayout label="Emails" startCollapsed={true && highlightedField !== "subscribedToDigest"}>
-        {/* TODO: 'UsersEmailVerification' not yet ported - implement TanStackUsersEmailVerification */}
         {verifyEmailsSetting.get() && <div className={classes.fieldWrapper}>
           <form.Field name="whenConfirmationEmailSent">
             {() => <UsersEmailVerification />}
