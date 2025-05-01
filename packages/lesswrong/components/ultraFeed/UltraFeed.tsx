@@ -106,11 +106,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   ultraFeedNewContentContainer: {
   },
   settingsContainer: {
-    marginBottom: 20,
-    background: theme.palette.panelBackground.default,
-    borderRadius: 3,
-    padding: '16px 12px',
-    boxShadow: theme.palette.boxShadow.default,
+    marginBottom: 32,
   },
   hiddenOnDesktop: {
     display: 'none',
