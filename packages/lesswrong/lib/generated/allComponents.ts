@@ -541,6 +541,7 @@ importComponent("TagRelNotificationItem", () => require("../../components/notifi
 importComponent("UserNotifyDropdown", () => require("../../components/notifications/UserNotifyDropdown.tsx"));
 importComponent("BasicOnboardingFlow", () => require("../../components/onboarding/BasicOnboardingFlow.tsx"));
 importComponent("OnboardingFlow", () => require("../../components/onboarding/OnboardingFlow.tsx"));
+importComponent("UltraFeedPage", () => require("../../components/pages/UltraFeedPage.tsx"));
 importComponent("AdminPaymentsPage", () => require("../../components/payments/AdminPaymentsPage.tsx"));
 importComponent("EditPaymentInfoPage", () => require("../../components/payments/EditPaymentInfoPage.tsx"));
 importComponent("PeopleDirectoryAllFiltersDropdown", () => require("../../components/peopleDirectory/PeopleDirectoryAllFiltersDropdown.tsx"));

@@ -14,6 +14,7 @@ import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY, getRe
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -136,9 +137,14 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
       },
     },
   },
+  checkboxLabel: {
+    whiteSpace: 'nowrap',
+  },
 }));
 
-const UltraFeedContent = () => {
+const UltraFeedContent = ({showCheckBoxUnconditionally = false}: {
+  showCheckBoxUnconditionally?: boolean
+}) => {
   const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, UltraFeedPostItem,
     FeedItemWrapper, SectionTitle, SingleColumnSection, SettingsButton, 
@@ -146,7 +152,7 @@ const UltraFeedContent = () => {
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
-  const ultraFeedEnabled = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
+  const ultraFeedEnabled = !!currentUser && (ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true");
   
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -160,7 +166,7 @@ const UltraFeedContent = () => {
   
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
-  if (!userHasUltraFeed(currentUser)) {
+  if (!(userIsAdminOrMod(currentUser) || ultraFeedEnabled || showCheckBoxUnconditionally)) {
     return null;
   }
 
@@ -206,8 +212,9 @@ const UltraFeedContent = () => {
         <SectionFooterCheckbox 
           value={ultraFeedEnabled} 
           onClick={toggleUltraFeed} 
-          label="Use UltraFeed"
+          label="Use New Feed"
           tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
+          labelClassName={classes.checkboxLabel}
         />
       </div>
       
@@ -316,10 +323,12 @@ const UltraFeedContent = () => {
   );
 };
 
-const UltraFeed = () => {
+const UltraFeed = ({showCheckBoxUnconditionally = false}: {
+  showCheckBoxUnconditionally?: boolean
+}) => {
   return (
     <DeferRender ssr={false}>
-      <UltraFeedContent />
+      <UltraFeedContent showCheckBoxUnconditionally={showCheckBoxUnconditionally} />
     </DeferRender>
   );
 };

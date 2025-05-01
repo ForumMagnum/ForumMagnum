@@ -1138,6 +1138,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: "PetrovDayPoll",
       title: "Petrov Day Poll",
     },
+    {
+      name: 'feed',
+      path: '/feed',
+      componentName: 'UltraFeedPage',
+      title: "LessWrong Feed",
+      subtitle: "The Feed",
+      hasLeftNavigationColumn: false,
+      navigationFooterBar: false,
+    },
   ],
   AlignmentForum: [
     {
@@ -1383,21 +1392,6 @@ addRoute({
   title: "All Comments"
 });
 
-addRoute(
-  {
-    name: 'Shortform',
-    path: '/quicktakes',
-    componentName: 'ShortformPage',
-    title: "Quick Takes",
-    hasLeftNavigationColumn: true,
-    navigationFooterBar: true,
-  },
-  {
-    name: 'ShortformRedirect',
-    path: '/shortform',
-    redirect: () => "/quicktakes",
-  },
-);
 
 if (hasEventsSetting.get()) {
   addRoute(
