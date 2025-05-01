@@ -80,7 +80,7 @@ function FormLabel(props: FormLabelProps) {
 
   const fcs = formControlState({
     props,
-    context: {muiFormControl},
+    muiFormControl,
     states: ['required', 'focused', 'disabled', 'error', 'filled'],
   });
 

@@ -14,11 +14,12 @@ const styles = defineStyles("Menu", (theme) => ({
   },
 }));
 
-export function Menu({open, anchorEl, onClose, onClick, className, children}: {
+export function Menu({open, anchorEl, onClose, onClick, minWidth, className, children}: {
   open: boolean
   anchorEl: any
   onClose?: (event: AnyBecauseTodo) => void
   onClick?: (event: AnyBecauseTodo) => void
+  minWidth?: number
   className?: string,
   children?: React.ReactNode
 }) {

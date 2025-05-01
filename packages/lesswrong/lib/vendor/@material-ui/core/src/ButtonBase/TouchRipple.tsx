@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TransitionGroup from 'react-transition-group/TransitionGroup';
+import TransitionGroup, { TransitionGroupProps } from 'react-transition-group/TransitionGroup';
 import classNames from 'classnames';
 import Ripple from './Ripple';
 import type { StandardProps } from '..';
 import { defineStyles, withStyles } from '@/components/hooks/useStyles';
 
 export type TouchRippleProps = StandardProps<
-  TransitionGroup.TransitionGroupProps,
+  TransitionGroupProps,
   TouchRippleClassKey
 > & {
   center?: boolean;
@@ -270,7 +270,7 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
   };
 
   render() {
-    const { center, classes, className, ...other } = this.props;
+    const { center=false, classes, className, ...other } = this.props;
 
     return (
       <TransitionGroup
@@ -285,9 +285,5 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
     );
   }
 }
-
-TouchRipple.defaultProps = {
-  center: false,
-};
 
 export default withStyles(styles, TouchRipple);

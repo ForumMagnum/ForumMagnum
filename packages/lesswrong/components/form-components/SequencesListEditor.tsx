@@ -30,7 +30,6 @@ const SequencesListEditor = ({value, path, updateCurrentValues}: FormComponentPr
       setValue={(newValue: string[]) => {
         void updateCurrentValues({[path]: newValue});
       }}
-      classes={classes}
     />
     <Components.SequencesSearchAutoComplete
       clickAction={(sequenceId: string) => {

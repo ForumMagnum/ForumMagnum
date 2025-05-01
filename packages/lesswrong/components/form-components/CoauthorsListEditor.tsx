@@ -99,7 +99,6 @@ const CoauthorsListEditor = ({ value, path, document, label, updateCurrentValues
             }));
           }}
           className={classes.list}
-          classes={classes}
         />
       </div>
       {isEAForum && <div className={classes.checkboxContainer}>

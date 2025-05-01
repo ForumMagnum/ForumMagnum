@@ -20,7 +20,6 @@ export interface TabsProps
   action?: (actions: TabsActions) => void;
   centered?: boolean;
   children?: React.ReactNode;
-  component?: React.Component<TabsProps>;
   fullWidth?: boolean;
   indicatorColor?: 'secondary' | 'primary';
   onChange?: (event: React.ChangeEvent<{}>, value: any) => void;
@@ -92,8 +91,18 @@ export const styles = defineStyles("MuiTabs", theme => ({
 }), {stylePriority: -10});
 
 type TabsPropsWithHoCs = TabsProps & WithStylesProps<typeof styles> & {theme: ThemeType}
-class Tabs extends React.Component<TabsPropsWithHoCs> {
+type TabsState = {
+  indicatorStyle: AnyBecauseTodo
+  scrollerStyle: {
+    marginBottom: number,
+  },
+  showLeftScroll: boolean,
+  showRightScroll: boolean,
+  mounted: boolean,
+};
+class Tabs extends React.Component<TabsPropsWithHoCs, TabsState> {
   valueToIndex = new Map();
+  tabsRef: AnyBecauseTodo
 
   handleResize = debounce(() => {
     this.updateIndicatorState(this.props);
@@ -104,7 +113,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     this.updateScrollButtonState();
   }, 166); // Corresponds to 10 frames at 60 Hz.
 
-  state = {
+  state: TabsState = {
     indicatorStyle: {},
     scrollerStyle: {
       marginBottom: 0,
@@ -127,7 +136,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: TabsPropsWithHoCs, prevState: TabsState) {
     // The index might have changed at the same time.
     // We need to check again the right indicator position.
     this.updateIndicatorState(this.props);
@@ -145,7 +154,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
 
   getConditionalElements = () => {
     const { classes, scrollable, scrollButtons, theme } = this.props;
-    const conditionalElements = {};
+    const conditionalElements: AnyBecauseTodo = {};
     conditionalElements.scrollbarSizeListener = scrollable ? (
       <ScrollbarSize
         onLoad={this.handleScrollbarSizeChange}
@@ -180,7 +189,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     return conditionalElements;
   };
 
-  getTabsMeta = (value, direction) => {
+  getTabsMeta = (value: AnyBecauseTodo, direction: AnyBecauseTodo) => {
     let tabsMeta;
     if (this.tabsRef) {
       const rect = this.tabsRef.getBoundingClientRect();
@@ -216,7 +225,9 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     this.moveTabsScroll(this.tabsRef.clientWidth);
   };
 
-  handleScrollbarSizeChange = ({ scrollbarHeight }) => {
+  handleScrollbarSizeChange = ({ scrollbarHeight }: {
+    scrollbarHeight: number
+  }) => {
     this.setState({
       scrollerStyle: {
         marginBottom: -scrollbarHeight,
@@ -224,7 +235,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     });
   };
 
-  moveTabsScroll = delta => {
+  moveTabsScroll = (delta: number) => {
     const { theme } = this.props;
 
     const multiplier = theme.direction === 'rtl' ? -1 : 1;
@@ -253,7 +264,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     }
   };
 
-  scroll = value => {
+  scroll = (value: number) => {
     animate('scrollLeft', this.tabsRef, value);
   };
 
@@ -279,7 +290,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
     }
   };
 
-  updateIndicatorState(props) {
+  updateIndicatorState(props: TabsPropsWithHoCs) {
     const { theme, value } = props;
 
     const { tabsMeta, tabMeta } = this.getTabsMeta(value, theme.direction);
@@ -316,7 +327,6 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
       children: childrenProp,
       classes,
       className: classNameProp,
-      component: Component,
       fullWidth,
       indicatorColor,
       onChange,
@@ -371,7 +381,9 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
         ].join('\n'),
       );
 
-      const childValue = child.props.value === undefined ? childIndex : child.props.value;
+      const childValue = (child.props as any).value === undefined
+        ? childIndex
+        : child.props.value as any;
       this.valueToIndex.set(childValue, childIndex);
       const selected = childValue === value;
 
@@ -383,13 +395,13 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
         onChange,
         textColor,
         value: childValue,
-      });
+      } as any);
     });
 
     const conditionalElements = this.getConditionalElements();
 
     return (
-      <Component className={className} {...other}>
+      <div className={className} {...other}>
         <EventListener target="window" onResize={this.handleResize} />
         {conditionalElements.scrollbarSizeListener}
         <div className={classes.flexContainer}>
@@ -408,14 +420,13 @@ class Tabs extends React.Component<TabsPropsWithHoCs> {
           </div>
           {conditionalElements.scrollButtonRight}
         </div>
-      </Component>
+      </div>
     );
   }
 }
 
 (Tabs as any).defaultProps = {
   centered: false,
-  component: 'div',
   fullWidth: false,
   indicatorColor: 'secondary',
   scrollable: false,

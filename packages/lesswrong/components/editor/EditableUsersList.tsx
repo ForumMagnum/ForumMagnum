@@ -52,7 +52,6 @@ export function EditableUsersList({value, setValue, label}: {
       setValue={setValue}
       axis="xy"
       className={classes.list}
-      classes={classes}
     />
   </span>
 }

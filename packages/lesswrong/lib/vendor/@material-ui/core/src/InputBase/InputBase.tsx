@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { setRef } from '../utils/reactHelpers';
 import Textarea from './Textarea';
@@ -50,6 +49,8 @@ export interface InputBaseProps
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>;
   onKeyUp?: React.KeyboardEventHandler<HTMLTextAreaElement | HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLTextAreaElement | HTMLInputElement>;
+  onEmpty?: AnyBecauseTodo
+  onFilled?: AnyBecauseTodo
   renderPrefix?: (state: AnyBecauseTodo) => React.ReactNode
 }
 
@@ -201,13 +202,13 @@ export const styles = defineStyles("MuiInputBase", theme => {
   };
 }, {stylePriority: -10});
 
-export function formControlState({ props, states, context }) {
+export function formControlState({ props, states, muiFormControl }) {
   return states.reduce((acc, state) => {
     acc[state] = props[state];
 
-    if (context && context.muiFormControl) {
+    if (muiFormControl) {
       if (typeof props[state] === 'undefined') {
-        acc[state] = context.muiFormControl[state];
+        acc[state] = muiFormControl[state];
       }
     }
 
@@ -215,16 +216,19 @@ export function formControlState({ props, states, context }) {
   }, {});
 }
 
+type InputBasePropsWithHoCs = InputBaseProps & WithStylesProps<typeof styles>;
+
 /**
  * `InputBase` contains as few styles as possible.
  * It aims to be a simple building block for creating an input.
  * It contains a load of style reset and some state logic.
  */
-class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof styles>> {
+class InputBase extends React.Component<InputBasePropsWithHoCs> {
   static contextType = FormControlContext
   declare context: React.ContextType<typeof FormControlContext>;
 
   isControlled: boolean
+  inputRef: AnyBecauseTodo
 
   constructor(props: InputBaseProps & WithStylesProps<typeof styles>) {
     super(props);
@@ -233,13 +237,13 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       this.checkDirty(props);
     }
 
-    const componentWillReceiveProps = (nextProps, nextContext) => {
+    const componentWillReceiveProps = (nextProps: InputBasePropsWithHoCs, nextContext) => {
       // The blur won't fire when the disabled state is set on a focused input.
       // We need to book keep the focused state manually.
       if (
-        !formControlState({ props: this.props, context: this.context, states: ['disabled'] })
+        !formControlState({ props: this.props, muiFormControl: this.context, states: ['disabled'] })
           .disabled &&
-        formControlState({ props: nextProps, context: nextContext, states: ['disabled'] }).disabled
+        formControlState({ props: nextProps, muiFormControl: nextContext, states: ['disabled'] }).disabled
       ) {
         this.setState({
           focused: false,
@@ -247,14 +251,14 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       }
     };
 
-    const componentWillUpdate = (nextProps, nextState, nextContext) => {
+    const componentWillUpdate = (nextProps: AnyBecauseTodo, nextState: AnyBecauseTodo, nextContext: AnyBecauseTodo) => {
       // Book keep the focused state.
       if (
-        !formControlState({ props: this.props, context: this.context, states: ['disabled'] })
+        !formControlState({ props: this.props, muiFormControl: this.context, states: ['disabled'] })
           .disabled &&
-        formControlState({ props: nextProps, context: nextContext, states: ['disabled'] }).disabled
+        formControlState({ props: nextProps, muiFormControl: nextContext, states: ['disabled'] }).disabled
       ) {
-        const muiFormControl = this.context?.muiFormControl;
+        const muiFormControl = this.context;
         if (muiFormControl && muiFormControl.onBlur) {
           muiFormControl.onBlur();
         }
@@ -283,11 +287,11 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
     } // else performed in the onChange
   }
 
-  handleFocus = event => {
+  handleFocus = (event: AnyBecauseTodo) => {
     // Fix a bug with IE11 where the focus/blur events are triggered
     // while the input is disabled.
     if (
-      formControlState({ props: this.props, context: this.context, states: ['disabled'] }).disabled
+      formControlState({ props: this.props, muiFormControl: this.context, states: ['disabled'] }).disabled
     ) {
       event.stopPropagation();
       return;
@@ -298,25 +302,25 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       this.props.onFocus(event);
     }
 
-    const muiFormControl = this.context?.muiFormControl;
+    const muiFormControl = this.context;
     if (muiFormControl && muiFormControl.onFocus) {
       muiFormControl.onFocus(event);
     }
   };
 
-  handleBlur = event => {
+  handleBlur = (event: AnyBecauseTodo) => {
     this.setState({ focused: false });
     if (this.props.onBlur) {
       this.props.onBlur(event);
     }
 
-    const muiFormControl = this.context?.muiFormControl;
+    const muiFormControl = this.context;
     if (muiFormControl && muiFormControl.onBlur) {
       muiFormControl.onBlur(event);
     }
   };
 
-  handleChange = (...args) => {
+  handleChange = (...args: AnyBecauseTodo[]) => {
     if (!this.isControlled) {
       this.checkDirty(this.inputRef);
     }
@@ -327,7 +331,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
     }
   };
 
-  handleRefInput = ref => {
+  handleRefInput = (ref: AnyBecauseTodo) => {
     this.inputRef = ref;
 
     let refProp;
@@ -341,7 +345,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
     setRef(refProp, ref);
   };
 
-  handleClick = event => {
+  handleClick = (event: AnyBecauseTodo) => {
     if (this.inputRef && event.currentTarget === event.target) {
       this.inputRef.focus();
     }
@@ -351,8 +355,8 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
     }
   };
 
-  checkDirty(obj) {
-    const muiFormControl = this.context?.muiFormControl;
+  checkDirty(obj: AnyBecauseTodo) {
+    const muiFormControl = this.context;
 
     if (isFilled(obj)) {
       if (muiFormControl && muiFormControl.onFilled) {
@@ -409,10 +413,10 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       ...other
     } = this.props;
 
-    const muiFormControl = this.context?.muiFormControl;
+    const muiFormControl = this.context;
     const fcs = formControlState({
       props: this.props,
-      context: this.context,
+      muiFormControl: this.context,
       states: ['disabled', 'error', 'margin', 'required', 'filled'],
     });
 
@@ -446,7 +450,7 @@ class InputBase extends React.Component<InputBaseProps & WithStylesProps<typeof 
       inputPropsClassName,
     );
 
-    let InputComponent = inputComponent;
+    let InputComponent: AnyBecauseTodo = inputComponent;
     let inputProps = {
       ...inputPropsProp,
       ref: this.handleRefInput,

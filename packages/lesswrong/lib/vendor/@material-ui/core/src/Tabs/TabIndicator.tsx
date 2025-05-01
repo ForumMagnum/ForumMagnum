@@ -6,7 +6,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export interface TabIndicatorProps
   extends StandardProps<React.HTMLAttributes<HTMLDivElement>, TabIndicatorClassKey> {
-  color: 'secondary' | 'primary';
+  color?: 'secondary' | 'primary';
   style: { left: number; width: number };
 }
 

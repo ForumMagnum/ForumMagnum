@@ -48,7 +48,6 @@ const UserMultiselect = ({value, setValue, label}: {
         value={value}
         setValue={setValue}
         className={classes.list}
-        classes={classes}
       />
     </div>
   )

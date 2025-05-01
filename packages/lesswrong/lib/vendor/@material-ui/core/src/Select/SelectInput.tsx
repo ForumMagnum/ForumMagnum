@@ -6,6 +6,7 @@ import { isFilled } from '../InputBase/utils';
 import { setRef } from '../utils/reactHelpers';
 import { Menu } from '@/components/widgets/Menu';
 import ArrowDropDownIcon from '../internal/svg-icons/ArrowDropDown';
+import omit from 'lodash/omit';
 
 export interface SelectInputProps {
   autoFocus?: boolean;
@@ -28,12 +29,17 @@ export interface SelectInputProps {
   tabIndex?: number;
   value?: string | number | boolean | Array<string | number | boolean>;
   variant?: 'standard' | 'outlined' | 'filled';
+  classes?: AnyBecauseTodo
+  required?: boolean
+  children?: React.ReactNode
 }
 
-/**
- * @ignore - internal component.
- */
-class SelectInput extends React.Component<SelectInputProps> {
+type SelectInputState = {
+  menuMinWidth: number|null,
+  open: boolean,
+}
+
+class SelectInput extends React.Component<SelectInputProps, SelectInputState> {
   ignoreNextBlur = false;
   isOpenControlled = false
   displayRef: AnyBecauseTodo
@@ -61,12 +67,12 @@ class SelectInput extends React.Component<SelectInputProps> {
     }
   }
 
-  update = ({ event, open }) => {
+  update = ({ event, open }: AnyBecauseTodo) => {
     if (this.isOpenControlled) {
       if (open) {
-        this.props.onOpen(event);
+        this.props.onOpen?.(event);
       } else {
-        this.props.onClose(event);
+        this.props.onClose?.(event);
       }
       return;
     }
@@ -78,7 +84,7 @@ class SelectInput extends React.Component<SelectInputProps> {
     });
   };
 
-  handleClick = event => {
+  handleClick = (event: AnyBecauseTodo) => {
     // Opening the menu is going to blur the. It will be focused back when closed.
     this.ignoreNextBlur = true;
     this.update({
@@ -87,14 +93,14 @@ class SelectInput extends React.Component<SelectInputProps> {
     });
   };
 
-  handleClose = event => {
+  handleClose = (event: AnyBecauseTodo) => {
     this.update({
       open: false,
       event,
     });
   };
 
-  handleItemClick = child => event => {
+  handleItemClick = (child: AnyBecauseTodo) => (event: AnyBecauseTodo) => {
     if (!this.props.multiple) {
       this.update({
         open: false,
@@ -125,7 +131,7 @@ class SelectInput extends React.Component<SelectInputProps> {
     }
   };
 
-  handleBlur = event => {
+  handleBlur = (event: AnyBecauseTodo) => {
     if (this.ignoreNextBlur === true) {
       // The parent components are relying on the bubbling of the event.
       event.stopPropagation();
@@ -141,7 +147,7 @@ class SelectInput extends React.Component<SelectInputProps> {
     }
   };
 
-  handleKeyDown = event => {
+  handleKeyDown = (event: AnyBecauseTodo) => {
     if (this.props.readOnly) {
       return;
     }
@@ -205,11 +211,11 @@ class SelectInput extends React.Component<SelectInputProps> {
     } = this.props;
     const open = this.isOpenControlled && this.displayRef ? openProp : this.state.open;
 
-    delete other['aria-invalid'];
+    const otherWithoutAriaInvalid = omit(other, ['aria-invalid']);
 
     let display;
     let displaySingle = '';
-    const displayMultiple = [];
+    const displayMultiple: AnyBecauseTodo[] = [];
     let computeDisplay = false;
 
     // No need to display any value if the field is empty.
@@ -244,14 +250,14 @@ class SelectInput extends React.Component<SelectInputProps> {
           );
         }
 
-        selected = value.indexOf(child.props.value) !== -1;
+        selected = value.indexOf((child.props as AnyBecauseTodo).value) !== -1;
         if (selected && computeDisplay) {
-          displayMultiple.push(child.props.children);
+          displayMultiple.push((child.props as AnyBecauseTodo).children);
         }
       } else {
-        selected = value === child.props.value;
+        selected = value === (child.props as AnyBecauseTodo).value;
         if (selected && computeDisplay) {
-          displaySingle = child.props.children;
+          displaySingle = (child.props as AnyBecauseTodo).children;
         }
       }
 
@@ -260,7 +266,7 @@ class SelectInput extends React.Component<SelectInputProps> {
         role: 'option',
         selected,
         value: undefined, // The value is most likely not a valid HTML attribute.
-        'data-value': child.props.value, // Instead, we provide it as a data attribute.
+        'data-value': (child.props as AnyBecauseTodo).value, // Instead, we provide it as a data attribute.
       });
     });
 
@@ -298,13 +304,13 @@ class SelectInput extends React.Component<SelectInputProps> {
           ref={this.handleDisplayRef}
           data-mui-test="SelectDisplay"
           aria-pressed={open ? 'true' : 'false'}
-          tabIndex={tabIndex}
+          tabIndex={tabIndex ?? undefined}
           role="button"
-          aria-owns={open ? `menu-${name || ''}` : null}
+          aria-owns={open ? `menu-${name || ''}` : undefined}
           aria-haspopup="true"
           onKeyDown={this.handleKeyDown}
           onBlur={this.handleBlur}
-          onClick={disabled || readOnly ? null : this.handleClick}
+          onClick={disabled || readOnly ? undefined : this.handleClick}
           onFocus={onFocus}
           {...SelectDisplayProps}
         >
@@ -317,22 +323,14 @@ class SelectInput extends React.Component<SelectInputProps> {
           name={name}
           ref={this.handleInputRef}
           type={type}
-          {...other}
+          {...otherWithoutAriaInvalid}
         />
         <ArrowDropDownIcon className={classes.icon} />
         <Menu
-          id={`menu-${name || ''}`}
           anchorEl={this.displayRef}
-          open={open}
+          open={open ?? false}
           onClose={this.handleClose}
-          MenuListProps={{
-            role: 'listbox',
-          }}
-          PaperProps={{
-            style: {
-              minWidth: menuMinWidth,
-            },
-          }}
+          minWidth={menuMinWidth ?? undefined}
         >
           {items}
         </Menu>
