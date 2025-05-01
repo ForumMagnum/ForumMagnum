@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
+  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
 
   const currentUser = useCurrentUser();
 

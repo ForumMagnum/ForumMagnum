@@ -30,7 +30,7 @@ export const PetrovAdminConsole = ({classes, currentUser}: {
   currentUser: UsersCurrent
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { PetrovWorldmapWrapper, WrappedSmartForm, Row } = Components;
+  const { PetrovWorldmapWrapper, Row } = Components;
 
   const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
     collectionName: 'PetrovDayActions',

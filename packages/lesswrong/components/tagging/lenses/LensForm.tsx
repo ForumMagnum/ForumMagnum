@@ -17,6 +17,7 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useCallback, useState } from "react";
+import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 
 const formStyles = defineStyles('MultiDocumentsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -40,10 +41,9 @@ export const LensForm = ({
   onCancel: () => void;
   onChange?: () => void;
 }) => {
-  const { Error404, FormGroupLayout, FormGroupHeader, SummariesEditForm } = Components;
+  const { Error404, SummariesEditForm } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
-  const [summariesGroupCollapsed, setSummariesGroupCollapsed] = useState(false);
 
   const formType = initialData ? 'edit' : 'new';
 
@@ -203,23 +203,16 @@ export const LensForm = ({
       </div>}
 
       {/* If we're editing a lens, then we want to show the summaries group, but not otherwise */}
-      {initialData && <FormGroupLayout
+      {initialData && <LegacyFormGroupLayout
         label="Summaries"
-        collapsed={summariesGroupCollapsed}
-        heading={<FormGroupHeader
-          label="Summaries"
-          collapsed={summariesGroupCollapsed}
-          toggle={() => setSummariesGroupCollapsed(!summariesGroupCollapsed)}
-        />}
-        footer={<></>}
-        hasErrors={false}
+        startCollapsed={false}
         groupStyling
       >
         <SummariesEditForm
           parentDocumentId={initialData._id}
           collectionName={'MultiDocuments'}
         />
-      </FormGroupLayout>}
+      </LegacyFormGroupLayout>}
 
       <div className="form-submit">
         <Button

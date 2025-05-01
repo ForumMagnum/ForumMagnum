@@ -22,7 +22,7 @@ import { PostSharingSettings } from "../editor/PostSharingSettings";
 import { CoauthorsListEditor } from "../form-components/CoauthorsListEditor";
 import { EditPostCategory } from "../form-components/EditPostCategory";
 import { FMCrosspostControl } from "../form-components/FMCrosspostControl";
-import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
+import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentPostEditorTagging } from "../form-components/FormComponentPostEditorTagging";
 import { PodcastEpisodeInput } from "../form-components/PodcastEpisodeInput";
 import { SelectLocalgroup } from "../form-components/SelectLocalgroup";
@@ -157,7 +157,9 @@ export const PostForm = ({
       ]);
 
       try {
-      let result: PostsEditMutationFragment;
+        let result: PostsEditMutationFragment;
+
+        formApi.deleteField('contents_type');
 
         if (formType === 'new') {
           const { data } = await create({ data: formApi.state.values });
@@ -406,7 +408,7 @@ export const PostForm = ({
           <form.Field name="startTime">
             {(field) => (
               <LWTooltip title="For courses/programs, this is the application deadline." placement="left-start" inlineBlock={false}>
-                <TanStackDatePicker
+                <FormComponentDatePicker
                   field={field}
                   label="Start Time"
                 />
@@ -418,7 +420,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="endTime">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 label="End Time"
               />
@@ -733,7 +735,7 @@ export const PostForm = ({
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="postedAt">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 label="Posted at"
               />
@@ -894,7 +896,7 @@ export const PostForm = ({
         {(!isEAForum || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="curatedDate">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 label="Curated date"
               />
@@ -905,7 +907,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="metaDate">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 label="Meta date"
               />
@@ -1151,7 +1153,7 @@ export const PostForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="commentsLockedToAccountsCreatedAfter">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 label="Comments locked to accounts created after"
               />

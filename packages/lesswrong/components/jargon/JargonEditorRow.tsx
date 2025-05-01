@@ -234,7 +234,7 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
       }
     })
   }
-  const { JargonTooltip, WrappedSmartForm, ContentItemBody, LWTooltip } = Components;
+  const { JargonTooltip, ContentItemBody, LWTooltip } = Components;
 
   const jargonDefinition = jargonTerm?.contents?.html ?? '';
 

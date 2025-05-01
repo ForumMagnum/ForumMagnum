@@ -6,7 +6,7 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
+import { FormComponentDatePicker } from '../form-components/FormComponentDateTime';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -102,7 +102,7 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
           <div className={classes.fieldWrapper}>
             <form.Field name="endedAt">
               {(field) => (
-                <TanStackDatePicker
+                <FormComponentDatePicker
                   field={field}
                   label="Ended at"
                 />

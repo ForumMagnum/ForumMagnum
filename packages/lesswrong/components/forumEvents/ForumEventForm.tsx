@@ -13,7 +13,7 @@ import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFor
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { TagSelect } from "@/components/form-components/TagSelect";
-import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
+import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentColorPicker } from "@/components/form-components/FormComponentColorPicker";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
@@ -192,7 +192,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="startDate">
           {(field) => (
-            <TanStackDatePicker
+            <FormComponentDatePicker
               field={field}
               below={true}
               label="Start date"
@@ -204,7 +204,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="endDate">
           {(field) => (
-            <TanStackDatePicker
+            <FormComponentDatePicker
               field={field}
               below={true}
               label="End date"

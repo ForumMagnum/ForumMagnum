@@ -4,7 +4,7 @@ import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { Components } from "@/lib/vulcan-lib/components";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useState } from "react";
+import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
@@ -13,6 +13,7 @@ import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-fo
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
 
 const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -37,7 +38,6 @@ export const ChaptersForm = ({
   onPostIdsChanged?: (newPostIds: string[]) => void;
 }) => {
   const classes = useStyles(formStyles);
-  const [detailsCollapsed, setDetailsCollapsed] = useState(true);
   const { Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
@@ -147,17 +147,10 @@ export const ChaptersForm = ({
         </form.Field>
       </div>
 
-      <Components.FormGroupLayout
+      <LegacyFormGroupLayout
         label="Chapter Details"
         groupStyling
-        collapsed={detailsCollapsed}
-        heading={<Components.FormGroupHeader
-          label="Chapter Details"
-          collapsed={detailsCollapsed}
-          toggle={() => setDetailsCollapsed(!detailsCollapsed)}
-        />}
-        footer={<></>}
-        hasErrors={false}
+        startCollapsed={true}
       >
         <div className={classes.fieldWrapper}>
           <form.Field name="title">
@@ -194,7 +187,7 @@ export const ChaptersForm = ({
             )}
           </form.Field>
         </div>
-      </Components.FormGroupLayout>
+      </LegacyFormGroupLayout>
 
       <div className="form-submit">
         <Button

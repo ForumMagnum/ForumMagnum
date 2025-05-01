@@ -65,7 +65,7 @@ function mergeStringsWithDiff(
       }
       if (ok) {
         const cand = { nextI: i + delta, nextJ: j, cost: delta };
-        if (!best || cand.cost < best.cost) best = cand;
+        if (!best || cand.cost < (best as Candidate).cost) best = cand;
         break;  // no point scanning larger delta once we’ve found the first
       }
     }
@@ -158,7 +158,7 @@ function inlineFormField<T>(key: string, value: T, fieldName: string, collection
     value = value();
 
     if (value === defaultEditorPlaceholder) {
-      value = `{defaultEditorPlaceholder}`;
+      value = `{defaultEditorPlaceholder}` as T;
       // Early return before `jsxLiteral` call to avoid it being stringified further
       return `${key}=${value}` as ReturnType;
     }
@@ -168,7 +168,7 @@ function inlineFormField<T>(key: string, value: T, fieldName: string, collection
     value = value();
   }
 
-  let valueStr = skipJsxLiteralConversion ? value : jsxLiteral(value);
+  let valueStr = (skipJsxLiteralConversion ? value : jsxLiteral(value)) as string;
   if (valueStr.includes('[Function: defaultLocalStorageIdGenerator]')) {
     valueStr = valueStr.replace('[Function: defaultLocalStorageIdGenerator]', `getDefaultLocalStorageIdGenerator('${collectionName}')`);
   }
@@ -278,7 +278,7 @@ function jsxLiteral(value: any): string {
  *  2. fallback heuristic (same as FormComponent.getInputType logic)
  */
 function getComponentName(fieldName: string, fieldSpec: DerivedSimpleSchemaFieldType, collectionName: string): { component: string; props?: string[]; todo?: string } {
-  const control = fieldSpec.control;
+  const control = fieldSpec.control as string;
 
   // 1. direct mapping
   if (control) {

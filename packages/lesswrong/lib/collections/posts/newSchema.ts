@@ -1008,7 +1008,7 @@ const schema = {
     form: {
       label: "Read time (minutes)",
       tooltip: "By default, this is calculated from the word count. Enter a value to override.",
-      control: "FormComponentNumber",
+      // control: "FormComponentNumber",
       group: () => formGroups.adminOptions,
     },
   },

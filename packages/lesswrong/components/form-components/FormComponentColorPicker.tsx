@@ -13,6 +13,26 @@ const styles = defineStyles('FormComponentColorPicker', (theme: ThemeType) => ({
   },
 }));
 
+export const ColorPicker = ({ value, onChange, disabled, label }: {
+  value: string | null;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  label?: string;
+}) => {
+  const classes = useStyles(styles);
+  return (
+    <div className={classes.root}>
+      {label && <div className={classes.label}>{label}</div>}
+      <input
+        type="color"
+        value={value || "#ffffff"}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+      />
+    </div>
+  );
+};
+
 interface FormComponentColorPickerProps {
   field: TypedFieldApi<string | null>;
   label: string;
@@ -24,16 +44,10 @@ export const FormComponentColorPicker = ({
   label,
   disabled,
 }: FormComponentColorPickerProps) => {
-  const classes = useStyles(styles);
-  return (
-    <div className={classes.root}>
-      {label && <div className={classes.label}>{label}</div>}
-      <input
-        type="color"
-        value={field.state.value || "#ffffff"}
-        onChange={(e) => field.handleChange(e.target.value)}
-        disabled={disabled}
-      />
-    </div>
-  );
+  return <ColorPicker
+    value={field.state.value}
+    onChange={(value) => field.handleChange(value)}
+    disabled={disabled}
+    label={label}
+  />
 }

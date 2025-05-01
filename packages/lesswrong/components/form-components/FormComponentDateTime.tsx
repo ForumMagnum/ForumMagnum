@@ -1,5 +1,4 @@
 import React, { useCallback, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DateTimePicker from 'react-datetime';
 import moment from '../../lib/moment-timezone';
@@ -308,35 +307,8 @@ const DatePicker = ({label, name, value, below, onChange, classes}: {
   </FormControl>
 }
 
-type FormComponentDateTimeProps = FormComponentProps<string|Date> & {
-  below?: boolean,
-}
 
-/**
- * Date-picker UI element, wrapped for use in vulcan-forms.
- * TODO: This may not work right in nested contexts.
- */
-const FormComponentDateTime = (
-  {path, value, name, label, below, updateCurrentValues}: FormComponentDateTimeProps,
-) => {
-  const updateDate = (date: Date | undefined) => {
-    if (date) {
-      void updateCurrentValues({[path]: date})
-    }
-  }
-
-  const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
-
-  return <Components.DatePicker
-    label={label}
-    name={name}
-    value={date}
-    onChange={updateDate}
-    below={below}
-  />
-}
-
-export const TanStackDatePicker = ({ field, label, name, below }: {
+export const FormComponentDatePicker = ({ field, label, name, below }: {
   field: TypedFieldApi<Date | null>,
   label: string,
   name?: string,
@@ -358,12 +330,10 @@ export const TanStackDatePicker = ({ field, label, name, below }: {
 }
 
 const DatePickerComponent = registerComponent("DatePicker", DatePicker, {styles});
-const FormComponentDateTimeComponent = registerComponent("FormComponentDateTime", FormComponentDateTime);
 
 declare global {
   interface ComponentTypes {
     DatePicker: typeof DatePickerComponent
-    FormComponentDateTime: typeof FormComponentDateTimeComponent
   }
 }
 

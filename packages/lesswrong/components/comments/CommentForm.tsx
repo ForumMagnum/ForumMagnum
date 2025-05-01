@@ -13,7 +13,7 @@ import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFor
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
-import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
+import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
@@ -437,7 +437,7 @@ export const CommentForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="repliesBlockedUntil">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 label="Replies blocked until"
               />

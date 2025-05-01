@@ -18,6 +18,7 @@ import { FormUserSelect } from "@/components/form-components/UserSelect";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
 
 const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -39,11 +40,9 @@ export const SequencesForm = ({
   onSuccess: (doc: SequencesEdit) => void;
   onCancel: () => void;
 }) => {
-  const { LWTooltip, Error404, FormGroupLayout, FormGroupHeader } = Components;
+  const { LWTooltip, Error404 } = Components;
 
   const classes = useStyles(formStyles);
-  const [adminOptionsCollapsed, setAdminOptionsCollapsed] = useState(false);
-  const [advancedOptionsCollapsed, setAdvancedOptionsCollapsed] = useState(true);
 
   const formType = initialData ? 'edit' : 'new';
 
@@ -196,16 +195,9 @@ export const SequencesForm = ({
         </form.Field>
       </div>
 
-      {userIsAdminOrMod(currentUser) && <FormGroupLayout
+      {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout
         label={preferredHeadingCase("Admin Options")}
-        collapsed={adminOptionsCollapsed}
-        heading={<FormGroupHeader
-          label={preferredHeadingCase("Admin Options")}
-          collapsed={adminOptionsCollapsed}
-          toggle={() => setAdminOptionsCollapsed(!adminOptionsCollapsed)}
-        />}
-        footer={<></>}
-        hasErrors={false}
+        startCollapsed={true}
         groupStyling
       >
         {userIsAdmin(currentUser) && <div className={classNames('form-input', 'input-userId', classes.fieldWrapper)}>
@@ -279,18 +271,11 @@ export const SequencesForm = ({
             )}
           </form.Field>
         </div>
-      </FormGroupLayout>}
+      </LegacyFormGroupLayout>}
 
-      <FormGroupLayout
+      <LegacyFormGroupLayout
         label={preferredHeadingCase("Advanced Options")}
-        collapsed={advancedOptionsCollapsed}
-        heading={<FormGroupHeader
-          label={preferredHeadingCase("Advanced Options")}
-          collapsed={advancedOptionsCollapsed}
-          toggle={() => setAdvancedOptionsCollapsed(!advancedOptionsCollapsed)}
-        />}
-        footer={<></>}
-        hasErrors={false}
+        startCollapsed={true}
         groupStyling
       >
         <div className={classNames('form-input', 'input-isDeleted', 'form-component-checkbox', classes.fieldWrapper)}>
@@ -305,7 +290,7 @@ export const SequencesForm = ({
             )}
           </form.Field>
         </div>
-      </FormGroupLayout>
+      </LegacyFormGroupLayout>
 
       <div className="form-submit">
         <Button

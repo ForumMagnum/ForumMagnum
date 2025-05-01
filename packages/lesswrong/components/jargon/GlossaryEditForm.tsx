@@ -286,7 +286,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   document: EditablePost,
   showTitle?: boolean,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;
 
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",

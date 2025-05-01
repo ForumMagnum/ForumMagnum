@@ -14,7 +14,7 @@ import { getUpdatedFieldValues } from '@/components/tanstack-form-components/hel
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { TanStackDatePicker } from '../form-components/FormComponentDateTime';
+import { FormComponentDatePicker } from '../form-components/FormComponentDateTime';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
@@ -274,7 +274,7 @@ export const UserRateLimitsForm = ({
         <div className={classNames('input-endedAt', classes.fieldWrapper)}>
           <form.Field name="endedAt">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 label="Ended at"
               />
@@ -315,7 +315,7 @@ export const UserRateLimitItem = ({ userId, classes }: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { WrappedSmartForm, MenuItem, Loading, MetaInfo, LWTooltip } = Components;
+  const { MenuItem, Loading, MetaInfo, LWTooltip } = Components;
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 

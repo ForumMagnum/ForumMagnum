@@ -13,7 +13,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
-import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
+import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/newSchema";
 import { useSingle } from "@/lib/crud/withSingle";
@@ -188,7 +188,7 @@ const SurveySchedulesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="startDate">
           {(field) => (
-            <TanStackDatePicker
+            <FormComponentDatePicker
               field={field}
               label="Start date"
             />
@@ -199,7 +199,7 @@ const SurveySchedulesForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="endDate">
           {(field) => (
-            <TanStackDatePicker
+            <FormComponentDatePicker
               field={field}
               label="End date"
             />
@@ -252,7 +252,7 @@ const SurveyScheduleEditor = () => {
     navigate("/admin/surveys");
   }, [navigate]);
 
-  const { SingleColumnSection, SectionTitle, WrappedSmartForm } = Components;
+  const { SingleColumnSection, SectionTitle } = Components;
   return (
     <SingleColumnSection className={classes.root}>
       <Link to="/admin/surveys" className={classes.surveyAdmin}>

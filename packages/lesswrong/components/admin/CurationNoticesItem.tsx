@@ -91,7 +91,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentItemBody, BasicFormStyles, WrappedSmartForm } = Components;
+  const { ContentItemBody, BasicFormStyles } = Components;
 
   const currentUser = useCurrentUser();
 

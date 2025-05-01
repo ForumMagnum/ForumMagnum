@@ -1,5 +1,5 @@
 import { useMessages } from '@/components/common/withMessages';
-import React from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -9,7 +9,7 @@ import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { useNavigate } from '@/lib/routeUtil.tsx';
+import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
 import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
 import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -28,7 +28,7 @@ import classNames from 'classnames';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
-import { TanStackDatePicker } from '@/components/form-components/FormComponentDateTime';
+import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
 import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
 import { GROUP_OPTIONS, REACT_PALETTE_STYLE_OPTIONS, SORT_DRAFTS_BY_OPTIONS } from '@/lib/collections/users/newSchema';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
@@ -36,6 +36,7 @@ import { EmailConfirmationRequiredCheckbox } from '../EmailConfirmationRequiredC
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
+import { HIGHLIGHT_DURATION } from '@/components/comments/CommentFrame';
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
@@ -60,7 +61,41 @@ const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit * 2,
   },
   submitButton: submitButtonStyles(theme),
+  '@keyframes higlight-animation': {
+    from: {
+      // In most cases it would look better with a border. But because this has to support so many different components, it's hard to know what the border should be, so instead just use a background color.
+      backgroundColor: theme.palette.panelBackground.commentHighlightAnimation,
+      borderRadius: 5,
+    },
+    to: {
+      backgroundColor: "none",
+      borderRadius: 5,
+    }
+  },
+  highlightAnimation: {
+    animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
+  },
 }));
+
+const HighlightableField = ({ name, children }: { name: string, children: React.ReactNode }) => {
+  const classes = useStyles(styles);
+  const [highlight, setHighlight] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { query } = useLocation();
+
+  // If highlightField is set to this field, scroll it into view and highlight it
+  useEffect(() => {
+    if (name && name === query?.highlightField) {
+      scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      setHighlight(true);
+      setTimeout(() => {
+        setHighlight(false);
+      }, HIGHLIGHT_DURATION * 1000);
+    }
+  }, [name, query?.highlightField]);
+
+  return <div className={classNames(highlight && classes.highlightAnimation)} ref={scrollRef}>{children}</div>;
+};
 
 const privilegeCheckboxFields = [
   { fieldName: "postingDisabled", label: "Posting disabled" },
@@ -68,97 +103,6 @@ const privilegeCheckboxFields = [
   { fieldName: "commentingOnOtherUsersDisabled", label: "Commenting on other users disabled" },
   { fieldName: "conversationsDisabled", label: "Conversations disabled" },
 ] as const;
-
-type UserAccountSettingsFields =
-  | 'displayName'
-  | 'previousDisplayName'
-  | 'email'
-  | 'fullName'
-  | 'biography'
-  | 'theme'
-  | 'commentSorting'
-  | 'sortDraftsBy'
-  | 'hideFrontpageMap'
-  | 'hideFrontpageBook2020Ad'
-  | 'noKibitz'
-  | 'showHideKarmaOption'
-  | 'beta'
-  | 'hideIntercom'
-  | 'markDownPostEditor'
-  | 'hideElicitPredictions'
-  | 'hideAFNonMemberInitialWarning'
-  | 'noSingleLineComments'
-  | 'noCollapseCommentsPosts'
-  | 'noCollapseCommentsFrontpage'
-  | 'hideCommunitySection'
-  | 'showCommunityInRecentDiscussion'
-  | 'hidePostsRecommendations'
-  | 'optedOutOfSurveys'
-  | 'postGlossariesPinned'
-  | 'googleLocation'
-  | 'mapLocation'
-  | 'reactPaletteStyle'
-  | 'auto_subscribe_to_my_posts'
-  | 'auto_subscribe_to_my_comments'
-  | 'autoSubscribeAsOrganizer'
-  | 'notificationCommentsOnSubscribedPost'
-  | 'notificationShortformContent'
-  | 'notificationRepliesToMyComments'
-  | 'notificationRepliesToSubscribedComments'
-  | 'notificationSubscribedUserPost'
-  | 'notificationSubscribedUserComment'
-  | 'notificationPostsInGroups'
-  | 'notificationSubscribedTagPost'
-  | 'notificationSubscribedSequencePost'
-  | 'notificationPrivateMessage'
-  | 'notificationSharedWithMe'
-  | 'notificationAlignmentSubmissionApproved'
-  | 'notificationEventInRadius'
-  | 'notificationRSVPs'
-  | 'notificationGroupAdministration'
-  | 'notificationCommentsOnDraft'
-  | 'notificationSubforumUnread'
-  | 'notificationNewMention'
-  | 'notificationDialogueMessages'
-  | 'notificationPublishedDialogueMessages'
-  | 'notificationAddedAsCoauthor'
-  | 'karmaChangeNotifierSettings'
-  | 'whenConfirmationEmailSent'
-  | 'emailSubscribedToCurated'
-  | 'subscribedToDigest'
-  | 'unsubscribeFromAll'
-  | 'hideFromPeopleDirectory'
-  | 'allowDatadogSessionReplay'
-  | 'twitterProfileURLAdmin'
-  | 'slug'
-  | 'noindex'
-  | 'sunshineNotes'
-  | 'sunshineFlagged'
-  | 'needsReview'
-  | 'sunshineSnoozed'
-  | 'snoozedUntilContentCount'
-  | 'reviewedByUserId'
-  | 'reviewedAt'
-  | 'shortformFeedId'
-  | 'viewUnreviewedComments'
-  | 'defaultToCKEditor'
-  | 'signUpReCaptchaRating'
-  | 'abTestKey'
-  | 'hideSunshineSidebar'
-  | 'paymentEmail'
-  | 'paymentInfo'
-  | 'nullifyVotes'
-  | 'deleteContent'
-  | 'banned'
-  | 'moderationGuidelines'
-  | 'moderationStyle'
-  | 'moderatorAssistance'
-  | 'collapseModerationGuidelines'
-  | 'bannedUserIds'
-  | 'bannedPersonalUserIds'
-  | 'isAdmin'
-  | 'groups'
-  | 'deleted';
 
 const UsersForm = ({
   initialData,
@@ -169,8 +113,12 @@ const UsersForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: UsersEdit) => void;
 }) => {
-  const classes = useStyles(styles);
   const { LWTooltip, Error404, PrefixedInput, NotificationTypeSettingsWidget, KarmaChangeNotifierSettings, UsersEmailVerification } = Components;
+
+  const classes = useStyles(styles);
+  const { query } = useLocation();
+
+  const highlightedField = query?.highlightField ?? null;
   
   const formType = 'edit';
 
@@ -296,7 +244,7 @@ const UsersForm = ({
         </div>}
       </div>
 
-      <LegacyFormGroupLayout label={preferredHeadingCase("Site Customizations")} startCollapsed={true}>
+      <LegacyFormGroupLayout label={preferredHeadingCase("Site Customizations")} startCollapsed={true && highlightedField !== "googleLocation"}>
         {!isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="theme">
             {(field) => (
@@ -522,7 +470,8 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {hasEventsSetting.get() && <div className={classes.fieldWrapper}>
+        {hasEventsSetting.get() && <HighlightableField name="googleLocation">
+          <div className={classes.fieldWrapper}>
           <form.Field name="googleLocation">
             {(field) => (
               <LocationFormComponent
@@ -532,7 +481,8 @@ const UsersForm = ({
               />
             )}
           </form.Field>
-        </div>}
+          </div>
+        </HighlightableField>}
 
         {/* TODO: add custom validation (simpleSchema present) */}
         {/* TODO: custom hidden prop; implement conditional visibility for mapLocation */}
@@ -561,7 +511,8 @@ const UsersForm = ({
         </div>}
       </LegacyFormGroupLayout>
 
-      <LegacyFormGroupLayout label="Notifications" startCollapsed={true}>
+      <LegacyFormGroupLayout label="Notifications" startCollapsed={true && !!highlightedField && !["auto_subscribe_to_my_posts", "notificationSubscribedTagPost", "karmaChangeNotifierSettings"].includes(highlightedField)}>
+        <HighlightableField name="auto_subscribe_to_my_posts">
         <div className={classes.fieldWrapper}>
           <form.Field name="auto_subscribe_to_my_posts">
             {(field) => (<>
@@ -573,6 +524,7 @@ const UsersForm = ({
             </>)}
           </form.Field>
         </div>
+        </HighlightableField>
 
         <div className={classes.fieldWrapper}>
           <form.Field name="auto_subscribe_to_my_comments">
@@ -673,6 +625,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
+        <HighlightableField name="notificationSubscribedTagPost">
         <div className={classes.fieldWrapper}>
           <form.Field name="notificationSubscribedTagPost">
             {(field) => (
@@ -683,6 +636,7 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>
+        </HighlightableField>
 
         {allowSubscribeToSequencePosts && <div className={classes.fieldWrapper}>
           <form.Field name="notificationSubscribedSequencePost">
@@ -827,6 +781,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
+        <HighlightableField name="karmaChangeNotifierSettings">
         <div className={classes.fieldWrapper}>
           <form.Field name="karmaChangeNotifierSettings">
             {(field) => (
@@ -836,9 +791,10 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>
+        </HighlightableField>
       </LegacyFormGroupLayout>
 
-      <LegacyFormGroupLayout label="Emails" startCollapsed={true}>
+      <LegacyFormGroupLayout label="Emails" startCollapsed={true && highlightedField !== "subscribedToDigest"}>
         {/* TODO: 'UsersEmailVerification' not yet ported - implement TanStackUsersEmailVerification */}
         {verifyEmailsSetting.get() && <div className={classes.fieldWrapper}>
           <form.Field name="whenConfirmationEmailSent">
@@ -857,7 +813,8 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isEAForum && <div className={classes.fieldWrapper}>
+        {isEAForum && <HighlightableField name="subscribedToDigest">
+          <div className={classes.fieldWrapper}>
           <form.Field name="subscribedToDigest">
             {(field) => (
               <FormComponentCheckbox
@@ -866,7 +823,8 @@ const UsersForm = ({
               />
             )}
           </form.Field>
-        </div>}
+        </div>
+        </HighlightableField>}
 
         <div className={classes.fieldWrapper}>
           <form.Field name="unsubscribeFromAll">
@@ -1014,7 +972,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="reviewedAt">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 // type="date"
                 // InputLabelProps={{ shrink: true }}
@@ -1163,7 +1121,7 @@ const UsersForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="banned">
             {(field) => (
-              <TanStackDatePicker
+              <FormComponentDatePicker
                 field={field}
                 label="Ban user until"
               />

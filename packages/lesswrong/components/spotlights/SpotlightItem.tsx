@@ -501,7 +501,7 @@ export const SpotlightItem = ({
 
   const {
     MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
-    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
+    SpotlightEditorStyles, SpotlightStartOrContinueReading,
     Typography, LWTooltip, ForumIcon, CommentsNode
   } = Components
 

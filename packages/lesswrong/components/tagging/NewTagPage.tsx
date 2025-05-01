@@ -26,7 +26,7 @@ export const styles = (_theme: ThemeType) => ({
 const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, SectionTitle, WrappedSmartForm, NewTagInfoBox, Loading } = Components;
+  const { SingleColumnSection, SectionTitle, NewTagInfoBox, Loading } = Components;
   const {mutate: updateTag} = useUpdate({
     collectionName: "Tags",
     fragmentName: "TagEditFragment",

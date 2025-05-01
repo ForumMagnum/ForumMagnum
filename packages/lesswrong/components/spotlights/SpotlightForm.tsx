@@ -13,7 +13,7 @@ import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { TanStackDatePicker } from "../form-components/FormComponentDateTime";
+import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { FormComponentColorPicker } from "@/components/form-components/FormComponentColorPicker";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -234,7 +234,7 @@ export const SpotlightForm = ({
           <div className={classNames('input-lastPromotedAt', inputFieldClass)}>
             <form.Field name="lastPromotedAt">
               {(field) => (
-                <TanStackDatePicker
+                <FormComponentDatePicker
                   field={field}
                   label="Last promoted at"
                 />
