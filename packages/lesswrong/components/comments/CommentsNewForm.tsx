@@ -20,7 +20,6 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { borderBottomRightRadius, borderTopRightRadius } from 'html2canvas/dist/types/css/property-descriptors/border-radius';
 import { hasDraftComments } from '@/lib/betas';
 
 export type FormDisplayMode = "default" | "minimalist"
@@ -85,7 +84,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim2,
   },
   submit: {
-    textAlign: 'right',
+    display: 'flex',
+    justifyContent: 'end',
   },
   submitQuickTakes: {
     background: theme.palette.grey[100],
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     textTransform: 'none',
     padding: '6px 12px',
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.default,
     boxShadow: 'none',
     marginLeft: 8,
   } : {
@@ -118,6 +118,9 @@ const styles = (theme: ThemeType) => ({
   },
   cancelButton: {
     color: isFriendlyUI ? undefined : theme.palette.grey[400],
+  },
+  submitWrapper: {
+    display: "flex"
   },
   submitButton: isFriendlyUI ? {
     backgroundColor: theme.palette.buttons.alwaysPrimary,
@@ -209,7 +212,7 @@ const CommentSubmit = ({
   className?: string,
   classes: ClassesType<typeof styles>;
 }) => {
-  const { Loading } = Components;
+  const { Loading, CommentsSubmitDropdown } = Components;
 
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -226,6 +229,8 @@ const CommentSubmit = ({
     isMinimalist ? classes.formButtonMinimalist : classes.formButton,
     hasDraftComments && classes.submitSegmented
   );
+
+  const showSubmitDropdown = hasDraftComments;
 
   return (
     <div
@@ -244,23 +249,26 @@ const CommentSubmit = ({
           {cancelLabel}
         </Button>
       )}
-      <Button
-        type="submit"
-        id="new-comment-submit"
-        className={classNames(submitClassName, classes.submitButton)}
-        onClick={(ev) => {
-          if (!currentUser) {
-            openDialog({
-              name: "LoginPopup",
-              contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>,
-            });
-            ev.preventDefault();
-          }
-        }}
-        {...submitBtnProps}
-      >
-        {loading ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
-      </Button>
+      <div className={classes.submitWrapper}>
+        <Button
+          type="submit"
+          id="new-comment-submit"
+          className={classNames(submitClassName, classes.submitButton)}
+          onClick={(ev) => {
+            if (!currentUser) {
+              openDialog({
+                name: "LoginPopup",
+                contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>,
+              });
+              ev.preventDefault();
+            }
+          }}
+          {...submitBtnProps}
+        >
+          {loading ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
+        </Button>
+        {showSubmitDropdown && <CommentsSubmitDropdown />}
+      </div>
     </div>
   );
 }

@@ -76,6 +76,7 @@ importComponent("CommentsListSection", () => require("../../components/comments/
 importComponent("CommentsNewForm", () => require("../../components/comments/CommentsNewForm.tsx"));
 importComponent("CommentsNode", () => require("../../components/comments/CommentsNode.tsx"));
 importComponent("CommentsSortBySelector", () => require("../../components/comments/CommentsSortBySelector.tsx"));
+importComponent("CommentsSubmitDropdown", () => require("../../components/comments/CommentsSubmitDropdown.tsx"));
 importComponent("CommentsTableOfContents", () => require("../../components/comments/CommentsTableOfContents.tsx"));
 importComponent("CommentsViews", () => require("../../components/comments/CommentsViews.tsx"));
 importComponent("DebateBody", () => require("../../components/comments/DebateBody.tsx"));
