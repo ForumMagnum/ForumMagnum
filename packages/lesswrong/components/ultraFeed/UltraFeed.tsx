@@ -220,7 +220,7 @@ const UltraFeedContent = () => {
         <OverflowNavObserverProvider>
           <SingleColumnSection>
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
-            {true && (
+            {settingsVisible && (
               <div className={classes.settingsContainer}>
                 <UltraFeedSettings 
                   settings={settings}
