@@ -295,6 +295,13 @@ export const darkModeTheme: UserThemeSpecification = {
     arbital: {
       arbitalGreen: '#02796b',
     },
+    action: {
+      active: '#fff',
+      hover: greyAlpha(0.1),
+      hoverOpacity: 0.1,
+      disabled: greyAlpha(0.3),
+      disabledBackground: greyAlpha(0.12),
+    },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     postImageStyles: {
