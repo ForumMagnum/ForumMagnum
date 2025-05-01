@@ -511,7 +511,7 @@ const UsersForm = ({
         </div>}
       </LegacyFormGroupLayout>
 
-      <LegacyFormGroupLayout label="Notifications" startCollapsed={true && !!highlightedField && !["auto_subscribe_to_my_posts", "notificationSubscribedTagPost", "karmaChangeNotifierSettings"].includes(highlightedField)}>
+      <LegacyFormGroupLayout label="Notifications" startCollapsed={true && (!highlightedField || !["auto_subscribe_to_my_posts", "notificationSubscribedTagPost", "karmaChangeNotifierSettings"].includes(highlightedField))}>
         <HighlightableField name="auto_subscribe_to_my_posts">
         <div className={classes.fieldWrapper}>
           <form.Field name="auto_subscribe_to_my_posts">
@@ -1052,7 +1052,7 @@ const UsersForm = ({
         </div>}
       </LegacyFormGroupLayout>}
 
-      {isLWorAF && <LegacyFormGroupLayout label="Prize/Payment Info" startCollapsed={false}>
+      {isLWorAF && userIsAdmin(currentUser) && <LegacyFormGroupLayout label="Prize/Payment Info" startCollapsed={false}>
         <div className={classes.fieldWrapper}>
           <form.Field name="paymentEmail">
             {(field) => (
