@@ -1,7 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { DialogTitle } from "@/components/widgets/DialogTitle";
+import { DialogContent } from "@/components/widgets/DialogContent";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const EditTagsDialog = ({post, onClose }: {

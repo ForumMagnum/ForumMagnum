@@ -1,5 +1,5 @@
 import React, { FC, memo } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import rng from "../../lib/seedrandom";
 
@@ -105,8 +105,8 @@ const InitialFallback: FC<{
 });
 
 export type UserWithProfileImage = {
-  displayName: string,
-  profileImageId?: string,
+  displayName: string | null,
+  profileImageId?: string | null,
 }
 
 const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {

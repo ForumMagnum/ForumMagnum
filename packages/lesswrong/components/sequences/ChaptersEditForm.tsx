@@ -1,10 +1,10 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useCallback, useState } from 'react';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,11 +45,12 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
   const showAddDraftPostDialog = () => {
     if (saved) {
       openDialog({
-        componentName: "AddDraftPostDialog",
-        componentProps: {
-          documentId: documentId,
-          postIds: postIds,
-        }
+        name: "AddDraftPostDialog",
+        contents: ({onClose}) => <Components.AddDraftPostDialog
+          onClose={onClose}
+          documentId={documentId}
+          postIds={postIds}
+        />
       });
     } else {
       flash("Save your changes before adding draft posts.")
@@ -66,8 +67,8 @@ const ChaptersEditForm = ({classes, documentId, postIds, successCallback, cancel
         cancelCallback={cancelCallback}
         changeCallback={changeCallback}
         showRemove={true}
-        queryFragment={getFragment('ChaptersEdit')}
-        mutationFragment={getFragment('ChaptersEdit')}
+        queryFragmentName={'ChaptersEdit'}
+        mutationFragmentName={'ChaptersEdit'}
       />
       <Button color="primary" className={classNames(
         classes.addDraftButton,

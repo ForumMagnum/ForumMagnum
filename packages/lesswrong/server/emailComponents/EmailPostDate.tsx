@@ -1,13 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components } from '../../lib/vulcan-lib/components';
 import { useTimezone } from '../../components/common/withTimezone';
+import { EmailFormatDate } from './EmailFormatDate';
 
-const EmailPostDate = ({post}: {
+export const EmailPostDate = ({post}: {
   post: PostsBase
 }) => {
   const { timezone, timezoneIsKnown } = useTimezone()
   
-  const { EmailFormatDate, PrettyEventDateTime } = Components;
+  const { PrettyEventDateTime } = Components;
   
   if (post.isEvent) {
     return <span><PrettyEventDateTime post={post} timezone={timezoneIsKnown ? timezone : undefined} /></span>
@@ -15,13 +16,5 @@ const EmailPostDate = ({post}: {
     return <EmailFormatDate date={post.curatedDate}/>
   } else {
     return <EmailFormatDate date={post.postedAt}/>
-  }
-}
-
-const EmailPostDateComponent = registerComponent("EmailPostDate", EmailPostDate);
-
-declare global {
-  interface ComponentTypes {
-    EmailPostDate: typeof EmailPostDateComponent
   }
 }

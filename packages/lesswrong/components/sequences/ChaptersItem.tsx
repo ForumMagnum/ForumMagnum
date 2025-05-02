@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
@@ -70,7 +70,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
           {chapter.posts.map(post => {
             return <div key={chapter._id + post._id}>
-              <PostsItem sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
+              <PostsItem sequenceId={chapter.sequenceId ?? undefined} post={post} showReadCheckbox/>
             </div>
           })}
         </AnalyticsContext>

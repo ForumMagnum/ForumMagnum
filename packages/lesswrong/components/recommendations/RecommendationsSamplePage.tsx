@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { frontpageDaysAgoCutoffSetting } from "../../lib/scoring";
-import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useCurrentUser } from "../common/withUser";
@@ -13,13 +12,13 @@ import {
   recommendationStrategyNames,
   WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
-import Checkbox from "@material-ui/core/Checkbox";
-import Select from "@material-ui/core/Select";
-import Input from "@material-ui/core/Input";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import Select from "@/lib/vendor/@material-ui/core/src/Select";
+import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import moment from "moment";
 import qs from "qs";
-import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: {

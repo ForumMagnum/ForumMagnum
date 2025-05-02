@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { voteButtonsDisabledForUser } from "../../lib/collections/users/helpers";
 import { useDialog } from "../common/withDialog";
@@ -71,8 +71,8 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
       flash(whyYouCantVote ?? "You can't vote on this");
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
     }
   }

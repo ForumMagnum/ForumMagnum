@@ -1,11 +1,11 @@
 import React, { useState }  from "react";
 import classNames from "classnames";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink, useCommentLinkState } from "./useCommentLink";
-import { userIsAdmin } from "../../../lib/vulcan-users";
+import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
@@ -225,12 +225,10 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
-
-
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers
+    ForumIcon, CommentsMenu, UserCommentMarkers, CommentPollVote
   } = Components;
 
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
@@ -321,6 +319,7 @@ export const CommentsItemMeta = ({
         {relevantTagsTruncated.map(tag =>
           <FooterTag
             tag={tag}
+            hoverable={true}
             key={tag._id}
             className={classes.relevantTag}
             neverCoreStyling={isBookUI}
@@ -333,6 +332,7 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
+      <CommentPollVote comment={comment} />
 
       <span className={classes.rightSection}>
         {rightSectionElements}

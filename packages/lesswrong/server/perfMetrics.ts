@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import { AsyncLocalStorage } from 'async_hooks';
 import LRU from 'lru-cache';
 
-import { queuePerfMetric } from './analyticsWriter';
+import { queuePerfMetric } from './analytics/serverAnalyticsWriter';
 import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled, performanceMetricLoggingSqlSampleRate } from '../lib/instanceSettings';
 import { getClientIP } from './utils/getClientIP';
@@ -10,7 +10,6 @@ import { getClientIP } from './utils/getClientIP';
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
 interface AsyncLocalStorageContext {
-  resolverContext?: ResolverContext;
   requestPerfMetric?: IncompletePerfMetric;
   inDbRepoMethod?: boolean;
 }

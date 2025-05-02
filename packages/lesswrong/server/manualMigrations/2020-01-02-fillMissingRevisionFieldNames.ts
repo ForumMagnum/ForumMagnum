@@ -1,9 +1,9 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
-import Revisions from '../../lib/collections/revisions/collection'
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable';
+import { getCollection } from '../collections/allCollections';
+import Revisions from '../../server/collections/revisions/collection'
 
-registerMigration({
+export default registerMigration({
   name: "fillMissingRevisionFieldNamesOnSingleEditableCollections",
   dateWritten: "2020-01-02",
   idempotent: true,
@@ -29,11 +29,11 @@ registerMigration({
 function collectionsWithExactlyOneEditableField(): Array<{collectionName: CollectionNameString, fieldName: string}>
 {
   let result: Array<{collectionName: CollectionNameString, fieldName: string}> = [];
-  for (let collectionName of editableCollections) {
-    if (editableCollectionsFields[collectionName]!.length === 1) {
+  for (let collectionName of getEditableCollectionNames()) {
+    if (getEditableFieldNamesForCollection(collectionName).length === 1) {
       result.push({
         collectionName,
-        fieldName: editableCollectionsFields[collectionName]![0],
+        fieldName: getEditableFieldNamesForCollection(collectionName)[0],
       });
     }
   }

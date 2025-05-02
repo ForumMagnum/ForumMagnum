@@ -1,10 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import DateTimePicker from 'react-datetime';
 import moment from '../../lib/moment-timezone';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
 
@@ -315,12 +315,11 @@ type FormComponentDateTimeProps = FormComponentProps<string|Date> & {
  * TODO: This may not work right in nested contexts.
  */
 const FormComponentDateTime = (
-  {path, value, name, label, below}: FormComponentDateTimeProps,
-  context: FormComponentContext<string|Date>,
+  {path, value, name, label, below, updateCurrentValues}: FormComponentDateTimeProps,
 ) => {
   const updateDate = (date: Date | undefined) => {
     if (date) {
-      void context.updateCurrentValues({[path]: date})
+      void updateCurrentValues({[path]: date})
     }
   }
 
@@ -334,10 +333,6 @@ const FormComponentDateTime = (
     below={below}
   />
 }
-
-(FormComponentDateTime as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 const DatePickerComponent = registerComponent("DatePicker", DatePicker, {styles});
 const FormComponentDateTimeComponent = registerComponent("FormComponentDateTime", FormComponentDateTime);

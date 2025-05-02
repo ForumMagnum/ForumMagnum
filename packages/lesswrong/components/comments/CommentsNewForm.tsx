@@ -1,6 +1,5 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -12,7 +11,7 @@ import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/c
 import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import ArrowForward from '@material-ui/icons/ArrowForward';
+import ArrowForward from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
@@ -20,6 +19,7 @@ import moment from 'moment';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -240,8 +240,8 @@ const CommentSubmit = ({
         onClick={(ev) => {
           if (!currentUser) {
             openDialog({
-              componentName: "LoginPopup",
-              componentProps: {},
+              name: "LoginPopup",
+              contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>,
             });
             ev.preventDefault();
           }
@@ -355,8 +355,11 @@ const CommentsNewForm = ({
       const dialogProps = { user: currentUser, post };
       if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
         openDialog({
-          componentName: 'NewUserGuidelinesDialog',
-          componentProps: dialogProps,
+          name: 'NewUserGuidelinesDialog',
+          contents: ({onClose}) => <Components.NewUserGuidelinesDialog
+            onClose={onClose}
+            {...dialogProps}
+          />
         });
       }
       if (isLWorAF) {
@@ -367,7 +370,7 @@ const CommentsNewForm = ({
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
-    if (comment.deleted) {
+    if (comment.deleted && comment.deletedReason) {
       flash(comment.deletedReason);
     }
     if (successCallback) {
@@ -486,7 +489,11 @@ const CommentsNewForm = ({
           })
           : undefined
         }>
-          {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
+          {formDisabledDueToRateLimit && <RateLimitWarning
+            contentType="comment"
+            lastRateLimitExpiry={lastRateLimitExpiry}
+            rateLimitMessage={rateLimitMessage}
+          />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
             ev.preventDefault()
@@ -494,7 +501,7 @@ const CommentsNewForm = ({
             <WrappedSmartForm
               id="new-comment-form"
               collectionName="Comments"
-              mutationFragment={getFragment(fragment)}
+              mutationFragmentName={fragment}
               successCallback={wrappedSuccessCallback}
               cancelCallback={wrappedCancelCallback}
               submitCallback={(data: unknown) => {

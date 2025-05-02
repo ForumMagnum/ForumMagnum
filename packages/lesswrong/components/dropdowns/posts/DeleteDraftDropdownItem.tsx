@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { postCanDelete } from '../../../lib/collections/posts/helpers';
@@ -17,7 +17,7 @@ const DeleteDraftDropdownItem = ({ post }: {
   const {DropdownItem} = Components;
 
   const handleDelete = useCallback(() => {
-    if (confirm("Are you sure you want to delete this post?")) {
+    if (confirm("Are you sure you want to archive this draft?")) {
       void updatePost({
         selector: {_id: post._id},
         data: {deletedDraft:true, draft: true}
@@ -28,7 +28,7 @@ const DeleteDraftDropdownItem = ({ post }: {
   if (currentUser && postCanDelete(currentUser, post)) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Delete Post")}
+        title={preferredHeadingCase("Archive Draft")}
         onClick={handleDelete}
       />
     );

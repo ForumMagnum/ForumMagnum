@@ -1,12 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import type { UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   usersWhoReactedRoot: {
     maxWidth: 205,
-    display: "inline-block",
+    display: "flex",
     color: theme.palette.grey[600]
   },
   usersWhoReactedWrap: {
@@ -46,26 +46,25 @@ const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   </div>
 
   const component = <div className={classes.usersWhoReactedRoot}>
-    {usersWhoProReacted.length > 0 &&
-      <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
+    <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
+      {usersWhoProReacted.length > 0 && <>
         {usersWhoProReacted.map((userReactInfo,i) =>
           <span key={userReactInfo.userId}>
-            {(i>0) && <span>{", "}</span>}
+            {(i>0) && ", "}
             {userReactInfo.displayName}
           </span>
         )}
-      </div>
-    }
-    {usersWhoAntiReacted.length > 0 &&
-      <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
+      </>}
+      {usersWhoProReacted.length > 0 && usersWhoAntiReacted.length > 0 && ", "}
+      {usersWhoAntiReacted.length > 0 && <>
         {usersWhoAntiReacted.map((userReactInfo,i) =>
           <span key={userReactInfo.userId} className={classes.userWhoAntiReacted}>
-            {(i>0) && <span>{", "}</span>}
+            {(i>0) && ", "}
             {userReactInfo.displayName}
           </span>
         )}
-      </div>
-    }
+      </>}
+    </div>
   </div>
 
   if (showTooltip) {

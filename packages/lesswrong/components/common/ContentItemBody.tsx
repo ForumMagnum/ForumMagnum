@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib';
 import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
@@ -8,6 +7,10 @@ import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRang
 import { withTracking } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import isEqual from 'lodash/isEqual';
+import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { validateUrl } from "../../lib/vulcan-lib/utils";
+import type { ContentStyleType } from './ContentStyles';
 
 interface ExternalProps {
   /**
@@ -57,6 +60,17 @@ interface ExternalProps {
    * reactions.
    */
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[]
+
+  /**
+   * A callback function that is called when all of the content substitutions
+   * have been applied.
+   */
+  onContentReady?: (content: HTMLDivElement) => void;
+
+  /**
+   * If passed, will change the content style used in HoverPreviewLink.
+   */
+  contentStyleType?: ContentStyleType;
 }
 
 export type ContentReplacementMode = 'first' | 'all';
@@ -70,7 +84,7 @@ export type ContentReplacedSubstringComponentInfo = {
   props: AnyBecauseHard
 };
 
-interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps, WithTrackingProps {}
+interface ContentItemBodyProps extends ExternalProps, WithTrackingProps {}
 interface ContentItemBodyState {
   updatedElements: boolean,
   renderIndex: number
@@ -130,7 +144,8 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     const element = this.bodyRef.current;
     if (element) {
       this.applyLocalModificationsTo(element);
-      this.setState({updatedElements: true})
+      this.setState({updatedElements: true});
+      this.props.onContentReady?.(element);
     }
   }
 
@@ -142,6 +157,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.props.replacedSubstrings && this.replaceSubstrings(element, this.props.replacedSubstrings);
 
       this.addCTAButtonEventListeners(element);
+      this.replaceForumEventPollPlaceholders(element);
 
       this.markScrollableBlocks(element);
       this.collapseFootnotes(element);
@@ -150,6 +166,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.wrapStrawPoll(element);
       this.applyIdInsertions(element);
       this.exposeInternalIds(element);
+      this.markConditionallyVisibleBlocks(element);
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -250,6 +267,11 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       if (block.nodeType === Node.ELEMENT_NODE) {
         const blockAsElement = block as HTMLElement;
         
+        // Only do this for <p> and <div> tags (in practice this is most
+        // top-level blocks, but not the <ol> that wraps footnotes)
+        if (!['P','DIV'].includes(blockAsElement.tagName))
+          continue;
+        
         // Check whether this block is wider than the content-block it's inside
         // of, and if so, wrap it in a horizontal scroller. This makes wide
         // LaTeX formulas and tables functional on mobile.
@@ -264,6 +286,25 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           this.addHorizontalScrollIndicators(blockAsElement);
         }
       }
+    }
+  }
+  
+  markConditionallyVisibleBlocks = (element: HTMLElement) => {
+    const conditionallyVisibleBlocks = this.getElementsByClassname(element, "conditionallyVisibleBlock");
+    for (const block of conditionallyVisibleBlocks) {
+      const visibilityOptionsStr = block.getAttribute("data-visibility");
+      if (!visibilityOptionsStr) continue;
+      let visibilityOptions: ConditionalVisibilitySettings|null = null;
+      try {
+        visibilityOptions = JSON.parse(visibilityOptionsStr)
+      } catch {
+        continue;
+      }
+
+      const BlockContents = rawExtractElementChildrenToReactComponent(block)
+      this.replaceElement(block, <Components.ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+        <BlockContents/>
+      </Components.ConditionalVisibilityBlockDisplay>);
     }
   }
   
@@ -328,6 +369,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         id={id}
         rel={rel}
         noPrefetch={this.props.noHoverPreviewPrefetch}
+        contentStyleType={this.props.contentStyleType}
       >
         <TagLinkContents/>
       </Components.HoverPreviewLink>
@@ -389,7 +431,27 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       })
     }
   }
-  
+
+  replaceForumEventPollPlaceholders = (element: HTMLElement) => {
+    const pollPlaceholders = element.getElementsByClassName('ck-poll');
+
+    const { ForumEventPostPagePollSection } = Components;
+
+    const forumEventIds = Array.from(pollPlaceholders).map(placeholder => ({
+      placeholder,
+      forumEventId: placeholder.getAttribute('data-internal-id')
+    }));
+
+    for (const { placeholder, forumEventId } of forumEventIds) {
+      if (!forumEventId) continue;
+
+      // Create the poll element with styling and context
+      const pollElement = <ForumEventPostPagePollSection id={forumEventId} forumEventId={forumEventId} />;
+
+      this.replaceElement(placeholder, pollElement);
+    }
+  }
+
   replaceSubstrings = (
     element: HTMLElement,
     replacedSubstrings: ContentReplacedSubstringComponentInfo[],
@@ -490,7 +552,10 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           console.error(`Error highlighting string ${replacement.replacedString} in ${this.props.description ?? "content block"}`, e);
         }
       } else {
-        const ReplacementComponent = Components[replacement.componentName];
+        // The `AnyBecauseHard` is to avoid the type checker spending ~2 seconds
+        // uselessly checking whether you can spread `any`-typed props into 1200 different component types.
+        // (You can; we aren't getting any safety out of having it typed right now.)
+        const ReplacementComponent: AnyBecauseHard = Components[replacement.componentName];
         const replacementComponentProps = replacement.props;
         const str = replacement.replacedString;
   
@@ -508,7 +573,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           );
           // Do surgery on the DOM
           if (range) {
-            const subRanges = splitRangeIntoReplaceableSubRanges(range);
+            const reduced = reduceRangeToText(range);
+            if (!reduced) continue;
+            const subRanges = splitRangeIntoReplaceableSubRanges(reduced);
             let first=true;
             for (let subRange of subRanges) {
               const reducedRange = reduceRangeToText(subRange);
@@ -595,6 +662,9 @@ const addNofollowToHTML = (html: string): string => {
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
   hocs: [withTracking],
   
+  // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
+  allowRef: true,
+
   // Memoization options. If this spuriously rerenders, then voting on a comment
   // that contains a YouTube embed causes that embed to visually flash and lose
   // its place.

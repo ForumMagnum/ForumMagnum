@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { siteImageSetting } from "../vulcan-core/App";
@@ -105,7 +105,7 @@ const EALargePostsItem = ({
   className,
   classes,
 }: {
-  post: PostsPage,
+  post: PostsList,
   isNarrow?: boolean,
   noImagePlaceholder?: boolean,
   className?: string,
@@ -126,7 +126,7 @@ const EALargePostsItem = ({
 
   const {postContents, loading, error} = usePostContents({
     post: post,
-    fragmentName: "PostsPage",
+    fragmentName: "PostsList",
   });
 
   const timeFromNow = moment(new Date(post.postedAt)).fromNow();

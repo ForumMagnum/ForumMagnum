@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Select from '@material-ui/core/Select';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -39,7 +39,7 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
     enableTotal: false,
   });
   const sortedReviews = sortBy(reviews, obj => {
-    if (sortReviews === "top") return -obj.baseScore
+    if (sortReviews === "top") return -(obj.baseScore ?? 0)
     if (sortReviews === "new") return -obj.postedAt 
   })
   

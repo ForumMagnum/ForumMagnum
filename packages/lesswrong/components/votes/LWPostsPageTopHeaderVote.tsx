@@ -1,11 +1,11 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useVote } from './withVote';
 import { isAF, isLW } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
+import { TooltipSpan } from '../common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   voteBlockHorizontal: {
@@ -73,10 +73,12 @@ const LWPostsPageTopHeaderVote = ({
 
   return (
     <div className={classes.voteBlockHorizontal}>
-      <Tooltip
+      <TooltipSpan
         title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
-        classes={{tooltip: classes.tooltip}}
+        styling="tooltip"
+        distance={16}
+        popperClassName={classes.tooltip}
       >
         <div className={classes.upvoteHorizontal}>
           <OverallVoteButton
@@ -88,16 +90,18 @@ const LWPostsPageTopHeaderVote = ({
             {...voteProps}
           />
         </div>
-      </Tooltip>
+      </TooltipSpan>
       <div className={classes.voteScoresHorizontal}>
-        <Tooltip
+        <TooltipSpan
           title={tooltipText}
           placement={tooltipPlacement}
-          classes={{tooltip: classes.tooltip}}
+          styling="tooltip"
+          distance={16}
+          popperClassName={classes.tooltip}
         >
+          {/* Have to make sure to wrap this in a div because Tooltip requires
+            * a child that takes refs */}
           <div>
-            {/* Have to make sure to wrap this in a div because Tooltip requires
-              * a child that takes refs */}
             <Typography
               variant="headline"
               className={classes.voteScore}
@@ -105,12 +109,14 @@ const LWPostsPageTopHeaderVote = ({
               {voteProps.baseScore}
             </Typography>
           </div>
-        </Tooltip>
+        </TooltipSpan>
       </div>
-      <Tooltip
+      <TooltipSpan
         title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
-        classes={{tooltip: classes.tooltip}}
+        styling="tooltip"
+        distance={16}
+        popperClassName={classes.tooltip}
       >
         <div className={classes.downvoteHorizontal}>
           <OverallVoteButton
@@ -122,7 +128,7 @@ const LWPostsPageTopHeaderVote = ({
             {...voteProps}
           />
         </div>
-      </Tooltip>
+      </TooltipSpan>
     </div>
   );
 }

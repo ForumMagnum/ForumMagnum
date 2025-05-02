@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -83,7 +83,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
 
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
-  const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
+  const displayHoverOver = hover && (quickTake.baseScore ?? 0) > -5 && !isMobile();
 
   const commentsUrl = quickTake.post
     ? `${postGetPageUrl(quickTake.post)}#${quickTake._id}`

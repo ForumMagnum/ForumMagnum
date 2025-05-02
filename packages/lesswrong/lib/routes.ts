@@ -1,21 +1,25 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW } from './instanceSettings';
+import { 
+  forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet,
+  taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting,
+  isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
-import { REVIEW_YEAR } from './reviewUtils';
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug } from './pingback';
+import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
-import { pluralize } from './vulcan-lib';
+import { pluralize } from './vulcan-lib/pluralize';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations, hasSurveys } from './betas';
 import {isFriendlyUI} from '../themes/forumTheme'
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
-import { tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
-
-const knownTagNames = ['tag', 'topic', 'concept']
+import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
+import { GUIDE_PATH_PAGES_MAPPING } from './arbital/paths';
+import isEmpty from 'lodash/isEmpty';
+const knownTagNames = ['tag', 'topic', 'concept', 'wikitag']
 const useShortAllTagsPath = isFriendlyUI;
 
 /**
@@ -46,7 +50,7 @@ const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of LessWrong" };
 
-const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
+const taggingDashboardSubtitle = { subtitleLink: `/${taggingNamePluralSetting.get()}/dashboard`, subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
@@ -336,7 +340,7 @@ addRoute(
     componentName: 'PostsSingleSlug',
     previewComponentName: 'PostLinkPreviewSlug',
     ...highlightsSubtitle,
-    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     background: postBackground
   },
 
@@ -372,187 +376,150 @@ addRoute(
   }
 );
 
-if (taggingNameIsSet.get()) {
+addRoute(
+  {
+    name: 'tagsSingle',
+    path: `/${tagUrlBaseSetting.get()}/:slug`,
+    componentName: 'TagPageRouter',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+    enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+    background: isLWorAF ? "white" : undefined,
+    getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+    redirect: (location) => {
+      if (!isLWorAF) {
+        return null;
+      }
+
+      const { params: { slug }, query } = location;
+      if ('startPath' in query && slug in GUIDE_PATH_PAGES_MAPPING) {
+        const firstPathPageId = GUIDE_PATH_PAGES_MAPPING[slug as keyof typeof GUIDE_PATH_PAGES_MAPPING][0];
+        return tagGetUrl({slug: firstPathPageId}, {pathId: slug});
+      }
+      return null;
+    },
+  },
+  {
+    name: 'tagDiscussion',
+    path: `/${tagUrlBaseSetting.get()}/:slug/discussion`,
+    componentName: 'TagDiscussionPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+    background: isLWorAF ? "white" : undefined,
+    noIndex: isEAForum,
+    getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  },
+  {
+    name: 'tagHistory',
+    path: `/${tagUrlBaseSetting.get()}/:slug/history`,
+    componentName: 'TagHistoryPage',
+    titleComponentName: 'TagHistoryPageTitle',
+    subtitleComponentName: 'TagHistoryPageTitle',
+    enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
+    noIndex: true,
+  },
+  {
+    name: 'tagEdit',
+    path: `/${tagUrlBaseSetting.get()}/:slug/edit`,
+    componentName: 'EditTagPage',
+    titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
+  },
+  {
+    name: 'tagCreate',
+    path: `/${tagUrlBaseSetting.get()}/create`,
+    title: `New ${taggingNameCapitalSetting.get()}`,
+    componentName: 'NewTagPage',
+    subtitleComponentName: 'TagPageTitle',
+    background: "white"
+  },
+  {
+    name: 'randomTag',
+    path: `/${tagUrlBaseSetting.get()}/random`,
+    componentName: 'RandomTagPage',
+  },
+  {
+    name: 'tagActivity',
+    path: `/${tagUrlBaseSetting.get()}Activity`,
+    componentName: 'TagVoteActivity',
+    title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Voting Activity`
+  },
+  {
+    name: 'tagFeed',
+    path: `/${tagUrlBaseSetting.get()}Feed`,
+    componentName: 'TagActivityFeed',
+    title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Activity`
+  },
+  {
+    name: 'taggingDashboard',
+    path: `/${tagUrlBaseSetting.get()}/dashboard`,
+    componentName: "TaggingDashboard",
+    title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Dashboard`,
+    ...taggingDashboardSubtitle
+  }
+)
+
+if (tagUrlBaseSetting.get() !== 'tag') {
   addRoute(
     {
-      name: 'tagsSingleCustomName',
-      path: `/${taggingNamePluralSetting.get()}/:slug`,
-      componentName: 'TagPageRouter',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-      previewComponentName: 'TagHoverPreview',
-      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-    },
-    {
-      name: 'tagsSingleRedirectCustomName',
+      name: 'tagsSingleRedirect',
       path: '/tag/:slug',
-      redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+      redirect: ({ params }) => `/${tagUrlBaseSetting.get()}/${params.slug}`,
+      getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     },
     {
-      name: 'tagDiscussionCustomName',
-      path: `/${taggingNamePluralSetting.get()}/:slug/discussion`,
-      componentName: 'TagDiscussionPage',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-      previewComponentName: 'TagHoverPreview',
-      background: "white",
-      noIndex: true,
-    },
-    {
-      name: 'tagDiscussionCustomNameRedirect',
+      name: 'tagDiscussionRedirect',
       path: '/tag/:slug/discussion',
-      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/discussion`
+      redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/discussion`,
+      getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     },
     {
-      name: 'tagHistoryCustomName',
-      path: `/${taggingNamePluralSetting.get()}/:slug/history`,
-      componentName: 'TagHistoryPage',
-      titleComponentName: 'TagHistoryPageTitle',
-      subtitleComponentName: 'TagHistoryPageTitle',
-      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-      noIndex: true,
-    },
-    {
-      name: 'tagHistoryCustomNameRedirect',
+      name: 'tagHistoryRedirect',
       path: '/tag/:slug/history',
-      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/history`
+      redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/history`
     },
     {
-      name: 'tagEditCustomName',
-      path: `/${taggingNamePluralSetting.get()}/:slug/edit`,
-      componentName: 'EditTagPage',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-    },
-    {
-      name: 'tagEditCustomNameRedirect',
+      name: 'tagEditRedirect',
       path: '/tag/:slug/edit',
-      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/edit`
+      redirect: ({params}) => `/${tagUrlBaseSetting.get()}/${params.slug}/edit`
     },
     {
-      name: 'tagCreateCustomName',
-      path: `/${taggingNamePluralSetting.get()}/create`,
-      title: `New ${taggingNameCapitalSetting.get()}`,
-      componentName: 'NewTagPage',
-      subtitleComponentName: 'TagPageTitle',
-      background: "white"
-    },
-    {
-      name: 'tagCreateCustomNameRedirect',
+      name: 'tagCreateRedirect',
       path: '/tag/create',
-      redirect: () => `/${taggingNamePluralSetting.get()}/create`
+      redirect: () => `/${tagUrlBaseSetting.get()}/create`
     },
     {
-      name: 'randomTagCustomName',
-      path: `/${taggingNamePluralSetting.get()}/random`,
-      componentName: 'RandomTagPage',
-    },
-    {
-      name: 'randomTagCustomNameRedirect',
+      name: 'randomTagRedirect',
       path: '/tags/random',
       redirect: () => `/${taggingNamePluralSetting.get()}/random`
     },
     {
-      name: 'tagActivityCustomName',
-      path: `/${taggingNamePluralSetting.get()}Activity`,
-      componentName: 'TagVoteActivity',
-      title: `${taggingNamePluralCapitalSetting.get()} Voting Activity`
-    },
-    {
-      name: 'tagActivityCustomNameRedirect',
+      name: 'tagActivityRedirect',
       path: '/tagActivity',
-      redirect: () => `/${taggingNamePluralSetting.get()}Activity`
+      redirect: () => `/${tagUrlBaseSetting.get()}Activity`
     },
     {
-      name: 'tagFeedCustomName',
-      path: `/${taggingNamePluralSetting.get()}Feed`,
-      componentName: 'TagActivityFeed',
-      title: `${taggingNamePluralCapitalSetting.get()} Activity`
-    },
-    {
-      name: 'tagFeedCustomNameRedirect',
+      name: 'tagFeedRedirect',
       path: '/tagFeed',
-      redirect: () => `/${taggingNamePluralSetting.get()}Feed`
+      redirect: () => `/${tagUrlBaseSetting.get()}Feed`
     },
     {
-      name: 'taggingDashboardCustomName',
-      path: `/${taggingNamePluralSetting.get()}/dashboard`,
-      componentName: "TaggingDashboard",
-      title: `${taggingNamePluralCapitalSetting.get()} Dashboard`,
-      ...taggingDashboardSubtitle
-    },
-    {
-      name: 'taggingDashboardCustomNameRedirect',
+      name: 'taggingDashboardRedirect',
       path: '/tags/dashboard',
-      redirect: () => `/${taggingNamePluralSetting.get()}/dashboard`
+      redirect: () => `/${tagUrlBaseSetting.get()}/dashboard`
+    },
+    {
+      name: 'tags.revisioncompare.redirect',
+      path: `/compare/tag/:slug`,
+      redirect: ({params}) => `/compare/${tagUrlBaseSetting.get()}/${params.slug}`
+    },
+    {
+      name: 'tags.revisionselect.redirect',
+      path: `/revisions/tag/:slug`,
+      redirect: ({params}) => `/revisions/${tagUrlBaseSetting.get()}/${params.slug}`
     }
-  )
-} else {
-  addRoute(
-    {
-      name: 'tags.single',
-      path: '/tag/:slug',
-      componentName: 'TagPage',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-      previewComponentName: 'TagHoverPreview',
-      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
-    },
-    {
-      name: 'tagDiscussion',
-      path: '/tag/:slug/discussion',
-      componentName: 'TagDiscussionPage',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-      previewComponentName: 'TagHoverPreview',
-      background: "white"
-    },
-    {
-      name: 'tagHistory',
-      path: '/tag/:slug/history',
-      componentName: 'TagHistoryPage',
-      titleComponentName: 'TagHistoryPageTitle',
-      subtitleComponentName: 'TagHistoryPageTitle',
-    },
-    {
-      name: 'tagEdit',
-      path: '/tag/:slug/edit',
-      componentName: 'EditTagPage',
-      titleComponentName: 'TagPageTitle',
-      subtitleComponentName: 'TagPageTitle',
-    },
-    {
-      name: 'tagCreate',
-      path: '/tag/create',
-      componentName: 'NewTagPage',
-      title: "New Tag",
-      subtitleComponentName: 'TagPageTitle',
-      background: "white"
-    },
-    {
-      name: 'randomTag',
-      path: '/tags/random',
-      componentName: 'RandomTagPage',
-    },
-    {
-      name: 'tagActivity',
-      path: '/tagActivity',
-      componentName: 'TagVoteActivity',
-      title: 'Tag Voting Activity'
-    },
-    {
-      name: 'tagFeed',
-      path: '/tagFeed',
-      componentName: 'TagActivityFeed',
-      title: 'Tag Activity'
-    },
-    {
-      name: 'taggingDashboard',
-      path: '/tags/dashboard',
-      componentName: "TaggingDashboard",
-      title: "Tagging Dashboard",
-      ...taggingDashboardSubtitle
-    },
   )
 }
 
@@ -562,7 +529,7 @@ addRoute(
   {
     name: 'tagsAll',
     path: getAllTagsPath(),
-    componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
+    componentName: isEAForum ? 'EAAllTagsPage' : 'AllWikiTagsPage',
     title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
     description: isEAForum ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
     hasLeftNavigationColumn: false,
@@ -576,6 +543,29 @@ addRoute(
   }))
 );
 
+if (isLWorAF) {
+  addRoute({
+    name: 'arbitalExplore',
+    title: 'Arbital',
+    path: '/arbital',
+    componentName: 'ArbitalExplorePage',
+    navigationFooterBar: true,
+  });
+}
+
+if (isLWorAF && tagUrlBaseSetting.get() !== 'p') {
+  addRoute(
+    {
+      name: 'slashPtoBaseRedirect',
+      path: '/p/:slug',
+      redirect: (location) => {
+        const { params: { slug }, query } = location;
+        const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
+        return `/${tagUrlBaseSetting.get()}/${slug}${queryString}`;
+      }
+    }
+  );
+}
 
 export function initLegacyRoutes() {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
@@ -587,7 +577,7 @@ export function initLegacyRoutes() {
       path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
       componentName: "LegacyPostRedirect",
       previewComponentName: "PostLinkPreviewLegacy",
-      getPingback: (parsedUrl) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id),
+      getPingback: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
     },
     {
       name: 'comment.legacy',
@@ -762,6 +752,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: "MyAnalyticsPage",
     },
     {
+      name: "openThread",
+      path:'/open-thread',
+      componentName: "CurrentOpenThreadPage",
+    },
+    {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },
@@ -872,6 +867,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PeopleDirectoryPage',
       title: 'People directory',
     },
+    {
+      name: 'setPassword',
+      path: '/setPassword',
+      componentName: 'Auth0PasswordResetPage',
+      title: 'Set password',
+    },
   ],
   LessWrong: [
     {
@@ -934,6 +935,19 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => `/tag/site-meta`,
     },
     {
+      name: 'bestOfLessWrongAdmin',
+      path: '/bestoflesswrongadmin',
+      // the "year + 2" is a hack because it's annoying to fetch ReviewWinnerArt by review year
+      // instead we fetch by createdAt date for the art, which is generally 2 years after review
+      redirect: () => `/bestoflesswrongadmin/${BEST_OF_LESSWRONG_PUBLISH_YEAR + 2}`,
+    },
+    {
+      name: 'bestOfLessWrongAdminYear',
+      path: '/bestoflesswrongadmin/:year',
+      componentName: 'BestOfLessWrongAdmin',
+      title: "Best of LessWrong Admin",
+    },
+    {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
       componentName: 'TopPostsPage',
@@ -979,23 +993,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: 'Bookmarks',
     },
     {
-      name: 'Walled Garden',
-      path: '/walledGarden',
-      componentName: 'WalledGardenHome',
-      title: "Walled Garden",
-    },
-    {
-      name: 'Walled Garden Portal',
-      path: '/walledGardenPortal',
-      redirect: () => `/walledGarden`,
-    },
-    {
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...hpmorSubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
     },
 
@@ -1012,7 +1015,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...codexSubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
     },
     {
@@ -1051,12 +1054,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/allCommentsWithReacts',
       componentName: 'AllReactedCommentsPage',
       title: "All Comments with Reacts"
-    },
-    {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
     },
     {
       name: 'nominations2018-old',
@@ -1122,7 +1119,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...rationalitySubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
     },
     {
@@ -1178,13 +1175,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Meta',
       path: '/meta',
       redirect: () => `/tag/site-meta`,
-    },
-    // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
-    {
-      name:'coronavirus.link.db',
-      path:'/coronavirus-link-database',
-      componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database",
     },
     {
       name: 'nominations2018-old',
@@ -1264,7 +1254,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...rationalitySubtitle,
-      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
     },
     {
@@ -1522,7 +1512,7 @@ addRoute(
     componentName: 'PostsSingleSlugRedirect',
     titleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSlug',
-    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     background: postBackground,
     noFooter: hasPostRecommendations,
   },
@@ -1534,7 +1524,7 @@ addRoute(
   },
   {
     name: 'tags.revisioncompare',
-    path: '/compare/tag/:slug',
+    path: `/compare/${tagUrlBaseSetting.get()}/:slug`,
     componentName: 'TagCompareRevisions',
     titleComponentName: 'PostsPageHeaderTitle',
   },
@@ -1546,7 +1536,7 @@ addRoute(
   },
   {
     name: 'tag.revisionsselect',
-    path: '/revisions/tag/:slug',
+    path: `/revisions/${tagUrlBaseSetting.get()}/:slug`,
     componentName: 'TagPageRevisionSelect',
     titleComponentName: 'TagPageTitle',
   },

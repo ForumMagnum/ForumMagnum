@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useDialog } from '../../common/withDialog'
@@ -21,13 +21,14 @@ const ReportCommentDropdownItem = ({comment, post}: {
     }
 
     openDialog({
-      componentName: "ReportForm",
-      componentProps: {
-        commentId: comment._id,
-        postId: comment.postId,
-        link: "/posts/" + comment.postId + "/a/" + comment._id,
-        userId: currentUser._id,
-      }
+      name: "ReportForm",
+      contents: ({onClose}) => <Components.ReportForm
+        onClose={onClose}
+        commentId={comment._id}
+        postId={comment.postId ?? undefined}
+        link={"/posts/" + comment.postId + "/a/" + comment._id}
+        userId={currentUser._id}
+      />
     });
   }
 

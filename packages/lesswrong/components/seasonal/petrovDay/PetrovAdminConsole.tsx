@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useMulti } from '@/lib/crud/withMulti';
 
@@ -56,7 +56,7 @@ export const PetrovAdminConsole = ({classes, currentUser}: {
     </div>
       {/* <WrappedSmartForm
         collectionName="PetrovDayActions"
-        mutationFragment={getFragment('PetrovDayActionInfo')}
+        mutationFragmentName={'PetrovDayActionInfo'}
       /> */}
   </PetrovWorldmapWrapper>
 }

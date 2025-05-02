@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
-import DialogContent from '@material-ui/core/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
 import { gql, useMutation } from '@apollo/client';
-import Input from '@material-ui/core/Input';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { DialogActions } from '../../widgets/DialogActions';
+import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { useNavigate } from '../../../lib/routeUtil';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
@@ -40,7 +41,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
         ...PostsDetails
         }
     }
-    ${getFragment("PostsDetails")}
+    ${fragmentTextForQuery("PostsDetails")}
   `)
   const navigate = useNavigate();
   const currentUser = useCurrentUser()

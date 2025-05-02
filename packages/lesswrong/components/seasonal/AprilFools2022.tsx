@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import FavoriteIcon from '@/lib/vendor/@material-ui/icons/src/Favorite';
 import classNames from 'classnames';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';

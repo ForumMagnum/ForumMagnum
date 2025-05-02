@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import type {
   CommentVotingComponentProps,
   PostVotingComponentProps,
@@ -14,7 +14,7 @@ import {
   getEmojiMutuallyExclusivePartner,
 } from "../../lib/voting/eaEmojiPalette";
 import type { VotingProps } from "./votingProps";
-import Menu from "@material-ui/core/Menu";
+import { Menu } from '@/components/widgets/Menu';
 import classNames from "classnames";
 import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 
@@ -253,8 +253,8 @@ const EAReactsSection: FC<{
     
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
       });
       return;
     }
@@ -351,15 +351,6 @@ const EAReactsSection: FC<{
         onClick={onCloseMenu}
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
-        getContentAnchorEl={null}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
         className={classes.menu}
       >
         {everOpened && <EAEmojiPalette onSelectEmoji={onSelectEmoji} />}

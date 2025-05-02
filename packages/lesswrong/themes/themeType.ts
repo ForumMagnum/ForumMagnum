@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import type { Color as MuiColorShades } from '@material-ui/core';
+import type { Color as MuiColorShades } from '@/lib/vendor/@material-ui/core/src';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
@@ -123,6 +123,9 @@ declare global {
     fundraisingThermometer: {
       shadow: ColorString,
     },
+    arbital: {
+      arbitalGreen: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -165,6 +168,7 @@ declare global {
       red: ColorString,
       alwaysWhite: ColorString,
       alwaysBlack: ColorString,
+      alwaysLightGrey: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
@@ -344,10 +348,11 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
-      reviewGold: ColorString
+      reviewGold: ColorString,
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
+      tagLensTab: ColorString,
     },
     boxShadow: {
       default: string,
@@ -358,7 +363,6 @@ declare global {
       appBar: string,
       sequencesGridItemHover: string,
       eventCard: string,
-      mozillaHubPreview: string,
       featuredResourcesCard: string,
       spreadsheetPage1: string,
       spreadsheetPage2: string,
@@ -562,9 +566,17 @@ declare global {
         green: ColorString,
       },
     },
+    forumEvent: {
+      draftSticker: ColorString,
+      stickerMobileOverlay: ColorString,
+    },
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
+    ultraFeed: {
+      dim: ColorString,
+      cardSeparator: string,
+    }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
@@ -601,6 +613,7 @@ declare global {
 
       postStyle: JssStyles,
       commentStyle: JssStyles,
+      ultraFeedMobileStyle: JssStyles,
       commentBlockquote: JssStyles,
       commentHeader: JssStyles,
       errorStyle: JssStyles,

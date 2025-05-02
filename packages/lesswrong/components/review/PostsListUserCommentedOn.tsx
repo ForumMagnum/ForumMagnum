@@ -1,9 +1,10 @@
 import React, {useState} from 'react'
-import {Components, fragmentTextForQuery, registerComponent} from '../../lib/vulcan-lib'
 import {AnalyticsContext} from '../../lib/analyticsEvents.tsx'
 import {useCurrentUser} from '../common/withUser.tsx'
 import {gql, NetworkStatus, useQuery} from '@apollo/client'
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab.tsx'
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   loadMore: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import moment from '../../lib/moment-timezone';
@@ -151,7 +151,7 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
   return <MenuItemLink
     onClick={onClick}
     to={postGetPageUrl(event)}
-    rootClass={classes.eventWrapper}
+    className={classes.eventWrapper}
   >
     <TabNavigationSubItem className={classes.event}>
       {(event.startTime && displayTime && displayTime !== " ") && <TimeTag className={classNames(
@@ -176,7 +176,7 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
   return <MenuItemLink
     onClick={onClick}
     to={postGetPageUrl(event)}
-    rootClass={classNames(classes.eventWrapper, classes.twoLine)}
+    className={classNames(classes.eventWrapper, classes.twoLine)}
   >
     <TabNavigationSubItem className={classNames(classes.event, classes.twoLineEvent)}>
       <span>{event.title}</span>

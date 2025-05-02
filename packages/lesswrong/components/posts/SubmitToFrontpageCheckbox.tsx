@@ -1,10 +1,9 @@
 import React, { Component, FC } from 'react';
-import PropTypes from 'prop-types';
-import Tooltip from '@material-ui/core/Tooltip';
-import Checkbox from '@material-ui/core/Checkbox';
-import { registerComponent } from '../../lib/vulcan-lib';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
+import { TooltipSpan } from '../common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   submitToFrontpageWrapper: {
@@ -82,21 +81,16 @@ const forumDefaultTooltip: ForumOptions<FC<{classes?: ClassesType<typeof styles>
 
 const defaultTooltip = forumSelect(forumDefaultTooltip)
 
-export interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
+export interface SubmitToFrontpageCheckboxProps extends FormButtonProps, WithStylesProps {
   fieldName?: string,
-  currentValues: any,
-  document: any,
   label: any,
   tooltip: any,
 }
 
 class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps> {
-  declare context: AnyBecauseTodo
-
   handleClick = () => {
     const { fieldName = "submitToFrontpage" } = this.props
-    const { updateCurrentValues } = this.context
-    updateCurrentValues({[fieldName]: !this.getCurrentValue()})
+    void this.props.updateCurrentValues({[fieldName]: !this.getCurrentValue()})
   }
   
   getCurrentValue = () => {
@@ -120,21 +114,17 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
     const displayedTooltip = tooltip || defaultTooltip({classes})
 
     return <div className={classes.submitToFrontpageWrapper}>
-      <Tooltip title={displayedTooltip}>
+      <TooltipSpan title={displayedTooltip}>
         <div className={classes.submitToFrontpage}>
           <InputLabel className={classes.checkboxLabel}>
             <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick} className={classes.checkbox} />
             {label}
           </InputLabel>
         </div>
-      </Tooltip>
+      </TooltipSpan>
     </div>
   }
 };
-
-(SubmitToFrontpageCheckbox as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-}
 
 
 const SubmitToFrontpageCheckboxComponent = registerComponent('SubmitToFrontpageCheckbox', SubmitToFrontpageCheckbox, {styles});

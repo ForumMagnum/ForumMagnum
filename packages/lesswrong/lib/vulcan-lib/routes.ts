@@ -8,11 +8,17 @@ export type PingbackDocument = {
   documentId: string,
 };
 
+export interface SegmentedUrl {
+  pathname: string
+  search: string
+  hash: string
+}
+
 export type RouterLocation = {
   // Null in 404
   currentRoute: Route|null,
   RouteComponent: any,
-  location: any,
+  location: SegmentedUrl,
   pathname: string,
   url: string,
   hash: string,
@@ -44,8 +50,8 @@ export type Route = {
   subtitleLink?: string,
   subtitleComponentName?: keyof ComponentTypes,
   description?: string,
-  redirect?: (location: RouterLocation) => string,
-  getPingback?: (parsedUrl: RouterLocation) => Promise<PingbackDocument|null> | PingbackDocument|null,
+  redirect?: (location: RouterLocation) => string | null,
+  getPingback?: (parsedUrl: RouterLocation, context: ResolverContext) => Promise<PingbackDocument|null> | PingbackDocument|null,
   previewComponentName?: keyof ComponentTypes,
   _id?: string|null,
   noIndex?: boolean,

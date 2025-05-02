@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
 
 // Replaceable layout
@@ -18,7 +18,8 @@ const FormNestedArrayLayout = ({ hasErrors, label, content }: {
 );
 const FormNestedArrayLayoutComponent = registerComponent('FormNestedArrayLayout', FormNestedArrayLayout);
 
-interface FormNestedArrayProps<T>  extends FormComponentProps<T>{
+interface FormNestedArrayProps<T> extends FormComponentWrapperProps<T> {
+  value: T
   minCount?: number
   maxCount?: number
 }
@@ -60,8 +61,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
       'inputProperties',
       'nestedInput'
     );
-    const { errors, path, label, formComponents, minCount, maxCount } = this.props;
-    const FormComponents = formComponents;
+    const { errors, path, label, minCount, maxCount } = this.props;
 
     //filter out null values to calculate array length
     let arrayLength = value.filter((singleValue: AnyBecauseTodo) => {
@@ -75,7 +75,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
     const hasErrors = !!(nestedArrayErrors && nestedArrayErrors.length);
     
     return (
-      <FormComponents.FormNestedArrayLayout
+      <Components.FormNestedArrayLayout
         label={label}
         hasErrors={hasErrors}
         content={[
@@ -83,7 +83,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
             (subDocument: AnyBecauseTodo, i: number) =>
               !this.isDeleted(i) && (
                 <React.Fragment key={i}>
-                  <FormComponents.FormNestedItem
+                  <Components.FormNestedItem
                     {...properties}
                     itemIndex={i}
                     path={`${this.props.path}.${i}`}
@@ -92,7 +92,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
                     }}
                     hideRemove={!!minCount && arrayLength <= minCount}
                   />
-                  <FormComponents.FormNestedDivider
+                  <Components.FormNestedDivider
                     label={this.props.label}
                     addItem={this.addItem}
                   />
@@ -107,9 +107,10 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
             />
           ),
           hasErrors ? (
-            <FormComponents.FieldErrors
+            <Components.FieldErrors
               key="form-nested-errors"
               errors={nestedArrayErrors}
+              getLabel={this.props.getLabel}
             />
           ) : null
         ]}

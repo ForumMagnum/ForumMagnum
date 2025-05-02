@@ -138,6 +138,30 @@ export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSettin
 export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
 export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
 export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
+export const taggingNameIsPluralized = {get: () => !isLWorAF && taggingNameIsSet.get()};
+export const taggingNameCapitalizedWithPluralizationChoice = { get: () => {
+  if (taggingNameIsPluralized.get()) {
+    return taggingNamePluralCapitalSetting.get();
+  }
+  return taggingNameCapitalSetting.get();
+}};
+
+/** 
+ * If set, this defines the "path part" previously occupied by "tag" in tag-related urls.
+ * This allows the url for tags to be something other than the tag name, e.g. LessWrong is setting this to "w".
+ * External consumers should use `tagUrlBaseSetting`, which defaults to taggingNameSetting (with or without pluralization).
+ */
+const taggingUrlCustomBaseSetting = new PublicInstanceSetting<string|null>('taggingUrlCustomBase', null, 'optional')
+export const tagUrlBaseSetting = {get: () => {
+  const customBase = taggingUrlCustomBaseSetting.get();
+  if (customBase) {
+    return customBase;
+  }
+  if (taggingNameIsPluralized.get()) {
+    return taggingNamePluralSetting.get();
+  }
+  return taggingNameSetting.get();
+}}
 
 // NB: Now that neither LW nor the EAForum use this setting, it's a matter of
 // time before it falls out of date. Nevertheless, I expect any newly-created
@@ -289,6 +313,8 @@ export const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBo
 export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 
 export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
+
+export const falApiKey = new PublicInstanceSetting<string>('falAI.apiKey', "", "optional")
 
 export const jargonBotClaudeKey = new PublicInstanceSetting<string>('anthropic.jargonBotClaudeKey', "", "optional")
 

@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
+import { DialogTitle } from "@/components/widgets/DialogTitle";
+import { DialogContent } from "@/components/widgets/DialogContent";
 
 const PostSummaryDialog = ({post, onClose}: {
   post: PostsList|SunshinePostsList,

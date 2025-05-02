@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../../lib/alignment-forum/comments/helpers'
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
-import Undo from '@material-ui/icons/Undo';
+import ExposurePlus1 from '@/lib/vendor/@material-ui/icons/src/ExposurePlus1';
+import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 
 const styles = (theme: ThemeType) => ({
   iconRoot: {

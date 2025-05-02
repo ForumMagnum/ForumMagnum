@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
@@ -38,7 +38,11 @@ const TagEditsByUser = ({userId, limit, classes}: {
   }
 
   const resultsWithLiveTags = results
-    .filter(tagUpdates => tagUpdates.tag && !tagUpdates.tag.deleted)
+    .filter(tagUpdates => {
+      const hasLiveTag = tagUpdates.tag && !tagUpdates.tag.deleted;
+      const hasLiveLensTag = tagUpdates.lens?.parentTag && !tagUpdates.lens?.parentTag.deleted;
+      return hasLiveTag || hasLiveLensTag;
+    });
 
   if (resultsWithLiveTags.length === 0) {
     return <Components.Typography variant="body2" className={classes.wikiEmpty}>
@@ -47,13 +51,16 @@ const TagEditsByUser = ({userId, limit, classes}: {
   }
 
   return <div className={classes.root}>
-    {resultsWithLiveTags.map(tagUpdates => <Components.SingleLineTagUpdates
-      key={tagUpdates.documentId + " " + tagUpdates.editedAt}
-      tag={tagUpdates.tag!}
-      revisionIds={[tagUpdates._id]}
-      changeMetrics={{added: tagUpdates.changeMetrics.added, removed: tagUpdates.changeMetrics.removed}}
-      lastRevisedAt={tagUpdates.editedAt}
-    />)}
+    {resultsWithLiveTags.map(tagUpdates => {
+      const topLevelTag = tagUpdates.tag ?? tagUpdates.lens?.parentTag;
+      return <Components.SingleLineTagUpdates
+        key={tagUpdates.documentId + " " + tagUpdates.editedAt}
+        tag={topLevelTag!}
+        revisionIds={[tagUpdates._id]}
+        changeMetrics={{added: tagUpdates.changeMetrics.added, removed: tagUpdates.changeMetrics.removed}}
+        lastRevisedAt={tagUpdates.editedAt}
+      />
+    })}
     <Components.LoadMore {...loadMoreProps} />
   </div>
 }

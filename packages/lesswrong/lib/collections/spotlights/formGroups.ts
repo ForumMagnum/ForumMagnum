@@ -1,5 +1,5 @@
 
-export const formGroups: Partial<Record<string, FormGroupType<"Spotlights">>> = {
+export const formGroups = {
   spotlight: {
     name: "spotlight",
     order: 0,
@@ -8,4 +8,4 @@ export const formGroups: Partial<Record<string, FormGroupType<"Spotlights">>> = 
       paddingStyling: true,
     }
   },
-};
+} satisfies Partial<Record<string, FormGroupType<"Spotlights">>>;

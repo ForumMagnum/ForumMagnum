@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Components, capitalize, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -27,6 +26,9 @@ import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { capitalize } from "../../lib/vulcan-lib/utils";
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -477,7 +479,7 @@ const LWHomePosts = ({ children, classes }: {
         fragmentName: "SubscribedPostAndCommentsFeed",
         render: (postCommented: SubscribedPostAndCommentsFeed) => {
           const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
-          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(userSubscriptions.map(({ documentId }) => documentId)) : undefined;
+          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(filterNonnull(userSubscriptions.map(({ documentId }) => documentId))) : undefined;
           return <Components.FeedPostCommentsCard
             key={postCommented.post._id}
             post={postCommented.post}
@@ -525,6 +527,7 @@ const LWHomePosts = ({ children, classes }: {
     labelClassName={classes.suggestedUsersHideLabel}
   />;
 
+  const settingsPotentiallyVisible = desktopSettingsVisible || mobileSettingsVisible;
   const settingsVisibileClassName = classNames({
     [classes.hideOnDesktop]: !desktopSettingsVisible,
     [classes.hideOnMobile]: !mobileSettingsVisible,
@@ -536,7 +539,7 @@ const LWHomePosts = ({ children, classes }: {
 
   const filterSettingsElement = (
     <AnalyticsContext pageSectionContext="tagFilterSettings">
-      <div className={settingsVisibileClassName}>
+      {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
         <TagFilterSettings
           filterSettings={filterSettings} 
           setPersonalBlogFilter={setPersonalBlogFilter} 
@@ -548,7 +551,7 @@ const LWHomePosts = ({ children, classes }: {
           In the Enriched tab, filters apply only to "Latest" posts, not "Recommended" posts.
         </div>}
   
-      </div>
+      </div>}
     </AnalyticsContext>
   );
 
@@ -559,22 +562,22 @@ const LWHomePosts = ({ children, classes }: {
     skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
   });
 
-  const subscriptionSettingsElement = (
-    <div className={settingsVisibileClassName}>
+  const subscriptionSettingsElement = <>
+    {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
       <SuggestedFeedSubscriptions
         refetchFeed={refetchSubscriptionContent}
         settingsButton={suggestedUsersSettingsButton}
         existingSubscriptions={userSubscriptions}
       />
       {subscribedTabAnnouncementPost && !subscribedTabAnnouncementPost.isRead && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
-    </div>
-  );
+    </div>}
+  </>;
 
-  const recombeeSettingsElement = (
-    <div className={settingsVisibileClassName}>
+  const recombeeSettingsElement = <>
+    {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
       {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
-    </div>
-  );
+    </div>}
+  </>;
 
   let settings = null;
   if (selectedTab === 'forum-classic') { 

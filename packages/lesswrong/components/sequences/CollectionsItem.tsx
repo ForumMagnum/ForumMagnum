@@ -1,15 +1,15 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { CoreReadingCollection } from './LWCoreReading';
-import Tooltip from '@material-ui/core/Tooltip';
-import Button from '@material-ui/core/Button';
-import CloseIcon from '@material-ui/icons/Close';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
+import { TooltipSpan } from '../common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,14 +28,16 @@ const styles = (theme: ThemeType) => ({
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     }
   },
+  closeButtonWrapper: {
+    position: 'absolute',
+    top: 0,
+    right: 0
+  },
   closeButton: {
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    position: 'absolute',
     color: theme.palette.grey[300],
-    top: 0,
-    right: 0
   },
   content: {
     padding: 16,
@@ -147,11 +149,11 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
 
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} style={{width: collection.imageWidth || 130}}/>}
 
-      {showCloseIcon && <Tooltip title="Hide this for the next month">
-        <Button className={classes.closeButton} onClick={hideBanner}>
+      {showCloseIcon && <TooltipSpan title="Hide this for the next month" className={classes.closeButtonWrapper}>
+        <Button onClick={hideBanner} className={classes.closeButton}>
           <CloseIcon />
         </Button>
-      </Tooltip>}
+      </TooltipSpan>}
     </LinkCard>
   </div>
 }

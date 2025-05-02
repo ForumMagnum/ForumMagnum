@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Components, registerComponent } from '../../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCheckMeritsCollapse } from '../../../common/useCheckMeritsCollapse';
 
 

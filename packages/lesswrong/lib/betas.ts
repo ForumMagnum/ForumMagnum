@@ -62,6 +62,8 @@ export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
 
 export const userHasSubscribeTabFeed = isLW ? shippedFeature : disabled;
 
+export const userHasUltraFeed = isLW ? isAdmin : disabled;
+
 //defining as Hook so as to combine with ABTest
 export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
   // TODO: figure out what went wrong with the AB tests causing caching issues, beyond `affectsLoggedOut` being set to false
@@ -95,8 +97,10 @@ export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = isFriendlyUI;
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;
-/** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
+/** Some Forums, notably the EA Forum, have a mailchimp email lists */
 export const hasDigests = isEAForum;
+export const hasNewsletter = isEAForum;
+
 /**
  * Whether the instance should have any features for integrating with twitter.
  * This is different to `twitterBot.enabled`, as there are features to help
@@ -114,6 +118,9 @@ export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
 export const hasSidenotes = isLWorAF;
 export const visitedLinksHaveFilledInCircle = isLWorAF;
+export const hasWikiLenses = isLWorAF;
+export const hasSubforums = isEAForum;
+export const hasPolls = isEAForum;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
 // check in tests as the tests run in EA Forum mode, but we want to be able to
@@ -133,4 +140,3 @@ export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
 export const userHasElasticsearch = shippedFeature;
-

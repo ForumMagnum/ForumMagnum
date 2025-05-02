@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
@@ -122,8 +122,8 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
   const dialogueSectionSettings = showSettings && (
     <DialoguesSectionFrontpageSettings
       hidden={false}
-      currentShowDialogues={currentUser.showDialoguesList}
-      currentShowMyDialogues={currentUser.showMyDialogues}
+      currentShowDialogues={!!currentUser.showDialoguesList}
+      currentShowMyDialogues={!!currentUser.showMyDialogues}
     />
   );
 

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { DialogActions } from '../widgets/DialogActions';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
-import Input from '@material-ui/core/Input';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import { useNavigate } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({

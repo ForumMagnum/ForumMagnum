@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -76,7 +76,7 @@ const BooksItem = ({ book, canEdit, classes }: {
 
         {book.displaySequencesAsGrid && <SequencesGrid sequences={book.sequences}/>}
         {!book.displaySequencesAsGrid && book.sequences.map(sequence =>
-          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
+          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters ?? undefined} />
         )}
     </div>
   }

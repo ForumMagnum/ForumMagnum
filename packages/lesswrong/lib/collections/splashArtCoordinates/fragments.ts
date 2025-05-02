@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const SplashArtCoordinates = () => frag`
   fragment SplashArtCoordinates on SplashArtCoordinate {
     _id
     reviewWinnerArtId
@@ -20,4 +20,11 @@ registerFragment(`
     rightWidthPct
     rightFlipped
   }
-`);
+`
+
+export const SplashArtCoordinatesEdit = () => frag`
+  fragment SplashArtCoordinatesEdit on SplashArtCoordinate {
+    ...SplashArtCoordinates
+    createdAt
+  }
+`

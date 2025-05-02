@@ -9,7 +9,8 @@ import { Readable } from 'stream';
 import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runFragmentMultiQuery } from "./vulcan-lib/query";
-import Users from "@/lib/vulcan-users";
+import Users from "@/server/collections/users/collection";
+import { clientIdMiddleware } from "./clientIdMiddleware";
 
 
 
@@ -35,7 +36,7 @@ ${post.contents?.markdown}`.trim();
 }
 
 const getCommentBodyFormatted = (comment: CommentsForAutocomplete) => {
-  const dateString = formatRelative(new Date(comment.createdAt), new Date(), false)
+  const dateString = formatRelative(new Date(comment.createdAt ?? 0), new Date(), false)
   return `Comment on ${comment.post?.title}
 ${comment.user?.displayName} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
 ${comment.contents?.markdown}`.trim();
@@ -262,7 +263,7 @@ ${finalSection}`.trim();
 
 
 export function addAutocompleteEndpoint(app: Express) {
-  app.use("/api/autocomplete", express.json());
+  app.use("/api/autocomplete", express.json(), clientIdMiddleware);
   app.post("/api/autocomplete", async (req, res) => {
     const context = await getContextFromReqAndRes({req, res, isSSR: false});
     const currentUser = context.currentUser

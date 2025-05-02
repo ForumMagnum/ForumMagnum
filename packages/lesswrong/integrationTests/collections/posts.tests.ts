@@ -1,13 +1,13 @@
 import "../integrationTestSetup";
-import { runQuery } from '../../server/vulcan-lib';
+import { runQuery } from '../../server/vulcan-lib/query';
 import {
   createDummyUser,
   createDummyPost,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
-  waitUntilCallbacksFinished,
+  waitUntilPgQueriesFinished,
 } from '../utils'
-import Posts from '../../lib/collections/posts/collection';
+import Posts from '../../server/collections/posts/collection';
 import * as _ from 'underscore';
 
 describe('PostsEdit', () => {
@@ -63,7 +63,7 @@ describe('Posts RSS Views', () => {
     const curatedPost1 = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
     const curatedPost2 = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
     const curatedPost3 = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
-    await waitUntilCallbacksFinished();
+    await waitUntilPgQueriesFinished();
 
     const query = `
       query {

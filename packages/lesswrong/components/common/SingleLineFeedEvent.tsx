@@ -1,11 +1,32 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import classNames from 'classnames';
+import { Paper }from '@/components/widgets/Paper';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SingleLineFeedEvent", (theme: ThemeType) => ({
   root: {
     display: "flex",
     ...theme.typography.body2,
-    margin: 8,
+    marginTop: 8,
+    marginBottom: 8,
+    width: "100%",
+  },
+  tooltipWrapper: {
+    width: "100%",
+  },
+  frame: {
+    borderRadius: 3,
+    marginTop: 0,
+    marginBottom: 0,
+    padding: 12,
+    paddingTop: 6,
+    color: theme.palette.text.dim60,
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.faint,
+  },
+  expandable: {
+    cursor: "pointer",
   },
   itemDot: {
     display: "inline-block",
@@ -14,44 +35,73 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     color: theme.palette.grey[680],
   },
-  expandButton: {
-    display: "inline-block",
-    marginRight: 8,
-    fontWeight: "bold",
-    cursor: "pointer",
-    background: theme.palette.buttons.feedExpandButton.background,
-    borderRadius: 10,
-    width: 20,
-    textAlign: "center",
-    border: theme.palette.buttons.feedExpandButton.border,
-    color: theme.palette.buttons.feedExpandButton.plusSign,
+  icon: {
+    flexShrink: 0,
+    flexGrow: 0,
+    marginTop: 4,
+    marginRight: 12,
+  },
+  iconNextToFrame: {
+    marginTop: 12,
   },
   contents: {
     display: "inline-block",
+    position: "relative",
+    flexShrink: 1,
+    flexGrow: 1,
+    minWidth: 0,
   },
-});
+  preview: {
+    padding: 16,
+    maxWidth: 400,
+  },
+}));
 
 
-const SingleLineFeedEvent = ({expands=false, setExpanded, children, classes}: {
+const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame, icon, tooltip=null, children}: {
   expands?: boolean,
+  expanded?: boolean,
   setExpanded?: (expanded: boolean) => void,
+  frame?: boolean,
+  icon?: React.ReactNode,
+  tooltip?: React.ReactNode,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
-  return <div className={classes.root}>
-    {expands && <span className={classes.expandButton} onClick={ev => (setExpanded && setExpanded(true))} >{"+"}</span>}
-    {!expands && <span className={classes.itemDot}>{"\u2022"}</span>}
-    <div className={classes.contents}>
+  const classes = useStyles(styles);
+  const { LWTooltip } = Components;
+  
+  function handleClick() {
+    if (expands) {
+      setExpanded?.(true);
+    }
+  }
+
+  const contents = <div className={classNames(classes.root, expands && !expanded && classes.expandable)} onClick={handleClick}>
+    {icon && <div className={classNames(classes.icon, frame && classes.iconNextToFrame)}>{icon}</div>}
+    <div className={classNames(classes.contents, frame && classes.frame)}>
       {children}
     </div>
   </div>
+  
+  if (tooltip) {
+    return <LWTooltip
+      className={classes.tooltipWrapper}
+      title={<Paper className={classes.preview}>
+        {tooltip}
+      </Paper>}
+      tooltip={false} placement="bottom-end"
+    >
+      {contents}
+    </LWTooltip>
+  } else {
+    return contents;
+  }
 }
 
-const SingleLineFeedEventComponent = registerComponent("SingleLineFeedEvent", SingleLineFeedEvent, {styles});
+const SingleLineFeedEventComponent = registerComponent("SingleLineFeedEvent", SingleLineFeedEvent);
 
 declare global {
   interface ComponentTypes {
     SingleLineFeedEvent: typeof SingleLineFeedEventComponent
   }
 }
-

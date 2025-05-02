@@ -1,5 +1,5 @@
 import { registerMigration } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 
 
 // this list was produced using the query and then spreadsheet logic
@@ -33,7 +33,7 @@ const targetUserIds = [
   "ZzC2bFGnA5hiGPPCf"
 ]
 
-registerMigration({
+export default registerMigration({
   name: "fillOptInValues",
   dateWritten: "2023-11-06",
   idempotent: true,

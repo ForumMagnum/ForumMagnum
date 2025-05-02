@@ -1,15 +1,15 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { FilterMode, useSubscribeUserToTag } from '../../lib/filterSettings';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
+import { Paper }from '@/components/widgets/Paper';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -182,8 +182,8 @@ const SubscribeButton = ({
         flash({messageString: isSubscribed ? "Unsubscribed" : "Subscribed"});
       } else {
         openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
+          name: "LoginPopup",
+          contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
         });
       }
     } catch(error) {

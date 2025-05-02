@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const SubscriptionState = () => frag`
   fragment SubscriptionState on Subscription {
     _id
     userId
@@ -11,12 +11,12 @@ registerFragment(`
     deleted
     type
   }
-`);
+`
 
-registerFragment(`
+export const MembersOfGroupFragment = () => frag`
   fragment MembersOfGroupFragment on Subscription {
     user {
       ...UsersMinimumInfo
     }
   }
-`);
+`

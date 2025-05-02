@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
@@ -9,8 +8,9 @@ import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { postsCommentsThreadMultiOptions } from './PostsPage';
 import { useDisplayedPost } from '../usePost';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { useApolloClient } from '@apollo/client';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { getFragment } from '@/lib/vulcan-lib/fragments';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -20,6 +20,9 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const currentUser = useCurrentUser();
   const { query } = useSubscribedLocation();
 
+  // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
+  // a PostsItem, you can see the start of the post (the part of the text that was in the hover-preview) while
+  // it loads the rest.
   const apolloClient = useApolloClient();
   const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
     fragment: getFragment("PostsListWithVotes"),
@@ -41,7 +44,9 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
-  // the post to be fetched first. This is mainly beneficial in SSR
+  // the post to be fetched first. This is mainly beneficial in SSR. We don't preload comments if the post was preloaded
+  // (which happens on the client when navigating through a PostsItem), because the preloaded post already takes care of
+  // the waterfalling queries and the preload would be a duplicate query.
 
   // Note: in principle defaultView can depend on the post (via post.commentSortOrder). In practice this is almost never set,
   // less than 1/1000 posts have it set. If it is set the consequences are that the comments will be fetched twice. This shouldn't
@@ -54,14 +59,18 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000, postId: documentId}
 
+  // Don't pass in the eagerPostComments if we skipped the query,
+  // otherwise PostsPage will skip the lazy query if the terms change
+  const skipEagerComments = !!postPreload;
   const commentQueryResult = useMulti({
     terms,
+    skip: skipEagerComments,
     ...postsCommentsThreadMultiOptions,
   });
-  const eagerPostComments = {
-    terms,
-    queryResponse: commentQueryResult,
-  }
+  const eagerPostComments = skipEagerComments
+    ? undefined
+    : { terms, queryResponse: commentQueryResult };
+    
   // End of performance section
 
   const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;

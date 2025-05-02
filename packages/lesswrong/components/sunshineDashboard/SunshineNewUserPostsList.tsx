@@ -1,7 +1,6 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
-import _filter from 'lodash/filter';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 
@@ -45,7 +44,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
  
   if (!posts) return null
 
-  const newPosts = user.reviewedAt ? _filter(posts, post => post.postedAt > user.reviewedAt) : posts
+  const newPosts = user.reviewedAt ? posts.filter(post => post.postedAt > user.reviewedAt!) : posts
 
   return (
     <div>

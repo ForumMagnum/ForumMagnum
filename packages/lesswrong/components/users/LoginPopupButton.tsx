@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 
@@ -30,8 +30,8 @@ const LoginPopupButton = ({classes, children, title, className}: {
       <a className={className ? className : classes.root} onClick={(ev) => {
           if (!currentUser) {
             openDialog({
-              componentName: "LoginPopup",
-              componentProps: {}
+              name: "LoginPopup",
+              contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
             });
             ev.preventDefault();
           }

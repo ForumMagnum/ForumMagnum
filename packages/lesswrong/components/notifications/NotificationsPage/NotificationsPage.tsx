@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
-import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
+import type { KarmaChanges } from "../../../server/collections/users/karmaChangesGraphQL";
 
 const styles = (theme: ThemeType) => ({
   root: {

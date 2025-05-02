@@ -1,6 +1,6 @@
-import { registerFragment } from "./vulcan-lib";
+import { frag } from "./fragments/fragmentWrapper";
 
-registerFragment(`
+export const SubscribedPostAndCommentsFeed = () => frag`
   fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {
     _id
     post {
@@ -12,4 +12,4 @@ registerFragment(`
     expandCommentIds
     postIsFromSubscribedUser
   }
-`);
+`

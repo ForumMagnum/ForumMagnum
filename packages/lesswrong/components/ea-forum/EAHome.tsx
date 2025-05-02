@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react'
 import { isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
-import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import DeferRender from '../common/DeferRender'
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)

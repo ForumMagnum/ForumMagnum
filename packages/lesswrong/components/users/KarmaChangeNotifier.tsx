@@ -1,20 +1,20 @@
 import React, { useRef, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
+import { Paper }from '@/components/widgets/Paper';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import Badge from '@material-ui/core/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
-import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
-import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
+import type { ReactionChange } from '../../server/collections/users/karmaChangesGraphQL';
+import { getKarmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
@@ -127,6 +127,8 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
     || (comments && (comments.length > 0))
     || (tagRevisions && (tagRevisions.length > 0))
   )
+
+  const karmaNotificationTimingChoices = getKarmaNotificationTimingChoices();
   
   return (
     <Typography variant="body2">

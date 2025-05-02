@@ -1,11 +1,11 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
-import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import KeyboardBackspaceIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardBackspace';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 
 const styles = (theme: ThemeType) => ({

@@ -1,24 +1,26 @@
 import pick from 'lodash/pick'
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
+import { UpdateCallbackProperties } from "../mutationCallbacks";
 import { extractDenormalizedData } from "./denormalizedFields";
-import { UpdateCallbackProperties, getCollectionHooks } from "../mutationCallbacks";
 import type { Crosspost, DenormalizedCrosspostData } from "./types";
 import {
   createCrosspostToken,
   updateCrosspostToken,
 } from "@/server/crossposting/tokens";
-import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 import {
   createCrosspostRoute,
   updateCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
 import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
-import Revisions from '@/lib/collections/revisions/collection';
+import { getLatestContentsRevision } from '../collections/revisions/helpers';
+import { createAdminContext } from '../vulcan-lib/createContexts';
+import Revisions from '../collections/revisions/collection';
+import schema from "@/lib/collections/posts/newSchema";
 
 const assertPostIsCrosspostable = (
-  post: DbPost,
+  post: CreatePostDataInput | UpdatePostDataInput | Partial<DbPost>,
   logger: ReturnType<typeof loggerConstructor>,
 ) => {
   if (post.isEvent) {
@@ -56,19 +58,28 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
   }
 
   // If we're creating a new post without making a draft first then we won't have an ID yet
-  if (!post._id) {
+  if (!('_id' in post)) {
     logger('we must be creating a new post, assigning a random ID')
-    post._id = randomId();
+    Object.assign(post, {_id: randomId()});
   }
 
   // Grab the normalized contents from the revision
-  const revision = await getLatestContentsRevision(post);
+  const revision = await getLatestContentsRevision(post, createAdminContext());
+
+  const postWithDefaultValues: DbPost = {
+    ...post,
+    draft: post.draft ?? schema.draft.database.defaultValue,
+    deletedDraft: (post as UpdatePostDataInput).deletedDraft ?? schema.deletedDraft.database.defaultValue,
+    title: post.title ?? '',
+    isEvent: post.isEvent ?? schema.isEvent.database.defaultValue,
+    question: post.question ?? schema.question.database.defaultValue,
+  };
 
   const token = await createCrosspostToken.create({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
-    postId: post._id,
-    ...extractDenormalizedData(post),
+    postId: (post as unknown as DbPost)._id,
+    ...extractDenormalizedData(postWithDefaultValues),
     contents: {
       originalContents: revision?.originalContents,
       draft: revision?.draft ?? false,
@@ -126,9 +137,9 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
 }
 
 export async function handleCrosspostUpdate(
-  data: Partial<DbPost>,
+  data: UpdatePostDataInput,
   {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<"Posts">
-): Promise<Partial<DbPost>> {
+): Promise<UpdatePostDataInput> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
   const {userId, fmCrosspost} = newDocument;
@@ -167,7 +178,7 @@ export async function handleCrosspostUpdate(
     }
     logger('denormalizedData:', denormalizedData)
     const latestRevisionId =
-      data.contents_latest ??
+      (data as AnyBecauseHard).contents_latest ??
       newDocument.contents_latest ??
       oldDocument.contents_latest;
     await updateCrosspost(fmCrosspost.foreignPostId, latestRevisionId, denormalizedData);
@@ -187,10 +198,5 @@ export async function handleCrosspostUpdate(
     return data;
   }
 
-  return performCrosspost({ ...newDocument, ...data });
-}
-
-export const addCrosspostingCallbacks = () => {
-  getCollectionHooks("Posts").newSync.add(performCrosspost);
-  getCollectionHooks("Posts").updateBefore.add(handleCrosspostUpdate);
+  return performCrosspost({ ...newDocument, ...data } as DbPost);
 }

@@ -1,8 +1,8 @@
 import React, { FC, useState } from 'react';
 import PropTypes from 'prop-types';
-import {Components, registerComponent } from '../../lib/vulcan-lib';
-import Button from '@material-ui/core/Button';
-import ImageIcon from '@material-ui/icons/Image';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import ImageIcon from '@/lib/vendor/@material-ui/icons/src/Image';
 import classNames from 'classnames';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
@@ -282,8 +282,8 @@ const ImageUpload = ({
         {(name === 'eventImageId') && <Button
           variant="outlined"
           onClick={() => openDialog({
-            componentName: "ImageUploadDefaultsDialog",
-            componentProps: {onSelect: chooseDefaultImg}
+            name: "ImageUploadDefaultsDialog",
+            contents: ({onClose}) => <Components.ImageUploadDefaultsDialog onClose={onClose} onSelect={chooseDefaultImg} />
           })}
         >
           Choose from ours
@@ -292,10 +292,12 @@ const ImageUpload = ({
           <Button
             variant="outlined"
             onClick={() => openDialog({
-              componentName: "ImageUploadDefaultsDialog",
-              componentProps: {
-                onSelect: chooseDefaultImg,
-                type: "Profile"}
+              name: "ImageUploadDefaultsDialog",
+              contents: ({onClose}) => <Components.ImageUploadDefaultsDialog
+                onClose={onClose}
+                onSelect={chooseDefaultImg}
+                type={"Profile"}
+              />
             })}
           >
             Choose from ours
@@ -310,11 +312,6 @@ const ImageUpload = ({
       </div>
     </div>
   );
-};
-
-(ImageUpload as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
 const ImageUploadComponent = registerComponent("ImageUpload", ImageUpload, {styles});

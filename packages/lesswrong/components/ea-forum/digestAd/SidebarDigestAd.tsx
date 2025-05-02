@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { eaForumDigestSubscribeURL } from '../../recentDiscussion/RecentDiscussionSubscribeReminder';
@@ -118,7 +118,7 @@ const SidebarDigestAd = ({className, classes}: {
     </form>
   ) : (
     <div className={classes.form}>
-      <input value={currentUser.email} className={classes.formInput} disabled={true} required={true} />
+      <input value={currentUser.email ?? undefined} className={classes.formInput} disabled={true} required={true} />
       <EAButton onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
         {arrow}
       </EAButton>

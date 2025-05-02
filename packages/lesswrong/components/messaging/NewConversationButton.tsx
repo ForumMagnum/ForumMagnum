@@ -1,10 +1,10 @@
 import React, { MouseEvent, ReactNode, useCallback, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import { useDialog } from '../common/withDialog';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
-import { userCanStartConversations } from '../../lib/collections/conversations/collection';
+import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 
 export interface TemplateQueryStrings {
   templateId: string;
@@ -64,10 +64,13 @@ const NewConversationButton = ({
 
   const handleClick = currentUser
     ? (e: MouseEvent) => {
-      initiateConversation([user._id])
-      e.stopPropagation()
-    }
-    : () => openDialog({componentName: "LoginPopup"})
+        initiateConversation([user._id])
+        e.stopPropagation()
+      }
+    : () => openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      })
 
   if (currentUser && !userCanStartConversations(currentUser)) return null
 

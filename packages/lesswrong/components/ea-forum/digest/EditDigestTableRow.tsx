@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import CheckIcon from '@material-ui/icons/Check';
-import CloseIcon from '@material-ui/icons/Close';
+import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
 import type { DigestPost, PostWithRating } from './EditDigest';
@@ -161,7 +161,7 @@ const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
 
 const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
   post: PostWithRating,
-  postStatus: DigestPost,
+  postStatus: Partial<DigestPost>,
   statusIconsDisabled: boolean,
   handleClickStatusIcon: (postId: string, statusField: StatusField) => void,
   visibleTagIds: string[],
@@ -176,7 +176,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   /**
    * Build the cell with the given status icon
    */
-  const getStatusIconCell = (postId: string, statusField: StatusField, postStatus: DigestPost) => {
+  const getStatusIconCell = (postId: string, statusField: StatusField, postStatus: Partial<DigestPost>) => {
     const status = postStatus[statusField]
     let iconNode = null
     switch (status) {
@@ -189,7 +189,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       case 'no':
         iconNode = <CloseIcon />
         break
-      case 'pending':
+      default:
         iconNode = <CheckIcon /> // this has opacity: 0, it's just here to appear on hover
         break
     }

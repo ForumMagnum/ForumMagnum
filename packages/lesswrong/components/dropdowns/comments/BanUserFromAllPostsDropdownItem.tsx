@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
@@ -28,7 +28,7 @@ const BanUserFromAllPostsDropdownItem = ({comment, post}: {
     event.preventDefault();
     if (!currentUser) return;
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {
-      const commentUserId = comment.userId
+      const commentUserId = comment.userId ?? '';
       let bannedUserIds = clone(currentUser.bannedUserIds) || []
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)

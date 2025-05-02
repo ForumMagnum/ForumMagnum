@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, RefObject } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 
@@ -47,7 +47,6 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-
   const tags = post.tags;
 
   useEffect(() => {
@@ -74,9 +73,9 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
     <div className={classNames(classes.root, className)} ref={ref}>
       <span className={classNames(classes.item, classes.placeholder)} />
       <div className={classes.scratch} aria-hidden="true">
-        {tags.map((tag) =>
+        {tags.map((tag) => tag &&
           <span key={tag._id} className={classes.item}>
-            <FooterTag tag={tag} smallText />
+            <FooterTag tag={tag} smallText hoverable={false} />
           </span>
         )}
         <span className={classes.more}>

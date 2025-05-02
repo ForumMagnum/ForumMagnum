@@ -1,7 +1,7 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { DialogActions } from '@/components/widgets/DialogActions';
+import { DialogContent } from '../../widgets/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType) => ({

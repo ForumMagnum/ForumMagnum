@@ -1,12 +1,13 @@
 import React, { useCallback, useState } from "react";
-import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import { gql, useMutation } from "@apollo/client";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "@/lib/routeUtil";
 import { useSingle } from "@/lib/crud/withSingle";
-import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/schema";
+import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/newSchema";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -157,7 +158,7 @@ const SurveyForm = ({survey, refetch, classes}: {
         ...SurveyMinimumInfo
       }
     }
-    ${getFragment("SurveyMinimumInfo")}
+    ${fragmentTextForQuery("SurveyMinimumInfo")}
   `);
 
   const onSubmit = useCallback(async () => {

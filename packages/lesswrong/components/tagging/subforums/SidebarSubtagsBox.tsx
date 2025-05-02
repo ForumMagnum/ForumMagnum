@@ -4,7 +4,7 @@ import React, { useCallback, useState } from "react";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { taggingNameSetting } from "../../../lib/instanceSettings";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
@@ -128,6 +128,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
         <FooterTag
           key={tag._id}
           tag={tag}
+          hoverable={true}
           hideScore={true}
           hideRelatedTags
           PreviewWrapper={PreviewWrapper}
@@ -136,6 +137,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
           <FooterTag
             key={tag._id}
             tag={tag}
+            hoverable={true}
             hideScore={true}
             PreviewWrapper={PreviewWrapper}
           />

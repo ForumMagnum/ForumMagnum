@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
@@ -65,10 +65,12 @@ type NestedComments = CommentTreeNode<CommentsListWithTopLevelComment>;
 const splitByTopLevelComment = (nodes: NestedComments[]): NestedComments[][] => {
   const result: Record<string, NestedComments[]> = {};
   for (const node of nodes) {
-    if (result[node.item.topLevelCommentId]) {
-      result[node.item.topLevelCommentId].push(node);
-    } else {
-      result[node.item.topLevelCommentId] = [node];
+    if (node.item.topLevelCommentId) {
+      if (result[node.item.topLevelCommentId]) {
+        result[node.item.topLevelCommentId].push(node);
+      } else {
+        result[node.item.topLevelCommentId] = [node];
+      }
     }
   }
   return Object.values(result);

@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -12,10 +12,9 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
 import { isCollaborative } from './EditorFormComponent';
 import { useOnNavigate } from '../hooks/useOnNavigate';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -111,8 +110,12 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
     onClick={() => {
       captureEvent("versionHistoryButtonClicked", {postId})
       openDialog({
-        componentName: "PostVersionHistory",
-        componentProps: {post, postId},
+        name: "PostVersionHistory",
+        contents: ({onClose}) => <Components.PostVersionHistory
+          onClose={onClose}
+          post={post}
+          postId={postId}
+        />
       })
     }}
     variant={"outlined"}
@@ -281,7 +284,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
                 </div>
               )}
               <ContentItemBody
-                dangerouslySetInnerHTML={{ __html: revision.html }}
+                dangerouslySetInnerHTML={{ __html: revision.html ?? '' }}
                 description="PostVersionHistory revision"
               />
             </>

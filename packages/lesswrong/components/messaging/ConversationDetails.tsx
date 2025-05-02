@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
@@ -26,10 +26,11 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
 
   const openConversationOptions = () => {
     openDialog({
-      componentName: "ConversationTitleEditForm",
-      componentProps: {
-        documentId: conversation._id
-      }
+      name: "ConversationTitleEditForm",
+      contents: ({onClose}) => <Components.ConversationTitleEditForm
+        onClose={onClose}
+        documentId={conversation._id}
+      />
     });
   }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
@@ -7,6 +7,7 @@ import { EditTagForm } from './EditTagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,7 +28,10 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
       maxWidth: "unset"
-    }
+    },
+    ...(isFriendlyUI && {
+      maxWidth: 490,
+    }),
   },
   collapsedDescription: {
     display: "flex",

@@ -1,10 +1,9 @@
-import ReadStatuses from "../../lib/collections/readStatus/collection";
-import { Votes } from "../../lib/collections/votes";
+import ReadStatuses from "../../server/collections/readStatus/collection";
+import { Votes } from "../../server/collections/votes/collection";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
-import Users from "../../lib/vulcan-users";
+import Users from "../../server/collections/users/collection";
 import { getRecombeeClientOrThrow, recombeeRequestHelpers } from "../recombee/client";
-import { Globals } from "../vulcan-lib";
 import chunk from "lodash/chunk";
 
 function getNextOffsetDate<T extends HasCreatedAtType>(currentOffsetDate: Date, batch: T[]) {
@@ -26,7 +25,7 @@ function getUserBatch(offsetDate: Date) {
   return Users.find(offsetSelector, { sort: { createdAt: 1 }, limit: 1000 }).fetch();
 }
 
-async function backfillUsers(offsetDate?: Date) {
+export async function backfillRecombeeUsers(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
   const recombeeClient = getRecombeeClientOrThrow();
 
@@ -128,7 +127,7 @@ function getPostBatch(offsetDate: Date) {
   return db.any<BackfillPost>(postBatchQuery, [offsetDate, limit]);
 }
 
-async function backfillPosts(offsetDate?: Date) {
+export async function backfillRecombeePosts(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
   const recombeeClient = getRecombeeClientOrThrow();
 
@@ -167,6 +166,3 @@ async function backfillPosts(offsetDate?: Date) {
     console.log(`Error when backfilling recombee with posts.  Last offset date: ${offsetDate.toISOString()}`, { err });
   }
 }
-
-Globals.backfillRecombeePosts = backfillPosts;
-Globals.backfillRecombeeUsers = backfillUsers;

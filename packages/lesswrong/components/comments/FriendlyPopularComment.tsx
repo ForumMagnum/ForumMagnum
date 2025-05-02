@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { ExpandedDate } from "../common/FormatDate";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -174,7 +174,7 @@ const FriendlyPopularComment = ({comment, classes}: {
           )
           : (
             <div className={classNames(classes.body, classes.bodyCollapsed)}>
-              {htmlToTextDefault(comment.contents?.html)}
+              {htmlToTextDefault(comment.contents?.html ?? undefined)}
             </div>
           )
         }

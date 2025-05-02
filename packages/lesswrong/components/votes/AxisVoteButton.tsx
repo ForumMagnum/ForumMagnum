@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
@@ -20,8 +20,8 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
       });
     } else {
       vote({

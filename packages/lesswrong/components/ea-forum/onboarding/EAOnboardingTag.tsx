@@ -1,9 +1,9 @@
 import React, { useCallback, MouseEvent } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { useNotifyMe } from "../../hooks/useNotifyMe";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
+import { useSubscribeUserToTag } from "@/lib/filterSettings";
 
 const TAG_SIZE = 103;
 
@@ -73,21 +73,17 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
 }) => {
   const {viewAsAdmin} = useEAOnboarding();
 
-  const {isSubscribed, onSubscribe} = useNotifyMe({
-    document: tag,
-    overrideSubscriptionType: "newTagPosts",
-    hideFlashes: true,
-  });
+  const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
 
   // If viewAsAdmin is true, then this is an admin testing
   // and we don't want any real updates to happen
   const subscribedCallback = useCallback((
-    e: MouseEvent<HTMLDivElement>,
+    _e: MouseEvent<HTMLDivElement>,
     newValue: boolean,
   ) => {
-    !viewAsAdmin && void onSubscribe?.(e);
+    !viewAsAdmin && void subscribeUserToTag(tag, newValue ? "Subscribed" : "Default")
     onSubscribed?.(tag._id, newValue);
-  }, [onSubscribe, onSubscribed, tag._id, viewAsAdmin]);
+  }, [onSubscribed, subscribeUserToTag, tag, viewAsAdmin]);
 
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
     viewAsAdmin ? false : (isSubscribed ?? false),
@@ -99,7 +95,7 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   return (
     <div onClick={toggleSubscribed} className={classes.root}>
       <CloudinaryImage2
-        publicId={squareImageId ?? bannerImageId}
+        publicId={squareImageId ?? bannerImageId ?? ''}
         width={TAG_SIZE}
         height={TAG_SIZE}
         imgProps={{

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
@@ -7,7 +7,7 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import type { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 
 const styles = (theme: ThemeType) => ({
   commentStyling: {
@@ -70,7 +70,7 @@ const CommentBody = ({
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
   if (collapsed) { return null }
 
-  const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
+  const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : (html ?? '')
 
   let contentType: ContentStyleType;
   if (comment.answer) {
@@ -95,11 +95,12 @@ const CommentBody = ({
       description={`comment ${comment._id}`}
       nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
       replacedSubstrings={highlights}
+      contentStyleType={contentType}
     />
   </ContentStyles>
 
-  if (votingSystem.name === "namesAttachedReactions" && voteProps) {
-    return <InlineReactSelectionWrapper commentBodyRef={commentBodyRef} voteProps={voteProps} styling="comment" >
+  if (votingSystem.hasInlineReacts && voteProps) {
+    return <InlineReactSelectionWrapper contentRef={commentBodyRef} voteProps={voteProps} styling="comment" >
       {contentBody}
     </InlineReactSelectionWrapper>
   } else {

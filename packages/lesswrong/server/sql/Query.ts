@@ -15,6 +15,12 @@ class Arg {
         this.value = type.getDefaultValue();
       } else {
         this.value = type.getDefaultValueString();
+        // For string types, `getDefaultValueString` returns a string wrapped in single quotes,
+        // which is what we want in most contexts but not when we're actually setting the value
+        // of an argument for a query (since then we'll have a set of quotes in the actual string value)
+        if (this.value?.startsWith("'") && this.value?.endsWith("'")) {
+          this.value = this.value.slice(1, -1);
+        }
       }
     }
 
@@ -27,6 +33,9 @@ class Arg {
       } else {
         this.typehint = "::JSONB[]";
       }
+    } else if ((this.value instanceof Date ||typeof this.value !== "object" || Array.isArray(this.value)) && type?.toConcrete() instanceof JsonType) {
+      this.value = JSON.stringify(this.value);
+      this.typehint = "::JSONB";
     }
   }
 }
@@ -417,6 +426,12 @@ abstract class Query<T extends DbObject> {
           return ["NOT (", ...this.compileComparison(fieldName, value[comparer]), ")"];
 
         case "$nin":
+          const expression = value[comparer];
+
+          if (Array.isArray(expression) && expression.length === 0) {
+            return ["1=1"];
+          }
+
           return this.compileComparison(fieldName, {$not: {$in: value[comparer]}});
 
         case "$in":

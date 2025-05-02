@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const RevisionDisplay = () => frag`
   fragment RevisionDisplay on Revision {
     _id
     version
@@ -13,16 +13,16 @@ registerFragment(`
     htmlHighlight
     plaintextDescription
   }
-`)
+`
 
-registerFragment(`
+export const RevisionHTML = () => frag`
   fragment RevisionHTML on Revision {
     _id
     html
   }
-`)
+`
 
-registerFragment(`
+export const RevisionEdit = () => frag`
   fragment RevisionEdit on Revision {
     _id
     version
@@ -41,9 +41,9 @@ registerFragment(`
     htmlHighlight
     plaintextDescription
   }
-`)
+`
 
-registerFragment(`
+export const RevisionMetadata = () => frag`
   fragment RevisionMetadata on Revision {
     _id
     version
@@ -58,9 +58,9 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`
 
-registerFragment(`
+export const RevisionMetadataWithChangeMetrics = () => frag`
   fragment RevisionMetadataWithChangeMetrics on Revision {
     ...RevisionMetadata
     changeMetrics
@@ -68,38 +68,63 @@ registerFragment(`
       ...UsersMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const RevisionHistoryEntry = () => frag`
   fragment RevisionHistoryEntry on Revision {
     ...RevisionMetadata
     documentId
+    collectionName
     changeMetrics
+    legacyData
+    skipAttributions
     user {
       ...UsersMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const RevisionHistorySummaryEdit = () => frag`
+  fragment RevisionHistorySummaryEdit on Revision {
+    ...RevisionHistoryEntry
+    summary {
+      ...MultiDocumentMinimumInfo
+      parentTag {
+        _id
+        name
+      }
+      parentLens {
+        _id
+        title
+        tabTitle
+        tabSubtitle
+      }
+    }
+  }
+`
+
+export const RevisionTagFragment = () => frag`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
-      ...TagBasicInfo
+      ...TagHistoryFragment
+    }
+    lens {
+      ...MultiDocumentParentDocument
     }
   }
-`);
+`
 
-registerFragment(`
+export const RecentDiscussionRevisionTagFragment = () => frag`
   fragment RecentDiscussionRevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
       ...TagRecentDiscussion
     }
   }
-`);
+`
 
-registerFragment(`
+export const WithVoteRevision = () => frag`
   fragment WithVoteRevision on Revision {
     __typename
     _id
@@ -110,4 +135,4 @@ registerFragment(`
     score
     voteCount
   }
-`);
+`

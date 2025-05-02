@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { ArrowSVG } from './Icons';
-import RoomIcon from '@material-ui/icons/Room';
+import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 

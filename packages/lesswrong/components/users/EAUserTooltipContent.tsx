@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import moment from "moment";
@@ -73,7 +73,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const formatRole = (jobTitle?: string, organization?: string): string =>
+export const formatRole = (jobTitle?: string | null, organization?: string | null): string =>
   jobTitle && organization
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";

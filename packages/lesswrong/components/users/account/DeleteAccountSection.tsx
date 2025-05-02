@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
@@ -78,10 +78,11 @@ const DeleteAccountSection = ({
       void confirmAction()
     } else {
       openDialog({
-        componentName: 'DeleteAccountConfirmationModal',
-        componentProps: {
-          confirmAction
-        }
+        name: 'DeleteAccountConfirmationModal',
+        contents: ({onClose}) => <Components.DeleteAccountConfirmationModal
+          onClose={onClose}
+          confirmAction={confirmAction}
+        />
       })
     }
   }, [openDialog, updateUser, user._id, user.deleted, user.permanentDeletionRequestedAt]);

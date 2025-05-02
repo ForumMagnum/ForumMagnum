@@ -1,9 +1,8 @@
-import Users from '../../lib/collections/users/collection';
-import { Comments } from '../../lib/collections/comments'
-import { Posts } from '../../lib/collections/posts'
+import Users from '../../server/collections/users/collection';
+import { Comments } from '../../server/collections/comments/collection'
+import { Posts } from '../../server/collections/posts/collection'
 import { postStatuses } from '../../lib/collections/posts/constants'
-import { Vulcan, createMutator } from '../vulcan-lib';
-import { sanitize, slugify } from '../../lib/vulcan-lib/utils';
+import { sanitize } from '../../lib/vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/conversionUtils';
 import pgp from 'pg-promise';
@@ -13,6 +12,9 @@ import pick from 'lodash/pick';
 import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
+import { slugify } from '@/lib/utils/slugify';
+import { createUser } from '../collections/users/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
 const postgresImportDetails = {
   host: 'localhost',
@@ -22,7 +24,8 @@ const postgresImportDetails = {
   password: '' // Ommitted for obvious reasons
 }
 
-Vulcan.postgresImport = async () => {
+// Exported to allow running manually with "yarn repl"
+export const postgresImport = async () => {
   // Set up DB connection
   let postgresConnector = pgp({});
   let database = postgresConnector(postgresImportDetails);
@@ -137,7 +140,8 @@ const addParentCommentId = (comment: DbComment, parentComment: DbComment) => {
   }
 }
 
-Vulcan.syncUserPostCount = async () => {
+// Exported to allow running manually with "yarn repl"
+export const syncUserPostCount = async () => {
   const postCounters = await Posts.aggregate([
     {"$group" : {_id:"$userId", count:{$sum:1}}}
   ])
@@ -240,20 +244,12 @@ const bulkUpdateUsers = async (users: AnyBecauseObsolete, userMap: AnyBecauseObs
 const insertUser = async (user: DbUser) => {
   // console.log("insertUser", user);
   try {
-    await createMutator({
-      collection: Users,
-      document: user,
-      validate: false
-    })
+    await createUser({ data: user }, createAnonymousContext());
   } catch(err) {
     if (err.code === 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
-        await createMutator({
-          collection: Users,
-          document: newUser,
-          validate: false
-        })
+        await createUser({ data: newUser }, createAnonymousContext());
       } catch(err) {
         //eslint-disable-next-line no-console
         console.error("User Import failed", err, user);

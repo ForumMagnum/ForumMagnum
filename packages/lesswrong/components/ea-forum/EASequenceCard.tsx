@@ -1,9 +1,10 @@
 import React, { ReactNode, useCallback } from "react";
-import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { slugify } from "@/lib/utils/slugify";
 
 const EASequenceCard = ({sequence, className}: {
   sequence: SequencesPageFragment,

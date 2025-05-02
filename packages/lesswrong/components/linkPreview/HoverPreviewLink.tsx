@@ -6,10 +6,10 @@ import { classifyHost, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isServer } from '../../lib/executionEnvironment';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { isMobile } from '../../lib/utils/isMobile'
-import { locationHashIsFootnote } from '../posts/PostsPage/CollapsedFootnotes';
+import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../posts/PostsPage/CollapsedFootnotes';
 import {useCurrentUser} from '../common/withUser'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import type { ContentStyleType } from '../common/ContentStyles';
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -46,14 +46,14 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
 //   contentSourceDescription: (Optional) A human-readabe string describing
 //     where this content came from. Used in error logging only, not displayed
 //     to users.
-const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch, children }: {
+const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch, contentStyleType, children }: {
   href: string,
   contentSourceDescription?: string,
   id?: string,
   rel?: string,
   // Only Implemented for Tag Hover Previews
   noPrefetch?: boolean,
-  
+  contentStyleType?: ContentStyleType,
   children: React.ReactNode,
 }) => {
   const URLClass = getUrlClass()
@@ -70,13 +70,14 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
   // Within-page relative link?
   if (href.startsWith("#")) {
     if (locationHashIsFootnote(href)){
-      return <Components.FootnotePreview href={href} id={id} rel={rel}>
+      return <Components.FootnotePreview href={href} id={id} rel={rel} contentStyleType={contentStyleType}>
         {children}
       </Components.FootnotePreview>
+    } else if (locationHashIsFootnoteBackreference(href)) {
+      return <a href={href} id={id} rel={rel}>
+        {children}
+      </a>
     }
-    return <a href={href} id={id} rel={rel}>
-      {children}
-    </a>
   }
 
   try {
@@ -105,11 +106,6 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
         }
       }
     } else {
-      if (linkTargetAbsolute.host === "hubs.mozilla.com") {
-        return <Components.MozillaHubPreview href={href} id={id}>
-          {children}
-        </Components.MozillaHubPreview>
-      }
       if (linkTargetAbsolute.host === "metaculus.com" || linkTargetAbsolute.host === "www.metaculus.com") {
         return <Components.MetaculusPreview href={href} id={id}>
           {children}

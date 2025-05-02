@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const ModeratorActionDisplay = () => frag`
   fragment ModeratorActionDisplay on ModeratorAction {
     _id
     user {
@@ -12,4 +12,4 @@ registerFragment(`
     createdAt
     endedAt
   }
-`);
+`

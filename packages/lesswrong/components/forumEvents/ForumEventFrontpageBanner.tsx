@@ -1,13 +1,14 @@
-import React, { CSSProperties, FC } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import React, { FC } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
 import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
 import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import { POLL_MAX_WIDTH } from "./ForumEventPoll";
+
+const POLL_MIN_WIDTH = 800;
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -20,12 +21,13 @@ export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   `,
 });
 
-export const forumEventBannerDescriptionStyles = (theme: ThemeType) => ({
-  color: theme.palette.text.alwaysWhite,
+export const forumEventBannerDescriptionStyles = () => ({
+  color: "var(--forum-event-banner-text)",
+  textWrap: "pretty",
   "& a": {
     textDecoration: "underline",
     textUnderlineOffset: '2px',
-    color: `${theme.palette.text.alwaysWhite} !important`,
+    color: "var(--forum-event-banner-text) !important",
     "&::after": {
       display: "inline-block",
       textDecoration: "none",
@@ -38,10 +40,19 @@ const BANNER_HEIGHT = 180;
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
     position: "relative",
     width: "100%",
     overflow: "hidden",
+    "& a": {
+      textDecoration: "underline",
+      textUnderlineOffset: '2px',
+    },
+  },
+  hideBelowMinWidth: {
+    [`@media(max-width: ${POLL_MIN_WIDTH}px)`]: {
+      display: 'none'
+    },
   },
   rootWithGradient: {
     height: BANNER_HEIGHT,
@@ -54,12 +65,6 @@ const styles = (theme: ThemeType) => ({
       height: "unset",
     },
   },
-  expandToggleRow: {
-    padding: '0 20px 20px',
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none'
-    },
-  },
   expandToggleButton: {
     display: 'flex',
     alignItems: 'center',
@@ -69,7 +74,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     lineHeight: 'normal',
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
     padding: 0,
     '&:hover': {
       opacity: 0.7
@@ -83,27 +88,41 @@ const styles = (theme: ThemeType) => ({
     // breakpoint in `forumEventBannerGradientBackground` to match
     maxWidth: 480,
     padding: 30,
+    position: "relative",
     [theme.breakpoints.down("xs")]: {
       padding: 20,
       marginTop: 8,
     },
   },
-  contentWithPoll: {
-    maxWidth: 1000,
-    padding: '0 30px 58px',
-    margin: '0 auto ',
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none'
+  contentWithStickers: {
+    // Pass pointer events through on mobile, not on desktop
+    pointerEvents: "none",
+    "& .ContentStyles-commentBody *": {
+      pointerEvents: "none !important",
+    },
+    [theme.breakpoints.up("sm")]: {
+      "& > *": {
+        pointerEvents: "auto !important",
+      },
+      "& .ContentStyles-commentBody *": {
+        pointerEvents: "auto !important",
+      },
+    },
+
+    maxWidth: 400,
+    margin: "24px 0 28px 36px",
+    [theme.breakpoints.down("sm")]: {
+      margin: "24px 0 28px 22px",
+    },
+    [theme.breakpoints.down("xs")]: {
+      margin: "28px 0 40px 0",
     },
   },
-  contentWithPollMobile: {
+  contentWithPoll: {
     display: 'none',
     maxWidth: 500,
     textWrap: 'pretty',
     padding: '16px 30px 30px',
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'block'
-    },
   },
   postsHeading: {
     display: 'flex',
@@ -140,31 +159,35 @@ const styles = (theme: ThemeType) => ({
       textUnderlineOffset: '2px',
     }
   },
-  contentWithPollBody: {
-    flex: 'none',
-    width: 250,
-  },
   date: {
     fontWeight: 500,
     marginBottom: 6,
     fontSize: "1.1rem",
+    width: "fit-content"
   },
   title: {
     fontSize: 34,
     fontWeight: 700,
   },
-  description: {
-    ...forumEventBannerDescriptionStyles(theme),
-  },
-  titleWithPoll: {
-    fontSize: 32,
+  titleWithStickers: {
+    fontSize: 34,
     fontWeight: 700,
     lineHeight: 'normal',
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 28,
+    }
   },
-  titleWithPollMobile: {
+  titleWithPoll: {
     fontSize: 28,
     fontWeight: 700,
     lineHeight: 'normal',
+  },
+  description: {
+    ...forumEventBannerDescriptionStyles(),
+    width: "fit-content"
+  },
+  descriptionContentStyles: {
+    width: "fit-content"
   },
   dateWithPoll: {
     fontSize: 14,
@@ -173,11 +196,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6,
   },
   descriptionWithPoll: {
-    marginTop: 20,
-    "& a": {
-      textDecoration: "underline",
-      textUnderlineOffset: '2px',
-    }
+    marginTop: 20
   },
   image: {
     position: "absolute",
@@ -185,7 +204,8 @@ const styles = (theme: ThemeType) => ({
     top: -HEADER_HEIGHT,
     right: 0,
     width: '100%',
-    height: `calc(100% + ${HEADER_HEIGHT}px)`
+    height: `calc(100% + ${HEADER_HEIGHT}px)`,
+    objectFit: "cover",
   },
   imageWithGradient: {
     right: "-10%",
@@ -198,11 +218,21 @@ const styles = (theme: ThemeType) => ({
     right: 12,
     width: 20,
     height: 20,
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
   },
+  hideAboveXs: {
+    [theme.breakpoints.up("sm")]: {
+      display: "none",
+    },
+  },
+  hideBelowXs: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  }
 });
 
-const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
+const formatDate = ({ startDate, endDate }: { startDate: Date, endDate: Date }) => {
   const start = moment.utc(startDate);
   const end = moment.utc(endDate);
   const startFormatted = start.format("MMMM D");
@@ -210,6 +240,36 @@ const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
     start.month() === end.month() ? "D" : "MMMM D",
   );
   return `${startFormatted} - ${endFormatted}`;
+}
+
+const Description = ({forumEvent, classes}: {
+  forumEvent: ForumEventsDisplay,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const { ContentStyles, ContentItemBody } = Components;
+
+  const { frontpageDescription, frontpageDescriptionMobile } = forumEvent;
+
+  return (
+    <>
+      {frontpageDescription?.html && (
+        <ContentStyles contentType="comment" className={classNames(classes.descriptionContentStyles, classes.hideBelowXs)}>
+          <ContentItemBody
+            dangerouslySetInnerHTML={{ __html: frontpageDescription.html }}
+            className={classes.description}
+          />
+        </ContentStyles>
+      )}
+      {frontpageDescriptionMobile?.html && (
+        <ContentStyles contentType="comment" className={classNames(classes.descriptionContentStyles, classes.hideAboveXs)}>
+          <ContentItemBody
+            dangerouslySetInnerHTML={{ __html: frontpageDescriptionMobile.html }}
+            className={classes.description}
+          />
+        </ContentStyles>
+      )}
+    </>
+  );
 }
 
 /**
@@ -223,37 +283,25 @@ const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
 const ForumEventFrontpageBannerBasic = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   const cookieName = HIDE_FORUM_EVENT_BANNER_PREFIX + currentForumEvent?._id;
   const {dismiss, dismissed} = useDismissable(cookieName);
   if (!currentForumEvent || dismissed) {
     return null;
   }
 
-  const {title, frontpageDescription, bannerImageId, darkColor} = currentForumEvent;
-  const date = formatDate(currentForumEvent);
+  const {title, bannerImageId, startDate, endDate} = currentForumEvent;
+  const date = endDate ? formatDate({ startDate, endDate }) : null;
   
-  const {ContentStyles, ContentItemBody, CloudinaryImage2, ForumIcon} = Components;
-
-  // Define background color with a CSS variable to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-  } as CSSProperties;
+  const {CloudinaryImage2, ForumIcon} = Components;
 
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
-      <div className={classNames(classes.root, classes.rootWithGradient)} style={style}>
+      <div className={classNames(classes.root, classes.rootWithGradient)}>
         <div className={classes.contentBasic}>
-          <div className={classes.date}>{date}</div>
+          {date && <div className={classes.date}>{date}</div>}
           <div className={classes.title}>{title}</div>
-          {frontpageDescription?.html &&
-            <ContentStyles contentType="comment">
-              <ContentItemBody
-                dangerouslySetInnerHTML={{__html: frontpageDescription.html}}
-                className={classes.description}
-              />
-            </ContentStyles>
-          }
+          <Description forumEvent={currentForumEvent} classes={classes} />
         </div>
         {bannerImageId &&
           <CloudinaryImage2
@@ -282,33 +330,27 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
 const ForumEventFrontpageBannerWithPoll = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   
   if (!currentForumEvent) {
     return null;
   }
 
-  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, darkColor, contrastColor} = currentForumEvent;
-  const date = formatDate(currentForumEvent);
+  const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, startDate, endDate} = currentForumEvent;
+  const date = endDate && formatDate({startDate, endDate});
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
-  
+
   const {
     CloudinaryImage2, ForumEventPoll, ContentStyles, ContentItemBody
   } = Components;
-  
-  // Define colors with CSS variables to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-    "--forum-event-contrast": contrastColor,
-  } as CSSProperties;
-  
+
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
-      <div className={classes.root} style={style}>
-        <ForumEventPoll />
-        <div className={classes.contentWithPollMobile}>
-          <div className={classes.titleWithPollMobile}>{title}</div>
-          <div className={classes.dateWithPoll}>{date}</div>
+      <div className={classes.root}>
+        <ForumEventPoll className={classes.hideBelowMinWidth} />
+        <div className={classNames(classes.contentWithPoll, classes.hideBelowMinWidth)}>
+          <div className={classes.titleWithPoll}>{title}</div>
+          {date && <div className={classes.dateWithPoll}>{date}</div>}
           <div className={classes.descriptionWithPoll}>
               {mobileDescription &&
                 <ContentStyles contentType="comment">
@@ -331,15 +373,47 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   );
 }
 
-export const ForumEventFrontpageBanner = ({classes}: {
+/**
+ * Forum event banner that allows users to place "stickers". These are icons that
+ * persist and are visible to all users once placed. They can also have a comment
+ * attached, which will appear on the post set on the event with `postId`.
+ */
+const ForumEventFrontpageBannerWithStickers = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
+  
   if (!currentForumEvent) {
     return null;
   }
 
-  const {customComponent, includesPoll} = currentForumEvent;
+  const {title, bannerImageId} = currentForumEvent;
+  
+  const { CloudinaryImage2, ForumEventStickers } = Components;
+
+  return (
+    <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithStickers">
+      <div className={classes.root}>
+        <ForumEventStickers />
+        <div className={classNames(classes.contentBasic, classes.contentWithStickers)}>
+          <div className={classes.titleWithStickers}>{title}</div>
+          <Description forumEvent={currentForumEvent} classes={classes} />
+        </div>
+        {bannerImageId && <CloudinaryImage2 publicId={bannerImageId} className={classes.image} />}
+      </div>
+    </AnalyticsContext>
+  );
+}
+
+export const ForumEventFrontpageBanner = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
+  if (!currentForumEvent) {
+    return null;
+  }
+
+  const {customComponent, eventFormat} = currentForumEvent;
   if (customComponent) {
     const CustomComponent = Components[customComponent as keyof ComponentTypes] as FC;
     if (CustomComponent) {
@@ -353,10 +427,15 @@ export const ForumEventFrontpageBanner = ({classes}: {
       );
     }
   }
-  if (includesPoll) {
-    return <ForumEventFrontpageBannerWithPoll classes={classes} />
+
+  switch (eventFormat) {
+    case "POLL":
+      return <ForumEventFrontpageBannerWithPoll classes={classes} />;
+    case "STICKERS":
+      return <ForumEventFrontpageBannerWithStickers classes={classes} />;
+    default:
+      return <ForumEventFrontpageBannerBasic classes={classes} />;
   }
-  return <ForumEventFrontpageBannerBasic classes={classes} />
 }
 
 const ForumEventFrontpageBannerComponent = registerComponent(

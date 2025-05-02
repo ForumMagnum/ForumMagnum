@@ -329,7 +329,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "notacrux",
     label: "Not a crux",
     searchTerms: ["identity", "matrix", "crux", "not"],
-    svg: "/reactionImages/nounproject/nonbranchingpath.svg",
+    svg: "/reactionImages/nounproject/nonbranchingpath2.svg",
     filter: {opacity: 0.6},
     description: "My other beliefs would not change if I had different beliefs about this",
     deprecated:false,

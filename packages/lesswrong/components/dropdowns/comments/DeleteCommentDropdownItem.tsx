@@ -1,12 +1,12 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
 import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { userIsAdminOrMod } from '../../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 
 
 const DeleteCommentDropdownItem = ({comment, post, tag}: {
@@ -23,10 +23,11 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
 
   const showDeleteDialog = () => {
     openDialog({
-      componentName: "DeleteCommentDialog",
-      componentProps: {
-        comment: comment,
-      },
+      name: "DeleteCommentDialog",
+      contents: ({onClose}) => <Components.DeleteCommentDialog
+        onClose={onClose}
+        comment={comment}
+      />
     });
   }
 

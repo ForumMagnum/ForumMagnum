@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { IsRecommendationContext } from './PostActions';
@@ -9,6 +8,8 @@ import { useSetIsHiddenMutation } from './useSetIsHidden';
 import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -33,8 +34,8 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   const dislikeRecommendation = () => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
       return;
     }

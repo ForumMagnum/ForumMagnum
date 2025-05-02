@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -53,7 +53,7 @@ export const PostMostValuableCheckbox = ({post, classes}: {
     if (loading || createMostValuableLoading || setMostValuableLoading || !currentUser) return
     
     if (userVote) {
-      setChecked(userVote.deleted)
+      setChecked(!!userVote.deleted)
       void setMostValuable({
         selector: {
           _id: userVote._id

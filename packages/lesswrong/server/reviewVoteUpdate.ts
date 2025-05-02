@@ -1,11 +1,14 @@
-import ReviewVotes from "../lib/collections/reviewVotes/collection"
-import Users from "../lib/collections/users/collection"
-import { getCostData, REVIEW_YEAR } from "../lib/reviewUtils"
+import ReviewVotes from "../server/collections/reviewVotes/collection"
+import Users from "../server/collections/users/collection"
+import { getCostData, REVIEW_YEAR, ReviewWinnerCategory } from "../lib/reviewUtils"
 import groupBy from 'lodash/groupBy';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
-import { Globals } from "./vulcan-lib";
+import { userBigVotePower } from "@/lib/voting/voteTypes";
+import { Tags } from "@/server/collections/tags/collection";
+import { createAdminContext } from "./vulcan-lib/createContexts";
+import { createReviewWinner as createReviewWinnerMutator } from "@/server/collections/reviewWinners/mutations";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -18,11 +21,15 @@ const getValue = (vote: DbReviewVote, total: number): number|null => {
   return getCostData({costTotal:total})[vote.qualitativeScore].value
 }
 
-function updatePost(postList: Record<string,Array<number>>, vote: DbReviewVote, total: number) {
+function updatePost(postList: Record<string,Array<number>>, vote: DbReviewVote, total: number, user?: DbUser) {
+  const value = getValue(vote, total)
+  if (value === null) return
+  const votePower = user ? userBigVotePower(user.karma ?? 0, 1) : 1
+  const finalValue = value * votePower
   if (postList[vote.postId] === undefined) {
-    postList[vote.postId] = [getValue(vote, total)!]
+    postList[vote.postId] = [finalValue]
   } else {
-    postList[vote.postId].push(getValue(vote, total)!)
+    postList[vote.postId].push(finalValue)
   }
 }
 
@@ -33,37 +40,28 @@ type reviewVotePhase = 'nominationVote'|'finalVote'
 async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUserId: Dictionary<DbReviewVote[]>, votePhase: reviewVotePhase, postIds: Array<string>) {
   let postsAllUsers: Record<string,Array<number>> = {}
   let postsHighKarmaUsers: Record<string,Array<number>> = {}
-  let postsAFUsers: Record<string,Array<number>> = {}
 
   for (let userId of Object.keys(votesByUserId)) {
-    // eslint-disable-next-line no-console
-    console.log(userId)
     const user = usersByUserId[userId][0]
     
     const userVotes = votesByUserId[userId]
     const filteredUserVotes = votePhase === 'finalVote' ? userVotes.filter(vote => postIds.includes(vote.postId)) : userVotes
 
     const costTotal = filteredUserVotes.reduce((total,vote) => total + getCost(vote), 0)
-    // eslint-disable-next-line no-console
-    console.log(userId, costTotal, (costTotal > 500) ? "500+" : "")
     for (let vote of votesByUserId[userId]) {
       if (!vote.qualitativeScore) continue
-              
+            
+      // store the non-multiplied vote values on the finalReviewVotesAllKarma
       updatePost(postsAllUsers, vote, costTotal)
 
-      if (user.karma >= 1000) {
-        updatePost(postsHighKarmaUsers, vote, costTotal)
-      }
-      
-      if (user.groups?.includes('alignmentForum')) {
-        updatePost(postsAFUsers, vote, costTotal)
-      }
+      // store the strong-vote multiplied vote values on the finalReviewVotesHighKarma
+      updatePost(postsHighKarmaUsers, vote, costTotal, user)
     }
   }
 
   for (let postId in postsAllUsers) {
     // eslint-disable-next-line no-console
-    console.log("Updating vote totals for All Users")
+    console.log("Updating vote totals for All Users", postId)
     const reviewVoteScoreAllKarma = postsAllUsers[postId].reduce((x, y) => x + y, 0) 
     const reviewVotesAllKarma = postsAllUsers[postId].sort((a,b) => b - a)
 
@@ -82,7 +80,7 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   }
   for (let postId in postsHighKarmaUsers) {
     // eslint-disable-next-line no-console
-    console.log("Updating vote totals for High Karma Users")
+    console.log("Updating vote totals for High Karma Users", postId )
     const reviewVoteScoreHighKarma = postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0)
     const reviewVotesHighKarma = postsHighKarmaUsers[postId].sort((a,b) => b - a)
 
@@ -99,29 +97,11 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
       }})
     }
   }
-  for (let postId in postsAFUsers) {
-    // eslint-disable-next-line no-console
-    console.log("Updating vote totals for AF Users")
-    const reviewVoteScoreAF =  postsAFUsers[postId].reduce((x, y) => x + y, 0)
-    const reviewVotesAF =  postsAFUsers[postId].sort((a,b) => b - a)
-
-    if (votePhase === 'nominationVote') {
-      await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        reviewVotesAF,
-        reviewVoteScoreAF,
-      }})
-    }
-    if (votePhase === 'finalVote') {
-      await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesAF: reviewVotesAF,
-        finalReviewVoteScoreAF: reviewVoteScoreAF,
-      }})
-    }
-  }
   // eslint-disable-next-line no-console
   console.log("finished updating review vote toals")
 } 
 
+// Exported to allow running manually with "yarn repl"
 export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
 
@@ -148,11 +128,10 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   }
 }
 
-Globals.updateReviewVoteTotals = updateReviewVoteTotals;
 
 export async function createVotingPostHtml () {
   const style = `
-    <style>
+<style>
       .votingResultsPost .item-count {
         white-space: pre;
         text-align: center;
@@ -203,6 +182,8 @@ export async function createVotingPostHtml () {
         margin-left:auto;
         padding-top:8px;
         padding-bottom:8px;
+        flex-wrap:wrap;
+        width:350px;
       }
       .votingResultsPost .post-author  {
         font-size: 14px;
@@ -238,8 +219,8 @@ export async function createVotingPostHtml () {
   
   // we weight the high karma user's votes 3x higher than baseline
   posts.sort((post1, post2) => {
-    const score1 = (post1.finalReviewVoteScoreHighKarma*2) + post1.finalReviewVoteScoreAllKarma
-    const score2 = (post2.finalReviewVoteScoreHighKarma*2) + post2.finalReviewVoteScoreAllKarma
+    const score1 = post1.finalReviewVoteScoreHighKarma
+    const score2 = post2.finalReviewVoteScoreHighKarma
     return score2 - score1
   })
 
@@ -268,39 +249,188 @@ export async function createVotingPostHtml () {
     </tr>`
   }).join("")
 
-  return `<div class="votingResultsPost">
+  return `<div><div class="votingResultsPost">
     ${style}
     <table>
       ${postsHtml}
     </table>
-  </div>`
+  </div></div>`
 }
 
 //
 // Once you've run the migration, you should copy the results into a spreadsheet for easier analysis, and for posterity.
 // 
 
-// This is the code to run in NosqlBooster or equivalent. 
-// After running it, you may need to download the results as a csv and then
-// import them into Google Sheets. (NosqlBooster doesn't have an easy copy-paste
-// table option. Other tools might be fewer steps)
-
-// db.posts.find({postedAt: {$gte:ISODate("2021-01-01"), $lt:ISODate("2022-01-01")}, positiveReviewVoteCount: {$gt:0}})
-//   .projection({
-//     title:1, 
-//     _id:1, 
-//     userId:1, 
-//     author:1, 
-//     af: 1,
-//     reviewCount:1, 
-//     positiveReviewVoteCount:1, 
-//     reviewVotesAllKarma:1, 
-//     reviewVoteScoreAllKarma:1, 
-//     reviewVotesHighKarma:1, 
-//     reviewVoteScoreHighKarma:1, 
-//     reviewVotesAF:1, 
-//     reviewVoteScoreAF:1
-//   })
-//   .sort({reviewVoteScoreAllKarma:-1})
-
 // MAKE SURE TO UPDATE LIMIT OF QUERY IN UI
+
+// SELECT 
+//   title,
+//   _id,
+//   "userId",
+//   author,
+//   af,
+//   "reviewCount",
+//   "finalReviewVotesHighKarma",
+//   "finalReviewVoteScoreAllKarma",
+//   "finalReviewVoteScoreHighKarma",
+//   "positiveReviewVoteCount",
+//   "finalReviewVotesAllKarma"
+// FROM "Posts"
+// WHERE 
+//   "postedAt" >= '2023-01-01' 
+//   AND "postedAt" < '2024-01-01'
+//   AND "positiveReviewVoteCount" > 0
+// ORDER BY "reviewVoteScoreHighKarma" DESC
+
+// SELECT 
+//   title,
+//   _id,
+//   "userId",
+//   author,
+//   af,
+//   "reviewCount",
+//   "reviewVotesHighKarma",
+//   "reviewVoteScoreAllKarma",
+//   "reviewVoteScoreHighKarma",
+//   "positiveReviewVoteCount",
+//   "reviewVotesAllKarma",
+//   "reviewVotesAF",
+//   "reviewVoteScoreAF"
+// FROM "Posts"
+// WHERE 
+//   "postedAt" >= '2023-01-01' 
+//   AND "postedAt" < '2024-01-01'
+//   AND "positiveReviewVoteCount" > 0
+// ORDER BY "reviewVoteScoreHighKarma" DESC
+
+
+// This fetches the tags used to assign posts to a ReviewWinnerCategory, which 
+// almost-but-not-exactly map to Core Tags.
+const fetchCategoryAssignmentTags = async () => {
+  const [coreTags, aiStrategyTags] = await Promise.all([
+    Tags.find({core: true, name: {$in: ["Rationality", "World Modeling", "World Optimization", "Practical", "AI"]}}).fetch(),
+    Tags.find({name: {$in: ["AI Governance", "AI Timelines", "AI Takeoff", "AI Risk"]}}).fetch()
+  ])
+  return {coreTags, aiStrategyTags}
+}
+
+const tagToCategory: Record<string,ReviewWinnerCategory> = {
+  "Rationality": "rationality",
+  "World Modeling": "modeling",
+  "World Optimization": "optimization",
+  "Practical": "practical"
+}
+
+// ReviewWinnerCatogories don't include "Community", and split AI into two major categories: 
+// Technical AI Safety ("ai safety") and AI Strategy. This function uses some heuristics to 
+// guess which category a post belongs to. 
+const getPostCategory = (post: DbPost, coreTags: DbTag[], aiStrategyTags: DbTag[]) => {
+  const tagRelevance = post.tagRelevance
+  const coreTagsOnPost = coreTags.filter(tag => tagRelevance[tag._id] > 0)
+  const postHasAIStrategyTag = aiStrategyTags.some(tag => tagRelevance[tag._id] > 0)
+  const mostRelevantCoreTag = coreTagsOnPost.sort((a,b) => tagRelevance[b._id] - tagRelevance[a._id])[0]
+  if (mostRelevantCoreTag?.name === "AI") {
+    return postHasAIStrategyTag ? "ai strategy" : "ai safety"
+  } else {
+    return tagToCategory[mostRelevantCoreTag?.name]
+  }
+}
+
+const getReviewWinnerPosts = async () => {
+  return await Posts.find({
+    postedAt: {
+      $gte:moment(`${REVIEW_YEAR}-01-01`).toDate(), 
+      $lt:moment(`${REVIEW_YEAR+1}-01-01`).toDate()
+    }, 
+    finalReviewVoteScoreAllKarma: {$gte: 1},
+    reviewCount: {$gte: 1},
+    positiveReviewVoteCount: {$gte: 1}
+  }, {sort: {finalReviewVoteScoreHighKarma: -1}, limit: 51}).fetch()
+}
+
+export const createReviewWinnerFromId = async (postId: string, idx: number, category: ReviewWinnerCategory) => {
+  const post = await Posts.findOne({_id: postId})
+  if (!post) {
+    throw new Error(`Post not found: ${postId}`)
+  }
+  const adminContext = createAdminContext();
+  return createReviewWinner(post, idx, category, adminContext)
+}
+
+const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWinnerCategory, adminContext: ResolverContext) => { 
+  return createReviewWinnerMutator({
+    data: {
+      postId: post._id,
+      reviewYear: REVIEW_YEAR,    
+      reviewRanking: idx,
+      category,
+    },
+  }, adminContext);
+}
+
+// This is for manually checking what the default assignments for post categories are, 
+// to sanity check that they make sense before running the final "createReviewWinners" script
+// Exported to allow running manually with "yarn repl"
+export const checkReviewWinners = async () => {
+  const posts = await getReviewWinnerPosts()
+  const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
+
+  posts.forEach((post, idx) => {
+    const category = getPostCategory(post, coreTags, aiStrategyTags)
+    // eslint-disable-next-line no-console
+    console.log(idx, `${post.title} (${category})`, post.finalReviewVoteScoreHighKarma)
+  })
+}
+
+export const createReviewWinners = async () => {
+  const posts = await getReviewWinnerPosts()
+  const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()
+  const adminContext = createAdminContext();
+
+  await Promise.all(posts.map((post, idx) => {
+    const category = getPostCategory(post, coreTags, aiStrategyTags)
+    return createReviewWinner(post, idx, category, adminContext)
+  }))
+}
+
+// If you made any mistakes with the rank-order of the ReviewWinners (i.e. because you decided
+// to remove a post from the list), run this function to fix the rank orders.
+//
+// This is necessary because the reviewRanking has enforced uniqueness for rank+year, and
+// you can't edit an individual
+//
+// (This is similar but not identical to the updateCuratedOrder function in ReviewWinnersRepo,
+// which handles a similar case for the curatedOrder field, although only one post at a time)
+export const updateReviewWinnerRankings = async (year: number) => {
+  const context = createAdminContext();
+  const { ReviewWinners } = context;
+  const reviewWinners = await ReviewWinners.find({reviewYear: year}).fetch()
+  const postIds = reviewWinners.map(winner => winner.postId)
+  const posts = await Posts.find({ _id: { $in: postIds } }).fetch()
+
+  const postsById = Object.fromEntries(posts.map(post => [post._id, post]))
+
+  const sortedWinners = [...reviewWinners].sort((a, b) => {
+    const scoreA = postsById[a.postId]?.finalReviewVoteScoreHighKarma ?? 0;
+    const scoreB = postsById[b.postId]?.finalReviewVoteScoreHighKarma ?? 0;
+    return scoreB - scoreA; // Sort descending
+  });
+
+  // 4. Set temporary rankings in parallel
+  // (to avoid errors from the enforced uniqueness)
+  const tempRankStart = -10000;
+  await Promise.all(
+    sortedWinners.map((winner, i) => 
+      ReviewWinners.rawUpdateOne(
+        {_id: winner._id},
+        {$set: {reviewRanking: tempRankStart - i}}
+      )
+    )
+  );
+
+  sortedWinners.map((winner, i) => ReviewWinners.rawUpdateOne(
+      {_id: winner._id},
+      {$set: {reviewRanking: i}}
+    )
+  )
+};

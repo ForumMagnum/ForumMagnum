@@ -1,12 +1,12 @@
 import React, { useCallback, useRef } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
-import { tagPostTerms } from '../TagPage';
+import { tagPostTerms } from '../TagPageUtils';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/newSchema';
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { ObservableQuery } from '@apollo/client';
@@ -108,7 +108,7 @@ const SubforumSubforumTab = ({
   // if no sort order was selected, try to use the tag page's default sort order for posts
   const sortBy: CommentSortingMode = (
     (sortByOptions.includes(query.sortedBy) && query.sortedBy)
-    || (sortByOptions.includes(tag.postsDefaultSortOrder) && tag.postsDefaultSortOrder)
+    || (sortByOptions.includes(tag.postsDefaultSortOrder ?? '') && tag.postsDefaultSortOrder)
     || defaultSubforumSorting
   ) as CommentSortingMode;
   

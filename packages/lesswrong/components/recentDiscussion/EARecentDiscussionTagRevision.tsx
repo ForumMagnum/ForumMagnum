@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import {taggingNameSetting} from '../../lib/instanceSettings'
 
 const EARecentDiscussionTagRevision = ({
@@ -10,7 +10,7 @@ const EARecentDiscussionTagRevision = ({
   documentId,
 }: {
   tag: TagRecentDiscussion,
-  revision: RevisionMetadataWithChangeMetrics,
+  revision: RevisionHistoryEntry,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
   documentId: string,

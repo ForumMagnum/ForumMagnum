@@ -9,6 +9,7 @@ import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../
 import { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { commentBodyStyles } from '../../themes/stylePiping';
+import { usePostsItem } from '../posts/usePostsItem';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,7 +63,8 @@ const styles = (theme: ThemeType) => ({
     }
   },
   postVotingPhase: {
-    width: "100%"
+    width: "100%",
+    maxWidth: "calc(100% - 50px)",
   },
   reviews: {
     width: "100%",
@@ -86,11 +88,16 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
       padding: 7,
-      width: "100%"
+      width: "100%",
+      textAlign: "center",
     }
   },
   votesVotingPhase: {
     backgroundColor: "unset",
+    marginLeft: "auto",
+    [theme.breakpoints.down('xs')]: {
+      width: "unset",
+    }
   },
   yourVote: {
     marginLeft: 6,
@@ -183,6 +190,9 @@ const styles = (theme: ThemeType) => ({
   },
   expanded: {
     opacity: 1,
+  },
+  newCommentsSection: {
+    marginLeft: 16
   }
 });
 
@@ -211,7 +221,8 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   const {
     PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
     PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
-    ReviewPostComments, PostInteractionStripe, UsersNameDisplay, ForumIcon
+    ReviewPostComments, PostInteractionStripe, UsersNameDisplay, ForumIcon,
+    PostsItemNewCommentsWrapper
   } = Components
 
   const currentUser = useCurrentUser()
@@ -223,25 +234,13 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
     setMarkedVisitedAt(new Date()) 
   }
 
+  const { commentTerms } = usePostsItem({post})
+
   const expanded = expandedPostId === post._id
 
   const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
 
-  const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
-  const afVotes = post.reviewVotesAF || []
-
-  let displayedVotes = allVotes
-  switch (voteTooltip) {
-    case 'Showing votes by 1000+ Karma LessWrong users':
-      displayedVotes = highVotes;
-      break;
-    case 'Showing votes from Alignment Forum members':
-      displayedVotes = afVotes;
-      break;
-    case 'Showing all votes':
-      break;
-  }
 
   let positiveVoteCountText = "0"
   let positiveVoteCountTooltip = "0 positive votes"
@@ -263,6 +262,13 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
 
   const visitedDate = markedVisitedAt ?? post.lastVisitedAt
   const unreadComments = hasUnreadComments(visitedDate, post.lastCommentedAt)
+
+  const [commentsVisible, setCommentsVisible] = useState(false);
+
+  const toggleComments = () => {
+    setCommentsVisible(!commentsVisible);
+  };
+  
 
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
@@ -286,6 +292,15 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             <UsersNameDisplay user={post.user}/>
           </span>
         </div>
+        <div className={classes.commentsCount}>
+          <PostsItemComments
+            small={false}
+            commentCount={postGetCommentCount(post)}
+            unreadComments={unreadComments}
+            newPromotedComments={false}
+            onClick={toggleComments}
+          />
+        </div>
         {reviewPhase === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
             singleLine
@@ -300,14 +315,6 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
             post={post}
           />
         </div>}
-        <div className={classes.commentsCount} onClick={() => handleSetExpandedPost(post)}>
-          <PostsItemComments
-            small={false}
-            commentCount={postGetCommentCount(post)}
-            unreadComments={unreadComments}
-            newPromotedComments={false}
-          />
-        </div>
         {reviewPhase === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={<div>
             <div>This post has {positiveVoteCountTooltip}.</div>
@@ -324,7 +331,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
         {(reviewPhase === "REVIEWS" || reviewPhase === "COMPLETE") && <div className={classes.votes}>
           <LWTooltip title={voteTooltip} placement="top-end">
             <div className={classes.voteResults}>
-              { displayedVotes.map((v, i)=>
+              { allVotes.map((v, i)=>
                 <span className={classes.reviewVote} key={`${post._id}${i}H`}>
                   {v}
                 </span>
@@ -344,10 +351,22 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
           </LWTooltip>}
         </div>}
         {(reviewPhase === "NOMINATIONS" || reviewPhase === "VOTING") && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: reviewPhase === "VOTING"})}>
-          {!currentUserIsAuthor && <div onClick={(e) => e.stopPropagation()}><ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} /></div>}
+          {!currentUserIsAuthor && <div onClick={(e) => e.stopPropagation()}>
+            <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />
+          </div>}
           {currentUserIsAuthor && <MetaInfo className={classes.cantVote}>You can't vote on your own posts</MetaInfo>}
         </div>}
       </div>
+      {commentsVisible && <div className={classes.newCommentsSection} onClick={toggleComments}>
+        <PostsItemNewCommentsWrapper
+          terms={commentTerms}
+          post={post}
+          treeOptions={{
+            highlightDate: post.lastVisitedAt ?? undefined,
+            condensed: true,
+          }}
+        />
+      </div>}
     </div>
   </AnalyticsContext>
 }

@@ -87,13 +87,13 @@
 //   Functional notation without commas, eg "rgba(0 0 0 / 10%)"
 //   RGB percentages, eg "rgba(50%,25%,25%,1)"
 //   Omitted alpha: eg "rgb(0,0,100)"
-//   Importing color constants from @material-ui/core/colors or other libraries
+//   Importing color constants from @/lib/vendor/@material-ui/core/src/colors or other libraries
 //   Color keywords other than white, black, and transparent: eg "red", "grey", "wheat"
 //
 //
 
 export const grey = {
-  // Exactly matches @material-ui/core/colors/grey
+  // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
   50: '#fafafa',
   100: '#f5f5f5',
   200: '#eeeeee',
@@ -201,6 +201,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     red: "#ff0000",
     alwaysWhite: "#fff",
     alwaysBlack: "#000",
+    alwaysLightGrey: "#e0e0e0",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
@@ -411,6 +412,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingSection: "#f5f5f5",
     onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
+    tagLensTab: shades.greyAlpha(.1),
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -421,7 +423,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     appBar: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
     sequencesGridItemHover: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     eventCard: `0 1px 3px ${shades.boxShadowColor(.1)}`,
-    mozillaHubPreview: `0px 0px 10px ${shades.boxShadowColor(.1)}`,
     featuredResourcesCard: `0 4px 4px ${shades.boxShadowColor(.07)}`,
     spreadsheetPage1: `2px 0 2px -1px ${shades.boxShadowColor(.15)}`,
     spreadsheetPage2: `0 0 3px ${shades.boxShadowColor(.3)}`,
@@ -546,7 +547,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   editor: {
     commentPanelBackground: "#ffffff",
     sideCommentEditorBackground: "#f3f7fb",
-    commentMarker: "#fef7a9",
+    // Color used for background highlighting of CEditor side-comments. In some
+    // contexts with short line height (in particular, dialogues), this
+    // highlight bleeds over adjacent lines and covers up descenders. Partially
+    // mitigate this by making it a high-intensity color at 50% transparency
+    // rather than a low-intensity color at full opacity.
+    commentMarker: "rgba(255,241,82,.5)",
     commentMarkerActive: "#fdf05d",
   },
   blockquoteHighlight: {
@@ -591,6 +597,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       blue: "#16508C",
       green: "#006336",//"#0b7138",
     },
+  },
+  forumEvent: {
+    draftSticker: "#9BC4CC",
+    stickerMobileOverlay: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 75%, rgba(255, 255, 255, 0) 100%)"
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
@@ -639,4 +649,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   fundraisingThermometer: {
     shadow: '#222',
   },
+  arbital: {
+    arbitalGreen: '#004d40',
+  },
+  ultraFeed: {
+    dim: shades.grey[600],
+    cardSeparator: `8px solid ${shades.greyAlpha(0.05)}`,
+  }
 })

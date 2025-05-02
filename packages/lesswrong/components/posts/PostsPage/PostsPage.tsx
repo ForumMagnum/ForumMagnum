@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, lightconeFundraiserActive, lightconeFundraiserThermometerGoalAmount, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
@@ -24,9 +23,8 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
@@ -37,13 +35,16 @@ import { RecombeeRecommendationsContextWrapper } from '../../recommendations/Rec
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
 import { useVote } from '@/components/votes/withVote';
-import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
-import { reviewIsActive } from '@/lib/reviewUtils';
+import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
+import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
+import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
+import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -275,7 +276,7 @@ export const styles = (theme: ThemeType) => ({
   },
   postBody: {
     ...(isFriendlyUI && {
-      width: "max-content",
+      width: "100%",
     }),
   },
   audioPlayerHidden: {
@@ -368,12 +369,14 @@ export const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "center",
   },
-  secondSplashPageHeader: {
-    ...theme.typography.postStyle,
-    fontSize: '46px',
-    lineHeight: 1,
-    textWrap: 'balance',
-    fontWeight: '600'
+  splashHeaderImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '100vh',
+    width: '100vw',
   },
   reserveSpaceForSidenotes: {
     width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
@@ -405,7 +408,7 @@ export const styles = (theme: ThemeType) => ({
   reviewVoting: {
     marginTop: 60,
     marginBottom: -20 // to account or voting UI padding
-  }
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -442,6 +445,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const { recordPostView } = useRecordPostView(post);
   const [showDigestAd, setShowDigestAd] = useState(false)
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -474,7 +478,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar
+    disabled: disableProgressBar,
+    useFixedToCScrollCalculation: false
   });
   
   // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
@@ -506,10 +511,10 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     return params.sequenceId || fullPost?.canonicalSequenceId || null;
   }
 
-
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
+
   const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
   const showSplashPageHeader = isLWorAF && !!isReviewWinner && !params.sequenceId;
 
@@ -518,10 +523,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
     if (fullPost) {
       openDialog({
-        componentName: "SharePostPopup",
-        componentProps: {
-          post: fullPost,
-        },
+        name: "SharePostPopup",
+        contents: ({onClose}) => <Components.SharePostPopup
+          onClose={onClose}
+          post={fullPost}
+        />,
         closeOnNavigate: true,
       });
     }
@@ -592,7 +598,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
+    StickyDigestAd, PostsAudioPlayerWrapper, AttributionInViewTracker,
     ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate,
     PostFixedPositionToCHeading, SingleColumnSection, FundraisingThermometer, PostPageReviewButton
   } = Components
@@ -664,7 +670,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
-  const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  const debateResponseReplies = debateReplies?.filter(comment => comment.topLevelCommentId && debateResponseIds.has(comment.topLevelCommentId));
 
   const isDebateResponseLink = linkedCommentId && debateResponseIds.has(linkedCommentId);
   
@@ -678,10 +684,12 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
-      componentName: "ReplyCommentDialog",
-      componentProps: {
-        post, initialHtml: html
-      },
+      name: "ReplyCommentDialog",
+      contents: ({onClose}) => <Components.ReplyCommentDialog
+        onClose={onClose}
+        post={post}
+        initialHtml={html}
+      />
     })
   }, [openDialog, post]);
 
@@ -763,6 +771,12 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     }
   }, [fullPost, hashCommentId, isDebateResponseLink, linkedCommentId, showHashCommentFallback])
 
+  const splashHeaderImage = fullPost && showSplashPageHeader && <div className={classes.splashHeaderImage}>
+    <ImageProvider>
+      <BestOfLWPostsPageSplashImage post={fullPost} />
+    </ImageProvider>
+  </div>
+
   const header = <>
     {fullPost && !linkedCommentId && <>
       <HeadTags
@@ -778,7 +792,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         coauthors={post.coauthors
           ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
           .map(({displayName}) => displayName)}
-        date={post.createdAt}
+        date={post.createdAt ?? undefined}
       />
     </>}
     {/* Header/Title */}
@@ -794,22 +808,23 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
+          {isBookUI && <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             annualReviewMarketInfo={marketInfo}
+            showSplashPageHeader={showSplashPageHeader}
             />}
-          {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
+          {!isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
             annualReviewMarketInfo={marketInfo}/>}
-          {lightconeFundraiserActive.get() && (post._id === '5n2ZQcbc7r4R8mvqc') &&
+          {(post._id === '5n2ZQcbc7r4R8mvqc') &&
             <FundraisingThermometer onPost />}
         </div>
       </div>
@@ -841,7 +856,10 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
   const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
-  
+
+  // Show poll if tagged with the tag of the current forum event
+  const showGlobalForumEventPoll = (currentForumEvent?.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0) >= 1;
+
   // JB: postBodySection, betweenPostAndCommentsSection, and commentsSection are represented as variables here
   // to support the forum-gating below, because the comments-ToC changes the page structure wrt the ToC column
   // components. When the forum gating is removed, each of these variables should have only a single usage,
@@ -855,9 +873,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
       {isBookUI && header}
-      {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
-        {post.title}
-      </h1>}
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
@@ -925,13 +940,13 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </div>
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
-      {reviewIsActive() && <div className={classes.reviewVoting}>
+      {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <div className={classes.reviewVoting}>
         <PostPageReviewButton post={post} />
       </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-      <DeferRender ssr={false}>
+      {showGlobalForumEventPoll && <DeferRender ssr={false}>
         <ForumEventPostPagePollSection postId={post._id} />
-      </DeferRender>
+      </DeferRender>}
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
@@ -997,13 +1012,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
-      // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
-      // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
-      post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
-      showEmbeddedPlayer={showEmbeddedPlayer}
-      toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-    />}
+    {splashHeaderImage}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
@@ -1018,8 +1027,11 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
               centralColumn: commentsSection,
               isCommentToC: true
             },
+            {
+              centralColumn: <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+            }
           ]}
-          tocRowMap={[0, 0, 2]}
+          tocRowMap={[0, 0, 2, 2]}
           showSplashPageHeader={showSplashPageHeader}
           answerCount={answerCount}
           commentCount={commentCount}
@@ -1050,13 +1062,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   </AnalyticsContext>
 }
 
-export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
-
-export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
-  if (post.userId === userId) return true 
-  if (getConfirmedCoauthorIds(post).includes(userId)) return true
-  return false
-}
 const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
@@ -69,7 +69,11 @@ const styles = (theme: ThemeType) => ({
     marginTop: isFriendlyUI ? 0 : 6,
     marginBottom: 6
   },
-  divider: {/* Exists only to get overriden by the eaTheme */}
+  divider: {
+    ...(isFriendlyUI && {
+      display: 'none'
+    }),
+  }
 })
 
 interface PostTypeOptions {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useDialog } from '../../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
@@ -23,8 +23,11 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
 
   const handleLockThread = () => {
     openDialog({
-      componentName: "LockThreadDialog",
-      componentProps: {commentId: comment._id},
+      name: "LockThreadDialog",
+      contents: ({onClose}) => <Components.LockThreadDialog
+        onClose={onClose}
+        commentId={comment._id}
+      />
     });
   }
 

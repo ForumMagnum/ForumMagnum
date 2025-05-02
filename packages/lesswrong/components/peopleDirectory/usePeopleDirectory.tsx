@@ -1,7 +1,7 @@
 import React, { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { getSearchClient } from "../../lib/search/searchUtil";
 import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/useMultiSelect";
-import { CAREER_STAGES } from "../../lib/collections/users/schema";
+import { CAREER_STAGES } from "../../lib/collections/users/newSchema";
 import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
 import { MULTISELECT_SUGGESTION_LIMIT, SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
@@ -60,12 +60,6 @@ type PeopleDirectoryContext = {
 
 const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null);
 
-const tagCountQuery = gql`
-  query ActiveTagCount {
-    ActiveTagCount
-  }
-`;
-
 export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const captureSearch = useSearchAnalytics();
   const navigate = useNavigate();
@@ -91,7 +85,11 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     },
   });
 
-  const {data: tagCountResult} = useQuery(tagCountQuery);
+  const {data: tagCountResult} = useQuery(gql`
+    query ActiveTagCount {
+      ActiveTagCount
+    }
+  `);
   const tagCount = tagCountResult?.ActiveTagCount ?? 0;
 
   const roles = useSearchableMultiSelect({

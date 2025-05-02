@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const PetrovDayActionInfo = () => frag`
   fragment PetrovDayActionInfo on PetrovDayAction {
     _id
     createdAt
@@ -8,4 +8,4 @@ registerFragment(`
     actionType
     data
   }
-`);
+`

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import * as _ from 'underscore';
-import Tooltip from '@material-ui/core/Tooltip';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { TooltipSpan } from './FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   selectionList: {
@@ -80,9 +80,9 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
-              <Tooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
-                <span>{ label }</span>
-              </Tooltip> :
+              <TooltipSpan title={<div>{optionValue.tooltip}</div>} placement="left-start">
+                {label}
+              </TooltipSpan> :
               <span>{ label }</span>
             }
           </MetaInfo>

@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
@@ -39,7 +39,12 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: isFriendlyUI ? 1 : 0.6,
       color: isFriendlyUI ? theme.palette.grey[800] : undefined,
-      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
+      
+      ...(isFriendlyUI && {
+        paddingTop: 10,
+        paddingBottom: 10,
+      }),
     },
     color: theme.palette.grey[isFriendlyUI ? 600 : 800],
     ...(theme.forumType === "LessWrong"
@@ -49,7 +54,7 @@ const styles = (theme: ThemeType) => ({
         paddingLeft: 16,
         paddingRight: 16,
       } : {
-        padding: 16,
+        padding: "10px 16px",
       }
     ),
     display: "flex",
@@ -78,6 +83,9 @@ const styles = (theme: ThemeType) => ({
       color: isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
       transform: iconTransform,
     },
+    ...(isFriendlyUI && {
+      opacity: 1,
+    }),
   },
   selectedIcon: {
     "& svg": {
@@ -216,8 +224,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
       // MenuItem component] a function that return an a tag once. It made the
       // entire sidebar fail on iOS. True story.
       to={tab.link}
-      disableGutters
-      rootClass={classNames(classes.menuItem, className, {
+      className={classNames(classes.menuItem, className, {
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,

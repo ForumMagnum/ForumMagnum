@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR } from "../../lib/reviewUtils";
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -41,7 +41,7 @@ const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
 
   if (!commentResults?.length) return null
   const comment = commentResults[0]
-  if (!comment.post) return null
+  if (!comment.post || !comment.postId) return null
 
   const href = commentGetPageUrlFromIds({
     postId: comment.postId,

@@ -1,10 +1,11 @@
 import React, { CSSProperties } from 'react';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   base: {
     ...postBodyStyles(theme)
   },
@@ -68,10 +69,42 @@ const styles = (theme: ThemeType) => ({
     '& blockquote, & li': {
       fontSize: '1.0rem'
     }
+  },
+  ultraFeed: {
+    ...commentBodyStyles(theme),
+    marginTop: 0,
+    marginBottom: 0,
+    '& p:first-child': {
+      marginTop: '0 !important',
+    },
+    '& p:last-child': {
+      marginBottom: '0 !important',
+    },
+    '& p:first-child > br:first-child': {
+      display: 'none !important',
+    },
+    '& p:last-child > br:last-child': {
+      display: 'none !important',
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 17,
+      '& h1, & h2, & h3, & h4': {
+        fontSize: 20.5,
+        marginBlockStart: "0 !important",
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      },
+      '& img, & iframe': {
+        maxWidth: '100%',
+        height: 'auto',
+      },
+      '& blockquote, & li': {
+        fontSize: 17
+      }
+    },
   }
-});
+}), { stylePriority: -1 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat";
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed";
 
 // Styling wrapper for user-provided content. This includes descendent
 // selectors for all the various things that might show up in a
@@ -95,13 +128,14 @@ export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPo
 // so some things want to inherit all of the comment styles *except* for that.
 // (This hack exists to support spoiler blocks and we should probably clean it
 // up.)
-const ContentStyles = ({contentType, className, style, children, classes}: {
+const ContentStyles = ({contentType, className, style, children}: {
   contentType: ContentStyleType,
   className?: string,
   style?: CSSProperties,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <div style={style} className={classNames(
     className, classes.base, "content",
     contentType==="post" && classes.postBody,
@@ -112,15 +146,15 @@ const ContentStyles = ({contentType, className, style, children, classes}: {
     contentType==="tag" && classes.tagBody,
     contentType==="debateResponse" && classes.debateResponseBody,
     contentType==="llmChat" && classes.llmChat,
+    contentType==="ultraFeed" && classes.ultraFeed,
   )}>
     {children}
   </div>;
 }
 
-const ContentStylesComponent = registerComponent('ContentStyles', ContentStyles, {
-  styles,
-  stylePriority: -1,
-});
+const ContentStylesComponent = registerComponent('ContentStyles', ContentStyles);
+
+export default ContentStylesComponent;
 
 declare global {
   interface ComponentTypes {

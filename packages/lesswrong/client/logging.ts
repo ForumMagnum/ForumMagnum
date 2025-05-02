@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
-import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
+import { captureEvent } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";
@@ -40,7 +40,7 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 function identifyUserToSentry(user: UsersCurrent | null) {
   // Set user in sentry scope, or clear user if they have logged out
   Sentry.configureScope((scope) => {
-    scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username} : null);
+    scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username ?? undefined} : null);
   });
 }
 

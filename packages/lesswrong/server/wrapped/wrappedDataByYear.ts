@@ -7,17 +7,17 @@ import sortBy from "lodash/sortBy";
 import last from "lodash/fp/last";
 import range from "lodash/range";
 import sumBy from "lodash/sumBy";
-import { Posts } from "@/lib/collections/posts";
-import Users from "@/lib/vulcan-users"
-import ReadStatuses from "@/lib/collections/readStatus/collection";
-import Tags from "@/lib/collections/tags/collection";
+import { Posts } from "@/server/collections/posts/collection.ts";
+import Users from "@/server/collections/users/collection";
+import ReadStatuses from "@/server/collections/readStatus/collection";
+import Tags from "@/server/collections/tags/collection";
 import moment from "moment";
 import { postStatuses } from "@/lib/collections/posts/constants";
-import { Comments } from "@/lib/collections/comments";
+import { Comments } from "@/server/collections/comments/collection.ts";
 import { WrappedPersonality } from "./WrappedPersonality";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { getWrappedEngagement } from "./wrappedEngagment";
-import type { KarmaChangeBase } from "@/lib/collections/users/karmaChangesGraphQL";
+import type { KarmaChangeBase } from "@/server/collections/users/karmaChangesGraphQL";
 
 /**
  * When making changes here you must also update:
@@ -296,7 +296,7 @@ export const getWrappedDataByYear = async (
   // add the post title and slug to the top comment
   const topComment: (DbComment & {postTitle?: string, postSlug?: string})|null = userComments.shift() ?? null;
   if (topComment) {
-    const topCommentPost = await Posts.findOne({_id: topComment.postId}, {projection: {title: 1, slug: 1}})
+    const topCommentPost = await Posts.findOne({_id: topComment.postId}, {}, {title: 1, slug: 1})
     if (topCommentPost) {
       topComment.postTitle = topCommentPost.title
       topComment.postSlug = topCommentPost.slug

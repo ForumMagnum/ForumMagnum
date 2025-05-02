@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0,
   },
   description: {
-    ...forumEventBannerDescriptionStyles(theme),
+    ...forumEventBannerDescriptionStyles(),
   },
   image: {
     position: "absolute",
@@ -50,12 +50,11 @@ export const ForumEventPostPageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
-  // For now, events that have polls have a special post page UI, so hide this banner
   const hideBanner =
     !currentForumEvent ||
-    !!currentForumEvent.includesPoll ||
+    currentForumEvent.eventFormat !== "BASIC" ||
     !!currentForumEvent.customComponent;
 
   const {document: post} = useSingle({
@@ -73,29 +72,24 @@ export const ForumEventPostPageBanner = ({classes}: {
     return null;
   }
 
-  const relevance = post?.tagRelevance?.[currentForumEvent.tagId] ?? 0;
+  const relevance = currentForumEvent.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0;
   if (relevance < 1) {
     return null;
   }
 
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
 
-  // Define background color with a CSS variable to be accessed in the styles
-  const style = {
-    "--forum-event-background": darkColor,
-  } as CSSProperties;
+  if (!postPageDescription?.html) return null;
 
   const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
-    <div className={classes.root} style={style}>
-      {postPageDescription?.html &&
-        <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
-          <ContentItemBody
-            dangerouslySetInnerHTML={{__html: postPageDescription.html}}
-            className={classes.description}
-          />
-        </ContentStyles>
-      }
+    <div className={classes.root}>
+      <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: postPageDescription.html}}
+          className={classes.description}
+        />
+      </ContentStyles>
       {bannerImageId &&
         <CloudinaryImage2
           publicId={bannerImageId}

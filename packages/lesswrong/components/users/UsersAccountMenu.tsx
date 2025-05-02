@@ -1,11 +1,11 @@
 import React, { MouseEvent, useCallback, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Popover from '@material-ui/core/Popover';
-import Button from '@material-ui/core/Button';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
 import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
+import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -76,7 +76,7 @@ const LWUsersAccountMenu = ({classes}: {
     setOpen(false);
   }, [captureEvent]);
 
-  const {LoginForm} = Components;
+  const {LWClickAwayListener, LWPopper, LoginForm} = Components;
   return (
     <div className={classes.root}>
       <Button onClick={handleClick}>
@@ -84,14 +84,17 @@ const LWUsersAccountMenu = ({classes}: {
           Login
         </span>
       </Button>
-      <Popover
+      <LWPopper
         open={open}
         anchorEl={anchorEl}
-        anchorOrigin={{horizontal: "left", vertical: "bottom"}}
-        onClose={handleRequestClose}
+        placement="bottom-end"
       >
-        {open && <LoginForm />}
-      </Popover>
+        <LWClickAwayListener onClickAway={handleRequestClose}>
+          <Paper>
+            {open && <LoginForm />}
+          </Paper>
+        </LWClickAwayListener>
+      </LWPopper>
     </div>
   );
 }

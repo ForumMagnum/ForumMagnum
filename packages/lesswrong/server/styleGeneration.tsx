@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/server';
 // Adds selected MUI components to global styles.
 // import './register-mui-styles';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
@@ -17,18 +17,19 @@ import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
-import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import { type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
+import pick from 'lodash/pick';
+import mapValues from 'lodash/mapValues';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
-export type StyleDefinition<T extends string = string> = {
-  name: string
+export type StyleDefinition<T extends string = string, N extends string = string> = {
+  name: N
   styles: (theme: ThemeType) => JssStyles<T>
   options?: StyleOptions
   nameProxy: ClassNameProxy<T>|null
 }
-
 export type StyleOptions = {
   // Whether to ignore the presence of colors that don't come from the theme in
   // the component's stylesheet. Use for things that don't change color with
@@ -42,9 +43,26 @@ export type StyleOptions = {
 }
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
-  importAllComponents();
+  const allStyles = getAllStylesByName();
   
-  const context: any = {};
+  const theme = getForumTheme(themeOptions);
+  const cssVars = requestedCssVarsToString(theme);
+  const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions, true);
+  
+  const mergedCSS = [
+    draftjsStyles(),
+    miscStyles(),
+    jssStylesheet,
+    ...theme.rawCSS,
+    cssVars,
+  ].join("\n");
+
+  const minifiedCSS = minify(mergedCSS).css;
+  return Buffer.from(minifiedCSS, "utf8");
+}
+
+function getAllStylesByName() {
+  importAllComponents();
   
   // Sort components by stylePriority, tiebroken by name (alphabetical)
   const componentStyles: Record<string,StyleDefinition> = keyBy(
@@ -58,17 +76,21 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
       })),
     c=>c.name
   );
-  const allStyles = {
+  
+  return {
     ...componentStyles,
     ...topLevelStyleDefinitions,
   };
-  
+}
+
+function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType, themeOptions: ThemeOptions, addPotentiallUnusedMuiStyles: boolean): string {
+  const context: any = {};
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);
   const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
-    {Object.keys(usedMuiStyles).map((componentName: string) => {
+    {addPotentiallUnusedMuiStyles && Object.keys(usedMuiStyles).map((componentName: string) => {
       const StyledComponent = withStyles(usedMuiStyles[componentName], {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
     })}
@@ -82,19 +104,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
-  const theme = getForumTheme(themeOptions);
-  const cssVars = requestedCssVarsToString(theme);
-  
-  const mergedCSS = [
-    draftjsStyles(),
-    miscStyles(),
-    jssStylesheet,
-    ...theme.rawCSS,
-    cssVars,
-  ].join("\n");
-
-  const minifiedCSS = minify(mergedCSS).css;
-  return Buffer.from(minifiedCSS, "utf8");
+  return jssStylesheet;
 }
 
 type StylesheetAndHash = {
@@ -130,6 +140,22 @@ export const getMergedStylesheet = (theme: ThemeOptions): StylesheetAndHash => {
   const mergedStylesheet = mergedStylesheets[themeKey]!;
   
   return mergedStylesheet;
+}
+
+export function generateEmailStylesheet({muiSheetsRegistry, stylesContext, theme, themeOptions}: {
+  muiSheetsRegistry: any,
+  stylesContext: StylesContextType,
+  theme: ThemeType
+  themeOptions: ThemeOptions
+}): string {
+  const muiSheet = muiSheetsRegistry.toString();
+  
+  const mountedStyles = stylesContext.mountedStyles;
+  const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition)
+  const usedStylesByName = keyBy(usedStyleDefinitions, s=>s.name);
+  const css = stylesToStylesheet(usedStylesByName, theme, themeOptions, false);
+
+  return muiSheet + css;
 }
 
 addStaticRoute("/allStyles", async ({query}, req, res, next) => {

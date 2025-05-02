@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
@@ -34,15 +34,16 @@ const ReportUserButton = ({user, classes}: {
     if (!user) return
   
     openDialog({
-      componentName: "ReportForm",
-      componentProps: {
-        reportedUserId: user._id,
-        link: `/users/${user.slug}`,
-        userId: currentUser._id,
-        onSubmit: () => {
+      name: "ReportForm",
+      contents: ({onClose}) => <Components.ReportForm
+        onClose={onClose}
+        reportedUserId={user._id}
+        link={`/users/${user.slug}`}
+        userId={currentUser._id}
+        onSubmit={() => {
           flash({messageString: "Your report has been sent to the moderators"})
-        }
-      }
+        }}
+      />,
     })
   }
   

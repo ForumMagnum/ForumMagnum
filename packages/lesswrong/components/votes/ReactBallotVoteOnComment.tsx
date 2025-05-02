@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps, reactBallotAxes, ReactBallotAxis, ReactBallotStandaloneReaction, reactBallotStandaloneReactions } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
@@ -188,8 +188,8 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
   return <div className={classNames(classes.voteButton, classes.standaloneReaction, {[classes.voteButtonSelected]: isSelected})} onClick={async ev => {
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
       });
     } else {
       await voteProps.vote({

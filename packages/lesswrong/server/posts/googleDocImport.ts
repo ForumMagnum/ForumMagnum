@@ -1,9 +1,10 @@
 import { OAuth2Client } from 'google-auth-library';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { extractGoogleDocId } from '../../lib/collections/posts/helpers';
-import GoogleServiceAccountSessions from '../../lib/collections/googleServiceAccountSessions/collection';
-import { createMutator, updateMutator } from '../vulcan-lib';
+import GoogleServiceAccountSessions from '../../server/collections/googleServiceAccountSessions/collection';
 import { drive } from '@googleapis/drive';
+import { createGoogleServiceAccountSession, updateGoogleServiceAccountSession } from '../collections/googleServiceAccountSessions/mutations';
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 export const googleDocImportClientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
 export const googleDocImportClientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
@@ -102,12 +103,7 @@ export async function revokeAllAccessTokens() {
     try {
       await oauth2Client.revokeToken(session.refreshToken);
 
-      await updateMutator({
-        collection: GoogleServiceAccountSessions,
-        documentId: session._id,
-        set: { active: false, revoked: true },
-        validate: false
-      });
+      await updateGoogleServiceAccountSession({ data: { active: false, revoked: true }, selector: { _id: session._id } }, createAnonymousContext());
 
       return true;
     } catch (error) {
@@ -120,18 +116,16 @@ export async function revokeAllAccessTokens() {
 export async function updateActiveServiceAccount({email, refreshToken}: {email: string, refreshToken: string}) {
   await GoogleServiceAccountSessions.rawUpdateMany({active: true}, {$set: {active: false}})
 
-  await createMutator({
-    collection: GoogleServiceAccountSessions,
-    document: {
+  await createGoogleServiceAccountSession({
+    data: {
       email,
       refreshToken,
       // Now + 5 months (the earliest a token can expire is around 6 months)
       estimatedExpiry: new Date(Date.now() + (5 * 30 * 24 * 60 * 60 * 1000)),
       active: true,
-      revoked: false
-    },
-    validate: false,
-  })
+      revoked: false,
+    }
+  }, createAnonymousContext())
 
   oAuth2Client = null;
   cacheTimestamp = null;

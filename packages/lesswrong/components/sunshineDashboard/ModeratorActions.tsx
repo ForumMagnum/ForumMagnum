@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import DoneIcon from '@material-ui/icons/Done';
-import SnoozeIcon from '@material-ui/icons/Snooze';
-import AddAlarmIcon from '@material-ui/icons/AddAlarm';
-import AlarmOffIcon from '@material-ui/icons/AlarmOff';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
-import ReportProblemIcon from '@material-ui/icons/ReportProblem';
-import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
+import SnoozeIcon from '@/lib/vendor/@material-ui/icons/src/Snooze';
+import AddAlarmIcon from '@/lib/vendor/@material-ui/icons/src/AddAlarm';
+import AlarmOffIcon from '@/lib/vendor/@material-ui/icons/src/AlarmOff';
+import DeleteForeverIcon from '@/lib/vendor/@material-ui/icons/src/DeleteForever';
+import RemoveCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/RemoveCircleOutline';
+import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
+import ReportProblemIcon from '@/lib/vendor/@material-ui/icons/src/ReportProblem';
+import OutlinedFlagIcon from '@/lib/vendor/@material-ui/icons/src/OutlinedFlag';
 import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import moment from 'moment';
-import FlagIcon from '@material-ui/icons/Flag';
-import Input from '@material-ui/core/Input';
+import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
@@ -340,9 +340,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </LWTooltip>
     <LWTooltip title="Create a new moderator action for this user">
       <ReportProblemIcon className={classes.modButton} onClick={() => openDialog({
-        componentName: 'NewModeratorActionDialog',
-        componentProps: {userId: user._id}})}
-      />
+        name: 'NewModeratorActionDialog',
+        contents: ({onClose}) => <Components.NewModeratorActionDialog
+          onClose={onClose}
+          userId={user._id}
+        />
+      })}/>
     </LWTooltip>
   </div>
 

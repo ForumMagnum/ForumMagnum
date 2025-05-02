@@ -1,6 +1,6 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import Divider from '@material-ui/core/Divider';
+import { SimpleDivider } from '@/components/widgets/SimpleDivider';
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
@@ -35,7 +35,7 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
           return
         }
         if ('divider' in tab) {
-          return <Divider key={tab.id} className={classes.divider} />
+          return <SimpleDivider key={tab.id} className={classes.divider} />
         }
         return <TabNavigationCompressedItem key={tab.id} tab={tab} onClick={onClickSection} />
       })}

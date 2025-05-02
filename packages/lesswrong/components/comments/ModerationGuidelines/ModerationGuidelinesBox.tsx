@@ -1,17 +1,17 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import {useNewEvents} from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { truncatise } from '../../../lib/truncatise';
-import Edit from '@material-ui/icons/Edit';
+import Edit from '@/lib/vendor/@material-ui/icons/src/Edit';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { TooltipSpan } from '@/components/common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,10 +30,12 @@ const styles = (theme: ThemeType) => ({
   'reign-of-terror': {
     color: theme.palette.text.moderationGuidelinesReignOfTerror,
   },
-  'editButton': {
+  editButtonWrapper: {
     cursor: "pointer",
     position: 'absolute',
     right: 16,
+  },
+  editButton: {
     height: '0.8em'
   },
   collapse: {
@@ -92,8 +94,8 @@ const getPostModerationGuidelines = (
 }
 
 const getSubforumModerationGuidelines = (tag: TagFragment) => {
-  const { html = "" } = tag.moderationGuidelines || {}
-  const combinedGuidelines = html
+  const { html } = tag.moderationGuidelines || {}
+  const combinedGuidelines = html ?? ''
   const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
   return { combinedGuidelines, truncatedGuidelines }
 }
@@ -154,11 +156,12 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
     e.stopPropagation()
 
     openDialog({
-      componentName: "ModerationGuidelinesEditForm",
-      componentProps: {
-        commentType,
-        documentId,
-      }
+      name: "ModerationGuidelinesEditForm",
+      contents: ({onClose}) => <Components.ModerationGuidelinesEditForm
+        onClose={onClose}
+        commentType={commentType}
+        documentId={documentId}
+      />
     });
   }
   
@@ -172,9 +175,12 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
       {
         !!(isPostType(document) ? userCanModeratePost(currentUser, document) : userCanModerateSubforum(currentUser, document)) &&
         <span onClick={openEditDialog}>
-          <Tooltip title="Edit moderation guidelines">
-            <Edit className={classes.editButton} />
-          </Tooltip>
+          <TooltipSpan
+            title="Edit moderation guidelines"
+            className={classes.editButtonWrapper}
+          >
+            <Edit className={classes.editButton}/>
+          </TooltipSpan>
         </span>
       }
       <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>

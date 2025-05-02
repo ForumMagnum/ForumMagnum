@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { slugify } from '../../lib/vulcan-lib/utils';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import type { FormControlProps } from '../vulcan-forms/FormGroup';
+import { slugify } from '@/lib/utils/slugify';
 
 const styles = (theme: ThemeType) => ({
   formSection: {
@@ -49,7 +48,6 @@ export interface FormGroupLayoutProps {
   paddingStyling?: boolean;
   flexStyling?: boolean;
   flexAlignTopStyling?: boolean;
-  formControlProps: FormControlProps;
 }
 
 /**

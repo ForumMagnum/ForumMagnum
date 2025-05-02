@@ -1,31 +1,32 @@
-import React, { Component } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
+import React, { useState } from 'react';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import withMobileDialog from '@material-ui/core/withMobileDialog';
-import withUser from '../common/withUser';
-import { withTracking } from "../../lib/analyticsEvents";
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { DialogActions } from '../widgets/DialogActions';
+import { DialogContent } from '../widgets/DialogContent';
+import { DialogContentText } from '../widgets/DialogContentText';
+import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
+import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
+import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import { useCurrentUser } from '../common/withUser';
+import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
+import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
   thresholdSelector: {
     display: "flex",
     flexDirection: "row",
@@ -56,7 +57,9 @@ const styles = (theme: ThemeType) => ({
   link: {
     textDecoration: "underline"
   },
-});
+  thresholdButton: {},
+  infoMsg: {},
+}));
 
 const thresholds = forumSelect({
   LessWrong: [2, 30, 45, 75, 125],
@@ -118,25 +121,7 @@ const viewNames = {
   'rejected': 'rejected posts',
   'scheduled': 'scheduled posts',
   'all_drafts': 'all drafts',
-}
-
-interface ExternalProps {
-  method: any,
-  view: any,
-  fullScreen?: boolean,
-  onClose: any,
-  open: boolean,
-}
-interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateCurrentUserProps {
-}
-
-interface SubscribeDialogState {
-  view:  keyof typeof viewNames,
-  method:  string,
-  threshold: string,
-  copiedRSSLink: boolean,
-  subscribedByEmail: boolean,
-}
+} as const
 
 type EventWithSelectTarget = {
   target: {
@@ -144,34 +129,34 @@ type EventWithSelectTarget = {
   }
 };
 
-class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogState> {
-  constructor(props: SubscribeDialogProps) {
-    super(props);
-    this.state = {
-      threshold: "30",
-      method: this.props.method,
-      copiedRSSLink: false,
-      subscribedByEmail: false,
-      
-      view: (this.props.method === "email" && !this.emailFeedExists(this.props.view)) ? "curated" : this.props.view,
-    };
-  }
+const SubscribeDialog = (props: {
+  method: any,
+  view: keyof typeof viewNames,
+  onClose: any,
+  open: boolean,
+}) => {
+  const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const [threshold, setThreshold] = useState("30");
+  const [method, setMethod] = useState(props.method);
+  const [copiedRSSLink, setCopiedRSSLink] = useState(false);
+  const [subscribedByEmail, setSubscribedByEmail] = useState(false);
 
-  rssTerms() {
-    const view = this.state.view;
+  const rssTerms = () => {
     let terms: any = { view: `${view}-rss` };
-    if (view === "community" || view === "frontpage") terms.karmaThreshold = this.state.threshold;
+    if (view === "community" || view === "frontpage") terms.karmaThreshold = threshold;
     return terms;
   }
 
   // FIXME: Not clear that this actually works for both onClick and onFocus!
-  autoselectRSSLink(event: any) {
+  const autoselectRSSLink = (event: any) => {
     event.target && 'select' in event.target && event.target.select();
   }
 
-  subscribeByEmail() {
+  const subscribeByEmail = () => {
     let mutation: Partial<DbUser> = { emailSubscribedToCurated: true }
-    const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
     if (!userEmailAddressIsVerified(currentUser)) {
@@ -184,184 +169,170 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
 
     void updateCurrentUser(mutation)
 
-    this.setState({ subscribedByEmail: true });
+    setSubscribedByEmail(true);
     captureEvent("subscribedByEmail")
   }
 
-  emailSubscriptionEnabled() {
-    return this.props.currentUser && getUserEmail(this.props.currentUser) 
+  const emailSubscriptionEnabled = () => {
+    return currentUser && getUserEmail(currentUser) 
   }
 
-  emailFeedExists(view: string) {
+  const emailFeedExists = (view: string) => {
     if (view === "curated") return true;
     return false;
   }
 
-  isAlreadySubscribed() {
-    if (this.state.view === "curated"
-        && this.props.currentUser
-        && this.props.currentUser.emailSubscribedToCurated)
+  const [view, setView] = useState<keyof typeof viewNames>((props.method === "email" && !emailFeedExists(props.view)) ? "curated" : props.view);
+
+  const isAlreadySubscribed = () => {
+    if (view === "curated"
+        && currentUser
+        && currentUser.emailSubscribedToCurated)
       return true;
     return false;
   }
 
-  selectMethod(method: string) {
-    this.setState({
-      copiedRSSLink: false,
-      subscribedByEmail: false,
-      method
-    })
+  const selectMethod = (method: string) => {
+    setCopiedRSSLink(false);
+    setSubscribedByEmail(false);
+    setMethod(method);
   }
 
-  selectThreshold(threshold: string) {
-    this.setState({
-      copiedRSSLink: false,
-      subscribedByEmail: false,
-      threshold
-    })
+  const selectThreshold = (threshold: string) => {
+    setCopiedRSSLink(false)
+    setSubscribedByEmail(false)
+    setThreshold(threshold);
   }
 
 
-  selectView(view: keyof typeof viewNames) {
-    this.setState({
-      copiedRSSLink: false,
-      subscribedByEmail: false,
-      view
-    })
+  const selectView = (view: keyof typeof viewNames) => {
+    setCopiedRSSLink(false)
+    setSubscribedByEmail(false)
+    setView(view);
   }
 
-  render() {
-    const { classes, fullScreen, onClose, open, currentUser } = this.props;
-    const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
-    const { LWDialog, MenuItem } = Components;
+  const fullScreen = !useIsAboveBreakpoint('sm');
+  const { onClose, open } = props;
+  const { LWDialog, MenuItem } = Components;
 
-    const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
-      <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
-      <Select
-        value={view}
-        onChange={ event => this.selectView(event.target.value as keyof typeof viewNames) }
-        disabled={method === "email" && !currentUser}
-        inputProps={{ id: "subscribe-dialog-view" }}
+  const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
+    <InputLabel htmlFor="subscribe-dialog-view">Feed</InputLabel>
+    <Select
+      value={view}
+      onChange={ event => selectView(event.target.value as keyof typeof viewNames) }
+      disabled={method === "email" && !currentUser}
+      inputProps={{ id: "subscribe-dialog-view" }}
+    >
+      {/* TODO: Forum digest */}
+      <MenuItem value="curated">Curated</MenuItem>
+      <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
+      <MenuItem value="community" disabled={method === "email"}>{preferredHeadingCase("All Posts")}</MenuItem>
+    </Select>
+  </FormControl>
+
+  return (
+    <LWDialog
+      fullScreen={fullScreen}
+      open={open}
+      onClose={onClose}
+    >
+      {isLWorAF && <Tabs
+        value={method}
+        indicatorColor="primary"
+        textColor="primary"
+        onChange={ (event, value) => selectMethod(value) }
+        className={classes.tabbar}
+        fullWidth
       >
-        {/* TODO: Forum digest */}
-        <MenuItem value="curated">Curated</MenuItem>
-        <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
-        <MenuItem value="community" disabled={method === "email"}>{preferredHeadingCase("All Posts")}</MenuItem>
-      </Select>
-    </FormControl>
+        <Tab label="RSS" key="tabRSS" value="rss" />
+        <Tab label="Email" key="tabEmail" value="email" />
+      </Tabs>}
 
-    return (
-      <LWDialog
-        fullScreen={fullScreen}
-        open={open}
-        onClose={onClose}
-      >
-        {isLWorAF && <Tabs
-          value={method}
-          indicatorColor="primary"
-          textColor="primary"
-          onChange={ (event, value) => this.selectMethod(value) }
-          className={classes.tabbar}
-          fullWidth
-        >
-          <Tab label="RSS" key="tabRSS" value="rss" />
-          <Tab label="Email" key="tabEmail" value="email" />
-        </Tabs>}
+      <DialogContent className={classes.content}>
+        { method === "rss" && <React.Fragment>
+          {viewSelector}
 
-        <DialogContent className={classes.content}>
-          { method === "rss" && <React.Fragment>
-            {viewSelector}
-
-            {(view === "community" || view === "frontpage") && <div>
-              <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
-              <RadioGroup
-                value={threshold}
-                onChange={ (event, value) => this.selectThreshold(value) }
-                className={classes.thresholdSelector}
-              >
-                { thresholds.map((t: AnyBecauseTodo) => t.toString()).map((threshold: AnyBecauseTodo) =>
-                  <FormControlLabel
-                    control={<Radio />}
-                    label={threshold}
-                    value={threshold}
-                    key={`labelKarmaThreshold${threshold}`}
-                    className={classes.thresholdButton}
-                  />
-                ) }
-              </RadioGroup>
-              <DialogContentText className={classes.estimate}>
-                That's roughly { postsPerWeek[threshold] } posts per week
-                ({ timePerWeekFromPosts(postsPerWeek[threshold]) } of reading)
-              </DialogContentText>
-            </div>}
-
-            <TextField
-              className={classes.RSSLink}
-              label="RSS Link"
-              onFocus={this.autoselectRSSLink}
-              onClick={this.autoselectRSSLink}
-              value={rssTermsToUrl(this.rssTerms())}
-              key="rssLinkTextField"
-              fullWidth />
-          </React.Fragment> }
-
-          { method === "email" && [
-            viewSelector,
-            !!currentUser ? (
-              [
-                !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
-                  Sorry, there's currently no email feed for {viewNames[view]}.
-                </DialogContentText>,
-                subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
-                  We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
-                </DialogContentText>
-              ]
-            ) : (
-              <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
-                You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email
-              </DialogContentText>
-            )
-          ] }
-        </DialogContent>
-        <DialogActions>
-          { method === "rss" &&
-            <CopyToClipboard
-              text={rssTermsToUrl(this.rssTerms())}
-              onCopy={ (text, result) => {
-                this.setState({ copiedRSSLink: result })
-                this.props.captureEvent("rssLinkCopied")
-              }}
+          {(view === "community" || view === "frontpage") && <div>
+            <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
+            <RadioGroup
+              value={threshold}
+              onChange={ (event, value) => selectThreshold(value) }
+              className={classes.thresholdSelector}
             >
-              <Button color="primary">{copiedRSSLink ? "Copied!" : "Copy Link"}</Button>
-            </CopyToClipboard> }
-          { method === "email" &&
-            (this.isAlreadySubscribed()
-              ? <Button color="primary" disabled={true}>
-                  You are already subscribed to this feed.
-                </Button>
-              : <Button
-                  color="primary"
-                  onClick={ () => this.subscribeByEmail() }
-                  disabled={!this.emailFeedExists(view) || subscribedByEmail || !currentUser}
-                >{subscribedByEmail ? "Subscribed!" : "Subscribe to Feed"}</Button>
-            )
-          }
-          <Button onClick={onClose}>Close</Button>
-        </DialogActions>
-      </LWDialog>
-    );
-  }
+              { thresholds.map((t: AnyBecauseTodo) => t.toString()).map((threshold: AnyBecauseTodo) =>
+                <FormControlLabel
+                  control={<Radio />}
+                  label={threshold}
+                  value={threshold}
+                  key={`labelKarmaThreshold${threshold}`}
+                  className={classes.thresholdButton}
+                />
+              ) }
+            </RadioGroup>
+            <DialogContentText className={classes.estimate}>
+              That's roughly { postsPerWeek[threshold] } posts per week
+              ({ timePerWeekFromPosts(postsPerWeek[threshold]) } of reading)
+            </DialogContentText>
+          </div>}
+
+          <TextField
+            className={classes.RSSLink}
+            label="RSS Link"
+            onFocus={autoselectRSSLink}
+            onClick={autoselectRSSLink}
+            value={rssTermsToUrl(rssTerms())}
+            key="rssLinkTextField"
+            fullWidth />
+        </React.Fragment> }
+
+        { method === "email" && [
+          viewSelector,
+          !!currentUser ? (
+            [
+              !emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
+                Sorry, there's currently no email feed for {viewNames[view]}.
+              </DialogContentText>,
+              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+                We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
+              </DialogContentText>
+            ]
+          ) : (
+            <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
+              You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email
+            </DialogContentText>
+          )
+        ] }
+      </DialogContent>
+      <DialogActions>
+        { method === "rss" &&
+          <CopyToClipboard
+            text={rssTermsToUrl(rssTerms())}
+            onCopy={ (text, result) => {
+              setCopiedRSSLink(result);
+              captureEvent("rssLinkCopied")
+            }}
+          >
+            <Button color="primary">{copiedRSSLink ? "Copied!" : "Copy Link"}</Button>
+          </CopyToClipboard> }
+        { method === "email" &&
+          (isAlreadySubscribed()
+            ? <Button color="primary" disabled={true}>
+                You are already subscribed to this feed.
+              </Button>
+            : <Button
+                color="primary"
+                onClick={ () => subscribeByEmail() }
+                disabled={!emailFeedExists(view) || subscribedByEmail || !currentUser}
+              >{subscribedByEmail ? "Subscribed!" : "Subscribe to Feed"}</Button>
+          )
+        }
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </LWDialog>
+  );
 }
 
-const SubscribeDialogComponent = registerComponent<ExternalProps>("SubscribeDialog", SubscribeDialog, {
-  styles,
-  hocs: [
-    withMobileDialog(),
-    withUser,
-    withUpdateCurrentUser,
-    withTracking,
-  ]
-});
+const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog);
 
 declare global {
   interface ComponentTypes {

@@ -1,5 +1,4 @@
-import Reports from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ReportsViewTerms extends ViewTermsBase {
@@ -8,49 +7,54 @@ declare global {
   }
 }
 
-//Messages for a specific conversation
-Reports.addView("allReports", function (terms: ReportsViewTerms) {
+function allReports(terms: ReportsViewTerms) {
   return {
     options: {sort: {createdAt: 1}}
   };
-});
-ensureIndex(Reports, {createdAt: 1});
+}
 
-Reports.addView("unclaimedReports", function (terms: ReportsViewTerms) {
+function unclaimedReports(terms: ReportsViewTerms) {
   return {
     selector: {claimedUserId: {$exists: false }},
     options: {sort: {createdAt: 1}}
   };
-});
-ensureIndex(Reports, {claimedUserId:1, createdAt: 1});
+}
 
-Reports.addView("claimedReports", function (terms: ReportsViewTerms) {
+function claimedReports(terms: ReportsViewTerms) {
   return {
     selector: {claimedUserId: {$exists: true }},
     options: {sort: {createdAt: 1}}
   };
-});
+}
 
-Reports.addView("adminClaimedReports", function (terms: ReportsViewTerms) {
+function adminClaimedReports(terms: ReportsViewTerms) {
   return {
     selector: {claimedUserId: terms.userId },
     options: {sort: {createdAt: 1}}
   };
-});
+}
 
-Reports.addView("sunshineSidebarReports", function (terms: ReportsViewTerms) {
+function sunshineSidebarReports(terms: ReportsViewTerms) {
   return {
     selector: {
       closedAt: {$exists: false}
     },
     options: {sort: {createdAt: -1}}
   };
-});
-ensureIndex(Reports, {closedAt:1, createdAt: 1});
+}
 
-Reports.addView("closedReports", function (terms: ReportsViewTerms) {
+function closedReports(terms: ReportsViewTerms) {
   return {
     selector: {closedAt: {$exists: true }},
     options: {sort: {closedAt: 1, createdAt: 1}}
   };
+}
+
+export const ReportsViews = new CollectionViewSet('Reports', {
+  allReports,
+  unclaimedReports,
+  claimedReports,
+  adminClaimedReports,
+  sunshineSidebarReports,
+  closedReports
 });

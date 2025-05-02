@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const messageListFragment = () => frag`
   fragment messageListFragment on Message {
     _id
     user {
@@ -14,4 +14,4 @@ registerFragment(`
     createdAt
     conversationId
   }
-`);
+`

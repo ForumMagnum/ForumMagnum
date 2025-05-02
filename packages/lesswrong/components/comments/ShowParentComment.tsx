@@ -1,6 +1,6 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
+import SubdirectoryArrowLeft from '@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
@@ -52,9 +52,7 @@ const ShowParentComment = ({ comment, active, onClick, classes }: {
   return (
     <Components.LWTooltip title={`${active ? "Hide" : "Show"} previous comment`}>
       <span className={classNames(classes.root, {[classes.active]: active})} onClick={onClick}>
-        <SubdirectoryArrowLeft className={classNames(classes.icon, {[classes.activeArrow]: active})}>
-          subdirectory_arrow_left
-        </SubdirectoryArrowLeft>
+        <SubdirectoryArrowLeft className={classNames(classes.icon, {[classes.activeArrow]: active})}/>
       </span>
     </Components.LWTooltip>
   )

@@ -2,7 +2,7 @@ import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
 
@@ -27,20 +27,30 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   removeButton: {
-    float: "right",
     ...(isFriendlyUI
       ? {
+        float: "right",
         marginTop: 10,
         marginLeft: 10,
       }
       : {
-        marginTop: 12,
+        position: "absolute",
+        top: 7,
+        right: 0,
       }),
   },
   removed: {
-    float: "right",
-    marginTop: 12,
-    marginRight: 16,
+    ...(isFriendlyUI
+      ? {
+        float: "right",
+        marginTop: 12,
+        marginRight: 16,
+      }
+      : {
+        position: "absolute",
+        top: 7,
+        right: 16,
+      }),
     color: theme.palette.grey[400]
   }
 });

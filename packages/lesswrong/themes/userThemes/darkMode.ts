@@ -4,7 +4,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
 export const invertedGreyscale = {
-  // Present in @material-ui/core/colors/grey
+  // Present in @/lib/vendor/@material-ui/core/src/colors/grey
   50: invertHexColor('#fafafa'),
   100: invertHexColor('#f5f5f5'),
   200: invertHexColor('#eeeeee'),
@@ -177,22 +177,6 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
 const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
   forumSelect({
     EAForum: {
-      PostsTopSequencesNav: {
-        title: {
-          color: palette.icon.dim,
-        },
-      },
-      MuiPaper: {
-        elevation1: {boxShadow: "none"},
-        elevation2: {boxShadow: "none"},
-        elevation3: {boxShadow: "none"},
-        elevation4: {boxShadow: "none"},
-        elevation5: {boxShadow: "none"},
-        elevation6: {boxShadow: "none"},
-        elevation7: {boxShadow: "none"},
-        elevation8: {boxShadow: "none"},
-        elevation24: {boxShadow: "none"},
-      },
     },
     default: {},
   });
@@ -236,6 +220,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
+      tagLensTab: shadePalette.greyAlpha(.15),
     },
     background: {
       default: shadePalette.grey[100],
@@ -298,6 +283,9 @@ export const darkModeTheme: UserThemeSpecification = {
       inactive: {
         text: shadePalette.grey[600]
       },
+    },
+    arbital: {
+      arbitalGreen: '#02796b',
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({

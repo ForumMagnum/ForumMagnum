@@ -1,11 +1,10 @@
 import React, { useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import FormLabel from '@material-ui/core/FormLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
+import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -143,7 +142,7 @@ const MultiSelect = ({
     );
   }
 
-  const {MenuItem} = Components;
+  const {MenuItem, Typography} = Components;
   return <FormControl>
     {label && <FormLabel className={classes.formLabel}>{label}</FormLabel>}
     <Select
@@ -162,7 +161,9 @@ const MultiSelect = ({
         {options.map(option => {
           return <MenuItem key={option.value} value={option.value}>
             <Checkbox checked={value.some(v => v === option.value)} />
-            <ListItemText primary={option.label} />
+            <Typography variant="subheading" component="span">
+              {option.label}
+            </Typography>
           </MenuItem>
         })}
     </Select>

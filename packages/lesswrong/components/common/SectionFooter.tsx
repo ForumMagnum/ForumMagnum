@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) => ({

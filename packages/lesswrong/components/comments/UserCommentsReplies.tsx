@@ -1,8 +1,9 @@
-import { Components, registerComponent, slugify } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getUserFromResults } from '../users/UsersProfile';
+import { slugify } from '@/lib/utils/slugify';
 
 const styles = (theme: ThemeType) =>  ({
   root: {

@@ -1,8 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
-import Card from "@material-ui/core/Card";
+import { Card } from "@/components/widgets/Paper";
 import { useTagBySlug } from '../tagging/useTag';
-import Button  from '@material-ui/core/Button'
+import Button  from '@/lib/vendor/@material-ui/core/src/Button'
 
 const styles = (theme: ThemeType) => ({
   dialog: {

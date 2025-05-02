@@ -1,12 +1,12 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
+import { TooltipSpan } from '../common/FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -65,36 +65,34 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   const solidArrow = isBookUI;
 
   return <PostsItem2MetaInfo className={classes.root}>
-    <Tooltip title={tooltip} placement="left-end">
-      <span>
-        <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
-          <OverallVoteButton
-            orientation="down"
-            color="error"
-            upOrDown="Downvote"
-            solidArrow={solidArrow}
-            enabled={canVote}
-            {...voteProps}
-          />
-        </div>
-        
-        <div className={classes.score}>
-          {voteProps.baseScore}
-        </div>
+    <TooltipSpan title={tooltip} placement="left-end"><>
+      <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
+        <OverallVoteButton
+          orientation="down"
+          color="error"
+          upOrDown="Downvote"
+          solidArrow={solidArrow}
+          enabled={canVote}
+          {...voteProps}
+        />
+      </div>
       
-        <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
-          <OverallVoteButton
-            orientation="up"
-            color="secondary"
-            upOrDown="Upvote"
-            solidArrow={solidArrow}
-            enabled={canVote}
-            {...voteProps}
-          />
-        </div>
-      </span>
-      </Tooltip>
-    </PostsItem2MetaInfo>
+      <div className={classes.score}>
+        {voteProps.baseScore}
+      </div>
+    
+      <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
+        <OverallVoteButton
+          orientation="up"
+          color="secondary"
+          upOrDown="Upvote"
+          solidArrow={solidArrow}
+          enabled={canVote}
+          {...voteProps}
+        />
+      </div>
+    </></TooltipSpan>
+  </PostsItem2MetaInfo>
 }
 
 const PostsItemTagRelevanceComponent = registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});

@@ -8,7 +8,7 @@ import { DatabaseServerSetting } from "../databaseSettings";
  * Ex: if a user has 0 karma on LW, and attempts to link accounts to crosspost from the EA Forum, they will get this error, because LW requires you to have a 100 karma account *on LW* to crosspost from the EA Forum.
  * This is true regardless of how much karma they have on the EA Forum.  (This check is performed on both sides, so a user needs to pass both forums' karma thresholds to be able to establish a link.)
  */
- export const validateCrosspostingKarmaThreshold = (currentUser: DbUser | null) => {
+ export const assertCrosspostingKarmaThreshold = (currentUser: DbUser | null) => {
   if (!currentUser) {
     throw new InvalidUserError();
   }

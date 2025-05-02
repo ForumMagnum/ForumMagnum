@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -39,8 +39,8 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   const wrappedVote = (voteType: string) => {
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
     } else {
       vote({document, voteType: null, collectionName: "TagRels", currentUser});

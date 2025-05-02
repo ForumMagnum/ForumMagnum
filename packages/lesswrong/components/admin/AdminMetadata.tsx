@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery, gql } from '@apollo/client';
 
 const styles = (theme: ThemeType) => ({
@@ -16,12 +16,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const adminMetadataQuery = gql`query AdminMetadataQuery {
-  AdminMetadata
-}`;
-
 const AdminMetadata = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { data, loading } = useQuery(adminMetadataQuery, { ssr: true });
+  const { data, loading } = useQuery(gql`query AdminMetadataQuery {
+    AdminMetadata
+  }`, { ssr: true });
+
   if (loading)
     return <Components.Loading/>
   

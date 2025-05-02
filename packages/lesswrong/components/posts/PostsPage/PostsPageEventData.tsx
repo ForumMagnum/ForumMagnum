@@ -1,19 +1,19 @@
-import Button from '@material-ui/core/Button';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import WebIcon from '@material-ui/icons/Web';
-import ForumIcon from '@material-ui/icons/Forum';
-import CreateIcon from '@material-ui/icons/Create';
-import PeopleIcon from '@material-ui/icons/People';
-import LaptopIcon from '@material-ui/icons/LaptopMac';
-import ViewListIcon from '@material-ui/icons/ViewList';
-import ClockIcon from '@material-ui/icons/AccessTime';
-import LocationIcon from '@material-ui/icons/LocationOn'
-import MailIcon from '@material-ui/icons/MailOutline'
-import LocalActivityIcon from '@material-ui/icons/LocalActivity';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
+import WebIcon from '@/lib/vendor/@material-ui/icons/src/Web';
+import ForumIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
+import CreateIcon from '@/lib/vendor/@material-ui/icons/src/Create';
+import PeopleIcon from '@/lib/vendor/@material-ui/icons/src/People';
+import LaptopIcon from '@/lib/vendor/@material-ui/icons/src/LaptopMac';
+import ViewListIcon from '@/lib/vendor/@material-ui/icons/src/ViewList';
+import ClockIcon from '@/lib/vendor/@material-ui/icons/src/AccessTime';
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
+import MailIcon from '@/lib/vendor/@material-ui/icons/src/MailOutline'
+import LocalActivityIcon from '@/lib/vendor/@material-ui/icons/src/LocalActivity';
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 

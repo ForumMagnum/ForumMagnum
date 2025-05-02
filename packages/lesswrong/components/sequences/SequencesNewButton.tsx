@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 
 const styles = (theme: ThemeType) => ({
   newSequence: {

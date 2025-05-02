@@ -1,7 +1,7 @@
 import React from 'react';
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
-import Card from '@material-ui/core/Card';
+import { Card } from "@/components/widgets/Paper";
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
@@ -7,7 +7,7 @@ import { gql, useMutation } from "@apollo/client";
 import { useMulti } from "@/lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
 import DeferRender from "../common/DeferRender";
@@ -15,32 +15,33 @@ import type { ForumEventVoteDisplay } from "./ForumEventResultIcon";
 import { Link } from "@/lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
+import { PartialDeep } from "type-fest";
+import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
+import { useMessages } from "../common/withMessages";
+import { useSingle } from "@/lib/crud/withSingle";
 
-export const POLL_MAX_WIDTH = 800;
 const SLIDER_MAX_WIDTH = 1120;
 const RESULT_ICON_MAX_HEIGHT = 27;
-const USER_IMAGE_SIZE = 34;
+const USER_IMAGE_SIZE = 30;
 const DEFAULT_STACK_IMAGES = 20;
-const NUM_TICKS = 29;
+const NUM_TICKS = 21;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
 const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'center',
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: "0px 30px 15px 30px",
+    padding: "0px 16px 15px 24px",
     margin: "0 auto",
     maxWidth: "100%",
-    [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none',
-    },
   },
   question: {
     fontSize: 32,
-    lineHeight: '110%',
+    lineHeight: '100%',
     fontWeight: 700,
-    maxWidth: 700,
+    maxWidth: 730,
     marginBottom: 13,
     marginLeft: "auto",
     marginRight: "auto"
@@ -57,7 +58,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     maxWidth: `min(${SLIDER_MAX_WIDTH}px, 100%)`,
     position: "relative",
-    padding: "8px 10px 0px 10px",
+    padding: "8px 16px 0px 16px",
     overflow: "hidden"
   },
   sliderLineResults: {
@@ -83,8 +84,8 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.palette.text.alwaysWhite,
-    color: theme.palette.text.alwaysBlack,
+    backgroundColor: "var(--forum-event-foreground)",
+    color: "var(--forum-event-background)",
     borderRadius: "50%",
     fontWeight: "bold",
     width: "calc(100% + 4px)",
@@ -95,6 +96,7 @@ const styles = (theme: ThemeType) => ({
   // Inner element needed so that extraVotesCircle can't expand horizontally
   extraVotesText: {
     position: "absolute",
+    whiteSpace: "nowrap",
     top: "50%",
     left: "50%",
     transform: "translate(-54%, -54%)",
@@ -104,12 +106,16 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       fontSize: 10,
     },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 7,
+      transform: "translate(-50%, -50%)",
+    },
   },
   sliderLine: {
     position: "relative",
     width: "100%",
     height: 2,
-    backgroundColor: theme.palette.text.alwaysWhite,
+    backgroundColor: "var(--forum-event-foreground)",
     marginBottom: "16px",
     transition: "transform 0.5s ease-in-out",
   },
@@ -137,7 +143,7 @@ const styles = (theme: ThemeType) => ({
       bottom: 0,
       left: "50%",
       width: 2,
-      backgroundColor: theme.palette.text.alwaysWhite,
+      backgroundColor: "var(--forum-event-foreground)",
       opacity: 0.3,
       transform: "translateX(-50%)",
     },
@@ -152,7 +158,7 @@ const styles = (theme: ThemeType) => ({
     '&::before': {
       height: "125%",
       top: "-5%",
-      backgroundColor: theme.palette.text.alwaysWhite,
+      backgroundColor: "var(--forum-event-foreground)",
       opacity: 1,
     },
     '&$tickDragging': {
@@ -160,7 +166,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   sliderArrow: {
-    stroke: theme.palette.text.alwaysWhite,
+    stroke: "var(--forum-event-foreground)",
     position: "absolute",
     top: -11,
   },
@@ -184,12 +190,12 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '140%',
   },
   userImage: {
-    outline: `2px solid ${theme.palette.text.alwaysWhite}`,
+    outline: `2px solid var(--forum-event-foreground)`,
   },
   placeholderUserIcon: {
     // add a black background to the placeholder user circle icon
     background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-foreground)",
     fontSize: 44,
     borderRadius: '50%',
     marginLeft: -5,
@@ -200,14 +206,14 @@ const styles = (theme: ThemeType) => ({
     position: 'absolute',
     top: -5,
     right: -5,
-    backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 65%, ${theme.palette.text.alwaysWhite} 35%)`,
+    backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, color-mix(in oklab, var(--forum-event-background) 65%, var(--forum-event-foreground) 35%))`,
     padding: 2,
     borderRadius: '50%',
     cursor: 'pointer',
     width: 15,
     height: 15,
     "&:hover": {
-      backgroundColor: theme.palette.text.alwaysBlack,
+      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, var(--forum-event-background) 90%)`,
     },
   },
   clearVote: {
@@ -253,7 +259,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     lineHeight: 'normal',
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--forum-event-banner-text)",
     textDecoration: 'underline',
     textUnderlineOffset: '3px',
     padding: 0,
@@ -280,6 +286,12 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       opacity: 1,
     },
+    "& img": {
+      maxWidth: USER_IMAGE_SIZE
+    }
+  },
+  currentUserVoteClosed: {
+    cursor: "default",
   },
   currentUserVoteDragging: {
     cursor: "grabbing",
@@ -290,10 +302,8 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
     },
   },
-  commentForm: {
-    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
-      display: 'none'
-    },
+  loading: {
+    marginBottom: (USER_IMAGE_SIZE / 2) + 24
   }
 });
 
@@ -303,17 +313,6 @@ export type ForumEventVoteData = {
   delta?: number,
   postIds?: string[]
 }
-
-export const addForumEventVoteQuery = gql`
-  mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
-    AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
-  }
-`;
-const removeForumEventVoteQuery = gql`
-  mutation RemoveForumEventVote($forumEventId: String!) {
-    RemoveForumEventVote(forumEventId: $forumEventId)
-  }
-`;
 
 const DEFAULT_VOTE_INDEX = Math.floor(NUM_TICKS / 2);
 
@@ -343,7 +342,7 @@ const clusterForumEventVotes = ({
 }: {
   voters: UsersMinimumInfo[];
   comments: ShortformComments[] | undefined;
-  event: ForumEventsDisplay | null;
+  event: ForumEventsDisplay | null | undefined;
   currentUser: UsersCurrent | null;
 }): ForumEventVoteDisplayCluster[] => {
   if (!voters || !event || !event.publicData) return [];
@@ -389,27 +388,81 @@ const clusterForumEventVotes = ({
   return clusters;
 };
 
-const PollQuestion = ({
+function footnotesToTooltips({
+  html,
   event,
   classes,
 }: {
+  html: string;
   event: ForumEventsDisplay;
   classes: ClassesType<typeof styles>;
-}) => {
+}): React.ReactNode[] {
   const { LWTooltip } = Components;
 
-  return (
-    <div className={classes.question}>
-      “It would be better to spend an extra $100m
-      <LWTooltip title="In total. You can imagine this is a trust that could be spent down today, or over any time period.">
-        <span className={classes.questionFootnote} style={{ color: event.contrastColor ?? event.darkColor }}>
-          1
-        </span>
-      </LWTooltip>{" "}
-      on animal welfare than on global health”
-    </div>
-  );
-};
+  const { document } = parseDocumentFromString(html);
+
+  const footnotes = Array.from(document.querySelectorAll(".footnote-item"));
+  const footnotesMap: Record<string, string> = {};
+  for (const li of footnotes) {
+    const footnoteId = li.getAttribute("data-footnote-id");
+    if (!footnoteId) continue;
+    const footnoteHtml = li.querySelector(".footnote-content")?.innerHTML ?? "";
+    footnotesMap[footnoteId] = footnoteHtml;
+  }
+
+  // Remove the footnotes block from the DOM so we don't flatten it
+  const footnotesList = document.querySelector(".footnotes");
+  footnotesList?.remove();
+
+  const resultArray: React.ReactNode[] = [];
+
+  function walkNode(node: ChildNode) {
+    // If TEXT_NODE, just push its text, dropping the specific html tag etc
+    if (node.nodeType === ServerSafeNode.TEXT_NODE) {
+      const text = node.textContent || "";
+      if (text.trim() !== "") {
+        resultArray.push(text);
+      }
+      return;
+    }
+
+    if (node.nodeType === ServerSafeNode.ELEMENT_NODE) {
+      const el = node as Element;
+
+      // If it's a .footnote-reference, produce a <LWTooltip>
+      if (el.classList.contains("footnote-reference")) {
+        const footnoteId = el.getAttribute("data-footnote-id") || "";
+        const content = footnotesMap[footnoteId] || "";
+
+        // Extract just digits from e.g. "[1]" → "1"
+        const footnoteNumberRaw = el.textContent?.trim() || "";
+        const footnoteNumber = footnoteNumberRaw.replace(/[^\d]+/g, "") || "?";
+
+        const tooltipNode = (
+          <LWTooltip
+            key={footnoteNumber}
+            title={<div dangerouslySetInnerHTML={{ __html: content }} />}
+          >
+            <span
+              className={classes.questionFootnote}
+              style={{ color: event.contrastColor ?? event.darkColor }}
+            >
+              {footnoteNumber}
+            </span>
+          </LWTooltip>
+        );
+        resultArray.push(tooltipNode);
+      } else {
+        Array.from(el.childNodes).forEach(walkNode);
+      }
+    }
+  }
+
+  // Walk all top level nodes, recursing into child nodes
+  Array.from(document.body.childNodes).forEach(walkNode);
+
+  return resultArray;
+}
 
 /**
  * This component is for forum events that have a poll.
@@ -423,16 +476,41 @@ export const ForumEventPoll = ({
   postId,
   hideViewResults,
   classes,
+  forumEventId,
+  className
 }: {
   postId?: string;
   hideViewResults?: boolean;
   classes: ClassesType<typeof styles>;
+  forumEventId?: string;
+  className?: string;
 }) => {
-  const { currentForumEvent: event, refetch } = useCurrentForumEvent();
+  const { currentForumEvent, refetch: refectCurrentEvent } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
-
   const { captureEvent } = useTracking();
+  const { flash } = useMessages();
+
+  const { document: eventFromId, refetch: refetchOverrideEvent } = useSingle({
+    collectionName: "ForumEvents",
+    fragmentName: "ForumEventsDisplay",
+    documentId: forumEventId,
+    skip: !forumEventId,
+  });
+
+  const event = forumEventId ? eventFromId : currentForumEvent;
+  const refetch = forumEventId ? refetchOverrideEvent : refectCurrentEvent;
+  // Events where endDate is null always have voting open
+  const votingOpen = event ? (!event.endDate || new Date(event.endDate) > new Date()) : false;
+
+  const displayHtml = useMemo(
+    () => (event?.pollQuestion?.html ? footnotesToTooltips({ html: event.pollQuestion.html, event, classes }) : null),
+    [event, classes]
+  );
+  const plaintextQuestion = useMemo(
+    () => (event?.pollQuestion?.html ? stripFootnotes(event.pollQuestion.html) : null),
+    [event?.pollQuestion?.html]
+  );
 
   const initialUserVotePos: number | null = getForumEventVoteForUser(
     event,
@@ -508,17 +586,27 @@ export const ForumEventPoll = ({
   }
 
   const voteClusters = useMemo(
-    () => clusterForumEventVotes({ voters: votersRef.current, comments, event, currentUser }),
+    () => clusterForumEventVotes({ voters: votersRef.current, comments, event: event, currentUser }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [votersRef.current, event, currentUser, comments]
   );
+
+  const votesLoading = (voters === undefined && votersRef.current.length === 0) || !event || !event.publicData;
 
   const currentUserComment = useMemo(() => {
     return comments?.find(comment => comment.userId === currentUser?._id) || null;
   }, [comments, currentUser]);
 
-  const [addVote] = useMutation(addForumEventVoteQuery);
-  const [removeVote] = useMutation(removeForumEventVoteQuery);
+  const [addVote] = useMutation(gql`
+    mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
+      AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
+    }
+  `);
+  const [removeVote] = useMutation(gql`
+    mutation RemoveForumEventVote($forumEventId: String!) {
+      RemoveForumEventVote(forumEventId: $forumEventId)
+    }
+  `);
 
   /**
    * When the user clicks the "x" icon, or when a logged out user tries to vote,
@@ -526,24 +614,21 @@ export const ForumEventPoll = ({
    */
   const clearVote = useCallback(
     async (e?: React.PointerEvent) => {
-      e?.stopPropagation();
-      setCurrentBucketIndex(DEFAULT_VOTE_INDEX);
-      setCurrentUserVote(null);
-      if (currentUser && event) {
-        setVoteCount((count) => count - 1);
-        await removeVote({ variables: { forumEventId: event._id } });
-        setCommentFormOpen(false);
-        refetch?.();
+      try {
+        e?.stopPropagation();
+        if (currentUser && event) {
+          await removeVote({ variables: { forumEventId: event._id } });
+          setVoteCount((count) => count - 1);
+          setCommentFormOpen(false);
+          refetch?.();
+        }
+        setCurrentBucketIndex(DEFAULT_VOTE_INDEX);
+        setCurrentUserVote(null);
+      } catch (e) {
+        flash(e.message)
       }
     },
-    [
-      setCurrentBucketIndex,
-      setCurrentUserVote,
-      currentUser,
-      removeVote,
-      event,
-      refetch,
-    ]
+    [currentUser, event, removeVote, refetch, flash]
   );
 
   /**
@@ -551,10 +636,11 @@ export const ForumEventPoll = ({
    */
   const startDragVote = useCallback(
     (e: React.PointerEvent) => {
+      if (!votingOpen) return;
       e.preventDefault();
       isDragging.current = true;
     },
-    []
+    [votingOpen]
   );
 
   /**
@@ -562,7 +648,7 @@ export const ForumEventPoll = ({
    */
   const updateVotePos = useCallback(
     (e: PointerEvent) => {
-      if (!isDragging.current || !sliderRef.current) return;
+      if (!isDragging.current || !sliderRef.current || !votingOpen) return;
 
       const sliderRect = sliderRef.current.getBoundingClientRect();
       const sliderWidth = sliderRect.right - sliderRect.left;
@@ -578,7 +664,7 @@ export const ForumEventPoll = ({
       const bucketIndex = Math.round(rawVotePos * (NUM_TICKS - 1));
       setCurrentBucketIndex(bucketIndex);
     },
-    []
+    [votingOpen]
   );
   useEventListener("pointermove", updateVotePos);
 
@@ -590,13 +676,19 @@ export const ForumEventPoll = ({
    * - Otherwise (we're on the home page), open the post selection modal
    */
   const saveVotePos = useCallback(async () => {
-    if (!isDragging.current || !event) return;
+    if (!isDragging.current || !event || !votingOpen) return;
 
     isDragging.current = false;
     const newVotePos = currentBucketIndex / (NUM_TICKS - 1);
 
     // When a logged-in user is done dragging their vote, attempt to save it
-    if (currentUser) {
+    if (!currentUser) {
+      onSignup()
+      void clearVote()
+      return;
+    }
+
+    try {
       const voteData: ForumEventVoteData = {
         forumEventId: event._id,
         x: newVotePos,
@@ -626,27 +718,30 @@ export const ForumEventPoll = ({
         });
         refetch?.();
       }
-    // When a logged-out user tries to vote, just show the login modal
-    } else {
-      onSignup()
-      void clearVote()
+    } catch (e) {
+      setCurrentBucketIndex(initialBucketIndex);
+      setCurrentUserVote(initialUserVotePos);
+      flash(e.message);
     }
   }, [
+    event,
+    votingOpen,
     currentBucketIndex,
     currentUser,
-    addVote,
-    event,
-    currentUserVote,
-    postId,
-    setCurrentUserVote,
     onSignup,
     clearVote,
-    refetch,
     hasVoted,
+    currentUserVote,
+    addVote,
+    refetch,
+    postId,
+    initialBucketIndex,
+    initialUserVotePos,
+    flash
   ]);
   useEventListener("pointerup", saveVotePos);
 
-  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventResultIcon } = Components;
+  const { ForumIcon, LWTooltip, UsersProfileImage, ForumEventCommentForm, ForumEventResultIcon, Loading } = Components;
 
   const ticks = Array.from({ length: NUM_TICKS }, (_, i) => i);
 
@@ -680,20 +775,46 @@ export const ForumEventPoll = ({
 
   if (!event) return null;
 
+  const commentPrompt = `<blockquote>${plaintextQuestion}</blockquote><p></p>`;
+  const commentPrefilledProps: PartialDeep<DbComment> = !currentUserComment && currentUserVote !== null ? {
+    forumEventMetadata: {
+      eventFormat: "POLL",
+      sticker: null,
+      poll: {
+        voteWhenPublished: currentUserVote,
+        latestVote: null,
+        pollQuestionWhenPublished: event.pollQuestion?._id ?? null,
+        commentPrompt
+      }
+    },
+    ...(!event.isGlobal && {
+      contents: {
+        originalContents: {
+          type: "ckEditorMarkup",
+          data: commentPrompt,
+        }
+      }
+    }),
+  } : {};
+
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
-      <div className={classes.root}>
-        <PollQuestion event={event} classes={classes} />
+      <div className={classNames(classes.root, className)}>
+        {displayHtml && <div className={classes.question}>{displayHtml}</div>}
         <div className={classes.votePromptWrapper}>
           <DeferRender ssr={false}>
             {!hideViewResults && (
               <div className={classes.votePrompt}>
                 {!resultsVisible ? <>
-                  {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"} so far. `}
-                {hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "}
-                <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
-                  view results.
-                </button>
+                  {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
+                  {votingOpen ? (
+                    hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "
+                  ) : (
+                    "Voting has now closed, "
+                  )}
+                  <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
+                    view results.
+                  </button>
                 </> : <button
                   className={classNames(classes.viewResultsButton, classes.hideResultsButton)}
                   onClick={() => setResultsVisible(false)}
@@ -727,6 +848,7 @@ export const ForumEventPoll = ({
                 </div>
               ))}
             </div>
+            {resultsVisible && votesLoading && <Loading className={classes.loading} white />}
             <div className={classes.sliderLine} ref={sliderRef}>
               {/* Ticks */}
               <div className={classes.ticksContainer}>
@@ -751,6 +873,7 @@ export const ForumEventPoll = ({
                     className={classNames(
                       classes.userVote,
                       classes.currentUserVote,
+                      !votingOpen && classes.currentUserVoteClosed,
                       isDragging.current && classes.currentUserVoteDragging,
                       hasVoted && classes.currentUserVoteActive
                     )}
@@ -761,7 +884,7 @@ export const ForumEventPoll = ({
                   >
                     <LWTooltip
                       title={
-                        !hasVoted && (
+                        (votingOpen && !hasVoted) && (
                           <>
                             <div className={classes.voteTooltipHeading}>Click and drag to vote</div>
                             <div className={classes.voteTooltipBody}>
@@ -777,12 +900,14 @@ export const ForumEventPoll = ({
                       ) : (
                         <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
                       )}
-                      <div
-                        className={classNames(classes.iconButton, classes.clearVote)}
-                        onPointerDown={clearVote}
-                      >
-                        <ForumIcon icon="Close" />
-                      </div>
+                      {votingOpen && (
+                        <div
+                          className={classNames(classes.iconButton, classes.clearVote)}
+                          onPointerDown={clearVote}
+                        >
+                          <ForumIcon icon="Close" />
+                        </div>
+                      )}
                       {event.post && <div
                         className={classNames(classes.iconButton, classes.toggleCommentForm)}
                         onClick={toggleCommentFormOpen}
@@ -796,23 +921,23 @@ export const ForumEventPoll = ({
                     <ForumEventCommentForm
                       open={commentFormOpen}
                       comment={currentUserComment}
+                      prefilledProps={commentPrefilledProps}
                       successMessage="Success! Open the results to view everyone's votes and comments."
-                      forumEventId={event._id}
-                      onClose={() => setCommentFormOpen(false)}
-                      refetch={refetchComments}
+                      forumEvent={event}
+                      cancelCallback={() => setCommentFormOpen(false)}
+                      successCallback={refetchComments}
                       anchorEl={userVoteRef.current}
                       post={event.post}
                       title="What made you vote this way?"
                       subtitle={(post, comment) => (<>
                         <div>
                           Your response will appear as a comment on{" "}
-                          <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
+                          {event.isGlobal ? <Link to={comment ? commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id}) : postGetPageUrl(post)} target="_blank" rel="noopener noreferrer">
                             this Debate Week post
-                          </Link>
-                          , and show next to your avatar on this banner.
+                          </Link> : 'this post'}
+                          , and show next to your avatar in the results.
                         </div>
                       </>)}
-                      className={classes.commentForm}
                     />
                   )}
                 </AnalyticsContext>
@@ -822,8 +947,8 @@ export const ForumEventPoll = ({
               <ForumIcon icon="ChevronRight" className={classNames(classes.sliderArrow, classes.sliderArrowRight)} />
             </div>
             <div className={classes.sliderLabels}>
-              <div>Disagree</div>
-              <div>Agree</div>
+              <div>{event.pollDisagreeWording}</div>
+              <div>{event.pollAgreeWording}</div>
             </div>
           </div>
         </div>

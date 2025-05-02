@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from "../../common/withDialog";
 
 import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
@@ -14,8 +14,8 @@ const EditTagsDropdownItem = ({post, closeMenu}: {
   const handleOpenTagDialog = async () => {
     closeMenu?.();
     openDialog({
-      componentName: "EditTagsDialog",
-      componentProps: {post},
+      name: "EditTagsDialog",
+      contents: ({onClose}) => <Components.EditTagsDialog onClose={onClose} post={post} />
     });
   }
 

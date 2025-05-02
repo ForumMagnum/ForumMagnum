@@ -1,6 +1,6 @@
-import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
-import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
+import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
+import { getAllCollections, getCollection } from "../collections/allCollections";
 
 type CollectionCustomValidatorFunction<T extends DbObject> = (documents: T[], recordError: (field: string, message: string) => void) => Promise<void>;
 type CollectionCustomValidator<T extends DbObject> = {
@@ -38,7 +38,7 @@ export function registerCollectionValidator<N extends CollectionNameString>({col
 //
 // Outputs a summary of any problems found through console.log, and returns
 // nothing.
-export async function validateCollection(collection: AnyBecauseTodo)
+export async function validateCollection(collection: CollectionBase<any>)
 {
   const collectionName = collection.collectionName;
   console.log(`Checking ${collectionName}`); // eslint-disable-line no-console
@@ -54,13 +54,13 @@ export async function validateCollection(collection: AnyBecauseTodo)
   }
   
   // Validate rows
-  const schema = getSchema(collection);
+  const schema = getSchema(collection.collectionName);
   if (!schema) {
     console.log(`    Collection does not have a schema`); // eslint-disable-line no-console
     return;
   }
   
-  const validationContext = getSimpleSchema(collection).newContext();
+  const validationContext = getSimpleSchema(collection.collectionName).newContext();
   
   // Dictionary field=>type=>count
   const errorsByField: AnyBecauseTodo = {};
@@ -108,12 +108,12 @@ export async function validateCollection(collection: AnyBecauseTodo)
       // Iterate through fields checking for the foreignKey property (which
       // simpl-schema doesn't handle), and verifying that the keys actually
       // exist
-      for (let fieldName in schema._schema) {
+      for (let fieldName in schema) {
         // TODO: Nested-field foreign key constraints aren't yet supported
         if (fieldName.indexOf("$") >= 0)
           continue;
         
-        const foreignKeySpec = (schema as AnyBecauseTodo)._schema[fieldName].foreignKey;
+        const foreignKeySpec = schema[fieldName].database?.foreignKey;
         
         if (foreignKeySpec) {
           // Get a list of foreign values to check for
@@ -175,11 +175,8 @@ export async function validateCollection(collection: AnyBecauseTodo)
 // Outputs a summary of the results through console.log, and returns nothing.
 export async function validateDatabase()
 {
-  for (let collection of Collections)
+  for (let collection of getAllCollections())
   {
     await validateCollection(collection);
   }
 }
-
-Vulcan.validateCollection = validateCollection;
-Vulcan.validateDatabase = validateDatabase;

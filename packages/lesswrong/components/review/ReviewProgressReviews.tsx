@@ -1,10 +1,10 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
+import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
+import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import range from 'lodash/range';
 
 const styles = (theme: ThemeType) => ({
@@ -61,7 +61,7 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
   if (!reviewsResults) return null
 
   const totalReviews = totalCount || 0
-  const totalHighlightedReviews = reviewsResults.filter(review => review.baseScore >= 10).length
+  const totalHighlightedReviews = reviewsResults.filter(review => review.baseScore && review.baseScore >= 10).length
   const reviewCountMessage = totalHighlightedReviews ? `(${totalHighlightedReviews} of your reviews got 10+ karma)` : "(None with 10+ karma yet)"
 
   const uncheckedBoxes = TARGET_NUM - Math.min(totalReviews, TARGET_NUM)

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { commentBodyStyles } from '../../themes/stylePiping'
@@ -12,6 +11,7 @@ import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import classNames from 'classnames';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -93,7 +93,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { ContentItemBody, Button, BasicFormStyles, WrappedSmartForm } = Components;
+  const { ContentItemBody, BasicFormStyles, WrappedSmartForm } = Components;
 
 
   const [edit, setEdit] = useState<boolean>(false)
@@ -160,8 +160,8 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
           <WrappedSmartForm
             collectionName="CurationNotices"
             documentId={curationNotice._id}
-            mutationFragment={getFragment('CurationNoticesFragment')}
-            queryFragment={getFragment('CurationNoticesFragment')}
+            mutationFragmentName={'CurationNoticesFragment'}
+            queryFragmentName={'CurationNoticesFragment'}
             successCallback={() => setEdit(false)}
             prefilledProps={{userId: curationNotice.userId, postId: curationNotice.postId}}
           />

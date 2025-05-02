@@ -1,8 +1,8 @@
 import React from 'react';
 import { QuoteLocator, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
+import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 
 const styles = (theme: ThemeType) => ({
   reactOrAntireact: {
@@ -30,6 +30,12 @@ const styles = (theme: ThemeType) => ({
   voteArrowRight: {
     transform: 'rotate(-270deg)',
     marginLeft: -4,
+  },
+  colorRed: {
+    color: theme.palette.error.main,
+  },
+  colorGreen: {
+    color: theme.palette.primary.main,
   },
 })
 
@@ -62,7 +68,7 @@ const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUse
       orientation="left"
       onClick={() => onClick("disagreed")}
       classes={classes}
-      color={currentUserReaction==="disagreed" ? "error" : "inherit"}
+      className={currentUserReaction==="disagreed" ? classes.colorRed : undefined}
     />
     <span className={classes.reactionVoteCount}>
       {netReactionCount}
@@ -71,22 +77,22 @@ const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUse
       orientation="right"
       onClick={() => onClick("reacted")}
       classes={classes}
-      color={(currentUserReaction==="created"||currentUserReaction==="seconded") ? "primary" : "inherit"}
+      className={(currentUserReaction==="created"||currentUserReaction==="seconded") ? classes.colorGreen : undefined}
     />
   </div>
 }
 
-const ReactionVoteArrow = ({orientation, onClick, color, classes}: {
+const ReactionVoteArrow = ({orientation, onClick, className, classes}: {
   orientation: "left"|"right",
   onClick: () => void,
-  color: "inherit"|"primary"|"error",
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   return <span className={classes.voteArrow}>
     <UpArrowIcon
       onClick={onClick}
-      color={color}
       className={classNames(
+        className,
         classes.voteArrowIcon,
         {
           [classes.voteArrowLeft]: orientation==="left",

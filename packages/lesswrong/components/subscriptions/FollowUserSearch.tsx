@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -99,7 +99,7 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
     fragmentName: "SubscriptionState",
   });
 
-  const existingSubscriptionIds = results?.map(sub => sub.documentId) ?? [];
+  const existingSubscriptionIds = results?.map(sub => sub.documentId).filter(id => id !== null) ?? [];
   
 
   // When this appears, yield to the event loop once, use getElementsByTagName

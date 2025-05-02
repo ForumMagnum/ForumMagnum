@@ -1,5 +1,5 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const BooksNewForm = ({successCallback, cancelCallback, prefilledProps}: {
   successCallback?: () => void,
@@ -13,9 +13,8 @@ const BooksNewForm = ({successCallback, cancelCallback, prefilledProps}: {
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}
-        fragment={getFragment('BookPageFragment')}
-        queryFragment={getFragment('BookPageFragment')}
-        mutationFragment={getFragment('BookPageFragment')}
+        queryFragmentName={'BookPageFragment'}
+        mutationFragmentName={'BookPageFragment'}
       />
     </div>
   )

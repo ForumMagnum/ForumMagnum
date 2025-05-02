@@ -70,7 +70,7 @@ export type IndexConfig = {
    * results when used on more structured strings like ids or slugs, which should
    * instead be given the "keyword" mapping.
    * Note that making a change here requires reindexing the data with
-   * `Globals.elasticConfigureIndex`.
+   * `elasticConfigureIndex`.
    */
   mappings?: Mappings,
   /**
@@ -366,7 +366,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   },
   Tags: {
     fields: [
-      "name^3",
+      "name^30",
       "description",
     ],
     snippet: "description",
@@ -378,6 +378,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         scoring: {type: "bool"},
       },
       {
+        field: "baseScore",
+        order: "desc",
+        weight: 0.5,
+        scoring: {type: "numeric", pivot: 20},
+      },
+      {
         field: "postCount",
         order: "desc",
         weight: 0.25,
@@ -387,6 +393,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     tiebreaker: "postCount",
     filters: [
       {term: {deleted: false}},
+      {term: {isPlaceholderPage: false}},
       {term: {adminOnly: false}},
     ],
     mappings: {

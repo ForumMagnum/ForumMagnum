@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const SequencesPageTitleFragment = () => frag`
   fragment SequencesPageTitleFragment on Sequence {
     _id
     title
@@ -10,9 +10,9 @@ registerFragment(`
       title
     }
   }
-`);
+`
 
-registerFragment(`
+export const SequencesPageFragment = () => frag`
   fragment SequencesPageFragment on Sequence {
     ...SequencesPageTitleFragment
     createdAt
@@ -37,31 +37,31 @@ registerFragment(`
     postsCount
     readPostsCount
   }
-`);
+`
 
-registerFragment(`
+export const SequenceContinueReadingFragment = () => frag`
   fragment SequenceContinueReadingFragment on Sequence {
     _id
     title
     gridImageId
     canonicalCollectionSlug
   }
-`);
+`
 
-registerFragment(`
+export const SequencesPageWithChaptersFragment = () => frag`
   fragment SequencesPageWithChaptersFragment on Sequence {
     ...SequencesPageFragment
     chapters {
       ...ChaptersFragment
     }
   }
-`)
+`
 
-registerFragment(`
+export const SequencesEdit = () => frag`
   fragment SequencesEdit on Sequence {
     ...SequencesPageFragment
     contents { 
       ...RevisionEdit
     }
   }
-`)
+`

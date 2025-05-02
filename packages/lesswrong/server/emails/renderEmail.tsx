@@ -1,4 +1,4 @@
-import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
+import { createGenerateClassName, MuiThemeProvider } from '@/lib/vendor/@material-ui/core/src/styles';
 import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
@@ -10,19 +10,25 @@ import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
-import LWEvents from '../../lib/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
-import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
-import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
-import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
+import { EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 import { isE2E } from '../../lib/executionEnvironment';
+import { cheerioParse } from '../utils/htmlUtil';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { createLWEvent } from '../collections/lwevents/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { FMJssProvider } from '@/components/hooks/FMJssProvider';
+import { createStylesContext } from '@/components/hooks/useStyles';
+import { generateEmailStylesheet } from '../styleGeneration';
+import { ThemeContextProvider } from '@/components/themes/useTheme';
+import { ThemeOptions } from '@/themes/themeNames';
+import { EmailWrapper } from '../emailComponents/EmailWrapper';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -143,6 +149,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
   // Set up Apollo
+  const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
   const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
@@ -156,9 +163,15 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // visited since before that feature was implemented.
   const timezone = user?.lastUsedTimezone || null
   
+  const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
+  const theme = getForumTheme(themeOptions);
+  const stylesContext = createStylesContext(theme);
+  
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
+    <ThemeContextProvider options={themeOptions}>
+    <FMJssProvider stylesContext={stylesContext}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
@@ -168,6 +181,8 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     </UserContext.Provider>
     </MuiThemeProvider>
     </JssProvider>
+    </FMJssProvider>
+    </ThemeContextProvider>
     </ApolloProvider>
     </EmailRenderContext.Provider>
   );
@@ -176,22 +191,23 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // accordingly.
   await getDataFromTree(wrappedBodyComponent);
   
-  validateSheets(sheetsRegistry);
-  
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
-  const css = sheetsRegistry.toString();
+  const css = generateEmailStylesheet({ muiSheetsRegistry: sheetsRegistry, stylesContext, theme, themeOptions });
   const html = boilerplateGenerator({ css, body, title:subject })
+  
+  // Find any relative links, and convert them to absolute
+  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
-  const inlinedHTML = Juice(html, { preserveMediaQueries: true });
+  const inlinedHTML = Juice(htmlWithAbsoluteUrls, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation
-  const plaintext = htmlToText(html, {
+  const plaintext = htmlToText(htmlWithAbsoluteUrls, {
     wordwrap: plainTextWordWrap
   });
   
@@ -223,11 +239,11 @@ export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user:
     to,
     from,
     subject: subject,
-    bodyComponent: <Components.EmailWrapper
+    bodyComponent: <EmailWrapper
       unsubscribeAllLink={unsubscribeAllLink}
     >
       {body}
-    </Components.EmailWrapper>
+    </EmailWrapper>
   });
 }
 
@@ -266,20 +282,6 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
   }
 }
 
-function validateSheets(sheetsRegistry: typeof SheetsRegistry)
-{
-  let styleValidator = new StyleValidator();
-  
-  for (let sheet of sheetsRegistry.registry) {
-    for (let rule of sheet.rules.index) {
-      if (rule.style) {
-        styleValidator.validate(rule.style, rule.selectorText);
-      }
-    }
-  }
-}
-
-
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
@@ -314,10 +316,8 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
     user: user?._id,
   };
   // Log in LWEvents table
-  await createMutator({
-    collection: LWEvents,
-    currentUser: user,
-    document: {
+  await createLWEvent({
+    data: {
       userId: user?._id,
       name: "emailSent",
       properties: {
@@ -325,9 +325,8 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
         ...additionalFields,
       },
       intercom: false,
-    },
-    validate: false,
-  })
+    }
+  }, createAnonymousContext())
 }
 
 // Returns a string explanation of why we can't send emails to a given user, or
@@ -344,4 +343,29 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
     return "Setting 'Do not send me any emails' is checked";
   
   return null;
+}
+
+function makeAllUrlsAbsolute(html: string, relativeTo: string): string {
+  const $ = cheerioParse(html);
+  
+  $('a').each((_, element) => {
+    const href = $(element).attr('href');
+    
+    // Skip if there's no href attribute or it's already absolute, empty, or just a hash
+    if (!href || href.startsWith('http://') || href.startsWith('https://')
+      || href === '' || href === '#' || href.startsWith('mailto:') || href.startsWith('tel:')
+    ) {
+      return;
+    }
+    
+    try {
+      const absoluteUrl = new URL(href, relativeTo).href;
+      $(element).attr('href', absoluteUrl);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn(`Could not convert URL "${href}" to absolute: ${error}`);
+    }
+  });
+  
+  return $.html();
 }

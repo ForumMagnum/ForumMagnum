@@ -1,6 +1,6 @@
 import SelectQuery from "./SelectQuery";
-import { getSqlFragment } from "../vulcan-lib";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
+import type { SqlFragment } from "./SqlFragment";
 
 /**
  * `SelectFragmentQuery` is the main external interface for running select
@@ -23,8 +23,8 @@ class SelectFragmentQuery<
   private codeResolvers: CodeResolverMap = {};
 
   constructor(
-    /** The name of the fragment to use */
-    private fragmentName: FragmentName,
+    /** The SQL fragment to use */
+    private sqlFragment: SqlFragment,
     /** The current user, of null if logged out */
     currentUser: DbUser | null,
     /** Dictionary of arguments to pass to custom resolvers */
@@ -47,8 +47,7 @@ class SelectFragmentQuery<
      */
     prefixGenerator?: PrefixGenerator,
   ) {
-    const fragment = getSqlFragment(fragmentName);
-    const projection = fragment.buildProjection<N>(
+    const projection = sqlFragment.buildProjection<N>(
       currentUser,
       resolverArgs,
       prefixGenerator,
@@ -85,7 +84,7 @@ class SelectFragmentQuery<
   }
 
   private getCommentLine() {
-    return `-- Fragment ${this.fragmentName}\n`;
+    return `-- Fragment ${this.sqlFragment.getName()}\n`;
   }
 
   compile() {

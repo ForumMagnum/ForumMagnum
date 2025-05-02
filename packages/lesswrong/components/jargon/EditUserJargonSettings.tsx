@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { JARGON_LLM_MODEL } from './GlossaryEditForm';
 
 const styles = () => ({
@@ -29,7 +29,7 @@ export const EditUserJargonSettings = ({classes}: {
         <div className={classes.checkboxContainer}>
           <Checkbox
             className={classes.generationFlagCheckbox}
-            checked={currentUser?.generateJargonForDrafts}
+            checked={currentUser?.generateJargonForDrafts ?? undefined}
             onChange={(e) => updateCurrentUser({generateJargonForDrafts: e.target.checked})}
           />
           <MetaInfo>Autogen for all my drafts</MetaInfo>
@@ -39,7 +39,7 @@ export const EditUserJargonSettings = ({classes}: {
         <div className={classes.checkboxContainer}>
           <Checkbox
             className={classes.generationFlagCheckbox}
-            checked={currentUser?.generateJargonForPublishedPosts}
+            checked={currentUser?.generateJargonForPublishedPosts ?? undefined}
             onChange={(e) => updateCurrentUser({generateJargonForPublishedPosts: e.target.checked})}
           />
           <MetaInfo>Autogen for all my published posts</MetaInfo>

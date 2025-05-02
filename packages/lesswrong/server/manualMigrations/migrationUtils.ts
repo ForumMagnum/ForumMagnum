@@ -1,9 +1,9 @@
-import Migrations from '../../lib/collections/migrations/collection';
-import { Vulcan } from '../../lib/vulcan-lib';
+import Migrations from '../../server/collections/migrations/collection';
 import * as _ from 'underscore';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema } from '@/lib/schema/allSchemas';
 import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../server/sql/sqlClient';
+import { getCollection } from '@/server/collections/allCollections';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -14,11 +14,6 @@ const DEFAULT_LOAD_FACTOR = 0.5;
 export const availableMigrations: Record<string,any> = {};
 export const migrationRunners: Record<string,any> = {};
 
-// Put migration functions in a dictionary Vulcan.migrations to make it
-// accessible in meteor shell, working around awkward inability to import
-// things non-relatively there.
-Vulcan.migrations = migrationRunners;
-
 interface RegisterMigrationProps {
   name: string;
   dateWritten: string;
@@ -26,8 +21,7 @@ interface RegisterMigrationProps {
   action: () => Promise<void>;
 }
 
-export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps)
-{
+export function registerMigration({ name, dateWritten, idempotent, action }: RegisterMigrationProps) {
   if (!name) throw new Error("Missing argument: name");
   if (!dateWritten)
     throw new Error(`Migration ${name} is missing required field: dateWritten`);
@@ -48,11 +42,12 @@ export function registerMigration({ name, dateWritten, idempotent, action }: Reg
   }
   
   availableMigrations[name] = { name, dateWritten, idempotent, action };
-  migrationRunners[name] = async () => await runMigration(name);
+  const runner = async () => await runMigration(name);
+  migrationRunners[name] = runner;
+  return runner;
 }
 
-export async function runMigration(name: string)
-{
+export async function runMigration(name: string) {
   if (!(name in availableMigrations))
     throw new Error(`Unrecognized migration: ${name}`);
   // eslint-disable-next-line no-unused-vars
@@ -98,8 +93,7 @@ export async function runMigration(name: string)
 // time spent not sleeping is equal to `loadFactor`. Used when doing a batch
 // migration or similarly slow operation, which can be broken into smaller
 // steps, to keep the database load low enough for the site to keep running.
-export async function runThenSleep(loadFactor: number, func: () => Promise<void>)
-{
+export async function runThenSleep(loadFactor: number, func: () => Promise<void>) {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
 
@@ -126,15 +120,14 @@ export async function fillDefaultValues<N extends CollectionNameString>({ collec
   fieldName: string,
   batchSize?: number,
   loadFactor?: number
-})
-{
+}) {
   if (!collection) throw new Error("Missing required argument: collection");
   if (!fieldName) throw new Error("Missing required argument: fieldName");
-  const schema = getSchema(collection);
+  const schema = getSchema(collection.collectionName);
   if (!schema) throw new Error(`Collection ${collection.collectionName} does not have a schema`);
-  const defaultValue = schema[fieldName].defaultValue;
+  const defaultValue = schema[fieldName].database?.defaultValue;
   if (defaultValue === undefined) throw new Error(`Field ${fieldName} does not have a default value`);
-  if (!schema[fieldName].canAutofillDefault) throw new Error(`Field ${fieldName} is not marked autofillable`);
+  if (!schema[fieldName].database?.canAutofillDefault) throw new Error(`Field ${fieldName} is not marked autofillable`);
 
   // eslint-disable-next-line no-console
   console.log(`Filling in default values of ${collection.collectionName}.${fieldName}`);
@@ -519,8 +512,7 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
   filter?: MongoSelector<ObjectsByCollectionName[N]>
   bucketSize?: number
   fn: (selector: MongoSelector<ObjectsByCollectionName[N]>) => Promise<void>
-})
-{
+}) {
   // Get filtered collection size and use it to calculate a number of buckets
   const count = await collection.find(filter).count();
 
@@ -565,8 +557,6 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
   });
 }
 
-Vulcan.dropUnusedField = dropUnusedField
-
   // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
   // This wraapper runs the function and ignores if it's not defined yet
 export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
@@ -580,3 +570,18 @@ export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
     END;
   $$;`)
 }
+
+export async function bulkRawInsert<N extends CollectionNameString>(
+  collectionName: N,
+  objects: Array<ObjectsByCollectionName[N]>
+): Promise<void> {
+  const collection = getCollection(collectionName);
+  await collection.rawCollection().bulkWrite(
+    objects.map(obj => ({
+      insertOne: {
+        document: obj
+      }
+    }))
+  );
+}
+

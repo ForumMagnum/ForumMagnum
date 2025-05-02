@@ -1,12 +1,18 @@
-import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
-import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import { executePromiseQueue } from '../../lib/utils/asyncUtils';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { CommentsRepo, PostsRepo } from '../repos';
-import { ElicitPredictionData, getPredictionDataFromElicit, getPredictionsFromElicit } from '../resolvers/elicitPredictions';
+import CommentsRepo from '../repos/CommentsRepo';
+import PostsRepo from '../repos/PostsRepo';
+import { ElicitPredictionData } from '../resolvers/elicitPredictions';
 import { cheerioParse } from '../utils/htmlUtil';
-import { createAdminContext, createMutator } from '../vulcan-lib';
 import { registerMigration } from './migrationUtils';
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { DatabaseServerSetting } from '../databaseSettings';
+import { encode } from 'querystring';
+import { createElicitQuestion } from '../collections/elicitQuestions/mutations';
+import { createElicitQuestionPrediction } from '../collections/elicitQuestionPredictions/mutations';
+
+const elicitAPIUrl = "https://forecast.elicit.org/api/v1"
+const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 
 const apiQuestionToDBQuestion = (question: any, id: string): Omit<DbElicitQuestion, 'schemaVersion'|'legacyData'> => ({
   _id: id,
@@ -16,6 +22,40 @@ const apiQuestionToDBQuestion = (question: any, id: string): Omit<DbElicitQuesti
   resolvesBy: new Date(question.resolvesBy),
   createdAt: new Date(),
 })
+
+async function getPredictionsFromElicit(questionId: string): Promise<null | Array<ElicitPredictionData>> {
+  const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?${encode({
+    user_most_recent: "true",
+    expand: "creator",
+    "prediction.fields": "createdAt,notes,id,sourceUrl,sourceId,binaryQuestionId",
+    "creator.fields": "sourceUserId"
+  })}`, {
+    method: 'GET',
+    redirect: 'follow',
+    headers: {
+      'Authorization': `API_KEY ${elicitAPIKey.get()}`
+    }
+  })
+  const responseText = await response.text()
+  if (!responseText) return null
+  return JSON.parse(responseText)
+}
+
+async function getPredictionDataFromElicit(questionId: string) {
+  const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?${encode({
+    "binaryQuestion.fields": "notes,resolvesBy,resolution,title"
+  })}`, {
+    method: 'GET',
+    redirect: 'follow',
+    headers: {
+      'Authorization': `API_KEY ${elicitAPIKey.get()}`
+    }
+  })
+  if (response.status !== 200) throw new Error(`Cannot get elicit prediction for questionId ${questionId}, got: ${response.status}: ${response.statusText}`)
+  const responseText = await response.text()
+  if (!responseText) return null
+  return JSON.parse(responseText)
+}
 
 const apiPredictionToDBQuestion = (prediction: ElicitPredictionData, questionId: string): Omit<DbElicitQuestionPrediction, 'schemaVersion'> => ({
   _id: prediction.id,
@@ -35,7 +75,7 @@ const apiPredictionToDBQuestion = (prediction: ElicitPredictionData, questionId:
   isDeleted: false,
 })
 
-registerMigration({
+export default registerMigration({
   name: "importElicitPredictions",
   dateWritten: "2023-11-07",
   idempotent: true,
@@ -64,18 +104,8 @@ registerMigration({
     await Promise.all(elicitQuestionsWithPredictions.flatMap(([questionData, predictionData]) => {
       if (!questionData) return;
       return [
-        createMutator({
-          collection: ElicitQuestions,
-          document: questionData,
-          validate: true,
-          context: adminContext
-        }),
-        ...predictionData.map(p => createMutator({
-          collection: ElicitQuestionPredictions,
-          document: p,
-          validate: true,
-          context: adminContext
-        }))
+        createElicitQuestion({ data: questionData }, adminContext),
+        ...predictionData.map(p => createElicitQuestionPrediction({ data: p }, adminContext))
       ]
     }))
   },

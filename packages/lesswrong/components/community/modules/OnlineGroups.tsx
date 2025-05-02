@@ -1,9 +1,9 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
@@ -165,7 +165,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   // filter the list of groups if the user has typed in a keyword
   let onlineGroups = results
   if (results && keywordSearch) {
-    onlineGroups = results.filter(group => group.name.toLowerCase().includes(keywordSearch.toLowerCase()))
+    onlineGroups = results.filter(group => group.name?.toLowerCase().includes(keywordSearch.toLowerCase()))
   }
   
   if (!loading && !onlineGroups?.length) {

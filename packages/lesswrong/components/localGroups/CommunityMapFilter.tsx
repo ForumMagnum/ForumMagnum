@@ -1,28 +1,27 @@
 import React, { useCallback, useState } from 'react';
-import Paper from '@material-ui/core/Paper';
-import { useLocation } from '../../lib/routeUtil';
-import { RouterLocation, registerComponent } from '../../lib/vulcan-lib';
+import { Paper }from '@/components/widgets/Paper';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import classNames from 'classnames'
-import Divider from '@material-ui/core/Divider';
-import VisibilityIcon from '@material-ui/icons/VisibilityOff';
-import EmailIcon from '@material-ui/icons/Email';
-import AddIcon from '@material-ui/icons/Add';
-import RoomIcon from '@material-ui/icons/Room';
-import StarIcon from '@material-ui/icons/Star';
-import PersonPinIcon from '@material-ui/icons/PersonPin';
-import Tooltip from '@material-ui/core/Tooltip';
-import { CloseableComponent, OpenDialogContextType, useDialog } from '../common/withDialog'
+import VisibilityIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
+import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
+import PersonPinIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
+import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
 import { without } from 'underscore';
 import { isEAForum } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
+import { RouterLocation } from "../../lib/vulcan-lib/routes";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { TooltipSpan } from '../common/FMTooltip';
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
@@ -181,14 +180,20 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const createFallBackDialogHandler = (
+export const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],
-  dialogName: CloseableComponent,
+  name: string,
+  contents: DialogContentsFn,
   currentUser: UsersCurrent | null
 ) => {
-  return () => openDialog({
-    componentName: currentUser ? dialogName : "LoginPopup",
-  });
+  if (currentUser) {
+    return () => openDialog({ name, contents });
+  } else {
+    return () => openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+    });
+  }
 }
 
 const getInitialFilters = ({query}: RouterLocation) => {
@@ -228,6 +233,7 @@ const CommunityMapFilter = ({
   const navigate = useNavigate();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
+  const { SimpleDivider } = Components;
 
   const [filters, setFilters] = useState(() => getInitialFilters(location));
 
@@ -305,7 +311,7 @@ const CommunityMapFilter = ({
           );
         })}
       </div>}
-      <Divider className={classNames(classes.divider, classes.topDivider)} />
+      <SimpleDivider className={classNames(classes.divider, classes.topDivider)} />
       <div className={classes.actions}>
         <div className={classes.filterSection}>
           <span className={classes.desktopFilter}>
@@ -316,18 +322,22 @@ const CommunityMapFilter = ({
           </span>
           <span className={classes.buttonText}>Groups</span>
           <span className={classes.actionContainer}>
-            {(!isEAForum || isAdmin) && <Tooltip title="Create New Group">
+            {(!isEAForum || isAdmin) && <TooltipSpan title="Create New Group">
               <AddIcon
                 className={classNames(classes.actionIcon, classes.addIcon)}
-                onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)}
+                onClick={createFallBackDialogHandler(
+                  openDialog, "GroupFormDialog",
+                  ({onClose}) => <Components.GroupFormDialog onClose={onClose}/>,
+                  currentUser
+                )}
               />
-            </ Tooltip>}
-            <Tooltip title="Hide groups from map">
+            </ TooltipSpan>}
+            <TooltipSpan title="Hide groups from map">
               <VisibilityIcon 
                 onClick={toggleGroups}
                 className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showGroups})}
               />
-            </Tooltip>
+            </TooltipSpan>
           </span>
         </div>
         <div 
@@ -340,18 +350,18 @@ const CommunityMapFilter = ({
           </span>
           <span className={classes.buttonText}> Events </span>
           <span className={classes.actionContainer}>
-            {currentUser && <Tooltip title="Create New Event">
+            {currentUser && <TooltipSpan title="Create New Event">
               <AddIcon
                 className={classNames(classes.actionIcon, classes.addIcon)}
                 onClick={() => navigate({ pathname: '/newPost', search: `?eventForm=true`})}
               />
-            </Tooltip>}
-            <Tooltip title="Hide events from map">
+            </TooltipSpan>}
+            <TooltipSpan title="Hide events from map">
               <VisibilityIcon
                 onClick={toggleEvents}
                 className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showEvents})}
               />
-            </Tooltip>
+            </TooltipSpan>
           </span>
         </div>
         <div
@@ -365,28 +375,38 @@ const CommunityMapFilter = ({
           </span>
           <span className={classes.buttonText}> Individuals </span>
           <span className={classes.actionContainer}>
-            <Tooltip title="Add your location to the map">
-              <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}/>
-            </Tooltip>
-            <Tooltip title="Hide individual user locations from map">
+            <TooltipSpan title="Add your location to the map">
+              <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={
+                createFallBackDialogHandler(
+                  openDialog, "SetPersonalMapLocationDialog",
+                  ({onClose}) => <Components.SetPersonalMapLocationDialog onClose={onClose} />,
+                  currentUser
+                )
+              }/>
+            </TooltipSpan>
+            <TooltipSpan title="Hide individual user locations from map">
               <VisibilityIcon
                 onClick={toggleIndividuals}
                 className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showIndividuals})}
               />
-            </Tooltip>
+            </TooltipSpan>
           </span>
         </div>
       </div>
-      <Divider className={classNames(classes.divider, classes.bottomDivider)} />
+      <SimpleDivider className={classNames(classes.divider, classes.bottomDivider)} />
       <div
         className={classNames(classes.filterSection, classes.subscribeSection)}
-        onClick={createFallBackDialogHandler(openDialog, "EventNotificationsDialog", currentUser)}
+        onClick={createFallBackDialogHandler(
+          openDialog, "EventNotificationsDialog",
+          ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />,
+          currentUser
+        )}
       >
         <EmailIcon className={classNames(classes.actionIcon, classes.subscribeIcon)} />
         <span className={classes.buttonText}> Subscribe to events</span>
       </div>
       {showHideMap && <span>
-        <Tooltip title="Hide the map from the frontpage">
+        <TooltipSpan title="Hide the map from the frontpage">
           <div className={classNames(classes.filterSection, classes.hideSection)}>
             {/* <CloseIcon className={classes.buttonIcon} />  */}
             <span
@@ -396,7 +416,7 @@ const CommunityMapFilter = ({
               Hide Map
             </span>
           </div>
-        </Tooltip>
+        </TooltipSpan>
       </span>}
     </Paper>
   );

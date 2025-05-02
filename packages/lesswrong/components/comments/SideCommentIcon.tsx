@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from "../common/withHover";
 import { useTheme } from '../themes/useTheme';
 import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
-import CommentIcon from '@material-ui/icons/ModeComment';
+import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
-import Badge from '@material-ui/core/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import some from 'lodash/some';
 import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
@@ -91,7 +91,7 @@ const BadgeWrapper = ({commentCount, classes, children}: {
 }) => {
   if (commentCount>1) {
     return <Badge
-      classes={{ badge: classes.badge }}
+      badgeClassName={classes.badge}
       badgeContent={commentCount}
     >{children}</Badge>
   } else {
@@ -136,8 +136,12 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
 
   const openModal = () => {
     openDialog({
-      componentName: 'SideCommentDialog',
-      componentProps: { commentIds, post }
+      name: 'SideCommentDialog',
+      contents: ({onClose}) => <Components.SideCommentDialog
+        onClose={onClose}
+        commentIds={commentIds}
+        post={post}
+      />
     });
   };
     

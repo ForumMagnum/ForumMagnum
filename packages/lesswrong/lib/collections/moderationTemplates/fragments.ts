@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const ModerationTemplateFragment = () => frag`
   fragment ModerationTemplateFragment on ModerationTemplate {
     _id
     name
@@ -11,4 +11,4 @@ registerFragment(`
       ...RevisionEdit
     }
   }
-`);
+`

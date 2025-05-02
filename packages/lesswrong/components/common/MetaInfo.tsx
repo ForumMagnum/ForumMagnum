@@ -1,13 +1,18 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 export const styles = (theme: ThemeType) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
     marginRight: theme.spacing.unit,
-    fontSize: "1rem"
+    fontSize: "1rem",
+    
+    ...(isFriendlyUI && {
+      fontFamily: theme.palette.fonts.sansSerifStack
+    }),
   },
   button: {
     cursor: "pointer",

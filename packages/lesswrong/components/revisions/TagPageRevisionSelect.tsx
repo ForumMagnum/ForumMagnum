@@ -1,10 +1,11 @@
 import React, { useCallback } from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
-import { tagGetRevisionLink, tagGetUrl, tagUrlBase } from '../../lib/collections/tags/helpers';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagUrlBaseSetting } from '../../lib/instanceSettings';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
 });
@@ -29,14 +30,14 @@ const TagPageRevisionSelect = ({ classes }: {
     },
     fetchPolicy: "cache-then-network" as any,
     collectionName: "Revisions",
-    fragmentName: "RevisionMetadataWithChangeMetrics",
+    fragmentName: "RevisionHistoryEntry",
     enableTotal: true,
     itemsPerPage: 30,
   });
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!tag) return;
-    navigate(`/compare/${tagUrlBase}/${tag.slug}?before=${before.version}&after=${after.version}`);
+    navigate(`/compare/${tagUrlBaseSetting.get()}/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [navigate, tag]);
 
   if (!tag) return null

@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withMessages } from '../common/withMessages';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import { DialogContent } from '../widgets/DialogContent';
+import { DialogTitle } from "@/components/widgets/DialogTitle";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import { DialogActions } from '../widgets/DialogActions';
+import { WithMessagesFunctions } from '../common/FlashMessages';
 
 const styles = (theme: ThemeType) => ({
   modalTextField: {
@@ -14,8 +15,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-interface AFApplicationFormProps extends WithMessagesProps, WithStylesProps, WithUpdateCurrentUserProps {
+interface ExternalProps {
   onClose: any,
+}
+
+interface AFApplicationFormProps extends ExternalProps, WithMessagesFunctions, WithStylesProps, WithUpdateCurrentUserProps {
 }
 interface AFApplicationFormState {
   applicationText: string,
@@ -80,7 +84,7 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
   }
 }
 
-const AFApplicationFormComponent = registerComponent(
+const AFApplicationFormComponent = registerComponent<ExternalProps>(
   'AFApplicationForm', AFApplicationForm, { styles, hocs: [
     withMessages,
     withUpdateCurrentUser,

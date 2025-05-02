@@ -1,6 +1,7 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
+import { PostsListWithVotes } from "../posts/fragments"
 
-registerFragment(`
+export const ChaptersFragment = () => frag`
   fragment ChaptersFragment on Chapter {
     _id
     createdAt
@@ -13,16 +14,16 @@ registerFragment(`
     sequenceId
     postIds
     posts {
-      ...PostsListWithVotes
+      ${PostsListWithVotes}
     }
   }
-`);
+`
 
-registerFragment(`
+export const ChaptersEdit = () => frag`
   fragment ChaptersEdit on Chapter {
-    ...ChaptersFragment
+    ${ChaptersFragment}
     contents {
       ...RevisionEdit
     }
   }
-`);
+`

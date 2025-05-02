@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import AddBoxIcon from '@material-ui/icons/AddBox';
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isFriendlyUI } from '../../themes/forumTheme';
 

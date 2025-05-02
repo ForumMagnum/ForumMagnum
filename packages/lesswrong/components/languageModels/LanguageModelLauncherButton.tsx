@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useDialog } from '../common/withDialog';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -51,7 +51,8 @@ export const LanguageModelLauncherButton = ({classes}: {
   const openLlmChat = useCallback(() => {
     captureEvent("languageModelLauncherButtonClicked");
     openDialog({
-      componentName:"PopupLanguageModelChat",
+      name: "PopupLanguageModelChat",
+      contents: ({onClose}) => <Components.PopupLanguageModelChat onClose={onClose}/>,
     })
     setCookie(SHOW_LLM_CHAT_COOKIE, "true", { path: "/" });
   },[openDialog, captureEvent, setCookie]);

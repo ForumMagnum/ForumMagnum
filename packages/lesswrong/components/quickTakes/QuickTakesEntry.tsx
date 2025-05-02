@@ -1,5 +1,5 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuickTakesTags } from "./useQuickTakesTags";
 import {
   COMMENTS_NEW_FORM_PADDING,
@@ -124,8 +124,8 @@ const QuickTakesEntry = ({
         onSignup();
       } else {
         openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
+          name: "LoginPopup",
+          contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
         });
         setExpanded(true);
       }

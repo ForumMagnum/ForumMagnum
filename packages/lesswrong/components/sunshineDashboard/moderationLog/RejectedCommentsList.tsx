@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   commentPadding: {
@@ -49,7 +49,7 @@ export const RejectedCommentsList = ({classes}: {
             <MetaInfo>
               <FormatDate date={comment.postedAt}/>
             </MetaInfo>
-            <PostsTooltip postId={comment.postId}>
+            <PostsTooltip postId={comment.postId ?? undefined}>
               <MetaInfo>
                 <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                   {comment.post?.draft && "[Draft] "}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { userGetEditUrl } from "../../../lib/vulcan-users/helpers";
 import { userCanEditUser } from "../../../lib/collections/users/helpers";
 import { useMessages } from "../../common/withMessages";
@@ -7,7 +7,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { separatorBulletStyles } from "../../common/SectionFooter";
 import CopyToClipboard from "react-copy-to-clipboard";
-import CopyIcon from "@material-ui/icons/FileCopy";
+import CopyIcon from "@/lib/vendor/@material-ui/icons/src/FileCopy";
 
 const styles = (theme: ThemeType) => ({
   links: {

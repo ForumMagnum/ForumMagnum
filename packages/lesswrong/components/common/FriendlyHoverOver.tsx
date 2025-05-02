@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import type { PopperPlacementType } from "@material-ui/core/Popper";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import type { Placement as PopperPlacementType } from "popper.js"
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 
@@ -33,6 +33,7 @@ export type FriendlyHoverOverProps = {
   onShow?: () => void,
   onHide?: () => void,
   children: ReactNode,
+  forceOpen?: boolean,
   classes: ClassesType<typeof styles>,
 }
 
@@ -54,6 +55,7 @@ const FriendlyHoverOver = ({
   onShow,
   onHide,
   children,
+  forceOpen,
   classes,
 }: FriendlyHoverOverProps) => {
   const {LWTooltip} = Components;
@@ -72,6 +74,7 @@ const FriendlyHoverOver = ({
       onShow={onShow}
       onHide={onHide}
       className={className}
+      forceOpen={forceOpen}
     >
       {children}
     </LWTooltip>

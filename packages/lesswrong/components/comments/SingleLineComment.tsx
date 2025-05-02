@@ -1,4 +1,4 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import classNames from 'classnames';
@@ -13,7 +13,6 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 export const SINGLE_LINE_PADDING_TOP = 5
 
 export const singleLineStyles = (theme: ThemeType) => ({
-  display: "flex",
   borderRadius: 3,
   backgroundColor: theme.palette.panelBackground.singleLineComment,
   '&:hover': {
@@ -34,6 +33,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
   },
   commentInfo: {
+    display: "flex",
     ...singleLineStyles(theme)
   },
   username: {
@@ -169,13 +169,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
   const { ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles, LWPopper, CommentsNode, CoreTagIcon } = Components
 
-  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
-  const renderHighlight = (comment.baseScore > -5) && !comment.deleted
+  const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
+  const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
   const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
   
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
   
-  const deempphasizeComment = !!deemphasizeCommentsExcludingUserIds && !deemphasizeCommentsExcludingUserIds.has(comment.userId)
+  const deempphasizeComment = !!deemphasizeCommentsExcludingUserIds && !deemphasizeCommentsExcludingUserIds.has(comment.userId ?? '')
 
   return (
     <div className={classes.root} {...eventHandlers}>

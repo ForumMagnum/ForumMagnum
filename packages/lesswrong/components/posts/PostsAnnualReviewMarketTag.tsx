@@ -1,11 +1,11 @@
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
 import { tagStyle } from '../tagging/FooterTag';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import Card from '@material-ui/core/Card';
+import { Card } from "@/components/widgets/Paper";
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
 const sharedStyles = (theme: ThemeType) => ({

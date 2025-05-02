@@ -1,10 +1,10 @@
 import React, { CSSProperties, useRef, useState } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { PopperPlacementType } from '@material-ui/core/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
@@ -69,7 +69,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={(ev) => handleSetOpen(!isOpen)}/>
+      <Icon className={classes.icon} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
     </div>
     <PopperCard
       open={isOpen}

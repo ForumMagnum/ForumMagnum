@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const RSSFeedMinimumInfo = () => frag`
   fragment RSSFeedMinimumInfo on RSSFeed {
     _id
     userId
@@ -14,9 +14,9 @@ registerFragment(`
     url
     importAsDraft
   }
-`);
+`
 
-registerFragment(`
+export const newRSSFeedFragment = () => frag`
   fragment newRSSFeedFragment on RSSFeed {
     _id
     userId
@@ -28,11 +28,11 @@ registerFragment(`
     status
     importAsDraft
   }
-`);
+`
 
 
 
-registerFragment(`
+export const RSSFeedMutationFragment = () => frag`
   fragment RSSFeedMutationFragment on RSSFeed {
     _id
     userId
@@ -42,4 +42,4 @@ registerFragment(`
     url
     importAsDraft
   }
-`);
+`

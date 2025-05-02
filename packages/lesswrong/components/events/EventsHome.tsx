@@ -1,24 +1,24 @@
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import FilterIcon from '@material-ui/icons/FilterList';
+import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isEAForum } from '../../lib/instanceSettings';
-import { EVENT_TYPES } from '../../lib/collections/posts/schema';
-import Input from '@material-ui/core/Input';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
+import { EVENT_TYPES } from '../../lib/collections/posts/newSchema';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import ListItemText from '@/lib/vendor/@material-ui/core/src/ListItemText';
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
@@ -294,9 +294,17 @@ const EventsHome = ({classes}: {
   }, [userLocation])
 
   const openEventNotificationsForm = () => {
-    openDialog({
-      componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "EventNotificationsDialog",
+        contents: ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
+    }
   }
   
   const handleChangeDistance = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

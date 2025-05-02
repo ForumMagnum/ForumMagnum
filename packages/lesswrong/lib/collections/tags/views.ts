@@ -1,7 +1,8 @@
-import { Tags } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
-import { viewFieldAllowAny } from '../../vulcan-lib';
-import { userIsAdminOrMod } from '../../vulcan-users';
+import { viewFieldAllowAny, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { hasWikiLenses } from '@/lib/betas';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {
@@ -9,42 +10,44 @@ declare global {
     userId?: string
     wikiGrade?: string
     slug?: string
+    slugs?: string[]
     tagFlagId?: string
     parentTagId?: string
+    tagId?: string
     tagIds?: string[]
+    excludedTagIds?: string[]
   }
 }
 
 /**
  * Default view. When changing this, also update getViewableTagsSelector.
  */
-Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
+function defaultView(terms: TagsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   const currentUser = context?.currentUser ?? null;
 
   return {
     selector: {
       wikiOnly: false,
+      ...(terms.excludedTagIds ? { _id: {$nin: terms.excludedTagIds} } : {}),
       ...(!userIsAdminOrMod(currentUser) ? { deleted: false, adminOnly: false } : {}),
-    },
+    }
   };
-});
-ensureIndex(Tags, {deleted:1, adminOnly:1});
+}
 
-Tags.addView("tagsByTagIds", (terms: TagsViewTerms) => {
+function tagsByTagIds(terms: TagsViewTerms) {
   return {
     selector: {_id: {$in: terms.tagIds}}
   };
-});
+}
 
-Tags.addView('allTagsAlphabetical', (terms: TagsViewTerms) => {
+function allTagsAlphabetical(terms: TagsViewTerms) {
   return {
     selector: {},
     options: {sort: {name: 1}}
   }
-});
-ensureIndex(Tags, {deleted:1, adminOnly:1, name: 1});
+}
 
-Tags.addView("userTags", (terms: TagsViewTerms) => {
+function userTags(terms: TagsViewTerms) {
   return {
     selector: {
       userId: terms.userId,
@@ -53,10 +56,9 @@ Tags.addView("userTags", (terms: TagsViewTerms) => {
     },
     options: {sort: {createdAt: -1}},
   }
-});
-ensureIndex(Tags, {deleted: 1, userId: 1, createdAt: 1});
+}
 
-Tags.addView("currentUserSubforums", (terms: TagsViewTerms, _, context?: ResolverContext) => {
+function currentUserSubforums(terms: TagsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   return {
     selector: {
       // Always show core subforums
@@ -65,19 +67,18 @@ Tags.addView("currentUserSubforums", (terms: TagsViewTerms, _, context?: Resolve
     },
     options: {sort: {createdAt: -1}},
   }
-});
+}
 
-Tags.addView('allPagesByNewest', (terms: TagsViewTerms) => {
+function allPagesByNewest(terms: TagsViewTerms) {
   return {
     selector: {
       wikiOnly: viewFieldAllowAny
     },
     options: {sort: {createdAt: -1}},
   }
-});
-ensureIndex(Tags, {deleted:1, adminOnly:1, wikiOnly: 1, createdAt: 1});
+}
 
-Tags.addView('allTagsHierarchical', (terms: TagsViewTerms) => {
+function allTagsHierarchical(terms: TagsViewTerms) {
   const selector = terms.wikiGrade !== undefined && parseInt(terms.wikiGrade)
     ? {wikiGrade: parseInt(terms.wikiGrade)}
     : {}
@@ -85,22 +86,29 @@ Tags.addView('allTagsHierarchical', (terms: TagsViewTerms) => {
     selector,
     options: {sort: {defaultOrder: -1, postCount: -1, name: 1}}
   }
-});
+}
 
-ensureIndex(Tags, {deleted:1, adminOnly:1, wikiGrade: 1, defaultOrder: 1, postCount: 1, name: 1});
-
-Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
+function tagBySlug(terms: TagsViewTerms) {
   return {
     selector: {
       $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
       adminOnly: viewFieldAllowAny,
-      wikiOnly: viewFieldAllowAny
+      wikiOnly: viewFieldAllowAny,
     },
   };
-});
-ensureIndex(Tags, {deleted: 1, slug:1, oldSlugs: 1});
+}
 
-Tags.addView('coreTags', (terms: TagsViewTerms) => {
+function tagsBySlugs(terms: TagsViewTerms) {
+  return {
+    selector: {
+      $or: [{slug: {$in: terms.slugs}}, {oldSlugs: {$in: terms.slugs}}],
+      wikiOnly: viewFieldAllowAny,
+      deleted: false,
+    },
+  };
+}
+
+function coreTags(terms: TagsViewTerms) {
   return {
     selector: {
       core: true,
@@ -113,10 +121,9 @@ Tags.addView('coreTags', (terms: TagsViewTerms) => {
       }
     },
   }
-});
-ensureIndex(Tags, {deleted: 1, core:1, name: 1});
+}
 
-Tags.addView('postTypeTags', (terms: TagsViewTerms) => {
+function postTypeTags(terms: TagsViewTerms) {
   return {
     selector: {
       isPostType: true,
@@ -129,10 +136,9 @@ Tags.addView('postTypeTags', (terms: TagsViewTerms) => {
       }
     },
   }
-});
-ensureIndex(Tags, {deleted: 1, isPostType:1, name: 1});
+}
 
-Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
+function coreAndSubforumTags(terms: TagsViewTerms) {
   return {
     selector: {
       $or: [{core: true}, {isSubforum: true}],
@@ -145,9 +151,9 @@ Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
       }
     },
   }
-});
+}
 
-Tags.addView('newTags', (terms: TagsViewTerms) => {
+function newTags(terms: TagsViewTerms) {
   return {
     options: {
       sort: {
@@ -155,10 +161,9 @@ Tags.addView('newTags', (terms: TagsViewTerms) => {
       }
     }
   }
-})
-ensureIndex(Tags, {deleted: 1, createdAt: 1});
+}
 
-Tags.addView('unreviewedTags', (terms: TagsViewTerms) => {
+function unreviewedTags(terms: TagsViewTerms) {
   return {
     selector: {
       needsReview: true,
@@ -170,10 +175,9 @@ Tags.addView('unreviewedTags', (terms: TagsViewTerms) => {
       }
     },
   }
-});
-ensureIndex(Tags, {deleted: 1, needsReview: 1, createdAt: 1});
+}
 
-Tags.addView('suggestedFilterTags', (terms: TagsViewTerms) => {
+function suggestedFilterTags(terms: TagsViewTerms) {
   return {
     selector: {
       suggestedAsFilter: true,
@@ -185,34 +189,27 @@ Tags.addView('suggestedFilterTags', (terms: TagsViewTerms) => {
       }
     },
   }
-});
+}
 
-ensureIndex(Tags, {deleted: 1, adminOnly: 1, suggestedAsFilter: 1, defaultOrder: 1, name: 1});
-
-Tags.addView('allLWWikiTags', (terms: TagsViewTerms) => {
+function allLWWikiTags(terms: TagsViewTerms) {
   return {
     selector: {
       wikiOnly: viewFieldAllowAny,
       lesswrongWikiImportSlug: {$exists: true},
     }
   }
-});
+}
 
-ensureIndex(Tags, {deleted: 1, adminOnly: 1, lesswrongWikiImportSlug: 1});
-
-Tags.addView('unprocessedLWWikiTags', (terms: TagsViewTerms) => {
+function unprocessedLWWikiTags(terms: TagsViewTerms) {
   return {
     selector: {
       wikiOnly: viewFieldAllowAny,
       tagFlagsIds: 'B5nzngQDDci4syEzD',
     }
   }
-});
+}
 
-ensureIndex(Tags, {deleted: 1, adminOnly: 1, tagFlagsIds: 1});
-
-
-Tags.addView('tagsByTagFlag', (terms: TagsViewTerms) => {
+function tagsByTagFlag(terms: TagsViewTerms) {
   return {
     selector: terms.tagFlagId ?
     {
@@ -225,9 +222,9 @@ Tags.addView('tagsByTagFlag', (terms: TagsViewTerms) => {
     },
     options: {sort: {createdAt: -1}}
   }
-});
+}
 
-Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
+function allPublicTags(terms: TagsViewTerms) {
   return {
     selector: {
       adminOnly: viewFieldAllowAny,
@@ -235,9 +232,57 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
     },
     options: {sort: {name: 1}}
   }
-});
+}
 
-ensureIndex(Tags, {name: 1});
+function allArbitalTags(terms: TagsViewTerms) {
+  return {
+    selector: {
+      wikiOnly: viewFieldAllowAny,
+      //legacyData contains an arbitalPageId and is not deleted
+      'legacyData.arbitalPageId': {$exists: true},
+      deleted: false,
+    }
+  }
+}
 
-// Used in subTags resolver
-ensureIndex(Tags, {parentTagId: 1});
+const pingbackSelector = (terms: TagsViewTerms) => hasWikiLenses
+  ? jsonArrayContainsSelector("pingbacks.Tags", terms.tagId)
+  : {
+    $or: [
+      jsonArrayContainsSelector("pingbacks.Tags", terms.tagId),
+      jsonArrayContainsSelector("pingbacks.MultiDocuments", terms.tagId),
+    ]
+  }
+
+function pingbackWikiPages(terms: TagsViewTerms) {
+  return {
+    selector: {
+      ...pingbackSelector(terms),
+      wikiOnly: viewFieldAllowAny,
+    },
+  }
+}
+
+// Create the CollectionViewSet instance
+export const TagsViews = new CollectionViewSet('Tags', {
+  tagsByTagIds,
+  allTagsAlphabetical,
+  userTags,
+  currentUserSubforums,
+  allPagesByNewest,
+  allTagsHierarchical,
+  tagBySlug,
+  tagsBySlugs,
+  coreTags,
+  postTypeTags,
+  coreAndSubforumTags,
+  newTags,
+  unreviewedTags,
+  suggestedFilterTags,
+  allLWWikiTags,
+  unprocessedLWWikiTags,
+  tagsByTagFlag,
+  allPublicTags,
+  allArbitalTags,
+  pingbackWikiPages
+}, defaultView);

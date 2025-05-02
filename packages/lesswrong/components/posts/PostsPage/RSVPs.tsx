@@ -1,18 +1,19 @@
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React, { useCallback, useEffect } from 'react';
-import { RSVPType } from '../../../lib/collections/posts/schema';
+import type { RSVPType } from '../../../lib/collections/posts/newSchema';
 import { useLocation } from '../../../lib/routeUtil';
-import { registerComponent, Components, getFragment } from '../../../lib/vulcan-lib';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { responseToText, RsvpResponse } from './RSVPForm';
-import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import CheckCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/CheckCircleOutline';
+import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
+import HighlightOffIcon from '@/lib/vendor/@material-ui/icons/src/HighlightOff';
 import { gql, useMutation } from '@apollo/client';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 
 const styles = (theme: ThemeType) => ({
   body: {
@@ -114,8 +115,12 @@ const RSVPs = ({post, classes}: {
   const currentUser = useCurrentUser()
   const openRSVPForm = useCallback((initialResponse: string) => {
     openDialog({
-      componentName: "RSVPForm",
-      componentProps: { post, initialResponse }
+      name: "RSVPForm",
+      contents: ({onClose}) => <Components.RSVPForm
+        onClose={onClose}
+        post={post}
+        initialResponse={initialResponse}
+      />
     })
   }, [post, openDialog])
   useEffect(() => {
@@ -129,7 +134,7 @@ const RSVPs = ({post, classes}: {
         ...PostsDetails
         }
     }
-    ${getFragment("PostsDetails")}
+    ${fragmentTextForQuery("PostsDetails")}
   `)
   const cancelRSVP = async (rsvp: RSVPType) => await cancelMutation({variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId}})
 

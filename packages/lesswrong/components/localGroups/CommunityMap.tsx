@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
-import PersonIcon from '@material-ui/icons/Person';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../lib/utils/componentsWithChildren';
 import {isFriendlyUI} from '../../themes/forumTheme'
@@ -227,7 +227,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   
   return <React.Fragment>
     {spreadMapLocations.map(({lat, lng, data: user}) => {
-      const htmlBody = {__html: user.htmlMapMarkerText};
+      const htmlBody = {__html: user.htmlMapMarkerText ?? ''};
       return <React.Fragment key={user._id}>
         <Marker
           latitude={lat}

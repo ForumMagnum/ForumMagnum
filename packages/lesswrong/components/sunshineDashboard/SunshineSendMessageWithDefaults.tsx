@@ -1,11 +1,10 @@
 import React, {useState} from 'react';
-import Menu from '@material-ui/core/Menu';
+import { Menu } from '@/components/widgets/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
-import EditIcon from "@material-ui/icons/Edit";
-import {Components, registerComponent} from "../../lib/vulcan-lib";
+import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
 
@@ -21,7 +20,10 @@ const styles = (theme: ThemeType) => ({
   },
   editIcon: {
     width: 20,
-    color: theme.palette.grey[400]
+    color: theme.palette.grey[400],
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingRight: 8,
   },
   defaultMessage: {
     maxWidth: 500,
@@ -99,9 +101,7 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
           </div>)}
           <Link to={MODERATION_TEMPLATES_URL}>
             <MenuItem>
-              <ListItemIcon>
-                <EditIcon className={classes.editIcon}/>
-              </ListItemIcon>
+              <EditIcon className={classes.editIcon}/>
               <em>Edit Messages</em>
             </MenuItem>
           </Link>

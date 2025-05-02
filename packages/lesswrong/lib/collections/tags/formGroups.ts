@@ -1,4 +1,4 @@
-export const formGroups: Partial<Record<string, FormGroupType<"Tags">>> = {
+export const formGroups = {
   advancedOptions: {
     name: "advancedOptions",
     order: 20,
@@ -17,4 +17,10 @@ export const formGroups: Partial<Record<string, FormGroupType<"Tags">>> = {
     label: "Subforum Comment Guidelines",
     startCollapsed: true,
   },
-};
+  summaries: {
+    order: 50,
+    name: "summaries",
+    label: "Summaries",
+    startCollapsed: true,
+  }
+} satisfies Partial<Record<string, FormGroupType<"Tags">>>;

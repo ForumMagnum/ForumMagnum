@@ -1,4 +1,4 @@
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUserLocation } from '../../lib/collections/users/helpers';
@@ -7,11 +7,12 @@ import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users'
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions'
+import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
+import { WithMessagesFunctions } from '../common/FlashMessages';
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType) => ({
 
 interface ExternalProps {
 }
-interface CommunityHomeProps extends ExternalProps, WithMessagesProps, WithLocationProps, WithDialogProps {
+interface CommunityHomeProps extends ExternalProps, WithMessagesFunctions, WithLocationProps, WithDialogProps {
 }
 interface CommunityHomeState {
   currentUserLocation: any,
@@ -95,15 +96,31 @@ const CommunityHome = ({classes}: {
   }, [isEAForum, currentUser, currentUserLocation, updateUserLocation])
 
   const openSetPersonalLocationForm = () => {
-    openDialog({
-      componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "SetPersonalMapLocationDialog",
+        contents: ({onClose}) => <Components.SetPersonalMapLocationDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
+    }
   }
 
   const openEventNotificationsForm = () => {
-    openDialog({
-      componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "EventNotificationsDialog",
+        contents: ({onClose}) => <Components.EventNotificationsDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
+    }
   }
 
   const isAdmin = userIsAdmin(currentUser);

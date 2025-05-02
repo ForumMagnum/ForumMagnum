@@ -1,6 +1,5 @@
-import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple, schemaDefaultValue } from './utils/schemaUtils'
-import { getWithLoader } from './loaders'
-import { userIsAdminOrMod } from './vulcan-users/permissions';
+import { accessFilterMultiple, getDenormalizedCountOfReferencesGetValue } from './utils/schemaUtils';
+import { getWithLoader } from './loaders';
 import GraphQLJSON from 'graphql-type-json';
 
 export type PermissionResult = {
@@ -11,9 +10,8 @@ export type PermissionResult = {
   reason: string
 }
 
-interface CollectionVoteOptions {
+export interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
-  customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
   userCanVoteOn?: (
     user: DbUser,
     document: DbVoteableType,
@@ -23,18 +21,8 @@ interface CollectionVoteOptions {
   ) => PermissionResult|Promise<PermissionResult>,
 }
 
-export const VoteableCollections: Array<CollectionBase<VoteableCollectionName>> = [];
-export const VoteableCollectionOptions: Partial<Record<CollectionNameString,CollectionVoteOptions>> = {};
 
-export const apolloCacheVoteablePossibleTypes = () => {
-  return {
-    Voteable: VoteableCollections.map(collection => collection.typeName),
-  }
-}
-
-const currentUserVoteResolver = <N extends CollectionNameString>(
-  resolver: SqlResolverJoin<'Votes'>["resolver"],
-): SqlResolver<N> => ({field, currentUserField, join}) => join({
+export const currentUserVoteResolver = <N extends CollectionNameString>({ field, currentUserField, join }: SqlResolverArgs<N>) => join({
   table: "Votes",
   type: "left",
   on: {
@@ -42,157 +30,186 @@ const currentUserVoteResolver = <N extends CollectionNameString>(
     documentId: field("_id"),
     cancelled: "FALSE",
   },
-  resolver,
+  resolver: (votesField) => votesField("voteType"),
 });
 
-// options: {
-//   customBaseScoreReadAccess: baseScore can have a customized canRead value.
-//     Option will be bassed directly to the canRead key
-// }
-export const makeVoteable = <N extends VoteableCollectionName>(
-  collection: CollectionBase<N>,
-  options: CollectionVoteOptions,
-): void => {
-  options = options || {}
-  const {customBaseScoreReadAccess} = options
+export const currentUserExtendedVoteResolver = <N extends CollectionNameString>({ field, currentUserField, join }: SqlResolverArgs<N>) => join({
+  table: "Votes",
+  type: "left",
+  on: {
+    userId: currentUserField("_id"),
+    documentId: field("_id"),
+    cancelled: "FALSE",
+  },
+  resolver: (votesField) => votesField("extendedVoteType"),
+});
 
-  collection.makeVoteable();
+export const DEFAULT_CURRENT_USER_VOTE_FIELD = {
+  graphql: {
+    outputType: "String",
+    canRead: ["guests"],
+    resolver: async (document, args, context) => {
+      const votes = await getCurrentUserVotes(document, context);
+      if (!votes.length) return null;
+      return votes[0].voteType ?? null;
+    },
+    sqlResolver: currentUserVoteResolver,
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
-  VoteableCollections.push(collection as CollectionBase<VoteableCollectionName>);
-  VoteableCollectionOptions[collection.collectionName] = options;
+export const DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD = {
+  graphql: {
+    outputType: "JSON",
+    canRead: ["guests"],
+    resolver: async (document, args, context) => {
+      const votes = await getCurrentUserVotes(document, context);
+      if (!votes.length) return null;
+      return votes[0].extendedVoteType || null;
+    },
+    sqlResolver: currentUserExtendedVoteResolver,
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
-  addFieldsDict(collection, {
-    currentUserVote: {
-      type: String,
-      optional: true,
-      canRead: ['guests'],
-      resolveAs: {
-        type: 'String',
-        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<string|null> => {
-          const votes = await getCurrentUserVotes(document, context);
-          if (!votes.length) return null;
-          return votes[0].voteType ?? null;
-        },
-        sqlResolver: currentUserVoteResolver(
-          (votesField) => votesField("voteType"),
-        ),
-      },
-    },
-    
-    currentUserExtendedVote: {
-      type: GraphQLJSON,
-      optional: true,
-      canRead: ['guests'],
-      resolveAs: {
-        type: GraphQLJSON,
-        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<string|null> => {
-          const votes = await getCurrentUserVotes(document, context);
-          if (!votes.length) return null;
-          return votes[0].extendedVoteType || null;
-        },
-        sqlResolver: currentUserVoteResolver(
-          (votesField) => votesField("extendedVoteType"),
-        ),
-      },
-    },
+// This has an inlined collection name in the `getValue` filter function, so unfortunately it needs to be a function.
+export function defaultVoteCountField<N extends VoteableCollectionName>(collectionName: N) {
+  const filterFn = (vote: DbVote) => !vote.cancelled && vote.voteType !== "neutral" && vote.collectionName === collectionName;
 
-    /**
-     * @deprecated (but preserved for backwards compatibility): Returns an array
-     * of vote objects, if the user has voted (or an empty array otherwise).
-     */
-    currentUserVotes: {
-      type: Array,
-      optional: true,
-      canRead: ['guests'],
-      resolveAs: {
-        type: '[Vote]',
-        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<Partial<DbVote>[]> => {
-          return await getCurrentUserVotes(document, context);
-        },
-      }
-    },
-    'currentUserVotes.$': {
-      type: Object,
-      optional: true
-    },
-    
-    allVotes: {
-      type: Array,
-      optional: true,
-      canRead: ['guests'],
-      resolveAs: {
-        type: '[Vote]',
-        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<Partial<DbVote>[]> => {
-          const { currentUser } = context;
-          if (userIsAdminOrMod(currentUser)) {
-            return await getAllVotes(document, context);
-          } else {
-            return await getCurrentUserVotes(document, context);
-          }
-        },
-      }
-    },
-    'allVotes.$': {
-      type: Object,
-      optional: true
-    },
-    voteCount: {
-      ...denormalizedCountOfReferences({
+  const fieldSpec = {
+    database: {
+      type: "DOUBLE PRECISION",
+      defaultValue: 0,
+      denormalized: true,
+      canAutoDenormalize: true,
+      canAutofillDefault: true,
+      getValue: getDenormalizedCountOfReferencesGetValue({
+        collectionName: collectionName,
         fieldName: "voteCount",
-        collectionName: collection.collectionName,
         foreignCollectionName: "Votes",
-        foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: (vote: DbVote) => !vote.cancelled && vote.collectionName===collection.collectionName
+        filterFn,
       }),
-      canRead: ['guests'],
+      nullable: false,
     },
-    // The document's base score (not factoring in the document's age)
-    baseScore: {
-      type: Number,
-      optional: true,
-      canRead: customBaseScoreReadAccess || ['guests'],
-      ...schemaDefaultValue(0),
+    graphql: {
+      outputType: "Float!",
+      canRead: ["guests"],
+      onCreate: () => 0,
+      countOfReferences: {
+        foreignCollectionName: "Votes",
+        foreignFieldName: "documentId",
+        filterFn,
+        resyncElastic: false,
+      },
+      validation: {
+        optional: true,
+      },
     },
-    extendedScore: {
-      type: GraphQLJSON,
-      optional: true,
-      canRead: customBaseScoreReadAccess || ['guests'],
-    },
-    // The document's current score (factoring in age)
-    score: {
-      type: Number,
-      optional: true,
-      ...schemaDefaultValue(0),
-      canRead: ['guests'],
-    },
-    // Whether the document is inactive. Inactive documents see their score
-    // recalculated less often
-    inactive: {
-      type: Boolean,
-      optional: true,
-      ...schemaDefaultValue(false),
-    },
-    afBaseScore: {
-      type: Number,
-      optional: true,
-      label: "Alignment Base Score",
-      canRead: ['guests'],
-    },
-    afExtendedScore: {
-      type: GraphQLJSON,
-      optional: true,
-      canRead: ['guests'],
-    },
-    afVoteCount: {
-      type: Number,
-      optional: true,
-      canRead: ['guests'],
-    },
-  });
+  } satisfies CollectionFieldSpecification<N>;
+
+  return fieldSpec;
 }
 
-async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
+export const DEFAULT_BASE_SCORE_FIELD = {
+  database: {
+    type: "DOUBLE PRECISION",
+    defaultValue: 0,
+    canAutofillDefault: true,
+    nullable: false,
+  },
+  graphql: {
+    outputType: "Float!",
+    canRead: ["guests"],
+    validation: {
+      optional: true,
+    },
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
+
+export const DEFAULT_EXTENDED_SCORE_FIELD = {
+  database: {
+    type: "JSONB",
+    nullable: true,
+  },
+  graphql: {
+    outputType: GraphQLJSON,
+    canRead: ["guests"],
+    validation: {
+      optional: true,
+    },
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
+
+export const DEFAULT_SCORE_FIELD = {
+  database: {
+    type: "DOUBLE PRECISION",
+    defaultValue: 0,
+    canAutofillDefault: true,
+    nullable: false,
+  },
+  graphql: {
+    outputType: "Float!",
+    canRead: ["guests"],
+    validation: {
+      optional: true,
+    },
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
+
+export const DEFAULT_INACTIVE_FIELD = {
+  database: {
+    type: "BOOL",
+    defaultValue: false,
+    canAutofillDefault: true,
+    nullable: false,
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
+
+export const DEFAULT_AF_BASE_SCORE_FIELD = {
+  database: {
+    type: "DOUBLE PRECISION",
+    nullable: true,
+  },
+  graphql: {
+    outputType: "Float",
+    canRead: ["guests"],
+    validation: {
+      optional: true,
+    },
+  },
+  form: {
+    label: "Alignment Base Score",
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
+
+export const DEFAULT_AF_EXTENDED_SCORE_FIELD = {
+  database: {
+    type: "JSONB",
+    nullable: true,
+  },
+  graphql: {
+    outputType: GraphQLJSON,
+    canRead: ["guests"],
+    validation: {
+      optional: true,
+    },
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
+
+export const DEFAULT_AF_VOTE_COUNT_FIELD = {
+  database: {
+    type: "DOUBLE PRECISION",
+    nullable: true,
+  },
+  graphql: {
+    outputType: "Float",
+    canRead: ["guests"],
+    validation: {
+      optional: true,
+    },
+  },
+} satisfies CollectionFieldSpecification<VoteableCollectionName>;
+
+export async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;
   if (!currentUser) return [];
   const votes = await getWithLoader(context, Votes,
@@ -205,10 +222,10 @@ async function getCurrentUserVotes<T extends DbVoteableType>(document: T, contex
   );
   
   if (!votes.length) return [];
-  return await accessFilterMultiple(currentUser, Votes, votes, context);
+  return await accessFilterMultiple(currentUser, 'Votes', votes, context);
 }
 
-async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
+export async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;
   const votes = await getWithLoader(context, Votes,
     "votesByDocument",
@@ -219,5 +236,5 @@ async function getAllVotes<T extends DbVoteableType>(document: T, context: Resol
   );
   
   if (!votes.length) return [];
-  return await accessFilterMultiple(currentUser, Votes, votes, context);
+  return await accessFilterMultiple(currentUser, 'Votes', votes, context);
 }

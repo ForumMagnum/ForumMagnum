@@ -1,18 +1,18 @@
 import React from "react";
 import { useCurationEmailsCron } from "../../lib/betas";
-import CurationEmails from "../../lib/collections/curationEmails/collection";
-import { Posts } from "../../lib/collections/posts";
-import Users from "../../lib/collections/users/collection";
+import CurationEmails from "../../server/collections/curationEmails/collection";
+import { Posts } from "../../server/collections/posts/collection";
+import Users from "../../server/collections/users/collection";
 import { isEAForum, testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
-import { Components } from "../../lib/vulcan-lib/components";
-import { addCronJob } from "../cronUtil";
-import { wrapAndSendEmail } from "../emails";
+import { addCronJob } from "../cron/cronUtil";
+import { wrapAndSendEmail } from "../emails/renderEmail";
 import CurationEmailsRepo from "../repos/CurationEmailsRepo";
 import UsersRepo from "../repos/UsersRepo";
 
 import chunk from "lodash/chunk";
 import moment from "moment";
+import { PostsEmail } from "../emailComponents/PostsEmail";
 
 export async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
@@ -54,7 +54,7 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
     await wrapAndSendEmail({
       user,
       subject: subject ?? post.title,
-      body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
+      body: <PostsEmail postIds={[post._id]} reason={reason}/>
     });
   }
 }
@@ -118,12 +118,11 @@ async function sendCurationEmails() {
   }
 }
 
-if (!testServerSetting.get() && useCurationEmailsCron) {
-  addCronJob({
-    name: 'sendCurationEmailsCron',
-    interval: 'every 1 minute',
-    async job() {
-      await sendCurationEmails();
-    }
-  });
-}
+export const sendCurationEmailsCron = addCronJob({
+  name: 'sendCurationEmailsCron',
+  interval: 'every 1 minute',
+  disabled: testServerSetting.get() || !useCurationEmailsCron,
+  async job() {
+    await sendCurationEmails();
+  }
+});

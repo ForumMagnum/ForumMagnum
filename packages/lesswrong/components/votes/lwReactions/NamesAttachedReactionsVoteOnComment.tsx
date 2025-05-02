@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, useContext } from 'react';
-import { Components, registerComponent, slugify } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
@@ -13,8 +13,8 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
 import sumBy from 'lodash/sumBy';
-import Card from '@material-ui/core/Card'
-import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
+import { Card } from "@/components/widgets/Paper";
+import FormatListBulletedIcon from "@/lib/vendor/@material-ui/icons/src/FormatListBulleted"
 import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
@@ -24,6 +24,7 @@ import type { ContentItemBody } from '../../common/ContentItemBody';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';
+import { slugify } from '@/lib/utils/slugify';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -174,9 +175,9 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
 
   function openLoginDialog() {
     openDialog({
-      componentName: "LoginPopup",
-      componentProps: {}
-    })
+      name: "LoginPopup",
+      contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+    });
   }
 
   async function toggleReaction(name: string, quote: QuoteLocator|null) {
@@ -575,6 +576,9 @@ const ReactionOverviewButton = ({voteProps, classes}: {
   </LWTooltip>
 }
 
+
+const AddReactionButtonComponent = registerComponent('AddReactionButton', AddReactionButton, {styles});
+
 const NamesAttachedReactionsVoteOnCommentComponent = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnComment, {
   styles,
   hocs: [withErrorBoundary]
@@ -589,6 +593,7 @@ declare global {
   interface ComponentTypes {
     NamesAttachedReactionsVoteOnComment: typeof NamesAttachedReactionsVoteOnCommentComponent
     NamesAttachedReactionsCommentBottom: typeof NamesAttachedReactionsCommentBottomComponent
+    AddReactionButton: typeof AddReactionButtonComponent
   }
 }
 

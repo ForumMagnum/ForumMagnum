@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useSingle } from "@/lib/crud/withSingle";
 
 const styles = (theme: ThemeType) => ({
@@ -39,8 +39,9 @@ const SubscribedItem = ({
 }) => {
   const {Loading, NotifyMeButton} = Components;
   const {document, loading} = useSingle({
-    documentId: subscription.documentId,
+    documentId: subscription.documentId ?? undefined,
     collectionName, fragmentName,
+    skip: !subscription.documentId,
   });
 
   if (!document && !loading) {

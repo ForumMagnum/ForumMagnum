@@ -1,10 +1,10 @@
-import Button from '@material-ui/core/Button';
-import CloseIcon from '@material-ui/icons/Close';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import React, { ComponentProps } from 'react';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { HashLinkProps } from '../../common/HashLink';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_WELCOME_BOX_COOKIE } from '../../../lib/cookies/cookies';

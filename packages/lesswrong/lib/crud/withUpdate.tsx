@@ -2,33 +2,9 @@ import { useCallback } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
 import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
-import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
+import { collectionNameToTypeName } from '../generated/collectionTypeNames';
 import { updateCacheAfterUpdate } from './cacheUpdates';
-
-// Update mutation query used on the client
-//
-// mutation updateMovie($selector: MovieSelectorUniqueInput!, $data: UpdateMovieDataInput!) {
-//   updateMovie(selector: $selector, data: $data) {
-//     data {
-//       _id
-//       name
-//       __typename
-//     }
-//     __typename
-//   }
-// }
-const updateClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: string,
-  extraVariablesString?: string,
-}) =>
-`mutation update${typeName}($selector: ${typeName}SelectorUniqueInput!, $data: Update${typeName}DataInput!, ${extraVariablesString || ''}) {
-  update${typeName}(selector: $selector, data: $data) {
-    data {
-      ...${fragmentName}
-    }
-  }
-}`;
+import { getUpdateMutationName } from './utils';
 
 type FragmentOrFragmentName<F extends FragmentName = FragmentName> =
    {fragment: any, fragmentName?: never}
@@ -69,9 +45,16 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
 }=> {
   const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
-  const typeName = collectionNameToTypeName(options.collectionName);
+  const typeName = collectionNameToTypeName[options.collectionName];
+  const resolverName = getUpdateMutationName(typeName);
   const query = gql`
-    ${updateClientTemplate({ typeName, fragmentName })}
+    mutation update${typeName}($selector: SelectorInput!, $data: Update${typeName}DataInput!) {
+      ${resolverName}(selector: $selector, data: $data) {
+        data {
+          ...${fragmentName}
+        }
+      }
+    }
     ${fragment}
   `;
 
@@ -82,22 +65,26 @@ export const useUpdate = <CollectionName extends CollectionNameString, F extends
     optimisticResponse?: FragmentTypes[F],
     extraVariables?: any,
   }) => {
-
-    const optimisticMutationResponse = {
-      [`update${typeName}`]: {
-        __typename: `update${typeName}`,
-        data: {
-          __typename: typeName,
-          ...optimisticResponse,  
+    const optimisticMutationResponse = optimisticResponse
+      ? {
+        optimisticResponse: {
+          [resolverName]: {
+            //FIXME: This __typename is maybe wrong?
+            __typename: `update${typeName}`,
+            data: {
+              __typename: typeName,
+              ...optimisticResponse,  
+            }
+          }
         }
       }
-    };
+      : {};
 
     return mutate({
       variables: { selector, data, ...extraVariables },
       update: options.skipCacheUpdate ? undefined : updateCacheAfterUpdate(typeName),
-      optimisticResponse: optimisticMutationResponse
-    })
-  }, [mutate, typeName, options.skipCacheUpdate]);
+      ...optimisticMutationResponse
+    });
+  }, [mutate, typeName, resolverName, options.skipCacheUpdate]);
   return {mutate: wrappedMutate, loading, error, called, data};
 }

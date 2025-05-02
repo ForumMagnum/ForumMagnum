@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { TooltipProps } from "recharts";
 import { requireCssVar } from "../../themes/cssVars";
 import moment from "moment";
 import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hooks/useAnalytics";
 import startCase from "lodash/startCase";
-import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
+import Checkbox, { CheckboxProps } from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { useDialog } from "../common/withDialog";
 
 const CONTROLS_BREAKPOINT = 650;
@@ -292,12 +292,13 @@ export const AnalyticsGraph = ({
       updateDisplayDates(startDate, endDate);
     } else {
       openDialog({
-        componentName: 'DateRangeModal',
-        componentProps: {
-          startDate: displayStartDate,
-          endDate: displayEndDate,
-          updateDisplayDates
-        },
+        name: 'DateRangeModal',
+        contents: ({onClose}) => <Components.DateRangeModal
+          onClose={onClose}
+          startDate={displayStartDate}
+          endDate={displayEndDate}
+          updateDisplayDates={updateDisplayDates}
+        />,
       });
     }
   }, [displayEndDate, displayStartDate, openDialog, updateDisplayDates]);

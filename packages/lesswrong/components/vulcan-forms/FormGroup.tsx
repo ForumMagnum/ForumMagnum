@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
-import Tooltip from '@material-ui/core/Tooltip';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { FormGroupLayoutProps } from '../form-components/FormGroupLayout';
+import { FormComponentOverridesType } from './propTypes';
+import { TooltipSpan } from '../common/FMTooltip';
 
 const headerStyles = (theme: ThemeType) => ({
   formSectionHeading: {
@@ -51,7 +52,7 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
   styles: headerStyles
 });
 
-export interface FormControlProps {
+interface PassedThroughFormGroupProps {
   disabled: boolean;
   errors: any[];
   throwError: any;
@@ -61,26 +62,24 @@ export interface FormControlProps {
   addToDeletedValues: any;
   clearFieldErrors: any;
   formType: "new" | "edit";
-  currentUser: UsersCurrent | null;
   formProps: any;
-  formComponents: ComponentTypes;
-  setFooterContent: (footerContent: React.ReactNode) => void;
+  formComponents?: FormComponentOverridesType;
+  submitForm: any
+  addToSubmitForm: any
+  addToSuccessForm: any
+  getLabel: (fieldName: string, fieldLocale?: any) => string,
+  getDocument: any,
 }
 
-interface FormGroupProps extends FormGroupSafeType<CollectionNameString>, Omit<FormControlProps, 'setFooterContent'> {
-  fields: FormField<any>[]
+interface FormGroupProps<N extends CollectionNameString> extends PassedThroughFormGroupProps {
+  group: FormGroupType<N>
+  fields: FormField<N>[]
 }
 
 const FormGroup = ({
-  name,
+  group,
   fields,
   formComponents,
-  layoutComponent,
-  label,
-  hideHeader,
-  layoutComponentProps,
-  startCollapsed,
-  helpText,
   disabled,
   errors,
   throwError,
@@ -90,10 +89,15 @@ const FormGroup = ({
   addToDeletedValues,
   clearFieldErrors,
   formType,
-  currentUser,
-  formProps
-}: FormGroupProps) => {
+  formProps,
+  submitForm,
+  addToSubmitForm,
+  addToSuccessForm,
+  getLabel,
+  getDocument,
+}: FormGroupProps<CollectionNameString>) => {
   const { query } = useLocation();
+  const { name, label, startCollapsed, helpText, hideHeader, layoutComponent, layoutComponentProps } = group;
   const highlightInFields = query.highlightField && fields.map(f => f.name).includes(query.highlightField);
   const [collapsed, setCollapsed] = useState((startCollapsed && !highlightInFields) || false);
   const [footerContent, setFooterContent] = useState<React.ReactNode>(null);
@@ -102,9 +106,9 @@ const FormGroup = ({
     setCollapsed(!collapsed);
   }, [collapsed]);
 
-  const renderHeading = useCallback((FormComponents: ComponentTypes) => {
+  const renderHeading = useCallback(() => {
     const component = (
-      <FormComponents.FormGroupHeader
+      <Components.FormGroupHeader
         toggle={toggle}
         label={label}
         collapsed={collapsed}
@@ -112,9 +116,9 @@ const FormGroup = ({
     );
     if (helpText) {
       return (
-        <Tooltip title={helpText}>
-          <span>{component}</span>
-        </Tooltip>
+        <TooltipSpan title={helpText}>
+          {component}
+        </TooltipSpan>
       );
     }
     return component;
@@ -126,13 +130,15 @@ const FormGroup = ({
     });
   }, [fields, errors]);
 
-  const FormComponents = mergeWithComponents(formComponents);
   const groupStyling = !(name === 'default' || (layoutComponentProps?.groupStyling === false));
   const showHeading = groupStyling && !hideHeader;
 
-  const LayoutComponent = layoutComponent ? Components[layoutComponent as ComponentWithProps<FormGroupLayoutProps>] : FormComponents.FormGroupLayout;
+  const LayoutComponent = 
+    (layoutComponent && Components[layoutComponent as ComponentWithProps<FormGroupLayoutProps>])
+    || formComponents?.FormGroupLayout
+    || Components.FormGroupLayout;
 
-  const formControlProps: FormControlProps = {
+  const formControlProps: PassedThroughFormGroupProps = {
     disabled,
     errors,
     throwError,
@@ -142,27 +148,30 @@ const FormGroup = ({
     addToDeletedValues,
     clearFieldErrors,
     formType,
-    currentUser,
     formProps,
-    formComponents: FormComponents,
-    setFooterContent: setFooterContent
+    formComponents,
+    submitForm,
+    addToSubmitForm,
+    addToSuccessForm,
+    getLabel,
+    getDocument,
   };
 
   return (
     <LayoutComponent
       label={label}
       collapsed={collapsed}
-      heading={showHeading ? renderHeading(FormComponents) : null}
+      heading={showHeading ? renderHeading() : null}
       footer={footerContent}
       groupStyling={groupStyling}
       hasErrors={hasErrors()}
       {...layoutComponentProps}
-      formControlProps={formControlProps}
     >
       {fields.map(field => (
-        <FormComponents.FormComponent
+        <Components.FormComponent
           key={field.name}
           {...formControlProps}
+          setFooterContent={setFooterContent}
           {...field}
         />
       ))}
@@ -170,7 +179,7 @@ const FormGroup = ({
   );
 };
 
-const FormGroupComponent = registerComponent<FormGroupProps>('FormGroup', FormGroup, {});
+const FormGroupComponent = registerComponent('FormGroup', FormGroup);
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg

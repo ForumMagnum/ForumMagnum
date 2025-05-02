@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import Divider from '@material-ui/core/Divider';
-import Tooltip from '@material-ui/core/Tooltip';
-import CloseIcon from '@material-ui/icons/Close';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { Card } from "@/components/widgets/Paper";
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';
 import sample from 'lodash/sample';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
+import { TooltipSpan } from '../FMTooltip';
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -22,12 +21,14 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     borderRadius: theme.borderRadius.default,
   },
+  closeButtonWrapper: {
+    alignSelf: 'end',
+    margin: "-1.5em -1.5em 0 0",
+  },
   closeButton: {
     padding: '.25em',
-    margin: "-1.5em -1.5em 0 0",
     minHeight: '.75em',
     minWidth: '.75em',
-    alignSelf: 'end',
   },
   closeIcon: {
     width: '.6em',
@@ -90,7 +91,7 @@ const FeaturedResourceBanner = ({terms, classes}: {
     fragmentName: 'FeaturedResourcesFragment',
     enableTotal: false,
   });
-  const { Typography } = Components
+  const { Typography, SimpleDivider } = Components
 
   useEffect(() => {
     if (loading || !results?.length) {
@@ -116,15 +117,15 @@ const FeaturedResourceBanner = ({terms, classes}: {
 
   return <AnalyticsContext pageElementContext="featuredResourceLink" resourceName={resource.title} resourceUrl={resource.ctaUrl} >
       <Card className={classes.card}>
-      <Tooltip title="Hide this for the next month">
+      <TooltipSpan title="Hide this for the next month" className={classes.closeButtonWrapper}>
         <Button className={classes.closeButton} onClick={hideBanner}>
           <CloseIcon className={classes.closeIcon} />
         </Button>
-      </Tooltip>
+      </TooltipSpan>
       <Typography variant="title" className={classes.title}>
         {resource.title}
       </Typography>
-      <Divider className={classes.divider} />
+      <SimpleDivider className={classes.divider} />
       <Typography variant="body2" className={classes.body}>
         {resource.body}
       </Typography>

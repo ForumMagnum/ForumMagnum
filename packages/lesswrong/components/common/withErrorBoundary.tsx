@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { Components } from '../../lib/vulcan-lib';
+import { Components } from '../../lib/vulcan-lib/components';
 
 /// Higher-order component which adds an error boundary around a component.
 /// Unlike putting an <ErrorBoundary/> tag inside your render method, an error
@@ -9,13 +9,11 @@ import { Components } from '../../lib/vulcan-lib';
 /// In order to catch errors that occur in other higher-order components on
 /// the same component, put this _first_.
 const withErrorBoundary = (WrappedComponent: React.FunctionComponent<unknown & { ref: React.ForwardedRef<unknown> }>) => {
-  return forwardRef((props, ref) => {
-    return (
-      <Components.ErrorBoundary>
-        <WrappedComponent ref={ref} {...props} />
-      </Components.ErrorBoundary>
-    );
-  })
+  return function WrapWithErrorBoundary(props: AnyBecauseHard) {
+    return <Components.ErrorBoundary>
+      <WrappedComponent {...props} />
+    </Components.ErrorBoundary>
+  }
 }
 
 export default withErrorBoundary

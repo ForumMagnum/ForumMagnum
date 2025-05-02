@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentVotingComponentProps, EmojiReactionType, emojiReactions } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
@@ -96,9 +96,9 @@ const BallotEmojiReaction = ({reaction, voteProps, classes}: {
   return <div className={classNames(classes.voteButton, {[classes.voteButtonSelected]: isSelected})} onClick={async () => {
     if (!currentUser) {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
-      })
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
+      });
     } else {
       await voteProps.vote({
         document: voteProps.document,

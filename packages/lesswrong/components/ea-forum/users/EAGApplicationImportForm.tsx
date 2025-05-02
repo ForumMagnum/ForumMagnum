@@ -1,21 +1,21 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { useLocation } from '../../../lib/routeUtil';
-import ArrowBack from '@material-ui/icons/ArrowBack'
+import ArrowBack from '@/lib/vendor/@material-ui/icons/src/ArrowBack'
 import pick from 'lodash/pick';
-import { CAREER_STAGES } from '../../../lib/collections/users/schema';
-import Input from '@material-ui/core/Input';
+import { CAREER_STAGES } from '../../../lib/collections/users/newSchema';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
 import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { useSingle } from '../../../lib/crud/withSingle';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -551,7 +551,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>Role</label>
-        <Input name="jobTitle" value={formValues.jobTitle} onChange={(e) => handleChangeField(e, 'jobTitle')} />
+        <Input name="jobTitle" value={formValues.jobTitle ?? undefined} onChange={(e) => handleChangeField(e, 'jobTitle')} />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'jobTitle')}>
             <ArrowBack className={classes.arrowIcon} />
@@ -562,7 +562,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
     
       <div className={classes.formRow}>
         <label className={classes.label}>Organization</label>
-        <Input name="organization" value={formValues.organization} onChange={(e) => handleChangeField(e, 'organization')} />
+        <Input name="organization" value={formValues.organization ?? undefined} onChange={(e) => handleChangeField(e, 'organization')} />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'organization')}>
             <ArrowBack className={classes.arrowIcon} />

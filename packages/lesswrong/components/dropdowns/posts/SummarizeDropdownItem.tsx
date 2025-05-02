@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { userHasAutosummarize } from "../../../lib/betas";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
@@ -17,8 +17,11 @@ const SummarizeDropdownItem = ({post, closeMenu}: {
   const showPostSummary = () => {
     closeMenu?.();
     openDialog({
-      componentName: "PostSummaryDialog",
-      componentProps: {post},
+      name: "PostSummaryDialog",
+      contents: ({onClose}) => <Components.PostSummaryDialog
+        onClose={onClose}
+        post={post}
+      />
     });
   }
 

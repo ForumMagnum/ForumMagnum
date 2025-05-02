@@ -1,12 +1,12 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { Users } from '../../lib/collections/users/collection';
+import { Users } from '../../server/collections/users/collection';
 import * as _ from 'underscore';
 
 const excludeOld = (partiallyReadSequences: Array<any>, dateCutoff: Date): Array<any> => {
   return _.filter(partiallyReadSequences, s=>s.lastReadTime >= dateCutoff);
 }
 
-registerMigration({
+export default registerMigration({
   name: "clearOldPartiallyReadSequences",
   dateWritten: "2020-06-08",
   idempotent: true,

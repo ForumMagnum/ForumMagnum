@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
@@ -70,10 +70,11 @@ const TagVersionHistoryButton = ({tagId, classes}: {
     onClick={() => {
       captureEvent("tagVersionHistoryButtonClicked", {tagId})
       openDialog({
-        componentName: "TagVersionHistory",
-        componentProps: {
-          tagId
-        },
+        name: "TagVersionHistory",
+        contents: ({onClose}) => <Components.TagVersionHistory
+          onClose={onClose}
+          tagId={tagId}
+        />
       })
     }}
   >
@@ -172,7 +173,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
           }
         </div>}
         {revision && <ContentItemBody
-          dangerouslySetInnerHTML={{__html: revision.html}}
+          dangerouslySetInnerHTML={{__html: revision.html ?? ''}}
           description="TagVersionHistory revision"
         />}
       </div>

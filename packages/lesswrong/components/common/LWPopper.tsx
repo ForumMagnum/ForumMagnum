@@ -1,6 +1,6 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {MutableRefObject, ReactNode, useState} from 'react';
-import type { PopperPlacementType } from '@material-ui/core/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
@@ -48,6 +48,7 @@ const LWPopper = ({
   flip,
   open,
   anchorEl,
+  distance=0,
   placement,
   clickable = true,
   hideOnTouchScreens,
@@ -62,6 +63,7 @@ const LWPopper = ({
   open: boolean,
   placement?: PopperPlacementType,
   anchorEl: any,
+  distance?: number,
   className?: string,
   clickable?: boolean,
   hideOnTouchScreens?: boolean,
@@ -93,6 +95,12 @@ const LWPopper = ({
           gpuAcceleration: false, // true by default
         },
       },
+      ...(distance>0 ? [{
+        name: "offset",
+        options: {
+          offset: [0, distance]
+        },
+      }] : []),
       ...flipModifier,
       ...preventOverflowModifier
     ],

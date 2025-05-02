@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import FormLabel from '@material-ui/core/FormLabel';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css

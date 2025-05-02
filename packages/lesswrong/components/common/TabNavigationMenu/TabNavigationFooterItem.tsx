@@ -1,11 +1,11 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import React from 'react';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import React, { Ref } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 import { MenuTabRegular } from './menuTabs';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { TooltipRef } from '../FMTooltip';
 
 const smallIconSize = 23
 
@@ -19,7 +19,11 @@ const styles = (theme: ThemeType) => ({
       color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[900],
       fontWeight: 600,
     },
-    backgroundColor: theme.palette.grey[400]
+    backgroundColor: theme.palette.grey[400],
+    
+    ...(isFriendlyUI && {
+      backgroundColor: theme.palette.secondary.main
+    }),
   },
   navButton: {
     paddingTop: theme.spacing.unit,
@@ -78,7 +82,8 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
   // normal HTML a tag if the URL is external
   const externalLink = /https?:\/\//.test(tab.link);
   const Element = externalLink ?
-    ({to, ...rest}: { to: string, className: string }) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
+    ({to, anchorRef, ...rest}: { to: string, anchorRef: Ref<HTMLAnchorElement>, className: string }) =>
+      <a href={to} target="_blank" rel="noopener noreferrer" ref={anchorRef} {...rest} />
     : Link;
 
   const isSelected = pathname === tab.link;
@@ -87,9 +92,10 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
 
-  return <Tooltip placement='top' title={tab.tooltip || ''}>
-    <Element
+  return <TooltipRef placement='top' title={tab.tooltip || ''} distance={16}>
+    {(ref: Ref<HTMLAnchorElement>) => <Element
       to={tab.link}
+      anchorRef={ref}
       className={classNames(classes.navButton, {
         [classes.selected]: isSelected,
       })}
@@ -108,8 +114,8 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
           { tab.mobileTitle || tab.title }
         </span>
       }
-    </Element>
-  </Tooltip>
+    </Element>}
+  </TooltipRef>
 }
 
 const TabNavigationFooterItemComponent = registerComponent(

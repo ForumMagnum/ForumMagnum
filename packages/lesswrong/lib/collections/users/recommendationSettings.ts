@@ -1,6 +1,4 @@
 import SimpleSchema from 'simpl-schema';
-import { addFieldsDict } from '../../utils/schemaUtils';
-import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
@@ -137,6 +135,7 @@ export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
   lwRationalityOnly?: boolean,
   scenario: string,
   filterSettings?: FilterSettings,
+  skipTopOfListPosts?: boolean,
 }
 
 export interface HybridRecombeeConfiguration {
@@ -185,13 +184,13 @@ const recommendationAlgorithmSettingsSchema = new SimpleSchema({
   onlyUnread: Boolean,
 });
 
-const recommendationSettingsSchema = new SimpleSchema({
+export const recommendationSettingsSchema = new SimpleSchema({
   frontpage: recommendationAlgorithmSettingsSchema,
   frontpageEA: recommendationAlgorithmSettingsSchema,
   recommendationspage: recommendationAlgorithmSettingsSchema,
 });
 
-addFieldsDict(Users, {
+export const recommendationSettingsField = {
   // Admin-only options for configuring Recommendations placement, for experimentation
   recommendationSettings: {
     type: recommendationSettingsSchema,
@@ -201,4 +200,5 @@ addFieldsDict(Users, {
     canUpdate: [userOwns],
     optional: true,
   },
-});
+};
+

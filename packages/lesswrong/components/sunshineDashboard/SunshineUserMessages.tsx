@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
-import EmailIcon from '@material-ui/icons/Email';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
 

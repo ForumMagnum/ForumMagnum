@@ -1,13 +1,13 @@
-import { ensureIndex } from "../../collectionIndexUtils";
-import Spotlights from "./collection";
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface SpotlightsViewTerms extends ViewTermsBase {
     documentIds?: string[];
+    spotlightIds?: string[];
   }
 }
 
-Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: SpotlightsViewTerms) {
+function mostRecentlyPromotedSpotlights(terms: SpotlightsViewTerms) {
   const limit = terms.limit ? { limit: terms.limit } : {};
   return {
     selector: {
@@ -20,12 +20,9 @@ Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: Spotlights
       ...limit
     }
   }
-});
+}
 
-ensureIndex(Spotlights, { lastPromotedAt: -1 });
-ensureIndex(Spotlights, { position: -1 });
-
-Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
+function spotlightsPage(terms: SpotlightsViewTerms) {
   const limit = terms.limit ? { limit: terms.limit } : {};
   return {
     selector: {
@@ -36,9 +33,9 @@ Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
       ...limit
     }
   }
-});
+}
 
-Spotlights.addView("spotlightsPageDraft", function (terms: SpotlightsViewTerms) {
+function spotlightsPageDraft(terms: SpotlightsViewTerms) {
   const limit = terms.limit ? { limit: terms.limit } : {};
   return {
     selector: {
@@ -50,9 +47,9 @@ Spotlights.addView("spotlightsPageDraft", function (terms: SpotlightsViewTerms) 
       ...limit
     }
   }
-});
+}
 
-Spotlights.addView("spotlightsByDocumentIds", (terms: SpotlightsViewTerms) => {
+function spotlightsByDocumentIds(terms: SpotlightsViewTerms) {
   return {
     selector: {
       documentId: { $in: terms.documentIds },
@@ -63,5 +60,26 @@ Spotlights.addView("spotlightsByDocumentIds", (terms: SpotlightsViewTerms) => {
       sort: { position: 1 }
     }
   }
+}
+
+function spotlightsById(terms: SpotlightsViewTerms) {
+  return {
+    selector: {
+      _id: { $in: terms.spotlightIds },
+      draft: false,
+      deletedDraft: false
+    },
+    options: {
+      sort: { position: 1 }
+    }
+  }
+}
+
+export const SpotlightsViews = new CollectionViewSet('Spotlights', {
+  mostRecentlyPromotedSpotlights,
+  spotlightsPage,
+  spotlightsPageDraft,
+  spotlightsByDocumentIds,
+  spotlightsById
 });
 

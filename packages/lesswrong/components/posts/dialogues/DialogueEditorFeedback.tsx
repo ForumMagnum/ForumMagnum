@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { getSiteUrl, registerComponent } from '../../../lib/vulcan-lib';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../../common/withUser';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
+import { getSiteUrl } from "../../../lib/vulcan-lib/utils";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {

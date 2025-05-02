@@ -1,6 +1,6 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import Button from "@material-ui/core/Button";
+import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
@@ -89,7 +89,10 @@ const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         By clicking "Accept all" you agree to their use. Customise your{" "}
         <a
           onClick={() => {
-            openDialog({ componentName: "CookieDialog", componentProps: {} });
+            openDialog({
+              name: "CookieDialog",
+              contents: ({onClose}) => <Components.CookieDialog onClose={onClose} />
+            });
           }}
         >
           cookie settings

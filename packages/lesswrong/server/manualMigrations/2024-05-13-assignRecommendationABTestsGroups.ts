@@ -1,6 +1,6 @@
 import { registerMigration } from "./migrationUtils";
-import { createAdminContext, updateMutator } from "../vulcan-lib";
-
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { updateUser } from "../collections/users/mutations";
 
 const testGroupIds = [
   '22EP7kj9ea5vtQzX6',
@@ -923,7 +923,7 @@ const testGroupIds = [
   'zzmRCKbe2LweEttS9'
 ]
 
-registerMigration({
+export default registerMigration({
   name: "assignRecommendationABTestsGroups",
   dateWritten: "2024-05-13",
   idempotent: true,
@@ -932,15 +932,11 @@ registerMigration({
     const { Users } = adminContext;
 
     testGroupIds.forEach(async (userId: string) => {
-      void updateMutator({
-        collection: Users,
-        context: adminContext,
-        currentUser: adminContext.currentUser,
-        documentId: userId,
-        set: {
+      void updateUser({
+        data: {
           frontpageSelectedTab: 'recombee-hybrid'
-        }
-      });
+        }, selector: { _id: userId }
+      }, adminContext);
     });
   }
 });

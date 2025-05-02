@@ -1,10 +1,10 @@
 import React, {useRef, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
-import {getVotingSystemByName} from '../../lib/voting/votingSystems';
+import {getVotingSystemByName} from '../../lib/voting/getVotingSystem';
 import type { ContentItemBody } from '../common/ContentItemBody';
 
 const styles = (theme: ThemeType) => ({
@@ -110,7 +110,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const isFirstCommentInBlock = idx === 0;
     const isLastCommentInBlock = idx === (responseCount - 1);
-    const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId);
+    const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId ?? '');
     const readerIsParticipant = currentUser && fullParticipantSet.has(currentUser._id);
 
     const showHeader = isFirstCommentInBlock;

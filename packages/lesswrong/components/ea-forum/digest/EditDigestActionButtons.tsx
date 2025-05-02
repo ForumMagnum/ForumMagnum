@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useDialog } from '../../common/withDialog';
 
@@ -56,8 +56,8 @@ const EditDigestActionButtons = ({digest, classes}: {
       })
     } else {
       openDialog({
-        componentName: 'ConfirmPublishDialog',
-        componentProps: {digest}
+        name: 'ConfirmPublishDialog',
+        contents: ({onClose}) => <Components.ConfirmPublishDialog onClose={onClose} digest={digest} />
       })
     }
   }

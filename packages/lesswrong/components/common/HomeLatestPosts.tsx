@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -17,7 +17,7 @@ import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
 
 const titleWrapper = isLWorAF ? {
@@ -195,14 +195,16 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
         </SectionTitle>
 
         <AnalyticsContext pageSectionContext="tagFilterSettings">
-          <div className={classNames({
-            [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
-            [classes.hideOnMobile]: !filterSettingsVisibleMobile,
-          })}>
-            <TagFilterSettings
-              filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
-            />
-          </div>
+          {(filterSettingsVisibleDesktop || filterSettingsVisibleMobile) && (
+            <div className={classNames({
+              [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
+              [classes.hideOnMobile]: !filterSettingsVisibleMobile,
+            })}>
+              <TagFilterSettings
+                filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+              />
+            </div>
+          )}
         </AnalyticsContext>
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>

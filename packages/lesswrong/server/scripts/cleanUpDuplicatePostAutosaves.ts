@@ -1,12 +1,12 @@
-import { Posts } from "../../lib/collections/posts";
-import { Globals, computeContextFromUser, createMutator, updateMutator } from "../vulcan-lib";
-import Users from "../../lib/collections/users/collection";
-import Conversations from "../../lib/collections/conversations/collection";
+import Users from "../../server/collections/users/collection";
 import groupBy from "lodash/groupBy";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import Messages from "../../lib/collections/messages/collection";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createConversation } from "../collections/conversations/mutations";
+import { createMessage } from "../collections/messages/mutations";
+import { updatePost } from "../collections/posts/mutations";
 
-Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
+export const cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
   const db = getSqlClientOrThrow();
   const adminUser = await Users.findOne(adminUserId);
   if (!adminUser?.isAdmin) {
@@ -45,29 +45,20 @@ Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
 
   for (let [userId, userPosts] of Object.entries(postsByUsers)) {
     for (let duplicatePost of userPosts) {
-      await updateMutator({
-        collection: Posts,
-        context: adminContext,
-        currentUser: adminUser,
-        documentId: duplicatePost.postId,
-        data: {
-          draft: true,
-          deletedDraft: true
-        }
-      })
+      await updatePost({
+        data: { draft: true , deletedDraft: true },
+        selector: { _id: duplicatePost.postId }
+      }, adminContext)
     }
 
-    const conversationData: CreateMutatorParams<"Conversations">['document'] = {
+    const conversationData = {
       participantIds: [userId, adminUser._id],
       title: `Bug fix - cleaning up duplicated posts`,
     };
 
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: adminUser,
-      validate: false
-    });
+    const conversation = await createConversation({
+      data: conversationData
+    }, adminContext);
 
     const messageContents = `
       <p>There was recently a bug related to new post auto-saving functionality which caused some duplicate posts.  You were one of the users affected by this.</p>
@@ -83,15 +74,12 @@ Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
           data: messageContents
         }
       },
-      conversationId: conversation.data._id,
+      conversationId: conversation._id,
       noEmail: true
     };
 
-    await createMutator({
-      collection: Messages,
-      document: messageData,
-      currentUser: adminUser,
-      validate: false
-    });
+    await createMessage({
+      data: messageData
+    }, adminContext);
   }
 };

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import { Badge } from "@/components/widgets/Badge";
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -117,10 +117,8 @@ const BookNotificationsMenuButton = ({
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
-      classes={{
-        root: classNames(classes.badgeContainer, className),
-        badge: classNames(classes.badge, classes.badgeBackground),
-      }}
+      className={classNames(classes.badgeContainer, className)}
+      badgeClassName={classNames(classes.badge, classes.badgeBackground)}
       badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton
@@ -179,7 +177,7 @@ const FriendlyNotificationsMenuButton = ({
     void refetch();
   }, [refetch, currentUser?.karmaChangeLastOpened]);
 
-  const markAllAsRead = useCallback(() => {
+  const onOpenNotificationsPopover = useCallback(() => {
     const now = new Date();
     void updateCurrentUser({
       karmaChangeLastOpened: now,
@@ -201,14 +199,12 @@ const FriendlyNotificationsMenuButton = ({
   return (
     <div ref={anchorEl}>
       <Badge
-        classes={{
-          root: classNames(classes.badgeContainer, className),
-          badge: classNames(classes.badge, {
-            [classes.badgeBackground]: hasBadge,
-            [classes.badge1Char]: badgeText.length === 1,
-            [classes.badge2Chars]: badgeText.length === 2,
-          })
-        }}
+        className={classNames(classes.badgeContainer, className)}
+        badgeClassName={classNames(classes.badge, {
+          [classes.badgeBackground]: hasBadge,
+          [classes.badge1Char]: badgeText.length === 1,
+          [classes.badge2Chars]: badgeText.length === 2,
+        })}
         badgeContent={
           <>
             {badgeText}
@@ -253,7 +249,7 @@ const FriendlyNotificationsMenuButton = ({
               >
                 <NotificationsPopover
                   karmaChanges={karmaChanges?.karmaChanges}
-                  markAllAsRead={markAllAsRead}
+                  onOpenNotificationsPopover={onOpenNotificationsPopover}
                   closePopover={closePopover}
                 />
               </LWPopper>

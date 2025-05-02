@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const TagBasicInfo = () => frag`
   fragment TagBasicInfo on Tag {
     _id
     userId
@@ -19,10 +19,21 @@ registerFragment(`
     deleted
     isSubforum
     noindex
-  }
-`);
+    isArbitalImport
+    isPlaceholderPage
 
-registerFragment(`
+    baseScore
+    extendedScore
+    score
+    afBaseScore
+    afExtendedScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
+  }
+`
+
+export const TagDetailsFragment = () => frag`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
     subtitle
@@ -47,9 +58,9 @@ registerFragment(`
       ...SequencesPageFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagFragment = () => frag`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
@@ -64,21 +75,27 @@ registerFragment(`
       htmlHighlight
       plaintextDescription
       version
+      editedAt
     }
     canVoteOnRels
   }
-`);
+`
 
-registerFragment(`
+export const TagHistoryFragment = () => frag`
   fragment TagHistoryFragment on Tag {
-    ...TagBasicInfo
+    ...TagFragment
+    textLastUpdatedAt
+    tableOfContents
     user {
       ...UsersMinimumInfo
     }
+    lensesIncludingDeleted {
+      ...MultiDocumentContentDisplay
+    }
   }
-`);
+`
 
-registerFragment(`
+export const TagCreationHistoryFragment = () => frag`
   fragment TagCreationHistoryFragment on Tag {
     ...TagFragment
     user {
@@ -88,9 +105,9 @@ registerFragment(`
       html
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagRevisionFragment = () => frag`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
@@ -106,15 +123,16 @@ registerFragment(`
       html
       htmlHighlight
       plaintextDescription
+      editedAt
       
       user {
         ...UsersMinimumInfo
       }
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagPreviewFragment = () => frag`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -129,10 +147,11 @@ registerFragment(`
       htmlHighlight
     }
     canVoteOnRels
+    isArbitalImport
   }
-`);
+`
 
-registerFragment(`
+export const TagSectionPreviewFragment = () => frag`
   fragment TagSectionPreviewFragment on Tag {
     ...TagBasicInfo
     isRead
@@ -148,9 +167,9 @@ registerFragment(`
     }
     canVoteOnRels
   }
-`);
+`
 
-registerFragment(`
+export const TagSubforumFragment = () => frag`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     subforumModeratorIds
@@ -160,10 +179,10 @@ registerFragment(`
       html
     }
   }
-`);
+`
 
 // TODO: would prefer to fetch subtags in fewer places
-registerFragment(`
+export const TagSubtagFragment = () => frag`
   fragment TagSubtagFragment on Tag {
     _id
     subforumModeratorIds
@@ -171,15 +190,15 @@ registerFragment(`
       ...TagPreviewFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagSubforumSidebarFragment = () => frag`
   fragment TagSubforumSidebarFragment on Tag {
     ...TagBasicInfo
   }
-`);
+`
 
-registerFragment(`
+export const TagDetailedPreviewFragment = () => frag`
   fragment TagDetailedPreviewFragment on Tag {
     ...TagDetailsFragment
     description {
@@ -187,9 +206,9 @@ registerFragment(`
       htmlHighlight
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagWithFlagsFragment = () => frag`
   fragment TagWithFlagsFragment on Tag {
     ...TagFragment
     tagFlagsIds
@@ -197,9 +216,9 @@ registerFragment(`
       ...TagFlagFragment
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagWithFlagsAndRevisionFragment = () => frag`
   fragment TagWithFlagsAndRevisionFragment on Tag {
     ...TagRevisionFragment
     tagFlagsIds
@@ -207,9 +226,66 @@ registerFragment(`
       ...TagFlagFragment
     }
   }
-`);
+`
 
-registerFragment(`
+// This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
+export const ArbitalLinkedPagesFragment = () => frag`
+  fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
+    faster {
+      _id
+      name
+      slug
+    }
+    slower {
+      _id
+      name
+      slug
+    }
+    moreTechnical {
+      _id
+      name
+      slug
+    }
+    lessTechnical {
+      _id
+      name
+      slug
+    }
+    requirements {
+      _id
+      name
+      slug
+    }
+    teaches {
+      _id
+      name
+      slug
+    }
+    parents {
+      _id
+      name
+      slug
+    }
+    children {
+      _id
+      name
+      slug
+    }
+  }
+`
+
+export const TagPageArbitalContentFragment = () => frag`
+  fragment TagPageArbitalContentFragment on Tag {
+    lenses {
+      ...MultiDocumentWithContributors
+    }
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+  }
+`
+
+export const TagPageFragment = () => frag`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
@@ -228,25 +304,36 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        currentAttributionCharCount
         numCommits
         voteCount
       }
     }
     canVoteOnRels
+    forceAllowType3Audio
+    textLastUpdatedAt
   }
-`);
+`
 
-registerFragment(`
+export const TagPageWithArbitalContentFragment = () => frag`
+  fragment TagPageWithArbitalContentFragment on Tag {
+    ...TagPageFragment
+    ...TagPageArbitalContentFragment
+  }  
+`
+
+export const AllTagsPageFragment = () => frag`
   fragment AllTagsPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
   }
-`);
+`
 
-registerFragment(`
+export const TagPageWithRevisionFragment = () => frag`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
+    textLastUpdatedAt
     postsDefaultSortOrder
     subforumIntroPost {
       ...PostsListWithVotes
@@ -262,15 +349,24 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        currentAttributionCharCount
         numCommits
         voteCount
       }
     }
     canVoteOnRels
+    forceAllowType3Audio
   }
-`);
+`
 
-registerFragment(`
+export const TagPageRevisionWithArbitalContentFragment = () => frag`
+  fragment TagPageRevisionWithArbitalContentFragment on Tag {
+    ...TagPageWithRevisionFragment
+    ...TagPageArbitalContentFragment
+  }  
+`
+
+export const TagFullContributorsList = () => frag`
   fragment TagFullContributorsList on Tag {
     contributors {
       totalCount
@@ -279,14 +375,15 @@ registerFragment(`
           ...UsersMinimumInfo
         }
         contributionScore
+        currentAttributionCharCount
         numCommits
         voteCount
       }
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagEditFragment = () => frag`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     isPostType
@@ -312,9 +409,9 @@ registerFragment(`
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagRecentDiscussion = () => frag`
   fragment TagRecentDiscussion on Tag {
     ...TagFragment
     lastVisitedAt
@@ -322,18 +419,18 @@ registerFragment(`
       ...CommentsList
     }
   }
-`);
+`
 
-registerFragment(`
+export const SunshineTagFragment = () => frag`
   fragment SunshineTagFragment on Tag {
     ...TagFragment
     user {
       ...UsersMinimumInfo
     }
   }
-`);
+`
 
-registerFragment(`
+export const UserOnboardingTag = () => frag`
   fragment UserOnboardingTag on Tag {
     _id
     name
@@ -341,12 +438,73 @@ registerFragment(`
     bannerImageId
     squareImageId
   }
-`);
+`
 
-registerFragment(`
+export const TagName = () => frag`
   fragment TagName on Tag {
     _id
     name
     slug
   }
-`);
+`
+
+export const ExplorePageTagFragment = () => frag`
+  fragment ExplorePageTagFragment on Tag {
+    ...TagFragment
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        currentAttributionCharCount
+        numCommits
+        voteCount
+      }
+    }
+    legacyData
+  }
+`
+
+export const ConceptItemFragment = () => frag`
+  fragment ConceptItemFragment on Tag {
+    _id
+    core
+    name
+    slug
+    oldSlugs
+    postCount
+    baseScore
+    description {
+      _id
+      wordCount
+    }
+    wikiOnly
+    isArbitalImport
+    coreTagId
+    maxScore
+    usersWhoLiked {
+      _id
+      displayName
+    }
+  }
+`
+
+export const TagPageWithArbitalContentAndLensRevisionFragment = () => frag`
+  fragment TagPageWithArbitalContentAndLensRevisionFragment on Tag {
+    ...TagPageFragment
+    arbitalLinkedPages {
+      ...ArbitalLinkedPagesFragment
+    }
+    lenses(lensSlug: $lensSlug, version: $version) {
+      ...MultiDocumentWithContributorsRevision
+    }
+  }
+`
+
+export const WithVoteTag = () => frag`
+  fragment WithVoteTag on Tag {
+    ...TagBasicInfo
+  }
+`

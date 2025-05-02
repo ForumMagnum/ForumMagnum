@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
-import LocationIcon from '@material-ui/icons/LocationOn'
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import {
   SocialMediaProfileField,
@@ -155,7 +155,7 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   
   const userKarma = user.karma || 0
   const bioNode = (
-    user.biography?.html ||
+    user.htmlBio ||
     user.howICanHelpOthers?.html
   ) && <>
     <div
@@ -163,9 +163,9 @@ const SubforumMember = ({user, isOrganizer, classes}: {
       ref={bioRef}
       onClick={() => setCollapsed(false)}
     >
-      {user.biography?.html && <ContentStyles contentType="post" className={classes.bioContentStyles}>
+      {user.htmlBio && <ContentStyles contentType="post" className={classes.bioContentStyles}>
         <ContentItemBody
-          dangerouslySetInnerHTML={{__html: user.biography.html }}
+          dangerouslySetInnerHTML={{__html: user.htmlBio }}
           description={`user ${user._id} bio`}
           nofollow={userKarma < nofollowKarmaThreshold.get()}
         />

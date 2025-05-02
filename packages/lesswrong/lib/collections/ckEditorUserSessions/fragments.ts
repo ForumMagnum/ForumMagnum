@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper";
 
-registerFragment(`
+export const CkEditorUserSessionInfo = () => frag`
   fragment CkEditorUserSessionInfo on CkEditorUserSession {
     _id
     userId
@@ -8,4 +8,4 @@ registerFragment(`
     endedAt
     endedBy
   }
-`);
+`

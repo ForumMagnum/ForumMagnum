@@ -5,11 +5,11 @@ import { useMessages } from '../common/withMessages';
 import { userCanUseSharing } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
-import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PropTypes from 'prop-types';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
@@ -98,15 +98,10 @@ const noSharePermissionTooltip = isFriendlyUI
   ? "You need at least 1 karma or to be approved by a moderator to share this post"
   : "You need at least 1 karma or to be approved by a mod to share";
 
-const PostSharingSettings = ({document, formType, value, classes}: {
-  formType: "edit"|"new",
+const PostSharingSettings = ({document, formType, value, updateCurrentValues, submitForm, classes}: FormComponentProps<SharingSettings> & {
   document: PostsEditQueryFragment,
-  value: SharingSettings,
-  path: string,
-  label: string,
   classes: ClassesType<typeof styles>
-}, context: any) => {
-  const {updateCurrentValues, submitForm} = context;
+}) => {
   const {openDialog, closeDialog} = useDialog();
   const currentUser = useCurrentUser();
   const initialSharingSettings = value || defaultSharingSettings;
@@ -137,12 +132,13 @@ const PostSharingSettings = ({document, formType, value, classes}: {
     }
     
     openDialog({
-      componentName: "PostSharingSettingsDialog",
-      componentProps: {
-        post: document,
-        linkSharingKey: document.linkSharingKey ?? undefined,
-        initialSharingSettings,
-        onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
+      name: "PostSharingSettingsDialog",
+      contents: ({onClose}) => <Components.PostSharingSettingsDialog
+        onClose={onClose}
+        post={document}
+        linkSharingKey={document.linkSharingKey ?? undefined}
+        initialSharingSettings={initialSharingSettings}
+        onConfirm={async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
             await updateCurrentValues({
               sharingSettings: newSharingSettings,
@@ -162,9 +158,9 @@ const PostSharingSettings = ({document, formType, value, classes}: {
             }
           }
           closeDialog();
-        },
-        initialShareWithUsers: document.shareWithUsers || [],
-      },
+        }}
+        initialShareWithUsers={document.shareWithUsers || []}
+      />
     });
   }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
 
@@ -183,13 +179,6 @@ const PostSharingSettings = ({document, formType, value, classes}: {
       </EAButton>
     </LWTooltip>
 }
-
-(PostSharingSettings as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  submitForm: PropTypes.func,
-};
-
 
 const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
   // postId: string,

@@ -1,7 +1,7 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import ErrorIcon from '@material-ui/icons/ErrorOutline';
+import ErrorIcon from '@/lib/vendor/@material-ui/icons/src/ErrorOutline';
 import {
   userGetDisplayName,
   userGetProfileUrl,
@@ -17,6 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     transform: "translateY(4px)",
+    fontSize: 20,
   },
 });
 
@@ -34,7 +35,7 @@ const UsersNamePending = ({ user, classes }: {
   return (
     <LWTooltip title={tooltip} placement="right">
       <Link to={userGetProfileUrl(user)} className={classes.userName}>
-        {name} <ErrorIcon fontSize="small" className={classes.icon} />
+        {name} <ErrorIcon className={classes.icon} />
       </Link>
     </LWTooltip>
   );

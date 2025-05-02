@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
@@ -6,9 +6,9 @@ import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
-import PlusOneIcon from '@material-ui/icons/PlusOne';
-import UndoIcon from '@material-ui/icons/Undo';
-import ClearIcon from '@material-ui/icons/Clear';
+import PlusOneIcon from '@/lib/vendor/@material-ui/icons/src/PlusOne';
+import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import {DatabasePublicSetting} from "../../lib/publicSettings";
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -72,7 +72,7 @@ const AFSuggestPostsItem = ({post, classes}: {
   if (!currentUser) return null;
 
   const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
-  const userHasSelfSuggested = post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId)
+  const userHasSelfSuggested = post.suggestForAlignmentUsers && post.userId && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId)
 
   return (
     <span {...eventHandlers}>

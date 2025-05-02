@@ -3,19 +3,21 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
-import { useLocation } from '../../../lib/routeUtil';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useTagBySlug } from '../useTag';
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
+import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
+import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import qs from "qs";
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { getTagStructuredData } from '../TagPageRouter';
+import { taggingNamePluralSetting } from '@/lib/instanceSettings';
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { useCreate } from '@/lib/crud/withCreate';
 
 export const styles = (theme: ThemeType) => ({
   tabRow: {
@@ -184,17 +186,33 @@ const TagSubforumPage2 = ({classes}: {
     skip: !query.flagId
   })
 
-  const { results: userTagRelResults } = useMulti({
+  const skipUserTagRel = !tag || !currentUser
+
+  const { results: userTagRelResults, loading: userTagRelLoading } = useMulti({
     terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
     collectionName: "UserTagRels",
     fragmentName: "UserTagRelDetails",
-    // Create a new UserTagRel if none exists. The check for the existence of tagId and userId is
-    // in principle redundant because of `skip`, but it would be bad to create a UserTagRel with
-    // a null tagId or userId so be extra careful.
-    createIfMissing: tag?._id && currentUser?._id ? { tagId: tag?._id, userId: currentUser?._id } : undefined,
-    skip: !tag || !currentUser
+    skip: skipUserTagRel
   });
-  const userTagRel = userTagRelResults?.[0];
+
+  const { create: createUserTagRel, data: createdUserTagRelData, called: createUserTagRelCalled } = useCreate({
+    collectionName: "UserTagRels",
+    fragmentName: "UserTagRelDetails",
+  })
+
+  useEffect(() => {
+    // Create a new UserTagRel if none exists.  This is replacing the previous behavior of
+    // the legacy (since removed) `createIfMissing` in the `useMulti` call above.
+    // It's a bit slower than implementing a custom resolver that does both but
+    // I don't think subforums are even a thing right now; if the EA forum wants me to do that I can.
+    if (userTagRelResults?.length === 0 && !userTagRelLoading && !skipUserTagRel && !createUserTagRelCalled) {
+      void createUserTagRel({
+        data: { tagId: tag._id, userId: currentUser._id },
+      });
+    }
+  }, [userTagRelResults, userTagRelLoading, createUserTagRel, createUserTagRelCalled, tag, currentUser, skipUserTagRel]);
+
+  const userTagRel = createdUserTagRelData ?? userTagRelResults?.[0];
 
   // "feed" -> "card" for backwards compatibility, TODO remove after a month or so
   if (query.layout === "feed") {
@@ -252,7 +270,7 @@ const TagSubforumPage2 = ({classes}: {
     <div className={classNames(classes.header, classes.centralColumn)}>
       {query.flagId && (
         <span>
-          <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+          <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
             <TagFlagItem
               itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
               documentId={query.flagId}
@@ -345,7 +363,7 @@ const TagSubforumPage2 = ({classes}: {
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout
         titleComponent={titleComponent}
-        bannerImageId={tag.bannerImageId}
+        bannerImageId={tag.bannerImageId!}
         headerComponent={headerComponent}
         sidebarComponents={rightSidebarComponents[tab]}
       >

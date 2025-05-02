@@ -1,6 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import InputAdornment from '@material-ui/core/InputAdornment';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType) => ({
@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   icon: {
     height: 20,
     fill: theme.palette.grey[1000],
-    marginRight: 6
+    marginRight: 8
   },
   inputAdornment: {
     marginRight: 0,
@@ -24,6 +24,7 @@ const styles = (theme: ThemeType) => ({
 export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", SocialMediaSiteName> = {
   "linkedinProfileURL": "linkedin",
   "facebookProfileURL": "facebook",
+  "blueskyProfileURL": "bluesky",
   "twitterProfileURL": "twitter",
   "githubProfileURL": "github",
   "website": "website",

@@ -1,9 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import type { InputBaseComponentProps } from '@material-ui/core/InputBase';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
+import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
+import type { InputBaseComponentProps } from '@/lib/vendor/@material-ui/core/src/InputBase';
 
 const styles = (theme: ThemeType) => ({
   input: {

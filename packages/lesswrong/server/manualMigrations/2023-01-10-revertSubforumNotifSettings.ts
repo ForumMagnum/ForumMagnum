@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
-import { LWEvents } from '../../lib/collections/lwevents';
-import { Subscriptions } from '../../lib/collections/subscriptions';
-import UserTagRels from '../../lib/collections/userTagRels/collection';
+import { LWEvents } from '../../server/collections/lwevents/collection';
+import { Subscriptions } from '../../server/collections/subscriptions/collection';
+import UserTagRels from '../../server/collections/userTagRels/collection';
 import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
-import { getSchema } from '../../lib/utils/getSchema';
+import userTagRelsSchema from '@/lib/collections/userTagRels/newSchema';
 import { registerMigration } from './migrationUtils';
 
-registerMigration({
+export default registerMigration({
   name: "revertSubforumNotifSettings",
   dateWritten: "2023-01-10",
   idempotent: true,
@@ -95,8 +95,7 @@ registerMigration({
     }
     
     // Update all other UserTagRels to have the default value (false)
-    const schema = getSchema(UserTagRels);
-    const defaultValue = schema["subforumEmailNotifications"].defaultValue;
+    const defaultValue = userTagRelsSchema["subforumEmailNotifications"].database.defaultValue;
     console.log(`Setting subforumEmailNotifications to ${defaultValue} for all but ${userEditedTagRelIds.length} rows`)
     await UserTagRels.rawUpdateMany({_id: {$nin: userEditedTagRelIds}, subforumEmailNotifications: {$ne: defaultValue}}, {$set: {subforumEmailNotifications: defaultValue}})
   }

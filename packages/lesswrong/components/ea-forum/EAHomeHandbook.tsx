@@ -1,12 +1,12 @@
 import React from 'react'
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 
@@ -144,7 +144,7 @@ const EAHomeHandbook = ({ classes, documentId }: {
       <div className={classes.bannerContainer}>
         <div className={classes.bannerImgWrapper}>
           <CloudinaryImage2
-            publicId={document.bannerImageId}
+            publicId={document.bannerImageId ?? ''}
             height={bannerHeight}
             width={SECTION_WIDTH}
             objectFit='cover'

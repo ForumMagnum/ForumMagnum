@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { captureException } from "@sentry/core";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
@@ -8,13 +8,13 @@ import { useCreate } from "@/lib/crud/withCreate";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { CLIENT_ID_COOKIE, HIDE_SURVEY_SCHEDULE_IDS } from "@/lib/cookies/cookies";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Collapse from "@material-ui/core/Collapse";
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
+import Collapse from "@/lib/vendor/@material-ui/core/src/Collapse";
 import range from "lodash/range";
 import {
   SurveyQuestionFormat,
   surveyQuestionFormats,
-} from "@/lib/collections/surveyQuestions/schema";
+} from "@/lib/collections/surveyQuestions/newSchema";
 
 const styles = (theme: ThemeType) => ({
   root: {

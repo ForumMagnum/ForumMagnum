@@ -1,7 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-
-registerFragment(`
+export const TagRelVotes = () => frag`
   fragment TagRelVotes on Vote {
     _id
     userId
@@ -14,18 +13,18 @@ registerFragment(`
       ...WithVoteTagRel
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagVotingActivity = () => frag`
   fragment TagVotingActivity on Vote {
     ...TagRelVotes
     tagRel {
       ...TagRelFragment
     }
   }
-`)
+`
 
-registerFragment(`
+export const UserVotes = () => frag`
   fragment UserVotes on Vote {
     _id
     userId
@@ -37,9 +36,9 @@ registerFragment(`
     isUnvote
     collectionName
   }
-`);
+`
 
-registerFragment(`
+export const UserVotesWithDocument = () => frag`
   fragment UserVotesWithDocument on Vote {
     ...UserVotes
     comment {
@@ -49,4 +48,4 @@ registerFragment(`
       ...PostsListWithVotes
     }
   }
-`);
+`

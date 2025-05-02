@@ -1,12 +1,12 @@
-import { getUnusedSlugByCollectionName } from "@/lib/helpers";
 import { Profile } from "passport-auth0";
-import { slugify } from "../../lib/vulcan-lib/utils";
+import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
+import { slugify } from "@/lib/utils/slugify";
 
 export const auth0ProfilePath = "services.auth0";
 
 export const idFromAuth0Profile = (profile: Profile) => profile.id;
 
-export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbUser>> {
+export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbUser> & { displayName: string }> {
   const email = profile.emails?.[0].value
   const displayNameMatchesEmail = email === profile.displayName
   const displayName = displayNameMatchesEmail ?

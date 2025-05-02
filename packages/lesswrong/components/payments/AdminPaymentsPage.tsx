@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Table } from '@/components/widgets/Table';
+import { TableRow } from '@/components/widgets/TableRow';
+import { TableCell } from '@/components/widgets/TableCell';
 import { useCurrentUser } from '../common/withUser';
 import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/helpers";
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
@@ -65,7 +65,7 @@ export const AdminPaymentsPage = ({classes}: {
     const email = getUserEmail(user)
 
     return displayName.toLowerCase().includes(searchLower) || 
-      username.toLowerCase().includes(searchLower) || 
+      username?.toLowerCase().includes(searchLower) || 
       previousDisplayName?.toLowerCase().includes(searchLower) ||
       slug.toLowerCase().includes(searchLower) ||
       paymentEmail?.toLowerCase().includes(searchLower) ||

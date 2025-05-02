@@ -1,15 +1,15 @@
 import { registerMigration, migrateDocuments } from "./migrationUtils";
-import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
-import { EmailTokens } from "../../lib/collections/emailTokens/collection";
-import FeaturedResources from "../../lib/collections/featuredResources/collection";
-import LegacyData from "../../lib/collections/legacyData/collection";
-import Podcasts from "../../lib/collections/podcasts/collection";
-import PodcastEpisodes from "../../lib/collections/podcastEpisodes/collection";
-import DebouncerEvents from "../../lib/collections/debouncerEvents/collection";
-import Migrations from "../../lib/collections/migrations/collection";
-import ReadStatuses from "../../lib/collections/readStatus/collection";
-import {Votes} from "../../lib/collections/votes";
-import Revisions from "../../lib/collections/revisions/collection";
+import { DatabaseMetadata } from "../../server/collections/databaseMetadata/collection";
+import { EmailTokens } from "../../server/collections/emailTokens/collection";
+import FeaturedResources from "../../server/collections/featuredResources/collection";
+import LegacyData from "../../server/collections/legacyData/collection";
+import Podcasts from "../../server/collections/podcasts/collection";
+import PodcastEpisodes from "../../server/collections/podcastEpisodes/collection";
+import DebouncerEvents from "../../server/collections/debouncerEvents/collection";
+import Migrations from "../../server/collections/migrations/collection";
+import ReadStatuses from "../../server/collections/readStatus/collection";
+import { Votes } from "../../server/collections/votes/collection";
+import Revisions from "../../server/collections/revisions/collection";
 
 const initCreatedAt = <N extends CollectionNameString>(
   collection: CollectionBase<N>,
@@ -17,7 +17,7 @@ const initCreatedAt = <N extends CollectionNameString>(
 ): Promise<void> =>
   migrateDocuments({
     collection,
-    description: `Filling createdAt for ${collection.options.collectionName}`,
+    description: `Filling createdAt for ${collection.collectionName}`,
     batchSize: 2000,
     unmigratedDocumentQuery: {
       createdAt: {$exists: false},
@@ -56,7 +56,7 @@ const initCreatedAt = <N extends CollectionNameString>(
  *  - Revisions (editedAt)
  *  - Votes (votedAt)
  */
-registerMigration({
+export default registerMigration({
   name: "giveAllCollectionsCreatedAt",
   dateWritten: "2022-09-08",
   idempotent: true,

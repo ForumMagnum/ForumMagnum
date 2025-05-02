@@ -1,17 +1,39 @@
-import { Vulcan } from '../../lib/vulcan-lib';
-import { Posts } from '../../lib/collections/posts';
-import Users from '../../lib/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import Users from '../../server/collections/users/collection';
 import {
   createDummyMessage,
   createDummyConversation,
   createDummyPost,
   createDummyComment,
 } from '../../integrationTests/utils';
-import { performSubscriptionAction } from '../../lib/collections/subscriptions/mutations';
+import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations';
 import moment from 'moment';
 import * as _ from 'underscore';
+import { createSubscription } from '../collections/subscriptions/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
-Vulcan.populateNotifications = async ({username, messageNotifications = 3, postNotifications = 3, commentNotifications = 3, replyNotifications = 3}: {
+
+/**
+ * @summary Perform the un/subscription after verification: update the collection item & the user
+ * @param {String} action
+ * @param {Collection} collection
+ * @param {String} itemId
+ * @param {Object} user: current user (xxx: legacy, to replace with this.userId)
+ * @returns {Boolean}
+ */
+export const performSubscriptionAction = async (action: "subscribe"|"unsubscribe", collection: CollectionBase<any>, itemId: string, user: DbUser) => {
+  const collectionName = collection.collectionName
+  const newSubscription = {
+    state: action === "subscribe" ? 'subscribed' : 'suppressed',
+    documentId: itemId,
+    collectionName,
+    type: (defaultSubscriptionTypeTable as any)[collectionName]
+  } as const;
+
+  await createSubscription({ data: newSubscription }, await computeContextFromUser({ user, isSSR: false }));
+};
+
+export const populateNotifications = async ({username, messageNotifications = 3, postNotifications = 3, commentNotifications = 3, replyNotifications = 3}: {
   username: string,
   messageNotifications?: number,
   postNotifications?: number,
@@ -163,7 +185,7 @@ function makeStyledBody() {
   return result.join("");
 }
 
-Vulcan.createStyledPost = async () => {
+export const createStyledPost = async () => {
   const user = await Users.findOneArbitrary();
   // Create a post
 
@@ -191,7 +213,7 @@ Vulcan.createStyledPost = async () => {
   })
 }
 
-Vulcan.createStyledAFPost = async () => {
+export const createStyledAFPost = async () => {
   const user = await Users.findOneArbitrary();
   // Create a post
 
@@ -220,7 +242,7 @@ Vulcan.createStyledAFPost = async () => {
   })
 }
 
-Vulcan.createStyledQuestion = async () => {
+export const createStyledQuestion = async () => {
   const user = await Users.findOneArbitrary();
   // Create a post
 
@@ -253,50 +275,50 @@ Vulcan.createStyledQuestion = async () => {
 // problems. This is meant to be invoked from 'meteor shell'. It is
 // slow.
 
-Vulcan.createTestPostSet = async () =>
+export const createTestPostSet = async () =>
 {
   //eslint-disable-next-line no-console
   console.log("Creating a set of bulky posts to test for load-time problems. This may take awhile...");
 
-  await Vulcan.createStyledPost()
-  await Vulcan.createStyledAFPost()
-  await Vulcan.createStyledQuestion()
+  await createStyledPost()
+  await createStyledAFPost()
+  await createStyledQuestion()
 
-  await Vulcan.createBulkyTestPost({
+  await createBulkyTestPost({
     postTitle: "Test post with 100 flat comments",
     numRootComments: 100
   });
-  await Vulcan.createBulkyTestPost({
+  await createBulkyTestPost({
     postTitle: "Test post with 1000 flat comments",
     numRootComments: 1000
   });
-  await Vulcan.createBulkyTestPost({
+  await createBulkyTestPost({
     postTitle: "Test post with multiple 50-deep comments",
     numRootComments: 3,
     commentDepth: 50
   });
-  await Vulcan.createBulkyTestPost({
+  await createBulkyTestPost({
     postTitle: "Test post with 1000-deep comments",
     numRootComments: 1,
     commentDepth: 1000
   });
-  await Vulcan.createBulkyTestPost({
+  await createBulkyTestPost({
     postTitle: "Test post with a 500-paragraph long post body",
     postParagraphCount: 500,
     numRootComments: 1,
   });
-  await Vulcan.createBulkyTestPost({
+  await createBulkyTestPost({
     postTitle: "Test post with a 500-paragraph long comment body",
     commentParagraphCount: 500,
     numRootComments: 1,
   });
-  await Vulcan.createBulkyTestPost({
+  await createBulkyTestPost({
     postTitle: "Test post with a 100kb-long single paragraph body",
     postParagraphCount: 1,
     postParagraphLength: 100000,
     numRootComments: 1,
   });
-  await Vulcan.createBulkyTestPost({
+  await createBulkyTestPost({
     postTitle: "Test post with a 100kb-long single comment body",
     commentParagraphCount: 1,
     commentParagraphLength: 100000,
@@ -308,10 +330,10 @@ Vulcan.createTestPostSet = async () =>
 
 // Create a single test post, which is bulky in one or more of a
 // number of different ways, controlled by arguments. Used for testing
-// for loading time problems. Vulcan.createTestPostSet() will invoke
+// for loading time problems. createTestPostSet() will invoke
 // this in different ways with pretty good coverage of the problems
 // it's capable uncovering.
-Vulcan.createBulkyTestPost = async ({
+export const createBulkyTestPost = async ({
   username = null,
   postTitle = "Test Post With Many Comments",
   postParagraphCount = 3,
@@ -320,8 +342,8 @@ Vulcan.createBulkyTestPost = async ({
   commentParagraphLength = 800,
   numRootComments = 100,
   commentDepth = 1,
-  backDate = null}) =>
-{
+  backDate = null as Date|null
+}) => {
   var user;
   if(username)
     user = await Users.findOne({username});
@@ -381,14 +403,14 @@ Vulcan.createBulkyTestPost = async ({
 
 // Create a set of test posts that are back-dated, one per hour for the past
 // ten days. Primarily for testing time-zone handling on /allPosts (in daily mode).
-Vulcan.createBackdatedPosts = async () =>
+export const createBackdatedPosts = async () =>
 {
   //eslint-disable-next-line no-console
   console.log("Creating back-dated test post set");
 
   for(let i=0; i<24*10; i++) {
     const backdateTime = moment().subtract(i, 'hours').toDate();
-    await Vulcan.createBulkyTestPost({
+    await createBulkyTestPost({
       postTitle: "Test post backdated by "+i+" hours",
       numRootComments: 0,
       backDate: backdateTime,

@@ -5,8 +5,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery, gql } from '@apollo/client';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 
 const styles = (theme: ThemeType) => ({
   selectUser: {
@@ -184,7 +184,7 @@ const AltAccountsNodeUser = ({user, classes}: {
             <div>Client IDs</div>
             <ul>
               {user.associatedClientIds.map(clientId => <li key={clientId.clientId}>
-                <AltAccountsNodeClientID clientId={clientId.clientId} classes={classes}/>
+                <AltAccountsNodeClientID clientId={clientId.clientId!} classes={classes}/>
               </li>)}
             </ul>
           </li>
@@ -233,7 +233,7 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
     {clientIdInfo && <div>
       <div>First seen referrer: {clientIdInfo.firstSeenReferrer}</div>
       <div>First seen landing page: {clientIdInfo.firstSeenLandingPage}</div>
-      <div>First seen: <FormatDate date={clientIdInfo.createdAt}/></div>
+      <div>First seen: <FormatDate date={clientIdInfo.createdAt!}/></div>
       <ul>
         {expanded
           ? <li className={classes.openListItem}>

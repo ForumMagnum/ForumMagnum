@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Checkbox from '@material-ui/core/Checkbox';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
 
 const coauthorsListEditorStyles = (theme: ThemeType) => ({

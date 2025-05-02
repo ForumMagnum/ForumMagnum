@@ -1,32 +1,39 @@
 import React from 'react';
 import { useDialog } from '../common/withDialog';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers'
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import HistoryIcon from '@material-ui/icons/History';
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import LockIcon from '@material-ui/icons/Lock';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import EditOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/EditOutlined';
+import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
+import { isLWorAF } from '@/lib/instanceSettings';
+import type { TagLens } from '@/lib/arbital/useTagLenses';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+
+const PODCAST_ICON_SIZE = 20;
+const PODCAST_ICON_PADDING = 3;
 
 const styles = (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
-    marginTop: 2,
-    marginBottom: 16,
+    marginTop: isFriendlyUI ? 2 : undefined,
+    marginBottom: isFriendlyUI ? 16 : undefined,
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
+    columnGap: 16,
     [theme.breakpoints.down('xs')]: {
-      marginTop: 8,
+      marginTop: isFriendlyUI ? 8 : undefined,
     },
     '& svg': {
       height: 20,
       width: 20,
-      marginRight: 4,
       marginBottom: 1, // JP it's fine, stop adjusting single pixels
       cursor: "pointer",
       color: theme.palette.grey[700]
@@ -43,6 +50,9 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
     },
   },
+  likeButtonWrapper: {
+    fontSize: 12,
+  },
   buttonTooltip: {
     display: "flex",
     alignItems: "center",
@@ -50,7 +60,6 @@ const styles = (theme: ThemeType) => ({
   button: {
     display: "flex",
     alignItems: "center",
-    marginRight: 16,
   },
   buttonLabel: {
     [theme.breakpoints.down('sm')]: {
@@ -60,7 +69,6 @@ const styles = (theme: ThemeType) => ({
   lockIcon: {
     display: "flex",
     alignItems: "center",
-    marginRight: 16,
     '&:hover': {
       opacity: 1
     },
@@ -70,9 +78,16 @@ const styles = (theme: ThemeType) => ({
   },
   subscribeToWrapper: {
     display: "flex !important",
+    ...(isFriendlyUI ? {
+    } : {
+      marginLeft: -2,
+      marginRight: -5,
+      '& .MuiListItemIcon-root': {
+        marginRight: "unset !important",
+      },
+    }),
   },
   subscribeTo: {
-    marginRight: 16
   },
   helpImprove: {
     [theme.breakpoints.down('sm')]: {
@@ -82,40 +97,127 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     ...theme.typography.italic,
   },
+  newLensIcon: {},
+  togglePodcastContainer: {
+    alignSelf: 'center',
+    color: theme.palette.text.dim3,
+    height: PODCAST_ICON_SIZE,
+  },
+  audioIcon: {
+    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
+    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
+    padding: PODCAST_ICON_PADDING,
+    transform: isFriendlyUI ? undefined : `translateY(-3px)`,
+    marginRight: -3
+  },
+  audioIconOn: {
+    background: theme.palette.icon.dim05,
+    borderRadius: theme.borderRadius.small,
+  },
 });
 
-const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
-  tag: TagPageWithRevisionFragment | TagPageFragment,
-  editing: boolean,
-  setEditing: (editing: boolean) => void,
-  className?: string,
-  classes: ClassesType<typeof styles>
+/**
+ * Returns whether the current user can edit the tag, and if not, why not.
+ * 
+ * IMPORTANT: this does not return false if the user is logged out.  You need to check that separately.
+ */
+export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPageFragment | null, alreadyEditing: boolean, currentUser: UsersCurrent | null) {
+  if (!tag) return { canEdit: false, noEditNotAuthor: false, noEditKarmaTooLow: false };
+
+  const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
+  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)));
+  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
+  const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
+
+  return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
+}
+const TagPageButtonRow = ({
+  tag,
+  selectedLens,
+  editing,
+  setEditing,
+  hideLabels = false,
+  className,
+  refetchTag,
+  updateSelectedLens,
+  toggleEmbeddedPlayer,
+  showEmbeddedPlayer,
+  classes
+}: {
+  tag: TagPageWithRevisionFragment | TagPageFragment | TagPageWithArbitalContentFragment;
+  selectedLens?: TagLens;
+  editing: boolean;
+  setEditing: (editing: boolean) => void;
+  hideLabels?: boolean;
+  className?: string;
+  refetchTag?: () => Promise<void>;
+  updateSelectedLens?: (lensId: string) => void;
+  toggleEmbeddedPlayer?: () => void;
+  showEmbeddedPlayer?: boolean;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
-  const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
+  const {
+    LWTooltip,
+    NotifyMeButton,
+    TagDiscussionButton,
+    ContentItemBody,
+    ForumIcon,
+    TagOrLensLikeButton,
+    TagPageActionsMenuButton
+  } = Components;
+  const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment");
+
+  const { captureEvent } = useTracking();
 
   const numFlags = tag.tagFlagsIds?.length
 
+  function handleNewLensClick() {
+    captureEvent('tagPageButtonRowNewLensClick');
+    if (!currentUser) {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
+      });
+      return;
+    }
+
+    if (!refetchTag || !updateSelectedLens) return;
+    openDialog({
+      name: "NewLensDialog",
+      contents: ({onClose}) => <Components.NewLensDialog
+        onClose={onClose}
+        tag={tag}
+        refetchTag={refetchTag}
+        updateSelectedLens={updateSelectedLens}
+      />
+    });
+  }
+
   function handleEditClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    captureEvent('tagPageButtonRowEditClick');
     if (currentUser) {
       setEditing(true)
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose} />
       });
       e.preventDefault();
     }
   }
 
-  const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0
-  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)))
-  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit")
-  const canEdit = !editing && !noEditKarmaTooLow && !noEditNotAuthor
+  const { canEdit, noEditNotAuthor, noEditKarmaTooLow } = useTagEditingRestricted(tag, editing, currentUser);
+  
+  const undeletedLensCount = 'lenses' in tag ? tag.lenses.filter(lens => !lens.deleted).length : 0;
+  const canCreateLens = !editing
+    && canEdit
+    && (!!refetchTag && !!updateSelectedLens)
+    && (undeletedLensCount < 5)
+    && isLWorAF;
 
-  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags || beginnersGuideContentTag
+  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || (numFlags && !isLWorAF) || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
     {noEditNotAuthor && <>
       <div>
@@ -129,7 +231,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
     </div>
     <br />
     </>}
-    {!!numFlags && <>
+    {!!numFlags && !isLWorAF && <>
       <div>
         This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
         {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i + 1) < tag.tagFlags?.length && ", "}</span>)}
@@ -140,49 +242,85 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
       dangerouslySetInnerHTML={{ __html: beginnersGuideContentTag?.description?.html || "" }}
       description={`tag ${tag?.name}`}
     />
-  </>
+  </>;
 
-  return <div className={classNames(classes.buttonsRow, className)}>
-    {!editing && <LWTooltip
-      className={classes.buttonTooltip}
-      title={editTooltip}
-    >
-      {canEdit ? (<a className={classes.button} onClick={handleEditClick}>
-        <EditOutlinedIcon /><span className={classes.buttonLabel}>
-          Edit
+  // Audio toggle element
+  const audioToggle = isTagAllowedType3Audio(tag) && toggleEmbeddedPlayer && (
+    <LWTooltip title={'Listen to this page'} className={classes.togglePodcastContainer}>
+      <a href="#" onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleEmbeddedPlayer();
+      }}>
+        <ForumIcon 
+          icon="VolumeUp" 
+          className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} 
+        />
+        <span className={classes.buttonLabel}>
+          {!hideLabels && "Listen"}
         </span>
-      </a>) : (
-        <a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/><span className={classes.buttonLabel}>
-          Edit
-        </span></a>)}
-    </LWTooltip>}
-    {<Link
-      className={classes.button}
-      to={tagGetHistoryUrl(tag)}
-    >
-      <HistoryIcon /><span className={classes.buttonLabel}>History</span>
-    </Link>}
-    {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-      <NotifyMeButton
-        document={tag}
-        className={classes.subscribeTo}
-        showIcon
-        hideLabelOnMobile
-        subscribeMessage="Subscribe"
-        unsubscribeMessage="Unsubscribe"
-        subscriptionType={subscriptionTypes.newTagPosts}
-      />
-    </LWTooltip>}
-    {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabelOnMobile /></div>}
-    {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
-      className={classes.helpImprove}
-      title={editTooltip}
-    >
-      <a onClick={handleEditClick}>
-        Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
       </a>
-    </LWTooltip>}
-  </div>
+    </LWTooltip>
+  );
+
+  return <AnalyticsContext pageSectionContext="tagPageButtonRow">
+    <div className={classNames(classes.buttonsRow, className)}>
+      {audioToggle}
+      {!editing && <LWTooltip
+        className={classes.buttonTooltip}
+        title={editTooltip}
+      >
+        {canEdit ? (<a className={classes.button} onClick={handleEditClick}>
+          <EditOutlinedIcon />
+          <span className={classes.buttonLabel}>
+            {!hideLabels && "Edit"}
+          </span>
+        </a>) : (<a className={classes.lockIcon} onClick={() => {}}><LockIcon className={classes.lockIcon}/>
+          <span className={classes.buttonLabel}>
+            {!hideLabels && "Edit"}
+          </span>
+        </a>)}
+      </LWTooltip>}
+      {<Link
+        className={classes.button}
+        to={tagGetHistoryUrl(tag)}
+      >
+        <HistoryIcon /><span className={classes.buttonLabel}>
+          {!hideLabels && "History"}
+        </span>
+      </Link>}
+      {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+        <NotifyMeButton
+          document={tag}
+          className={classes.subscribeTo}
+          showIcon
+          hideLabel={hideLabels}
+          hideLabelOnMobile
+          subscribeMessage="Subscribe"
+          unsubscribeMessage="Unsubscribe"
+          subscriptionType={subscriptionTypes.newTagPosts}
+        />
+      </LWTooltip>}
+      {<div className={classes.button}><TagDiscussionButton tag={tag} hideLabel={hideLabels} hideLabelOnMobile hideParens /></div>}
+      {selectedLens && <div className={classes.likeButtonWrapper}>
+        <TagOrLensLikeButton lens={selectedLens} isSelected={true} stylingVariant="buttonRow" />
+      </div>}
+      {!userHasNewTagSubscriptions(currentUser) && !hideLabels && <LWTooltip
+        className={classes.helpImprove}
+        title={editTooltip}
+      >
+        <a onClick={handleEditClick}>
+          Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
+        </a>
+      </LWTooltip>}
+      
+      {isLWorAF && <TagPageActionsMenuButton
+        tagOrLens={selectedLens}
+        createLens={canCreateLens ? handleNewLensClick : null}
+        handleEditClick={!editing && canEdit ? handleEditClick : null}
+      />}
+    </div>
+  </AnalyticsContext>
 }
 
 const TagPageButtonRowComponent = registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });

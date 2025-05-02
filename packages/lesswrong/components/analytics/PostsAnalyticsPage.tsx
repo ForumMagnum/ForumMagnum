@@ -1,14 +1,14 @@
 import React from "react";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useLocation } from "../../lib/routeUtil";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { canUserEditPostMetadata, postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { userIsAdminOrMod } from "../../lib/vulcan-users";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableRow from "@material-ui/core/TableRow";
-import TableCell from "@material-ui/core/TableCell";
+import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
+import { Table } from "@/components/widgets/Table"
+import { TableBody } from "@/components/widgets/TableBody"
+import { TableRow } from "@/components/widgets/TableRow"
+import { TableCell } from "@/components/widgets/TableCell"
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import { Link } from "../../lib/reactRouterWrapper";
 import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";

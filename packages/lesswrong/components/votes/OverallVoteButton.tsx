@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
@@ -42,8 +42,8 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
     
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <Components.LoginPopup onClose={onClose}/>
       });
     } else {
       vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});

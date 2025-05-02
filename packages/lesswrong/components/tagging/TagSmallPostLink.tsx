@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
@@ -47,6 +47,9 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "unset",
     lineHeight: "1.1em",
     marginBottom: 4,
+    ...(isFriendlyUI && {
+      lineHeight: '1.2em'
+    }),
   },
   author: {
     marginRight: 0,

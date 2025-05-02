@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { MuiThemeProvider } from '@/lib/vendor/@material-ui/core/src/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';

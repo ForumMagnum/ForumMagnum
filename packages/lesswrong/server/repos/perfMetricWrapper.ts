@@ -1,5 +1,5 @@
 import { performanceMetricLoggingEnabled } from "../../lib/instanceSettings";
-import { asyncLocalStorage, closePerfMetric, openPerfMetric } from "../perfMetrics";
+import { asyncLocalStorage, closePerfMetric, getParentTraceId, openPerfMetric } from "../perfMetrics";
 
 type Constructor<TResult, TParams extends any[] = any[]> = new (
   ...params: TParams
@@ -22,13 +22,7 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
     }
 
     const asyncContext = asyncLocalStorage.getStore();
-
-    let parentTraceIdField;
-    if (asyncContext) {
-      parentTraceIdField = { parent_trace_id: asyncContext.resolverContext?.perfMetric?.trace_id }
-    } else {
-      parentTraceIdField = {};
-    }
+    const parentTraceIdField = getParentTraceId();
 
     const opName = `${repoName}.${methodName}`;
 

@@ -1,8 +1,6 @@
 import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
-import Users from "../../lib/collections/users/collection";
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib";
 import {
   ApiError,
   UnauthorizedError,
@@ -10,7 +8,7 @@ import {
   TOS_NOT_ACCEPTED_REMOTE_ERROR,
 } from "./errors";
 import {
-  validateCrosspostingKarmaThreshold,
+  assertCrosspostingKarmaThreshold,
   fmCrosspostTimeoutMsSetting,
 } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
@@ -24,6 +22,8 @@ import {
   connectCrossposterRoute,
   unlinkCrossposterRoute,
 } from "@/lib/fmCrosspost/routes";
+import { gql } from "apollo-server-express";
+import Users from "../collections/users/collection";
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
@@ -102,66 +102,67 @@ const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
   return validatedResponse.right;
 }
 
-const crosspostResolvers = {
-  Mutation: {
-    connectCrossposter: async (
-      _root: void,
-      {token}: ConnectCrossposterArgs,
-      {req, currentUser}: ResolverContext,
-    ) => {
-      const localUserId = getUserId(req);
+export const fmCrosspostGraphQLTypeDefs = gql`
+  extend type Mutation {
+    connectCrossposter(token: String): String
+    unlinkCrossposter: String
+  }
+  extend type Query {
+    getCrosspost(args: JSON): JSON
+  }
+`
 
-      // Throws an error if user doesn't have enough karma on the receiving forum (which is the current execution environment)
-      validateCrosspostingKarmaThreshold(currentUser);
-
-      const {foreignUserId} = await makeV2CrossSiteRequest(
-        connectCrossposterRoute,
-        {token, localUserId},
-        "Failed to connect accounts for crossposting",
+export const fmCrosspostGraphQLMutations = {
+  connectCrossposter: async (
+    _root: void,
+    {token}: ConnectCrossposterArgs,
+    {req, currentUser}: ResolverContext,
+  ) => {
+    const localUserId = getUserId(req);
+    assertCrosspostingKarmaThreshold(currentUser);
+    const {foreignUserId} = await makeV2CrossSiteRequest(
+      connectCrossposterRoute,
+      {token, localUserId},
+      "Failed to connect accounts for crossposting",
+    );
+    await Users.rawUpdateOne({_id: localUserId}, {
+      $set: {fmCrosspostUserId: foreignUserId},
+    });
+    return "success";
+  },
+  unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
+    const localUserId = getUserId(req);
+    const foreignUserId = req?.user?.fmCrosspostUserId;
+    if (foreignUserId) {
+      const token = await connectCrossposterToken.create({
+        userId: foreignUserId,
+      });
+      await makeV2CrossSiteRequest(
+        unlinkCrossposterRoute,
+        {token},
+        "Failed to unlink crossposting accounts",
       );
       await Users.rawUpdateOne({_id: localUserId}, {
-        $set: {fmCrosspostUserId: foreignUserId},
+        $unset: {fmCrosspostUserId: ""},
       });
       return "success";
-    },
-    unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
-      const localUserId = getUserId(req);
-      const foreignUserId = req?.user?.fmCrosspostUserId;
-      if (foreignUserId) {
-        const token = await connectCrossposterToken.create({
-          userId: foreignUserId,
-        });
-        await makeV2CrossSiteRequest(
-          unlinkCrossposterRoute,
-          {token},
-          "Failed to unlink crossposting accounts",
-        );
-        await Users.rawUpdateOne({_id: localUserId}, {
-          $unset: {fmCrosspostUserId: ""},
-        });
-      }
-      return "success";
-    },
-  },
-  Query: {
-    getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
-      const key = stringify(args);
-      let promise = isE2E ? null : foreignPostCache.get(key);
-      if (!promise) {
-        promise = makeCrossSiteRequest(
-          'getCrosspost',
-          args,
-          'Failed to get crosspost'
-        );
-        foreignPostCache.set(key, promise);
-      }
-      const {document} = await promise;
-      return document;
     }
-  }
-};
+  },
+}
 
-addGraphQLResolvers(crosspostResolvers);
-addGraphQLMutation("connectCrossposter(token: String): String");
-addGraphQLMutation("unlinkCrossposter: String");
-addGraphQLQuery("getCrosspost(args: JSON): JSON");
+export const fmCrosspostGraphQLQueries = {
+  getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
+    const key = stringify(args);
+    let promise = isE2E ? null : foreignPostCache.get(key);
+    if (!promise) {
+      promise = makeCrossSiteRequest(
+        'getCrosspost',
+        args,
+        'Failed to get crosspost'
+      );
+      foreignPostCache.set(key, promise);
+    }
+    const {document} = await promise;
+    return document;
+  }
+}

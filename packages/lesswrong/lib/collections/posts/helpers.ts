@@ -1,11 +1,9 @@
 import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
-import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting } from '../../publicSettings';
-import Localgroups from '../localgroups/collection';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
@@ -39,8 +37,8 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 ///////////////////
 
 // Get a post author's name
-export const postGetAuthorName = async function (post: DbPost): Promise<string> {
-  var user = await mongoFindOne("Users", post.userId);
+export const postGetAuthorName = async function (post: DbPost, context: ResolverContext): Promise<string> {
+  var user = await context.Users.findOne({_id: post.userId});
   if (user) {
     return userGetDisplayName(user);
   } else {
@@ -61,7 +59,7 @@ export const postGetStatusName = function (post: DbPost): string {
 };
 
 // Check if a post is approved
-export const postIsApproved = function (post: DbPost): boolean {
+export const postIsApproved = function (post: Pick<DbPost, '_id' | 'status'>): boolean {
   return post.status === postStatuses.STATUS_APPROVED;
 };
 
@@ -238,14 +236,14 @@ export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null 
  * @param post
  * @returns {Promise} Promise object resolves to true if the post has a group and the user is an organizer for that group
  */
-export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost, context: ResolverContext|null): Promise<boolean> => {
+export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost, context: ResolverContext): Promise<boolean> => {
+  const { loaders } = context;
+
   const groupId = ('group' in post) ? post.group?._id : post.groupId;
   if (!user || !groupId)
     return false
     
-  const group = context
-    ? await context.loaders.Localgroups.load(groupId)
-    : await Localgroups.findOne({_id: groupId});
+  const group = await loaders.Localgroups.load(groupId);
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
@@ -277,7 +275,7 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
   }
   const organizerIds = post.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
-  return (userOwns(currentUser, post) || isPostGroupOrganizer) && post.draft
+  return (userOwns(currentUser, post) || isPostGroupOrganizer) && !!post.draft
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {
@@ -328,9 +326,9 @@ export const isNotHostedHere = (post: PostsPage|DbPost) => {
 }
 
 const mostRelevantTag = (
-  tags: TagPreviewFragment[],
+  tags: TagBasicInfo[],
   tagRelevance: Record<string, number>,
-): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+): TagBasicInfo | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
 
 export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
   const {tags, tagRelevance} = post;
@@ -340,7 +338,7 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   return typeof result === "object" ? result : undefined;
 }
 
-const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
+export const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
 const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
 /** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */
@@ -411,7 +409,7 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
   return false;
 }
 
-export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean => {
+export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase & keyof DbPost> | PostsBase): boolean => {
   // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
   // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
   // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
@@ -428,3 +426,15 @@ export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean =
     || post._id === aboutPostIdSetting.get()
   );
 };
+
+export const postIsPublic = (post: Pick<DbPost, '_id' | 'draft' | 'status'>) => {
+  return !post.draft && post.status === postStatuses.STATUS_APPROVED
+};
+
+export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>;
+
+export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
+  if (post.userId === userId) return true 
+  if (getConfirmedCoauthorIds(post).includes(userId)) return true
+  return false
+}

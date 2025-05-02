@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import {useCurrentUser} from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { ConnectedUserInfo } from './CKPostEditor';
 
 const styles = (theme: ThemeType) => ({
@@ -58,7 +58,7 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   
   const canCommentOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "comment");
   const canEditOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "edit");
-  const alwaysShownUserIds = [post.userId, ...(post.coauthorStatuses?.map(u=>u.userId) ?? [])]
+  const alwaysShownUserIds = [post.userId ?? '', ...(post.coauthorStatuses?.map(u=>u.userId) ?? [])]
 
   if (isFriendlyUI && post.collabEditorDialogue) {
     return null;

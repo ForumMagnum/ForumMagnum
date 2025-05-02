@@ -1,13 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import React from 'react';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import DoneIcon from '@material-ui/icons/Done';
-import DeleteIcon from '@material-ui/icons/Delete';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
+import DeleteIcon from '@/lib/vendor/@material-ui/icons/src/Delete';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
+import PersonOutlineIcon from '@/lib/vendor/@material-ui/icons/src/PersonOutline'
 import { Link } from '../../lib/reactRouterWrapper'
 
 const styles = (_theme: ThemeType) => ({
@@ -117,7 +117,7 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
           </>}
           {reportedUser && <div>
             <Link to={report.link} className={classes.reportedUser}>
-              <strong><UsersName user={reportedUser} /></strong>
+              <strong><UsersName user={reportedUser} simple={true} /></strong>
               <PersonOutlineIcon className={classes.reportedUserIcon}/>
             </Link>
           </div>}

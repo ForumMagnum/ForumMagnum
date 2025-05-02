@@ -1,12 +1,12 @@
 import React, { FC, PropsWithChildren } from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import PersonIcon from '@material-ui/icons/Person'
-import HomeIcon from '@material-ui/icons/Home';
-import StarIcon from '@material-ui/icons/Star';
-import SubjectIcon from '@material-ui/icons/Subject';
-import TagIcon from '@material-ui/icons/LocalOffer';
-import EventIcon from '@material-ui/icons/Event';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
+import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
+import SubjectIcon from '@/lib/vendor/@material-ui/icons/src/Subject';
+import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
+import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
+import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
@@ -21,6 +21,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim2,
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
+    ...(isFriendlyUI && {
+      color: theme.palette.grey[800],
+      fontWeight: 600
+    }),
   },
   icon: {
     fontSize: "1.3rem",
@@ -28,6 +32,9 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 3,
     marginRight: 4,
+    ...(isFriendlyUI && {
+      color: theme.palette.grey[800]
+    }),
   },
   tooltipTitle: {
     marginBottom: 8,

@@ -1,5 +1,6 @@
 import { registerMigration } from "./migrationUtils";
-import { createAdminContext, updateMutator } from "../vulcan-lib";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { updateUser } from "../collections/users/mutations";
 
 const testGroupIds = [
   '28WuQvZZ8sApvFZ5j',
@@ -867,7 +868,7 @@ const testGroupIds = [
   'ZZjFdHpS9mPCTkzZJ'
 ];
 
-registerMigration({
+export default registerMigration({
   name: "assignSecondRecommendationTestGroup",
   dateWritten: "2024-06-17",
   idempotent: true,
@@ -876,15 +877,11 @@ registerMigration({
     const { Users } = adminContext;
 
     for (const userId of testGroupIds) {
-      await updateMutator({
-        collection: Users,
-        context: adminContext,
-        currentUser: adminContext.currentUser,
-        documentId: userId,
-        set: {
+      await updateUser({
+        data: {
           frontpageSelectedTab: 'recombee-hybrid'
-        }
-      });
+        }, selector: { _id: userId }
+      }, adminContext);
     }
   }
 });

@@ -1,11 +1,12 @@
 import moment from "moment";
-import { Posts } from "../../lib/collections/posts";
-import { Globals, createAdminContext, createMutator } from "../vulcan-lib";
+import { Posts } from "../../server/collections/posts/collection";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
-import Tags from "../../lib/collections/tags/collection";
-import Users from "../../lib/collections/users/collection";
+import Tags from "../../server/collections/tags/collection";
+import Users from "../../server/collections/users/collection";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 
-async function bestOfLessWrongTagUpdate () {
+// Exported to allow running manually with "yarn repl"
+export async function bestOfLessWrongTagUpdate () {
   const tag = await Tags.findOne({slug: "best-of-lesswrong"});
   const user = await Users.findOne({displayName: "Raemon"});
   const context = createAdminContext();
@@ -27,4 +28,3 @@ async function bestOfLessWrongTagUpdate () {
   }
 }
 
-Globals.bestOfLessWrongTagUpdate = bestOfLessWrongTagUpdate;

@@ -1,32 +1,11 @@
-/*
-
-Utilities
-
-*/
-
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import getSlug from 'speakingurl';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
-import type { ToCData } from '../../lib/tableOfContents';
 import sanitizeHtml from 'sanitize-html';
-import { containsKana, fromKana } from "hepburn";
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
-
-interface UtilsType {
-  // In server/vulcan-lib/mutators.ts
-  createMutator: CreateMutator
-  updateMutator: UpdateMutator
-  deleteMutator: DeleteMutator
-  
-  // In server/vulcan-lib/utils.ts
-  performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
-}
-
-export const Utils: UtilsType = ({} as UtilsType);
 
 // @summary Convert a camelCase string to a space-separated capitalized string
 // See http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
@@ -40,11 +19,15 @@ export const dashToCamel = function (str: string): string {
 };
 
 // Convert a string to camelCase and remove spaces.
-export const camelCaseify = function(str: string): string {
-  str = dashToCamel(str.replace(' ', '-'));
-  str = str.slice(0,1).toLowerCase() + str.slice(1);
-  return str;
+export const camelCaseify = function<T extends string>(str: T): CamelCaseify<T> {
+  const camelCaseStr = dashToCamel(str.replace(' ', '-'));
+  const lowerCamelCaseStr = camelCaseStr.slice(0,1).toLowerCase() + camelCaseStr.slice(1);
+  return lowerCamelCaseStr as CamelCaseify<T>;
 };
+
+export type CamelCaseify<T extends string> = T extends `${infer Prefix}-${infer Rest}`
+  ? `${Uncapitalize<Prefix>}${Capitalize<CamelCaseify<Rest>>}`
+  : Uncapitalize<T>;
 
 // Capitalize a string.
 export const capitalize = function(str: string): string {
@@ -117,28 +100,6 @@ export const getOutgoingUrl = function (url: string): string {
   const cleanedUrl = validateUrl(url);
 
   return getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
-};
-
-export const slugify = function (s: string): string {
-  if (containsKana(s)) {
-    s = fromKana(s);
-  }
-
-  var slug = getSlug(s, {
-    truncate: 60
-  });
-
-  // can't have posts with an "edit" slug
-  if (slug === 'edit') {
-    slug = 'edit-1';
-  }
-
-  // If there is nothing in the string that can be slugified, just call it unicode
-  if (slug === "") {
-    slug = "unicode"
-  }
-
-  return slug;
 };
 
 export const getDomain = function(url: string | null): string|null {
@@ -263,6 +224,18 @@ export const removeProperty = (obj: any, propertyName: string): void => {
   }
 };
 
+export type UpdateSelector = {
+  _id: string;
+  documentId: null;
+} | {
+  _id: null;
+  documentId: string;
+};
+
+function isDocumentIdSelector(selector: UpdateSelector): selector is { _id: null; documentId: string } {
+  return !selector._id;
+}
+
 /**
  * Given a mongodb-style selector, if it contains `documentId`, replace that
  * with `_id`. This is a silly thing to do and a terrible hack; it's
@@ -279,12 +252,12 @@ export const removeProperty = (obj: any, propertyName: string): void => {
  * and the console-log warning from this function isn't appearing in logs, then
  * this function is a no-op and is safe to remove.
  */
-export const convertDocumentIdToIdInSelector = (selector: any) => {
-  if (selector.documentId) {
+export const convertDocumentIdToIdInSelector = (selector: UpdateSelector): { _id: string } => {
+  if (isDocumentIdSelector(selector)) {
     //eslint-disable-next-line no-console
     console.log("Warning: Performed documentId-to-_id replacement");
-    const result = {...selector, _id: selector.documentId};
-    delete result.documentId;
+    const { documentId, ...rest } = selector;
+    const result = { ...rest, _id: documentId };
     return result;
   }
   return selector;
@@ -343,7 +316,7 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
-      '*': [...footnoteAttributes, 'data-internal-id'],
+      '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
@@ -354,7 +327,7 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props'],
       a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
@@ -429,8 +402,13 @@ export const sanitize = function(s: string): string {
         'viewpoints-preview',
         'ck-cta-button',
         'ck-cta-button-centered',
+        'ck-poll',
         'detailsBlockContent',
         'calendly-preview',
+        'conditionallyVisibleBlock',
+        'defaultVisible',
+        'defaultHidden',
+        /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],

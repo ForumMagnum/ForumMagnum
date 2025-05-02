@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { htmlToTextDefault } from "../../lib/htmlToText";
@@ -9,7 +9,7 @@ import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
-import SubdirectoryArrowLeft from "@material-ui/icons/SubdirectoryArrowLeft";
+import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 
 const styles = (theme: ThemeType) => ({
@@ -222,7 +222,7 @@ const LWPopularComment = ({comment, classes}: {
       {expanded
         ? <CommentBody comment={comment} className={classes.body} />
         : <div className={classNames(classes.body, classes.bodyCollapsed)}>
-            {htmlToTextDefault(comment.contents?.html)}
+            {htmlToTextDefault(comment.contents?.html ?? undefined)}
           </div>}
     </div>
   );

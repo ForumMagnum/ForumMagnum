@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const UserJobAdsMinimumInfo = () => frag`
   fragment UserJobAdsMinimumInfo on UserJobAd {
     _id
     userId
@@ -10,4 +10,4 @@ registerFragment(`
     adState
     reminderSetAt
   }
-`);
+`

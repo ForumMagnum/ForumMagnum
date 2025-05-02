@@ -1,15 +1,14 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { Components } from '../../lib/vulcan-lib';
 import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 
-export type CloseableComponent = ComponentWithProps<{ onClose?: any }>
+export type DialogContentsFn = (args: {onClose: () => void}) => React.ReactNode
 
 export interface OpenDialogContextType {
-  openDialog: <T extends CloseableComponent>({componentName, componentProps}: {
-    componentName: T,
-    componentProps?: Omit<React.ComponentProps<typeof Components[T]>,"onClose"|"classes">,
+  openDialog: ({name, contents, closeOnNavigate}: {
+    name: string
+    contents: DialogContentsFn
     closeOnNavigate?: boolean,
   }) => void,
   closeDialog: () => void,
@@ -20,22 +19,22 @@ export const OpenDialogContext = React.createContext<OpenDialogContextType|null>
 export const DialogManager = ({children}: {
   children: React.ReactNode,
 }) => {
-  const [componentNameWithProps, setComponentNameWithProps] = useState<{componentName: CloseableComponent, componentProps: any} | null>(null);
+  const [dialogName, setDialogName] = useState<string|null>(null);
+  const [dialogContents, setDialogContents] = useState<DialogContentsFn|null>(null);
   const [closeOnNavigate, setCloseOnNavigate] = useState<boolean>(false);
   const {captureEvent} = useTracking();
-  const isOpen = !!componentNameWithProps?.componentName;
   
   const closeDialog = useCallback(() => {
-    captureEvent("dialogBox", {open: false, dialogName: componentNameWithProps?.componentName})
-    setComponentNameWithProps(null);
-  }, [captureEvent, componentNameWithProps?.componentName]);
-
-  const ModalComponent = isOpen ? (Components[componentNameWithProps?.componentName]) : null;
+    captureEvent("dialogBox", {open: false, dialogName})
+    setDialogName(null);
+    setDialogContents(null);
+  }, [captureEvent, dialogName]);
   
   const providedContext = useMemo((): OpenDialogContextType => ({
-    openDialog: ({componentName, componentProps, closeOnNavigate}) => {
-      captureEvent("dialogBox", {open: true, dialogName: componentName})
-      setComponentNameWithProps({componentName, componentProps});
+    openDialog: ({name, contents, closeOnNavigate}) => {
+      captureEvent("dialogBox", {open: true, dialogName: name})
+      setDialogName(name);
+      setDialogContents(() => contents);
       setCloseOnNavigate(closeOnNavigate || false)
     },
     closeDialog: closeDialog
@@ -45,11 +44,12 @@ export const DialogManager = ({children}: {
     if (closeOnNavigate) closeDialog()
   })
 
-  const modal = (ModalComponent && isOpen) && <ModalComponent {...componentNameWithProps?.componentProps} onClose={closeDialog} />
   return (
     <OpenDialogContext.Provider value={providedContext}>
       {children}
-      {isOpen && <span>{modal}</span>}
+      {dialogContents && <span>
+        {dialogContents({onClose: closeDialog})}
+      </span>}
     </OpenDialogContext.Provider>
   );
 }

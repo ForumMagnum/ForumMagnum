@@ -1,16 +1,15 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import PropTypes from 'prop-types';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React, { PureComponent } from 'react';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Select from '@material-ui/core/Select';
-import Checkbox from '@material-ui/core/Checkbox';
+import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
+import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
+import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { withTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import type { KarmaChangeSettingsType } from '../../lib/collections/users/schema';
+import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
@@ -46,32 +45,38 @@ type KarmaNotificationTimingStrings = {
   emptyText: string
 };
 
-export const karmaNotificationTimingChoices: Record<string,KarmaNotificationTimingStrings> = {
-  disabled: {
-    label: "Disabled",
-    infoText: "Karma and react notifications are disabled",
-    emptyText: "Karma and react notifications are disabled"
-  },
-  daily: {
-    label: "Batched daily (default)",
-    infoText: preferredHeadingCase("Karma Changes and Reacts (batched daily):"),
-    emptyText: "No karma changes or reacts yesterday"
-  },
-  weekly: {
-    label: "Batched weekly",
-    infoText: preferredHeadingCase("Karma Changes and Reacts (batched weekly):"),
-    emptyText: "No karma changes or reacts last week"
-  },
-  realtime: {
-    label: "Realtime",
-    infoText: preferredHeadingCase("Recent Karma Changes and Reacts"),
-    emptyText: "No karma changes or reacts since you last checked"
-  },
-};
 
-interface KarmaChangeNotifierSettingsProps extends WithStylesProps {
-  path: any,
-  value: KarmaChangeSettingsType,
+export function getKarmaNotificationTimingChoices(): Record<string, KarmaNotificationTimingStrings> {
+  const choices = {
+    disabled: {
+      label: "Disabled",
+      infoText: "Karma and react notifications are disabled",
+      emptyText: "Karma and react notifications are disabled"
+    },
+    daily: {
+      label: "Batched daily",
+      infoText: preferredHeadingCase("Karma Changes and Reacts (batched daily):"),
+      emptyText: "No karma changes or reacts yesterday"
+    },
+    weekly: {
+      label: "Batched weekly",
+      infoText: preferredHeadingCase("Karma Changes and Reacts (batched weekly):"),
+      emptyText: "No karma changes or reacts last week"
+    },
+    realtime: {
+      label: "Realtime",
+      infoText: preferredHeadingCase("Recent Karma Changes and Reacts"),
+      emptyText: "No karma changes or reacts since you last checked"
+    },
+  };
+
+  const defaultValue = (karmaChangeNotifierDefaultSettings.get()).updateFrequency;
+  choices[defaultValue].label += " (default)"
+
+  return choices;
+}
+
+interface KarmaChangeNotifierSettingsProps extends FormComponentProps<KarmaChangeSettingsType>, WithStylesProps {
   timezone?: any,
 }
 
@@ -81,7 +86,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
     const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, ...changes };
-    this.context.updateCurrentValues({
+    void this.props.updateCurrentValues({
       [this.props.path]: settings
     });
   }
@@ -180,7 +185,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
         value={settings.updateFrequency}
         onChange={(event, newValue) => this.modifyValue({updateFrequency: newValue as any})}
       >
-        {_.map(karmaNotificationTimingChoices, (timingChoice, key) =>
+        {_.map(getKarmaNotificationTimingChoices(), (timingChoice, key) =>
           <FormControlLabel
             key={key}
             value={key}
@@ -221,10 +226,6 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
       }
     </div>
   }
-};
-
-(KarmaChangeNotifierSettings as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
 };
 
 const KarmaChangeNotifierSettingsComponent = registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings, {

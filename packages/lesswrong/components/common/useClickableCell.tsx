@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, MouseEvent, useCallback } from "react";
-import { useNavigate } from "../../lib/reactRouterWrapper";
+import { useNavigate } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
 
 export type ClickableCellProps = {

@@ -11,7 +11,7 @@
  * +---------------------------------------------------------------------------
  */
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Posts from '../../lib/collections/posts/collection';
+import Posts from '../../server/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
@@ -25,7 +25,7 @@ const defaultReviewerByForum: ForumOptions<string | null> = {
 }
 const defaultReviewer = forumSelect(defaultReviewerByForum)
 
-registerMigration({
+export default registerMigration({
   name: "guaranteedPostReviewer",
   dateWritten: "2020-11-12",
   idempotent: true,

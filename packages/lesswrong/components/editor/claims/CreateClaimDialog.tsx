@@ -3,7 +3,7 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import { useCreate } from '@/lib/crud/withCreate';
 import { CreateClaimDialogProps } from './claimsConfigType';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 
 const styles = defineStyles("CreateClaimDialog", (theme: ThemeType) => ({
   root: {
@@ -35,7 +35,7 @@ const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateCl
     collectionName: "ElicitQuestions",
     fragmentName: "ElicitQuestionFragment",
   });
-  const { LWDialog, Button, Typography } = Components;
+  const { LWDialog, Typography } = Components;
 
   function submit() {
     void (async () => {
@@ -67,14 +67,14 @@ const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateCl
       </div>
       
       <div className={classes.buttons}>
-        <Button
+        <button
           disabled={!title.length}
           className={classes.button}
           onClick={submit}
         >
           Submit
-        </Button>
-        <Button className={classes.button} onClick={onCloseAndCancel}>Cancel</Button>
+        </button>
+        <button className={classes.button} onClick={onCloseAndCancel}>Cancel</button>
       </div>
     </div>
   </LWDialog>

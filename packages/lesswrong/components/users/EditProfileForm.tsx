@@ -1,15 +1,16 @@
-import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userCanEditUser, userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { useLocation } from '../../lib/routeUtil';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
 import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useGetUserBySlug } from '../hooks/useGetUserBySlug';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -83,7 +84,7 @@ const EditProfileForm = ({classes}: {
   ]);
 
   const {
-    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile,
+    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile, Loading,
   } = Components;
 
   let terms: {slug?: string, documentId?: string} = {}
@@ -92,6 +93,8 @@ const EditProfileForm = ({classes}: {
   } else if (currentUser) {
     terms.documentId = currentUser._id
   }
+
+  const { user, loading: loadingUser } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersProfileEdit', skip: !terms.slug });
 
   // no matching user
   if ((!terms.slug && !terms.documentId) || !currentUser) {
@@ -153,9 +156,10 @@ const EditProfileForm = ({classes}: {
         </div>
       }
 
-      <WrappedSmartForm
+      {loadingUser && <Loading />}
+      {!loadingUser && <WrappedSmartForm
         collectionName="Users"
-        {...terms}
+        documentId={user?._id}
         fields={[
           ...(isFriendlyUI ? ['displayName'] : []), // In UsersEditForm ("Account settings") in book UI
           'profileImageId',
@@ -169,6 +173,7 @@ const EditProfileForm = ({classes}: {
           'howICanHelpOthers',
           'linkedinProfileURL',
           'facebookProfileURL',
+          'blueskyProfileURL',
           'twitterProfileURL',
           'githubProfileURL',
           'profileTagIds',
@@ -179,12 +184,12 @@ const EditProfileForm = ({classes}: {
           FormGroupLayout: isFriendlyUI ? FormGroupFriendlyUserProfile : undefined,
         }}
         excludeHiddenFields={false}
-        queryFragment={getFragment('UsersProfileEdit')}
-        mutationFragment={getFragment('UsersProfileEdit')}
+        queryFragmentName={'UsersProfileEdit'}
+        mutationFragmentName={'UsersProfileEdit'}
         successCallback={async (user: AnyBecauseTodo) => {
           navigate(userGetProfileUrl(user))
         }}
-      />
+      />}
     </div>
   )
 }

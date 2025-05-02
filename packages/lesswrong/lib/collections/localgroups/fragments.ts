@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const localGroupsBase = () => frag`
   fragment localGroupsBase on Localgroup {
     _id
     createdAt
@@ -27,30 +27,30 @@ registerFragment(`
     inactive
     deleted
   }
-`);
+`
 
-registerFragment(`
+export const localGroupsHomeFragment = () => frag`
   fragment localGroupsHomeFragment on Localgroup {
     ...localGroupsBase
     contents {
       ...RevisionDisplay
     }
   }
-`);
+`
 
-registerFragment(`
+export const localGroupsEdit = () => frag`
   fragment localGroupsEdit on Localgroup {
     ...localGroupsBase
     contents {
       ...RevisionEdit
     }
   }
-`);
+`
 
-registerFragment(`
+export const localGroupsIsOnline = () => frag`
   fragment localGroupsIsOnline on Localgroup {
     _id
     name
     isOnline
   }
-`);
+`

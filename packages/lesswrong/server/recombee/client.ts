@@ -16,10 +16,9 @@ import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
-import { createAdminContext } from '../vulcan-lib/query';
-import Globals from '@/lib/vulcan-lib/config';
-import util from 'util';
+import { createAdminContext } from '../vulcan-lib/createContexts';
 import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
+import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -61,26 +60,6 @@ interface OnsitePostRecommendationsInfo {
   stickiedPostIds: string[],
   excludedPostFilter?: string,
 }
-
-export interface RecombeeRecommendedPost {
-  post: Partial<DbPost>,
-  scenario: string,
-  recommId: string,
-  generatedAt?: Date,
-  curated?: never,
-  stickied?: never,
-}
-
-interface NativeRecommendedPost {
-  post: Partial<DbPost>,
-  scenario?: never,
-  recommId?: never,
-  generatedAt?: never,
-  curated: boolean,
-  stickied: boolean,
-}
-
-export type RecommendedPost = RecombeeRecommendedPost | NativeRecommendedPost;
 
 interface PostFieldDependencies {
   title: 'title',
@@ -570,12 +549,18 @@ const recombeeApi = {
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
-    const includedTopOfListPostIds = reqIsLoadMore
+    const includedTopOfListPostIds = (reqIsLoadMore || lwAlgoSettings.skipTopOfListPosts)
       ? []
       : [...includedAboutPagePostId, ...includedCuratedPostIds, ...includedStickiedPostIds];
 
     const curatedAndStickiedPostCount = includedTopOfListPostIds.length;
     const modifiedCount = count - curatedAndStickiedPostCount;
+    if (modifiedCount <= 0) {
+      // eslint-disable-next-line no-console
+      console.warn(`Requested count of posts from Recombee is less than number of top of lists posts plus 1. Either request more or don't request top of list posts.`);
+      return [];
+    }
+
     const recommendationsRequestBody = helpers.createRecommendationsForUserRequest(recombeeUser, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
 
     const [recombeeResponseWithScenario] = await helpers.getCachedRecommendations({
@@ -592,7 +577,7 @@ const recombeeApi = {
     const postIds = [...includedTopOfListPostIds, ...recommendedPostIds];
 
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context)
+    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', posts, context)
 
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, curatedPostIds, stickiedPostIds }));
 
@@ -613,14 +598,14 @@ const recombeeApi = {
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
-    const excludeFromLatestPostIds = [...includedAboutPagePostId, ...includedCuratedPostIds, ...includedStickiedPostIds];
-    // We only want to fetch the about, curated, and stickied posts if this is the first load, not on any load more
-    const includedTopOfListPostIds = reqIsLoadMore
-      ? []
-      : excludeFromLatestPostIds;
-
+    
+    const topOfListItems = [...includedAboutPagePostId, ...includedCuratedPostIds, ...includedStickiedPostIds];
+    const manualExcludedPostIds = lwAlgoSettings.excludedPostIds ?? [];
+    const includedTopOfListPostIds = reqIsLoadMore ? [] : topOfListItems;
+    const excludeFromLatestPostIds = [...new Set([...topOfListItems, ...manualExcludedPostIds])];
     const topOfListPostCount = includedTopOfListPostIds.length;
     const modifiedCount = count - topOfListPostCount;
+    
     const split = 0.5;
     const configurableArmCount = Math.floor(modifiedCount * split);
     const fixedArmCount = modifiedCount - configurableArmCount;
@@ -706,7 +691,7 @@ const recombeeApi = {
     const missingPostCount = intendedNonDeferredPostCount - orderedPosts.length;
     const topDeferredPosts = deferredPosts.slice(0, fixedArmCount + missingPostCount);
 
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
+    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', [...orderedPosts, ...topDeferredPosts], context);
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }));
 
     const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied));
@@ -787,21 +772,4 @@ const recombeeApi = {
 
 export { helpers as recombeeRequestHelpers, recombeeApi };
 
-Globals.recombee = recombeeApi;
-// Also generate serverShellCommands that log the output of every function here, rather than just running them.
-// In general this might only be useful for GET calls, since POST/DELETE/etc operations often don't return anything meaningful.
-// This isn't guaranteed to produce sane results in every single case, but seems like it should be fine most of the time.
-Globals.recombee.log = Object.fromEntries(Object.entries(Globals.recombee).map(([key, val]) => {
-  if (typeof val !== 'function') {
-    return [key, val];
-  }
-
-  const withLoggedOutput = async (...args: any[]) => {
-    const result = await val(...args);
-    // eslint-disable-next-line no-console
-    console.log(util.inspect(result, { depth: null }));
-    return result;
-  };
-
-  return [key, withLoggedOutput];
-}));
+export const recombee = recombeeApi;

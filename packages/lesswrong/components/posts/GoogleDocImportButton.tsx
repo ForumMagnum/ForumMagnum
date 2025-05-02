@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { fragmentTextForQuery, registerComponent, Components } from "../../lib/vulcan-lib";
 import { useMutation, gql, useQuery } from "@apollo/client";
 import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
-import { Link, useNavigate } from "../../lib/reactRouterWrapper";
-import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useTracking } from "../../lib/analyticsEvents";
-import { GoogleDocMetadata } from "../../lib/collections/revisions/helpers";
+import type { GoogleDocMetadata } from "../../server/collections/revisions/helpers";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   button: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
@@ -24,7 +24,7 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
   const handleBanUserFromPost = (event: React.MouseEvent) => {
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on this post?")) {
-      const commentUserId = comment.userId
+      const commentUserId = comment.userId ?? '';
       let bannedUserIds = clone(post.bannedUserIds) || []
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Menu from '@material-ui/core/Menu';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Menu } from '@/components/widgets/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import Button from '@material-ui/core/Button';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import ArrowDropDownIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
