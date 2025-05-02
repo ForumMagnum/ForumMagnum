@@ -27,7 +27,7 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
 }) => {
   const currentUser = useCurrentUser();
 
-  const { Loading, ShortformListItem, LoadMore } = Components;
+  const { Loading, CommentsDraftListItem, LoadMore } = Components;
 
   const { results, loading, count, totalCount, loadMoreProps } = useMulti({
     // TODO replace with actual draft comments. Currently this is just getting all user comments
@@ -36,7 +36,7 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
     itemsPerPage,
     enableTotal: true,
     collectionName: "Comments",
-    fragmentName: 'ShortformComments',
+    fragmentName: 'DraftComments',
   });
 
   if (loading && !results?.length) {
@@ -54,7 +54,7 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
       </Components.Typography>
     )}
     {results.map((comment) => {
-      return <ShortformListItem
+      return <CommentsDraftListItem
         comment={comment}
         key={comment._id}
         hideTag={true}

@@ -58,6 +58,7 @@ importComponent(["CommentOnSelectionPageWrapper", "SelectedTextToolbar", "Commen
 importComponent("CommentPermalink", () => require("../../components/comments/CommentPermalink.tsx"));
 importComponent("CommentWithReplies", () => require("../../components/comments/CommentWithReplies.tsx"));
 importComponent("CommentsDraftList", () => require("../../components/comments/CommentsDraftList.tsx"));
+importComponent("CommentsDraftListItem", () => require("../../components/comments/CommentsDraftListItem.tsx"));
 importComponent("CommentsEditForm", () => require("../../components/comments/CommentsEditForm.tsx"));
 importComponent("CommentBody", () => require("../../components/comments/CommentsItem/CommentBody.tsx"));
 importComponent("CommentBottom", () => require("../../components/comments/CommentsItem/CommentBottom.tsx"));
