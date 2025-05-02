@@ -25,9 +25,9 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
   showTotal?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUser(); // TODO will use
 
-  const { Loading, CommentsDraftListItem, LoadMore } = Components;
+  const { Loading, CommentsNode, LoadMore } = Components;
 
   const { results, loading, count, totalCount, loadMoreProps } = useMulti({
     // TODO replace with actual draft comments. Currently this is just getting all user comments
@@ -42,24 +42,30 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
   if (loading && !results?.length) {
     return <Loading/>;
   }
-  if (!results?.length) {
-    return null;
-  }
 
   const showLoadMore = !loading && (count === undefined || totalCount === undefined || count < totalCount)
+
   return <>
-    {(!loading && results.length === 0) && (
+    {(!loading && results?.length === 0) && (
       <Components.Typography variant="body2" className={classes.noResults}>
         No comments to display.
       </Components.Typography>
     )}
-    {results.map((comment) => {
-      return <CommentsDraftListItem
+    {!!results && results.map((comment) => (
+      <CommentsNode
         comment={comment}
         key={comment._id}
-        hideTag={true}
+        treeOptions={{
+          condensed: true,
+          singleLineCollapse: true,
+          hideSingleLineMeta: true,
+          singleLinePostTitle: true,
+          showPostTitle: true,
+          post: comment.post || undefined,
+          forceSingleLine: true
+        }}
       />
-    })}
+    ))}
     {loading && <Loading/>}
     {showLoadMore && <LoadMore {...{
       ...loadMoreProps,
