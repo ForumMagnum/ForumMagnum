@@ -156,6 +156,23 @@ type PostMetadataOutput {
   postId: String!
 }
 
+input RecommendationAlgorithmSettingsInput {
+  method: String!
+  count: Int!
+  scoreOffset: Float!
+  scoreExponent: Float!
+  personalBlogpostModifier: Float!
+  frontpageModifier: Float!
+  curatedModifier: Float!
+  onlyUnread: Boolean!
+}
+
+input RecommendationSettingsInput {
+  frontpage: RecommendationAlgorithmSettingsInput!
+  frontpageEA: RecommendationAlgorithmSettingsInput!
+  recommendationspage: RecommendationAlgorithmSettingsInput!
+}
+
 type RecommendResumeSequence {
   sequence: Sequence
   collection: Collection
@@ -7303,7 +7320,7 @@ input UpdateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
-  recommendationSettings: JSON
+  recommendationSettings: RecommendationSettingsInput
 }
 
 input UpdateUserInput {

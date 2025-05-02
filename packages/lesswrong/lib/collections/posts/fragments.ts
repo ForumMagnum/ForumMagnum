@@ -606,7 +606,10 @@ export const PostsEdit = () => frag`
     tableOfContents
     subforumTagId
     socialPreviewImageId
-    socialPreview
+    socialPreview {
+      imageId
+      text
+    }
     socialPreviewData {
       _id
       imageId

@@ -126,7 +126,9 @@ function simplSchemaObjectTypeToTypescript(innerSchema: AnyBecauseTodo, indent: 
 
 export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
-  if (graphqlType === GraphQLJSON) return "any";
+  if (graphqlType === GraphQLJSON) {
+    return "any";
+  }
   
   if (graphqlType.endsWith("!")) {
     return graphqlTypeToTypescript(graphqlType.substr(0, graphqlType.length-1), true);
@@ -161,9 +163,6 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
           return "any";
         }
         return graphqlType;
-        // TODO
-        //throw new Error("Unrecognized type: "+graphqlType);
-        // return `any /*${graphqlType}*/`;
       }
   }
 }

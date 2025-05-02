@@ -190,15 +190,3 @@ export const recommendationSettingsSchema = new SimpleSchema({
   recommendationspage: recommendationAlgorithmSettingsSchema,
 });
 
-export const recommendationSettingsField = {
-  // Admin-only options for configuring Recommendations placement, for experimentation
-  recommendationSettings: {
-    type: recommendationSettingsSchema,
-    blackbox: true,
-    hidden: true,
-    canRead: [userOwns],
-    canUpdate: [userOwns],
-    optional: true,
-  },
-};
-

@@ -140,6 +140,23 @@ interface PostMetadataOutput {
   postId: string;
 }
 
+interface RecommendationAlgorithmSettingsInput {
+  method: string;
+  count: number;
+  scoreOffset: number;
+  scoreExponent: number;
+  personalBlogpostModifier: number;
+  frontpageModifier: number;
+  curatedModifier: number;
+  onlyUnread: boolean;
+}
+
+interface RecommendationSettingsInput {
+  frontpage: RecommendationAlgorithmSettingsInput;
+  frontpageEA: RecommendationAlgorithmSettingsInput;
+  recommendationspage: RecommendationAlgorithmSettingsInput;
+}
+
 interface RecommendResumeSequence {
   sequence: Sequence | null;
   collection: Collection | null;
@@ -6302,7 +6319,7 @@ interface UpdateUserDataInput {
   hideSunshineSidebar?: boolean | null;
   inactiveSurveyEmailSentAt?: Date | null;
   userSurveyEmailSentAt?: Date | null;
-  recommendationSettings?: any;
+  recommendationSettings?: RecommendationSettingsInput | null;
 }
 
 interface UpdateUserInput {
@@ -6339,6 +6356,8 @@ interface GraphQLTypeMap {
   PartiallyReadSequenceItemOutput: PartiallyReadSequenceItemOutput;
   PostMetadataInput: PostMetadataInput;
   PostMetadataOutput: PostMetadataOutput;
+  RecommendationAlgorithmSettingsInput: RecommendationAlgorithmSettingsInput;
+  RecommendationSettingsInput: RecommendationSettingsInput;
   RecommendResumeSequence: RecommendResumeSequence;
   CommentCountTag: CommentCountTag;
   TopCommentedTagUser: TopCommentedTagUser;

@@ -175,6 +175,23 @@ export const graphqlTypeDefs = gql`
   type PostMetadataOutput {
     postId: String!
   }
+
+  input RecommendationAlgorithmSettingsInput {
+    method: String!
+    count: Int!
+    scoreOffset: Float!
+    scoreExponent: Float!
+    personalBlogpostModifier: Float!
+    frontpageModifier: Float!
+    curatedModifier: Float!
+    onlyUnread: Boolean!
+  }
+
+  input RecommendationSettingsInput {
+    frontpage: RecommendationAlgorithmSettingsInput!
+    frontpageEA: RecommendationAlgorithmSettingsInput!
+    recommendationspage: RecommendationAlgorithmSettingsInput!
+  }
 `;
 
 const emailsSchema = new SimpleSchema({
@@ -4272,13 +4289,10 @@ const schema = {
     },
     graphql: {
       outputType: "JSON",
+      // I've only set the input type here because I don't know that all the existing data conforms to the schema.
+      inputType: "RecommendationSettingsInput",
       canRead: [userOwns],
       canUpdate: [userOwns],
-      validation: {
-        simpleSchema: recommendationSettingsSchema,
-        optional: true,
-        blackbox: true,
-      },
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;

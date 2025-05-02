@@ -2181,38 +2181,7 @@ interface DbUser extends DbObject {
   profileUpdatedAt: Date
   programParticipation: Array<string> | null
   reactPaletteStyle: "listView" | "gridView"
-  recommendationSettings: {
-    frontpage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    frontpageEA: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    recommendationspage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-  } | null
+  recommendationSettings: RecommendationSettingsInput | null
   reenableDraftJs: boolean | null
   revealChecksToAdmins: boolean
   reviewForAlignmentForumUserId: string | null
