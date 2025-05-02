@@ -7,6 +7,7 @@ import { Typography } from '../common/Typography';
 import Loading from '../vulcan-core/Loading';
 import ShortformListItem from '../shortform/ShortformListItem';
 import LoadMore from '../common/LoadMore';
+import CommentsDraftListItem from './CommentsDraftListItem';
 
 const styles = (theme: ThemeType) => ({
   subheader: {
@@ -38,7 +39,7 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
     itemsPerPage,
     enableTotal: true,
     collectionName: "Comments",
-    fragmentName: 'ShortformComments',
+    fragmentName: 'DraftComments',
   });
 
   if (loading && !results?.length) {
@@ -56,7 +57,7 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
       </Typography>
     )}
     {results.map((comment) => {
-      return <ShortformListItem
+      return <CommentsDraftListItem
         comment={comment}
         key={comment._id}
         hideTag={true}

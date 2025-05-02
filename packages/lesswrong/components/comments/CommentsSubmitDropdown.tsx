@@ -64,7 +64,7 @@ export const CommentsSubmitDropdown = ({ classes }: {
       <LWPopper
         open={menuOpen}
         anchorEl={dropdownRef.current}
-        placement="bottom-start"
+        placement="bottom-end"
         className={classes.popper}
       >
         <LWClickAwayListener onClickAway={() => setMenuOpen(false)}>

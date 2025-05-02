@@ -818,6 +818,16 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly onsitePrimaryColor: string|null,
 }
 
+interface DraftComments extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
+  readonly parentComment: DraftComments_parentComment|null,
+}
+
+interface DraftComments_parentComment { // fragment on Comments
+  readonly _id: string,
+  readonly user: UsersMinimumInfo|null,
+}
+
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly _id: string,
   readonly electionName: string,
@@ -5565,6 +5575,7 @@ interface FragmentTypes {
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
   DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
+  DraftComments: DraftComments
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
@@ -5864,7 +5875,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -6009,6 +6020,7 @@ interface CollectionNamesByFragmentName {
   DigestPostsMinimumInfo: "DigestPosts"
   DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
+  DraftComments: "Comments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
