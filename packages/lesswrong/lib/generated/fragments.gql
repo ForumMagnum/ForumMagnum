@@ -940,7 +940,6 @@ fragment ElicitQuestionPredictionsDefaultFragment on ElicitQuestionPrediction {
   prediction
   createdAt
   notes
-  creator
   userId
   sourceUrl
   sourceId
@@ -2053,12 +2052,9 @@ fragment PostsDefaultFragment on Post {
   frontpageDate
   autoFrontpage
   collectionTitle
-  coauthorStatuses
   hasCoauthorPermission
   socialPreviewImageId
   socialPreviewImageAutoUrl
-  socialPreview
-  fmCrosspost
   canonicalSequenceId
   canonicalCollectionSlug
   canonicalBookId
@@ -2238,7 +2234,11 @@ fragment PostsDetails on Post {
   activateRSVPs
 
   # Crossposting
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
 
   # Jargon Terms
   glossary {
@@ -2251,9 +2251,17 @@ fragment PostsEdit on Post {
   ...PostSideComments
   myEditorAccess
   version
-  coauthorStatuses
+  coauthorStatuses {
+    userId
+    confirmed
+    requested
+  }
   readTimeMinutesOverride
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
   hideFromRecentDiscussions
   hideFromPopularComments
   moderationGuidelines {
@@ -2340,7 +2348,11 @@ fragment PostsList on Post {
     wordCount
     version
   }
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
 }
 
 fragment PostsListBase on Post {
@@ -2418,7 +2430,11 @@ fragment PostsMinimumInfo on Post {
     quadraticScore
   }
   userId
-  coauthorStatuses
+  coauthorStatuses {
+    userId
+    confirmed
+    requested
+  }
   hasCoauthorPermission
   rejected
   debate
@@ -2902,7 +2918,6 @@ fragment RevisionsDefaultFragment on Revision {
   commitMessage
   userId
   draft
-  originalContents
   html
   wordCount
   changeMetrics
@@ -3296,7 +3311,11 @@ fragment SunshinePostsList on Post {
 
   currentUserVote
   currentUserExtendedVote
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
   rejectedReason
   autoFrontpage
 
@@ -4521,7 +4540,13 @@ fragment UsersCurrent on User {
   hideIntercom
   hideNavigationSidebar
   hideCommunitySection
-  expandedFrontpageSections
+  expandedFrontpageSections {
+    community
+    recommendations
+    quickTakes
+    quickTakesCommunity
+    popularComments
+  }
   hidePostsRecommendations
   currentFrontpageFilter
   frontpageSelectedTab
@@ -4579,9 +4604,14 @@ fragment UsersCurrent on User {
   recommendationSettings
   theme
 
-  bookmarkedPostsMetadata
+  bookmarkedPostsMetadata {
+    postId
+  }
 
-  hiddenPostsMetadata
+  hiddenPostsMetadata {
+    postId
+  }
+
   auto_subscribe_to_my_posts
   auto_subscribe_to_my_comments
   autoSubscribeAsOrganizer
@@ -4684,7 +4714,6 @@ fragment UsersDefaultFragment on User {
   noCollapseCommentsPosts
   noCollapseCommentsFrontpage
   hideCommunitySection
-  expandedFrontpageSections
   showCommunityInRecentDiscussion
   hidePostsRecommendations
   petrovOptOut
@@ -4716,8 +4745,6 @@ fragment UsersDefaultFragment on User {
   collapseModerationGuidelines
   bannedUserIds
   bannedPersonalUserIds
-  bookmarkedPostsMetadata
-  hiddenPostsMetadata
   legacyId
   deleted
   permanentDeletionRequestedAt
@@ -4816,7 +4843,6 @@ fragment UsersDefaultFragment on User {
   fullName
   shortformFeedId
   viewUnreviewedComments
-  partiallyReadSequences
   beta
   reviewVotesQuadratic
   reviewVotesQuadratic2019

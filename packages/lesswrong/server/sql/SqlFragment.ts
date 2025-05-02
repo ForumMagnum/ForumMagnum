@@ -300,8 +300,9 @@ export class SqlFragment {
 
   private compilePickEntry(
     context: ProjectionContext,
-    {name, entries}: SqlFragmentPick,
+    pick: SqlFragmentPick,
   ) {
+    const {name, entries} = pick;
     const resolver = context.getResolver(name);
     if (resolver) {
       if (resolver.sqlResolver) {
@@ -332,8 +333,11 @@ export class SqlFragment {
         context.addCodeResolver(resolver.fieldName ?? name, resolver.resolver);
       }
     } else {
-      const baseTypeName = this.getBaseTypeName();
-      throw new Error(`Field "${name}" on "${baseTypeName}" has no resolver`);
+      // If there's no resolver but we have subfields selected,
+      // then we're probably dealing with an custom object type
+      // that doesn't represent a collection and we should just
+      // get the entire thing.
+      return this.compileFieldEntry(context, { ...pick, type: 'field' });
     }
   }
 

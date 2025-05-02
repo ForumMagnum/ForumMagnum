@@ -258,7 +258,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: FieldNo
         console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
         //throw new Error(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
         return {
-          fieldType: "any", subfragment: null
+          fieldType, subfragment: null
         };
       }
       const subfragmentName = `${fragmentName}_${fieldName}`;

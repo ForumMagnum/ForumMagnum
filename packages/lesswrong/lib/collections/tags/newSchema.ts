@@ -33,7 +33,7 @@ export const graphqlTypeDefs = gql`
     voteCount: Int!
   }
   type TagContributorsList {
-    contributors: [TagContributor!]
+    contributors: [TagContributor!]!
     totalCount: Int!
   }
   type UserLikingTag {

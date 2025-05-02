@@ -42,9 +42,9 @@ type ArbitalLinkedPages {
 }
 
 type SocialPreviewType {
-  _id: String
-  imageId: String
-  imageUrl: String
+  _id: String!
+  imageId: String!
+  imageUrl: String!
   text: String
 }
 
@@ -55,7 +55,7 @@ input CoauthorStatusInput {
 }
 
 input SocialPreviewInput {
-  imageId: String
+  imageId: String!
   text: String
 }
 
@@ -72,7 +72,7 @@ type CoauthorStatusOutput {
 }
 
 type SocialPreviewOutput {
-  imageId: String
+  imageId: String!
   text: String
 }
 
@@ -85,8 +85,8 @@ type CrosspostOutput {
 scalar ContentTypeData
 
 type ContentType {
-  type: String
-  data: ContentTypeData
+  type: String!
+  data: ContentTypeData!
 }
 
 type TagContributor {
@@ -98,7 +98,7 @@ type TagContributor {
 }
 
 type TagContributorsList {
-  contributors: [TagContributor!]
+  contributors: [TagContributor!]!
   totalCount: Int!
 }
 
@@ -330,18 +330,20 @@ extend type Query {
 }
 
 type PostKarmaChange {
-  _id: String
-  scoreChange: Int
-  postId: String
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
+  postId: String!
   title: String
-  slug: String
+  slug: String!
   addedReacts: [ReactionChange!]
   eaAddedReacts: JSON
 }
 
 type CommentKarmaChange {
-  _id: String
-  scoreChange: Int
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
   commentId: String
   description: String
   postId: String
@@ -350,13 +352,15 @@ type CommentKarmaChange {
   tagSlug: String
   tagName: String
   tagCommentType: String
+  tagId: String
   addedReacts: [ReactionChange!]
   eaAddedReacts: JSON
 }
 
 type RevisionsKarmaChange {
-  _id: String
-  scoreChange: Int
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
   tagId: String
   tagSlug: String
   tagName: String
@@ -370,20 +374,20 @@ type ReactionChange {
 }
 
 type KarmaChangesSimple {
-  posts: [PostKarmaChange]
-  comments: [CommentKarmaChange]
-  tagRevisions: [RevisionsKarmaChange]
+  posts: [PostKarmaChange!]!
+  comments: [CommentKarmaChange!]!
+  tagRevisions: [RevisionsKarmaChange!]!
 }
 
 type KarmaChanges {
-  totalChange: Int
+  totalChange: Int!
   startDate: Date
   endDate: Date
   nextBatchDate: Date
-  updateFrequency: String
-  posts: [PostKarmaChange]
-  comments: [CommentKarmaChange]
-  tagRevisions: [RevisionsKarmaChange]
+  updateFrequency: String!
+  posts: [PostKarmaChange!]!
+  comments: [CommentKarmaChange!]!
+  tagRevisions: [RevisionsKarmaChange!]!
   todaysKarmaChanges: KarmaChangesSimple
   thisWeeksKarmaChanges: KarmaChangesSimple
 }
@@ -8257,7 +8261,6 @@ fragment ElicitQuestionPredictionsDefaultFragment on ElicitQuestionPrediction {
   prediction
   createdAt
   notes
-  creator
   userId
   sourceUrl
   sourceId
@@ -9370,12 +9373,9 @@ fragment PostsDefaultFragment on Post {
   frontpageDate
   autoFrontpage
   collectionTitle
-  coauthorStatuses
   hasCoauthorPermission
   socialPreviewImageId
   socialPreviewImageAutoUrl
-  socialPreview
-  fmCrosspost
   canonicalSequenceId
   canonicalCollectionSlug
   canonicalBookId
@@ -9555,7 +9555,11 @@ fragment PostsDetails on Post {
   activateRSVPs
 
   # Crossposting
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
 
   # Jargon Terms
   glossary {
@@ -9568,9 +9572,17 @@ fragment PostsEdit on Post {
   ...PostSideComments
   myEditorAccess
   version
-  coauthorStatuses
+  coauthorStatuses {
+    userId
+    confirmed
+    requested
+  }
   readTimeMinutesOverride
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
   hideFromRecentDiscussions
   hideFromPopularComments
   moderationGuidelines {
@@ -9657,7 +9669,11 @@ fragment PostsList on Post {
     wordCount
     version
   }
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
 }
 
 fragment PostsListBase on Post {
@@ -9735,7 +9751,11 @@ fragment PostsMinimumInfo on Post {
     quadraticScore
   }
   userId
-  coauthorStatuses
+  coauthorStatuses {
+    userId
+    confirmed
+    requested
+  }
   hasCoauthorPermission
   rejected
   debate
@@ -10219,7 +10239,6 @@ fragment RevisionsDefaultFragment on Revision {
   commitMessage
   userId
   draft
-  originalContents
   html
   wordCount
   changeMetrics
@@ -10613,7 +10632,11 @@ fragment SunshinePostsList on Post {
 
   currentUserVote
   currentUserExtendedVote
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
   rejectedReason
   autoFrontpage
 
@@ -11838,7 +11861,13 @@ fragment UsersCurrent on User {
   hideIntercom
   hideNavigationSidebar
   hideCommunitySection
-  expandedFrontpageSections
+  expandedFrontpageSections {
+    community
+    recommendations
+    quickTakes
+    quickTakesCommunity
+    popularComments
+  }
   hidePostsRecommendations
   currentFrontpageFilter
   frontpageSelectedTab
@@ -11896,9 +11925,14 @@ fragment UsersCurrent on User {
   recommendationSettings
   theme
 
-  bookmarkedPostsMetadata
+  bookmarkedPostsMetadata {
+    postId
+  }
 
-  hiddenPostsMetadata
+  hiddenPostsMetadata {
+    postId
+  }
+
   auto_subscribe_to_my_posts
   auto_subscribe_to_my_comments
   autoSubscribeAsOrganizer
@@ -12001,7 +12035,6 @@ fragment UsersDefaultFragment on User {
   noCollapseCommentsPosts
   noCollapseCommentsFrontpage
   hideCommunitySection
-  expandedFrontpageSections
   showCommunityInRecentDiscussion
   hidePostsRecommendations
   petrovOptOut
@@ -12033,8 +12066,6 @@ fragment UsersDefaultFragment on User {
   collapseModerationGuidelines
   bannedUserIds
   bannedPersonalUserIds
-  bookmarkedPostsMetadata
-  hiddenPostsMetadata
   legacyId
   deleted
   permanentDeletionRequestedAt
@@ -12133,7 +12164,6 @@ fragment UsersDefaultFragment on User {
   fullName
   shortformFeedId
   viewUnreviewedComments
-  partiallyReadSequences
   beta
   reviewVotesQuadratic
   reviewVotesQuadratic2019

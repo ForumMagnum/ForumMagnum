@@ -64,7 +64,7 @@ export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
 
 export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSSION", isAbsolute=false}: {
   tagSlug: string,
-  commentId?: string,
+  commentId?: string | null,
   tagCommentType: TagCommentType,
   isAbsolute?: boolean,
 }): string => {

@@ -41,8 +41,8 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
 export const graphqlTypeDefs = gql`
   scalar ContentTypeData
   type ContentType {
-    type: String
-    data: ContentTypeData
+    type: String!
+    data: ContentTypeData!
   }
 `
 

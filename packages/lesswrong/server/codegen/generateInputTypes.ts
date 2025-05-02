@@ -27,9 +27,9 @@ function convertParsedTypeNodeToTypescriptType(parsedType: ParsedType): string {
       return 'any';
     default: {
       if (isValidCollectionName(graphqlTypeToCollectionName(parsedType.type))) {
-        // TODO: this isn't the right type to assign, since we won't always have an update mutation
-        // for the given collection and thus won't have an input type for it
-        return `Update${parsedType.type}DataInput${nullableSuffix}`;
+        // TODO: this probably isn't the right type to assign,
+        // but I don't actually know what we want in this case
+        return `${parsedType.type}${nullableSuffix}`;
       } else {
         return parsedType.type + nullableSuffix;
       }
@@ -67,7 +67,7 @@ function generateInputType(inputType: InputObjectTypeDefinitionNode | ObjectType
     const convertedType = convertParsedTypeNodeToTypescriptType(parsedType);
     const convertedTypeIsAny = convertedType === 'any';
     const typeIsNullable = parsedType.nullable;
-    const makeOptional = (convertedTypeIsAny || typeIsNullable) ? '?' : '';
+    const makeOptional = (convertedTypeIsAny || typeIsNullable) && inputType.name.value.includes('Input') ? '?' : '';
     return `${field.name.value}${makeOptional}: ${convertedType}`;
   });
 
