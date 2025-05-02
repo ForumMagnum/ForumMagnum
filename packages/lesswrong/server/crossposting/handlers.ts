@@ -213,7 +213,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
           },
           ...postData,
         },
-      }, { ...context, isFMCrosspostRequest: true });
+      }, { ...context, currentUser: user, isFMCrosspostRequest: true });
 
       return {
         status: "posted" as const,
@@ -241,7 +241,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
       await updatePost({
         selector: {_id: postId},
         data: postData,
-      }, context);
+      }, {...context, currentUser});
 
       return {status: "updated" as const};
     },

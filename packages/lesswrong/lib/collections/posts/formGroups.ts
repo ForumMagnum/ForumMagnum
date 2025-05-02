@@ -92,7 +92,7 @@ export const formGroups = {
   advancedOptions: {
     order:40,
     name: "advancedOptions",
-    label: "Options",
+    label: isEAForum ? "Crossposting" : "Options",
     startCollapsed: true,
   },
   audio: {

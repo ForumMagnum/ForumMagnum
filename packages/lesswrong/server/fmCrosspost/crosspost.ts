@@ -33,7 +33,21 @@ const assertPostIsCrosspostable = (
   }
 }
 
-export async function performCrosspost(post: DbPost): Promise<DbPost> {
+const getCrosspostContents = async <T extends CreatePostDataInput | UpdatePostDataInput>(post: T) => {
+  if (post.contents) {
+    return post.contents;
+  }
+  const revision = await getLatestContentsRevision(
+    post as { contents_latest: string | null },
+    createAdminContext(),
+  );
+  if (!revision) {
+    throw new Error("Couldn't find revision for crosspost");
+  }
+  return revision;
+}
+
+export const performCrosspost = async <T extends CreatePostDataInput | UpdatePostDataInput>(post: T): Promise<T> => {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
@@ -64,9 +78,9 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
   }
 
   // Grab the normalized contents from the revision
-  const revision = await getLatestContentsRevision(post, createAdminContext());
+  const contents = await getCrosspostContents(post);
 
-  const postWithDefaultValues: DbPost = {
+  const postWithDefaultValues: T & DenormalizedCrosspostData = {
     ...post,
     draft: post.draft ?? schema.draft.database.defaultValue,
     deletedDraft: (post as UpdatePostDataInput).deletedDraft ?? schema.deletedDraft.database.defaultValue,
@@ -81,8 +95,8 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
     postId: (post as unknown as DbPost)._id,
     ...extractDenormalizedData(postWithDefaultValues),
     contents: {
-      originalContents: revision?.originalContents,
-      draft: revision?.draft ?? false,
+      originalContents: contents?.originalContents,
+      draft: contents?.draft ?? post.draft ?? false,
     },
   });
 
@@ -136,10 +150,10 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
   });
 }
 
-export async function handleCrosspostUpdate(
+export const handleCrosspostUpdate = async (
   data: UpdatePostDataInput,
   {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<"Posts">
-): Promise<UpdatePostDataInput> {
+): Promise<UpdatePostDataInput> => {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
   const {userId, fmCrosspost} = newDocument;
