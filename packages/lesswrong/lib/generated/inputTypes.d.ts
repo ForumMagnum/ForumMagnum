@@ -29,7 +29,7 @@ interface ArbitalLinkedPages {
 
 interface SocialPreviewType {
   _id: string;
-  imageId: string;
+  imageId: string | null;
   imageUrl: string;
   text: string | null;
 }

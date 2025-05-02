@@ -77,7 +77,7 @@ import gql from "graphql-tag";
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
     _id: String!
-    imageId: String!
+    imageId: String
     imageUrl: String!
     text: String
   }
@@ -2373,8 +2373,8 @@ const schema = {
     graphql: {
       outputType: "SocialPreviewType",
       canRead: ["guests"],
-      resolver: async (post, args, context) => {
-        const { imageId, text } = post.socialPreview || {};
+      resolver: async (post, args, context): Promise<SocialPreviewType> => {
+        const { imageId = null, text = null } = post.socialPreview || {};
         const imageUrl = getSocialPreviewImage(post);
         return {
           _id: post._id,

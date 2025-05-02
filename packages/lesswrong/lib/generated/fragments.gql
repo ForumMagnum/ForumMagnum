@@ -2273,7 +2273,10 @@ fragment PostsEdit on Post {
   tableOfContents
   subforumTagId
   socialPreviewImageId
-  socialPreview
+  socialPreview {
+    imageId
+    text
+  }
   socialPreviewData {
     _id
     imageId

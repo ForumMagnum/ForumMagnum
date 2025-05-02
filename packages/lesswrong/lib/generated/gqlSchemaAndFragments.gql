@@ -43,7 +43,7 @@ type ArbitalLinkedPages {
 
 type SocialPreviewType {
   _id: String!
-  imageId: String!
+  imageId: String
   imageUrl: String!
   text: String
 }
@@ -9611,7 +9611,10 @@ fragment PostsEdit on Post {
   tableOfContents
   subforumTagId
   socialPreviewImageId
-  socialPreview
+  socialPreview {
+    imageId
+    text
+  }
   socialPreviewData {
     _id
     imageId
