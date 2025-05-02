@@ -32,7 +32,7 @@ const UltraFeedPage = () => {
 
   return (
     <div className={classes.root}>
-      <UltraFeed showCheckBoxUnconditionally={true} />
+      <UltraFeed alwaysShow={true} />
     </div>
   );
 };

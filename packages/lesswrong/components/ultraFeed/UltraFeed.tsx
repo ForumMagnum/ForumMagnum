@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -143,8 +143,8 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedContent = ({showCheckBoxUnconditionally = false}: {
-  showCheckBoxUnconditionally?: boolean
+const UltraFeedContent = ({alwaysShow = false}: {
+  alwaysShow?: boolean
 }) => {
   const classes = useStyles(styles);
   const { SectionFooterCheckbox, MixedTypeFeed, UltraFeedPostItem,
@@ -153,7 +153,8 @@ const UltraFeedContent = ({showCheckBoxUnconditionally = false}: {
   
   const currentUser = useCurrentUser();
   const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
-  const ultraFeedEnabled = !!currentUser && (ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true");
+  const ultraFeedEnabledCookie = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
+  const ultraFeedEnabled = !!currentUser && (ultraFeedEnabledCookie || alwaysShow);
   
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -167,12 +168,12 @@ const UltraFeedContent = ({showCheckBoxUnconditionally = false}: {
   
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
-  if (!(userIsAdminOrMod(currentUser) || ultraFeedEnabled || showCheckBoxUnconditionally)) {
+  if (!(userIsAdminOrMod(currentUser) || ultraFeedEnabled || alwaysShow)) {
     return null;
   }
 
   const toggleUltraFeed = () => {
-    setUltraFeedCookie(ULTRA_FEED_ENABLED_COOKIE, String(!ultraFeedEnabled), { path: "/" });
+    setUltraFeedCookie(ULTRA_FEED_ENABLED_COOKIE, String(!ultraFeedEnabledCookie), { path: "/" });
   };
 
   const toggleSettings = (e: React.MouseEvent) => {
@@ -206,14 +207,17 @@ const UltraFeedContent = ({showCheckBoxUnconditionally = false}: {
       />
     </div>
   </>;
+
+  const checkBoxLabel = alwaysShow ? "Use New Feed on Frontpage" : "Use New Feed";
+
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
     <div className={classes.root}>
       <div className={classes.toggleContainer}>
         <SectionFooterCheckbox 
-          value={ultraFeedEnabled} 
+          value={ultraFeedEnabledCookie} 
           onClick={toggleUltraFeed} 
-          label="Use New Feed"
+          label={checkBoxLabel}
           tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
           labelClassName={classes.checkboxLabel}
         />
@@ -324,12 +328,12 @@ const UltraFeedContent = ({showCheckBoxUnconditionally = false}: {
   );
 };
 
-const UltraFeed = ({showCheckBoxUnconditionally = false}: {
-  showCheckBoxUnconditionally?: boolean
+const UltraFeed = ({alwaysShow = false}: {
+  alwaysShow?: boolean
 }) => {
   return (
     <DeferRender ssr={false}>
-      <UltraFeedContent showCheckBoxUnconditionally={showCheckBoxUnconditionally} />
+      <UltraFeedContent alwaysShow={alwaysShow} />
     </DeferRender>
   );
 };
