@@ -5,6 +5,8 @@ declare global {
     view?: BookmarksViewName
     limit?: number
     userId?: string
+    documentId?: string
+    collectionName?: "Posts" | "Comments"
   }
 }
 
@@ -45,14 +47,36 @@ function myBookmarks(terms: BookmarksViewTerms, _: any, context: ResolverContext
   };
 }
 
+function userDocumentBookmark(terms: BookmarksViewTerms, _: any, context: ResolverContext) {
+  const { userId, documentId, collectionName } = terms;
+
+  if (!userId || !documentId || !collectionName) {
+    throw new Error("Missing required parameters for userDocumentBookmark view: userId, documentId, collectionName");
+  }
+
+  return {
+    selector: {
+      userId,
+      documentId,
+      collectionName,
+      cancelled: false,
+    },
+    options: {
+      sort: {},
+    },
+  };
+}
+
 export const BookmarksViews = new CollectionViewSet('Bookmarks', {
   myBookmarkedPosts,
   myBookmarks,
+  userDocumentBookmark,
 });
 
 const views = {
   myBookmarkedPosts,
   myBookmarks,
+  userDocumentBookmark,
 };
 
 export default views;

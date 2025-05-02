@@ -14,14 +14,9 @@ export const BookmarksDefaultFragment = () => frag`
 
 export const BookmarksWithDocumentFragment = () => frag`
   fragment BookmarksWithDocumentFragment on Bookmark {
-    ${BookmarksDefaultFragment}
-    document {
-      ... on Post {
-        ...PostsListWithVotes
-      }
-      ... on Comment {
-        ...CommentsItem
-      }
+    ...BookmarksDefaultFragment
+    post {
+      ...PostsListWithVotes
     }
   }
 `;

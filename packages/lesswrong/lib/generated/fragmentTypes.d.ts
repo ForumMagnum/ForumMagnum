@@ -127,7 +127,7 @@ interface BookmarksDefaultFragment { // fragment on Bookmarks
 }
 
 interface BookmarksWithDocumentFragment extends BookmarksDefaultFragment { // fragment on Bookmarks
-  readonly document: any,
+  readonly post: PostsListWithVotes|null,
 }
 
 interface BooksDefaultFragment { // fragment on Books

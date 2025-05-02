@@ -10,8 +10,7 @@ export type BookmarkPost = {
 }
 
 export const useBookmarkPost = (post: PostsMinimumInfo | null | undefined): BookmarkPost => {
-  const documentInput = post ? { _id: post._id, __typename: "Post" as const } : null;
-  const { icon, labelText, hoverText, toggleBookmark, loading } = useBookmark(documentInput);
+  const { icon, labelText, hoverText, toggleBookmark, loading } = useBookmark(post?._id, "Posts");
 
   return {
     icon,

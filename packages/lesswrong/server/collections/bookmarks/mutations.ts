@@ -96,7 +96,5 @@ async function toggleBookmarkResolver(root: void, { input }: { input: ToggleBook
 }
 
 export const bookmarkGqlMutations = {
-  Mutation: {
-    toggleBookmark: toggleBookmarkResolver,
-  },
+  toggleBookmark: toggleBookmarkResolver,
 }; 

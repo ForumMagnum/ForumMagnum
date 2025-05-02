@@ -1377,7 +1377,7 @@ type Bookmark {
   documentId: String
   collectionName: String
   userId: String
-  document: BookmarkableDocument
+  post: Post
   lastUpdated: Date
   cancelled: Boolean
 }
@@ -7431,13 +7431,8 @@ fragment BookmarksDefaultFragment on Bookmark {
 
 fragment BookmarksWithDocumentFragment on Bookmark {
   ...BookmarksDefaultFragment
-  document {
-    ... on Post {
-      ...PostsListWithVotes
-    }
-    ... on Comment {
-      ...CommentsItem
-    }
+  post {
+    ...PostsListWithVotes
   }
 }
 

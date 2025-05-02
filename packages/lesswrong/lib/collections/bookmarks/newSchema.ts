@@ -55,22 +55,17 @@ const schema = {
     },
   },
 
-  document: {
+  post: {
     graphql: {
-      outputType: 'BookmarkableDocument',
+      outputType: 'Post',
       canRead: ['guests'],
       resolver: async (bookmark: DbBookmark, args: any, context: ResolverContext) => {
         const { documentId, collectionName } = bookmark;
-        const { Posts, Comments } = context;
-        if (!documentId || !collectionName || !Posts || !Comments) return null;
-
-        let doc = null;
-        if (collectionName === "Posts") {
-          doc = await Posts.findOne({ _id: documentId });
-        } else if (collectionName === "Comments") {
-          doc = await Comments.findOne({ _id: documentId });
+        const { Posts } = context;
+        if (collectionName !== "Posts" || !documentId || !Posts) {
+            return null;
         }
-        return doc;
+        return await Posts.findOne({ _id: documentId });
       }
     }
   },

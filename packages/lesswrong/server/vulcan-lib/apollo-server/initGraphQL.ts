@@ -59,7 +59,7 @@ import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolver
 import { spotlightGqlMutations, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
 import { acceptCoauthorRequestMutations, acceptCoauthorRequestTypeDefs } from '@/server/acceptCoauthorRequest';
-import { bookmarkGqlTypeDefs } from '@/server/collections/bookmarks/mutations';
+import { bookmarkGqlTypeDefs, bookmarkGqlMutations } from '@/server/collections/bookmarks/mutations';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
 import { markAsUnreadMutations, markAsUnreadTypeDefs } from '@/server/markAsUnread';
 import { cronGraphQLMutations, cronGraphQLQueries, cronGraphQLTypeDefs } from '@/server/rss-integration/cron';
@@ -577,6 +577,7 @@ export const resolvers = {
     ...typingIndicatorsGqlMutations,
     ...tagResolversGraphQLMutations,
     ...acceptCoauthorRequestMutations,
+    ...bookmarkGqlMutations,
     ...hidePostGqlMutations,
     ...markAsUnreadMutations,
     ...cronGraphQLMutations,
