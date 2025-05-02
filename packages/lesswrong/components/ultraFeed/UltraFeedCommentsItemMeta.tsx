@@ -157,7 +157,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
         [classes.hideOnDesktop]: position === 'below',
       })}
     >
-      <PostsTooltip post={post as PostsList} placement="top" As="span">
+      <PostsTooltip postId={post._id} placement="top" As="span">
         {position === 'below' && <span className={classes.postTitleReplyTo}>Replying to</span>}
           <a
             href={postGetPageUrl(post)}
