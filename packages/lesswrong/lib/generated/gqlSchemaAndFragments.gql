@@ -1244,6 +1244,22 @@ extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
 }
 
+type BookmarksFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [BookmarksFeedEntryType!]
+}
+
+type BookmarksFeedEntryType {
+  type: String!
+  feedPost: Post
+  feedComment: Comment
+}
+
+extend type Query {
+  BookmarksFeed(limit: Int, cutoff: Date, offset: Int): BookmarksFeedQueryResults!
+}
+
 type AdvisorRequest {
   _id: String!
   schemaVersion: Float!

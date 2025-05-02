@@ -772,6 +772,18 @@ interface UltraFeedEntryType {
   feedSpotlight?: FeedSpotlightItem | null;
 }
 
+interface BookmarksFeedQueryResults {
+  cutoff?: Date | null;
+  endOffset: number;
+  results?: Array<BookmarksFeedEntryType> | null;
+}
+
+interface BookmarksFeedEntryType {
+  type: string;
+  feedPost?: UpdatePostDataInput | null;
+  feedComment?: UpdateCommentDataInput | null;
+}
+
 interface SingleAdvisorRequestInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -4488,6 +4500,8 @@ interface GraphQLTypeMap {
   FeedSpotlightItem: FeedSpotlightItem;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntryType: UltraFeedEntryType;
+  BookmarksFeedQueryResults: BookmarksFeedQueryResults;
+  BookmarksFeedEntryType: BookmarksFeedEntryType;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
   MultiAdvisorRequestInput: MultiAdvisorRequestInput;
