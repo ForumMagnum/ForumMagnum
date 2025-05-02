@@ -14,6 +14,7 @@ import * as defaultFragments from '@/lib/generated/defaultFragments';
 // Collection imports
 import * as advisorRequestsFragments from '../collections/advisorRequests/fragments';
 import * as bansFragments from '../collections/bans/fragments';
+import * as bookmarksFragments from '../collections/bookmarks/fragments';
 import * as booksFragments from '../collections/books/fragments';
 import * as chaptersFragments from '../collections/chapters/fragments';
 import * as ckEditorUserSessionsFragments from '../collections/ckEditorUserSessions/fragments';
@@ -69,7 +70,7 @@ import * as tagFlagsFragments from '../collections/tagFlags/fragments';
 import * as tagRelsFragments from '../collections/tagRels/fragments';
 import * as tagsFragments from '../collections/tags/fragments';
 import * as typingIndicatorsFragments from '../collections/typingIndicators/fragments';
-import * as ultraFeedEventsFragments from '../collections/ultraFeedEvents/fragments';
+// import * as ultraFeedEventsFragments from '../collections/ultraFeedEvents/fragments';
 import * as userEAGDetailsFragments from '../collections/userEAGDetails/fragments';
 import * as userJobAdsFragments from '../collections/userJobAds/fragments';
 import * as userMostValuablePostsFragments from '../collections/userMostValuablePosts/fragments';
@@ -97,6 +98,7 @@ const staticFragments = transformFragments({
   // Collection fragments
   ...advisorRequestsFragments,
   ...bansFragments,
+  ...bookmarksFragments,
   ...booksFragments,
   ...chaptersFragments,
   ...ckEditorUserSessionsFragments,

@@ -365,6 +365,8 @@ extend type Query {
   ArbitalPageData(pageAlias: String): ArbitalPageData
 }
 
+union BookmarkableDocument = Post | Comment
+
 type ElicitUser {
   isQuestionCreator: Boolean
   displayName: String
@@ -1098,8 +1100,17 @@ extend type Mutation {
   acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post
 }
 
+input ToggleBookmarkInput {
+  documentId: String!
+  collectionName: String!
+}
+
+type ToggleBookmarkOutput {
+  data: Bookmark
+}
+
 extend type Mutation {
-  setIsBookmarked(postId: String!, isBookmarked: Boolean!): User!
+  toggleBookmark(input: ToggleBookmarkInput!): ToggleBookmarkOutput
 }
 
 extend type Mutation {
@@ -1358,6 +1369,52 @@ type MultiBanOutput {
 extend type Query {
   ban(input: SingleBanInput): SingleBanOutput
   bans(input: MultiBanInput): MultiBanOutput
+}
+
+type Bookmark {
+  _id: String!
+  createdAt: Date!
+  documentId: String
+  collectionName: String
+  userId: String
+  document: BookmarkableDocument
+  lastUpdated: Date
+  cancelled: Boolean
+}
+
+input BookmarkSelectorInput {
+  _id: String
+  documentId: String
+  collectionName: String
+  userId: String
+  cancelled: Boolean
+}
+
+input SingleBookmarkInput {
+  selector: BookmarkSelectorInput
+  resolverArgs: JSON
+  allowNull: Boolean
+}
+
+type SingleBookmarkOutput {
+  result: Bookmark
+}
+
+input MultiBookmarkInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiBookmarkOutput {
+  results: [Bookmark]
+  totalCount: Int
+}
+
+extend type Query {
+  bookmark(input: SingleBookmarkInput): SingleBookmarkOutput
+  bookmarks(input: MultiBookmarkInput): MultiBookmarkOutput
 }
 
 type Book {
@@ -7360,6 +7417,28 @@ fragment BookPageFragment on Book {
   displaySequencesAsGrid
   hideProgressBar
   showChapters
+}
+
+fragment BookmarksDefaultFragment on Bookmark {
+  _id
+  createdAt
+  documentId
+  collectionName
+  userId
+  lastUpdated
+  cancelled
+}
+
+fragment BookmarksWithDocumentFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  document {
+    ... on Post {
+      ...PostsListWithVotes
+    }
+    ... on Comment {
+      ...CommentsItem
+    }
+  }
 }
 
 fragment BooksDefaultFragment on Book {

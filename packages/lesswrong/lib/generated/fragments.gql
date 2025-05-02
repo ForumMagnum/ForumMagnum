@@ -143,6 +143,28 @@ fragment BookPageFragment on Book {
   showChapters
 }
 
+fragment BookmarksDefaultFragment on Bookmark {
+  _id
+  createdAt
+  documentId
+  collectionName
+  userId
+  lastUpdated
+  cancelled
+}
+
+fragment BookmarksWithDocumentFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  document {
+    ... on Post {
+      ...PostsListWithVotes
+    }
+    ... on Comment {
+      ...CommentsItem
+    }
+  }
+}
+
 fragment BooksDefaultFragment on Book {
   _id
   schemaVersion

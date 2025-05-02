@@ -50,6 +50,18 @@ export const BansDefaultFragment = `
   }
 `;
 
+export const BookmarksDefaultFragment = `
+  fragment BookmarksDefaultFragment on Bookmark {
+    _id
+    createdAt
+    documentId
+    collectionName
+    userId
+    lastUpdated
+    cancelled
+  }
+`;
+
 export const BooksDefaultFragment = `
   fragment BooksDefaultFragment on Book {
     _id

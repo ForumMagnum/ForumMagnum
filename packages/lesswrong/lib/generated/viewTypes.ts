@@ -2,6 +2,7 @@ type AdvisorRequestsViewName = "requestsByUser";
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
 type BansViewName = never
+type BookmarksViewName = "myBookmarkedPosts"|"myBookmarks";
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
 type CkEditorUserSessionsViewName = never
@@ -92,6 +93,7 @@ interface ViewTermsByCollectionName {
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase
   Bans: ViewTermsBase
+  Bookmarks: BookmarksViewTerms
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms
   CkEditorUserSessions: ViewTermsBase
@@ -179,4 +181,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

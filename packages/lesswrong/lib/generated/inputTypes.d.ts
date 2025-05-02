@@ -725,6 +725,15 @@ interface ModeratorIPAddressInfo {
   userIds: Array<string>;
 }
 
+interface ToggleBookmarkInput {
+  documentId: string;
+  collectionName: string;
+}
+
+interface ToggleBookmarkOutput {
+  data?: UpdateBookmarkDataInput | null;
+}
+
 interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
@@ -833,6 +842,36 @@ interface MultiBanInput {
 
 interface MultiBanOutput {
   results?: Array<UpdateBanDataInput | null> | null;
+  totalCount?: number | null;
+}
+
+interface BookmarkSelectorInput {
+  _id?: string | null;
+  documentId?: string | null;
+  collectionName?: string | null;
+  userId?: string | null;
+  cancelled?: boolean | null;
+}
+
+interface SingleBookmarkInput {
+  selector?: BookmarkSelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleBookmarkOutput {
+  result?: UpdateBookmarkDataInput | null;
+}
+
+interface MultiBookmarkInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiBookmarkOutput {
+  results?: Array<UpdateBookmarkDataInput | null> | null;
   totalCount?: number | null;
 }
 
@@ -4441,6 +4480,8 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
+  ToggleBookmarkInput: ToggleBookmarkInput;
+  ToggleBookmarkOutput: ToggleBookmarkOutput;
   RssPostChangeInfo: RssPostChangeInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;
@@ -4460,6 +4501,11 @@ interface GraphQLTypeMap {
   SingleBanOutput: SingleBanOutput;
   MultiBanInput: MultiBanInput;
   MultiBanOutput: MultiBanOutput;
+  BookmarkSelectorInput: BookmarkSelectorInput;
+  SingleBookmarkInput: SingleBookmarkInput;
+  SingleBookmarkOutput: SingleBookmarkOutput;
+  MultiBookmarkInput: MultiBookmarkInput;
+  MultiBookmarkOutput: MultiBookmarkOutput;
   SingleBookInput: SingleBookInput;
   SingleBookOutput: SingleBookOutput;
   MultiBookInput: MultiBookInput;
@@ -4968,6 +5014,7 @@ interface CreateInputsByCollectionName {
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   Bans: never;
+  Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
   CronHistories: never;
@@ -5056,6 +5103,7 @@ interface UpdateInputsByCollectionName {
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   Bans: never;
+  Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
   CronHistories: never;
