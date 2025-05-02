@@ -2395,6 +2395,7 @@ const schema = {
     graphql: {
       outputType: "CrosspostOutput",
       inputType: "CrosspostInput",
+      validation: { blackbox: true },
       canRead: [documentIsNotDeleted],
       canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), "admins"],
       canCreate: [userPassesCrosspostingKarmaThreshold, "admins"],
