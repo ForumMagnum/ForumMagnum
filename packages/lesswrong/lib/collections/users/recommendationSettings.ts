@@ -1,5 +1,3 @@
-import SimpleSchema from 'simpl-schema';
-import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { FilterSettings } from '@/lib/filterSettings';
@@ -172,21 +170,3 @@ export const defaultAlgorithmSettings: DefaultRecommendationsAlgorithm = {
   curatedModifier: 50,
   onlyUnread: true,
 };
-
-const recommendationAlgorithmSettingsSchema = new SimpleSchema({
-  method: String,
-  count: SimpleSchema.Integer,
-  scoreOffset: Number,
-  scoreExponent: Number,
-  personalBlogpostModifier: Number,
-  frontpageModifier: Number,
-  curatedModifier: Number,
-  onlyUnread: Boolean,
-});
-
-export const recommendationSettingsSchema = new SimpleSchema({
-  frontpage: recommendationAlgorithmSettingsSchema,
-  frontpageEA: recommendationAlgorithmSettingsSchema,
-  recommendationspage: recommendationAlgorithmSettingsSchema,
-});
-

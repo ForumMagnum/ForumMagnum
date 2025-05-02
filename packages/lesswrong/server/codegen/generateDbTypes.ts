@@ -182,16 +182,6 @@ function generateCollectionDbType(collection: CollectionBase<any>): string {
       && fieldSchema.graphql?.validation?.simpleSchema;
 
     if (useSimpleSchemaTypeGen) {
-      if (fieldName === 'creator') {
-        console.log({
-          useSimpleSchemaTypeGen,
-          isStringOrStringArrayField,
-          hasTypescriptType,
-          hasSimpleSchemaType,
-          isNonTrivialSimpleSchemaType: isNonTrivialSimpleSchemaType(fieldSimpleSchemaType, fieldSchema),
-          hasAllowedValues,
-        });
-      }
       typeName = simplSchemaTypeToTypescript(simpleSchema._schema, fieldName, fieldSimpleSchemaType, 2, true);
     } else {
       typeName = databaseSpecToTypescriptType(databaseSpec, fieldSchema.graphql);
