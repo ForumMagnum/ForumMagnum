@@ -186,6 +186,7 @@ const CommentsNodeInner = ({
   }
 
   const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
+    console.log("Is scrolling into view")
     if (!isInViewport() || hasInContextLinks) {
       scrollFocusOnElement({ id: comment._id, options: { behavior } });
     }
@@ -210,9 +211,11 @@ const CommentsNodeInner = ({
       setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);
-      if (scroll) {
-        scrollIntoView(scrollBehaviour);
-      }
+    }
+
+    // TODO split out this change and put it up as a separate PR
+    if (scroll) {
+      scrollIntoView(scrollBehaviour);
     }
   };
 

@@ -210,7 +210,7 @@ export const CommentsItem = ({
 }) => {
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
-  const [showEditState, setShowEditState] = useState(false);
+  const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUser = useCurrentUser();

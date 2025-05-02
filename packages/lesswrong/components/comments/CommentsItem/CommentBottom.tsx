@@ -12,6 +12,8 @@ import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommentBottomCaveats from "./CommentBottomCaveats";
+import { commentGetPageUrl } from '@/lib/collections/comments/helpers';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   bottom: {
@@ -29,6 +31,13 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "baseline",
   },
+  editInContext: {
+    ...theme.typography.body2,
+    fontWeight: 450,
+    color: theme.palette.lwTertiary.main,
+    marginRight: 10,
+    float: "right"
+  },
 })
 
 const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
@@ -43,7 +52,6 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
 }) => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
-  const isMinimalist = treeOptions.formStyle === "minimalist"
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
@@ -63,6 +71,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
     (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post ?? null, null, true)) &&
     (!commentHidden || userCanDo(currentUser, 'posts.moderate.all'))
   )
+  const showEditInContext = treeOptions.showEditInContext;
 
   return (
     <div className={classNames(
@@ -80,6 +89,12 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
         commentBodyRef={commentBodyRef}
         voteProps={voteProps}
       />}
+      {showEditInContext && <Link
+        // TODO make this link to the right place
+        to={commentGetPageUrl(comment)}
+        className={classes.editInContext}>
+          Edit in context
+      </Link>}
     </div>
   );
 }
