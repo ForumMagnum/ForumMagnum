@@ -73,6 +73,15 @@ CREATE TABLE "ArbitalTagContentRels" (
 -- Index "idx_ArbitalTagContentRels_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "ArbitalTagContentRels" USING btree ("schemaVersion");
 
+-- Table "AutomatedContentEvaluations"
+CREATE TABLE "AutomatedContentEvaluations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "score" DOUBLE PRECISION NOT NULL,
+  "sentenceScores" JSONB NOT NULL
+);
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,

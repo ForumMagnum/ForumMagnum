@@ -10,6 +10,9 @@ import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { saplingApiKey } from "@/lib/instanceSettings";
+import { dataToMarkdown } from "@/server/editor/conversionUtils";
+import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -54,6 +57,8 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
+  void createAutomatedContentEvaluation(documentWithId);
+
   return documentWithId;
 }
 export async function updateRevision({ selector, data }: UpdateRevisionInput, context: ResolverContext) {
@@ -80,6 +85,10 @@ export async function updateRevision({ selector, data }: UpdateRevisionInput, co
 
   void logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData });
 
+  if (!updatedDocument.draft) {
+    void createAutomatedContentEvaluation(updatedDocument);
+  }
+
   return updatedDocument;
 }
 
@@ -89,6 +98,39 @@ export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', upda
 });
 
 
+
+async function createAutomatedContentEvaluation(revision: DbRevision) {
+  const key = saplingApiKey.get();
+  if (!saplingApiKey) return;
+  
+
+  const markdown = dataToMarkdown(revision.html, "html");
+  const textToCheck = markdown.slice(0, 10000)
+  
+  const response = await fetch('https://api.sapling.ai/api/v1/aidetect', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      key,
+      text: textToCheck,
+    }),
+  });
+
+  const saplingEvaluation = await response.json();
+
+  if (typeof saplingEvaluation !== 'object' || saplingEvaluation === null || typeof saplingEvaluation.score !== 'number' || !Array.isArray(saplingEvaluation.sentence_scores) || saplingEvaluation.sentence_scores.some((sentenceScore: AnyBecauseIsInput) => typeof sentenceScore !== 'object' || sentenceScore === null || typeof sentenceScore.sentence !== 'string' || typeof sentenceScore.score !== 'number')) {
+    throw new Error('Invalid response from Sapling API');
+  }
+
+  await AutomatedContentEvaluations.rawInsert({
+    createdAt: new Date(),
+    revisionId: revision._id,
+    score: saplingEvaluation.score,
+    sentenceScores: saplingEvaluation.sentence_scores,
+  })
+}
 
 export const graphqlRevisionTypeDefs = gql`
   input UpdateRevisionDataInput {

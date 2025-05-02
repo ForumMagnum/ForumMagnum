@@ -35,6 +35,16 @@ export const ArbitalTagContentRelsDefaultFragment = `
   }
 `;
 
+export const AutomatedContentEvaluationsDefaultFragment = `
+  fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluation {
+    _id
+    createdAt
+    revisionId
+    score
+    sentenceScores
+  }
+`;
+
 export const BansDefaultFragment = `
   fragment BansDefaultFragment on Ban {
     _id
