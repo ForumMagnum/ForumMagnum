@@ -11,6 +11,8 @@ import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "../../lib/crud/withCreate";
 import { useDialog } from "../common/withDialog";
+import { isBookmarkableCollectionName } from "../posts/BookmarkButton";
+
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -155,6 +157,7 @@ interface UltraFeedItemFooterCoreProps {
   hideKarma?: boolean;
   reactionCount: number;
   bookmarkDocument?: PostsMinimumInfo;
+  collectionName: "Posts" | "Comments" | "Spotlights";
   className?: string;
 }
 
@@ -166,6 +169,7 @@ const UltraFeedItemFooterCore = ({
   hideKarma,
   reactionCount,
   bookmarkDocument,
+  collectionName,
   className,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
@@ -252,9 +256,9 @@ const UltraFeedItemFooterCore = ({
         </div>
       )}
       
-      { bookmarkDocument && (
+      { bookmarkDocument && isBookmarkableCollectionName(collectionName) && (
         <div className={classes.bookmarkButton} onClick={() => handleInteractionLog('bookmarkClicked')}>
-          <BookmarkButton post={bookmarkDocument} />
+          <BookmarkButton documentId={bookmarkDocument._id} collectionName={collectionName} />
         </div>
       )}
     </div>
@@ -293,6 +297,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
       hideKarma={false}
       reactionCount={reactionCount}
       bookmarkDocument={post}
+      collectionName="Posts"
       className={className}
     />
   );
@@ -334,6 +339,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
       hideKarma={hideKarma}
       reactionCount={reactionCount}
       bookmarkDocument={bookmarkDocument ?? undefined}
+      collectionName={"Comments"}
       className={className}
     />
   );
