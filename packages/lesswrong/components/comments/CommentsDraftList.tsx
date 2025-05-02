@@ -65,7 +65,9 @@ const CommentsDraftList = ({userId, initialLimit, itemsPerPage, showTotal, class
           singleLinePostTitle: true,
           showPostTitle: true,
           post: comment.post || undefined,
-          forceSingleLine: true
+          forceSingleLine: true,
+          initialShowEdit: true,
+          showEditInContext: true,
         }}
       />
     ))}
