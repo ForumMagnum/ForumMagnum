@@ -4,7 +4,6 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useWarnAboutUnsavedChanges } from "@/components/hooks/useWarnAboutUnsavedChanges";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "@/components/editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -41,7 +40,7 @@ export const LensForm = ({
   onCancel: () => void;
   onChange?: () => void;
 }) => {
-  const { Error404, SummariesEditForm } = Components;
+  const { Error404, SummariesEditForm, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 

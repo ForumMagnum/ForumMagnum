@@ -7,7 +7,6 @@ import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
@@ -39,8 +38,8 @@ export const SpotlightForm = ({
   descriptionOnly?: boolean;
   onSuccess: (doc: SpotlightEditQueryFragment) => void;
 }) => {
+  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
-  const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
 

@@ -7,7 +7,6 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -31,8 +30,8 @@ export const ModerationTemplatesForm = ({
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
   onSuccess?: (doc: ModerationTemplateFragment) => void;
 }) => {
+  const { Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
-  const { Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
 

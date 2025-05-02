@@ -6,7 +6,7 @@ import {
 } from "../../utils/schemaUtils";
 import { isLWorAF } from "../../instanceSettings";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 
 const SPOTLIGHT_DOCUMENT_TYPES = ["Sequence", "Post", "Tag"] as const;
 

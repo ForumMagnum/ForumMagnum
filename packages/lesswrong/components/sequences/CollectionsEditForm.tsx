@@ -4,9 +4,8 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -64,6 +63,8 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
   successCallback: (doc: CollectionsPageFragment) => void,
   cancelCallback: () => void,
 }) => {
+  const { FormComponentCheckbox } = Components;
+  
   const classes = useStyles(styles);
 
   const {

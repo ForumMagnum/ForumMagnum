@@ -11,7 +11,6 @@ import { useCreate } from "@/lib/crud/withCreate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
@@ -113,7 +112,7 @@ const InnerMessagesNewForm = ({
   prefilledProps,
   onSuccess,
 }: MessagesNewFormProps) => {
-  const { Loading, ForumIcon } = Components;
+  const { Loading, ForumIcon, FormComponentCheckbox } = Components;
 
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();

@@ -11,7 +11,6 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -29,7 +28,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
   initialData?: UpdateTagFlagDataInput & { _id: string };
   onClose?: () => void,
 }) => {
-  const { Error404, LWDialog } = Components;
+  const { Error404, LWDialog, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
 
   const formType = initialData ? 'edit' : 'new';

@@ -9,7 +9,6 @@ import React from "react";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -50,7 +49,7 @@ export const SummaryForm = ({
   onSuccess: (doc: MultiDocumentContentDisplay) => void;
   onCancel: () => void;
 }) => {
-  const { Error404 } = Components;
+  const { Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 

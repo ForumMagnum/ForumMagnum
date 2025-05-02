@@ -8,7 +8,6 @@ import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { useSingle } from '@/lib/crud/withSingle';
-import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/localgroups/groupTypes';
 import { isEAForum, isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
@@ -71,7 +70,7 @@ const TanStackGroupForm = ({
 }) => {
   const classes = useStyles(styles);
 
-  const { LWTooltip, Error404 } = Components;
+  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
 
   const formType = initialData ? 'edit' : 'new';
 

@@ -8,7 +8,6 @@ import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -229,7 +228,7 @@ export const CommentForm = ({
   onCancel: () => void;
   onError?: () => void;
 }) => {
-  const { Error404, FormGroupNoStyling, FormGroupQuickTakes } = Components;
+  const { Error404, FormGroupNoStyling, FormGroupQuickTakes, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 
@@ -289,7 +288,9 @@ export const CommentForm = ({
 
         onSuccessCallback.current?.(result);
 
-        onSuccess(result);  
+        onSuccess(result);
+
+        formApi.reset();
       } catch (error) {
         onError?.();
         setCaughtError(error);
@@ -358,7 +359,7 @@ export const CommentForm = ({
           </form.Field>
         </div>}
 
-        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <div className={classNames("form-input", "form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <EditorFormComponent

@@ -7,7 +7,6 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
@@ -36,6 +35,8 @@ const RSSFeedsForm = ({
   userId: string;
   onSuccess: (doc: newRSSFeedFragment) => void;
 }) => {
+  const { FormComponentCheckbox } = Components;
+  
   const classes = useStyles(formStyles);
 
   const { create } = useCreate({

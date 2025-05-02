@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { siteImageSetting } from '../vulcan-core/App';
+import { siteImageSetting } from '@/lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({

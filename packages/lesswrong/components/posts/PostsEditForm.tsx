@@ -14,7 +14,7 @@ import DeferRender from '../common/DeferRender';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { PostForm } from './PostForm';
+import { EditorContext } from './EditorContext';
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -111,14 +111,13 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   },
 }))
 
-export const EditorContext = React.createContext<[Editor|null, (e: Editor) => void]>([null, _ => {}]);
-
 const PostsEditForm = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
+  // return <></>;
   const classes = useStyles(styles);
-  const { HeadTags, ForeignCrosspostEditForm, RateLimitWarning,
+  const { HeadTags, ForeignCrosspostEditForm, RateLimitWarning, PostForm,
     DynamicTableOfContents, NewPostModerationWarning, NewPostHowToGuides
   } = Components
 

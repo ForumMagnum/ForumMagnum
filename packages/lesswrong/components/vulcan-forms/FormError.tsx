@@ -1,9 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
 
-const FormError = ({ error, errorContext="", getLabel }: {
+export const FormError = ({ error, errorContext="", getLabel }: {
   error: any,
   errorContext: any,
   getLabel: (fieldName: string, fieldLocale?: any) => string,
@@ -31,14 +29,3 @@ const FormError = ({ error, errorContext="", getLabel }: {
     return 'Error submitting form';
   }
 };
-
-
-// TODO: pass getLabel as prop instead for consistency?
-const FormErrorComponent = registerComponent('FormError', FormError);
-
-
-declare global {
-  interface ComponentTypes {
-    FormError: typeof FormErrorComponent
-  }
-}

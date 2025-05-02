@@ -8,7 +8,7 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 
 function groupHasGoogleLocation(data: Partial<DbLocalgroup> | UpdateLocalgroupDataInput) {
   return "googleLocation" in data;

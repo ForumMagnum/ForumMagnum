@@ -11,6 +11,7 @@ import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
+import type { EditablePost } from '../posts/helpers';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -189,7 +190,7 @@ export const userCanModerateComment = (user: UsersProfile|DbUser|null, post: Pos
   }
 }
 
-export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null): boolean => {
+export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase | DbPost | (EditablePost & { userId: string | null}) | null): boolean => {
   if (userCanDo(user,"posts.commentLock.all")) {
     return true
   }

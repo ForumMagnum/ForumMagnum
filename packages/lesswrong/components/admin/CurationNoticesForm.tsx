@@ -7,7 +7,6 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
@@ -35,7 +34,7 @@ export const CurationNoticesForm = ({
   onSuccess,
 }: CurationNoticesFormProps) => {
   const classes = useStyles(formStyles);
-  const { LWTooltip, Error404 } = Components;
+  const { Error404, FormComponentCheckbox } = Components;
 
   const formType = initialData ? 'edit' : 'new';
 

@@ -1,6 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 

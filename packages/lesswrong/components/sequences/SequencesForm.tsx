@@ -7,7 +7,6 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
@@ -40,7 +39,7 @@ export const SequencesForm = ({
   onSuccess: (doc: SequencesEdit) => void;
   onCancel: () => void;
 }) => {
-  const { LWTooltip, Error404 } = Components;
+  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
 
   const classes = useStyles(formStyles);
 

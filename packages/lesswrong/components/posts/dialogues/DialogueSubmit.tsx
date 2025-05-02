@@ -6,7 +6,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { isLW } from "../../../lib/instanceSettings";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCreate } from '../../../lib/crud/withCreate';
-import { EditorContext } from '../PostsEditForm';
+import { EditorContext } from '../EditorContext';
 import { useNavigate } from '../../../lib/routeUtil';
 import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '@/lib/collections/posts/helpers';

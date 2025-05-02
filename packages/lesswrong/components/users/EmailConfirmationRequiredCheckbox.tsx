@@ -1,10 +1,12 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { FormComponentCheckbox, FormComponentCheckboxProps } from '@/components/form-components/FormComponentCheckbox';
+import type { FormComponentCheckboxProps } from '@/components/form-components/FormComponentCheckbox';
 
-export const EmailConfirmationRequiredCheckbox = (props: FormComponentCheckboxProps) => {
+const EmailConfirmationRequiredCheckbox = (props: FormComponentCheckboxProps) => {
+  const { FormComponentCheckbox } = Components;
+  
   const currentUser = useCurrentUser();
   let { label, ...otherProps } = props;
   

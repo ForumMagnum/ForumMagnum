@@ -2,7 +2,7 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { getWithCustomLoader } from "../../loaders";
 import { accessFilterMultiple, generateIdResolverSingle } from "../../utils/schemaUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema = {

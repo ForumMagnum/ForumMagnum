@@ -6,7 +6,7 @@ import {
 import { getWithCustomLoader } from "../../loaders";
 import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,

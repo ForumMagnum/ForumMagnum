@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("Alert", theme => ({
@@ -8,7 +7,7 @@ const styles = defineStyles("Alert", theme => ({
   },
 }));
 
-const Alert = ({ children }: {
+export const Alert = ({ children }: {
   children: React.ReactNode
 }) => {
   const classes = useStyles(styles);
@@ -16,12 +15,3 @@ const Alert = ({ children }: {
     {children}
   </div>;
 }
-
-const AlertComponent = registerComponent('Alert', Alert);
-
-declare global {
-  interface ComponentTypes {
-    Alert: typeof AlertComponent
-  }
-}
-

@@ -12,7 +12,6 @@ import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
@@ -95,7 +94,7 @@ export const TagForm = ({
   onCancel?: () => void;
   onChange?: () => void;
 }) => {
-  const { LWTooltip, Error404 } = Components;
+  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   

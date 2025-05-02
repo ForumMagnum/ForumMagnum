@@ -16,7 +16,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor/EditorFormComponent';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
@@ -31,7 +30,6 @@ import { getAllUserGroups, userHasntChangedName, userIsAdmin, userIsAdminOrMod, 
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
 import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
-import { EmailConfirmationRequiredCheckbox } from '../EmailConfirmationRequiredCheckbox';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
@@ -126,7 +124,7 @@ const UsersForm = ({
   currentUser: UsersCurrent;
   onSuccess: (doc: UsersEdit) => void;
 }) => {
-  const { LWTooltip, Error404, PrefixedInput, NotificationTypeSettingsWidget, KarmaChangeNotifierSettings, UsersEmailVerification } = Components;
+  const { LWTooltip, Error404, PrefixedInput, NotificationTypeSettingsWidget, KarmaChangeNotifierSettings, UsersEmailVerification, EmailConfirmationRequiredCheckbox, FormComponentCheckbox } = Components;
 
   const classes = useStyles(styles);
   const { query } = useLocation();

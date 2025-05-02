@@ -58,7 +58,7 @@ import {
   userOwns,
 } from "../../vulcan-users/permissions";
 import { getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from '@/lib/collections/revisions/revisionConstants';
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getLatestRev } from "@/server/editor/utils";
@@ -2288,6 +2288,7 @@ const schema = {
     graphql: {
       outputType: "[CoauthorStatusOutput!]",
       inputType: "[CoauthorStatusInput!]",
+      validation: { blackbox: true },
       canRead: [documentIsNotDeleted],
       canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
       canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
@@ -2364,6 +2365,7 @@ const schema = {
     graphql: {
       outputType: "SocialPreviewOutput",
       inputType: "SocialPreviewInput",
+      validation: { blackbox: true },
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],

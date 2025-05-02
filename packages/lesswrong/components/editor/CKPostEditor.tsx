@@ -18,7 +18,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
-import { EditorContext } from '../posts/PostsEditForm';
+import { EditorContext } from '../posts/EditorContext';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'

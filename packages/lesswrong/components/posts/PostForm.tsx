@@ -8,7 +8,7 @@ import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
-import { Components } from "@/lib/vulcan-lib/components";
+import { Components, registerComponent } from "@/lib/vulcan-lib/components";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved, userOwns } from "@/lib/vulcan-users/permissions";
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
@@ -30,7 +30,6 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { GlossaryEditFormWrapper } from "../jargon/GlossaryEditFormWrapper";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
@@ -42,6 +41,7 @@ import { DialogueSubmit } from "./dialogues/DialogueSubmit";
 import { PostSubmit } from "./PostSubmit";
 import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { userCanCommentLock } from "@/lib/collections/users/helpers";
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -99,14 +99,14 @@ const STICKY_PRIORITIES = {
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
 
-export const PostForm = ({
+const PostForm = ({
   initialData,
   onSuccess,
 }: {
   initialData: EditablePost;
   onSuccess: (doc: PostsEditMutationFragment, options?: { submitOptions: PostSubmitMeta }) => void;
 }) => {
-  const { LWTooltip, Error404, FormGroupPostTopBar, FooterTagList } = Components;
+  const { LWTooltip, Error404, FormGroupPostTopBar, FooterTagList, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   const [editorType, setEditorType] = useState<string>();
@@ -1140,7 +1140,7 @@ export const PostForm = ({
           </form.Field>
         </div>}
 
-        <div className={classes.fieldWrapper}>
+        {userCanCommentLock(currentUser, { ...form.state.values, userId: form.state.values.userId ?? null }) && <div className={classes.fieldWrapper}>
           <form.Field name="commentsLocked">
             {(field) => (
               <FormComponentCheckbox
@@ -1149,9 +1149,9 @@ export const PostForm = ({
               />
             )}
           </form.Field>
-        </div>
+        </div>}
 
-        <div className={classes.fieldWrapper}>
+        {userCanCommentLock(currentUser, { ...form.state.values, userId: form.state.values.userId ?? null }) && <div className={classes.fieldWrapper}>
           <form.Field name="commentsLockedToAccountsCreatedAfter">
             {(field) => (
               <FormComponentDatePicker
@@ -1160,7 +1160,7 @@ export const PostForm = ({
               />
             )}
           </form.Field>
-        </div>
+        </div>}
 
         {isEAForum && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
           <form.Field name="hideCommentKarma">
@@ -1192,3 +1192,11 @@ export const PostForm = ({
     </form >
   );
 };
+
+const PostFormComponent = registerComponent("PostForm", PostForm);
+
+declare global {
+  interface ComponentTypes {
+    PostForm: typeof PostFormComponent
+  }
+}

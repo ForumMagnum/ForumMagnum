@@ -10,7 +10,6 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
@@ -42,8 +41,8 @@ const SurveySchedulesForm = ({
   initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; target?: DbSurveySchedule['target'] };
   onSuccess: (doc: SurveyScheduleEdit) => void;
 }) => {
+  const { LWTooltip, Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(styles);
-  const { LWTooltip, Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
 

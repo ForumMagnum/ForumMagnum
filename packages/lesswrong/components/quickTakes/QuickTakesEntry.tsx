@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     '& .ck .ck-placeholder': {
       position: 'unset'
     },
-    '& .CommentsNewForm-submitQuickTakes': {
+    '& .CommentSubmit-submitQuickTakes': {
       display: 'none'
     }
   },

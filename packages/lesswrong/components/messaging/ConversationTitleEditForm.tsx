@@ -7,7 +7,6 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { FormComponentCheckbox } from '@/components/form-components/FormComponentCheckbox';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
@@ -34,6 +33,8 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   onClose?: () => void,
   conversation: UpdateConversationDataInput & { _id: string },
 }) => {
+  const { FormComponentCheckbox } = Components;
+  
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 

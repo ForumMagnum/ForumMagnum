@@ -6,7 +6,6 @@ import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { FormComponentCheckbox } from "@/components/form-components/FormComponentCheckbox";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -36,8 +35,8 @@ export const BooksForm = ({
   onSuccess: (doc: BookPageFragment) => void;
   onCancel: () => void;
 }) => {
+  const { Error404, FormComponentCheckbox } = Components;
   const classes = useStyles(formStyles);
-  const { Error404 } = Components;
 
   const formType = initialData ? 'edit' : 'new';
 

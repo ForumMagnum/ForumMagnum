@@ -1,6 +1,6 @@
 import React from 'react';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { Components } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
@@ -31,12 +31,12 @@ export interface FormComponentCheckboxProps {
   className?: string;
 }
 
-export function FormComponentCheckbox({
+const FormComponentCheckbox = ({
   field,
   label,
   disabled = false,
   className,
-}: FormComponentCheckboxProps) {
+}: FormComponentCheckboxProps) => {
   const classes = useStyles(styles);
 
   // For some reason the `htmlFor` attribute doesn't seem to make the label clickable,
@@ -62,4 +62,12 @@ export function FormComponentCheckbox({
       label={displayedLabel}
     />
   );
+}
+
+const FormComponentCheckboxComponent = registerComponent('FormComponentCheckbox', FormComponentCheckbox);
+
+declare global {
+  interface ComponentTypes {
+    FormComponentCheckbox: typeof FormComponentCheckboxComponent
+  }
 }

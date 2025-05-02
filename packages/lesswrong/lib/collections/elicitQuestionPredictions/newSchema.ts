@@ -89,6 +89,7 @@ const schema = {
     },
     graphql: {
       outputType: "ElicitQuestionPredictionCreator!",
+      validation: { blackbox: true },
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
