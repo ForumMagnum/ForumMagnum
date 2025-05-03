@@ -814,6 +814,11 @@ interface MultiArbitalTagContentRelOutput {
   totalCount?: number | null;
 }
 
+interface SentenceScore {
+  sentence: string;
+  score: number;
+}
+
 interface SingleBanInput {
   selector?: SelectorInput | null;
   resolverArgs?: any;
@@ -4456,6 +4461,7 @@ interface GraphQLTypeMap {
   SingleArbitalTagContentRelOutput: SingleArbitalTagContentRelOutput;
   MultiArbitalTagContentRelInput: MultiArbitalTagContentRelInput;
   MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
+  SentenceScore: SentenceScore;
   SingleBanInput: SingleBanInput;
   SingleBanOutput: SingleBanOutput;
   MultiBanInput: MultiBanInput;
@@ -4967,6 +4973,7 @@ interface CreateInputsByCollectionName {
   Users: CreateUserInput;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
+  AutomatedContentEvaluations: never;
   Bans: never;
   CkEditorUserSessions: never;
   ClientIds: never;
@@ -5055,6 +5062,7 @@ interface UpdateInputsByCollectionName {
   Users: UpdateUserInput;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
+  AutomatedContentEvaluations: never;
   Bans: never;
   CkEditorUserSessions: never;
   ClientIds: never;

@@ -85,6 +85,14 @@ fragment ArbitalTagContentRelsDefaultFragment on ArbitalTagContentRel {
   isStrong
 }
 
+fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluation {
+  _id
+  createdAt
+  revisionId
+  score
+  sentenceScores
+}
+
 fragment BansAdminPageFragment on Ban {
   _id
   createdAt
@@ -3311,6 +3319,15 @@ fragment SunshinePostsList on Post {
     htmlHighlight
     wordCount
     version
+
+    automatedContentEvaluations {
+      _id
+      score
+      sentenceScores {
+        sentence
+        score
+      }
+    }
   }
 
   moderationGuidelines {

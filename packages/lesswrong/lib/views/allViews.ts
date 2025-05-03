@@ -63,6 +63,7 @@ export const allViews = {
   AdvisorRequests: AdvisorRequestsViews,
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
+  AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),
   Bans: new CollectionViewSet('Bans', {}),
   Books: new CollectionViewSet('Books', {}),
   Chapters: ChaptersViews,
