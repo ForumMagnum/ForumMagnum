@@ -780,8 +780,9 @@ interface BookmarksFeedQueryResults {
 
 interface BookmarksFeedEntryType {
   type: string;
-  feedPost?: UpdatePostDataInput | null;
-  feedComment?: UpdateCommentDataInput | null;
+  feedPost?: FeedPost | null;
+  feedCommentThread?: FeedCommentThread | null;
+  sortKey: Date;
 }
 
 interface SingleAdvisorRequestInput {

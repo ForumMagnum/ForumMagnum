@@ -117,6 +117,12 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       opacity: 1,
     },
   },
+  bookmarkButtonHighlighted: {
+    color: `${theme.palette.primary.main} !important`,
+    "& svg": {
+      color: `${theme.palette.primary.main} !important`,
+    },
+  },
   overallVoteButtons: {
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
@@ -149,14 +155,19 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
 }));
 
+interface BookmarkProps {
+  documentId: string;
+  highlighted?: boolean;
+}
+
 interface UltraFeedItemFooterCoreProps {
-  commentCount: number;
+  commentCount: number | undefined;
   onClickComments: () => void;
   showVoteButtons: boolean;
   voteProps: VotingProps<VoteableTypeClient>;
   hideKarma?: boolean;
   reactionCount: number;
-  bookmarkDocument?: PostsMinimumInfo;
+  bookmarkProps?: BookmarkProps;
   collectionName: "Posts" | "Comments" | "Spotlights";
   className?: string;
 }
@@ -168,7 +179,7 @@ const UltraFeedItemFooterCore = ({
   voteProps,
   hideKarma,
   reactionCount,
-  bookmarkDocument,
+  bookmarkProps,
   collectionName,
   className,
 }: UltraFeedItemFooterCoreProps) => {
@@ -210,9 +221,9 @@ const UltraFeedItemFooterCore = ({
       className={classNames(classes.commentCount, { [classes.commentCountClickable]: !!onClickComments })}
     >
       <CommentIcon />
-      <span className={classes.commentCountText}>
+      {commentCount && <span className={classes.commentCountText}>
         {commentCount}
-      </span>
+      </span>}
     </div>
   );
 
@@ -256,9 +267,14 @@ const UltraFeedItemFooterCore = ({
         </div>
       )}
       
-      { bookmarkDocument && isBookmarkableCollectionName(collectionName) && (
-        <div className={classes.bookmarkButton} onClick={() => handleInteractionLog('bookmarkClicked')}>
-          <BookmarkButton documentId={bookmarkDocument._id} collectionName={collectionName} />
+      { bookmarkProps && isBookmarkableCollectionName(collectionName) && (
+        <div onClick={() => handleInteractionLog('bookmarkClicked')}>
+          <BookmarkButton
+            documentId={bookmarkProps.documentId}
+            collectionName={collectionName}
+            className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
+            overrideTooltipText="You are being shown this because you bookmarked it."
+          />
         </div>
       )}
     </div>
@@ -275,6 +291,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
   const reactionCount = reacts ? Object.keys(reacts).length : 0;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions";
   const commentCount = post.commentCount ?? 0;
+  const bookmarkProps: BookmarkProps = {documentId: post._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
   const onClickComments = () => {
     openDialog({
@@ -296,7 +313,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
       voteProps={voteProps}
       hideKarma={false}
       reactionCount={reactionCount}
-      bookmarkDocument={post}
+      bookmarkProps={bookmarkProps}
       collectionName="Posts"
       className={className}
     />
@@ -315,7 +332,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
   const hideKarma = !!parentPost?.hideCommentKarma;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !hideKarma;
   const commentCount = metaInfo.directDescendentCount;
-  
+  const bookmarkProps: BookmarkProps = {documentId: comment._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   const onClickComments = () => {
     openDialog({
       name: "UltraFeedCommentsDialog",
@@ -328,8 +345,6 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
     });
   }
 
-  const bookmarkDocument = parentPost;
-
   return (
     <UltraFeedItemFooterCore
       commentCount={commentCount}
@@ -338,7 +353,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
       voteProps={voteProps}
       hideKarma={hideKarma}
       reactionCount={reactionCount}
-      bookmarkDocument={bookmarkDocument ?? undefined}
+      bookmarkProps={bookmarkProps}
       collectionName={"Comments"}
       className={className}
     />

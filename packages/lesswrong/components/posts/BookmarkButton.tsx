@@ -46,6 +46,7 @@ const BookmarkButton = ({
   collectionName,
   withText,
   placement="right",
+  overrideTooltipText,
   className,
   classes,
 }: {
@@ -53,6 +54,7 @@ const BookmarkButton = ({
   collectionName: typeof BookmarkableCollectionNames[number],
   withText?: boolean,
   placement?: PopperPlacementType,
+  overrideTooltipText?: string,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -60,7 +62,7 @@ const BookmarkButton = ({
   const Component = withText ? "a" : "span";
   const {LWTooltip, ForumIcon} = Components;
   return (
-    <LWTooltip title={hoverText} placement={withText ? "bottom" : placement}>
+    <LWTooltip title={overrideTooltipText ?? hoverText} placement={withText ? "bottom" : placement}>
       <Component onClick={toggleBookmark} className={classNames({
         [classes.container]: !withText,
         [classes.iconWithText]: withText,

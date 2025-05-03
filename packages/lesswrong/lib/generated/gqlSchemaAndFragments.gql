@@ -1252,8 +1252,9 @@ type BookmarksFeedQueryResults {
 
 type BookmarksFeedEntryType {
   type: String!
-  feedPost: Post
-  feedComment: Comment
+  feedPost: FeedPost
+  feedCommentThread: FeedCommentThread
+  sortKey: Date!
 }
 
 extend type Query {
