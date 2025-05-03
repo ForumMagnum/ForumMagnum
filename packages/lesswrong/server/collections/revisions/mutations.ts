@@ -119,9 +119,6 @@ async function createAutomatedContentEvaluation(revision: DbRevision) {
 
   const saplingEvaluation = await response.json();
 
-  console.log("Sapling data", saplingEvaluation);
-  
-
   // Define single Zod schema for response validation
   const saplingResponseSchema = z.object({
     score: z.number(),

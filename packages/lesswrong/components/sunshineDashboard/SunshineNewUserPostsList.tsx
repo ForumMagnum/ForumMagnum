@@ -100,7 +100,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
     const scoreRange = maxScore - minScore || 1;
     const scoreToColour = (score: number) => {
       const ratio = (score - minScore) / scoreRange;
-      const hue = 120 - ratio * 120;
+      const hue = 120 - (ratio * 120);
       return `hsl(${hue}, 100%, 85%)`;
     };
 
