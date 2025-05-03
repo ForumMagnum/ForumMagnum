@@ -220,7 +220,14 @@ const TanStackGroupForm = ({
       </div>}
 
       <div className={classes.fieldWrapper}>
-        <form.Field name="isOnline">
+        <form.Field name="isOnline" listeners={{
+          onChange: ({ value, fieldApi }) => {
+            if (value === false) {
+              fieldApi.form.setFieldValue('googleLocation', null);
+              fieldApi.form.setFieldValue('location', null);
+            }
+          }
+        }}>
           {(field) => (
             <FormComponentCheckbox
               field={field}
@@ -242,6 +249,7 @@ const TanStackGroupForm = ({
                 <LocationFormComponent
                   field={field}
                   label={isFriendlyUI ? "Group location" : "Group Location"}
+                  stringVersionFieldName="location"
                 />
               )}
             </form.Field>

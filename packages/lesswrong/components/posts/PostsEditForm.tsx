@@ -138,7 +138,8 @@ const PostsEditForm = ({ documentId, version }: {
     },
     extraVariablesValues: {
       version: version ?? 'draft'
-    }
+    },
+    fetchPolicy: 'network-only',
   });
 
   const { document: userWithRateLimit } = useSingle({

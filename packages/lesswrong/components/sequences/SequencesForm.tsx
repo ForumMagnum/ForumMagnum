@@ -67,7 +67,6 @@ export const SequencesForm = ({
   const form = useForm({
     defaultValues: {
       ...initialData,
-      ...(formType === 'new' ? { userId: currentUser._id } : {}),
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();

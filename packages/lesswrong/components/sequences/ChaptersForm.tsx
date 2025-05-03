@@ -14,6 +14,8 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { useCurrentUser } from "../common/withUser";
 
 const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -37,8 +39,9 @@ export const ChaptersForm = ({
   onCancel?: () => void;
   onPostIdsChanged?: (newPostIds: string[]) => void;
 }) => {
-  const classes = useStyles(formStyles);
   const { Error404 } = Components;
+  const classes = useStyles(formStyles);
+  const currentUser = useCurrentUser();
 
   const formType = initialData ? 'edit' : 'new';
 
@@ -104,7 +107,13 @@ export const ChaptersForm = ({
       void form.handleSubmit();
     }}>
       {displayedErrorComponent}
-      <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+
+      {/* 
+        * The schema suggests that users who "own" a chapter should be allowed to update it, but chapters don't have userId fields.
+        * Maybe that was always a bug.  If so, we can try to come back to it later to check for sequence ownership instead.
+        * For now, maintain previous form behavior and only allow admins/mods to update chapter contents.
+        */}
+      {userIsAdminOrMod(currentUser) && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="contents">
           {(field) => (
             <EditorFormComponent
@@ -135,7 +144,7 @@ export const ChaptersForm = ({
             />
           )}
         </form.Field>
-      </div>
+      </div>}
 
       <div className={classes.fieldWrapper}>
         <form.Field name="postIds" listeners={{ onChange: ({ value }) => onChange?.(value ?? []) }}>
