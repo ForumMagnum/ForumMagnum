@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/revisions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
@@ -13,6 +12,7 @@ import cloneDeep from "lodash/cloneDeep";
 import { saplingApiKey } from "@/lib/instanceSettings";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
+import { z } from "zod"; // Add this import for Zod
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -103,7 +103,6 @@ async function createAutomatedContentEvaluation(revision: DbRevision) {
   const key = saplingApiKey.get();
   if (!saplingApiKey) return;
   
-
   const markdown = dataToMarkdown(revision.html, "html");
   const textToCheck = markdown.slice(0, 10000)
   
@@ -120,16 +119,28 @@ async function createAutomatedContentEvaluation(revision: DbRevision) {
 
   const saplingEvaluation = await response.json();
 
-  if (typeof saplingEvaluation !== 'object' || saplingEvaluation === null || typeof saplingEvaluation.score !== 'number' || !Array.isArray(saplingEvaluation.sentence_scores) || saplingEvaluation.sentence_scores.some((sentenceScore: AnyBecauseIsInput) => typeof sentenceScore !== 'object' || sentenceScore === null || typeof sentenceScore.sentence !== 'string' || typeof sentenceScore.score !== 'number')) {
-    throw new Error('Invalid response from Sapling API');
-  }
+  console.log("Sapling data", saplingEvaluation);
+  
 
+  // Define single Zod schema for response validation
+  const saplingResponseSchema = z.object({
+    score: z.number(),
+    sentence_scores: z.array(
+      z.object({
+        sentence: z.string(),
+        score: z.number()
+      })
+    )
+  });
+  
+  const validatedEvaluation = saplingResponseSchema.parse(saplingEvaluation);
+  
   await AutomatedContentEvaluations.rawInsert({
     createdAt: new Date(),
     revisionId: revision._id,
-    score: saplingEvaluation.score,
-    sentenceScores: saplingEvaluation.sentence_scores,
-  })
+    score: validatedEvaluation.score,
+    sentenceScores: validatedEvaluation.sentence_scores,
+  });
 }
 
 export const graphqlRevisionTypeDefs = gql`
