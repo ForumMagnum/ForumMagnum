@@ -49,6 +49,12 @@ export const getSiteUrl = function (): string {
   return url;
 };
 
+export function urlIsAbsolute(url: string): boolean {
+  // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
+  // or with double slashes (//) which indicates protocol-relative URL
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
+}
+
 export const makeAbsolute = function (url: string): string {
   const baseUrl = getSiteUrl();
   if (url.startsWith("/"))
