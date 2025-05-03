@@ -40,19 +40,20 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start" }: {
+const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName }: {
   classes: ClassesType<typeof styles>,
   label: string|React.ReactNode,
   onClick: (ev: React.MouseEvent) => void,
   value: boolean,
   disabled?: boolean,
   tooltip?: any,
-  tooltipPlacement?: PopperPlacementType
+  tooltipPlacement?: PopperPlacementType,
+  labelClassName?: string
 }) => {
   const { LWTooltip } = Components
   const checkbox = <span className={classNames(classes.root, {[classes.disabled]: disabled })} onClick={!disabled ? onClick : undefined}>
     <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
-    <span className={classes.label}>{ label }</span>
+    <span className={classNames(classes.label, labelClassName)}>{ label }</span>
   </span>
 
   if (tooltip) {

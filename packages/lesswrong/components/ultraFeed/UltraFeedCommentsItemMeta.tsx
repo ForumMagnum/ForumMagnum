@@ -94,9 +94,9 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     marginRight: 12,
     color: theme.palette.link.dim,
     fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontStyle: 'italic',
-    textWrap: 'balance',
     cursor: 'pointer',
     overflow: "hidden",
     display: "-webkit-box",
@@ -132,6 +132,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
   onPostTitleClick?: () => void,
 }) => {
   const classes = useStyles(styles);
+  const { PostsTooltip } = Components;
 
   const { post } = comment;
 
@@ -156,14 +157,16 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
         [classes.hideOnDesktop]: position === 'below',
       })}
     >
-      {position === 'below' && <span className={classes.postTitleReplyTo}>Replying to</span>}
-      <a
-        href={postGetPageUrl(post)}
-        onClick={handleTitleClick}
-        className={classes.postTitleLinkOrButtonSpan}
-      >
-        {post.title}
-      </a>
+      <PostsTooltip postId={post._id} placement="top" As="span">
+        {position === 'below' && <span className={classes.postTitleReplyTo}>Replying to</span>}
+          <a
+            href={postGetPageUrl(post)}
+            onClick={handleTitleClick}
+            className={classes.postTitleLinkOrButtonSpan}
+          >
+            {post.title}
+          </a>
+      </PostsTooltip>
     </div>
   )
 }

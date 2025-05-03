@@ -21,13 +21,24 @@ import { ZodFormattedError } from 'zod';
 
 const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) => ({
   settingGroup: {
-    marginBottom: 12,
+    backgroundColor: theme.palette.background.paper,
+    width: '100%',
     padding: 16,
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
+    paddingLeft: 32,
+    paddingRight: 32,
+    paddingTop: 24,
+    paddingBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 16,
+      paddingRight: 16,
+      paddingTop: 16,
+      paddingBottom: 16,
+    },
   },
   groupTitle: {
-    fontSize: '1.2rem',
+    fontSize: '1.3rem',
     fontWeight: 600,
     marginBottom: 8,
     fontFamily: 'inherit',
@@ -35,7 +46,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   groupDescription: {
     marginBottom: 16,
     color: theme.palette.text.dim,
-    fontSize: '0.9rem',
+    fontSize: '1.1rem',
     fontFamily: 'inherit',
   },
   sourceWeightItem: {
@@ -47,12 +58,12 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     gap: 16,
   },
   sourceWeightLabel: {
-    fontSize: '0.95rem',
+    fontSize: '1.15rem',
     width: 140,
     flexShrink: 0,
   },
   sourceWeightDescription: {
-    fontSize: '0.85rem',
+    fontSize: '1.1rem',
     color: theme.palette.text.dim,
     marginTop: 4,
   },
@@ -71,7 +82,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     textAlign: 'right',
   },
   lineClampLabel: {
-    fontSize: '0.90rem',
+    fontSize: '1.1rem',
     width: 70,
     fontWeight: 600,
     flexShrink: 0,
@@ -86,7 +97,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   },
   errorMessage: {
     color: theme.palette.error.main,
-    fontSize: '0.8rem',
+    fontSize: '1.1rem',
     marginTop: 4,
     textAlign: 'right',
   },
@@ -103,13 +114,13 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   truncationGridHeader: {
     fontWeight: 600,
     textAlign: 'center',
-    fontSize: '0.9rem',
+    fontSize: '1.1rem',
     padding: 8,
   },
   truncationGridRowHeader: {
     fontWeight: 600,
     textAlign: 'right',
-    fontSize: '0.9rem',
+    fontSize: '1.1rem',
     paddingRight: 8,
   },
   truncationGridCell: {
@@ -121,7 +132,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   },
   truncationOptionSelect: {
     padding: '4px 2px',
-    fontSize: '0.9rem',
+    fontSize: '1.1rem',
     fontFamily: 'inherit',
     cursor: 'pointer',
     border: `1px solid ${theme.palette.grey[400]}`,
@@ -132,7 +143,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     textAlign: 'center',
   },
   customWarningMessage: {
-    fontSize: '0.9rem',
+    fontSize: '1.1rem',
     color: theme.palette.warning.main,
   },
   checkboxContainer: {
@@ -146,7 +157,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   },
   checkboxLabel: {
     cursor: 'pointer',
-    fontSize: '0.95rem',
+    fontSize: '1.15rem',
     flexGrow: 1,
   },
 }));
@@ -435,10 +446,10 @@ const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProps> = ({
       
       <div className={classes.truncationGridContainer}>
         <div />
-        <div className={classes.truncationGridHeader}>Posts (words)</div>
-        <div className={classes.truncationGridHeader}>Comments (words)</div>
+        <div className={classes.truncationGridHeader}>Posts</div>
+        <div className={classes.truncationGridHeader}>Comments</div>
 
-        <div className={classes.truncationGridRowHeader}>Line&nbsp;Clamp</div>
+        <div className={classes.truncationGridRowHeader}>Line Clamp</div>
         <div className={classes.truncationGridCell} />
         <div className={classes.truncationGridCell}>
           <input
@@ -597,7 +608,7 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
           color="primary"
         />
         <label htmlFor="postTitlesAreModalsCheckbox" className={classes.checkboxLabel}>
-          Open Post Titles in Modals
+          Open post titles in modals (on mobile)
         </label>
       </div>
       <p className={classes.groupDescription} style={{marginTop: 0, marginBottom: 16}}>
@@ -624,6 +635,8 @@ const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange
   );
 };
 const MiscSettingsComponent = registerComponent('MiscSettings', MiscSettings);
+
+export default TruncationGridSettingsComponent; // one export required to make Vite HMR work
 
 declare global {
   interface ComponentTypes {
