@@ -56,7 +56,7 @@ interface DbAutomatedContentEvaluation extends DbObject {
   createdAt: Date
   revisionId: string
   score: number
-  sentenceScores: any
+  sentenceScores: { sentence: string; score: number; }[]
 }
 
 type BansCollection = CollectionBase<"Bans">;

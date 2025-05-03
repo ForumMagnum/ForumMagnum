@@ -3074,6 +3074,13 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
+  readonly automatedContentEvaluations: SunshinePostsList_contents_automatedContentEvaluations|null,
+}
+
+interface SunshinePostsList_contents_automatedContentEvaluations { // fragment on AutomatedContentEvaluations
+  readonly _id: string,
+  readonly score: number,
+  readonly sentenceScores: any,
 }
 
 interface SunshinePostsList_moderationGuidelines { // fragment on Revisions

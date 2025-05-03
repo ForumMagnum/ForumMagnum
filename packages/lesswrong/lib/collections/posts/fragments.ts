@@ -677,6 +677,15 @@ export const SunshinePostsList = () => frag`
       htmlHighlight
       wordCount
       version
+
+      automatedContentEvaluations {
+        _id
+        score
+        sentenceScores {
+          sentence
+          score
+        }
+      }
     }
 
     moderationGuidelines {

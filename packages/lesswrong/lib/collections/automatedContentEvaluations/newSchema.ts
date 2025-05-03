@@ -31,11 +31,13 @@ const schema = {
     database: {
       type: "JSONB",
       nullable: false,
+      typescriptType: "{ sentence: string; score: number; }[]",
     },
     graphql: {
       outputType: "[SentenceScore]!",
       canRead: ["admins"],
-    }
+    },
+
   },
 
 } satisfies Record<string, CollectionFieldSpecification<"AutomatedContentEvaluations">>;

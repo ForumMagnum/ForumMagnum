@@ -3,6 +3,8 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
+import { useDialog } from '../common/withDialog';
+import { DialogContent } from '../widgets/DialogContent';
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -31,7 +33,31 @@ const styles = (theme: ThemeType) => ({
   },
   rejectButton: {
     marginLeft: 'auto',
-  }
+  },
+  llmScore: {
+    cursor: 'pointer',
+  },
+  llmScoreSentenceBlock: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    alignItems: 'center',
+  },
+  llmScoreSentence: {
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    color: theme.palette.text.secondary,
+    maxWidth: '70%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+
+  },
+  llmScoreSentenceScore: {
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    color: theme.palette.text.secondary,
+    maxWidth: '20%',
+  },
 })
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {
@@ -39,7 +65,38 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay, LWDialog } = Components
+  const { openDialog } = useDialog();
+
+  function handleLLMScoreClick(automatedContentEvaluation: SunshinePostsList_contents_automatedContentEvaluations) {
+    openDialog({
+      name: "LLMScoreDialog",
+      contents: () => (
+        <LWDialog open={true}>
+          <DialogContent>
+            <div>
+              <p>LLM Score: {automatedContentEvaluation.score}</p>
+              <p>LLM Score per sentence: </p>
+              {automatedContentEvaluation.sentenceScores.map(
+                (
+                  sentenceScore: {
+                    sentence: string;
+                    score: number;
+                  },
+                  index: number
+                ) => (
+                  <div key={index} className={classes.llmScoreSentenceBlock}>
+                    <p className={classes.llmScoreSentence}>{sentenceScore.sentence}</p>
+                    <p className={classes.llmScoreSentenceScore}>Score: {sentenceScore.score}</p>
+                  </div>
+                )
+              )}
+            </div>
+          </DialogContent>
+        </LWDialog>
+      ),
+    });
+  }
 
  
   if (!posts) return null
@@ -74,6 +131,9 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
           
           {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
             {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
+            {post.contents?.automatedContentEvaluations && <span className={classes.llmScore} onClick={() => handleLLMScoreClick(post.contents!.automatedContentEvaluations!)}>
+              LLM Score: {post.contents?.automatedContentEvaluations.score.toFixed(2)}
+              </span>}
             <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
           </span>}
           

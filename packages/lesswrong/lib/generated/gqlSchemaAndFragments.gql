@@ -3632,6 +3632,7 @@ type Revision {
   post: Post
   lens: MultiDocument
   summary: MultiDocument
+  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -10551,6 +10552,15 @@ fragment SunshinePostsList on Post {
     htmlHighlight
     wordCount
     version
+
+    automatedContentEvaluations {
+      _id
+      score
+      sentenceScores {
+        sentence
+        score
+      }
+    }
   }
 
   moderationGuidelines {
