@@ -277,7 +277,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
                   )
                 }
               >
-              LLM Score: {post.contents?.automatedContentEvaluations.score.toFixed(2)}
+              LLM Score: {post.contents?.automatedContentEvaluations?.score?.toFixed(2)}
               </span>
             )}
             <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>

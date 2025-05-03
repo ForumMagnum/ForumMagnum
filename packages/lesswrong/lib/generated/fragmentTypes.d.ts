@@ -72,8 +72,8 @@ interface ArbitalTagContentRelsDefaultFragment { // fragment on ArbitalTagConten
 interface AutomatedContentEvaluationsDefaultFragment { // fragment on AutomatedContentEvaluations
   readonly _id: string,
   readonly createdAt: Date,
-  readonly revisionId: string,
-  readonly score: number,
+  readonly revisionId: string|null,
+  readonly score: number|null,
   readonly sentenceScores: Array<any /*SentenceScore*/>,
 }
 
@@ -3079,7 +3079,7 @@ interface SunshinePostsList_contents { // fragment on Revisions
 
 interface SunshinePostsList_contents_automatedContentEvaluations { // fragment on AutomatedContentEvaluations
   readonly _id: string,
-  readonly score: number,
+  readonly score: number|null,
   readonly sentenceScores: any,
 }
 
