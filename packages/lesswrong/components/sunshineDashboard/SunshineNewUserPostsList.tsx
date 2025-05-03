@@ -136,13 +136,13 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
         },
       });
 
-      let el: Element | null = treeWalker.nextNode();
+      let el: Node | null = treeWalker.nextNode();
       while (el) {
         const elText = normalize(el.textContent || '');
         if (elText === target) {
           (el as HTMLElement).style.backgroundColor = scoreToColour(score);
           (el as HTMLElement).title = `Score: ${score.toFixed(2)}`;
-          el.classList.add('llm-highlight');
+          (el as HTMLElement).classList.add('llm-highlight');
           processedSet.add(sentence);
           break;
         }
