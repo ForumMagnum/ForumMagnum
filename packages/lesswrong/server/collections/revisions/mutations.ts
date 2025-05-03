@@ -101,7 +101,7 @@ export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', upda
 
 async function createAutomatedContentEvaluation(revision: DbRevision) {
   const key = saplingApiKey.get();
-  if (!saplingApiKey) return;
+  if (!key) return;
   
   const markdown = dataToMarkdown(revision.html, "html");
   const textToCheck = markdown.slice(0, 10000)
