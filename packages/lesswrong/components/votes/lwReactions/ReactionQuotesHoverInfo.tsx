@@ -6,7 +6,7 @@ import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
-import { ContentItemBody } from '../../common/ContentItemBody';
+import { ContentItemBodyImperative } from '../../common/ContentItemBody';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -65,7 +65,7 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative>|null,
   classes: ClassesType<typeof styles>
 }) => {
   const { ReactOrAntireactVote, UsersWhoReacted } = Components;

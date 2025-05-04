@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { captureException } from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
-import { captureEvent, withTracking } from '../../lib/analyticsEvents';
+import { captureEvent } from '../../lib/analyticsEvents';
 import { hasCollapsedFootnotes } from '@/lib/betas';
-import isEqual from 'lodash/isEqual';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { validateUrl } from "../../lib/vulcan-lib/utils";
 import type { ContentStyleType } from './ContentStyles';
+import { shallowEqualExcept } from '@/lib/utils/componentUtils';
 
-interface ExternalProps {
+interface ContentItemBodyProps {
   /**
    * The content to show. This MUST come from a GraphQL resolver which does 
    * sanitization, such as post.contents.html
@@ -24,7 +24,7 @@ interface ExternalProps {
    * methods. (Doing so is handled by React, not by anything inside of this
    * using the ref prop)
    */
-  ref?: React.RefObject<ContentItemBody>
+  ref?: React.RefObject<ContentItemBodyImperative>
 
   // className: Name of an additional CSS class to apply to this element.
   className?: string;
@@ -73,6 +73,28 @@ interface ExternalProps {
   contentStyleType?: ContentStyleType;
 }
 
+/**
+ * Functions on a ContentItemBody that can be called if you have ref to one.
+ */
+export type ContentItemBodyImperative = {
+  /**
+   * Return whether a given node from the DOM is inside this ContentItemBody.
+   * Used for checking the selection-anchor in a mouse event, for inline reacts.
+   */
+  containsNode: (node: Node) => boolean
+
+  /**
+   * Return a text stringified version of the contents (by stringifying from the
+   * DOM). This is currently used only for warning that an inline-react
+   * identifier is ambiguous; this isn't going to be nicely formatted and
+   * shouldn't be presented to the user (for that, go to the source docuemnt and
+   * get a markdown version).
+   */
+  getText: () => string
+
+  getAnchorEl: () => HTMLDivElement|null
+};
+
 export type ContentReplacementMode = 'first' | 'all';
 
 export type ContentReplacedSubstringComponentInfo = {
@@ -84,123 +106,76 @@ export type ContentReplacedSubstringComponentInfo = {
   props: AnyBecauseHard
 };
 
-interface ContentItemBodyProps extends ExternalProps, WithTrackingProps {}
-interface ContentItemBodyState {
-  updatedElements: boolean,
-  renderIndex: number
-}
 interface ElementReplacement {
   replacementElement: React.ReactNode
   container: HTMLElement
 }
 
-// The body of a post/comment/etc, created by taking server-side-processed HTML
-// out of the result of a GraphQL query and adding some decoration to it. In
-// particular, if this is the client-side render, adds scroll indicators to
-// horizontally-scrolling LaTeX blocks.
-//
-// This doesn't apply styling (other than for the decorators it adds) because
-// it's shared between entity types, which have styling that differs.
-//
-// Props:
-//    dangerouslySetInnerHTML: Follows the same convention as
-//      dangerouslySetInnerHTML on a div, ie, you set the HTML content of this
-//      by passing dangerouslySetInnerHTML={{__html: "<p>foo</p>"}}.
-export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyState> {
-  private bodyRef: React.RefObject<HTMLDivElement>
-
-  private replacedElements: Array<{
+const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
+  const [lastProps, setLastProps] = useState(() => props);
+  const [lastRenderIndex, setLastRenderIndex] = useState(0);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [replacedElements, setReplacedElements] = useState<Array<{
     replacementElement: React.ReactNode
     container: HTMLElement
-  }>
+  }>>([]);
+  const html = props.dangerouslySetInnerHTML.__html;
   
-  constructor(props: ContentItemBodyProps) {
-    super(props);
-    this.bodyRef = React.createRef<HTMLDivElement>();
-    this.replacedElements = [];
-    this.state = {
-      updatedElements:false,
-      renderIndex: 0,
+  function compareProps(oldProps: ContentItemBodyProps, newProps: ContentItemBodyProps) {
+    if (!shallowEqualExcept(oldProps, newProps, ["ref", "dangerouslySetInnerHTML", "replacedSubstrings"])) {
+      return false;
     }
+    if (oldProps.dangerouslySetInnerHTML.__html !== newProps.dangerouslySetInnerHTML.__html) {
+      return false;
+    }
+    return true;
   }
+  const propsChanged = !compareProps(lastProps, props);
+  const renderIndex = propsChanged ? lastRenderIndex+1 : lastRenderIndex;
+  console.log(`ContentItemBody.render (renderIndex=${renderIndex}, lastRenderIndex=${lastRenderIndex})`);
 
-  componentDidMount () {
-    this.applyLocalModifications();
-  }
+  useImperativeHandle(ref, () => ({
+    containsNode: (node: Node): boolean => {
+      return !!bodyRef.current?.contains(node);
+    },
+    getText: (): string => {
+      return bodyRef.current?.textContent ?? ""
+    },
+    getAnchorEl: (): HTMLDivElement|null => {
+      return bodyRef.current;
+    },
+  }));
   
-  componentDidUpdate(prevProps: ContentItemBodyProps) {
-    if (this.state.updatedElements) {
-      const htmlChanged = prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html;
-      const replacedSubstringsChanged = !isEqual(prevProps.replacedSubstrings, this.props.replacedSubstrings);
-      if (htmlChanged || replacedSubstringsChanged) {
-        this.replacedElements = [];
-        this.setState({
-          updatedElements: false,
-          renderIndex: this.state.renderIndex+1,
-        });
-      }
+  const contentsDiv = useMemo(() => <div
+    key={renderIndex}
+    className={props.className}
+    ref={bodyRef}
+    dangerouslySetInnerHTML={{__html: html}}
+  />, [html, renderIndex]);
+
+  useEffect(() => {
+    if (bodyRef.current) {
+      console.log("ContentItemBody.applyLocalModificationsTo");
+      setReplacedElements(applyLocalModificationsTo(bodyRef.current, {
+        replacedSubstrings: props.replacedSubstrings,
+        idInsertions: props.idInsertions,
+        description: props.description,
+        noHoverPreviewPrefetch: props.noHoverPreviewPrefetch,
+        contentStyleType: props.contentStyleType,
+      }));
+      setLastProps(props);
+      setLastRenderIndex(renderIndex);
     } else {
-      this.applyLocalModifications();
+      console.log("ContentItemBody bodyRef.current was null");
     }
-  }
+  }, [renderIndex]);
   
-  applyLocalModifications() {
-    const element = this.bodyRef.current;
-    if (element) {
-      const {replacedSubstrings, idInsertions, description, noHoverPreviewPrefetch, contentStyleType} = this.props;
-      const replacements = applyLocalModificationsTo(element, {replacedSubstrings, idInsertions, description, noHoverPreviewPrefetch, contentStyleType});
-      this.replacedElements = [...this.replacedElements, ...replacements];
-      this.setState({updatedElements: true});
-      this.props.onContentReady?.(element);
-    }
-  }
+  return <>
+    {contentsDiv}
+    {replacedElements.map(replaced => ReactDOM.createPortal(replaced.replacementElement, replaced.container))}
+  </>
+});
 
-  
-  /**
-   * Return whether a given node from the DOM is inside this ContentItemBody.
-   * Used for checking the selection-anchor in a mouse event, for inline reacts.
-   */
-  containsNode(node: Node): boolean {
-    return !!this.bodyRef.current?.contains(node);
-  }
-  
-  /**
-   * Return a text stringified version of the contents (by stringifying from the
-   * DOM). This is currently used only for warning that an inline-react
-   * identifier is ambiguous; this isn't going to be nicely formatted and
-   * shouldn't be presented to the user (for that, go to the source docuemnt and
-   * get a markdown version).
-   */
-  getText(): string {
-    return this.bodyRef.current?.textContent ?? ""
-  }
-  
-  getAnchorEl(): HTMLDivElement|null {
-    return this.bodyRef.current;
-  }
-  
-  
-  render() {
-    const html = this.props.nofollow ? addNofollowToHTML(this.props.dangerouslySetInnerHTML.__html) : this.props.dangerouslySetInnerHTML.__html
-    
-    return (<React.Fragment>
-      <div
-        key={this.state.renderIndex}
-        className={this.props.className}
-        ref={this.bodyRef}
-        dangerouslySetInnerHTML={{__html: html}}
-      />
-      {
-        this.replacedElements.map(replaced => {
-          return ReactDOM.createPortal(
-            replaced.replacementElement,
-            replaced.container
-          );
-        })
-      }
-    </React.Fragment>);
-  }
-}
 
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
@@ -712,18 +687,9 @@ function insertElement(replacements: ElementReplacement[], container: HTMLElemen
   container.prepend(insertionContainer);
 }
 
-const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
+const ContentItemBodyComponent = registerComponent("ContentItemBody", ContentItemBody, {
   // NOTE: Because this takes a ref, it can only use HoCs that will forward that ref.
   allowRef: true,
-
-  // Memoization options. If this spuriously rerenders, then voting on a comment
-  // that contains a YouTube embed causes that embed to visually flash and lose
-  // its place.
-  areEqual: {
-    ref: "ignore",
-    "dangerouslySetInnerHTML": "deep",
-    replacedSubstrings: "deep"
-  },
 });
 
 declare global {
