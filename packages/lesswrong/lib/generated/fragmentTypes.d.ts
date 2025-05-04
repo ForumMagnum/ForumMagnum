@@ -2861,8 +2861,13 @@ interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlig
 }
 
 interface SpotlightDisplay_post extends PostsMinimumInfo { // fragment on Posts
+  readonly contents: SpotlightDisplay_post_contents|null,
   readonly user: SpotlightDisplay_post_user|null,
   readonly reviews: Array<CommentsList>,
+}
+
+interface SpotlightDisplay_post_contents { // fragment on Revisions
+  readonly wordCount: number,
 }
 
 interface SpotlightDisplay_post_user { // fragment on Users
