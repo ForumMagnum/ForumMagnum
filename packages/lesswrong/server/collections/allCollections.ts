@@ -9,6 +9,7 @@ import sortBy from 'lodash/sortBy';
 import { AdvisorRequests } from './advisorRequests/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
+import { AutomatedContentEvaluations } from './automatedContentEvaluations/collection';
 import { Bans } from './bans/collection';
 import { Books } from './books/collection';
 import { Chapters } from './chapters/collection';
@@ -112,15 +113,15 @@ function getTestCollectionsByTypeName() {
 
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books, Chapters, CkEditorUserSessions, ClientIds, Collections, CommentModeratorActions,
-  Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
+  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
   DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents,
-  GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LegacyData, LlmConversations, LlmMessages, Localgroups, LWEvents, ManifoldProbabilitiesCaches,
-  Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts,
-  PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, RSSFeeds, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses,
-  SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits,
-  UserTagRels, UserActivities, Users, Votes,
+  GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups,
+  ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs,
+  PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
+  RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates,
+  Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets,
+  TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes
 } satisfies CollectionsByName;
 
 const collectionsByLowercaseName = Object.fromEntries(

@@ -80,6 +80,7 @@ import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs }
 import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
+import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
 import { graphqlBanQueryTypeDefs, banGqlQueryHandlers, banGqlFieldResolvers } from "@/server/collections/bans/queries";
 import { graphqlBookQueryTypeDefs, bookGqlQueryHandlers, bookGqlFieldResolvers } from "@/server/collections/books/queries";
 import { graphqlChapterQueryTypeDefs, chapterGqlQueryHandlers, chapterGqlFieldResolvers } from "@/server/collections/chapters/queries";
@@ -303,6 +304,7 @@ export const typeDefs = gql`
   ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
+  ${graphqlAutomatedContentEvaluationQueryTypeDefs}
   ${graphqlBanQueryTypeDefs}
   ${graphqlBookQueryTypeDefs}
   ${graphqlChapterQueryTypeDefs}
@@ -682,6 +684,7 @@ export const resolvers = {
   ...advisorRequestGqlFieldResolvers,
   ...arbitalCachesGqlFieldResolvers,
   ...arbitalTagContentRelGqlFieldResolvers,
+  ...automatedContentEvaluationGqlFieldResolvers,
   ...banGqlFieldResolvers,
   ...bookGqlFieldResolvers,
   ...chapterGqlFieldResolvers,

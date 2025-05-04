@@ -10,7 +10,7 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
+import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 import { TagLens } from '../arbital/useTagLenses';
 
 export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
@@ -20,7 +20,7 @@ export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPr
   hideKarma?: boolean,
   collectionName: VoteableCollectionName,
   votingSystem: VotingSystem,
-  commentBodyRef?: React.RefObject<ContentItemBody|null>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
   post?: PostsWithNavigation | PostsWithNavigationAndRevision,
 }

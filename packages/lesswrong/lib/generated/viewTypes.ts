@@ -1,6 +1,7 @@
 type AdvisorRequestsViewName = "requestsByUser";
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
+type AutomatedContentEvaluationsViewName = never
 type BansViewName = never
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
@@ -91,6 +92,7 @@ interface ViewTermsByCollectionName {
   AdvisorRequests: AdvisorRequestsViewTerms
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase
+  AutomatedContentEvaluations: ViewTermsBase
   Bans: ViewTermsBase
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms
