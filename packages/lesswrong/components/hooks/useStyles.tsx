@@ -1,8 +1,13 @@
 import React, { createContext, forwardRef, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
-import { create as jssCreate, SheetsRegistry } from "jss";
-import jssPreset from "@/lib/vendor/@material-ui/core/src/styles/jssPreset";
+import { create as jssCreate, SheetsRegistry } from 'jss';
+import jssGlobal from 'jss-plugin-global';
+import jssNested from 'jss-plugin-nested';
+import jssCamelCase from 'jss-plugin-camel-case';
+import jssDefaultUnit from 'jss-plugin-default-unit';
+import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
+import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
 import { useTheme } from "../themes/useTheme";
 
@@ -274,17 +279,31 @@ function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefini
 function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): string {
   const sheets = new SheetsRegistry()
   
-  const jss = jssCreate({
-    ...jssPreset(),
-  })
+  const jss = getJss();
   const sheet = jss.createStyleSheet(
     styleDefinition.styles(theme), {
       generateId: (rule,sheet) => {
+        if (rule.type === 'keyframes') {
+          return (rule as AnyBecauseHard).name;
+        }
         return `${styleDefinition.name}-${rule.key}`
       },
     }
   );
   return sheets.toString();
+}
+
+export function getJss() {
+  return jssCreate({
+    plugins: [
+      jssGlobal(),
+      jssNested(),
+      jssCamelCase(),
+      jssDefaultUnit(),
+      jssVendorPrefixer(),
+      jssPropsSort(),
+    ],
+  });
 }
 
 

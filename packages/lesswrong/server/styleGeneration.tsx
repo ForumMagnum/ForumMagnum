@@ -11,11 +11,10 @@ import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
-import { type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import { getJss, type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
-import jssPreset from '@/lib/vendor/@material-ui/core/src/styles/jssPreset';
-import { create as jssCreate, SheetsRegistry } from 'jss';
+import { SheetsRegistry } from 'jss';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -81,14 +80,15 @@ function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: Th
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);
   const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
 
-  const _jss = jssCreate({
-    ...jssPreset(),
-  });
+  const _jss = getJss();
   const sheetsRegistry = new SheetsRegistry();
   stylesByNameAndPriority.map(name => {
     const styles = allStyles[name].styles(theme);
     const sheet = _jss.createStyleSheet(styles, {
       generateId: (rule) => {
+        if (rule.type === 'keyframes') {
+          return (rule as AnyBecauseHard).name;
+        }
         return `${name}-${rule.key}`;
       },
     });
