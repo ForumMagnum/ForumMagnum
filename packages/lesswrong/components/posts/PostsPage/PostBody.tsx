@@ -80,7 +80,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   
   const { ContentItemBody, SideCommentIcon, InlineReactSelectionWrapper, GlossarySidebar } = Components;
   const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
-  const contentRef = useRef<ContentItemBodyImperative>(null);
+  const contentRef = useRef<ContentItemBodyImperative|null>(null);
   let content: React.ReactNode
   
   const highlights = votingSystem.getPostHighlights

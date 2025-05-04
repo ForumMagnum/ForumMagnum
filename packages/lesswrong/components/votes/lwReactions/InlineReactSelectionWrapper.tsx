@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, classes}: {
-  contentRef?: React.RefObject<ContentItemBodyImperative>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
+  contentRef?: React.RefObject<ContentItemBodyImperative|null>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
   styling: "comment"|"post"|"tag",
   children: React.ReactNode,

@@ -20,7 +20,7 @@ export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPr
   hideKarma?: boolean,
   collectionName: VoteableCollectionName,
   votingSystem: VotingSystem,
-  commentBodyRef?: React.RefObject<ContentItemBodyImperative>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
   post?: PostsWithNavigation | PostsWithNavigationAndRevision,
 }

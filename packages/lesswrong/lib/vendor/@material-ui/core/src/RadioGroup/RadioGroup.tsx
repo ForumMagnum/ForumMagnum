@@ -18,7 +18,7 @@ export interface RadioGroupProps
 export type RadioGroupClassKey = FormGroupClassKey;
 
 class RadioGroup extends React.Component<RadioGroupProps> {
-  radios = [];
+  radios: AnyBecauseTodo[] = [];
 
   focus = () => {
     if (!this.radios || !this.radios.length) {
@@ -41,7 +41,7 @@ class RadioGroup extends React.Component<RadioGroupProps> {
     focusRadios[0].focus();
   };
 
-  handleRadioChange = (event, checked) => {
+  handleRadioChange = (event, checked: boolean) => {
     if (checked && this.props.onChange) {
       this.props.onChange(event, event.target.value);
     }

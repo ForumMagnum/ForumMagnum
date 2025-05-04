@@ -1010,7 +1010,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
   const { ContentItemBody, InlineReactSelectionWrapper, HoveredReactionContextProvider, PathInfo } = Components;
   const classes = useStyles(styles);
 
-  const contentRef = useRef<ContentItemBodyImperative>(null);
+  const contentRef = useRef<ContentItemBodyImperative|null>(null);
   const votingSystem = getVotingSystemByName("reactionsAndLikes");
   const mainLensIsSelected = !selectedLens || selectedLens?._id === 'main-tab';
   const voteProps = useVote(

@@ -48,7 +48,7 @@ const CommentBody = ({
   classes,
 }: {
   comment: CommentsList,
-  commentBodyRef?: React.RefObject<ContentItemBodyImperative>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
