@@ -945,6 +945,19 @@ interface MultiArbitalTagContentRelOutput {
   totalCount: number | null;
 }
 
+interface AutomatedContentEvaluation {
+  _id: string;
+  createdAt: Date;
+  revisionId: string | null;
+  score: number | null;
+  sentenceScores: Array<SentenceScore | null> | null;
+}
+
+interface SentenceScore {
+  sentence: string;
+  score: number;
+}
+
 interface Ban {
   _id: string;
   schemaVersion: number;
@@ -3040,6 +3053,7 @@ interface Revision {
   post: Post | null;
   lens: MultiDocument | null;
   summary: MultiDocument | null;
+  automatedContentEvaluations: AutomatedContentEvaluation | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -6143,7 +6157,6 @@ interface UpdateUserDataInput {
   groups?: Array<string> | null;
   theme?: any;
   lastUsedTimezone?: string | null;
-  whenConfirmationEmailSent?: Date | null;
   legacy?: boolean | null;
   commentSorting?: string | null;
   sortDraftsBy?: string | null;
@@ -6476,6 +6489,8 @@ interface GraphQLTypeMap {
   SingleArbitalTagContentRelOutput: SingleArbitalTagContentRelOutput;
   MultiArbitalTagContentRelInput: MultiArbitalTagContentRelInput;
   MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
+  AutomatedContentEvaluation: AutomatedContentEvaluation;
+  SentenceScore: SentenceScore;
   Ban: Ban;
   SingleBanInput: SingleBanInput;
   SingleBanOutput: SingleBanOutput;
@@ -7065,6 +7080,7 @@ interface CreateInputsByCollectionName {
   Users: CreateUserInput;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
+  AutomatedContentEvaluations: never;
   Bans: never;
   CkEditorUserSessions: never;
   ClientIds: never;
@@ -7153,6 +7169,7 @@ interface UpdateInputsByCollectionName {
   Users: UpdateUserInput;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
+  AutomatedContentEvaluations: never;
   Bans: never;
   CkEditorUserSessions: never;
   ClientIds: never;

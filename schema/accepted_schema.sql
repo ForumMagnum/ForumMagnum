@@ -73,6 +73,15 @@ CREATE TABLE "ArbitalTagContentRels" (
 -- Index "idx_ArbitalTagContentRels_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "ArbitalTagContentRels" USING btree ("schemaVersion");
 
+-- Table "AutomatedContentEvaluations"
+CREATE TABLE "AutomatedContentEvaluations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "score" DOUBLE PRECISION NOT NULL,
+  "sentenceScores" JSONB NOT NULL
+);
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3111,6 +3120,17 @@ CREATE TABLE "UltraFeedEvents" (
 
 -- Index "idx_ultraFeedEvents_document_user_event_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_document_user_event_createdAt" ON "UltraFeedEvents" USING btree ("documentId", "userId", "eventType", "createdAt");
+
+-- Index "idx_ultraFeedEvents_userId_collectionName_eventType_createdAt_idx"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_userId_collectionName_eventType_createdAt_idx" ON "UltraFeedEvents" USING btree (
+  "userId",
+  "collectionName",
+  "eventType",
+  "createdAt"
+);
+
+-- Index "idx_ultraFeedEvents_userId_collectionName_documentId_idx"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_userId_collectionName_documentId_idx" ON "UltraFeedEvents" USING btree ("userId", "collectionName", "documentId");
 
 -- Table "UserActivities"
 CREATE TABLE "UserActivities" (

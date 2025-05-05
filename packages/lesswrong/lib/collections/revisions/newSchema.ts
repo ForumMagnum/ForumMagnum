@@ -487,6 +487,21 @@ const schema = {
       },
     },
   },
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (revision, args, context) => {
+        const {AutomatedContentEvaluations} =  context;
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: revision._id,
+        }, {
+          sort: { createdAt: -1 },
+        })
+      },
+    }
+  },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   voteCount: defaultVoteCountField('Revisions'),

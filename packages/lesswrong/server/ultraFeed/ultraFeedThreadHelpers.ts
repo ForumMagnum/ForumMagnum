@@ -8,7 +8,7 @@
  * - Preparing threads for display (expansion/highlighting)
  */
 
-import { UltraFeedSettingsType } from '../../components/ultraFeed/ultraFeedSettingsTypes';
+import { UltraFeedResolverSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
   PreDisplayFeedCommentThread, 
@@ -137,7 +137,7 @@ interface PreparedFeedCommentsThread extends FeedCommentsThread {
  */
 function calculateCommentScore(
   comment: FeedCommentFromDb,
-  settings: Pick<UltraFeedSettingsType, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
+  settings: Pick<UltraFeedResolverSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
 ): number {
   if (!comment.postedAt) {
     return 0; // Cannot score without a timestamp
@@ -170,7 +170,7 @@ function calculateCommentScore(
  */
 function calculateThreadScore(
   thread: FinalScoredComment[],
-  aggregation: UltraFeedSettingsType['threadScoreAggregation'],
+  aggregation: UltraFeedResolverSettings['threadScoreAggregation'],
   firstN: number
 ): number {
   if (!thread || thread.length === 0) {
@@ -226,7 +226,7 @@ function calculateThreadScore(
  */
 function scoreComments(
   comments: FeedCommentFromDb[],
-  settings: Pick<UltraFeedSettingsType, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
+  settings: Pick<UltraFeedResolverSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
 ): IntermediateScoredComment[] { 
   return comments.map(comment => ({
     ...comment,
@@ -239,7 +239,7 @@ function scoreComments(
  */
 function buildAndScoreThreads(
   scoredComments: IntermediateScoredComment[],
-  settings: Pick<UltraFeedSettingsType, 'threadScoreAggregation' | 'threadScoreFirstN'>
+  settings: Pick<UltraFeedResolverSettings, 'threadScoreAggregation' | 'threadScoreFirstN'>
 ): PrioritizedThread[] { 
   // Group comments by their effective top-level ID
   const groups: Record<string, IntermediateScoredComment[]> = {};
@@ -401,7 +401,7 @@ function prepareThreadForDisplay(
 export async function getUltraFeedCommentThreads(
   context: ResolverContext,
   limit = 20,
-  settings: UltraFeedSettingsType,
+  settings: UltraFeedResolverSettings,
   servedThreadHashes: Set<string> = new Set()
 ): Promise<PreparedFeedCommentsThread[]> { // Return array of new type
   const userId = context.userId;

@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/revisions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
@@ -10,6 +9,10 @@ import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { saplingApiKey } from "@/lib/instanceSettings";
+import { dataToMarkdown } from "@/server/editor/conversionUtils";
+import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
+import { z } from "zod"; // Add this import for Zod
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -54,6 +57,8 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
+  void createAutomatedContentEvaluation(documentWithId);
+
   return documentWithId;
 }
 export async function updateRevision({ selector, data }: UpdateRevisionInput, context: ResolverContext) {
@@ -80,6 +85,10 @@ export async function updateRevision({ selector, data }: UpdateRevisionInput, co
 
   void logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData });
 
+  if (!updatedDocument.draft) {
+    void createAutomatedContentEvaluation(updatedDocument);
+  }
+
   return updatedDocument;
 }
 
@@ -89,6 +98,47 @@ export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', upda
 });
 
 
+
+async function createAutomatedContentEvaluation(revision: DbRevision) {
+  const key = saplingApiKey.get();
+  if (!key) return;
+  
+  const markdown = dataToMarkdown(revision.html, "html");
+  const textToCheck = markdown.slice(0, 10000)
+  
+  const response = await fetch('https://api.sapling.ai/api/v1/aidetect', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      key,
+      text: textToCheck,
+    }),
+  });
+
+  const saplingEvaluation = await response.json();
+
+  // Define single Zod schema for response validation
+  const saplingResponseSchema = z.object({
+    score: z.number(),
+    sentence_scores: z.array(
+      z.object({
+        sentence: z.string(),
+        score: z.number()
+      })
+    )
+  });
+  
+  const validatedEvaluation = saplingResponseSchema.parse(saplingEvaluation);
+  
+  await AutomatedContentEvaluations.rawInsert({
+    createdAt: new Date(),
+    revisionId: revision._id,
+    score: validatedEvaluation.score,
+    sentenceScores: validatedEvaluation.sentence_scores,
+  });
+}
 
 export const graphqlRevisionTypeDefs = gql`
   input ContentTypeInput {

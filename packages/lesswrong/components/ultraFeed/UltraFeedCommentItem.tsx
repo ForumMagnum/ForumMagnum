@@ -159,7 +159,7 @@ export interface UltraFeedCommentItemProps {
   comment: UltraFeedComment;
   metaInfo: FeedCommentMetaInfo;
   onChangeDisplayStatus: (newStatus: "expanded" | "collapsed" | "hidden") => void;
-  showInLineCommentThreadTitle?: boolean;
+  showPostTitle?: boolean;
   highlight?: boolean;
   isFirstComment?: boolean;
   isLastComment?: boolean;
@@ -171,7 +171,7 @@ const UltraFeedCommentItem = ({
   comment,
   metaInfo,
   onChangeDisplayStatus,
-  showInLineCommentThreadTitle,
+  showPostTitle,
   highlight = false,
   isFirstComment = false,
   isLastComment = false,
@@ -297,7 +297,7 @@ const UltraFeedCommentItem = ({
             <UltraFeedCommentsItemMeta
               comment={comment}
               setShowEdit={() => {}}
-              showInLineCommentThreadTitle={showInLineCommentThreadTitle}
+              showPostTitle={showPostTitle}
               onPostTitleClick={onPostTitleClick} />
           </div>
           <div className={classes.contentWrapper}>
@@ -305,7 +305,7 @@ const UltraFeedCommentItem = ({
               html={comment.contents?.html ?? ""}
               breakpoints={truncationBreakpoints ?? []}
               wordCount={comment.contents?.wordCount ?? 0}
-              initialExpansionLevel={0}
+              initialExpansionLevel={displayStatus === "expanded" ? 1 : 0}
               nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
               clampOverride={settings.lineClampNumberOfLines}
               onExpand={handleContentExpand}
