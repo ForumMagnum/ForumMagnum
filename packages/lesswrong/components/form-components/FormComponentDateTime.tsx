@@ -16,7 +16,9 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
   const datepicker__holidaysColor = theme.palette.invertIfDarkMode("#ff6803");
   const datepicker__mutedColor = theme.palette.invertIfDarkMode("#ccc");
   const datepicker__selectedColor = theme.palette.invertIfDarkMode("#216ba5");
-  const datepicker__selectedColorDisabled = "rgba(0x21, 0x6b, 0xa5, .5)";
+  const datepicker__selectedColorDisabled = theme.themeOptions.name === 'dark'
+    ? "rgba(222, 148, 90, .5)"
+    : "rgba(33, 107, 165, .5)";
   const datepicker__textColor = theme.palette.text.maxIntensity;
   const datepicker__headerColor = theme.palette.greyAlpha(1.0);
   const datepicker__navigationDisabledColor = lighten(datepicker__mutedColor, .1);
@@ -127,8 +129,8 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       
         '&[data-placement^="top"]': {
           "& .react-datepicker__triangle": {
-            fill: "#fff",
-            color: "#fff",
+            fill: theme.palette.icon.maxIntensity,
+            color: theme.palette.icon.maxIntensity,
           }
         }
       },
@@ -347,7 +349,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       
         "& .react-datepicker__time": {
           position: "relative",
-          background: "white",
+          background: theme.palette.panelBackground.default,
           borderBottomRightRadius: "0.3rem",
       
           "& .react-datepicker__time-box": {
@@ -379,7 +381,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       
                 "&--selected": {
                   backgroundColor: datepicker__selectedColor,
-                  color: "white",
+                  color: theme.palette.text.invertedBackgroundText,
                   fontWeight: "bold",
       
                   "&:hover": {

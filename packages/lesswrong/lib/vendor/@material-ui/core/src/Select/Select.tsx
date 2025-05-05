@@ -100,7 +100,10 @@ export const styles = defineStyles("MuiSelect", theme => ({
     color: theme.palette.action.active,
     'pointer-events': 'none', // Don't block pointer events on the select under the icon.
   },
-}), {stylePriority: -10});
+}), {
+  stylePriority: -10,
+  allowNonThemeColors: true, // For the -moz-focusring option
+});
 
 function Select(props: SelectProps) {
   const {

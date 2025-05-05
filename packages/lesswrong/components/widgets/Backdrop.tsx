@@ -22,7 +22,10 @@ const styles = defineStyles("Backdrop", (theme: ThemeType) => ({
   blur: {
     backdropFilter: "blur(4px)",
   },
-}))
+}), {
+  // in dark mode, the darkening is still darkening, not flipped to lightening
+  allowNonThemeColors: true,
+})
 
 export const Backdrop = ({visible, style="darken"}: {
   visible: boolean

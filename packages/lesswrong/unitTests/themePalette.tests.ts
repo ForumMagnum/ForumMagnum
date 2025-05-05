@@ -83,11 +83,11 @@ function assertNoNonPaletteColorsRec(componentName: string, path: string, lightM
   if (typeof lightModeStyleFragment === "string") {
     const mentionedColor = stringMentionsAnyColor(lightModeStyleFragment);
     if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment) {
-      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path} - ${mentionedColor} (${lightModeStyleFragment}/${darkModeStyleFragment})`);
+      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path} - ${mentionedColor}`);
     }
   } else if (typeof lightModeStyleFragment === "object") {
     for (let key of Object.keys(lightModeStyleFragment)) {
-      assertNoNonPaletteColorsRec(componentName, `${path}.${key}`, lightModeStyleFragment[key], darkModeStyleFragment, outNonPaletteColors);
+      assertNoNonPaletteColorsRec(componentName, `${path}.${key}`, lightModeStyleFragment[key], darkModeStyleFragment[key], outNonPaletteColors);
     }
   }
 }
