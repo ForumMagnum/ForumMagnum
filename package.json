@@ -292,7 +292,7 @@
     "react-confetti": "^6.2.2",
     "react-cookie": "^4.0.1",
     "react-copy-to-clipboard": "^5.1.0",
-    "react-datetime": "^2.15.0",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
     "react-event-listener": "^0.6.6",
     "react-geosuggest": "^2.8.0",

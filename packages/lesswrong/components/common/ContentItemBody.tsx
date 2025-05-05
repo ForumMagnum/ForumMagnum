@@ -132,7 +132,6 @@ const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
   }
   const propsChanged = !compareProps(lastProps, props);
   const renderIndex = propsChanged ? lastRenderIndex+1 : lastRenderIndex;
-  console.log(`ContentItemBody.render (renderIndex=${renderIndex}, lastRenderIndex=${lastRenderIndex})`);
 
   useImperativeHandle(ref, () => ({
     containsNode: (node: Node): boolean => {
@@ -151,11 +150,12 @@ const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
     className={props.className}
     ref={bodyRef}
     dangerouslySetInnerHTML={{__html: html}}
+  // This should only rerender when renderIndex increments
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   />, [html, renderIndex]);
 
   useEffect(() => {
     if (bodyRef.current) {
-      console.log("ContentItemBody.applyLocalModificationsTo");
       setReplacedElements(applyLocalModificationsTo(bodyRef.current, {
         replacedSubstrings: props.replacedSubstrings,
         idInsertions: props.idInsertions,
@@ -165,9 +165,9 @@ const ContentItemBody = forwardRef((props: ContentItemBodyProps, ref) => {
       }));
       setLastProps(props);
       setLastRenderIndex(renderIndex);
-    } else {
-      console.log("ContentItemBody bodyRef.current was null");
     }
+  // This should only rerun when renderIndex increments
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [renderIndex]);
   
   return <>
