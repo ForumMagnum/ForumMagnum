@@ -131,7 +131,10 @@ export const TagForm = ({
         let result: TagWithFlagsFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
+          const { wikiOnly, ...rest } = formApi.state.values;
+          const createData = showWikiOnlyField(currentUser, formType) ? { ...rest, wikiOnly } : rest;
+
+          const { data } = await create({ data: createData });
           result = data?.createTag.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['description', 'moderationGuidelines', 'subforumWelcomeText']);
@@ -145,6 +148,7 @@ export const TagForm = ({
         onSuccessCallback.current?.(result);
 
         onSuccess(result);
+        setCaughtError(undefined);
       } catch (error) {
         setCaughtError(error);
       }

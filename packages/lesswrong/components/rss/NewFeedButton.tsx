@@ -36,7 +36,7 @@ const RSSFeedsForm = ({
   onSuccess: (doc: newRSSFeedFragment) => void;
 }) => {
   const { FormComponentCheckbox } = Components;
-  
+
   const classes = useStyles(formStyles);
 
   const { create } = useCreate({
@@ -66,6 +66,7 @@ const RSSFeedsForm = ({
         result = data?.createRSSFeed.data;
 
         onSuccess(result);
+        setCaughtError(undefined);
       } catch (error) {
         setCaughtError(error);
       }

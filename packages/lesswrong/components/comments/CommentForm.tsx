@@ -290,6 +290,7 @@ export const CommentForm = ({
         onSuccessCallback.current?.(result);
 
         onSuccess(result);
+        setCaughtError(undefined);
 
         formApi.reset();
       } catch (error) {
@@ -416,7 +417,7 @@ export const CommentForm = ({
           </form.Field>
         </div>}
 
-        {quickTakesTagsEnabledSetting.get() && form.state.values.shortform && <div className={classes.fieldWrapper}>
+        {quickTakesTagsEnabledSetting.get() && form.state.values.shortform && <div className={classNames("form-input", "input-relevantTagIds", classes.fieldWrapper)}>
           <form.Field name="relevantTagIds">
             {(field) => (
               <FormComponentQuickTakesTags

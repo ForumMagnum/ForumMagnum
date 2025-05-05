@@ -181,6 +181,7 @@ const PostForm = ({
         meta.successCallback?.(result);
 
         onSuccess(result);
+        setCaughtError(undefined);
       } catch (error) {
         setCaughtError(error);
       }

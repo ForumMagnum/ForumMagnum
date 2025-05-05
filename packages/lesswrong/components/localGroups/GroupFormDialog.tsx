@@ -124,6 +124,7 @@ const LocalGroupForm = ({
         onSuccessCallback.current?.(result);
 
         onSuccess(result);
+        setCaughtError(undefined);
       } catch (error) {
         setCaughtError(error);
       }

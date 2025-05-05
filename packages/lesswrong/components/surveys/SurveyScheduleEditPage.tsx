@@ -81,6 +81,7 @@ const SurveySchedulesForm = ({
         }
 
         onSuccess(result);
+        setCaughtError(undefined);
       } catch (error) {
         setCaughtError(error);
       }
