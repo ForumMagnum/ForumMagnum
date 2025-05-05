@@ -18,7 +18,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       inputType: "String!",
       canRead: ['guests'],
       canCreate: ['members'],
@@ -32,7 +32,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       inputType: "String!",
       canRead: ['guests'],
       canCreate: ['members'],
@@ -49,7 +49,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ['guests'],
       canCreate: ['members'],
     },
@@ -62,7 +62,7 @@ const schema = {
       resolver: async (bookmark: DbBookmark, args: any, context: ResolverContext) => {
         const { documentId, collectionName } = bookmark;
         const { Posts } = context;
-        if (collectionName !== "Posts" || !documentId || !Posts) {
+        if (collectionName !== "Posts") {
             return null;
         }
         return await Posts.findOne({ _id: documentId });
@@ -90,7 +90,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
+      outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ['guests'],
       canCreate: ['members'],
