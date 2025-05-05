@@ -2604,7 +2604,6 @@ interface RevisionEdit { // fragment on Revisions
   readonly originalContents: any,
   readonly html: string|null,
   readonly markdown: string|null,
-  readonly draftJS: any,
   readonly ckEditorMarkup: string|null,
   readonly wordCount: number,
   readonly htmlHighlight: string,
