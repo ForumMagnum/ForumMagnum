@@ -4744,7 +4744,6 @@ type User {
   tagRevisionCount: Float!
   abTestKey: String
   abTestOverrides: JSON
-  reenableDraftJs: Boolean
   walledGardenInvite: Boolean
   hideWalledGardenUI: Boolean
   walledGardenPortalOnboarded: Boolean
@@ -12087,7 +12086,6 @@ fragment UsersDefaultFragment on User {
   tagRevisionCount
   abTestKey
   abTestOverrides
-  reenableDraftJs
   walledGardenInvite
   hideWalledGardenUI
   walledGardenPortalOnboarded

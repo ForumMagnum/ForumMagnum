@@ -1,6 +1,5 @@
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../server/draftConvert'
-import { htmlToDraftServer } from '../server/resolvers/toDraft'
 import { dataToWordCount } from "../server/editor/conversionUtils";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
@@ -65,49 +64,6 @@ describe("draftToHtml", () => {
     result.should.equal("<p><em>Italic</em></p><p><strong>Bold</strong></p><p><strong><em>BoldItalic</em></strong></p>")
   })
 })
-
-describe("htmlToDraft", () => {
-  describe("draftToHtml roundtrip testing", () => {
-    const tests = [
-      {description: "italics", html: "<p><em>Italic</em></p>"},
-      {description: "bold", html: "<p><strong>Bold</strong></p>"},
-      {description: "bold-italic", html: "<p><strong><em>BoldItalic</em></strong></p>"},
-      {description: "bullet-list", html: "<ul><li>first</li><li>second</li></ul>"},
-      {description: "link", html: `<p><a href="google.com"> Link </a></p>`}
-    ]
-    for (const t of tests) {
-      it(t.description, () => {
-        const draft = htmlToDraftServer(t.html)
-        const html = draftToHTML(convertFromRaw(draft))
-        html.should.equal(t.html)
-      })
-    }
-  });
-
-  it("Server-side conversions are stable between calls", async () => {
-    const html = `
-      <h1>This is a sample heading</h1>
-      <p>This is some sample text.</p>
-      <h2>This is another sample heading</h2>
-      <p>This is some more sample text.</p>
-    `;
-    const draft1 = htmlToDraftServer(html);
-    const draft2 = htmlToDraftServer(html);
-    expect(draft1).toEqual(draft2);
-  });
-
-  it("Server-side stable ids are unique", async () => {
-    const html = `
-      <p>This is some sample text.</p>
-      <p>This is some sample text.</p>
-    `;
-    const draft1 = htmlToDraftServer(html);
-    const draft2 = htmlToDraftServer(html);
-    expect(draft1.blocks).toHaveLength(2);
-    expect(typeof draft1.blocks[0].key).toBe("string");
-    expect(draft1.blocks[0].key).not.toBe(draft2.blocks[1].key);
-  });
-});
 
 describe("dataToWordCount", () => {
   it("counts words in HTML content", async () => {

@@ -1767,7 +1767,6 @@ export const UsersDefaultFragment = `
     tagRevisionCount
     abTestKey
     abTestOverrides
-    reenableDraftJs
     walledGardenInvite
     hideWalledGardenUI
     walledGardenPortalOnboarded

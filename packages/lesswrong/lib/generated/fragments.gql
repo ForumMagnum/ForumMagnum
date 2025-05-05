@@ -4854,7 +4854,6 @@ fragment UsersDefaultFragment on User {
   tagRevisionCount
   abTestKey
   abTestOverrides
-  reenableDraftJs
   walledGardenInvite
   hideWalledGardenUI
   walledGardenPortalOnboarded

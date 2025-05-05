@@ -147,7 +147,7 @@ export const EditorFormComponent = ({
   // to show it to people using the html editor. Converting from markdown to ckEditor
   // is error prone and we don't want to encourage it. We no longer support draftJS
   // but some old posts still are using it so we show the warning for them too.
-  const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
+  const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html')
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.

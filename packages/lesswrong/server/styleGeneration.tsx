@@ -7,7 +7,6 @@ import { withStyles } from '@/lib/vendor/@material-ui/core/src/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
-import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
@@ -20,8 +19,6 @@ import { brotliCompressResource, CompressedCacheResource } from './utils/bundleU
 import { type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
-import pick from 'lodash/pick';
-import mapValues from 'lodash/mapValues';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -50,7 +47,6 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions, true);
   
   const mergedCSS = [
-    draftjsStyles(),
     miscStyles(),
     jssStylesheet,
     ...theme.rawCSS,
