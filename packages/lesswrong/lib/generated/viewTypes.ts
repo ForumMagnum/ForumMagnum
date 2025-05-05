@@ -1,6 +1,7 @@
 type AdvisorRequestsViewName = "requestsByUser";
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
+type AutomatedContentEvaluationsViewName = never
 type BansViewName = never
 type BookmarksViewName = "myBookmarkedPosts"|"myBookmarks"|"userDocumentBookmark";
 type BooksViewName = never
@@ -92,6 +93,7 @@ interface ViewTermsByCollectionName {
   AdvisorRequests: AdvisorRequestsViewTerms
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase
+  AutomatedContentEvaluations: ViewTermsBase
   Bans: ViewTermsBase
   Bookmarks: BookmarksViewTerms
   Books: ViewTermsBase

@@ -82,6 +82,7 @@ import { bookmarksFeedGraphQLQueries, bookmarksFeedGraphQLTypeDefs } from '@/ser
 import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
+import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
 import { graphqlBanQueryTypeDefs, banGqlQueryHandlers, banGqlFieldResolvers } from "@/server/collections/bans/queries";
 import { graphqlBookmarkQueryTypeDefs, bookmarkGqlFieldResolvers, bookmarkGqlQueryHandlers } from "@/server/collections/bookmarks/queries";
 import { graphqlBookQueryTypeDefs, bookGqlQueryHandlers, bookGqlFieldResolvers } from "@/server/collections/books/queries";
@@ -308,6 +309,7 @@ export const typeDefs = gql`
   ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
+  ${graphqlAutomatedContentEvaluationQueryTypeDefs}
   ${graphqlBanQueryTypeDefs}
   ${graphqlBookmarkQueryTypeDefs}
   ${graphqlBookQueryTypeDefs}
@@ -690,6 +692,7 @@ export const resolvers = {
   ...advisorRequestGqlFieldResolvers,
   ...arbitalCachesGqlFieldResolvers,
   ...arbitalTagContentRelGqlFieldResolvers,
+  ...automatedContentEvaluationGqlFieldResolvers,
   ...banGqlFieldResolvers,
   ...bookGqlFieldResolvers,
   ...bookmarkGqlFieldResolvers,

@@ -49,6 +49,16 @@ interface DbArbitalTagContentRel extends DbObject {
   type: "parent-taught-by-child" | "parent-is-requirement-of-child" | "parent-is-tag-of-child" | "parent-is-parent-of-child"
 }
 
+type AutomatedContentEvaluationsCollection = CollectionBase<"AutomatedContentEvaluations">;
+
+interface DbAutomatedContentEvaluation extends DbObject {
+  __collectionName?: "AutomatedContentEvaluations"
+  createdAt: Date
+  revisionId: string
+  score: number
+  sentenceScores: { sentence: string; score: number; }[]
+}
+
 type BansCollection = CollectionBase<"Bans">;
 
 interface DbBan extends DbObject {
@@ -2355,6 +2365,7 @@ interface CollectionsByName {
   AdvisorRequests: AdvisorRequestsCollection
   ArbitalCaches: ArbitalCachesCollection
   ArbitalTagContentRels: ArbitalTagContentRelsCollection
+  AutomatedContentEvaluations: AutomatedContentEvaluationsCollection
   Bans: BansCollection
   Bookmarks: BookmarksCollection
   Books: BooksCollection
@@ -2447,6 +2458,7 @@ interface ObjectsByCollectionName {
   AdvisorRequests: DbAdvisorRequest
   ArbitalCaches: DbArbitalCaches
   ArbitalTagContentRels: DbArbitalTagContentRel
+  AutomatedContentEvaluations: DbAutomatedContentEvaluation
   Bans: DbBan
   Bookmarks: DbBookmark
   Books: DbBook
@@ -2539,6 +2551,7 @@ interface ObjectsByTypeName {
   AdvisorRequest: DbAdvisorRequest
   ArbitalCaches: DbArbitalCaches
   ArbitalTagContentRel: DbArbitalTagContentRel
+  AutomatedContentEvaluation: DbAutomatedContentEvaluation
   Ban: DbBan
   Bookmark: DbBookmark
   Book: DbBook

@@ -1392,6 +1392,21 @@ addRoute({
   title: "All Comments"
 });
 
+addRoute(
+  {
+    name: 'Shortform',
+    path: '/quicktakes',
+    componentName: 'ShortformPage',
+    title: "Quick Takes",
+    hasLeftNavigationColumn: true,
+    navigationFooterBar: true,
+  },
+  {
+    name: 'ShortformRedirect',
+    path: '/shortform',
+    redirect: () => "/quicktakes",
+  },
+);
 
 if (hasEventsSetting.get()) {
   addRoute(

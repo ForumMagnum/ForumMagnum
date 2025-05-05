@@ -1347,6 +1347,19 @@ extend type Query {
   arbitalTagContentRels(input: MultiArbitalTagContentRelInput): MultiArbitalTagContentRelOutput
 }
 
+type AutomatedContentEvaluation {
+  _id: String!
+  createdAt: Date!
+  revisionId: String
+  score: Float
+  sentenceScores: [SentenceScore]
+}
+
+type SentenceScore {
+  sentence: String!
+  score: Float!
+}
+
 type Ban {
   _id: String!
   schemaVersion: Float!
@@ -3693,6 +3706,7 @@ type Revision {
   post: Post
   lens: MultiDocument
   summary: MultiDocument
+  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -7378,6 +7392,14 @@ fragment ArbitalTagContentRelsDefaultFragment on ArbitalTagContentRel {
   isStrong
 }
 
+fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluation {
+  _id
+  createdAt
+  revisionId
+  score
+  sentenceScores
+}
+
 fragment BansAdminPageFragment on Ban {
   _id
   createdAt
@@ -10621,6 +10643,15 @@ fragment SunshinePostsList on Post {
     htmlHighlight
     wordCount
     version
+
+    automatedContentEvaluations {
+      _id
+      score
+      sentenceScores {
+        sentence
+        score
+      }
+    }
   }
 
   moderationGuidelines {
