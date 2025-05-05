@@ -31,7 +31,7 @@ const BookmarksFeed = () => {
       <UltraFeedObserverProvider incognitoMode={true} >
       <OverflowNavObserverProvider>
       <SingleColumnSection>
-        <SectionTitle title="Your Bookmarks" />
+        <SectionTitle title="All Bookmarks" />
         <MixedTypeFeed
           resolverName="BookmarksFeed"
           sortKeyType="Date"
