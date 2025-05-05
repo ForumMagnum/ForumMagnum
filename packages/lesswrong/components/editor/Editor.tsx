@@ -4,7 +4,6 @@ import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { debounce } from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
@@ -185,11 +184,13 @@ const validationInterval = 500; //milliseconds
 export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup";
+export type LegacyEditorTypeString = EditorTypeString|"draftJS";
 
-export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?: string}> = {
+export const editorTypeToDisplay: Record<LegacyEditorTypeString,{name: string, postfix?: string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
   ckEditorMarkup: {name: ckEditorName},
   markdown: {name: 'Markdown'},
+  draftJS: {name: "DraftJS"},
 }
 
 export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
@@ -198,6 +199,10 @@ export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'mark
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
   return "ckEditorMarkup"
+}
+
+export function isValidEditorType(editorType: string): editorType is EditorTypeString {
+  return editorType in editorTypeToDisplay && editorType !== 'draftJS';
 }
 
 // Contents of an editor, with `value` in the native format of the editor
@@ -235,7 +240,6 @@ interface EditorProps {
   documentId?: string,
   collectionName: CollectionNameString,
   fieldName: string,
-  initialEditorType: EditorTypeString,
   formProps?: FormProps,
 
   // Whether to use the CkEditor collaborative editor, ie, this is the

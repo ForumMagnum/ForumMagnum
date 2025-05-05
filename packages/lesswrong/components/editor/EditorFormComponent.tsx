@@ -3,9 +3,7 @@ import { debateEditorPlaceholder, defaultEditorPlaceholder, getEditableFieldInCo
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
-  getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
-  EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
@@ -147,7 +145,7 @@ export const EditorFormComponent = ({
   // to show it to people using the html editor. Converting from markdown to ckEditor
   // is error prone and we don't want to encourage it. We no longer support draftJS
   // but some old posts still are using it so we show the warning for them too.
-  const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html')
+  const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html' || (currentEditorType as LegacyEditorTypeString) === 'draftJS')
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
@@ -500,6 +498,7 @@ export const EditorFormComponent = ({
   return <div className={classes.root}>
     {showEditorWarning &&
       <Components.LastEditedInWarning
+        autoConvert={(contents.type as LegacyEditorTypeString) === 'draftJS'}
         initialType={initialEditorType}
         currentType={contents.type}
         defaultType={defaultEditorType}
@@ -513,7 +512,7 @@ export const EditorFormComponent = ({
       getNewPostLocalStorageHandlers={getNewPostLocalStorageHandlers}
     />}
     <CKEditorPortalProvider>
-    <Components.Editor
+    {isValidEditorType(contents.type) && <Components.Editor
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}
@@ -523,7 +522,6 @@ export const EditorFormComponent = ({
       documentId={document._id}
       collectionName={collectionName}
       fieldName={fieldName}
-      initialEditorType={initialEditorType}
       formProps={formProps}
       isCollaborative={isCollabEditor}
       accessLevel={document.myEditorAccess}
@@ -538,7 +536,7 @@ export const EditorFormComponent = ({
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
-    />
+    />}
     </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" &&
       <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
