@@ -35,7 +35,6 @@ export const RevisionEdit = () => frag`
     }
     html
     markdown
-    draftJS
     ckEditorMarkup
     wordCount
     htmlHighlight

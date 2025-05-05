@@ -4579,26 +4579,6 @@ const schema = {
       hidden: true,
     },
   },
-  // This is deprecated.
-  reenableDraftJs: {
-    database: {
-      type: "BOOL",
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["guests"],
-      validation: {
-        optional: true,
-      },
-    },
-    form: {
-      order: 73,
-      label: "Restore the previous WYSIWYG editor",
-      tooltip: "Restore the old Draft-JS based editor",
-      hidden: !isEAForum,
-      group: () => formGroups.siteCustomizations,
-    },
-  },
   walledGardenInvite: {
     database: {
       type: "BOOL",

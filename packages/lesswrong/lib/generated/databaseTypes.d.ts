@@ -2272,7 +2272,6 @@ interface DbUser extends DbObject {
       onlyUnread: boolean,
     },
   } | null
-  reenableDraftJs: boolean | null
   revealChecksToAdmins: boolean
   reviewForAlignmentForumUserId: string | null
   reviewVotesQuadratic: boolean | null

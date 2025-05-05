@@ -4,16 +4,6 @@ import * as _ from 'underscore';
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import type { JssStyles } from '@/lib/jssStyles';
 
-// This component imports a lot of JSX files for plugins and our current build
-// setup for tests can't parse them correctly for some reason. For now we can
-// just avoid importing them at all
-jest.mock("../components/editor/DraftJSEditor", () => {
-  const {registerComponent} = require("../lib/vulcan-lib/components");
-  const {styleMap} = require("../components/editor/draftJsEditorStyleMap");
-  registerComponent("DraftJSEditor", () => null, {styles: styleMap});
-  return {default: jest.fn()};
-});
-
 /*
  * We call `importAllComponents` in the test to actually call `require` on all
  * the components that are registed in the deferred components table, but we
