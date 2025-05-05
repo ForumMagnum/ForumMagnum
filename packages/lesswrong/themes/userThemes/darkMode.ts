@@ -195,6 +195,7 @@ export const darkModeTheme: UserThemeSpecification = {
     inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
+    invertIfDarkMode: (color: string) => invertHexColor(color),
     type: "dark",
   },
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({

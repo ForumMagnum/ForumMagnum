@@ -7,20 +7,20 @@ import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import type { Moment } from 'moment';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { lighten } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
+import { darken, lighten } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
 
 const styles = defineStyles("DatePicker", (theme: ThemeType) => {
-  const datepicker__backgroundColor = "#f0f0f0";
-  const datepicker__borderColor = "#aeaeae";
-  const datepicker__highlightedColor = "#3dcc4a";
-  const datepicker__holidaysColor = "#ff6803";
-  const datepicker__mutedColor = "#ccc";
-  const datepicker__selectedColor = "#216ba5";
-  const datepicker__selectedColorDisabled = "#216ba580";
-  const datepicker__textColor = "#000";
-  const datepicker__headerColor = "#000";
+  const datepicker__backgroundColor = theme.palette.grey[140];
+  const datepicker__borderColor = theme.palette.invertIfDarkMode("#aeaeae");
+  const datepicker__highlightedColor = theme.palette.invertIfDarkMode("#3dcc4a");
+  const datepicker__holidaysColor = theme.palette.invertIfDarkMode("#ff6803");
+  const datepicker__mutedColor = theme.palette.invertIfDarkMode("#ccc");
+  const datepicker__selectedColor = theme.palette.invertIfDarkMode("#216ba5");
+  const datepicker__selectedColorDisabled = "rgba(0x21, 0x6b, 0xa5, .5)";
+  const datepicker__textColor = theme.palette.text.maxIntensity;
+  const datepicker__headerColor = theme.palette.greyAlpha(1.0);
   const datepicker__navigationDisabledColor = lighten(datepicker__mutedColor, .1);
-  const datepicker__border = "1px solid #aeaeae;";
+  const datepicker__border = `1px solid ${datepicker__borderColor};`;
   const datepicker__borderRadius = "0.3rem";
   const datepicker__dayMargin = "0.166rem";
   const datepicker__fontSize = "0.8rem";
@@ -86,7 +86,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       "& .react-datepicker": {
         fontFamily: datepicker__fontFamily,
         fontSize: datepicker__fontSize,
-        backgroundColor: "#fff",
+        backgroundColor: theme.palette.panelBackground.default,
         color: datepicker__textColor,
         border: datepicker__border,
         borderRadius: datepicker__borderRadius,
@@ -226,7 +226,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       
         "&:hover": {
           "*::before": {
-            borderColor: lighten(datepicker__mutedColor, -.15),
+            borderColor: darken(datepicker__mutedColor, .15),
           }
         }
       },
@@ -338,7 +338,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
       
         "&--with-today-button": {
           display: "inline",
-          border: "1px solid #aeaeae",
+          border: datepicker__border,
           borderRadius: "0.3rem",
           position: "absolute",
           right: -87,
@@ -421,7 +421,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
         "&--selected": {
           borderRadius: datepicker__borderRadius,
           backgroundColor: datepicker__selectedColor,
-          color: "#fff",
+          color: theme.palette.text.invertedBackgroundText,
       
           "&:hover": {
             backgroundColor: "color.adjust(datepicker__selectedColor, -5%)",
@@ -462,10 +462,10 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
         "&--highlighted": {
           borderRadius: datepicker__borderRadius,
           backgroundColor: datepicker__highlightedColor,
-          color: "#fff",
+          color: theme.palette.text.invertedBackgroundText,
       
           '&:not([aria-disabled="true"]):hover': {
-            backgroundColor: lighten(datepicker__highlightedColor, -.05),
+            backgroundColor: darken(datepicker__highlightedColor, .05),
           },
       
           "&--custom-1": {
@@ -481,15 +481,15 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           position: "relative",
           borderRadius: datepicker__borderRadius,
           backgroundColor: datepicker__holidaysColor,
-          color: "#fff",
+          color: theme.palette.text.invertedBackgroundText,
       
           "& .overlay": {
             position: "absolute",
             bottom: "100%",
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor: "#333",
-            color: "#fff",
+            backgroundColor: theme.palette.grey.A400,
+            color: theme.palette.text.maxIntensity,
             padding: 4,
             borderRadius: 4,
             whiteSpace: "nowrap",
@@ -499,7 +499,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           },
       
           "&:not([aria-disabled='true']):hover": {
-            backgroundColor: lighten(datepicker__holidaysColor, -.1),
+            backgroundColor: darken(datepicker__holidaysColor, .1),
           },
       
           "&:hover .overlay": {
@@ -511,20 +511,20 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
         "&--selected, &--in-selecting-range, &--in-range": {
           borderRadius: datepicker__borderRadius,
           backgroundColor: datepicker__selectedColor,
-          color: "#fff",
+          color: theme.palette.text.invertedBackgroundText,
       
           '&:not([aria-disabled="true"]):hover': {
-            backgroundColor: lighten(datepicker__selectedColor, -.05),
+            backgroundColor: darken(datepicker__selectedColor, .05),
           }
         },
       
         "&--keyboard-selected": {
           borderRadius: datepicker__borderRadius,
           backgroundColor: lighten(datepicker__selectedColor, .45),
-          color: "rgb(0, 0, 0)",
+          color: theme.palette.text.maxIntensity,
       
           '&:not([aria-disabled="true"]):hover': {
-            backgroundColor: lighten(datepicker__selectedColor, -.05),
+            backgroundColor: darken(datepicker__selectedColor, .05),
           }
         },
       
@@ -548,8 +548,8 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
             bottom: "70%",
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor: "#333",
-            color: "#fff",
+            backgroundColor: theme.palette.grey["A400"],
+            color: theme.palette.text.maxIntensity,
             padding: 4,
             borderRadius: 4,
             whiteSpace: "nowrap",
@@ -587,7 +587,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           cursor: "pointer",
       
           "& .react-datepicker__year-read-view--down-arrow, & .react-datepicker__month-read-view--down-arrow": {
-            borderTopColor: lighten(datepicker__mutedColor, -.1),
+            borderTopColor: darken(datepicker__mutedColor, .1),
           }
         },
       
@@ -645,11 +645,11 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           backgroundColor: datepicker__mutedColor,
       
           "& .react-datepicker__navigation--years-upcoming": {
-            borderBottomColor: lighten(datepicker__mutedColor, -.1),
+            borderBottomColor: darken(datepicker__mutedColor, .1),
           },
       
           "& .react-datepicker__navigation--years-previous": {
-            borderTopColor: lighten(datepicker__mutedColor, -.1),
+            borderTopColor: darken(datepicker__mutedColor, .1),
           }
         },
       
@@ -675,7 +675,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
         "&::after": {
           cursor: "pointer",
           backgroundColor: datepicker__selectedColor,
-          color: "#fff",
+          color: theme.palette.text.maxIntensity,
           borderRadius: "50%",
           height: "16px",
           width: "16px",
@@ -712,7 +712,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
         position: "fixed",
         width: "100vw",
         height: "100vh",
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        backgroundColor: theme.palette.greyAlpha(0.8),
         left: 0,
         top: 0,
         justifyContent: "center",

@@ -24,17 +24,21 @@ import '../lib/generated/allComponents';
 
 describe('JSS', () => {
   /**
-   * Check that component styles use only colors from the theme, when
-   * instantiated with the default theme. It is okay to use non-palette colors
-   * conditionally, eg with
+   * Check that component styles use only colors that either come from the theme, 
+   * or change in dark mode. It is okay to use non-palette colors in ways that are
+   * conditinal on being in dark mode, eg
    *    `theme.palette.type==="dark" ? "#123456" : theme.palette.panelBackground.default`
+   * or
+   *    `theme.palette.type==="dark" ? "#123456" : "#abcdef"
    * since the main purpose of this test is to make sure you don't forget about
    * dark mode and accidentally make something black-on-black.
    */
-  it('uses only colors from the theme palette', () => {
+  it('uses only colors that come from the theme palette or change in dark mode', () => {
     importAllComponents();
-    const realTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
-    const fakeTheme = replacePaletteWithStubs(realTheme);
+    const lightTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
+    const darkTheme = getForumTheme({name: "dark", siteThemeOverride: {}}) as unknown as ThemeType;
+    const stubbedLightTheme = replacePaletteWithStubs(lightTheme);
+    const stubbedDarkTheme = replacePaletteWithStubs(darkTheme);
     let nonPaletteColors: string[] = [];
     
     const componentsToTest = Object.keys(ComponentsTable);
@@ -45,17 +49,19 @@ describe('JSS', () => {
 
     for (let componentName of _.sortBy(componentsToTest, x=>x)) {
       const styleGetter = ComponentsTable[componentName].options?.styles;
-      const styles = (typeof styleGetter === 'function') ? styleGetter(fakeTheme) : styleGetter;
-      if (styles && !ComponentsTable[componentName].options?.allowNonThemeColors) {
-        assertNoNonPaletteColors(componentName, styles, nonPaletteColors);
+      const lightModeStyles = (typeof styleGetter === 'function') ? styleGetter(stubbedLightTheme) : styleGetter;
+      const darkModeStyles = (typeof styleGetter === 'function') ? styleGetter(stubbedDarkTheme) : styleGetter;
+      if (lightModeStyles && !ComponentsTable[componentName].options?.allowNonThemeColors) {
+        assertNoNonPaletteColors(componentName, lightModeStyles, darkModeStyles, nonPaletteColors);
       }
     }
 
     for (const name in topLevelStyleDefinitions) {
       const styleGetter = topLevelStyleDefinitions[name].styles;
-      const styles = styleGetter(fakeTheme);
-      if (styles && !topLevelStyleDefinitions[name].options?.allowNonThemeColors) {
-        assertNoNonPaletteColors(name, styles, nonPaletteColors);
+      const lightModeStyles = styleGetter(stubbedLightTheme);
+      const darkModeStyles = styleGetter(stubbedDarkTheme);
+      if (lightModeStyles && !topLevelStyleDefinitions[name].options?.allowNonThemeColors) {
+        assertNoNonPaletteColors(name, lightModeStyles, darkModeStyles, nonPaletteColors);
       }
     }
 
@@ -67,21 +73,21 @@ describe('JSS', () => {
   });
 });
 
-function assertNoNonPaletteColors(componentName: string, styles: JssStyles, outNonPaletteColors: string[]) {
-  for (let key of Object.keys(styles)) {
-    assertNoNonPaletteColorsRec(componentName, key, styles[key], outNonPaletteColors);
+function assertNoNonPaletteColors(componentName: string, lightModeStyles: JssStyles, darkModeStyles: JssStyles, outNonPaletteColors: string[]) {
+  for (let key of Object.keys(lightModeStyles)) {
+    assertNoNonPaletteColorsRec(componentName, key, lightModeStyles[key], darkModeStyles[key], outNonPaletteColors);
   }
 }
 
-function assertNoNonPaletteColorsRec(componentName: string, path: string, styleFragment: any, outNonPaletteColors: string[]) {
-  if (typeof styleFragment === "string") {
-    const mentionedColor = stringMentionsAnyColor(styleFragment);
-    if (mentionedColor) {
-      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path} - ${mentionedColor}`);
+function assertNoNonPaletteColorsRec(componentName: string, path: string, lightModeStyleFragment: any, darkModeStyleFragment: any, outNonPaletteColors: string[]) {
+  if (typeof lightModeStyleFragment === "string") {
+    const mentionedColor = stringMentionsAnyColor(lightModeStyleFragment);
+    if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment) {
+      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path} - ${mentionedColor} (${lightModeStyleFragment}/${darkModeStyleFragment})`);
     }
-  } else if (typeof styleFragment === "object") {
-    for (let key of Object.keys(styleFragment)) {
-      assertNoNonPaletteColorsRec(componentName, `${path}.${key}`, styleFragment[key], outNonPaletteColors);
+  } else if (typeof lightModeStyleFragment === "object") {
+    for (let key of Object.keys(lightModeStyleFragment)) {
+      assertNoNonPaletteColorsRec(componentName, `${path}.${key}`, lightModeStyleFragment[key], darkModeStyleFragment, outNonPaletteColors);
     }
   }
 }

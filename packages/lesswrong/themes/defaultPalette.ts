@@ -147,6 +147,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
     primaryAlpha: greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
+    invertIfDarkMode: (color: string) => color,
     
     fonts: {
       // Every site theme overrides these
