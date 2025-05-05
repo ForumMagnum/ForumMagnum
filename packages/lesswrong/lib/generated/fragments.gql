@@ -91,6 +91,9 @@ fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluatio
   revisionId
   score
   sentenceScores
+  aiChoice
+  aiReasoning
+  aiCoT
 }
 
 fragment BansAdminPageFragment on Ban {

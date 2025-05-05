@@ -75,6 +75,9 @@ interface AutomatedContentEvaluationsDefaultFragment { // fragment on AutomatedC
   readonly revisionId: string,
   readonly score: number,
   readonly sentenceScores: Array<any /*SentenceScore*/>,
+  readonly aiChoice: string,
+  readonly aiReasoning: string,
+  readonly aiCoT: string,
 }
 
 interface BansAdminPageFragment { // fragment on Bans

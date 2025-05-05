@@ -42,6 +42,9 @@ export const AutomatedContentEvaluationsDefaultFragment = `
     revisionId
     score
     sentenceScores
+    aiChoice
+    aiReasoning
+    aiCoT
   }
 `;
 

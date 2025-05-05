@@ -1325,6 +1325,9 @@ type AutomatedContentEvaluation {
   revisionId: String!
   score: Float!
   sentenceScores: [SentenceScore]!
+  aiChoice: String!
+  aiReasoning: String!
+  aiCoT: String!
 }
 
 type SentenceScore {
@@ -7324,6 +7327,9 @@ fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluatio
   revisionId
   score
   sentenceScores
+  aiChoice
+  aiReasoning
+  aiCoT
 }
 
 fragment BansAdminPageFragment on Ban {

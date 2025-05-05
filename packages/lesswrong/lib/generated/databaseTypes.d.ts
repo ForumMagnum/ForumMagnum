@@ -53,6 +53,9 @@ type AutomatedContentEvaluationsCollection = CollectionBase<"AutomatedContentEva
 
 interface DbAutomatedContentEvaluation extends DbObject {
   __collectionName?: "AutomatedContentEvaluations"
+  aiChoice: "accept" | "review"
+  aiCoT: string
+  aiReasoning: string
   createdAt: Date
   revisionId: string
   score: number

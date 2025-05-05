@@ -261,7 +261,7 @@
     "mz": "^2.7.0",
     "node-abort-controller": "^3.1.1",
     "nodemailer": "^6.9.9",
-    "openai": "^4.56.0",
+    "openai": "4.96.2",
     "papaparse": "^5.2.0",
     "passport": "^0.5.2",
     "passport-auth0": "^1.4.4",

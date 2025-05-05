@@ -16,14 +16,14 @@ const schema = {
     }
   },
 
-  score:  {
+  score: {
     database: {
       type: "DOUBLE PRECISION",
       nullable: false,
     },
     graphql: {
       outputType: "Float!",
-      canRead: ["admins"], 
+      canRead: ["admins"],
     }
   },
 
@@ -37,9 +37,41 @@ const schema = {
       outputType: "[SentenceScore]!",
       canRead: ["admins"],
     },
-
   },
 
+  aiChoice: {
+    database: {
+      type: "VARCHAR(255)",
+      nullable: false,
+      typescriptType: '"accept" | "review"',
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
+  },
+
+  aiReasoning: {
+    database: {
+      type: "TEXT",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
+  },
+
+  aiCoT: {
+    database: {
+      type: "TEXT",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"AutomatedContentEvaluations">>;
 
 export default schema;

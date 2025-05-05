@@ -79,7 +79,10 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "revisionId" VARCHAR(27) NOT NULL,
   "score" DOUBLE PRECISION NOT NULL,
-  "sentenceScores" JSONB NOT NULL
+  "sentenceScores" JSONB NOT NULL,
+  "aiChoice" VARCHAR(255) NOT NULL,
+  "aiReasoning" TEXT NOT NULL,
+  "aiCoT" TEXT NOT NULL
 );
 
 -- Table "Bans"
