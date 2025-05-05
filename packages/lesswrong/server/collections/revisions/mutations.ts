@@ -104,8 +104,8 @@ export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', upda
 
 async function getSaplingEvaluation(revision: DbRevision) {
   const key = saplingApiKey.get();
-  if (!saplingApiKey) return;
-
+  if (!key) return;
+  
   const markdown = dataToMarkdown(revision.html, "html");
   const textToCheck = markdown.slice(0, 10000)
 
@@ -122,6 +122,7 @@ async function getSaplingEvaluation(revision: DbRevision) {
 
   const saplingEvaluation = await response.json();
 
+  // Define single Zod schema for response validation
   const saplingResponseSchema = z.object({
     score: z.number(),
     sentence_scores: z.array(

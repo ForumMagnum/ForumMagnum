@@ -48,30 +48,29 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     fontWeight: 500,
     padding: '4px 8px',
     borderRadius: 4,
-    width: 80,
+    width: 100,
     cursor: 'pointer',
     border: '1px solid transparent',
     backgroundColor: 'transparent',
   },
   viewModeButtonInactive: {
-    backgroundColor: theme.palette.grey[200],
-    color: theme.palette.text.secondary,
-    opacity: 0.7,
+    color: theme.palette.grey[900],
+    backgroundColor: theme.palette.grey[250],
+    fontWeight: 500,
     '&:hover': {
-      opacity: 0.9,
+      backgroundColor: theme.palette.grey[300],
     },
   },
   viewModeButtonActive: {
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.text.primary,
-    borderColor: theme.palette.grey[400],
     opacity: 1,
     fontWeight: 600,
   },
   buttonRow: {
     display: 'flex',
     justifyContent: 'flex-end',
-    marginTop: theme.spacing.unit * 3,
+    marginTop: 12,
   },
   button: {
     minWidth: 100,
@@ -96,8 +95,10 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
   resetButton: {
     color: theme.palette.grey[900],
+    backgroundColor: theme.palette.grey[250],
+    fontWeight: 500,
     '&:hover': {
-      backgroundColor: theme.palette.grey[500],
+      backgroundColor: theme.palette.grey[300],
     },
   },
   buttonDisabled: {
@@ -106,6 +107,16 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     cursor: 'not-allowed',
     '&:hover': {
       backgroundColor: theme.palette.grey[300],
+    },
+  },
+  settingsGroupsContainer: {
+    width: "100%",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: "6px",
+    [theme.breakpoints.down('sm')]: {
+      gap: "4px",
     },
   },
 }));
@@ -464,7 +475,9 @@ const UltraFeedSettings = ({
         </div>
       </div>
       
-      {viewMode === 'simple' ? renderSimpleView() : renderAdvancedView()}
+      <div className={classes.settingsGroupsContainer}>
+        {viewMode === 'simple' ? renderSimpleView() : renderAdvancedView()}
+      </div>
 
       <div className={classes.buttonRow}>
         <button

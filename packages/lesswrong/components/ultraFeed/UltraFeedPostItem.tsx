@@ -114,6 +114,16 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
+  hideOnDesktop: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
 }));
 
 interface UltraFeedPostItemHeaderProps {
@@ -144,22 +154,34 @@ const UltraFeedPostItemHeader = ({
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        {postTitlesAreModals ? (
-          <a
-            href={postGetPageUrl(post)}
-            onClick={handleTitleClick}
-            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-          >
-            {post.title}
-          </a>
-        ) : (
+        {/* Mobile version: Respects postTitlesAreModals */}
+        <div className={classes.hideOnDesktop}>
+          {postTitlesAreModals ? (
+            <a
+              href={postGetPageUrl(post)}
+              onClick={handleTitleClick}
+              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+            >
+              {post.title}
+            </a>
+          ) : (
+            <Link
+              to={postGetPageUrl(post)}
+              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+            >
+              {post.title}
+            </Link>
+          )}
+        </div>
+        {/* Desktop version: Always a link */}
+        <div className={classes.hideOnMobile}>
           <Link
             to={postGetPageUrl(post)}
             className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
           >
             {post.title}
           </Link>
-        )}
+        </div>
       </div>
       <div className={classes.metaRow}>
         <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />

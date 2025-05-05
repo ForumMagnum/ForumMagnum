@@ -5,6 +5,7 @@ import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/po
 import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 import { useDialog } from '../common/withDialog';
 import { DialogContent } from '../widgets/DialogContent';
+import { highlightHtmlWithLlmDetectionScores } from './helpers';
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -37,28 +38,8 @@ const styles = (theme: ThemeType) => ({
   llmScore: {
     cursor: 'pointer',
   },
-  llmScoreSentenceBlock: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-    alignItems: 'center',
-  },
-  llmScoreSentence: {
-    fontSize: '0.9rem',
-    fontWeight: 600,
-    color: theme.palette.text.secondary,
-    maxWidth: '70%',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-
-  },
-  llmScoreSentenceScore: {
-    fontSize: '0.9rem',
-    fontWeight: 600,
-    color: theme.palette.text.secondary,
-    maxWidth: '20%',
-  },
 })
+
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {
   posts?: SunshinePostsList[],
@@ -68,7 +49,15 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay, LWDialog } = Components
   const { openDialog } = useDialog();
 
-  function handleLLMScoreClick(automatedContentEvaluation: SunshinePostsList_contents_automatedContentEvaluations) {
+  function handleLLMScoreClick(
+    automatedContentEvaluation: SunshinePostsList_contents_automatedContentEvaluations,
+    htmlContent: string | null | undefined
+  ) {
+    const highlightedHtml = highlightHtmlWithLlmDetectionScores(
+      htmlContent || "",
+      automatedContentEvaluation.sentenceScores || []
+    );
+
     openDialog({
       name: "LLMScoreDialog",
       contents: () => (
@@ -76,21 +65,9 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
           <DialogContent>
             <div>
               <p>LLM Score: {automatedContentEvaluation.score}</p>
-              <p>LLM Score per sentence: </p>
-              {automatedContentEvaluation.sentenceScores.map(
-                (
-                  sentenceScore: {
-                    sentence: string;
-                    score: number;
-                  },
-                  index: number
-                ) => (
-                  <div key={index} className={classes.llmScoreSentenceBlock}>
-                    <p className={classes.llmScoreSentence}>{sentenceScore.sentence}</p>
-                    <p className={classes.llmScoreSentenceScore}>Score: {sentenceScore.score}</p>
-                  </div>
-                )
-              )}
+              <p>Post with highlighted sentences:</p>
+              {/* eslint-disable-next-line react/no-danger */}
+              <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
             </div>
           </DialogContent>
         </LWDialog>
@@ -131,9 +108,19 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
           
           {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
             {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
-            {post.contents?.automatedContentEvaluations && <span className={classes.llmScore} onClick={() => handleLLMScoreClick(post.contents!.automatedContentEvaluations!)}>
-              LLM Score: {post.contents?.automatedContentEvaluations.score.toFixed(2)}
-              </span>}
+            {post.contents?.automatedContentEvaluations && (
+              <span
+                className={classes.llmScore}
+                onClick={() =>
+                  handleLLMScoreClick(
+                    post.contents!.automatedContentEvaluations!,
+                    post.contents!.html
+                  )
+                }
+              >
+              LLM Score: {post.contents?.automatedContentEvaluations?.score?.toFixed(2)}
+              </span>
+            )}
             <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
           </span>}
           

@@ -11,7 +11,7 @@ const schema = {
       foreignKey: "Revisions",
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["admins"],
     }
   },
@@ -22,8 +22,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float!",
-      canRead: ["admins"],
+      outputType: "Float",
+      canRead: ["admins"], 
     }
   },
 
@@ -34,7 +34,7 @@ const schema = {
       typescriptType: "{ sentence: string; score: number; }[]",
     },
     graphql: {
-      outputType: "[SentenceScore]!",
+      outputType: "[SentenceScore]",
       canRead: ["admins"],
     },
   },

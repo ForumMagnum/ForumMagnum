@@ -491,7 +491,6 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (revision, args, context) => {
-        // TODO: Do we need to do any access filtering here?
         const {AutomatedContentEvaluations} =  context;
 
         return AutomatedContentEvaluations.findOne({

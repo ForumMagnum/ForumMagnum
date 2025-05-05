@@ -48,7 +48,7 @@ const LWHome = () => {
 
   const currentUser = useCurrentUser();
   const [ultraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
-  const ultraFeedEnabled = userHasUltraFeed(currentUser) && ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
+  const ultraFeedEnabled = !!currentUser && (ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true");
 
   return (
       <AnalyticsContext pageContext="homePage">

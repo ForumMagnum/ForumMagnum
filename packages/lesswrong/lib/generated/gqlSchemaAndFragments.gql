@@ -1322,12 +1322,12 @@ extend type Query {
 type AutomatedContentEvaluation {
   _id: String!
   createdAt: Date!
-  revisionId: String!
-  score: Float!
-  sentenceScores: [SentenceScore]!
-  aiChoice: String!
-  aiReasoning: String!
-  aiCoT: String!
+  revisionId: String
+  score: Float
+  sentenceScores: [SentenceScore]
+  aiChoice: String
+  aiReasoning: String
+  aiCoT: String
 }
 
 type SentenceScore {
