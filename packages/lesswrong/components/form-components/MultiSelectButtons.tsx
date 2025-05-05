@@ -38,7 +38,7 @@ const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
   },
 }));
 
-interface TanStackMultiSelectButtonsProps {
+interface MultiSelectButtonsProps {
   field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
   label?: string;
   options: Array<{ value: string; label?: string }>;
@@ -52,7 +52,7 @@ export const MultiSelectButtons = ({
   options,
   className,
   disabled = false,
-}: TanStackMultiSelectButtonsProps) => {
+}: MultiSelectButtonsProps) => {
   const classes = useStyles(styles);
 
   const currentValue = field.state.value;

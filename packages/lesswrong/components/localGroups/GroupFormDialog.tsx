@@ -57,7 +57,7 @@ const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   },
 }));
 
-const TanStackGroupForm = ({
+const LocalGroupForm = ({
   initialData,
   isOnline: initialIsOnline,
   currentUser,
@@ -403,7 +403,7 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
     onClose={onClose}
   >
     <DialogContent className={classes.localGroupForm}>
-      <TanStackGroupForm
+      <LocalGroupForm
         initialData={initialData}
         isOnline={isOnline}
         currentUser={currentUser!}

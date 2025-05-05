@@ -94,7 +94,7 @@ export const styles = (theme: ThemeType) => ({
           width: "100% !important",
           height: "380px !important",
         },
-        '& .TanStackImageUpload-root': {
+        '& .ImageUpload-root': {
           marginLeft: '0 !important',
           paddingTop: '0 !important',
           // This prevents the container element from getting in the way

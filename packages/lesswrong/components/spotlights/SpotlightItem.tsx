@@ -304,16 +304,16 @@ const styles = (theme: ThemeType) => ({
     '& .form-input': {
       margin: 0
     },
-    '& .TanStackEditor-commentEditorHeight': {
+    '& .EditorFormComponent-commentEditorHeight': {
       minHeight: "unset"
     },
-    '& .TanStackEditor-commentEditorHeight .ck.ck-content': {
+    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
       minHeight: "unset"
     },
     '& .ck.ck-content.ck-editor__editable': {
       ...descriptionStyles(theme) 
     },
-    '& .TanStackEditor-ckEditorStyles .ck.ck-content': {
+    '& .EditorFormComponent-ckEditorStyles .ck.ck-content': {
       marginLeft: 0,
     },
     '& .ck.ck-editor__editable_inline': {

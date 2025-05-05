@@ -35,7 +35,7 @@ const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
       marginTop: 0,
       width: '100%',
     },
-    '& .input-tabTitle, & .TanStackMuiTextField-textField': {
+    '& .input-tabTitle, & .MuiTextField-textField': {
       marginBottom: 0,
       marginTop: 0,
       width: 150,

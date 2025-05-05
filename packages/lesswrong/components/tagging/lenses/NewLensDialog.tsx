@@ -24,7 +24,7 @@ const styles = defineStyles("NewLensDialog", (theme: ThemeType) => ({
       display: 'inline-block',
       width: 120,
       marginRight: 20,
-      '& .TanStackMuiTextField-textField': {
+      '& .MuiTextField-textField': {
         width: '100%',
       },
     },

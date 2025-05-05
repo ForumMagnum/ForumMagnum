@@ -19,7 +19,7 @@ interface CurationNoticesFormProps {
   onSuccess?: (doc: CurationNoticesFragment) => void;
 }
 
-const formStyles = defineStyles('TanStackCurationNoticesForm', (theme: ThemeType) => ({
+const formStyles = defineStyles('CurationNoticesForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,

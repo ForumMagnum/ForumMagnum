@@ -5,7 +5,7 @@ import { Components } from "@/lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React from "react";
+import React, { useCallback } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
@@ -27,6 +27,7 @@ import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
 import { useDialog } from "../common/withDialog";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -298,6 +299,9 @@ export const CommentForm = ({
     },
   });
 
+  const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
+  const formRef = useFormSubmitOnCmdEnter(handleSubmit);
+
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
   }
@@ -336,7 +340,7 @@ export const CommentForm = ({
       </div>;
 
   return (
-    <form className={classNames("vulcan-form", formClassName)} onSubmit={(e) => {
+    <form className={classNames("vulcan-form", formClassName)} ref={formRef} onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
       void form.handleSubmit();

@@ -15,6 +15,7 @@ import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFor
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -161,8 +162,11 @@ const InnerMessagesNewForm = ({
     },
   });
 
+  const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
+  const formRef = useFormSubmitOnCmdEnter(handleSubmit);
+
   return (
-    <form className="vulcan-form" onSubmit={(e) => {
+    <form className="vulcan-form" ref={formRef} onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
       void form.handleSubmit();

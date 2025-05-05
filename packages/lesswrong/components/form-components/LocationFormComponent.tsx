@@ -243,7 +243,7 @@ declare global {
   }
 }
 
-interface TanStackLocationProps {
+interface LocationFormComponentProps {
   field: TypedFieldApi<AnyBecauseHard>;
   label: string;
   /** Optional sibling field that stores the plain‑string version of the location */
@@ -258,7 +258,7 @@ export const LocationFormComponent = ({
   stringVersionFieldName = null,
   variant = 'default',
   locationTypes,
-}: TanStackLocationProps) => {
+}: LocationFormComponentProps) => {
   const classes = useStyles(styles);
   const [mapsLoaded] = useGoogleMaps();
   const geosuggestEl = useRef<Geosuggest>(null);

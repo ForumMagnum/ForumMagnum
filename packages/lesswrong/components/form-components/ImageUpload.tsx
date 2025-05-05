@@ -168,7 +168,7 @@ const RemoveButton: FC<{
   );
 }
 
-interface TanStackImageUploadProps {
+interface ImageUploadProps {
   field: TypedFieldApi<string | null>;
   document?: Partial<UsersMinimumInfo>;
   label?: string;
@@ -183,7 +183,7 @@ export const ImageUpload = ({
   label,
   croppingAspectRatio,
   horizontal = false,
-}: TanStackImageUploadProps) => {
+}: ImageUploadProps) => {
   const classes = useStyles(styles);
   const imageType = field.name as ImageType;
   const currentUser = useCurrentUser();
