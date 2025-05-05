@@ -96,7 +96,7 @@ export async function initRepl(commandLineOptions: CommandLineOptions) {
 
   if (["dev", "local", "staging", "prod", "xpost"].includes(mode)) {
     console.log('Running REPL in mode', mode, 'with settings file', args.settingsFileName);
-    args.settingsFileName = getSettingsFilePath(args.settingsFileName /*getSettingsFileName(mode, forumType)*/, forumType);
+    args.settingsFileName = getSettingsFilePath(getSettingsFileName(mode, forumType), forumType);
   } else if (args.postgresUrl && args.settingsFileName) {
     console.log('Using PG_URL and SETTINGS_FILE from environment');
   } else {
