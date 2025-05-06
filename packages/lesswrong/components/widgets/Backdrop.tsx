@@ -18,6 +18,7 @@ const styles = defineStyles("Backdrop", (theme: ThemeType) => ({
   },
   visible: {
     opacity: 1.0,
+    pointerEvents: "inherit",
   },
   blur: {
     backdropFilter: "blur(4px)",

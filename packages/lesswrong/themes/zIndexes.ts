@@ -33,7 +33,6 @@ export const defaultZIndexes = {
   nextUnread: 999,
   sunshineSidebar: 1000,
   reactionsFooter: 1001,
-  backdrop: 1100,
   drawer: 1400,
   modal: 1450,
   intercomButton: 1400,
@@ -50,6 +49,7 @@ export const defaultZIndexes = {
   hideTableOfContentsButton: 1200,
   header: 1300,
   karmaChangeNotifier: 1400,
+  backdrop: 1310,
   notificationsMenu: 1500,
   splashHeaderImageOptions: 2000,
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom
