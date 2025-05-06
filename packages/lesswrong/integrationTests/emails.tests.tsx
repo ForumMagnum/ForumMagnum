@@ -48,7 +48,7 @@ describe('renderEmail', () => {
   });
   
   it("Renders styles with withStyles", async () => {
-    const styles = defineStyles("EmailStylesTest", (theme) => ({
+    const styles = defineStyles("StyledComponent", (theme) => ({
       underlined: {
         textDecoration: "underline",
       }
