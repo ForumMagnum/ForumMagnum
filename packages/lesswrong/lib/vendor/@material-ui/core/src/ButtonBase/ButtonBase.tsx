@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import keycode from 'keycode';
 import ownerWindow from '../utils/ownerWindow';
 import { listenForFocusKeys, detectFocusVisible } from './focusVisible';
-import TouchRipple, { type TouchRippleProps } from './TouchRipple';
+import TouchRipple from './TouchRipple';
 import createRippleHandler from './createRippleHandler';
 import type { StandardProps } from '..';
 import { defineStyles, withStyles } from '@/components/hooks/useStyles';
@@ -15,15 +15,13 @@ export interface ButtonBaseProps
       ButtonBaseClassKey
     > {
   action?: (actions: ButtonBaseActions) => void;
-  buttonRef?: React.Ref<any> | React.RefObject<any>;
   centerRipple?: boolean;
-  component?: React.Component<ButtonBaseProps>|"button"|"li"|"span";
+  component?: "button"|"li"|"span";
   disableRipple?: boolean;
   disableTouchRipple?: boolean;
   focusRipple?: boolean;
   focusVisibleClassName?: string;
   onFocusVisible?: React.FocusEventHandler<any>;
-  TouchRippleProps?: Partial<TouchRippleProps>;
   children?: React.ReactNode;
 }
 
@@ -77,6 +75,8 @@ export const styles = defineStyles("MuiButtonBase", theme => ({
  * It contains a load of style reset and some focus/ripple logic.
  */
 class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeof styles>> {
+  buttonRef = React.createRef<HTMLElement>()
+
   state = {
     focusVisible: false
   };
@@ -123,8 +123,8 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
   });
 
   componentDidMount() {
-    /*this.button = ReactDOM.findDOMNode(this);
-    listenForFocusKeys(ownerWindow(this.button));
+    //this.button = ReactDOM.findDOMNode(this);
+    listenForFocusKeys(ownerWindow(this.buttonRef.current!));
 
     if (this.props.action) {
       this.props.action({
@@ -133,7 +133,7 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
           this.button.focus();
         },
       });
-    }*/
+    }
   }
 
   componentDidUpdate(prevProps: AnyBecauseTodo, prevState: AnyBecauseTodo) {
@@ -244,12 +244,12 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
     }
 
     // Fix for https://github.com/facebook/react/issues/7769
-    if (!this.button) {
-      this.button = event.currentTarget;
+    if (!this.buttonRef.current) {
+      this.buttonRef.current = event.currentTarget;
     }
 
     event.persist();
-    detectFocusVisible(this, this.button, () => {
+    detectFocusVisible(this, this.buttonRef.current!, () => {
       this.onFocusVisibleHandler(event);
     });
 
@@ -261,7 +261,6 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
   render() {
     const {
       action,
-      buttonRef,
       centerRipple,
       children,
       classes,
@@ -284,7 +283,6 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
       onTouchMove,
       onTouchStart,
       tabIndex,
-      TouchRippleProps,
       type,
       ...other
     } = this.props;
@@ -328,13 +326,13 @@ class ButtonBase extends React.Component<ButtonBaseProps & WithStylesProps<typeo
         onTouchStart={this.handleTouchStart}
         tabIndex={disabled ? '-1' : tabIndex}
         className={className}
-        ref={buttonRef}
+        ref={this.buttonRef}
         {...buttonProps}
         {...other}
       >
         {children}
         {!disableRipple && !disabled ? (
-          <TouchRipple innerRef={this.onRippleRef} center={centerRipple} {...TouchRippleProps} />
+          <TouchRipple ref={this.onRippleRef} center={centerRipple} />
         ) : null}
       </ComponentProp>
     );

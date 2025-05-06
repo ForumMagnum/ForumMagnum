@@ -207,7 +207,7 @@ export const withStyles = <T extends {classes: any}>(styles: StyleDefinition, Co
     const { classes: classesOverrides } = props;
     const classes = useStyles(styles, classesOverrides);
     return <Component ref={ref} {...props} classes={classes} />
-  }) as React.ComponentType<Omit<T,"classes"> & {classes?: Partial<T["classes"]>}>;
+  }) as unknown as React.ForwardRefExoticComponent<Omit<T, "classes"> & { classes?: Partial<T["classes"]> } & React.RefAttributes<any>>;
 }
 
 export function getClassName<T extends StyleDefinition>(

@@ -1,15 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { useRef, useState } from 'react';
 import TransitionGroup, { TransitionGroupProps } from 'react-transition-group/TransitionGroup';
 import classNames from 'classnames';
-import Ripple from './Ripple';
-import type { StandardProps } from '..';
-import { defineStyles, withStyles } from '@/components/hooks/useStyles';
+import Transition from 'react-transition-group/Transition';
+import { defineStyles, useStyles, withStyles } from '@/components/hooks/useStyles';
+import { StandardProps } from '..';
 
 export type TouchRippleProps = StandardProps<
   TransitionGroupProps,
   TouchRippleClassKey
 > & {
+  className?: string;
   center?: boolean;
 };
 
@@ -114,6 +114,8 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
   ripples: AnyBecauseTodo
   nextKey: AnyBecauseTodo
 }> {
+  wrapperRef = React.createRef<HTMLSpanElement|null>();
+
   // Used to filter out mouse emulated events on mobile.
   ignoringMouseDown = false;
 
@@ -156,7 +158,8 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
       this.ignoringMouseDown = true;
     }
 
-    const element: Element|null = fakeElement ? null : ReactDOM.findDOMNode(this);
+    //const element: Element|null = fakeElement ? null : ReactDOM.findDOMNode(this);
+    const element: Element|null = fakeElement ? null : this.wrapperRef.current
     const rect = element
       ? element.getBoundingClientRect()
       : {
@@ -228,7 +231,6 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
           ...state.ripples,
           <Ripple
             key={state.nextKey}
-            classes={this.props.classes}
             pulsate={pulsate}
             rippleX={rippleX}
             rippleY={rippleY}
@@ -270,20 +272,88 @@ class TouchRipple extends React.PureComponent<TouchRippleProps & WithStylesProps
   };
 
   render() {
-    const { center=false, classes, className, ...other } = this.props;
+    const { center=false, classes, className, ref, ...other } = this.props;
 
     return (
-      <TransitionGroup
-        component="span"
-        enter
-        exit
-        className={classNames(classes.root, className)}
-        {...other}
-      >
-        {this.state.ripples}
-      </TransitionGroup>
+      <span ref={this.wrapperRef} className={classNames(classes.root, className)}>
+        <TransitionGroup
+          component={null}
+          enter
+          exit
+          {...other}
+        >
+          {this.state.ripples}
+        </TransitionGroup>
+      </span>
     );
   }
+}
+
+interface RippleProps {
+  className?: string,
+  pulsate?: boolean,
+  rippleSize: number,
+  rippleX: number,
+  rippleY: number
+}
+
+const Ripple = (props: RippleProps) => {
+  const [visible,setVisible] = useState(false);
+  const [leaving,setLeaving] = useState(false);
+  const classes = useStyles(styles);
+
+  const handleEnter = () => {
+    setVisible(true);
+  };
+
+  const handleExit = () => {
+    setLeaving(true);
+  };
+
+  const {
+    className: classNameProp,
+    pulsate=false,
+    rippleX,
+    rippleY,
+    rippleSize,
+    ...other
+  } = props;
+
+  const rippleClassName = classNames(
+    classes.ripple,
+    {
+      [classes.rippleVisible]: visible,
+      [classes.ripplePulsate]: pulsate,
+    },
+    classNameProp,
+  );
+
+  const rippleStyles = {
+    width: rippleSize,
+    height: rippleSize,
+    top: -(rippleSize / 2) + rippleY,
+    left: -(rippleSize / 2) + rippleX,
+  };
+
+  const childClassName = classNames(classes.child, {
+    [classes.childLeaving]: leaving,
+    [classes.childPulsate]: pulsate,
+  });
+  
+  const nodeRef = useRef<HTMLSpanElement>(null);
+
+  return (
+    <Transition
+      onEnter={handleEnter} onExit={handleExit}
+      nodeRef={nodeRef}
+      timeout={DURATION}
+      {...other}
+    >
+      <span className={rippleClassName} ref={nodeRef} style={rippleStyles}>
+        <span className={childClassName} />
+      </span>
+    </Transition>
+  );
 }
 
 export default withStyles(styles, TouchRipple);
