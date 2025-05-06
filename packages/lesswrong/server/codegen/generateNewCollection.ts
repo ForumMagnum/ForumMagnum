@@ -563,7 +563,7 @@ async function insertIntoAccessFilters(collectionName: string) {
 
   // Find the closing brace of the accessFilters object
   const accessFiltersObjectEndIndex = lines.findIndex((line, idx) => 
-    idx > accessFiltersObjectStartIndex && line.trim() === '};');
+    idx > accessFiltersObjectStartIndex && line.trim() === '} satisfies Record<CollectionNameString, CheckAccessFunction<CollectionNameString>>;');
   if (accessFiltersObjectEndIndex === -1) {
     throw new Error('Could not find closing brace of accessFilters object');
   }
