@@ -49,13 +49,13 @@ type NullablePartial<T> = { [K in keyof T]?: T[K]|null|undefined }
 
 type WithUpdateFunction<N extends CollectionNameString, F extends FragmentName = FragmentName> = (args: {
   selector: MongoSelector<ObjectsByCollectionName[N]>,
-  data: NullablePartial<ObjectsByCollectionName[N]>,
+  data: NullablePartial<DbInsertion<ObjectsByCollectionName[N]>>,
   optimisticResponse?: FragmentTypes[F],
   extraVariables?: any,
 }) => Promise<FetchResult>;
 
 type WithCreateFunction<N extends CollectionNameString> = (args: {
-  data: NullablePartial<ObjectsByCollectionName[N]>,
+  data: NullablePartial<DbInsertion<ObjectsByCollectionName[N]>>,
   extraVariables?: any,
 }) => Promise<FetchResult>;
 

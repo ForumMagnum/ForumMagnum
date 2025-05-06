@@ -5,7 +5,7 @@ import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
 import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
-import PropTypes from 'prop-types';
+import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 
 const styles = (theme: ThemeType) => ({
   radio: {
@@ -15,12 +15,15 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const FormComponentRadioGroup = ({ path, value, form, options, name, label, updateCurrentValues, classes }: FormComponentProps<string> & {
-  form: any;
-  options: any[];
-  classes: ClassesType<typeof styles>;
+const FormComponentRadioGroup = ({ path, value, options, name, label, updateCurrentValues, classes }: {
+  path: string,
+  value: string,
+  options: Array<{ value: string, label: string }>,
+  name: string,
+  label: string,
+  updateCurrentValues: UpdateCurrentValues,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const selectOptions = options || (form && form.options)
   return <FormControl>
     <FormLabel>{label}</FormLabel>
     <RadioGroup aria-label={name} name={name} value={value}
@@ -29,7 +32,7 @@ const FormComponentRadioGroup = ({ path, value, form, options, name, label, upda
           [path]: (event?.target as any)?.value
         })
     }}>
-      {selectOptions.map(option => {
+      {options.map(option => {
         return (
           <FormControlLabel 
             key={`${name}-${option.value}`} 

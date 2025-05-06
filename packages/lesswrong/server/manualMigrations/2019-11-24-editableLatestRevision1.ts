@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getCollection } from '../collections/allCollections';
-import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '../../lib/editor/make_editable';
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { Revisions } from '../../server/collections/revisions/collection';
 
 // The upgrade procedure here is:

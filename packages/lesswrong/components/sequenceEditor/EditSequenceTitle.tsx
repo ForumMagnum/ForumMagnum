@@ -1,11 +1,11 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
-import PropTypes from 'prop-types'
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { sequencesImageScrim } from '../sequences/SequencesPage'
+import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { sequencesImageScrim } from '../sequences/SequencesPage';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EditSequenceTitle', (theme: ThemeType) => ({
   root: {
     marginTop: 65,
     backgroundColor: theme.palette.panelBackground.darken25,
@@ -58,35 +58,28 @@ const styles = (theme: ThemeType) => ({
       left: 5,
     }
   }
-});
+}));
 
-const EditSequenceTitle = ({value, path, placeholder, updateCurrentValues, classes}: FormComponentProps<string> & {
-  classes: ClassesType<typeof styles>;
-}) => {
+interface EditSequenceTitleProps {
+  field: TypedFieldApi<string>;
+  placeholder?: string;
+}
+
+export const EditSequenceTitle = ({ field, placeholder }: EditSequenceTitleProps) => {
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
-    <div className={classes.imageScrim}/>
+    <div className={classes.imageScrim} />
     <div className={classes.wrapper}>
       <div className={classes.inputBackground}>
         <Input
           className={classes.input}
           placeholder={placeholder}
-          value={value}
-          onChange={(event) => {
-            void updateCurrentValues({
-              [path]: event.target.value
-            })
-          }}
+          value={field.state.value}
+          onChange={(event) => field.handleChange(event.target.value)}
           disableUnderline
         />
       </div>
     </div>
   </div>
-}
-
-const EditSequenceTitleComponent = registerComponent("EditSequenceTitle", EditSequenceTitle, {styles});
-
-declare global {
-  interface ComponentTypes {
-    EditSequenceTitle: typeof EditSequenceTitleComponent
-  }
-}
+};

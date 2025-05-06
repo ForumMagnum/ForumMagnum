@@ -71,6 +71,37 @@ import { importComponent } from '../vulcan-lib/components';
     + "\n\n";
 }
 
+/**
+ * `generateAllComponents` only handles components that are registered with `registerComponent`.
+ * This function generates a file for components that are not registered, but have a `defineStyles`
+ * block that needs to be included in `allStyles`, and so the file needs to be imported somewhere.
+ */
+function generateNonRegisteredComponentFiles(): string {
+  const componentsDir = "packages/lesswrong/components";
+  const header = `// Generated file - run "yarn generate" to update
+
+`;
+
+  return header + enumerateFiles(componentsDir)
+    .filter(f => f.endsWith(".tsx") || f.endsWith(".ts"))
+    .map(f => {
+      const relativePath = f.replace('packages/lesswrong/components/', '../../components/');
+      const content = fs.readFileSync(f, 'utf-8');
+      if (!nonRegisteredComponentFileHasDefineStyles(content) || extractComponentNames(content).length > 0) return null;
+
+      return `import "${relativePath}"`;
+    })
+    .filter(line => line !== null)
+    .join("\n")
+    + "\n\n";
+}
+
+function nonRegisteredComponentFileHasDefineStyles(content: string): boolean {
+  const regex = /defineStyles\s*\(\s*["'](\w+)["']/gm;
+  const match = regex.exec(content);
+  return match !== null;
+}
+
 function extractComponentNames(content: string): string[] {
   const regex = /registerComponent\s*(<\s*\w*\s*>)?\s*\(\s*["'](\w+)["']/gm;
   const components: string[] = [];
@@ -128,6 +159,7 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
+    writeIfChanged(generateNonRegisteredComponentFiles(), "/packages/lesswrong/lib/generated/nonRegisteredComponents.ts");
     //writeIfChanged(generateFragmentsGqlFile(), "/packages/lesswrong/lib/generated/fragments.gql");
     //writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
     writeIfChanged(generateGraphQLAndFragmentsSchemaFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/gqlSchemaAndFragments.gql");

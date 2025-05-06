@@ -9,30 +9,15 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
-import { commentAllowTitle, commentGetPageUrlFromDB } from "./helpers";
+import { isEAForum } from "../../instanceSettings";
+import { commentGetPageUrlFromDB } from "./helpers";
 import { getVotingSystemNameForDocument } from "../../voting/getVotingSystem";
 import { viewTermsToQuery } from "../../utils/viewUtils";
-import { quickTakesTagsEnabledSetting } from "../../publicSettings";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
-import { getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
-import { isFriendlyUI } from "@/themes/forumTheme";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
-
-export const moderationOptionsGroup: FormGroupType<"Comments"> = {
-  order: 50,
-  name: "moderation",
-  label: "Moderator Options",
-  startCollapsed: true,
-};
-
-export const alignmentOptionsGroup = {
-  order: 50,
-  name: "alignment",
-  label: "Alignment Options",
-  startCollapsed: true,
-};
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -77,6 +62,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -86,40 +72,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => (isFriendlyUI ? "Write a new comment..." : undefined),
-        fieldName: "contents",
-        collectionName: "Comments",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: false,
-      },
-      order: 25,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (comment, name) => {
-          if (comment._id) {
-            return {
-              id: comment._id,
-              verify: true,
-            };
-          }
-          if (comment.parentCommentId) {
-            return {
-              id: "parent:" + comment.parentCommentId,
-              verify: false,
-            };
-          }
-          return {
-            id: "post:" + comment.postId,
-            verify: false,
-          };
-        },
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -150,9 +102,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   parentComment: {
     graphql: {
@@ -174,9 +123,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   topLevelComment: {
@@ -243,9 +189,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   post: {
     graphql: {
@@ -267,9 +210,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   tag: {
     graphql: {
@@ -290,9 +230,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   forumEvent: {
@@ -321,9 +258,6 @@ const schema = {
         blackbox: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   tagCommentType: {
     database: {
@@ -342,9 +276,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   subforumStickyPriority: {
     database: {
@@ -360,9 +291,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   userId: {
     database: {
@@ -377,9 +305,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   user: {
@@ -443,9 +368,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   pageUrl: {
     graphql: {
@@ -482,9 +404,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   parentAnswerId: {
     database: {
@@ -499,9 +418,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   parentAnswer: {
@@ -593,9 +509,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   shortformFrontpage: {
     database: {
@@ -614,9 +527,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // users can write comments nominating posts for a particular review period.
   // this field is generally set by a custom dialog,
@@ -634,9 +544,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   reviewingForReview: {
     database: {
@@ -650,9 +557,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   lastSubthreadActivity: {
@@ -695,9 +599,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Pinned",
-    },
   },
   promotedByUserId: {
     database: {
@@ -713,9 +614,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   promotedByUser: {
@@ -770,9 +668,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: {
@@ -825,9 +720,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
@@ -842,9 +734,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // Legacy Poll: Boolean to indicate that original LW data had a poll here
@@ -865,9 +754,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // Legacy Parent Id: Id of parent comment in original LW database
   legacyParentId: {
@@ -882,9 +768,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // retracted: Indicates whether a comment has been retracted by its author.
@@ -906,10 +789,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "checkbox",
-      hidden: true,
-    },
   },
   // deleted: Indicates whether a comment has been deleted by an admin.
   // Deleted comments and their replies are not rendered by default.
@@ -930,10 +809,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "checkbox",
-      hidden: true,
-    },
   },
   deletedPublic: {
     database: {
@@ -952,9 +827,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   deletedReason: {
     database: {
@@ -968,9 +840,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   deletedDate: {
@@ -991,9 +860,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   deletedByUserId: {
     database: {
@@ -1013,9 +879,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   deletedByUser: {
@@ -1044,10 +907,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "checkbox",
-      hidden: true,
-    },
   },
   // repliesBlockedUntil: Deactivates replying to this post by anyone except
   // admins and sunshineRegiment members until the specified time is reached.
@@ -1063,10 +922,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "datetime",
-      group: () => moderationOptionsGroup,
-    },
   },
   needsReview: {
     database: {
@@ -1080,9 +935,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   reviewedByUserId: {
@@ -1098,9 +950,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   reviewedByUser: {
@@ -1128,9 +977,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => moderationOptionsGroup,
-    },
   },
   moderatorHat: {
     database: {
@@ -1148,9 +994,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   /**
@@ -1174,9 +1017,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   isPinnedOnProfile: {
     database: {
@@ -1195,9 +1035,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   title: {
     database: {
@@ -1210,17 +1047,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         optional: true,
-      },
-    },
-    form: {
-      max: 500,
-      order: 10,
-      control: "EditCommentTitle",
-      placeholder: "Title (optional)",
-      hidden: (props) => {
-        // Currently only allow titles for top level subforum comments
-        const comment = props?.document;
-        return !!(comment && !commentAllowTitle(comment));
       },
     },
   },
@@ -1241,10 +1067,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "FormComponentQuickTakesTags",
-      hidden: ({ document }) => !quickTakesTagsEnabledSetting.get() || !document?.shortform,
     },
   },
   relevantTags: {
@@ -1268,18 +1090,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Dialogue Response",
-      hidden: ({ currentUser, formProps }) => {
-        if (!currentUser || !formProps?.post?.debate) return true;
-        const { post }: { post: PostsDetails } = formProps;
-        const debateParticipantsIds = [
-          post.userId,
-          ...(post.coauthorStatuses ?? []).map((coauthor) => coauthor.userId),
-        ];
-        return !debateParticipantsIds.includes(currentUser._id);
-      },
-    },
   },
   rejected: {
     database: {
@@ -1298,9 +1108,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // How well does ModGPT (GPT-4o) think this comment adheres to forum norms and rules? (currently EAF only)
   modGPTAnalysis: {
@@ -1316,9 +1123,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   // This should be one of: Intervene, Consider reviewing, Don't intervene
@@ -1336,9 +1140,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   rejectedReason: {
     database: {
@@ -1353,9 +1154,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   rejectedByUserId: {
@@ -1376,9 +1174,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   rejectedByUser: {
@@ -1420,10 +1215,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "AI Alignment Forum",
-      hidden: (props) => isAF || !props.alignmentForumPost,
-    },
   },
   suggestForAlignmentUserIds: {
     database: {
@@ -1441,12 +1232,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      label: "Suggested for Alignment by",
-      control: "FormUserMultiselect",
-      group: () => alignmentOptionsGroup,  
     },
   },
   suggestForAlignmentUsers: {
@@ -1468,11 +1253,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "AF Review UserId",
-      hidden: !isLWorAF,
-      group: () => alignmentOptionsGroup,
-    },
   },
   afDate: {
     database: {
@@ -1486,12 +1266,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      label: "Alignment Forum",
-      group: () => alignmentOptionsGroup,
-      order: 10,
     },
   },
   moveToAlignmentUserId: {
@@ -1507,11 +1281,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      label: "Move to Alignment UserId",
-      group: () => alignmentOptionsGroup,
-    }
   },
   moveToAlignmentUser: {
     graphql: {
@@ -1533,9 +1302,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   originalDialogueId: {
     database: {
@@ -1551,9 +1317,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   originalDialogue: {

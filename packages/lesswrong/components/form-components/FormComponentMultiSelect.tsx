@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -6,6 +6,7 @@ import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = (theme: ThemeType) => ({
   greyDropdownRoot: {
@@ -170,26 +171,25 @@ const MultiSelect = ({
   </FormControl>
 }
 
+interface FormComponentMultiSelectProps {
+  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
+  label?: string;
+  placeholder?: string;
+  separator?: string;
+  options: Array<MultiselectOption>;
+  variant?: 'default' | 'grey';
+}
 
-/**
- * FormComponentMultiSelect: Wrapper around MultiSelect for use with
- * vulcan-forms.
- */
-const FormComponentMultiSelect = ({
-  value,
+export const FormComponentMultiSelect = ({
+  field,
   label,
   placeholder,
   separator,
   options,
-  variant,
-  path,
-  updateCurrentValues,
-}: FormComponentProps<string[]> & {
-  separator?: string,
-  options: Array<MultiselectOption>,
-  variant?: "default" | "grey",
-  classes: ClassesType<typeof styles>
-}) => {
+  variant = 'default',
+}: FormComponentMultiSelectProps) => {
+  const value = useMemo(() => field.state.value ?? [], [field.state.value]);
+
   return <Components.MultiSelect
     label={label}
     placeholder={placeholder}
@@ -197,20 +197,14 @@ const FormComponentMultiSelect = ({
     options={options}
     variant={variant}
     value={value}
-    setValue={(value) => {
-      void updateCurrentValues({
-        [path]: value
-      });
-    }}
+    setValue={(value) => field.handleChange(value)}
   />
 }
 
 const MultiSelectComponent = registerComponent("MultiSelect", MultiSelect, {styles});
-const FormComponentMultiSelectComponent = registerComponent("FormComponentMultiSelect", FormComponentMultiSelect);
 
 declare global {
   interface ComponentTypes {
     MultiSelect: typeof MultiSelectComponent
-    FormComponentMultiSelect: typeof FormComponentMultiSelectComponent
   }
 }

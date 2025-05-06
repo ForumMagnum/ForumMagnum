@@ -1,7 +1,7 @@
 import { userCanCreateTags } from "@/lib/betas";
 import { tagUserHasSufficientKarma } from "@/lib/collections/tags/helpers";
 
-export function newCheck(user: DbUser | null, tag: CreateTagDataInput | null): tag is CreateTagDataInput {
+export function newCheck(user: DbUser | null, tag: OmitBySubtype<CreateTagDataInput, CreateRevisionDataInput> | null): tag is CreateTagDataInput {
   if (!user || !tag) return false;
   if (user.deleted) return false;
 

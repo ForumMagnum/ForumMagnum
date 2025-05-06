@@ -1,5 +1,5 @@
 import { datadogRum } from '@datadog/browser-rum';
-import { getDatadogUser } from '../lib/collections/users/helpers';
+import { EditableUser, getDatadogUser } from '../lib/collections/users/helpers';
 import { isEAForum } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
@@ -47,7 +47,7 @@ export async function initDatadog() {
   datadogInitialized = true;
 }
 
-export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | null) {
+export function configureDatadogRum(user: UsersCurrent | UsersEdit | EditableUser | DbUser | null) {
   if (!hasDatadog || !datadogInitialized) return
 
   // Set the user which will appear in traces

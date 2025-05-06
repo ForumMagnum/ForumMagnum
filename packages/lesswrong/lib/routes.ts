@@ -1490,16 +1490,6 @@ addRoute(
     path: '/searchTest',
     componentName: 'SearchBar'
   },
-  {
-    name: 'postsListEditorTest',
-    path:'/postsListEditorTest',
-    componentName: 'PostsListEditor'
-  },
-  {
-    name: 'imageUploadTest',
-    path: '/imageUpload',
-    componentName: 'ImageUpload'
-  },
 );
 
 addRoute(

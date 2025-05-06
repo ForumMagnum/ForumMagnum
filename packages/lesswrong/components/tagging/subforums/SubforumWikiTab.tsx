@@ -14,6 +14,7 @@ import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useSingle } from '@/lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -55,18 +56,27 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
     TagIntroSequence,
     SectionTitle,
     ContentStyles,
+    Loading,
   } = Components;
 
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const client = useApolloClient()
   const { captureEvent } =  useTracking()
+  const [editing, setEditing] = useState(!!query.edit || !!query.flagId)
+
+  const { document: editableTag } = useSingle({
+    documentId: tag._id,
+    collectionName: 'Tags',
+    fragmentName: 'TagEditFragment',
+    skip: !editing,
+  });
+
   const terms = {
     ...tagPostTerms(tag, query),
     limit: 15
   }
   
-  const [editing, setEditing] = useState(!!query.edit || !!query.flagId)
   useOnSearchHotkey(() => setTruncated(false));
   
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
@@ -91,6 +101,14 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
       : htmlWithAnchors
   }
 
+  const editTagForm = editableTag
+    ? <EditTagForm
+      tag={editableTag}
+      successCallback={() => setEditing(false)}
+      cancelCallback={() => setEditing(false)}
+    />
+    : <Loading />;
+
   return <>
       <div className={classNames(classes.wikiSection, classes.centralColumn)}>
         <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
@@ -101,16 +119,9 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
               <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user} />
             </div>
           )}
-          {editing ? (
-            <EditTagForm
-              tag={tag}
-              successCallback={async () => {
-                setEditing(false);
-                await client.resetStore();
-              }}
-              cancelCallback={() => setEditing(false)}
-            />
-          ) : (
+          {editing
+            ? editTagForm
+            : (
             <div onClick={clickReadMore}>
               <ContentStyles contentType="tag">
                 <ContentItemBody

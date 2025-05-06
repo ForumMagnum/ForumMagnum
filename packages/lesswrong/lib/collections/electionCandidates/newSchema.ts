@@ -2,6 +2,24 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, 
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 
+// Preserving these constants since we've removed form fields from the schema,
+// but we don't have a form implemented for ElectionCandidates right now.
+const ELECTION_NAME_OPTIONS = [{
+  value: "givingSeason24",
+  label: "EA Giving Season 2024",
+}];
+
+const fieldLabels = {
+  name: "Candidate name",
+  logoSrc: "Logo image URL",
+  href: "Candidate website URL",
+  fundraiserLink: "GWWC fundraiser URL",
+  gwwcLink: "GWWC charity link",
+  gwwcId: 'GWWC fundraiser ID ("Parfit slug")',
+  description: "Candidate description", // { multiLine: true, rows: 4 }
+  tagId: "Tag (type to search)",
+};
+
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -19,15 +37,6 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
-    form: {
-      options: () => [
-        {
-          value: "givingSeason24",
-          label: "EA Giving Season 2024",
-        },
-      ],
-      control: "select",
-    },
   },
   /** The name of this candidate */
   name: {
@@ -40,10 +49,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-    },
-    form: {
-      label: "Candidate name",
-      control: "MuiTextField",
     },
   },
   /** URL for this candidates logo */
@@ -58,10 +63,6 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
     },
-    form: {
-      label: "Logo image URL",
-      control: "MuiTextField",
-    },
   },
   /** Link for this candidate (i.e. to the org's website) */
   href: {
@@ -74,10 +75,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-    },
-    form: {
-      label: "Candidate website URL",
-      control: "MuiTextField",
     },
   },
   /** Link for this candidate's GWWC fundraiser page */
@@ -95,10 +92,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "GWWC fundraiser URL",
-      control: "MuiTextField",
-    },
   },
   /** Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international) */
   gwwcLink: {
@@ -114,10 +107,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "GWWC charity link",
-      control: "MuiTextField",
     },
   },
   /**
@@ -138,10 +127,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: 'GWWC fundraiser ID ("Parfit slug")',
-      control: "MuiTextField",
-    },
   },
   /** Short plaintext description */
   description: {
@@ -154,11 +139,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-    },
-    form: {
-      form: { multiLine: true, rows: 4 },
-      label: "Candidate description",
-      control: "MuiTextField",
     },
   },
   /** The user who created this candidate (this is required by makeVoteable) */
@@ -216,10 +196,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
-    },
-    form: {
-      label: "Tag (type to search)",
-      control: "TagSelect",
     },
   },
   tag: {

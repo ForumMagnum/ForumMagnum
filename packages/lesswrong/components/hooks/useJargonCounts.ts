@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { countInstancesOfJargon } from "../jargon/utils";
+import type { EditablePost } from "@/lib/collections/posts/helpers";
 
-export function useJargonCounts<T extends JargonTermsPost | JargonTerms>(post: PostsEditQueryFragment | PostsPage | PostsWithNavigationAndRevision | PostsWithNavigation, glossaryTerms: Array<T>) {
+export function useJargonCounts<T extends JargonTermsPost | JargonTerms>(post: PostsEditQueryFragment | PostsPage | PostsWithNavigationAndRevision | PostsWithNavigation | EditablePost, glossaryTerms: Array<T>) {
   // Memoize the normalized post contents
   const normalizedPostContents = useMemo(() => 
     (post.contents?.html ?? "").toLowerCase(),

@@ -7,12 +7,7 @@ import { eaEmojiPalette, getEAEmojisForKarmaChanges } from "../../lib/voting/eaE
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type {
   AnyKarmaChange,
-  CommentKarmaChange,
-  KarmaChangeBase,
   KarmaChangesArgs,
-  PostKarmaChange,
-  ReactionChange,
-  TagRevisionKarmaChange,
 } from "../collections/users/karmaChangesGraphQL";
 
 export const RECENT_CONTENT_COUNT = 20
@@ -84,7 +79,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
   ): Promise<{
     changedComments: CommentKarmaChange[],
     changedPosts: PostKarmaChange[],
-    changedTagRevisions: TagRevisionKarmaChange[],
+    changedTagRevisions: RevisionsKarmaChange[],
   }> {
     const powerField = af ? "afPower" : "power";
 
@@ -172,9 +167,9 @@ class VotesRepo extends AbstractRepo<"Votes"> {
 
     let changedComments: CommentKarmaChange[] = [];
     let changedPosts: PostKarmaChange[] = [];
-    let changedTagRevisions: TagRevisionKarmaChange[] = [];
+    let changedTagRevisions: RevisionsKarmaChange[] = [];
     for (let votedContent of allScoreChanges) {
-      let change: KarmaChangeBase = {
+      let change = {
         _id: votedContent._id,
         collectionName: votedContent.collectionName,
         scoreChange: votedContent.scoreChange,
@@ -196,6 +191,8 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           tagId: votedContent.commentTagId,
           tagName: votedContent.commentTagName,
           tagCommentType: votedContent.commentTagCommentType,
+          tagSlug: null,
+          eaAddedReacts: null,
         });
       } else if (votedContent.collectionName==="Posts") {
         changedPosts.push({
@@ -203,11 +200,15 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           postId: votedContent._id,
           title: votedContent.postTitle,
           slug: votedContent.postSlug,
+          eaAddedReacts: null,
         });
       } else if (votedContent.collectionName==="Revisions") {
         changedTagRevisions.push({
           ...change,
           tagId: votedContent.revisionTagId,
+          tagName: null,
+          tagSlug: null,
+          eaAddedReacts: null,
         });
       }
     }

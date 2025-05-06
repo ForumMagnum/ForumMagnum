@@ -53,8 +53,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
+const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
   annualReviewMarketInfo: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {

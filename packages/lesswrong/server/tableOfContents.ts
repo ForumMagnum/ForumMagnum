@@ -8,7 +8,7 @@ import { parseDocumentFromString } from '../lib/domParser';
 import type { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
-import { getEditableFieldNamesForCollection } from '@/lib/editor/make_editable';
+import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { getCollectionAccessFilter } from './permissions/accessFilters';
 
 async function getTocAnswersServer(document: DbPost, context: ResolverContext) {

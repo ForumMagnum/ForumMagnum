@@ -5,7 +5,7 @@ import { classifyHost } from '../lib/routeUtil';
 import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
-import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
+import { getEditableFieldsByCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { getCollection } from '@/server/collections/allCollections';
 import { getLatestRev } from './editor/utils';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
