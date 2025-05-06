@@ -383,7 +383,7 @@ class Tabs extends React.Component<TabsPropsWithHoCs, TabsState> {
 
       const childValue = (child.props as any).value === undefined
         ? childIndex
-        : child.props.value as any;
+        : (child.props as AnyBecauseHard).value as any;
       this.valueToIndex.set(childValue, childIndex);
       const selected = childValue === value;
 

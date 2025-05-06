@@ -127,6 +127,7 @@ const styles = defineStyles("MuiTab", theme => ({
 }), {stylePriority: -10});
 
 class Tab extends React.Component<TabProps & WithStylesProps<typeof styles>> {
+  labelRef: AnyBecauseTodo
   state = {
     labelWrapped: false,
   };
@@ -135,7 +136,7 @@ class Tab extends React.Component<TabProps & WithStylesProps<typeof styles>> {
     this.checkTextWrap();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: AnyBecauseTodo, prevState: AnyBecauseTodo) {
     if (this.state.labelWrapped === prevState.labelWrapped) {
       /**
        * At certain text and tab lengths, a larger font size may wrap to two lines while the smaller
@@ -146,7 +147,7 @@ class Tab extends React.Component<TabProps & WithStylesProps<typeof styles>> {
     }
   }
 
-  handleChange = event => {
+  handleChange = (event: AnyBecauseTodo) => {
     const { onChange, value, onClick } = this.props;
 
     if (onChange) {
@@ -171,14 +172,13 @@ class Tab extends React.Component<TabProps & WithStylesProps<typeof styles>> {
     const {
       classes,
       className: classNameProp,
-      disabled,
+      disabled=false,
       fullWidth,
       icon,
-      indicator,
       label: labelProp,
       onChange,
       selected,
-      textColor,
+      textColor="inherit",
       value,
       ...other
     } = this.props;
@@ -204,8 +204,10 @@ class Tab extends React.Component<TabProps & WithStylesProps<typeof styles>> {
 
     const className = classNames(
       classes.root,
-      classes[`textColor${capitalize(textColor)}`],
       {
+        [classes.textColorInherit]: textColor === 'inherit',
+        [classes.textColorPrimary]: textColor === 'primary',
+        [classes.textColorSecondary]: textColor === 'secondary',
         [classes.disabled]: disabled,
         [classes.selected]: selected,
         [classes.labelIcon]: icon && label,
@@ -228,15 +230,9 @@ class Tab extends React.Component<TabProps & WithStylesProps<typeof styles>> {
           {icon}
           {label}
         </span>
-        {indicator}
       </ButtonBase>
     );
   }
 }
-
-Tab.defaultProps = {
-  disabled: false,
-  textColor: 'inherit',
-};
 
 export default withStyles(styles, Tab);

@@ -127,11 +127,11 @@ function Select(props: SelectProps) {
   const inputComponent = SelectInput;
   const fcs = formControlState({
     props,
-    context: {muiFormControl},
+    muiFormControl,
     states: ['variant'],
   });
 
-  return React.cloneElement(input, {
+  return React.cloneElement(input as AnyBecauseHard, {
     // Most of the logic is implemented in `SelectInput`.
     // The `Select` component is a simple API wrapper to expose something better to play with.
     inputComponent,
@@ -150,7 +150,7 @@ function Select(props: SelectProps) {
       }),
       ...inputProps,
       classes,
-      ...(input ? input.props.inputProps : {}),
+      ...(input ? (input as AnyBecauseHard).props.inputProps : {}),
     },
     ...other,
   });

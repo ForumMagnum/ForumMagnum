@@ -33,10 +33,9 @@ const FormComponentRadioGroup = ({ path, value, form, options, name, label, upda
         return (
           <FormControlLabel 
             key={`${name}-${option.value}`} 
-            value={option.value} 
             label={option.label}
-            control={<Radio className={classes.radio} />
-            }/>
+            control={<Radio className={classes.radio} value={option.value} />
+          }/>
         )
       })}
     </RadioGroup>

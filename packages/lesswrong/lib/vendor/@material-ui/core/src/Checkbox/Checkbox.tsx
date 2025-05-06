@@ -64,7 +64,7 @@ function Checkbox(props: CheckboxProps) {
 
   return (
     <SwitchBase
-      type="checkbox"
+      type={"checkbox" as AnyBecauseHard}
       checkedIcon={checkedIcon}
       className={classNames(className)}
       classes={{

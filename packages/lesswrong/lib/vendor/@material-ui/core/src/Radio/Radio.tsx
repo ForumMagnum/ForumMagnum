@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import SwitchBase, { SwitchBaseClassKey, SwitchBaseProps } from '../internal/SwitchBase';
 import RadioButtonUncheckedIcon from '../internal/svg-icons/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '../internal/svg-icons/RadioButtonChecked';
-import { capitalize } from '../utils/helpers';
 import { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -52,11 +51,14 @@ function Radio(props: RadioProps) {
 
   return (
     <SwitchBase
-      type="radio"
+      type={"radio" as AnyBecauseHard}
       icon={<RadioButtonUncheckedIcon />}
       checkedIcon={<RadioButtonCheckedIcon />}
       classes={{
-        root: classNames(classes.root, classes[`color${capitalize(color)}`]),
+        root: classNames(classes.root, {
+          [classes.colorPrimary]: color==='primary',
+          [classes.colorSecondary]: color==='secondary',
+        }),
         checked: classes.checked,
         disabled: classes.disabled,
       }}

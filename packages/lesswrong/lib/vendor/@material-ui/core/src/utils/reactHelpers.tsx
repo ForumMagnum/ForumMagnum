@@ -5,8 +5,8 @@ import classNames from 'classnames';
 
 export function cloneElementWithClassName(child: React.ReactElement, className: string) {
   return React.cloneElement(child, {
-    className: classNames(child.props.className, className),
-  });
+    className: classNames((child.props as AnyBecauseHard).className, className),
+  } as AnyBecauseHard);
 }
 
 export function cloneChildrenWithClassName<T>(children: React.ReactNode, className: string) {
@@ -16,7 +16,7 @@ export function cloneChildrenWithClassName<T>(children: React.ReactNode, classNa
 }
 
 export function isMuiElement(element: any, muiNames: string[]) {
-  return React.isValidElement(element) && muiNames.indexOf(element.type.muiName) !== -1;
+  return React.isValidElement(element) && muiNames.indexOf((element.type as AnyBecauseHard).muiName) !== -1;
 }
 
 /**

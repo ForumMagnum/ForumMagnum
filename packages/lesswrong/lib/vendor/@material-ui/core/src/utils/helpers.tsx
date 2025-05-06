@@ -1,5 +1,3 @@
-import warning from 'warning';
-
 export function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -29,36 +27,4 @@ export function findIndex(arr: any[], pred: any): number {
 export function find<T>(arr: T[], pred: any): T|undefined {
   const index = findIndex(arr, pred);
   return index > -1 ? arr[index] : undefined;
-}
-
-export type ChainedFunction = ((...args: any[]) => void) | undefined | null;
-
-/**
- * Safe chained function
- *
- * Will only create a new function if needed,
- * otherwise will pass back existing functions or null.
- *
- * @param {function} functions to chain
- * @returns {function|null}
- */
-export function createChainedFunction(...funcs: ChainedFunction[]) {
-  return funcs.reduce(
-    (acc: AnyBecauseTodo, func) => {
-      if (func == null) {
-        return acc;
-      }
-
-      warning(
-        typeof func === 'function',
-        'Material-UI: invalid Argument Type, must only provide functions, undefined, or null.',
-      );
-
-      return function chainedFunction(...args) {
-        acc.apply(this as any, args);
-        func.apply(this as any, args);
-      };
-    },
-    () => {},
-  );
 }

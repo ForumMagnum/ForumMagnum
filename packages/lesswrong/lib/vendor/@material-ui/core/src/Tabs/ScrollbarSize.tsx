@@ -9,7 +9,7 @@ const styles = {
   top: -10000,
   overflow: 'scroll',
   msOverflowStyle: 'scrollbar',
-};
+} as const;
 
 interface ScrollbarSizeProps {
   onChange: any
@@ -24,6 +24,7 @@ interface ScrollbarSizeProps {
 class ScrollbarSize extends React.Component<ScrollbarSizeProps> {
   scrollbarHeight: number
   scrollbarWidth: number
+  nodeRef: AnyBecauseTodo
   
   handleResize = debounce(() => {
     const { onChange } = this.props;

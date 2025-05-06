@@ -24,20 +24,16 @@ export interface Transitions {
   easing: Easing;
   duration: Duration;
   create(
-    props: string | string[],
-    options?: Partial<{ duration: number | string; easing: string; delay: number | string }>,
+    props?: string | string[],
+    options?: TransitionsOptions,
   ): string;
   getAutoHeightDuration(height: number): number;
 }
 
 export interface TransitionsOptions {
-  easing?: Partial<Easing>;
-  duration?: Partial<Duration>;
-  create?: (
-    props: string | string[],
-    options?: Partial<{ duration: number | string; easing: string; delay: number | string }>,
-  ) => string;
-  getAutoHeightDuration?: (height: number) => number;
+  easing?: string|Partial<Easing>;
+  duration?: number|string;
+  delay?: number
 }
 // Follow https://material.google.com/motion/duration-easing.html#duration-easing-natural-easing-curves
 // to learn the context in which each easing should be used.
@@ -84,13 +80,12 @@ export const isNumber = (value: any) => !isNaN(parseFloat(value));
 const transitions: Transitions = {
   easing,
   duration,
-  create: (props = ['all'], options: TransitionsOptions = {}) => {
+  create: (props: string|string[] = ['all'], options?: TransitionsOptions) => {
     const {
       duration: durationOption = duration.standard,
       easing: easingOption = easing.easeInOut,
       delay = 0,
-      ...other
-    } = options;
+    } = (options ?? {});
 
     warning(
       isString(props) || Array.isArray(props),
@@ -104,10 +99,6 @@ const transitions: Transitions = {
     warning(
       isNumber(delay) || isString(delay),
       'Material-UI: argument "delay" must be a number or a string.',
-    );
-    warning(
-      Object.keys(other).length === 0,
-      `Material-UI: unrecognized argument(s) [${Object.keys(other).join(',')}]`,
     );
 
     return (Array.isArray(props) ? props : [props])

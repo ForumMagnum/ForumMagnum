@@ -16,7 +16,9 @@ export interface SelectInputProps {
   ) => void;
   multiple: boolean;
   name?: string;
+  type?: string
   native: boolean;
+  displayEmpty?: boolean
   onBlur?: React.FocusEventHandler<any>;
   onChange?: (event: React.ChangeEvent<HTMLSelectElement>, child: React.ReactNode) => void;
   onClose?: (event: React.ChangeEvent<{}>) => void;
@@ -27,8 +29,9 @@ export interface SelectInputProps {
   renderValue?: (value: SelectInputProps['value']) => React.ReactNode;
   SelectDisplayProps?: React.HTMLAttributes<HTMLDivElement>;
   tabIndex?: number;
-  value?: string | number | boolean | Array<string | number | boolean>;
+  value?: string | number | Array<string | number | boolean>;
   variant?: 'standard' | 'outlined' | 'filled';
+  className?: string
   classes?: AnyBecauseTodo
   required?: boolean
   children?: React.ReactNode
@@ -163,11 +166,11 @@ class SelectInput extends React.Component<SelectInputProps, SelectInputState> {
     }
   };
 
-  handleDisplayRef = ref => {
+  handleDisplayRef = (ref: AnyBecauseTodo) => {
     this.displayRef = ref;
   };
 
-  handleInputRef = ref => {
+  handleInputRef = (ref: AnyBecauseTodo) => {
     const { inputRef } = this.props;
 
     if (!inputRef) {
@@ -267,7 +270,7 @@ class SelectInput extends React.Component<SelectInputProps, SelectInputState> {
         selected,
         value: undefined, // The value is most likely not a valid HTML attribute.
         'data-value': (child.props as AnyBecauseTodo).value, // Instead, we provide it as a data attribute.
-      });
+      } as AnyBecauseTodo);
     });
 
     if (computeDisplay) {

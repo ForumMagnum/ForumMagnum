@@ -1,10 +1,8 @@
 // @inheritedComponent FormGroup
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import warning from 'warning';
 import FormGroup from '../FormGroup';
-import { createChainedFunction, find } from '../utils/helpers';
 import { StandardProps } from '..';
 import { FormGroupClassKey, FormGroupProps } from '../FormGroup/FormGroup';
 
@@ -31,7 +29,7 @@ class RadioGroup extends React.Component<RadioGroupProps> {
       return;
     }
 
-    const selectedRadio = find(focusRadios, n => n.checked);
+    const selectedRadio = focusRadios.find(n => n.checked);
 
     if (selectedRadio) {
       selectedRadio.focus();
@@ -41,7 +39,7 @@ class RadioGroup extends React.Component<RadioGroupProps> {
     focusRadios[0].focus();
   };
 
-  handleRadioChange = (event, checked: boolean) => {
+  handleRadioChange = (event: AnyBecauseTodo, checked: boolean) => {
     if (checked && this.props.onChange) {
       this.props.onChange(event, event.target.value);
     }
@@ -54,7 +52,7 @@ class RadioGroup extends React.Component<RadioGroupProps> {
 
     return (
       <FormGroup role="radiogroup" {...other}>
-        {React.Children.map(children, child => {
+        {React.Children.map(children, (child: AnyBecauseHard) => {
           if (!React.isValidElement(child)) {
             return null;
           }
@@ -69,14 +67,17 @@ class RadioGroup extends React.Component<RadioGroupProps> {
 
           return React.cloneElement(child, {
             name,
-            inputRef: node => {
+            inputRef: (node: AnyBecauseTodo) => {
               if (node) {
                 this.radios.push(node);
               }
             },
-            checked: value === child.props.value,
-            onChange: createChainedFunction(child.props.onChange, this.handleRadioChange),
-          });
+            checked: value === (child.props as AnyBecauseHard)?.value,
+            onChange: (ev: AnyBecauseTodo, checked: boolean) => {
+              (child as AnyBecauseHard).props?.onChange?.(ev, checked);
+              this.handleRadioChange(ev, checked);
+            }
+          } as AnyBecauseHard);
         })}
       </FormGroup>
     );

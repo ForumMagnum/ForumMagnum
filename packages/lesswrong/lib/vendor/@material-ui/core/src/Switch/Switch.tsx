@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import { capitalize } from '../utils/helpers';
 import SwitchBase, { SwitchBaseClassKey, SwitchBaseProps } from '../internal/SwitchBase';
 import { StandardProps } from '..';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -91,8 +90,7 @@ export const styles = defineStyles("MuiSwitch", theme => ({
     '&$switchBase': {
       color: theme.palette.type === 'light' ? theme.palette.grey[400] : theme.palette.grey[800],
       '& + $bar': {
-        backgroundColor:
-          theme.palette.type === 'light' ? theme.palette.common.black : theme.palette.common.white,
+        backgroundColor: theme.palette.greyAlpha(1.0),
       },
     },
   },
@@ -110,20 +108,19 @@ export const styles = defineStyles("MuiSwitch", theme => ({
     transition: theme.transitions.create(['opacity', 'background-color'], {
       duration: theme.transitions.duration.shortest,
     }),
-    backgroundColor:
-      theme.palette.type === 'light' ? theme.palette.common.black : theme.palette.common.white,
+    backgroundColor: theme.palette.greyAlpha(1.0),
     opacity: theme.palette.type === 'light' ? 0.38 : 0.3,
   },
 }), {stylePriority: -10});
 
 function Switch(props: SwitchProps) {
-  const { classes: classesOverride, className, color, ...other } = props;
+  const { classes: classesOverride, className, color="secondary", ...other } = props;
   const classes = useStyles(styles, classesOverride);
 
   return (
     <span className={classNames(classes.root, className)}>
       <SwitchBase
-        type="checkbox"
+        type={"checkbox" as AnyBecauseTodo}
         icon={<span className={classes.icon} />}
         classes={{
           root: classNames(classes.switchBase, {
@@ -140,9 +137,5 @@ function Switch(props: SwitchProps) {
     </span>
   );
 }
-
-Switch.defaultProps = {
-  color: 'secondary',
-};
 
 export default Switch;

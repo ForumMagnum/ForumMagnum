@@ -82,6 +82,7 @@ function FormHelperText(props: FormHelperTextProps) {
 
   const fcs = formControlState({
     props,
+    muiFormControl: useContext(FormControlContext),
     states: ['variant', 'margin', 'disabled', 'error', 'filled', 'focused', 'required'],
   });
 

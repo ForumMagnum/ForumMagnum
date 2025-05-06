@@ -188,8 +188,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
         {_.map(getKarmaNotificationTimingChoices(), (timingChoice, key) =>
           <FormControlLabel
             key={key}
-            value={key}
-            control={<Radio className={classes.radioButton} />}
+            control={<Radio className={classes.radioButton} value={key}/>}
             label={
               <Typography className={classes.inline} variant="body2" component="span">
                 {timingChoice.label}

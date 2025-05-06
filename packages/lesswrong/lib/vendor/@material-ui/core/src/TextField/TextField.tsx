@@ -84,19 +84,17 @@ const variantComponent = {
  * - using the underlying components directly as shown in the demos
  */
 class TextField extends React.Component<TextFieldProps> {
-  labelRef: any
   labelNode: any
 
   constructor(props: TextFieldProps) {
     super(props);
-    this.labelRef = React.createRef();
   }
 
   componentDidMount() {
-    if (this.props.variant === 'outlined') {
+    /*if (this.props.variant === 'outlined') {
       this.labelNode = ReactDOM.findDOMNode(this.labelRef.current);
       this.forceUpdate();
-    }
+    }*/
   }
 
   render() {
@@ -184,7 +182,7 @@ class TextField extends React.Component<TextFieldProps> {
         {...other}
       >
         {label && (
-          <InputLabel htmlFor={id} ref={this.labelRef} {...InputLabelProps}>
+          <InputLabel htmlFor={id} {...InputLabelProps}>
             {label}
           </InputLabel>
         )}

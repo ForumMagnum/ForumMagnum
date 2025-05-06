@@ -11,18 +11,12 @@ import { FormControlContext } from '../FormControl/FormControl';
 export interface FormControlLabelProps
   extends StandardProps<
       React.LabelHTMLAttributes<HTMLLabelElement>,
-      FormControlLabelClassKey,
-      'onChange'
+      FormControlLabelClassKey
     > {
-  checked?: boolean | string;
   control: React.ReactElement<any>;
   disabled?: boolean;
-  inputRef?: React.Ref<any>;
   label: React.ReactNode;
-  name?: string;
-  onChange?: (event: React.ChangeEvent<{}>, checked: boolean) => void;
   labelPlacement?: 'end' | 'start';
-  value?: string;
 }
 
 export type FormControlLabelClassKey = 'root' | 'start' | 'disabled' | 'label';
@@ -69,17 +63,12 @@ export const styles = defineStyles("MuiFormControlLabel", theme => ({
  */
 function FormControlLabel(props: FormControlLabelProps) {
   const {
-    checked,
     classes: classesOverride,
     className: classNameProp,
     control,
     disabled: disabledProp,
-    inputRef,
     label,
     labelPlacement="end",
-    name,
-    onChange,
-    value,
     ...other
   } = props;
   const classes = useStyles(styles, classesOverride);
@@ -96,11 +85,6 @@ function FormControlLabel(props: FormControlLabelProps) {
   const controlProps = {
     disabled,
   };
-  ['checked', 'name', 'onChange', 'value', 'inputRef'].forEach(key => {
-    if (typeof control.props[key] === 'undefined' && typeof props[key] !== 'undefined') {
-      controlProps[key] = props[key];
-    }
-  });
 
   return (
     <label

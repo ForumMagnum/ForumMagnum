@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import keycode from 'keycode';
 import classNames from 'classnames';
 import ButtonBase from '@/lib/vendor/@material-ui/core/src/ButtonBase';
@@ -228,7 +227,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
   }
 
   componentWillUnmount() {
-    this.containerRef.current?.removeEventListener('touchstart', preventPageScrolling, { passive: false });
+    this.containerRef.current?.removeEventListener('touchstart', preventPageScrolling);
     document.body.removeEventListener('mousemove', this.handleMouseMove);
     document.body.removeEventListener('mouseup', this.handleMouseUp);
     clearTimeout(this.jumpAnimationTimeoutId);
@@ -339,7 +338,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
   };
 
   handleMouseMove = (event: AnyBecauseTodo) => {
-    const { min, max, vertical } = this.props;
+    const { min=0, max=100, vertical } = this.props;
     const percent = calculatePercent(this.containerRef.current!, event, !!vertical, this.isReverted());
     const value = percentToValue(percent, min, max);
 

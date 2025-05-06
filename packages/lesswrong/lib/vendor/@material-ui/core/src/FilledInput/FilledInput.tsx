@@ -137,7 +137,7 @@ export const styles = defineStyles("MuiFilledInput", theme => {
 }, {stylePriority: -10});
 
 function FilledInput(props: FilledInputProps) {
-  const { classes: classesOverride, ...other } = props;
+  const { classes: classesOverride, fullWidth=false, inputComponent="input", multiline=false, type="text", ...other } = props;
   const classes = useStylesNonProxy(styles, classesOverride);
 
   return (
@@ -147,17 +147,14 @@ function FilledInput(props: FilledInputProps) {
         root: classNames(classes.root, classes.underline, {}),
         underline: undefined,
       }}
+      fullWidth={fullWidth}
+      inputComponent={inputComponent}
+      multiline={multiline}
+      type={type}
       {...other}
     />
   );
 }
-
-InputBase.defaultProps = {
-  fullWidth: false,
-  inputComponent: 'input',
-  multiline: false,
-  type: 'text',
-};
 
 FilledInput.muiName = 'Input';
 
