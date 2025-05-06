@@ -550,6 +550,55 @@ async function insertIntoInitGraphQL(collectionName: string) {
   return initGraphQLPath;
 }
 
+async function insertIntoAccessFilters(collectionName: string) {
+  const accessFiltersPath = path.join(__dirname, '..', '..', 'server', 'permissions', 'accessFilters.ts');
+  const accessFilters = await readFile(accessFiltersPath, 'utf8');
+  const lines = accessFilters.split('\n');
+
+  // Find the accessFilters object definition
+  const accessFiltersObjectStartIndex = lines.findIndex(line => line.includes('const accessFilters = {'));
+  if (accessFiltersObjectStartIndex === -1) {
+    throw new Error('Could not find accessFilters object in file');
+  }
+
+  // Find the closing brace of the accessFilters object
+  const accessFiltersObjectEndIndex = lines.findIndex((line, idx) => 
+    idx > accessFiltersObjectStartIndex && line.trim() === '};');
+  if (accessFiltersObjectEndIndex === -1) {
+    throw new Error('Could not find closing brace of accessFilters object');
+  }
+
+  // Build the new accessFilter entry and insert the default (reject) access filter
+  const accessFilterEntry = `  ${collectionName}: defaultAccessFilter,`;
+  
+  // Find the correct position to insert the entry (alphabetically)
+  let insertPosition = accessFiltersObjectStartIndex + 1;
+  for (let i = accessFiltersObjectStartIndex + 1; i < accessFiltersObjectEndIndex; i++) {
+    const line = lines[i].trim();
+    if (line === '' || line.startsWith('//')) continue;
+    
+    const match = line.match(/^(\w+):/);
+    if (match && match[1]) {
+      if (match[1].localeCompare(collectionName) < 0) {
+        insertPosition = i + 1;
+      } else {
+        break;
+      }
+    }
+  }
+
+  // Insert the new accessFilter entry
+  lines.splice(insertPosition, 0, accessFilterEntry);
+
+  // Write the file back
+  await writeFile(accessFiltersPath, lines.join('\n'));
+
+  // eslint-disable-next-line no-console
+  console.log(`Updated accessFilters.ts with ${collectionName}.  NOTE: if you want records in this collection to be accessible via the API, you need to add a custom access filter function (or use the allowAccess function).`);
+
+  return accessFiltersPath;
+}
+
 export async function generateNewCollection(collectionName?: string) {
   if (!collectionName?.endsWith('s')) {
     // eslint-disable-next-line no-console
@@ -597,6 +646,7 @@ export async function generateNewCollection(collectionName?: string) {
     insertIntoAllFragments(collectionName),
     insertIntoAllSchemas(collectionName),
     insertIntoInitGraphQL(collectionName),
+    insertIntoAccessFilters(collectionName),
   ]);
 
   // eslint-disable-next-line no-console
