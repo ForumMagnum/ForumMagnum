@@ -17,9 +17,9 @@ test("admins can ban users and remove their content", async ({page, context}) =>
   await page.goto(`/users/${post.author.slug}/edit`);
   await page.locator(".form-section-ban-and-purge-user").click();
   await page.getByText("Delete all user content").click();
-  await page.locator(".form-section-ban-and-purge-user .DatePicker-input").click(); // Select ban date
-  await page.locator(".form-section-ban-and-purge-user .rdtNext").click(); // Jump to next month
-  await page.locator(".form-section-ban-and-purge-user .rdtDay.rdtNew[data-value=\"1\"]").click(); // Select 1st
+  await page.locator(".form-section-ban-and-purge-user .DatePicker-wrapper input").click(); // Select ban date
+  await page.locator(".form-section-ban-and-purge-user .react-datepicker__navigation--next").click(); // Jump to next month
+  await page.locator(".form-section-ban-and-purge-user .react-datepicker__day--001").click(); // Select 1st
   await page.getByText("Submit").click();
   await page.waitForURL(authorPage);
   await page.waitForTimeout(1000); // Wait for backend async callbacks to run
