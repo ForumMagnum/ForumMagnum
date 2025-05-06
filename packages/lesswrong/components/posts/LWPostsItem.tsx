@@ -590,7 +590,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 </LWTooltip>}
               </div>
               {bookmark && <div className={classes.bookmark}>
-                <BookmarkButton post={post}/>
+                <BookmarkButton documentId={post._id} collectionName="Posts"/>
               </div>}
               <div className={classes.mobileDismissButton}>
                 {showDismissButton && <DismissButton {...{showDismissButton, onDismiss}} />}

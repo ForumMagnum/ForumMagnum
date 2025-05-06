@@ -824,6 +824,15 @@ interface ModeratorIPAddressInfo {
   userIds: Array<string>;
 }
 
+interface ToggleBookmarkInput {
+  documentId: string;
+  collectionName: string;
+}
+
+interface ToggleBookmarkOutput {
+  data: Bookmark | null;
+}
+
 interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
@@ -860,6 +869,19 @@ interface UltraFeedEntryType {
   feedCommentThread: FeedCommentThread | null;
   feedPost: FeedPost | null;
   feedSpotlight: FeedSpotlightItem | null;
+}
+
+interface BookmarksFeedQueryResults {
+  cutoff: Date | null;
+  endOffset: number;
+  results: Array<BookmarksFeedEntryType> | null;
+}
+
+interface BookmarksFeedEntryType {
+  type: string;
+  feedPost: FeedPost | null;
+  feedCommentThread: FeedCommentThread | null;
+  sortKey: Date;
 }
 
 interface ElicitQuestionPredictionCreator {
@@ -991,6 +1013,40 @@ interface MultiBanInput {
 
 interface MultiBanOutput {
   results: Array<Ban | null> | null;
+  totalCount: number | null;
+}
+
+interface Bookmark {
+  _id: string;
+  createdAt: Date;
+  documentId: string;
+  collectionName: string;
+  userId: string;
+  post: Post | null;
+  comment: Comment | null;
+  lastUpdated: Date;
+  active: boolean;
+}
+
+interface SingleBookmarkInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+  allowNull?: boolean | null;
+}
+
+interface SingleBookmarkOutput {
+  result: Bookmark | null;
+}
+
+interface MultiBookmarkInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiBookmarkOutput {
+  results: Array<Bookmark | null> | null;
   totalCount: number | null;
 }
 
@@ -6472,12 +6528,16 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
+  ToggleBookmarkInput: ToggleBookmarkInput;
+  ToggleBookmarkOutput: ToggleBookmarkOutput;
   RssPostChangeInfo: RssPostChangeInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntryType: UltraFeedEntryType;
+  BookmarksFeedQueryResults: BookmarksFeedQueryResults;
+  BookmarksFeedEntryType: BookmarksFeedEntryType;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
@@ -6497,6 +6557,11 @@ interface GraphQLTypeMap {
   SingleBanOutput: SingleBanOutput;
   MultiBanInput: MultiBanInput;
   MultiBanOutput: MultiBanOutput;
+  Bookmark: Bookmark;
+  SingleBookmarkInput: SingleBookmarkInput;
+  SingleBookmarkOutput: SingleBookmarkOutput;
+  MultiBookmarkInput: MultiBookmarkInput;
+  MultiBookmarkOutput: MultiBookmarkOutput;
   Book: Book;
   SingleBookInput: SingleBookInput;
   SingleBookOutput: SingleBookOutput;
@@ -7083,6 +7148,7 @@ interface CreateInputsByCollectionName {
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
   Bans: never;
+  Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
   CronHistories: never;
@@ -7172,6 +7238,7 @@ interface UpdateInputsByCollectionName {
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
   Bans: never;
+  Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
   CronHistories: never;
