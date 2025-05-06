@@ -15,6 +15,11 @@ const banCheckAccess: CheckAccessFunction<'Bans'> = async (currentUser, document
   return userCanDo(currentUser, 'bans.view')
 };
 
+const bookmarkCheckAccess: CheckAccessFunction<'Bookmarks'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!currentUser || !document) return false;
+  return userOwns(currentUser, document);
+};
+
 const chapterCheckAccess: CheckAccessFunction<'Chapters'> = async (currentUser, document, context): Promise<boolean> => {
   if (!document) return false;
   // Since chapters have no userIds there is no obvious way to check for permissions.
@@ -352,6 +357,7 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 
 const accessFilters = {
   Bans: banCheckAccess,
+  Bookmarks: bookmarkCheckAccess,
   Chapters: chapterCheckAccess,
   ClientIds: clientIdCheckAccess,
   Conversations: conversationCheckAccess,

@@ -154,7 +154,6 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateDefaultFragmentsFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateInputTypes(), "/packages/lesswrong/lib/generated/inputTypes.d.ts");
     writeIfChanged(generateFragmentTypes(collectionNameToTypeName, typeNameToCollectionName), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
-    writeIfChanged(generateFragmentsGqlFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/fragments.gql");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateAllComponentsVite(), "/packages/lesswrong/lib/generated/allComponentsVite.ts");

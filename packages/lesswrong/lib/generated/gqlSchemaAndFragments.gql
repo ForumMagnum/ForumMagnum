@@ -1197,8 +1197,17 @@ extend type Mutation {
   acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post
 }
 
+input ToggleBookmarkInput {
+  documentId: String!
+  collectionName: String!
+}
+
+type ToggleBookmarkOutput {
+  data: Bookmark
+}
+
 extend type Mutation {
-  setIsBookmarked(postId: String!, isBookmarked: Boolean!): User!
+  toggleBookmark(input: ToggleBookmarkInput!): ToggleBookmarkOutput
 }
 
 extend type Mutation {
@@ -1330,6 +1339,23 @@ extend type Mutation {
 
 extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
+}
+
+type BookmarksFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [BookmarksFeedEntryType!]
+}
+
+type BookmarksFeedEntryType {
+  type: String!
+  feedPost: FeedPost
+  feedCommentThread: FeedCommentThread
+  sortKey: Date!
+}
+
+extend type Query {
+  BookmarksFeed(limit: Int, cutoff: Date, offset: Int): BookmarksFeedQueryResults!
 }
 
 type ElicitQuestionPredictionCreator {
@@ -1477,6 +1503,45 @@ type MultiBanOutput {
 extend type Query {
   ban(input: SingleBanInput): SingleBanOutput
   bans(input: MultiBanInput): MultiBanOutput
+}
+
+type Bookmark {
+  _id: String!
+  createdAt: Date!
+  documentId: String!
+  collectionName: String!
+  userId: String!
+  post: Post
+  comment: Comment
+  lastUpdated: Date!
+  active: Boolean!
+}
+
+input SingleBookmarkInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+  allowNull: Boolean
+}
+
+type SingleBookmarkOutput {
+  result: Bookmark
+}
+
+input MultiBookmarkInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiBookmarkOutput {
+  results: [Bookmark]
+  totalCount: Int
+}
+
+extend type Query {
+  bookmark(input: SingleBookmarkInput): SingleBookmarkOutput
+  bookmarks(input: MultiBookmarkInput): MultiBookmarkOutput
 }
 
 type Book {
@@ -7500,6 +7565,33 @@ fragment BookPageFragment on Book {
   displaySequencesAsGrid
   hideProgressBar
   showChapters
+}
+
+fragment BookmarksDefaultFragment on Bookmark {
+  _id
+  createdAt
+  documentId
+  collectionName
+  userId
+  lastUpdated
+  active
+}
+
+fragment BookmarksFeedItemFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  post {
+    ...PostsListWithVotes
+  }
+  comment {
+    ...UltraFeedComment
+  }
+}
+
+fragment BookmarksWithDocumentFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  post {
+    ...PostsListWithVotes
+  }
 }
 
 fragment BooksDefaultFragment on Book {
