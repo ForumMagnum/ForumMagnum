@@ -14,21 +14,20 @@ import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingTop: 24,
-    paddingLeft: 24,
+    marginTop: 24,
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
     borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
     [theme.breakpoints.down('xs')]: {
-      paddingTop: 16,
-      paddingLeft: 16,
+      marginTop: 16,
+      paddingLeft: 0,
       paddingRight: 0,
     },
   },
   plainBackground: {
-    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    // backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   cardHeader: {
     display: "flex",
@@ -39,16 +38,13 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 20
   },
   postHighlight: {
-    paddingRight: 40,
+    paddingRight: 10,
     borderRadius: theme.borderRadius["small"],
     marginBottom: 4,
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     },
-    [theme.breakpoints.down('xs')]: {
-      paddingRight: 16,
-    }
   },
   postMetaInfo: {
     display: "flex",
@@ -64,6 +60,17 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
   },
   post: {
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    paddingTop: isFriendlyUI ? 12 : 18,
+    paddingLeft: 16,
+    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+    marginBottom: 4,
+    border: theme.palette.border.commentBorder,
+    
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
+      paddingLeft: 14,
+    },
   },
   titleAndActions: {
     width: "100%",
@@ -93,16 +100,10 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       opacity: 0.4,
     },
-    marginRight: -8,
+    marginRight: -15,
+    marginTop: -9,
   },
   commentsList: {
-    paddingBottom: 16,
-    marginRight: 16,
-    marginTop: 12,
-    [theme.breakpoints.down('xs')]: {
-      marginRight: 4,
-      paddingBottom: 4
-    }
   },
   noComments: {
     paddingBottom: 16
@@ -202,22 +203,24 @@ const FeedPostCommentsCard = ({
 
       <div className={classNames(classes.root, classes.plainBackground)}>
 
-        <div className={classes.cardHeader}>
-          <div className={classes.titleAndActions}>
-            <Link to={postGetPageUrl(post)} className={classes.title} eventProps={{intent: 'expandPost'}}>
-              {post.title}
-            </Link>
-            <PostActionsButton post={post} autoPlace vertical className={classes.actions} />
+        <div className={classes.post}>
+          <div className={classes.cardHeader}>
+            <div className={classes.titleAndActions}>
+              <Link to={postGetPageUrl(post)} className={classes.title} eventProps={{intent: 'expandPost'}}>
+                {post.title}
+              </Link>
+              <PostActionsButton post={post} autoPlace vertical className={classes.actions} />
+            </div>
+            <FeedPostCardMeta post={post} />
           </div>
-          <FeedPostCardMeta post={post} />
-        </div>
 
-        <div className={classNames(classes.postHighlight, { [classes.noComments]: !nestedComments.length })}>
-            <FeedPostsHighlight 
-              post={post} 
-              initiallyExpanded={expandPost}
-              maxCollapsedLengthWords={lastVisitedAt ? 70 : maxCollapsedLengthWords} 
-            />
+          <div className={classNames(classes.postHighlight, { [classes.noComments]: !nestedComments.length })}>
+              <FeedPostsHighlight 
+                post={post} 
+                initiallyExpanded={expandPost}
+                maxCollapsedLengthWords={lastVisitedAt ? 70 : maxCollapsedLengthWords} 
+              />
+          </div>
         </div>
 
         {nestedComments.length > 0 && <div className={classes.commentsList} onMouseUp={markCommentsAsRead}>
