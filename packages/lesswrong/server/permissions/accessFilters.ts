@@ -12,7 +12,7 @@ import _ from "underscore";
 
 const defaultCheckAccess: CheckAccessFunction<CollectionNameString> = async () => false;
 
-const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
+export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
 
 const banCheckAccess: CheckAccessFunction<'Bans'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
