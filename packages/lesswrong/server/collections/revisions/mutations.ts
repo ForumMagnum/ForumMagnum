@@ -13,8 +13,7 @@ import { isLW, saplingApiKey } from "@/lib/instanceSettings";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
-import { openAIApiKey } from "@/server/databaseSettings";
-import { OpenAI } from "openai";
+import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -137,13 +136,8 @@ async function getSaplingEvaluation(revision: DbRevision) {
 }
 
 async function getLlmEvaluation(revision: DbRevision, context: ResolverContext) {
-  const openAIKey = openAIApiKey.get();
-  if (!openAIKey || !revision.documentId) return;
-
-  const openAIClient = new OpenAI({
-    apiKey: openAIApiKey.get() ?? undefined,
-    dangerouslyAllowBrowser: true,
-  });
+  const openAIClient = await getOpenAI();
+  if (!openAIClient || !revision.documentId) return;
 
   const post = await context.loaders["Posts"].load(revision.documentId);
   const user = await context.loaders["Users"].load(post.userId);
