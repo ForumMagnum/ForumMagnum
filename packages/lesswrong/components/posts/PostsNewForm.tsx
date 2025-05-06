@@ -1,4 +1,4 @@
-import { postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
+import { postGetEditUrl, isPostCategory, postDefaultCategory, userCanEditCoauthors } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
@@ -8,11 +8,55 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useCreate } from '@/lib/crud/withCreate';
-import { convertSchema, getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
 import { hasAuthorModeration } from '@/lib/betas';
-import { getSimpleSchema } from '@/lib/schema/allSchemas';
+import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { sanitizeEditableFieldValues } from '../tanstack-form-components/helpers';
 
-const prefillFromTemplate = (template: PostsEditMutationFragment) => {
+type EventTemplateFields =
+  | "contents"
+  | "activateRSVPs"
+  | "location"
+  | "googleLocation"
+  | "onlineEvent"
+  | "globalEvent"
+  | "startTime"
+  | "endTime"
+  | "eventRegistrationLink"
+  | "joinEventLink"
+  | "website"
+  | "contactInfo"
+  | "isEvent"
+  | "eventImageId"
+  | "eventType"
+  | "types"
+  | "groupId"
+  | "title"
+  | "hasCoauthorPermission"
+  | "coauthorStatuses";
+
+type PrefilledPostFields =
+  | "isEvent"
+  | "question"
+  | "activateRSVPs"
+  | "onlineEvent"
+  | "globalEvent"
+  | "types"
+  | "meta"
+  | "groupId"
+  | "moderationStyle"
+  | "generateDraftJargon"
+  | "postCategory";
+
+type PrefilledEventTemplate = Pick<PostsEditMutationFragment, EventTemplateFields>;
+type PrefilledPostBase = Pick<PostsEditMutationFragment, PrefilledPostFields>;
+
+type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
+  af?: boolean;
+  subforumTagId?: string;
+  tagRelevance?: Record<string, number>;
+};
+
+const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: UsersCurrent | null): PrefilledEventTemplate => {
   return pick(
     template,
     [
@@ -24,8 +68,6 @@ const prefillFromTemplate = (template: PostsEditMutationFragment) => {
       "globalEvent",
       "startTime",
       "endTime",
-      "localStartTime",
-      "localEndTime",
       "eventRegistrationLink",
       "joinEventLink",
       "website",
@@ -35,11 +77,10 @@ const prefillFromTemplate = (template: PostsEditMutationFragment) => {
       "eventType",
       "types",
       "groupId",
-      "group",
       "title",
-      "coauthorStatuses",
       "hasCoauthorPermission",
-    ]
+      ...(userCanEditCoauthors(currentUser) ? ["coauthorStatuses"] as const : []),
+    ] as const
   )
 }
 
@@ -89,29 +130,6 @@ function usePrefetchForAutosaveRedirect() {
   return prefetchPostFragmentsForRedirect;
 }
 
-function sanitizePrefilledProps(prefilledProps: NullablePartial<PostsEditMutationFragment>, currentUser: UsersCurrent) {
-  const postSchema = getSimpleSchema('Posts');
-  const convertedSchema = convertSchema(postSchema);
-  const insertableFields = getInsertableFields(convertedSchema!, currentUser);
-  const prefilledInsertableFields = pick(prefilledProps, insertableFields);
-
-  const sanitizedPrefilledInsertableFields = Object.keys(prefilledInsertableFields).map(fieldName => {
-    if (postSchema._schema[fieldName].editableFieldOptions) {
-      const originalEditableFieldValue: RevisionEdit | null = prefilledInsertableFields[fieldName as keyof PostsEditMutationFragment];
-      if (!originalEditableFieldValue?.originalContents) {
-        return [fieldName, null];
-      }
-      const { originalContents: { type, data } } = originalEditableFieldValue;
-      const minimalEditableFieldValue = { originalContents: { type, data } };
-      return [fieldName, minimalEditableFieldValue];
-    }
-
-    return [fieldName, prefilledInsertableFields[fieldName as keyof PostsEditMutationFragment]];
-  });
-
-  return Object.fromEntries(sanitizedPrefilledInsertableFields);
-}
-
 const PostsNewForm = () => {
   const { LoginForm, SingleColumnSection, Typography, Loading } = Components;
   const { query } = useLocation();
@@ -120,7 +138,6 @@ const PostsNewForm = () => {
   const currentUser = useCurrentUser();
 
   const templateId = query && query.templateId;
-  const debateForm = !!(query && query.debate);
   const questionInQuery = query && !!query.question;
   const eventForm = query && query.eventForm
 
@@ -150,7 +167,7 @@ const PostsNewForm = () => {
     skip: !currentUser,
   });
 
-  let prefilledProps: NullablePartial<PostsEditMutationFragment> = templateDocument ? prefillFromTemplate(templateDocument) : {
+  let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
     question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
@@ -158,12 +175,17 @@ const PostsNewForm = () => {
     globalEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
-    af: isAF || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     generateDraftJargon: currentUser?.generateJargonForDrafts,
-    debate: debateForm,
     postCategory
+  }
+
+  if (userIsMemberOf(currentUser, 'alignmentForum')) {
+    prefilledProps = {
+      ...prefilledProps,
+      af: isAF || (query && !!query.af),
+    };
   }
 
   if (query?.subforumTagId || query?.tagId) {
@@ -184,19 +206,21 @@ const PostsNewForm = () => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
-        const sanitizedPrefilledProps = sanitizePrefilledProps(prefilledProps, currentUser);
+        const sanitizedPrefilledProps = 'contents' in prefilledProps
+          ? sanitizeEditableFieldValues(prefilledProps, ['contents'])
+          : prefilledProps;
+
+        const moderationGuidelinesField = currentUserWithModerationGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration
+          ? { moderationGuidelines: sanitizeEditableFieldValues(currentUserWithModerationGuidelines, ['moderationGuidelines']).moderationGuidelines }
+          : {};
+
         try {
           const { data } = await createPost.create({
             data: {
               title: "Untitled Draft",
               draft: true,
               ...sanitizedPrefilledProps,
-              ...(currentUserWithModerationGuidelines?.moderationGuidelines?.originalContents &&
-                hasAuthorModeration && {
-                moderationGuidelines: {
-                  originalContents: pick(currentUserWithModerationGuidelines.moderationGuidelines.originalContents, ["type","data"])
-                }
-              })
+              ...moderationGuidelinesField,
             },
           });
           if (data) {

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { useUpdate } from '@/lib/crud/withUpdate';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { JargonTermForm } from './JargonTermForm';
 
 export const formStyles = {
   '& .form-section-default > div': {
@@ -152,44 +152,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const submitStyles = (theme: ThemeType) => ({
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    marginTop: 4,
-    marginBottom: -6,
-    justifyContent: 'end',
-    height: 36,
-  },
-  submitButton: {
-    color: theme.palette.secondary.main
-  },
-  cancelButton: {},
-});
-
-// Jargon submit button
-
-const JargonSubmitButton = ({ submitForm, cancelCallback, classes }: FormButtonProps & { classes: ClassesType<typeof submitStyles> }) => {
-  const { Loading } = Components;
-
-  const [loading, setLoading] = useState(false);
-
-  const wrappedSubmitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    setLoading(true);
-    await submitForm(e);
-    setLoading(false);
-  }
-
-  return <div className={classes.root}>
-    {!loading && <Button onClick={cancelCallback} className={classes.cancelButton}>Cancel</Button>}
-    {!loading && <Button onClick={wrappedSubmitForm} className={classes.submitButton}>Submit</Button>}
-    {loading && <Loading />}
-  </div>
-};
-
-
 // Jargon editor row
-
 export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
   classes: ClassesType<typeof styles>,
   jargonTerm: JargonTerms,
@@ -233,7 +196,7 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
       }
     })
   }
-  const { JargonTooltip, WrappedSmartForm, ContentItemBody, LWTooltip } = Components;
+  const { JargonTooltip, ContentItemBody, LWTooltip } = Components;
 
   const jargonDefinition = jargonTerm?.contents?.html ?? '';
 
@@ -242,15 +205,11 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
         <Checkbox checked={jargonTerm.approved} className={classes.checkbox} />
       </div>
       {edit ? <div className={classes.formStyles}>
-          <WrappedSmartForm
-            collectionName="JargonTerms"
-            documentId={jargonTerm._id}
-            mutationFragmentName={'JargonTerms'}
-            queryFragmentName={'JargonTerms'}
-            successCallback={() => setEdit(false)}
-            cancelCallback={() => setEdit(false)}
-            formComponents={{ FormSubmit: Components.JargonSubmitButton }}
-            prefetchedDocument={jargonTerm}
+          <JargonTermForm
+            initialData={jargonTerm}
+            postId={jargonTerm.postId}
+            onSuccess={() => setEdit(false)}
+            onCancel={() => setEdit(false)}
           />
         </div>
       :  <JargonTooltip
@@ -283,12 +242,10 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
   </div>
 }
 
-const JargonSubmitButtonComponent = registerComponent('JargonSubmitButton', JargonSubmitButton, {styles: submitStyles});
 const JargonEditorRowComponent = registerComponent('JargonEditorRow', JargonEditorRow, {styles});
 
 declare global {
   interface ComponentTypes {
-    JargonSubmitButton: typeof JargonSubmitButtonComponent,
     JargonEditorRow: typeof JargonEditorRowComponent
   }
 }

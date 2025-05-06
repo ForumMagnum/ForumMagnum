@@ -1,8 +1,10 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../ea-forum/users/DisplayNameWithMarkers";
+import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormComponentFriendlyDisplayNameInput', (theme: ThemeType) => ({
   inputRow: {
     display: "flex",
     gap: `12px`,
@@ -29,22 +31,26 @@ const styles = (theme: ThemeType) => ({
       textDecoration: "underline",
     },
   },
-});
+}));
 
 export const FormComponentFriendlyDisplayNameInput = ({
-  value,
-  classes,
+  field,
   ...props
 }: {
+  field: TypedFieldApi<string | null>;
   multiline?: boolean;
   rows?: number;
   fullWidth?: boolean;
   startAdornment?: ReactNode;
   smallBottomMargin?: boolean;
   className?: string;
-  classes: ClassesType<typeof styles>;
-} & FormComponentProps<string>) => {
+  label?: string;
+}) => {
   const { FormComponentFriendlyTextInput } = Components;
+
+  const classes = useStyles(styles);
+
+  const value = field.state.value;
 
   const blurbContent = (
     <span>
@@ -64,7 +70,7 @@ export const FormComponentFriendlyDisplayNameInput = ({
   return (
     <div>
       <div className={classes.inputRow}>
-        <FormComponentFriendlyTextInput value={value} {...props} className={classes.formInput} />
+        <FormComponentFriendlyTextInput value={value} updateCurrentValue={field.handleChange} {...props} className={classes.formInput} />
       </div>
       <div className={classes.blurb}>{blurbContent}</div>
     </div>
@@ -74,7 +80,6 @@ export const FormComponentFriendlyDisplayNameInput = ({
 const FormComponentFriendlyDisplayNameInputComponent = registerComponent(
   "FormComponentFriendlyDisplayNameInput",
   FormComponentFriendlyDisplayNameInput,
-  { styles }
 );
 
 declare global {

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -9,8 +8,11 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import type { EditablePost } from '@/lib/collections/posts/helpers.ts';
+import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
+import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: isFriendlyUI ? 14 : 16,
@@ -52,43 +54,47 @@ export const styles = (theme: ThemeType) => ({
   },
   feedback: {
   }
-});
+}));
 
-export type PostSubmitProps = FormButtonProps & {
+export type PostSubmitProps = {
+  formApi: TypedFormApi<EditablePost, { successCallback?: (createdPost: PostsEditMutationFragment) => void }>,
+  disabled: boolean;
+  submitLabel?: string,
+  cancelLabel?: string,
   saveDraftLabel?: string,
   feedbackLabel?: string,
-  document: PostsPage,
-  classes: ClassesType<typeof styles>
+  cancelCallback?: (document: EditablePost) => void,
 }
 
-const PostSubmit = ({
+export const PostSubmit = ({
+  formApi,
+  disabled,
   submitLabel = "Submit",
   cancelLabel = "Cancel",
   saveDraftLabel = "Save as draft",
   feedbackLabel = "Request Feedback",
-  cancelCallback, document, collectionName,
-  updateCurrentValues,
-  submitForm,
-  addToSuccessForm,
-  classes
+  cancelCallback,
 }: PostSubmitProps) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
-  if (!currentUser) throw Error("must be logged in to post")
+  if (!currentUser) throw Error("must be logged in to post");
 
   const { LWTooltip } = Components;
+
+  const document = formApi.state.values;
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
-      collectionName === "Posts" && await updateCurrentValues({draft: false});
-      await submitForm();
+      formApi.setFieldValue('draft', false);
+      await formApi.handleSubmit();
     }
   };
 
-  const submitWithoutConfirmation = () => collectionName === "Posts" && updateCurrentValues({draft: false});
+  const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
-  const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
+  const requireConfirmation = isLW && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
@@ -115,19 +121,28 @@ const PostSubmit = ({
         {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
           title={feedbackTitle}
         >
-          <Button type="submit"//treat as draft when draft is null
+          <Button type="submit"
             className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
-            onClick={() => {
+            disabled={disabled}
+            onClick={async () => {
               captureEvent("feedbackRequestButtonClicked")
               if (!!document.title) {
-                void updateCurrentValues({draft: true});
-                addToSuccessForm((createdPost: DbPost) => {
-                  // eslint-disable-next-line
-                  window.Intercom(
-                    'trackEvent',
-                    'requested-feedback',
-                    {title: createdPost.title, _id: createdPost._id, url: getSiteUrl() + "posts/" + createdPost._id}
-                  );
+                formApi.setFieldValue('draft', true);
+                await formApi.handleSubmit({
+                  successCallback: (createdPost: PostsEditMutationFragment) => {
+                    const intercomProps = {
+                      title: createdPost.title,
+                      _id: createdPost._id,
+                      url: getSiteUrl() + "posts/" + createdPost._id
+                    };
+
+                    // eslint-disable-next-line
+                    window.Intercom(
+                      'trackEvent',
+                      'requested-feedback',
+                      intercomProps
+                    );
+                  }
                 });
               }
             }}
@@ -137,13 +152,15 @@ const PostSubmit = ({
         </LWTooltip>}
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-          onClick={() => void updateCurrentValues({draft: true})}
+          onClick={() => formApi.setFieldValue('draft', true)}
+          disabled={disabled}
         >
           {saveDraftLabel}
         </Button>
         <Button
           type="submit"
           onClick={onSubmitClick}
+          disabled={disabled}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
           {...(isFriendlyUI ? {
             variant: "contained",
@@ -157,7 +174,7 @@ const PostSubmit = ({
   );
 }
 
-const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit, {styles});
+const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit);
 
 declare global {
   interface ComponentTypes {

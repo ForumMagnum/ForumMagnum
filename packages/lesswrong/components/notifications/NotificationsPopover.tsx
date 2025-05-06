@@ -6,7 +6,6 @@ import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
-import type { KarmaChanges } from "@/server/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
@@ -260,7 +259,7 @@ const NotificationsPopover = ({
                   <div>
                     <div className={classes.karmaSubsectionTitle}>Today</div>
                     <NotificationsPageKarmaChangeList
-                      karmaChanges={todaysKarmaChanges}
+                      karmaChanges={todaysKarmaChanges ?? undefined}
                       truncateAt={3}
                     />
                   </div>
@@ -269,7 +268,7 @@ const NotificationsPopover = ({
                   <div>
                     <div className={classes.karmaSubsectionTitle}>This week</div>
                     <NotificationsPageKarmaChangeList
-                      karmaChanges={thisWeeksKarmaChanges}
+                      karmaChanges={thisWeeksKarmaChanges ?? undefined}
                       truncateAt={2}
                     />
                   </div>

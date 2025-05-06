@@ -41,7 +41,9 @@ Users.postProcess = (user: DbUser): DbUser => {
   // to a Date object to avoid a GraphQL error.
   if (user.partiallyReadSequences) {
     for (const partiallyReadSequence of user.partiallyReadSequences) {
-      partiallyReadSequence.lastReadTime = new Date(partiallyReadSequence.lastReadTime);
+      if (partiallyReadSequence.lastReadTime) {
+        partiallyReadSequence.lastReadTime = new Date(partiallyReadSequence.lastReadTime);
+      }
     }
   }
   return user;

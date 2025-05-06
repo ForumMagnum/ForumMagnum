@@ -1,59 +1,28 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import SimpleSchema from "simpl-schema";
+import type { AbstractThemeOptions } from "@/themes/themeNames";
 
-const RenderResultSchemaType = new SimpleSchema({
-  ssrBody: {
-    type: String,
-  },
-  headers: {
-    type: Array,
-  },
-  "headers.$": {
-    type: String,
-  },
-  serializedApolloState: {
-    type: String,
-  },
-  serializedForeignApolloState: {
-    type: String,
-  },
-  jssSheets: {
-    type: String,
-  },
-  status: {
-    type: Number,
-    optional: true,
-  },
-  redirectUrl: {
-    type: String,
-    optional: true,
-  },
-  relevantAbTestGroups: {
-    type: Object,
-    blackbox: true,
-  },
-  allAbTestGroups: {
-    type: Object,
-    blackbox: true,
-  },
-  themeOptions: {
-    type: Object,
-    blackbox: true,
-  },
-  renderedAt: {
-    type: Date,
-  },
-  cacheFriendly: {
-    type: Boolean,
-  },
-  timezone: {
-    type: String,
-  },
-  timings: {
-    type: Object,
-    blackbox: true,
-  },
-});
+declare global {
+  interface RenderResultFieldType {
+    ssrBody: string;
+    headers: string[];
+    serializedApolloState: string;
+    serializedForeignApolloState: string;
+    jssSheets: string;
+    status: number;
+    redirectUrl: string;
+    relevantAbTestGroups: Record<string, string>;
+    allAbTestGroups: Record<string, string>;
+    themeOptions: AbstractThemeOptions;
+    renderedAt: Date;
+    cacheFriendly: boolean;
+    timezone: string;
+    timings: {
+      wallTime: number;
+      cpuTime: number;
+      sqlBytesDownloaded?: number;
+    };
+  }  
+}
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -109,16 +78,17 @@ const schema = {
     database: {
       type: "JSONB",
       nullable: false,
+      typescriptType: "RenderResultFieldType",
     },
     // This isn't accessible via the API, but it's here to for the type codegen output
     // If/when we tear out SimpleSchema, we can get rid of this
-    graphql: {
-      outputType: "JSON",
-      canRead: [],
-      validation: {
-        simpleSchema: RenderResultSchemaType,
-      }
-    }
+    // graphql: {
+    //   outputType: "JSON",
+    //   canRead: [],
+    //   validation: {
+    //     simpleSchema: RenderResultSchemaType,
+    //   }
+    // }
   },
 } satisfies Record<string, CollectionFieldSpecification<"PageCache">>;
 

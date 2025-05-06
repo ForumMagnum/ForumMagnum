@@ -64,9 +64,6 @@ export const DEFAULT_LEGACY_DATA_FIELD = {
       blackbox: true,
     },
   },
-  form: {
-    hidden: true,
-  },
 } satisfies CollectionFieldSpecification<CollectionNameString>;
 
 export const DEFAULT_LATEST_REVISION_ID_FIELD = {

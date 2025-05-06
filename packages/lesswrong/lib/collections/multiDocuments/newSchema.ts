@@ -5,25 +5,12 @@ import {
 import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtField";
 import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPagesField";
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
-import { formGroups } from "./formGroups";
-import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import { defaultEditorPlaceholder, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getNormalizedEditableResolver, getNormalizedEditableSqlResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { getToCforMultiDocument } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
-
-const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
-
-export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: DbMultiDocument) {
-  if (userIsAdminOrMod(user)) {
-    return true;
-  }
-
-  const deletableUntil = new Date(document.createdAt).getTime() + MULTI_DOCUMENT_DELETION_WINDOW;
-  const withinDeletionWindow = deletableUntil > Date.now();
-
-  return userOwns(user, document) && withinDeletionWindow;
-}
+import { userCanDeleteMultiDocument } from "./helpers";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -39,6 +26,7 @@ const schema = {
   contents: {
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -49,29 +37,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "MultiDocuments",
-        commentEditor: false,
-        commentStyles: true,
-        hideControls: false,
-      },
-      order: 30,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (multiDocument, name) => {
-          const { _id, parentDocumentId, collectionName } = multiDocument;
-          return {
-            id: `multiDocument:${collectionName}:${parentDocumentId}:${_id}`,
-            verify: false,
-          };
-        },
-        revisionsHaveCommitMessages: true,
       },
     },
   },
@@ -110,10 +75,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 25,
-      hidden: ({ document }) => document?.fieldName !== "description",
-    },
   },
   oldSlugs: {
     database: {
@@ -147,10 +108,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 5,
-      hidden: ({ formProps, document }) => !formProps?.lensForm && document?.fieldName !== "description",
-    },
   },
   preview: {
     database: {
@@ -176,9 +133,6 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
     },
-    form: {
-      order: 10,
-    },
   },
   tabSubtitle: {
     database: {
@@ -193,10 +147,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 20,
-      hidden: ({ formProps, document }) => !formProps?.lensForm && document?.fieldName !== "description",
     },
   },
   userId: {
@@ -215,9 +165,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   user: {
     graphql: {
@@ -235,9 +182,6 @@ const schema = {
       outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
-    },
-    form: {
-      hidden: true,
     },
   },
   parentTag: {
@@ -299,9 +243,6 @@ const schema = {
         allowedValues: ["Tags", "MultiDocuments"],
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   // e.g. content, description, summary.  Whatever it is that we have "multiple" of for a single parent document.
   fieldName: {
@@ -316,9 +257,6 @@ const schema = {
       validation: {
         allowedValues: ["description", "summary"],
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   index: {
@@ -342,9 +280,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   tableOfContents: {
@@ -412,10 +347,6 @@ const schema = {
       resolver: getSummariesFieldResolver("MultiDocuments"),
       sqlResolver: getSummariesFieldSqlResolver("MultiDocuments"),
     },
-    form: {
-      control: "SummariesEditForm",
-      group: () => formGroups.summaries,
-    },
   },
   textLastUpdatedAt: {
     graphql: {
@@ -441,7 +372,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,

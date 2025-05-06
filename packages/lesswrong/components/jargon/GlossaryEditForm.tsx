@@ -13,6 +13,8 @@ import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { JargonTermForm } from './JargonTermForm';
+import { EditablePost } from '@/lib/collections/posts/helpers';
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -281,10 +283,10 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
-  document: PostsEditQueryFragment,
+  document: EditablePost,
   showTitle?: boolean,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;
+  const { JargonEditorRow, LoadMore, Loading, LWTooltip, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;
 
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
@@ -564,14 +566,10 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <LoadMore {...loadMoreProps} />
     </div>
     {showNewJargonTermForm && <div className={classes.formStyles}>
-      <WrappedSmartForm
-        collectionName="JargonTerms"
-        mutationFragmentName={'JargonTerms'}
-        queryFragmentName={'JargonTerms'}
-        formComponents={{ FormSubmit: Components.JargonSubmitButton }}
-        prefilledProps={{ postId: document._id }}
-        cancelCallback={() => setShowNewJargonTermForm(false)}
-        successCallback={() => setShowNewJargonTermForm(false)}
+      <JargonTermForm
+        postId={document._id}
+        onSuccess={() => setShowNewJargonTermForm(false)}
+        onCancel={() => setShowNewJargonTermForm(false)}
       />
     </div>}
     {footer}

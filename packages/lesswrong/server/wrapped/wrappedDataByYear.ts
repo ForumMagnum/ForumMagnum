@@ -17,7 +17,6 @@ import { Comments } from "@/server/collections/comments/collection.ts";
 import { WrappedPersonality } from "./WrappedPersonality";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { getWrappedEngagement } from "./wrappedEngagment";
-import type { KarmaChangeBase } from "@/server/collections/users/karmaChangesGraphQL";
 
 /**
  * When making changes here you must also update:
@@ -245,7 +244,7 @@ export const getWrappedDataByYear = async (
   });
   const totalKarmaChange = sumBy(
     karmaChanges,
-    (doc: KarmaChangeBase) => doc.scoreChange,
+    (doc) => doc.scoreChange,
   );
 
   const mostReceivedReacts: { name: string, count: number }[] =

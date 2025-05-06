@@ -74,7 +74,6 @@ interface AutomatedContentEvaluationsDefaultFragment { // fragment on AutomatedC
   readonly createdAt: Date,
   readonly revisionId: string|null,
   readonly score: number|null,
-  readonly sentenceScores: Array<any /*SentenceScore*/>,
 }
 
 interface BansAdminPageFragment { // fragment on Bans
@@ -131,7 +130,7 @@ interface BookmarksDefaultFragment { // fragment on Bookmarks
   readonly collectionName: "Posts" | "Comments",
   readonly userId: string,
   readonly lastUpdated: Date,
-  readonly cancelled: boolean,
+  readonly active: boolean,
 }
 
 interface BookmarksWithDocumentFragment extends BookmarksDefaultFragment { // fragment on Bookmarks
@@ -586,7 +585,7 @@ interface ConceptItemFragment { // fragment on Tags
   readonly isArbitalImport: boolean|null,
   readonly coreTagId: string|null,
   readonly maxScore: number|null,
-  readonly usersWhoLiked: any,
+  readonly usersWhoLiked: Array<UserLikingTag>,
 }
 
 interface ConceptItemFragment_description { // fragment on Revisions
@@ -915,12 +914,6 @@ interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuesti
   readonly prediction: number|null,
   readonly createdAt: Date,
   readonly notes: string|null,
-  readonly creator: {
-    _id: string,
-    displayName: string,
-    isQuestionCreator: boolean,
-    sourceUserId: string | null,
-  },
   readonly userId: string|null,
   readonly sourceUrl: string|null,
   readonly sourceId: string|null,
@@ -947,7 +940,7 @@ interface EmailTokensDefaultFragment { // fragment on EmailTokens
 }
 
 interface ExplorePageTagFragment extends TagFragment { // fragment on Tags
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
   readonly legacyData: any,
 }
 
@@ -1460,11 +1453,11 @@ interface MultiDocumentRevision extends MultiDocumentMinimumInfo { // fragment o
 }
 
 interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment on MultiDocuments
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
 }
 
 interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { // fragment on MultiDocuments
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
   readonly textLastUpdatedAt: Date|null,
 }
@@ -1828,7 +1821,7 @@ interface PostsBase_group { // fragment on Localgroups
 
 interface PostsBestOfList extends PostsListWithVotes { // fragment on Posts
   readonly podcastEpisode: PostsBestOfList_podcastEpisode|null,
-  readonly socialPreviewData: any,
+  readonly socialPreviewData: SocialPreviewType,
   readonly firstVideoAttribsForPreview: any,
 }
 
@@ -1933,23 +1926,9 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly frontpageDate: Date|null,
   readonly autoFrontpage: "show" | "hide" | null,
   readonly collectionTitle: string|null,
-  readonly coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }> | null,
   readonly hasCoauthorPermission: boolean,
   readonly socialPreviewImageId: string|null,
   readonly socialPreviewImageAutoUrl: string|null,
-  readonly socialPreview: {
-    imageId: string | null,
-    text: string | null,
-  },
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
   readonly canonicalSequenceId: string|null,
   readonly canonicalCollectionSlug: string|null,
   readonly canonicalBookId: string|null,
@@ -2041,7 +2020,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number|null,
   readonly tags: Array<TagPreviewFragment>,
-  readonly socialPreviewData: any,
+  readonly socialPreviewData: SocialPreviewType,
   readonly tagRelevance: any,
   readonly commentSortOrder: string|null,
   readonly sideCommentVisibility: string|null,
@@ -2071,11 +2050,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     createdAt: Date,
   }>,
   readonly activateRSVPs: boolean|null,
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
+  readonly fmCrosspost: CrosspostOutput,
   readonly glossary: Array<JargonTermsPost>,
 }
 
@@ -2127,17 +2102,9 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
 interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Posts
   readonly myEditorAccess: string,
   readonly version: string|null,
-  readonly coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }> | null,
+  readonly coauthorStatuses: Array<CoauthorStatusOutput>,
   readonly readTimeMinutesOverride: number|null,
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
+  readonly fmCrosspost: CrosspostOutput,
   readonly hideFromRecentDiscussions: boolean,
   readonly hideFromPopularComments: boolean|null,
   readonly moderationGuidelines: RevisionEdit|null,
@@ -2145,15 +2112,18 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
   readonly tableOfContents: any,
   readonly subforumTagId: string|null,
   readonly socialPreviewImageId: string|null,
-  readonly socialPreview: {
-    imageId: string | null,
-    text: string | null,
-  },
-  readonly socialPreviewData: any,
-  readonly user: UsersMinimumInfo|null,
+  readonly socialPreview: SocialPreviewOutput,
+  readonly socialPreviewData: SocialPreviewType,
+  readonly user: PostsEdit_user|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
   readonly generateDraftJargon: boolean|null,
+}
+
+interface PostsEdit_user extends UsersMinimumInfo { // fragment on Users
+  readonly moderationStyle: string|null,
+  readonly bannedUserIds: Array<string>,
+  readonly moderatorAssistance: boolean|null,
 }
 
 interface PostsEditMutationFragment extends PostsEdit { // fragment on Posts
@@ -2197,11 +2167,7 @@ interface PostsHTML { // fragment on Posts
 interface PostsList extends PostsListBase { // fragment on Posts
   readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
+  readonly fmCrosspost: CrosspostOutput,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -2219,7 +2185,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagBasicInfo>,
-  readonly socialPreviewData: any,
+  readonly socialPreviewData: SocialPreviewType,
   readonly feedId: string|null,
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
@@ -2265,11 +2231,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
   readonly userId: string|null,
-  readonly coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }> | null,
+  readonly coauthorStatuses: Array<CoauthorStatusOutput>,
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
   readonly debate: boolean,
@@ -2298,7 +2260,7 @@ interface PostsModerationGuidelines_user { // fragment on Users
 interface PostsModerationGuidelines_moderationGuidelines { // fragment on Revisions
   readonly _id: string,
   readonly html: string|null,
-  readonly originalContents: any,
+  readonly originalContents: ContentType,
 }
 
 interface PostsOriginalContents { // fragment on Posts
@@ -2308,7 +2270,7 @@ interface PostsOriginalContents { // fragment on Posts
 
 interface PostsOriginalContents_contents { // fragment on Revisions
   readonly _id: string,
-  readonly originalContents: any,
+  readonly originalContents: ContentType,
 }
 
 interface PostsPage extends PostsDetails { // fragment on Posts
@@ -2609,20 +2571,11 @@ interface RevisionDisplay { // fragment on Revisions
   readonly plaintextDescription: string,
 }
 
-interface RevisionEdit { // fragment on Revisions
-  readonly _id: string,
-  readonly version: string,
-  readonly updateType: "initial" | "patch" | "minor" | "major" | null,
-  readonly editedAt: Date,
-  readonly userId: string|null,
-  readonly originalContents: any,
-  readonly html: string|null,
+interface RevisionEdit extends RevisionDisplay { // fragment on Revisions
+  readonly originalContents: ContentType,
   readonly markdown: string|null,
   readonly draftJS: any,
   readonly ckEditorMarkup: string|null,
-  readonly wordCount: number,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
 }
 
 interface RevisionHTML { // fragment on Revisions
@@ -2698,7 +2651,6 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly commitMessage: string|null,
   readonly userId: string|null,
   readonly draft: boolean|null,
-  readonly originalContents: any /*ContentType*/,
   readonly html: string|null,
   readonly wordCount: number,
   readonly changeMetrics: any,
@@ -3070,11 +3022,7 @@ interface SunshineCurationPostsList extends PostsList { // fragment on Posts
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
+  readonly fmCrosspost: CrosspostOutput,
   readonly rejectedReason: string|null,
   readonly autoFrontpage: "show" | "hide" | null,
   readonly contents: SunshinePostsList_contents|null,
@@ -3094,7 +3042,7 @@ interface SunshinePostsList_contents { // fragment on Revisions
 interface SunshinePostsList_contents_automatedContentEvaluations { // fragment on AutomatedContentEvaluations
   readonly _id: string,
   readonly score: number|null,
-  readonly sentenceScores: any,
+  readonly sentenceScores: Array<SentenceScore>,
 }
 
 interface SunshinePostsList_moderationGuidelines { // fragment on Revisions
@@ -3238,7 +3186,7 @@ interface SurveyScheduleEdit extends SurveyScheduleMinimumInfo { // fragment on 
 
 interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly _id: string,
-  readonly survey: SurveyMinimumInfo,
+  readonly survey: SurveyMinimumInfo|null,
 }
 
 interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
@@ -3345,6 +3293,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string|null,
   readonly introSequenceId: string|null,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly autoTagModel: string|null,
   readonly autoTagPrompt: string|null,
   readonly description: RevisionEdit|null,
@@ -3401,7 +3350,7 @@ interface TagFragment_description { // fragment on Revisions
 }
 
 interface TagFullContributorsList { // fragment on Tags
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
 }
 
 interface TagHistoryFragment extends TagFragment { // fragment on Tags
@@ -3427,7 +3376,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly postsDefaultSortOrder: string|null,
   readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly forceAllowType3Audio: boolean,
   readonly textLastUpdatedAt: Date|null,
@@ -3455,7 +3404,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly postsDefaultSortOrder: string|null,
   readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly forceAllowType3Audio: boolean,
 }
@@ -3873,7 +3822,7 @@ interface UserJobAdsMinimumInfo { // fragment on UserJobAds
 
 interface UserKarmaChanges { // fragment on Users
   readonly _id: string,
-  readonly karmaChanges: any,
+  readonly karmaChanges: KarmaChanges,
 }
 
 interface UserMostValuablePostInfo { // fragment on UserMostValuablePosts
@@ -4021,13 +3970,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideIntercom: boolean,
   readonly hideNavigationSidebar: boolean|null,
   readonly hideCommunitySection: boolean,
-  readonly expandedFrontpageSections: {
-    community: boolean | null,
-    recommendations: boolean | null,
-    quickTakes: boolean | null,
-    quickTakesCommunity: boolean | null,
-    popularComments: boolean | null,
-  } | null,
+  readonly expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput,
   readonly hidePostsRecommendations: boolean,
   readonly currentFrontpageFilter: string|null,
   readonly frontpageSelectedTab: string|null,
@@ -4090,48 +4033,13 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly karmaChangeLastOpened: Date|null,
   readonly shortformFeedId: string|null,
   readonly viewUnreviewedComments: boolean|null,
-  readonly recommendationSettings: {
-    frontpage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    frontpageEA: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    recommendationspage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-  },
+  readonly recommendationSettings: RecommendationSettingsInput,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   },
-  readonly bookmarkedPostsMetadata: Array<{
-    postId: string,
-  }>,
-  readonly hiddenPostsMetadata: Array<{
-    postId: string,
-  }>,
+  readonly bookmarkedPostsMetadata: Array<PostMetadataOutput>,
+  readonly hiddenPostsMetadata: Array<PostMetadataOutput>,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
@@ -4269,13 +4177,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly hideCommunitySection: boolean,
-  readonly expandedFrontpageSections: {
-    community: boolean | null,
-    recommendations: boolean | null,
-    quickTakes: boolean | null,
-    quickTakesCommunity: boolean | null,
-    popularComments: boolean | null,
-  } | null,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
   readonly petrovOptOut: boolean,
@@ -4307,12 +4208,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly collapseModerationGuidelines: boolean|null,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly bookmarkedPostsMetadata: Array<{
-    postId: string,
-  }>,
-  readonly hiddenPostsMetadata: Array<{
-    postId: string,
-  }>,
   readonly legacyId: string|null,
   readonly deleted: boolean,
   readonly permanentDeletionRequestedAt: Date|null,
@@ -4780,15 +4675,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly fullName: string|null,
   readonly shortformFeedId: string|null,
   readonly viewUnreviewedComments: boolean|null,
-  readonly partiallyReadSequences: Array<{
-    sequenceId: string,
-    collectionId: string,
-    lastReadPostId: string,
-    nextPostId: string,
-    numRead: number,
-    numTotal: number,
-    lastReadTime: Date,
-  }>,
   readonly beta: boolean|null,
   readonly reviewVotesQuadratic: boolean|null,
   readonly reviewVotesQuadratic2019: boolean|null,
@@ -4849,38 +4735,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean|null,
   readonly inactiveSurveyEmailSentAt: Date|null,
   readonly userSurveyEmailSentAt: Date|null,
-  readonly recommendationSettings: {
-    frontpage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    frontpageEA: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    recommendationspage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-  },
+  readonly recommendationSettings: RecommendationSettingsInput,
 }
 
 interface UsersEdit extends UsersCurrent { // fragment on Users
@@ -5234,6 +5089,34 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   },
+  readonly notificationDialogueMessages: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationPublishedDialogueMessages: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
   readonly hideFrontpageMap: boolean|null,
   readonly hideTaggingProgressBar: boolean|null,
   readonly hideFrontpageBookAd: boolean|null,
@@ -5249,7 +5132,7 @@ interface UsersMapEntry { // fragment on Users
   readonly username: string|null,
   readonly fullName: string|null,
   readonly slug: string,
-  readonly mapLocationLatLng: any,
+  readonly mapLocationLatLng: LatLng,
   readonly mapLocationSet: boolean|null,
   readonly htmlMapMarkerText: string|null,
 }

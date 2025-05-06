@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import usersSchema, { LegacyNotificationTypeSettings, legacyToNewNotificationTypeSettings, newToLegacyNotificationTypeSettings, NotificationTypeSettings } from "@/lib/collections/users/newSchema";
+import usersSchema from "@/lib/collections/users/newSchema";
+import { NotificationTypeSettings, LegacyNotificationTypeSettings, legacyToNewNotificationTypeSettings, newToLegacyNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
 import { updateDefaultValue } from "./meta/utils";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 import Users from "../collections/users/collection";

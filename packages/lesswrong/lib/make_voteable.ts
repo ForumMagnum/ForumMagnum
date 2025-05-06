@@ -176,9 +176,6 @@ export const DEFAULT_AF_BASE_SCORE_FIELD = {
       optional: true,
     },
   },
-  form: {
-    label: "Alignment Base Score",
-  },
 } satisfies CollectionFieldSpecification<VoteableCollectionName>;
 
 export const DEFAULT_AF_EXTENDED_SCORE_FIELD = {

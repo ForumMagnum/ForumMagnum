@@ -1,4 +1,4 @@
-import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/newSchema';
+import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from "@/lib/collections/moderatorActions/constants";
 import { loggerConstructor } from '../../lib/utils/logging';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';

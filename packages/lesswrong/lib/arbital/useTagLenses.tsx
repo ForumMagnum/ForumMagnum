@@ -7,13 +7,13 @@ import omit from "lodash/omit";
 export const MAIN_TAB_ID = 'main-tab';
 
 export interface DocumentContributorWithStats {
-  user: UsersMinimumInfo | null;
-  currentAttributionCharCount: number;
+  user?: User | null;
+  currentAttributionCharCount?: number | null;
   contributionScore: number;
 }
 
 export interface DocumentContributorsInfo {
-  contributors: DocumentContributorWithStats[];
+  contributors?: DocumentContributorWithStats[] | null;
   totalCount: number;
 }
 

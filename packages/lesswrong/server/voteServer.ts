@@ -9,7 +9,7 @@ import { createAdminContext, createAnonymousContext } from './vulcan-lib/createC
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';
-import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from '../lib/collections/moderatorActions/newSchema';
+import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from "@/lib/collections/moderatorActions/constants";
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';

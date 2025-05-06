@@ -22,9 +22,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   user: {
     graphql: {
@@ -50,10 +47,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 30,
-      control: "checkbox",
-    },
   },
   displayFullContent: {
     database: {
@@ -72,10 +65,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 40,
-      control: "checkbox",
-    },
   },
   nickname: {
     database: {
@@ -90,9 +79,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 10,
     },
   },
   url: {
@@ -109,9 +95,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 20,
-    },
   },
   // Set to 'inactive' to prevent posting
   status: {
@@ -126,7 +109,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   rawFeed: {
     database: {
@@ -142,9 +124,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   setCanonicalUrl: {
@@ -164,10 +143,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Set the canonical url tag on crossposted posts",
-      control: "checkbox",
-    },
   },
   importAsDraft: {
     database: {
@@ -185,10 +160,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Import posts as draft",
-      control: "checkbox",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"RSSFeeds">>;

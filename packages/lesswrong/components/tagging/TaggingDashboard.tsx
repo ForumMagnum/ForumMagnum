@@ -8,6 +8,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import { useSingle } from '@/lib/crud/withSingle';
 
 const SECTION_WIDTH = 960
 
@@ -107,6 +108,15 @@ const TaggingDashboard = ({classes}: {
     fragmentName: "TagFlagFragment",
     limit: 100,
   });
+  
+  const focusedTagFlagId = tagFlags?.find(tagFlag => tagFlag._id === query.focus)?._id;
+
+  const { document: focusedTagFlag } = useSingle({
+    documentId: focusedTagFlagId,
+    collectionName: "TagFlags",
+    fragmentName: "TagFlagEditFragment",
+    skip: !focusedTagFlagId,
+  });
 
   const { openDialog } = useDialog();
   
@@ -131,7 +141,7 @@ const TaggingDashboard = ({classes}: {
                 name: "TagFlagEditAndNewForm",
                 contents: ({onClose}) => <Components.TagFlagEditAndNewForm
                   onClose={onClose}
-                  {...(query.focus ? {tagFlagId: query.focus} : {})}
+                  {...(query.focus && focusedTagFlag) ? { initialData: focusedTagFlag } : {}}
                 />
               })}>
                 {query.focus

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/newSchema';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {}
 })
 
-const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS);
+const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS) as (keyof typeof TAG_POSTS_SORT_ORDER_OPTIONS)[];
 
 const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sortedBy", classes}: {
   value: string
