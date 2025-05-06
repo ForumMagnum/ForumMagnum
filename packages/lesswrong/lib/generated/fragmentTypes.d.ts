@@ -127,11 +127,11 @@ interface BookPageFragment { // fragment on Books
 interface BookmarksDefaultFragment { // fragment on Bookmarks
   readonly _id: string,
   readonly createdAt: Date,
-  readonly documentId: string|null,
+  readonly documentId: string,
   readonly collectionName: "Posts" | "Comments",
-  readonly userId: string|null,
-  readonly lastUpdated: Date|null,
-  readonly cancelled: boolean|null,
+  readonly userId: string,
+  readonly lastUpdated: Date,
+  readonly cancelled: boolean,
 }
 
 interface BookmarksWithDocumentFragment extends BookmarksDefaultFragment { // fragment on Bookmarks

@@ -81,7 +81,7 @@ interface DbBookmark extends DbObject {
   collectionName: "Posts" | "Comments"
   createdAt: Date
   documentId: string
-  lastUpdated: Date | null
+  lastUpdated: Date
   userId: string
 }
 

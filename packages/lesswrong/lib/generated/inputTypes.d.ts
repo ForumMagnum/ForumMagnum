@@ -868,7 +868,7 @@ interface BookmarkSelectorInput {
   documentId?: string | null;
   collectionName?: string | null;
   userId?: string | null;
-  cancelled?: boolean | null;
+  active?: boolean | null;
 }
 
 interface SingleBookmarkInput {

@@ -1404,12 +1404,12 @@ extend type Query {
 type Bookmark {
   _id: String!
   createdAt: Date!
-  documentId: String
-  collectionName: String
-  userId: String
+  documentId: String!
+  collectionName: String!
+  userId: String!
   post: Post
-  lastUpdated: Date
-  cancelled: Boolean
+  lastUpdated: Date!
+  cancelled: Boolean!
 }
 
 input BookmarkSelectorInput {
@@ -1417,7 +1417,7 @@ input BookmarkSelectorInput {
   documentId: String
   collectionName: String
   userId: String
-  cancelled: Boolean
+  active: Boolean
 }
 
 input SingleBookmarkInput {

@@ -1,12 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { userOwns } from "@/lib/vulcan-users/permissions";
-import gql from "graphql-tag";
 
 const ALLOWED_COLLECTION_NAMES = ["Posts", "Comments"];
-
-export const graphqlTypeDefs = gql`
-  union BookmarkableDocument = Post | Comment
-`;
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -61,11 +56,10 @@ const schema = {
       canRead: ['guests'],
       resolver: async (bookmark: DbBookmark, args: any, context: ResolverContext) => {
         const { documentId, collectionName } = bookmark;
-        const { Posts } = context;
         if (collectionName !== "Posts") {
             return null;
         }
-        return await Posts.findOne({ _id: documentId });
+        return await context.loaders.Posts.load(documentId);
       }
     }
   },
@@ -73,17 +67,16 @@ const schema = {
   lastUpdated: {
     database: {
       type: "TIMESTAMPTZ",
-      nullable: true,
+      nullable: false,
     },
     graphql: {
-      outputType: "Date",
+      outputType: "Date!",
       canRead: ['guests'],
       onCreate: () => new Date(),
-      onUpdate: () => new Date(),
     },
   },
 
-  cancelled: {
+  active: {
     database: {
       type: "BOOL",
       defaultValue: false,

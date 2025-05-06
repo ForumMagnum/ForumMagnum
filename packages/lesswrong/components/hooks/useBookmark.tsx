@@ -17,24 +17,24 @@ export interface UseBookmarkResult {
   hoverText: string;
 }
 
-const TOGGLE_BOOKMARK_MUTATION = gql`
-  mutation ToggleBookmarkMutation($input: ToggleBookmarkInput!) {
-    toggleBookmark(input: $input) {
-      data {
-        ...BookmarksDefaultFragment
-      }
-    }
-  }
-  ${fragmentTextForQuery('BookmarksDefaultFragment')}
-`;
-
 export const useBookmark = (
-  documentId: string | undefined,
+  documentId: string,
   collectionName: "Posts" | "Comments"
 ): UseBookmarkResult => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
+
+  const TOGGLE_BOOKMARK_MUTATION = gql`
+    mutation ToggleBookmarkMutation($input: ToggleBookmarkInput!) {
+      toggleBookmark(input: $input) {
+        data {
+          ...BookmarksDefaultFragment
+        }
+      }
+    }
+    ${fragmentTextForQuery('BookmarksDefaultFragment')}
+  `;
 
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
@@ -50,7 +50,7 @@ export const useBookmark = (
     limit: 1,
     enableTotal: false,
     fetchPolicy: "cache-first",
-    skip: !currentUser || !documentId || !collectionName,
+    skip: !currentUser || !collectionName,
   });
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export const useBookmark = (
       return;
     }
 
-    if (!documentId || !collectionName || mutationLoading) {
+    if (!collectionName || mutationLoading) {
       return;
     }
 

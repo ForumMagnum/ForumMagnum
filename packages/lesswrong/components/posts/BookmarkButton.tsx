@@ -5,15 +5,9 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useBookmark } from '../hooks/useBookmark';
+import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 
-export const BookmarkableCollectionNames = ["Posts", "Comments"] as const;
-
-export const isBookmarkableCollectionName = (
-  name: string | undefined
-): name is typeof BookmarkableCollectionNames[number] => {
-  return !!name && BookmarkableCollectionNames.includes(name as any);
-};
-
+export const bookmarkableCollectionNames = new TupleSet(["Posts", "Comments"] as const);
 
 const styles = (theme: ThemeType) => ({
   container: {
@@ -51,7 +45,7 @@ const BookmarkButton = ({
   classes,
 }: {
   documentId: string,
-  collectionName: typeof BookmarkableCollectionNames[number],
+  collectionName: UnionOf<typeof bookmarkableCollectionNames>,
   withText?: boolean,
   placement?: PopperPlacementType,
   overrideTooltipText?: string,

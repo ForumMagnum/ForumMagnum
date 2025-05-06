@@ -109,15 +109,15 @@ CREATE TABLE "Bookmarks" (
   "documentId" TEXT NOT NULL,
   "collectionName" TEXT NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
-  "lastUpdated" TIMESTAMPTZ,
-  "cancelled" BOOL NOT NULL DEFAULT FALSE
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "active" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_Bookmarks_userId_documentId_collectionName"
-CREATE INDEX IF NOT EXISTS "idx_Bookmarks_userId_documentId_collectionName" ON "Bookmarks" USING btree ("userId", "documentId", "collectionName");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_Bookmarks_userId_documentId_collectionName" ON "Bookmarks" USING btree ("userId", "documentId", "collectionName");
 
--- Index "idx_Bookmarks_userId_createdAt"
-CREATE INDEX IF NOT EXISTS "idx_Bookmarks_userId_createdAt" ON "Bookmarks" USING btree ("userId", "createdAt");
+-- Index "idx_Bookmarks_userId_active_lastUpdated"
+CREATE INDEX IF NOT EXISTS "idx_Bookmarks_userId_active_lastUpdated" ON "Bookmarks" USING btree ("userId", "active", "lastUpdated");
 
 -- Table "Books"
 CREATE TABLE "Books" (

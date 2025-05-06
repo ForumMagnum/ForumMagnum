@@ -41,7 +41,7 @@ export const up = async ({db}: MigrationContext) => {
       collectionName: "Posts",
       createdAt: ts,
       lastUpdated: ts,
-      cancelled: false,
+      active: true,
     });
   }
   

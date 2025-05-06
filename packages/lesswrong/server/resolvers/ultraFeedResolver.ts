@@ -68,7 +68,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
 type SampledItem =
   | { type: "feedCommentThread"; feedCommentThread: FeedCommentsThread }
   | { type: "feedPostWithContents"; feedPost: FeedFullPost }
-  | { type: "feedPost"; feedPostStub: FeedPostStub }          // ← NEW stub
+  | { type: "feedPost"; feedPostStub: FeedPostStub }
   | { type: "feedSpotlight"; feedSpotlight: FeedSpotlight };
 
 interface WeightedSource {
@@ -84,7 +84,7 @@ const weightedSample = (
   const finalFeed: SampledItem[] = [];
 
   let totalWeight = Object.values(sourcesWithCopiedItems)
-    .reduce((sum, s) => sum + ((s && s.items.length) ? s.weight : 0), 0);
+    .reduce((sum, s) => sum + (s?.items.length ? s.weight : 0), 0);
 
   for (let i = 0; i < totalItems; i++) {
     if (totalWeight <= 0) break;
@@ -95,14 +95,21 @@ const weightedSample = (
     for (const [k, src] of Object.entries(sourcesWithCopiedItems)) {
       if (!src || !src.items.length) continue;
       cumulative += src.weight;
-      if (pick < cumulative) { chosen = k as FeedItemSourceType; break; }
+      if (pick < cumulative) {
+        chosen = k as FeedItemSourceType;
+        break;
+      }
     }
 
     if (chosen) {
       const src = sourcesWithCopiedItems[chosen]!;
       const item = src.items.shift();
-      if (item) finalFeed.push(item);
-      if (!src.items.length) totalWeight -= src.weight;
+      if (item) {
+        finalFeed.push(item);
+      }
+      if (!src.items.length) {
+        totalWeight -= src.weight;
+      }
     }
   }
   return finalFeed;
@@ -141,43 +148,62 @@ const createSourcesMap = (
   spotlightItems: FeedSpotlight[],
   bookmarkItems: PreparedBookmarkItem[]
 ): Partial<Record<FeedItemSourceType, WeightedSource>> => {
-  const sources: Partial<Record<FeedItemSourceType, WeightedSource>> = {};
-  Object.entries(sourceWeights).forEach(([src, w]) => {
-    if (w > 0) sources[src as FeedItemSourceType] = { weight: w, items: [] };
+
+  const sources = Object.entries(sourceWeights)
+    .filter(([, w]) => w > 0)
+    .reduce((acc, [src, w]) => {
+      acc[src as FeedItemSourceType] = { weight: w, items: [] };
+      return acc;
+    }, {} as Partial<Record<FeedItemSourceType, WeightedSource>>);
+
+  const addedPostIds = new Set<string>();
+
+  if (sources.spotlights) {
+    spotlightItems.forEach(s => {
+      sources.spotlights?.items.push({ type: "feedSpotlight", feedSpotlight: s });
+    });
+  }
+
+  postThreadsItems.forEach(p => {
+    const postId = p.post?._id;
+    if (!postId || addedPostIds.has(postId)) {
+      return;
+    }
+    let addedToAnySource = false;
+    (p.postMetaInfo?.sources ?? []).forEach(src => {
+      const bucket = sources[src as FeedItemSourceType];
+      if (bucket) {
+        bucket.items.push({ type: "feedPostWithContents", feedPost: p });
+        addedToAnySource = true;
+      }
+    });
+    if (addedToAnySource) {
+        addedPostIds.add(postId);
+    }
   });
 
-  const push = (src: FeedItemSourceType, itm: SampledItem) => {
-    const bucket = sources[src];
-    if (!bucket) return;
+  if (sources.recentComments) {
+    commentThreadsItems.forEach(t => {
+      sources.recentComments?.items.push({ type: "feedCommentThread", feedCommentThread: t });
+    });
+  }
 
-    let itemId: string | undefined;
-    if (itm.type === "feedPostWithContents") {
-      itemId = itm.feedPost?.post?._id;
-    } else if (itm.type === "feedPost") {
-      itemId = itm.feedPostStub.postId;
-    }
+  if (sources.bookmarks) {
+    bookmarkItems.forEach(item => {
+      if (item.type === "feedPost") {
+        const postId = item.feedPostStub.postId;
+        if (addedPostIds.has(postId)) {
+          return;
+        }
+        sources.bookmarks?.items.push(item);
+        addedPostIds.add(postId);
+      } else if (item.type === "feedCommentThread") {
+        sources.bookmarks?.items.push(item);
+      }
+    });
+  }
 
-    if (itemId && bucket.items.some(existing => {
-      if (existing.type === "feedPostWithContents") return existing.feedPost?.post?._id === itemId;
-      if (existing.type === "feedPost") return existing.feedPostStub.postId === itemId;
-      return false;
-    })) return;
-
-    bucket.items.push(itm);
-  };
-
-  spotlightItems.forEach(s => push("spotlights", { type: "feedSpotlight", feedSpotlight: s }));
-
-  postThreadsItems.forEach(p =>
-    (p.postMetaInfo?.sources ?? []).forEach(src =>
-      push(src as FeedItemSourceType, { type: "feedPostWithContents", feedPost: p })));
-
-  commentThreadsItems.forEach(t =>
-    push("recentComments", { type: "feedCommentThread", feedCommentThread: t }));
-
-  bookmarkItems.forEach(item => push("bookmarks", item));
-
-  return Object.fromEntries(Object.entries(sources).filter(([, v]) => v.items.length));
+  return Object.fromEntries(Object.entries(sources).filter(([, v]) => v?.items.length ?? 0 > 0));
 };
 
 /**

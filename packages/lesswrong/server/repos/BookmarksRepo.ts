@@ -1,12 +1,13 @@
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import AbstractRepo from "./AbstractRepo";
 import { Bookmarks } from "../collections/bookmarks/collection";
+import { randomId } from "@/lib/random";
 
 interface UltraFeedBookmark {
   documentId: string;
   collectionName: string;
-  postId?: string;
-  directChildrenCount?: number;
+  postId: string | null;
+  directChildrenCount: number | null;
 }
 
 class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
@@ -14,22 +15,35 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
     super(Bookmarks);
   }
 
+  public async upsertBookmark(userId: string, documentId: string, collectionName: string): Promise<DbBookmark> {
+    return this.one(`
+      INSERT INTO "Bookmarks" ("_id", "userId", "documentId", "collectionName", "active", "createdAt", "lastUpdated")
+      VALUES ($(bookmarkId), $(userId), $(documentId), $(collectionName), true, NOW(), NOW())
+      ON CONFLICT ("userId", "documentId", "collectionName") DO UPDATE 
+      SET 
+        active = NOT "Bookmarks".active,
+        lastUpdated = NOW()
+      WHERE "Bookmarks"."userId" = $(userId) 
+        AND "Bookmarks"."documentId" = $(documentId) 
+        AND "Bookmarks"."collectionName" = $(collectionName)
+      RETURNING *
+    `, {
+      bookmarkId: randomId(),
+      userId,
+      documentId,
+      collectionName,
+    });
+  }
+
   /**
    * Gets bookmark items for the UltraFeed
    * Prioritizes more recent bookmarks with some randomness.
    */
   public async getBookmarksForFeed(
-    context: ResolverContext,
+    userId: string,
     limit = 10
   ): Promise<UltraFeedBookmark[]> {
-    const db = this.getRawDb();
-    const userId = context.currentUser?._id;
-
-    if (!userId) {
-      return [];
-    }
-
-    const bookmarkRows = await db.manyOrNone<UltraFeedBookmark>(`
+    const bookmarkRows = await this.getRawDb().any<UltraFeedBookmark>(`
       -- BookmarksRepo.getUltraFeedBookmarks - Prioritize by recency with randomness
       SELECT
         b."documentId",
@@ -39,7 +53,7 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
       FROM "Bookmarks" b
       LEFT JOIN "Comments" c ON b."documentId" = c."_id"
       WHERE b."userId" = $(userId)
-        AND b."cancelled" IS FALSE
+        AND b."active" IS TRUE
       ORDER BY
         -- Add a small factor based on creation time to the random sort
         -- Adjust the multiplier (e.g., 1e-11) to tune the recency bias
@@ -47,20 +61,7 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
       LIMIT $(limit)
     `, { limit, userId });
 
-    if (!bookmarkRows || !bookmarkRows.length) {
-      return [];
-    }
-
-    const bookmarkItems: UltraFeedBookmark[] = bookmarkRows.map(row => {
-      return {
-        documentId: row.documentId,
-        collectionName: row.collectionName,
-        postId: row.postId,
-        directChildrenCount: row.directChildrenCount,
-      };
-    });
-
-    return bookmarkItems;
+    return bookmarkRows;
   }
 }
 

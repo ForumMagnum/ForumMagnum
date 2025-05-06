@@ -57,7 +57,7 @@ export const bookmarksFeedGraphQLQueries = {
 
     const selector: MongoSelector<DbBookmark> = {
       userId: currentUser._id,
-      cancelled: false,
+      active: true,
     };
     if (cutoff) {
       selector.lastUpdated = {$lt: cutoff}; 
@@ -78,88 +78,80 @@ export const bookmarksFeedGraphQLQueries = {
     const bookmarkMap = new Map<string, DbBookmark>();
 
     resultsBookmarks.forEach(bookmark => {
-      if (bookmark.documentId) {
-        bookmarkMap.set(bookmark.documentId, bookmark);
-        if (bookmark.collectionName === 'Posts') {
-          postBookmarkIds.push(bookmark.documentId);
-        } else if (bookmark.collectionName === 'Comments') {
-          commentBookmarkIds.push(bookmark.documentId);
-        }
+      bookmarkMap.set(bookmark.documentId, bookmark);
+      if (bookmark.collectionName === 'Posts') {
+        postBookmarkIds.push(bookmark.documentId);
+      } else if (bookmark.collectionName === 'Comments') {
+        commentBookmarkIds.push(bookmark.documentId);
       }
     });
 
     const [posts, comments] = await Promise.all([
-      postBookmarkIds.length ? loadByIds(context, "Posts", postBookmarkIds) : Promise.resolve([]),
-      commentBookmarkIds.length ? loadByIds(context, "Comments", commentBookmarkIds) : Promise.resolve([])
+      loadByIds(context, "Posts", postBookmarkIds),
+      loadByIds(context, "Comments", commentBookmarkIds)
     ]);
     
-    const commentPostIds = filterNonnull(comments).map(c => c.postId);
-    const validCommentPostIds = filterNonnull(commentPostIds);
+    const commentPostIds = comments.filter((c) => !!c).filter((c) => !!c.postId).map(c => c.postId);
+    const validCommentPostIds = commentPostIds.filter((id) => id !== null);
     const commentPosts = validCommentPostIds.length ? await loadByIds(context, "Posts", uniq(validCommentPostIds)) : [];
-    const commentPostsById = new Map(filterNonnull(commentPosts).map(p => [p._id, p]));
+    const commentPostsById = new Map(commentPosts.filter((p) => p != null).map(p => [p._id, p]));
 
-    const feedItems: InternalFeedItem[] = [];
-
-    filterNonnull(posts).forEach(post => {
-      const bookmark = bookmarkMap.get(post._id);
-      if (!bookmark) return;
-
-      const postMetaInfo: FeedPostMetaInfo = {
-        sources: ["bookmarks"],
-        displayStatus: "expanded" 
-      };
-      const feedPostData: FeedPostResolverType = {
-         _id: post._id,
-         post: post,
-         postMetaInfo: postMetaInfo
-      };
-      feedItems.push({
-        type: "feedPost",
-        feedPost: feedPostData,
-        feedCommentThread: null,
-        sortKey: bookmark.lastUpdated ?? new Date()
-      });
-    });
-
-    filterNonnull(comments).forEach(comment => {
-      const bookmark = bookmarkMap.get(comment._id);
-      if (!bookmark || !comment.postId) return;
-
-      const commentMetaInfos: { [commentId: string]: FeedCommentMetaInfo } = {
-        [comment._id]: {
-          sources: ["bookmarks"],
-          displayStatus: "expanded",
-          directDescendentCount: 0,
-          lastServed: new Date(),
-          lastViewed: new Date(),
-          lastInteracted: new Date(),
-          postedAt: comment.postedAt
+    const postFeedItems = posts
+      .filter((post) => post != null)
+      .map((post): InternalFeedItem | null => {
+        const bookmark = bookmarkMap.get(post._id);
+        if (!bookmark) {
+          return null;
         }
-      };
-      const threadId = `bookmark-comment-${comment._id}`;
-      const parentPost = commentPostsById.get(comment.postId) || null;
-      
-      const feedCommentThreadData: FeedCommentsThreadResolverType = {
-        _id: threadId,
-        comments: [comment],
-        commentMetaInfos: commentMetaInfos,
-        post: parentPost
-      };
+        const postMetaInfo: FeedPostMetaInfo = { sources: ["bookmarks"], displayStatus: "expanded" };
+        const feedPostData: FeedPostResolverType = { _id: post._id, post: post, postMetaInfo: postMetaInfo };
+        return {
+          type: "feedPost",
+          feedPost: feedPostData,
+          feedCommentThread: null,
+          sortKey: bookmark.lastUpdated ?? new Date()
+        };
+      })
+      .filter((item): item is InternalFeedItem => item != null);
 
-      feedItems.push({
-        type: "feedCommentThread",
-        feedPost: null,
-        feedCommentThread: feedCommentThreadData,
-        sortKey: bookmark.lastUpdated ?? new Date()
-      });
-    });
+    const commentFeedItems = comments
+      .filter((comment): comment is NonNullable<typeof comment> => comment != null)
+      .map((comment): InternalFeedItem | null => {
+        const bookmark = bookmarkMap.get(comment._id);
+        if (!bookmark || !comment.postId) {
+          return null;
+        }
+        const commentMetaInfos: Record<string, FeedCommentMetaInfo> = {
+          [comment._id]: {
+            sources: ["bookmarks"],
+            displayStatus: "expanded",
+            directDescendentCount: 0,
+            lastServed: new Date(),
+            lastViewed: new Date(),
+            lastInteracted: new Date(),
+            postedAt: comment.postedAt
+          }
+        };
+        const threadId = `bookmark-comment-${comment._id}`;
+        const parentPost = commentPostsById.get(comment.postId) || null;
+        const feedCommentThreadData: FeedCommentsThreadResolverType = { _id: threadId, comments: [comment], commentMetaInfos: commentMetaInfos, post: parentPost };
+        return {
+          type: "feedCommentThread",
+          feedPost: null,
+          feedCommentThread: feedCommentThreadData,
+          sortKey: bookmark.lastUpdated ?? new Date()
+        };
+      })
+      .filter((item): item is InternalFeedItem => item != null);
+
+    const feedItems = [...postFeedItems, ...commentFeedItems];
 
     const sortedFeedItems = orderBy(feedItems, ['sortKey'], ['desc']);
 
     return {
       cutoff: nextCutoff, 
       endOffset: offset + sortedFeedItems.length, 
-      results: sortedFeedItems as BookmarksFeedEntryType[], 
+      results: sortedFeedItems,
     }
   }
 } 

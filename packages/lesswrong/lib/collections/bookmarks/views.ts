@@ -19,7 +19,7 @@ function myBookmarkedPosts(terms: BookmarksViewTerms, _: any, context: ResolverC
     selector: {
       userId: context.currentUser._id,
       collectionName: "Posts",
-      cancelled: false,
+      active: true,
     },
     options: {
       sort: {
@@ -37,7 +37,7 @@ function myBookmarks(terms: BookmarksViewTerms, _: any, context: ResolverContext
   return {
     selector: {
       userId: context.currentUser._id,
-      cancelled: false,
+      active: true,
     },
     options: {
       sort: {
@@ -59,7 +59,7 @@ function userDocumentBookmark(terms: BookmarksViewTerms, _: any, context: Resolv
       userId,
       documentId,
       collectionName,
-      cancelled: false,
+      active: true,
     },
     options: {
       sort: {},

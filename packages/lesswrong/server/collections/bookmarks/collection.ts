@@ -7,8 +7,8 @@ export const Bookmarks: BookmarksCollection = createCollection({
   typeName: 'Bookmark',
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    indexSet.addIndex('Bookmarks', { "userId": 1, "documentId": 1, "collectionName": 1 })
-    indexSet.addIndex('Bookmarks', { "userId": 1, "createdAt": -1 })
+    indexSet.addIndex('Bookmarks', { "userId": 1, "documentId": 1, "collectionName": 1 }, { unique: true })
+    indexSet.addIndex('Bookmarks', { "userId": 1, "active": 1, "lastUpdated": -1 })
     return indexSet;
   },
 });

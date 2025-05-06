@@ -68,7 +68,7 @@ export const BookmarksDefaultFragment = `
     collectionName
     userId
     lastUpdated
-    cancelled
+    active
   }
 `;
 
