@@ -639,8 +639,8 @@ export async function generateNewCollection(collectionName?: string) {
   ]);
 
   // eslint-disable-next-line no-console
-  console.log('Updating allCollections.ts, allViews.ts, allFragments.ts, allSchemas.ts, and initGraphQL.ts');
-  const [allCollectionsPath, allViewsPath, allFragmentsPath, allSchemasPath, initGraphQLPath] = await Promise.all([
+  console.log('Updating allCollections.ts, allViews.ts, allFragments.ts, allSchemas.ts, initGraphQL.ts, and accessFilters.ts');
+  const [allCollectionsPath, allViewsPath, allFragmentsPath, allSchemasPath, initGraphQLPath, accessFiltersPath] = await Promise.all([
     insertIntoAllCollections(collectionName),
     insertIntoAllViews(collectionName),
     insertIntoAllFragments(collectionName),
@@ -661,6 +661,7 @@ export async function generateNewCollection(collectionName?: string) {
       ${allFragmentsPath}
       ${allSchemasPath}
       ${initGraphQLPath}
+      ${accessFiltersPath}
   `);
   // eslint-disable-next-line no-console
   console.log('Now running `yarn generate`...');
