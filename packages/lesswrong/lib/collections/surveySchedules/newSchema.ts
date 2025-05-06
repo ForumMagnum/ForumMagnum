@@ -1,14 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 
-const surveyScheduleTargets = [
-  { value: "allUsers", label: "All users" },
-  { value: "loggedInOnly", label: "Logged-in users only" },
-  { value: "loggedOutOnly", label: "Logged-out users only" },
-] as const;
-
-export type SurveyScheduleTarget = (typeof surveyScheduleTargets)[number]["value"];
-
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -26,11 +18,10 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {},
   },
   survey: {
     graphql: {
-      outputType: "Survey!",
+      outputType: "Survey",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Surveys", fieldName: "surveyId" }),
     },
@@ -47,9 +38,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {
-      label: "Schedule name",
-    },
   },
   impressionsLimit: {
     database: {
@@ -64,10 +52,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      min: 0,
-      tooltip: "The maximum number of visitors who'll see this survey",
     },
   },
   maxVisitorPercentage: {
@@ -84,11 +68,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      min: 0,
-      max: 100,
-      tooltip: "The maximum percentage of visitors this survey will be shown to",
-    },
   },
   minKarma: {
     database: {
@@ -104,7 +83,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   maxKarma: {
     database: {
@@ -120,7 +98,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   target: {
     database: {
@@ -138,10 +115,6 @@ const schema = {
         allowedValues: ["allUsers", "loggedInOnly", "loggedOutOnly"],
       },
     },
-    form: {
-      form: { options: () => surveyScheduleTargets, hideClear: true },
-      control: "select",
-    },
   },
   startDate: {
     database: {
@@ -157,9 +130,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "datetime",
-    },
   },
   endDate: {
     database: {
@@ -174,9 +144,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
     },
   },
   deactivated: {
@@ -194,7 +161,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   clientIds: {
     database: {
@@ -205,14 +171,11 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]",
-      inputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
       onCreate: arrayOfForeignKeysOnCreate,
-    },
-    form: {
-      hidden: true,
     },
   },
   clients: {

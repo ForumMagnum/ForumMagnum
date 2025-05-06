@@ -1,8 +1,10 @@
 import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserMultiselect', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -15,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
   },
-});
+}));
 
 export const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
@@ -25,12 +27,12 @@ export const SortableList = makeSortableListComponent({
   }
 });
 
-const UserMultiselect = ({value, setValue, label, classes}: {
+const UserMultiselect = ({value, setValue, label}: {
   value: string[],
   setValue: (newValue: string[]) => void
   label: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
@@ -52,15 +54,17 @@ const UserMultiselect = ({value, setValue, label, classes}: {
   )
 }
 
-const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
-  value: string[],
-  path: string,
-  label: string,
-  updateCurrentValues: UpdateCurrentValues,
-}) => {
+interface FormUserMultiselectProps {
+  field: TypedFieldApi<string[]>;
+  label: string;
+}
+
+export const FormUserMultiselect = ({ field, label }: FormUserMultiselectProps) => {
+  const value = field.state.value ?? [];
+
   const setValue = useCallback((newValue: string[]) => {
-    void updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
+    field.handleChange(newValue);
+  }, [field]);
 
   return <Components.UserMultiselect
     value={value}
@@ -69,12 +73,10 @@ const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
   />
 };
 
-const UserMultiselectComponent = registerComponent("UserMultiselect", UserMultiselect, {styles});
-const FormUserMultiselectComponent = registerComponent("FormUserMultiselect", FormUserMultiselect, {styles});
+const UserMultiselectComponent = registerComponent("UserMultiselect", UserMultiselect);
 
 declare global {
   interface ComponentTypes {
     UserMultiselect: typeof UserMultiselectComponent
-    FormUserMultiselect: typeof FormUserMultiselectComponent
   }
 }

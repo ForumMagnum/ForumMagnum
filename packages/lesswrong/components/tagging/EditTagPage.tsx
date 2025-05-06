@@ -2,12 +2,13 @@ import React from 'react';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
-import { isLWorAF, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { TagForm } from './TagForm';
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
-  tag: TagFragment,
+  tag: UpdateTagDataInput & { _id: string; canVoteOnRels: DbTag['canVoteOnRels'] },
   successCallback?: any,
   cancelCallback?: any,
   changeCallback?: any,
@@ -15,17 +16,11 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
 }) => {
   const { ContentStyles } = Components;
   return <ContentStyles contentType="tag">
-    <Components.WrappedSmartForm
-      key={`${tag?._id}_${tag?.description?.version}`}
-      collectionName="Tags"
-      documentId={tag._id}
-      queryFragmentName={'TagEditFragment'}
-      mutationFragmentName={'TagWithFlagsFragment'}
-      successCallback={successCallback}
-      cancelCallback={cancelCallback}
-      addFields={isLWorAF ? ['summaries'] : []}
-      warnUnsavedChanges={warnUnsavedChanges}
-      changeCallback={changeCallback}
+    <TagForm
+      initialData={tag}
+      onSuccess={successCallback}
+      onCancel={cancelCallback}
+      onChange={changeCallback}
     />
   </ContentStyles>
 }
@@ -33,7 +28,7 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
 const EditTagPage = () => {
   const { params } = useLocation();
   const { slug } = params;
-  const { tag, loading } = useTagBySlug(slug, "TagFragment");
+  const { tag, loading } = useTagBySlug(slug, "TagEditFragment");
   const navigate = useNavigate();
   const client = useApolloClient()
 

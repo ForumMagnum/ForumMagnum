@@ -83,7 +83,7 @@ interface CountOfReferenceFunctionGeneratorOptions<N extends CollectionNameStrin
 }
 
 interface CreateAfterCountOfReferenceFunctionOptions<N extends CollectionNameString> extends CountOfReferenceFunctionGeneratorOptions<N> {
-  newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  newDocument: Partial<ObjectsByCollectionName[N]>,
 }
 
 interface UpdateAfterCountOfReferenceFunctionOptions<N extends CollectionNameString> extends CountOfReferenceFunctionGeneratorOptions<N> {
@@ -199,7 +199,7 @@ function getSharedCountOfReferenceFunctionOptions<N extends CollectionNameString
 }
 
 
-export async function updateCountOfReferencesOnOtherCollectionsAfterCreate<N extends CollectionNameString>(collectionName: N, newDocument: Partial<DbInsertion<ObjectsByCollectionName[N]>>) {
+export async function updateCountOfReferencesOnOtherCollectionsAfterCreate<N extends CollectionNameString>(collectionName: N, newDocument: Partial<ObjectsByCollectionName[N]>) {
   // This is the collection name of the object being created/updated/deleted, i.e. the "target" collection
   const referenceTargetCollectionName = collectionName;
   const countOfReferencesFieldsReferencingCollection = getAllCountOfReferenceFieldsByTargetCollection()[referenceTargetCollectionName];

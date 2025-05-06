@@ -1,8 +1,7 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuickTakesTags } from "./useQuickTakesTags";
-import {
-  COMMENTS_NEW_FORM_PADDING,
+import type {
   CommentCancelCallback,
   CommentSuccessCallback,
 } from "../comments/CommentsNewForm";
@@ -10,6 +9,7 @@ import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
+import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     '& .ck .ck-placeholder': {
       position: 'unset'
     },
-    '& .CommentsNewForm-submitQuickTakes': {
+    '& .CommentSubmit-submitQuickTakes': {
       display: 'none'
     }
   },

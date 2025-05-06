@@ -1,7 +1,7 @@
 import moment from 'moment';
 import React, { useState } from 'react';
 import { isLowAverageKarmaContent } from '../../../lib/collections/moderatorActions/helpers';
-import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from '../../../lib/collections/moderatorActions/newSchema';
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from "@/lib/collections/moderatorActions/constants";
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { sortBy } from 'underscore';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';

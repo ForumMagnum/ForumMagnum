@@ -196,7 +196,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
     // subscribe to different emails based on forum type
-    const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = isLW ?
+    const userSubscriptionData: UpdateUserDataInput = isLW ?
     {emailSubscribedToCurated: true} : {subscribedToDigest: true};
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
@@ -308,7 +308,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
             setLoading(true);
             try {
               // subscribe to different emails based on forum type
-              const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = isEAForum ?
+              const userSubscriptionData: UpdateUserDataInput = isEAForum ?
                 {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
               userSubscriptionData.email = emailAddress?.value;
               userSubscriptionData.unsubscribeFromAll = false;

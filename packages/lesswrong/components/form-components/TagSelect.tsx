@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import withUser from '../common/withUser';
+import { Chip } from '@/components/widgets/Chip';
+import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Chip } from "@/components/widgets/Chip";
+import { Components } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagSelect', (theme: ThemeType) => ({
   root: {
     display: 'flex',
   },
@@ -14,54 +15,38 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 4,
     backgroundColor: theme.palette.background.usersListItem,
   },
-});
+}));
 
-const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
-  value: string,
-  path: string,
-  document: any,
-  classes: ClassesType<typeof styles>,
-  label?: string,
-  updateCurrentValues<T extends {}>(values: T): void,
-}) => {
+interface TagSelectProps {
+  field: TypedFieldApi<string | null>;
+  label: string;
+}
+
+export const TagSelect = ({ field, label }: TagSelectProps) => {
+  const classes = useStyles(styles);
+  const value = field.state.value;
+
   const {document: selectedTag, loading} = useSingle({
     skip: !value,
-    documentId: value,
+    documentId: value!,
     collectionName: "Tags",
     fragmentName: 'TagBasicInfo',
   });
-
-  const setSelectedTagId = useCallback((value?: string) => {
-    updateCurrentValues({
-      [path]: value,
-    });
-  }, [updateCurrentValues, path]);
 
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
         <Components.TagsSearchAutoComplete
-          clickAction={setSelectedTagId}
+          clickAction={(id) => field.handleChange(id)}
           placeholder={label}
         />
       </Components.ErrorBoundary>
       {(!loading && selectedTag?.name) ?
         <Chip
-          onDelete={() => setSelectedTagId(undefined)}
+          onDelete={() => field.handleChange(null)}
           className={classes.chip}
           label={selectedTag?.name}
         />: <></>}
     </div>
   );
-}
-
-const TagSelectComponent = registerComponent('TagSelect', TagSelect, {
-  styles: styles,
-  hocs: [withUser],
-});
-
-declare global {
-  interface ComponentTypes {
-    TagSelect: typeof TagSelectComponent
-  }
 }

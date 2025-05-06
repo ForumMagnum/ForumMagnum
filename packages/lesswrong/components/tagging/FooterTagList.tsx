@@ -136,7 +136,7 @@ const FooterTagList = ({
   neverCoreStyling = false,
   tagRight = true,
 }: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
+  post: Pick<PostsListBase, '_id' | 'createdAt' | 'tags' | 'curatedDate' | 'frontpageDate' | 'reviewedByUserId' | 'isEvent' | 'postCategory'>,
   hideScore?: boolean,
   hideAddTag?: boolean,
   useAltAddTagButton?: boolean,
@@ -365,7 +365,7 @@ const FooterTagList = ({
       {!hidePostTypeTag && postType}
       {eventTag}
       {isLWorAF && annualReviewMarketInfo && isRecent && (
-        <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
+        <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
       {tagRight && currentUser && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}

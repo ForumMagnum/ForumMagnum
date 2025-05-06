@@ -70,10 +70,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-      label: "Unread count in sidebar",
-    },
   },
   // TODO delete
   subforumEmailNotifications: {
@@ -92,9 +88,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Notify me of new discussions",
-    },
   },
   subforumHideIntroPost: {
     database: {
@@ -111,10 +104,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      label: "Don't show the intro post at the top of topic feeds",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"UserTagRels">>;

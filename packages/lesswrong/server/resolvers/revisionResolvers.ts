@@ -42,6 +42,8 @@ export const revisionResolversGraphQLMutations = {
 
     if (!tag)               throw new Error('Invalid tagId');
     if (!revertToRevision)  throw new Error('Invalid revisionId');
+    if (!revertToRevision.originalContents)
+      throw new Error('Revision missing originalContents');
     // I don't think this should be possible if we find a revision to revert to, but...
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
     if (!anyDiff)           throw new Error(`Can't find difference between revisions`);

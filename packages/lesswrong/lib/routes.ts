@@ -1138,6 +1138,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: "PetrovDayPoll",
       title: "Petrov Day Poll",
     },
+    {
+      name: 'feed',
+      path: '/feed',
+      componentName: 'UltraFeedPage',
+      title: "LessWrong Feed",
+      subtitle: "The Feed",
+      hasLeftNavigationColumn: false,
+      navigationFooterBar: false,
+    },
   ],
   AlignmentForum: [
     {
@@ -1480,16 +1489,6 @@ addRoute(
     name: 'searchTest',
     path: '/searchTest',
     componentName: 'SearchBar'
-  },
-  {
-    name: 'postsListEditorTest',
-    path:'/postsListEditorTest',
-    componentName: 'PostsListEditor'
-  },
-  {
-    name: 'imageUploadTest',
-    path: '/imageUpload',
-    componentName: 'ImageUpload'
   },
 );
 

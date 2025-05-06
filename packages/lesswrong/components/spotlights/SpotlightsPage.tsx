@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { getSpotlightDisplayTitle } from './SpotlightItem';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { SpotlightForm } from './SpotlightForm';
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType) => ({
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
+  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
 
   const currentUser = useCurrentUser();
 
@@ -96,9 +97,8 @@ export const SpotlightsPage = ({classes}: {
       <SectionTitle title={'New Spotlight'} />
       <div className={classes.form}>
         <SpotlightEditorStyles>
-          <WrappedSmartForm
-            collectionName="Spotlights"
-            mutationFragmentName={'SpotlightEditQueryFragment'}
+          <SpotlightForm
+            onSuccess={() => refetch()}
           />
         </SpotlightEditorStyles>
       </div>

@@ -11,7 +11,8 @@ import { htmlStartingAtHash } from "@/server/extractHighlights";
 import { dataToDraftJS } from "@/server/resolvers/toDraft";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import _ from "underscore";
-import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH, ContentType } from "./revisionConstants";
+import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
+import { ContentType } from "./revisionSchemaTypes";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import gql from "graphql-tag";
@@ -41,8 +42,8 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
 export const graphqlTypeDefs = gql`
   scalar ContentTypeData
   type ContentType {
-    type: String
-    data: ContentTypeData
+    type: String!
+    data: ContentTypeData!
   }
 `
 
@@ -485,6 +486,21 @@ const schema = {
         return await accessFilterSingle(currentUser, "MultiDocuments", lens, context);
       },
     },
+  },
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (revision, args, context) => {
+        const {AutomatedContentEvaluations} =  context;
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: revision._id,
+        }, {
+          sort: { createdAt: -1 },
+        })
+      },
+    }
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,

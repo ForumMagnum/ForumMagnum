@@ -17,9 +17,6 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
     },
-    form: {
-      control: "number",
-    },
   },
   // the start of the range of eligible posts (just used to filter posts for the Edit Digest page)
   startDate: {
@@ -32,9 +29,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
-    },
-    form: {
-      control: "datetime",
     },
   },
   // the end of the range of eligible posts (just used to filter posts for the Edit Digest page)
@@ -52,9 +46,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "datetime",
-    },
   },
   // when this digest was published
   publishedDate: {
@@ -70,9 +61,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
     },
   },
   // Cloudinary image id for the on-site digest background image (high resolution)
@@ -90,9 +78,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      control: "ImageUpload",
-    },
   },
   // primary color for the on-site digest background
   // - fades onto the image so chosen to match
@@ -109,9 +94,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "FormComponentColorPicker",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Digests">>;

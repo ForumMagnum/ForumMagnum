@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import type { KarmaChangesSimple } from "../../../server/collections/users/karmaChangesGraphQL";
 
 const styles = (theme: ThemeType) => ({
   showMoreBtn: {
@@ -17,7 +16,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, classes}: {
-  karmaChanges?: KarmaChangesSimple,
+  karmaChanges?: Pick<KarmaChanges, "posts" | "comments" | "tagRevisions">,
   truncateAt?: number,
   classes: ClassesType<typeof styles>,
 }) => {

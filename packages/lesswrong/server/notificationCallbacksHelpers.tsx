@@ -7,7 +7,7 @@ import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
 import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings, legacyToNewNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings } from '../lib/collections/users/newSchema';
+import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
 import * as _ from 'underscore';
 import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';

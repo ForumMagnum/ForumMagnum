@@ -2,7 +2,7 @@ import Notifications from '../server/collections/notifications/collection';
 import Users from '../server/collections/users/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import * as _ from 'underscore';
-import type { RSVPType } from '../lib/collections/posts/newSchema';
+import type { RSVPType } from "@/lib/collections/posts/helpers";
 import { createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';

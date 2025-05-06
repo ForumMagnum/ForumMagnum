@@ -6,20 +6,15 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
-import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
-import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
-import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { NewPostHowToGuides } from './NewPostHowToGuides';
+import { EditorContext } from './EditorContext';
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -116,25 +111,17 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   },
 }))
 
-export const EditorContext = React.createContext<[Editor|null, (e: Editor) => void]>([null, _ => {}]);
-
-function getDraftLabel(post: PostsPage | null) {
-  if (!post) return "Save Draft";
-  if (!post.draft) return "Move to Drafts";
-  return "Save Draft";
-}
-
 const PostsEditForm = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
+  // return <></>;
   const classes = useStyles(styles);
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags,
-    ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning,
+  const { HeadTags, ForeignCrosspostEditForm, RateLimitWarning, PostForm,
     DynamicTableOfContents, NewPostModerationWarning, NewPostHowToGuides
   } = Components
 
-  const { query, params } = useLocation();
+  const { query } = useLocation();
   const navigate = useNavigate();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
@@ -145,7 +132,14 @@ const PostsEditForm = ({ documentId, version }: {
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Posts",
-    fragmentName: 'PostsPage',
+    fragmentName: 'PostsEditQueryFragment',
+    extraVariables: {
+      version: 'String'
+    },
+    extraVariablesValues: {
+      version: version ?? 'draft'
+    },
+    fetchPolicy: 'network-only',
   });
 
   const { document: userWithRateLimit } = useSingle({
@@ -161,8 +155,6 @@ const PostsEditForm = ({ documentId, version }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   });
-
-  const saveDraftLabel = getDraftLabel(document ?? null);
 
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
 
@@ -209,36 +201,6 @@ const PostsEditForm = ({ documentId, version }: {
   if (isNotHostedHere(document)) {
     return <ForeignCrosspostEditForm post={document} />;
   }
-  
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const EditPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
-    return <div className={classes.formSubmit}>
-      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
-      <PostSubmit
-        saveDraftLabel={saveDraftLabel}
-        feedbackLabel={"Get Feedback"}
-        {...props}
-      />
-    </div>
-  }
-
-  const addFields: string[] = [];
-
-  /*
-  * addFields includes tagRelevance because the field permissions on
-  * the schema say the user can't edit this field, but the widget
-  * "edits" the tag list via indirect operations (upvoting/downvoting
-  * relevance scores).
-  */
-  if (!(document.isEvent || !!document.collabEditorDialogue)) {
-    addFields.push('tagRelevance');
-  }
-
-  // This is a resolver-only field, so we need to add it to the addFields array to get it to show up in the form
-  if (userCanCreateAndEditJargonTerms(currentUser)) {
-    addFields.push('glossary');
-  }
 
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW && !currentUser?.reviewedByUserId
@@ -256,16 +218,13 @@ const PostsEditForm = ({ documentId, version }: {
         />}
         <DeferRender ssr={false}>
           <EditorContext.Provider value={[editorState, setEditorState]}>
-            <WrappedSmartForm
-              collectionName="Posts"
-              documentId={documentId}
-              queryFragmentName={'PostsEditQueryFragment'}
-              mutationFragmentName={'PostsEditMutationFragment'}
-              successCallback={(post: any, options: any) => {
-                const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
+            <PostForm
+              initialData={document}
+              onSuccess={(post, options) => {
+                const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId!)
                 if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
                 if (options?.submitOptions?.redirectToEditor) {
-                  navigate(postGetEditUrl(post._id, false, post.linkSharingKey));
+                  navigate(postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined));
                 } else {
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
@@ -278,20 +237,7 @@ const PostsEditForm = ({ documentId, version }: {
                   }
                 }
               }}
-              eventForm={document.isEvent}
-              collabEditorDialogue={!!document.collabEditorDialogue}
-              submitLabel={preferredHeadingCase(isDraft ? "Publish" : "Publish Changes")}
-              formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
-              extraVariables={{
-                version: 'String'
-              }}
-              extraVariablesValues={{
-                version: version ?? 'draft'
-              }}
-              noSubmitOnCmdEnter
-              repeatErrors
               
-              addFields={addFields}
             />
           </EditorContext.Provider>
         </DeferRender>

@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { Components } from "../../lib/vulcan-lib/components";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
+import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles('FormComponentQuickTakesTags', (_theme: ThemeType) => ({
   tagContainer: {
     display: "flex",
     flexWrap: "wrap",
@@ -16,16 +18,13 @@ const styles = (_theme: ThemeType) => ({
     fontSize: 13,
     marginRight: 8,
   },
-})
+}));
 
-const FormComponentQuickTakesTags = ({
-  value,
-  path,
-  updateCurrentValues,
-  classes,
-}: FormComponentProps<AnyBecauseTodo> & {
-  classes: ClassesType<typeof styles>,
+export const FormComponentQuickTakesTags = ({ field }: {
+  field: TypedFieldApi<string[] | null>;
 }) => {
+  const classes = useStyles(styles);
+  
   const {
     loading,
     frontpage,
@@ -34,11 +33,11 @@ const FormComponentQuickTakesTags = ({
     frontpageTagId,
     onTagSelected,
     onTagRemoved,
-  } = useQuickTakesTags(value);
+  } = useQuickTakesTags(field.state.value ?? []);
 
   useEffect(() => {
-    void updateCurrentValues({[path]: selectedTagIds})
-  }, [updateCurrentValues, path, selectedTagIds])
+    field.handleChange(selectedTagIds ?? null);
+  }, [field, selectedTagIds])
 
   const {TagsChecklist, Loading} = Components;
   return <div className={classes.tagContainer}>
@@ -63,16 +62,4 @@ const FormComponentQuickTakesTags = ({
         />
     )}
   </div>
-}
-
-const FormComponentQuickTakesTagsComponent = registerComponent(
-  "FormComponentQuickTakesTags",
-  FormComponentQuickTakesTags,
-  {styles}
-);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentQuickTakesTags: typeof FormComponentQuickTakesTagsComponent
-  }
 }

@@ -1,4 +1,4 @@
-import { isLegacyNotificationTypeSettings, isNewNotificationTypeSettings, LegacyNotificationTypeSettings, legacyToNewNotificationTypeSettings, newToLegacyNotificationTypeSettings } from '../lib/collections/users/newSchema';
+import { isLegacyNotificationTypeSettings, isNewNotificationTypeSettings, LegacyNotificationTypeSettings, legacyToNewNotificationTypeSettings, newToLegacyNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
 
 describe("NotificationTypeSettings migration", () => {
   const channels = ["none", "onsite", "email", "both"] as const;

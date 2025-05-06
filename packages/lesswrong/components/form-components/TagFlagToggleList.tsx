@@ -3,12 +3,17 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import DeferRender from '../common/DeferRender';
+import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 
 const styles = (theme: ThemeType) => ({
   
 });
 
-const TagFlagToggleList = ({ value, path, updateCurrentValues }: FormComponentProps<string[]>) => {
+const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
+  value: string[],
+  path: string,
+  updateCurrentValues: UpdateCurrentValues,
+}) => {
   const { Loading, TagFlagItem } = Components
 
   const handleClick = (option: string) => {    

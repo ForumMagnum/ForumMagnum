@@ -286,7 +286,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
             data: commentContent,
             type: 'ckEditorMarkup',
           },
-        } as EditableFieldContents,
+        },
       };
 
       await create({ data: commentData });

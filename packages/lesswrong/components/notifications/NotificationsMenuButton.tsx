@@ -148,7 +148,7 @@ const hasKarmaChange = (
     return false;
   }
   const lastOpened = currentUser.karmaChangeLastOpened ?? new Date(0);
-  return lastOpened < endDate || updateFrequency === "realtime";
+  return lastOpened < (endDate ?? new Date(0)) || updateFrequency === "realtime";
 }
 
 const FriendlyNotificationsMenuButton = ({

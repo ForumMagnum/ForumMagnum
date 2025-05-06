@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import {useMulti} from "../../lib/crud/withMulti";
-import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moderationTemplates/newSchema';
+import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { ModerationTemplatesForm } from './ModerationTemplateForm';
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType) => ({
 export const ModerationTemplatesPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row, ToCColumn, TableOfContents } = Components
+  const { SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row, ToCColumn, TableOfContents } = Components
   
   const currentUser = useCurrentUser();
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
@@ -82,10 +83,7 @@ export const ModerationTemplatesPage = ({classes}: {
       <SectionTitle title={'New Moderation Template'} />
       <div className={classes.form}>
         <BasicFormStyles>
-          <WrappedSmartForm
-            collectionName="ModerationTemplates"
-            mutationFragmentName={'ModerationTemplateFragment'}
-          />
+          <ModerationTemplatesForm />
         </BasicFormStyles>
       </div>
       <SectionTitle title="Moderation Templates">

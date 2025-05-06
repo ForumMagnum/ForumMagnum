@@ -1,16 +1,8 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { defaultEditorPlaceholder, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { arrayOfForeignKeysOnCreate, generateIdResolverMulti, generateIdResolverSingle } from "../../utils/schemaUtils";
 import { documentIsNotDeleted, userOwns } from "@/lib/vulcan-users/permissions";
-
-export const formGroups = {
-  chapterDetails: {
-    name: "chapterDetails",
-    order: 25,
-    label: "Chapter Details",
-    startCollapsed: true,
-  },
-} satisfies Partial<Record<string, FormGroupType<"Chapters">>>;
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -26,6 +18,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
@@ -35,34 +28,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "contents",
-        collectionName: "Chapters",
-        commentEditor: false,
-        commentStyles: false,
-        hideControls: false,
-      },
-      order: 30,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (chapter, name) => {
-          if (chapter._id) {
-            return {
-              id: `${chapter._id}_${name}`,
-              verify: true,
-            };
-          }
-          return {
-            id: `sequence: ${chapter.sequenceId}_${name}`,
-            verify: false,
-          };
-        },
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -80,11 +45,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      order: 10,
-      placeholder: "Title",
-      group: () => formGroups.chapterDetails,
-    },
   },
   subtitle: {
     database: {
@@ -98,11 +58,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      order: 20,
-      placeholder: "Subtitle",
-      group: () => formGroups.chapterDetails,
     },
   },
   number: {
@@ -118,9 +73,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.chapterDetails,
-    },
   },
   sequenceId: {
     database: {
@@ -135,9 +87,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   sequence: {
@@ -161,9 +110,6 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       onCreate: arrayOfForeignKeysOnCreate,
-    },
-    form: {
-      control: "PostsListEditor",
     },
   },
   posts: {

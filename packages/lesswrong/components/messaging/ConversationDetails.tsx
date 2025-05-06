@@ -29,7 +29,7 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
       name: "ConversationTitleEditForm",
       contents: ({onClose}) => <Components.ConversationTitleEditForm
         onClose={onClose}
-        documentId={conversation._id}
+        conversation={conversation}
       />
     });
   }

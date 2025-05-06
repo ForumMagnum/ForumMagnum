@@ -35,6 +35,15 @@ export const ArbitalTagContentRelsDefaultFragment = `
   }
 `;
 
+export const AutomatedContentEvaluationsDefaultFragment = `
+  fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluation {
+    _id
+    createdAt
+    revisionId
+    score
+  }
+`;
+
 export const BansDefaultFragment = `
   fragment BansDefaultFragment on Ban {
     _id
@@ -408,7 +417,6 @@ export const ElicitQuestionPredictionsDefaultFragment = `
     prediction
     createdAt
     notes
-    creator
     userId
     sourceUrl
     sourceId
@@ -955,12 +963,9 @@ export const PostsDefaultFragment = `
     frontpageDate
     autoFrontpage
     collectionTitle
-    coauthorStatuses
     hasCoauthorPermission
     socialPreviewImageId
     socialPreviewImageAutoUrl
-    socialPreview
-    fmCrosspost
     canonicalSequenceId
     canonicalCollectionSlug
     canonicalBookId
@@ -1168,7 +1173,6 @@ export const RevisionsDefaultFragment = `
     commitMessage
     userId
     draft
-    originalContents
     html
     wordCount
     changeMetrics
@@ -1608,7 +1612,6 @@ export const UsersDefaultFragment = `
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     hideCommunitySection
-    expandedFrontpageSections
     showCommunityInRecentDiscussion
     hidePostsRecommendations
     petrovOptOut
@@ -1640,8 +1643,6 @@ export const UsersDefaultFragment = `
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
-    bookmarkedPostsMetadata
-    hiddenPostsMetadata
     legacyId
     deleted
     permanentDeletionRequestedAt
@@ -1740,7 +1741,6 @@ export const UsersDefaultFragment = `
     fullName
     shortformFeedId
     viewUnreviewedComments
-    partiallyReadSequences
     beta
     reviewVotesQuadratic
     reviewVotesQuadratic2019
