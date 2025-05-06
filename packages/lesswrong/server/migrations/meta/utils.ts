@@ -62,7 +62,7 @@ export const dropField = async <N extends CollectionNameString>(
   // down-migration, it'll have been removed from the schema
   fieldName: string,
 ): Promise<void> => {
-  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName).compile();
+  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName, true).compile();
   await db.none(sql, args);
 }
 
