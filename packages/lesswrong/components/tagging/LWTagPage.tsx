@@ -38,6 +38,8 @@ import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { useDisplayedContributors } from "./ContributorsList";
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
+import { LensForm } from "./lenses/LensForm";
+import { useSingle } from "@/lib/crud/withSingle";
 
 const AUDIO_PLAYER_WIDTH = 325;
 
@@ -327,22 +329,15 @@ const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
   changeCallback: () => void,
   cancelCallback: () => void,
 }) => {
-  const { WrappedSmartForm } = Components;
   const [mountKey, setMountKey] = useState(0);
 
-  return <WrappedSmartForm
+  return <LensForm
     key={lens._id + mountKey}
-    collectionName="MultiDocuments"
-    documentId={lens._id}
-    queryFragmentName="MultiDocumentEdit"
-    mutationFragmentName="MultiDocumentEdit"
-    {...(lens.originalLensDocument ? { prefetchedDocument: lens.originalLensDocument } : {})}
-    addFields={['summaries']}
-    warnUnsavedChanges={true}
-    successCallback={() => successCallback().then(() => setMountKey(mountKey + 1))}
-    changeCallback={changeCallback}
-    cancelCallback={cancelCallback}
-  />
+    initialData={lens.originalLensDocument ?? undefined}
+    onSuccess={() => successCallback().then(() => setMountKey(mountKey + 1))}
+    onCancel={cancelCallback}
+    onChange={changeCallback}
+  />;
 }
 
 const pathDescriptions = {
@@ -528,27 +523,38 @@ const LWTagPage = () => {
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? null;
   const [editing, _setEditing] = useState(!!query.edit);
-  const [formDirty, setFormDirty] = useState(false);
+  const formDirtyRef = useRef(false);
 
   // Usually, we want to warn the user before closing the editor when they have unsaved changes
   // There are some exceptions; in those cases, we can pass warnBeforeClosing=false
+  // It's important that this is a stable function for use in a subsequent useEffect hook
+  // that closes the editor after switching lenses.  If this had any dependencies,
+  // then we might randomly close the editor if any of those dependencies changed.
   const setEditing = useCallback((editing: boolean, warnBeforeClosing = true) => {
     _setEditing((previouslyEditing) => {
-      if (!editing && previouslyEditing && warnBeforeClosing && formDirty) {
+      if (!editing && previouslyEditing && warnBeforeClosing && formDirtyRef.current) {
         const confirmed = confirm("Discard changes?");
         if (!confirmed) {
           return previouslyEditing;
         }
       }
-      setFormDirty(false);
+      formDirtyRef.current = false;
       return editing;
     })
-  }, [formDirty]);
+  }, []);
 
   const contributorsLimit = 16;
 
   const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
   const { tag, loadingTag, tagError, refetchTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
+
+  const { document: editableTag } = useSingle({
+    documentId: tag?._id,
+    collectionName: 'Tags',
+    fragmentName: 'TagEditFragment',
+    skip: !tag,
+    ssr: false,
+  });
 
   const [truncated, setTruncated] = useState(false)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
@@ -597,12 +603,20 @@ const LWTagPage = () => {
   const displayedTagTitle = useDisplayedTagTitle(tag, lenses, selectedLens);
 
   const switchLens = useCallback((lensId: string) => {
-    // We don't want to warn before closing the editor using this mechanism when switching lenses
-    // because we already do it inside of Form.tsx because of the route change
-    setEditing(false, false);
     updateSelectedLens(lensId);
     captureEvent('tagPageLensSwitched', { lensId });
-  }, [setEditing, updateSelectedLens, captureEvent]);
+  }, [updateSelectedLens, captureEvent]);
+
+  // We can't call `setEditing(false, false)` inside of `switchLens`,
+  // because that will close the editor even if the user is warned
+  // about unsaved changes and clicks "Cancel" (preventing the navigation).
+  // So we instead close the editor after switching lenses,
+  // which is a bit janky but works as long as `setEditing` is stable.
+  useEffect(() => {
+    if (selectedLens?._id) {
+      setEditing(false, false);
+    }
+  }, [selectedLens?._id, setEditing]);
 
   const tagPositionInList = otherTagsWithNavigation?.findIndex(tagInList => tag?._id === tagInList._id);
   // We have to handle updates to the listPosition explicitly, since we have to deal with three cases
@@ -743,20 +757,20 @@ const LWTagPage = () => {
 
   let editForm;
   if (selectedLens?._id === MAIN_TAB_ID) {
-    editForm = (
+    editForm = editableTag ? (
       <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
         <EditTagForm
-          tag={tag}
+          tag={editableTag}
           warnUnsavedChanges={true}
           successCallback={async () => {
             setEditing(false, false);
             await client.resetStore();
           }}
           cancelCallback={() => setEditing(false)}
-          changeCallback={() => setFormDirty(true)}
+          changeCallback={() => formDirtyRef.current = true}
         />
       </span>
-    );
+    ) : <></>;
   } else if (selectedLens) {
     editForm = (
       <span className={classNames(classes.unselectedEditForm, editing && classes.selectedEditForm)}>
@@ -766,7 +780,7 @@ const LWTagPage = () => {
             setEditing(false, false);
             await refetchTag();
           }}
-          changeCallback={() => setFormDirty(true)}
+          changeCallback={() => formDirtyRef.current = true}
           cancelCallback={() => setEditing(false)}
         />
       </span>

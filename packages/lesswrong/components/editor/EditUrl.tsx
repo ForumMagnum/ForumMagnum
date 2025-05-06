@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import LinkIcon from '@/lib/vendor/@material-ui/icons/src/Link'
 import LinkOffIcon from '@/lib/vendor/@material-ui/icons/src/LinkOff';
+import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -55,13 +56,17 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: FormComponentProps<string> & {
+const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: {
+  value: string,
   path: keyof DbPost,
   classes: ClassesType<typeof styles>,
   document: Partial<DbPost>,
   defaultValue?: string,
+  label?: string,
   hintText?: string,
-  tooltip?: string,
+  placeholder?: string,
+  updateCurrentValues: UpdateCurrentValues,
+  setFooterContent: (content: React.ReactNode) => void,
 }) => {
   const [active, setActive] = useState(!!value);
   const inputRef = useRef<HTMLInputElement|null>(null);

@@ -395,6 +395,7 @@ export const TagEditFragment = () => frag`
     tagFlagsIds
     postsDefaultSortOrder
     introSequenceId
+    canVoteOnRels
     
     autoTagModel
     autoTagPrompt

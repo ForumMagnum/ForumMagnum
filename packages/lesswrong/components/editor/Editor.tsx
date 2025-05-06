@@ -227,7 +227,6 @@ export interface SerializedEditorContents {
 
 export interface FormProps {
   commentMinimalistStyle?: boolean
-  editorHintText?: string
   maxHeight?: boolean,
 }
 

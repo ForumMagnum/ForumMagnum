@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { CAREER_STAGES } from "../../../lib/collections/users/newSchema";
+import { CAREER_STAGES } from "@/lib/collections/users/helpers";
 import { useEAOnboarding } from "./useEAOnboarding";
 
 const styles = (_theme: ThemeType) => ({

@@ -249,13 +249,13 @@ const FriendlyInbox = ({
   }, [fetchedSelectedConversation, onOpenConversation]);
 
   const openConversationOptions = () => {
-    if (!conversationId) return;
+    if (!selectedConversation) return;
 
     openDialog({
       name: "ConversationTitleEditForm",
       contents: ({onClose}) => <Components.ConversationTitleEditForm
         onClose={onClose}
-        documentId={conversationId}
+        conversation={selectedConversation}
       />
     });
   };

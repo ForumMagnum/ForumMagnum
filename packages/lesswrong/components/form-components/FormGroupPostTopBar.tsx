@@ -107,7 +107,7 @@ const LinkToEditorGuideButton = () => {
   }
 }
 
-const FormGroupPostTopBar = ({ children }: FormGroupLayoutProps) => {
+const FormGroupPostTopBar = ({ children }: { children: React.ReactNode }) => {
   const classes = useStyles(styles);
   const childrenArray = React.Children.toArray(children);
   const [tabs, ...otherChildren] = childrenArray;

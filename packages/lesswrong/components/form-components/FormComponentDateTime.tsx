@@ -4,10 +4,11 @@ import DatePicker from "react-datepicker";
 import moment from '../../lib/moment-timezone';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
-import type { Moment } from 'moment';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { darken, lighten } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { ClearInput } from './ClearInput';
 
 const styles = defineStyles("DatePicker", (theme: ThemeType) => {
   const datepicker__backgroundColor = theme.palette.grey[140];
@@ -819,41 +820,33 @@ const ReactDatePicker = ({label, name, value, below, onChange}: {
   </FormControl>
 }
 
-type FormComponentDateTimeProps = FormComponentProps<string|Date> & {
+
+export const FormComponentDatePicker = ({ field, label, name, below }: {
+  field: TypedFieldApi<Date | null>,
+  label: string,
+  name?: string,
   below?: boolean,
-}
-
-/**
- * Date-picker UI element, wrapped for use in vulcan-forms.
- * TODO: This may not work right in nested contexts.
- */
-const FormComponentDateTime = (
-  {path, value, name, label, below, updateCurrentValues}: FormComponentDateTimeProps,
-) => {
-  const updateDate = (date: Date | undefined) => {
-    if (date) {
-      void updateCurrentValues({[path]: date})
-    }
-  }
-
+}) => {
+  const value = field.state.value;
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
 
-  return <ReactDatePicker
-    label={label}
-    name={name}
-    value={date}
-    onChange={updateDate}
-    below={below}
-  />
+  return (<>
+    <ReactDatePicker
+      label={label}
+      name={name}
+      value={date}
+      onChange={field.handleChange}
+      below={below}
+    />
+    <ClearInput clearField={() => field.handleChange(null)} />
+  </>);
 }
 
 const DatePickerComponent = registerComponent("DatePicker", ReactDatePicker);
-const FormComponentDateTimeComponent = registerComponent("FormComponentDateTime", FormComponentDateTime);
 
 declare global {
   interface ComponentTypes {
     DatePicker: typeof DatePickerComponent
-    FormComponentDateTime: typeof FormComponentDateTimeComponent
   }
 }
 

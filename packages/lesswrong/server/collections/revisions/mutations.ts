@@ -141,6 +141,19 @@ async function createAutomatedContentEvaluation(revision: DbRevision) {
 }
 
 export const graphqlRevisionTypeDefs = gql`
+  input ContentTypeInput {
+    type: String!
+    data: ContentTypeData!
+  }
+
+  input CreateRevisionDataInput {
+    originalContents: ContentTypeInput!
+    commitMessage: String
+    updateType: String
+    dataWithDiscardedSuggestions: JSON
+    googleDocMetadata: JSON
+  }
+
   input UpdateRevisionDataInput {
     ${getUpdatableGraphQLFields(schema)}
   }

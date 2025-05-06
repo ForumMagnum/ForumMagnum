@@ -1,8 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { styles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import { isFriendlyUI } from '@/themes/forumTheme';
-import { Link } from '@/lib/reactRouterWrapper';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 
@@ -65,24 +63,10 @@ const styles = (theme: ThemeType) => ({
       cursor: "text"
     }
   },
-  profileTagsMessage: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 13,
-    fontWeight: 500,
-    marginBottom: 8,
-    "& a": {
-      color: theme.palette.primary.main,
-      fontWeight: 700,
-      "&:hover": {
-        color: theme.palette.primary.light,
-      },
-    },
-  },
 });
 
 const TagMultiselect = ({
   value,
-  path,
   label,
   placeholder,
   hidePostCount=false,
@@ -93,13 +77,12 @@ const TagMultiselect = ({
   classes,
 }: {
   value: Array<string>,
-  path: string,
-  label?: string,
+  label?: React.ReactNode,
   placeholder?: string,
   hidePostCount?: boolean,
   startWithBorder?: boolean,
   isVotingContext?: boolean,
-  updateCurrentValues(values: AnyBecauseTodo): void,
+  updateCurrentValues(values: Array<string>): void,
   variant?: "default" | "grey",
   classes: ClassesType<typeof styles>,
 }) => {
@@ -111,15 +94,15 @@ const TagMultiselect = ({
     const ids = [...(tag?.parentTagId ? [tag.parentTagId] : []), id].filter(id => !value.includes(id))
     if (ids.length) {
       const newValue = value.concat(ids)
-      updateCurrentValues({ [path]: newValue })
+      updateCurrentValues(newValue)
     }
-  }, [value, updateCurrentValues, path]);
+  }, [value, updateCurrentValues]);
 
   const removeTag = useCallback((id: string) => {
     if (value.includes(id)) {
-      updateCurrentValues({ [path]: value.filter(tag => tag !== id) })
+      updateCurrentValues(value.filter(tag => tag !== id))
     }
-  }, [value, updateCurrentValues, path]);
+  }, [value, updateCurrentValues]);
 
   const {
     SingleTagItem, TagsSearchAutoComplete, ErrorBoundary, SectionTitle,
@@ -133,13 +116,6 @@ const TagMultiselect = ({
   return (
     <div>
       {label && labelNode}
-      {isFriendlyUI && isGrey && path === "profileTagIds" &&
-        <div className={classes.profileTagsMessage}>
-          These are visible on your profile.{" "}
-          If you want to subscribe to topics, go{" "}
-          <Link to="/manageSubscriptions">here</Link>.
-        </div>
-      }
       <div className={classNames(isGrey && classes.greyContainer)}>
         <div className={classNames(isGrey && classes.greyInnerContainer)}>
           <div className={classNames(isGrey && classes.greyTagContainer)}>

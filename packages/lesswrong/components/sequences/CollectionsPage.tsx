@@ -8,6 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { BooksForm } from './BooksForm';
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -75,6 +76,13 @@ const CollectionsPage = ({ documentId, classes }: {
     fragmentName: 'CollectionsPageFragment',
   });
 
+  const { document: editDocument } = useSingle({
+    documentId,
+    collectionName: "Collections",
+    fragmentName: 'CollectionsEditFragment',
+    skip: !edit,
+  });
+
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
@@ -82,12 +90,12 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
-  if (loading || !document) {
+  const { SingleColumnSection, BooksItem, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
+  if (loading || !document || (edit && !editDocument)) {
     return <Components.Loading />;
-  } else if (edit) {
+  } else if (edit && editDocument) {
     return <Components.CollectionsEditForm
-      documentId={document._id}
+      initialData={editDocument}
       successCallback={showCollection}
       cancelCallback={showCollection}
     />
@@ -160,7 +168,11 @@ const CollectionsPage = ({ documentId, classes }: {
           </SectionButton>
         </SectionFooter>}
         {addingBook && <SingleColumnSection>
-          <BooksNewForm prefilledProps={{collectionId: collection._id}} />
+          <BooksForm
+            collectionId={collection._id}
+            onSuccess={() => setAddingBook(false)}
+            onCancel={() => setAddingBook(false)}
+          />
         </SingleColumnSection>}
       </ToCColumn>
       

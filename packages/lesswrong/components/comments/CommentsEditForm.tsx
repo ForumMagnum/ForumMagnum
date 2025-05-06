@@ -1,6 +1,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { CommentForm } from './CommentForm';
+import { useSingle } from '@/lib/crud/withSingle';
 
 const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
   comment: CommentsList | CommentsListWithParentMetadata,
@@ -10,20 +12,26 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
   formProps?: Record<string, any>,
   prefilledProps?: AnyBecauseTodo
 }) => {
-  return (
+  const { Loading } = Components;
+
+  const { document: editableComment, loading } = useSingle({
+    collectionName: 'Comments',
+    fragmentName: 'CommentEdit',
+    documentId: comment._id,
+  });
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  return ( 
     <div className={classNames("comments-edit-form", className)}>
-      <Components.WrappedSmartForm
-        layout="elementOnly"
-        collectionName="Comments"
-        documentId={comment._id}
-        successCallback={successCallback}
-        cancelCallback={cancelCallback}
-        showRemove={false}
-        queryFragmentName={'CommentEdit'}
-        mutationFragmentName={'CommentsList'}
-        submitLabel="Save"
-        formProps={formProps}
+      <CommentForm
+        initialData={editableComment}
         prefilledProps={prefilledProps}
+        onSuccess={successCallback}
+        onCancel={cancelCallback}
+        submitLabel="Save"
       />
     </div>
   )

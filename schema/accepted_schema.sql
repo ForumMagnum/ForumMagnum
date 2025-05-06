@@ -3452,6 +3452,7 @@ CREATE TABLE "Users" (
   "tagRevisionCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "abTestKey" TEXT NOT NULL,
   "abTestOverrides" JSONB,
+  "reenableDraftJs" BOOL,
   "walledGardenInvite" BOOL,
   "hideWalledGardenUI" BOOL,
   "walledGardenPortalOnboarded" BOOL,

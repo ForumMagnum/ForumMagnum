@@ -1,9 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EditCommentTitle', (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
@@ -20,31 +21,20 @@ const styles = (theme: ThemeType) => ({
     },
     fontSize: "2rem",
   },
-})
+}));
 
-const EditCommentTitle = ({value, path, placeholder, updateCurrentValues, classes}: FormComponentProps<string> & {
-  placeholder: string,
-  classes: ClassesType<typeof styles>
+export const EditCommentTitle = ({ field, placeholder }: {
+  field: TypedFieldApi<string | null>;
+  placeholder: string;
 }) => {
+  const classes = useStyles(styles);
+  
   return <Input
     className={classNames(classes.root)}
     placeholder={placeholder}
-    value={value}
-    onChange={(event) => {
-      void updateCurrentValues({
-        [path]: event.target.value
-      })
-    }}
+    value={field.state.value ?? undefined}
+    onChange={(event) => field.handleChange(event.target.value)}
     disableUnderline={true}
     multiline
   />
 };
-
-export const EditCommentTitleComponent = registerComponent( "EditCommentTitle", EditCommentTitle, {styles} );
-
-declare global {
-  interface ComponentTypes {
-    EditCommentTitle: typeof EditCommentTitleComponent
-  }
-}
-

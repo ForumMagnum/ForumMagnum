@@ -17,6 +17,8 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { useSingle } from '@/lib/crud/withSingle';
+import { SpotlightForm } from './SpotlightForm';
 
 const TEXT_WIDTH = 350;
 
@@ -443,6 +445,13 @@ export const SpotlightItem = ({
     refetchAllSpotlights?.();
   }, [refetchAllSpotlights]);
 
+  const { document: editableSpotlight } = useSingle({
+    collectionName: "Spotlights",
+    fragmentName: "SpotlightEditQueryFragment",
+    documentId: spotlight._id,
+    skip: !(edit || editDescription),
+  });
+
   const { mutate: updateSpotlight } = useUpdate({
     collectionName: "Spotlights",
     fragmentName: "SpotlightDisplay",
@@ -492,7 +501,7 @@ export const SpotlightItem = ({
 
   const {
     MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
-    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
+    SpotlightEditorStyles, SpotlightStartOrContinueReading,
     Typography, LWTooltip, ForumIcon, CommentsNode
   } = Components
 
@@ -527,15 +536,12 @@ export const SpotlightItem = ({
                 {subtitleComponent}
               </div>}
               {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
-                {editDescription ? 
+                {(editDescription && editableSpotlight) ? 
                   <div className={classes.editDescription}>
-                    <WrappedSmartForm
-                      collectionName="Spotlights"
-                      fields={['description']}
-                      documentId={spotlight._id}
-                      mutationFragmentName={'SpotlightEditQueryFragment'}
-                      queryFragmentName={'SpotlightEditQueryFragment'}
-                      successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
+                    <SpotlightForm
+                      initialData={editableSpotlight}
+                      descriptionOnly
+                      onSuccess={() => { setEditDescription(false); void handleUndraftSpotlight() }}
                     />
                   </div>
                   :
@@ -614,14 +620,11 @@ export const SpotlightItem = ({
             </LWTooltip>}
           </div>}
         </div>
-        {edit && <div className={classes.form}>
+        {(edit && editableSpotlight) && <div className={classes.form}>
               <SpotlightEditorStyles>
-              <WrappedSmartForm
-                collectionName="Spotlights"
-                documentId={spotlight._id}
-                mutationFragmentName={'SpotlightEditQueryFragment'}
-                queryFragmentName={'SpotlightEditQueryFragment'}
-                successCallback={onUpdate}
+              <SpotlightForm
+                initialData={editableSpotlight}
+                onSuccess={onUpdate}
               />
               </SpotlightEditorStyles>
             </div>

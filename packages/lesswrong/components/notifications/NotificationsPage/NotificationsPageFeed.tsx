@@ -9,7 +9,6 @@ import {
 import Tabs from "@/lib/vendor/@material-ui/core/src/Tabs";
 import Tab from "@/lib/vendor/@material-ui/core/src/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
-import type { KarmaChanges } from "../../../server/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { useNotificationDisplays } from "./useNotificationDisplays";
 
@@ -149,7 +148,7 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
           <div className={classes.karmaChanges}>
             <NotificationsPageKarmaChangeList karmaChanges={karmaChanges ?? undefined} />
             <div className={classes.karmaBatching}>
-              <span>{batchingMessages[karmaChanges!.updateFrequency]}{" "}</span>
+              <span>{batchingMessages[karmaChanges!.updateFrequency as KarmaChangeUpdateFrequency]}{" "}</span>
               <Link to={karmaSettingsLink}>
                 Change settings
               </Link>

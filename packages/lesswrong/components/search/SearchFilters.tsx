@@ -93,12 +93,11 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 ) => {
   return <Components.TagMultiselect
     value={tagsFilter ?? []}
-    path="tags"
     placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
     hidePostCount
     startWithBorder
-    updateCurrentValues={(values: {tags?: Array<string>}) => {
-      setTagsFilter && setTagsFilter(values.tags)
+    updateCurrentValues={(values: Array<string>) => {
+      setTagsFilter && setTagsFilter(values)
     }}
   />
 }

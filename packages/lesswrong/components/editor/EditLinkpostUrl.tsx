@@ -1,11 +1,14 @@
-import React, { useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import React from "react";
+import { Components } from "../../lib/vulcan-lib/components";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
+import type { EditablePost } from '../../lib/collections/posts/helpers';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail")
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('EditLinkpostUrl', (theme: ThemeType) => ({
   root: {
     width: "100%",
     padding: 12,
@@ -26,38 +29,26 @@ const styles = (theme: ThemeType) => ({
   title: {
     color: theme.palette.grey[1000],
   },
-});
+}));
 
-const EditLinkpostUrl = ({
-  value,
-  path,
-  classes,
-  document,
-  defaultValue,
-  placeholder,
-  updateCurrentValues,
-}: {
-  value: string;
-  path: keyof DbPost;
-  classes: ClassesType<typeof styles>;
-  document: Partial<DbPost>;
-  defaultValue?: string;
-  placeholder?: string;
-  updateCurrentValues<T extends {}>(values: T): void;
-}) => {
-  const inputRef = useRef<HTMLInputElement|null>(null);
+interface EditLinkpostUrlProps {
+  field: TypedFieldApi<string>;
+  post: EditablePost;
+}
 
-  const { postCategory } = document;
+// TODO: these two fields were on the form definition in the schema, but didn't seem to actually do anything.
+// hintText={isEAForum ? "UrlHintText" : "Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don't click offsite links.)"}
+// labels={{ inactive: 'Link-post?', active: 'Add a linkpost URL' }}
+
+export const EditLinkpostUrl = ({ field, post }: EditLinkpostUrlProps) => {
+  const classes = useStyles(styles);
+
+  const { postCategory } = post;
   if (postCategory !== "linkpost") return null;
 
-  const updateValue = (value: string | null) => {
-    updateCurrentValues({
-      [path]: value,
-    });
-  };
+  const value = field.state.value;
 
-  const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    updateValue(event.target.value);
+  const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => field.handleChange(event.target.value);
 
   return (
     <div className={classes.root}>
@@ -65,9 +56,8 @@ const EditLinkpostUrl = ({
         This is a linkpost for
       </Components.Typography>
       <Input
-        inputRef={inputRef}
         className={classes.input}
-        value={(document[path]) || defaultValue || ""}
+        value={value || ""}
         onChange={onChange}
         placeholder={placeholderSetting.get()}
         disableUnderline
@@ -77,10 +67,3 @@ const EditLinkpostUrl = ({
   );
 };
 
-export const EditLinkpostUrlComponent = registerComponent("EditLinkpostUrl", EditLinkpostUrl, { styles });
-
-declare global {
-  interface ComponentTypes {
-    EditLinkpostUrl: typeof EditLinkpostUrlComponent;
-  }
-}

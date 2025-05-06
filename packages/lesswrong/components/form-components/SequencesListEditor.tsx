@@ -1,9 +1,10 @@
 import React from 'react';
-import { makeSortableListComponent } from './sortableList';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { makeSortableListComponent } from '../form-components/sortableList';
+import { Components } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = defineStyles("SequencesListEditor", (theme: ThemeType) => ({
+const styles = defineStyles('SequencesListEditor', (theme: ThemeType) => ({
   root: {
   },
   item: {
@@ -22,29 +23,23 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const SequencesListEditor = ({value, path, updateCurrentValues}: FormComponentProps<string[]>) => {
+export const SequencesListEditor = ({ field }: {
+  field: TypedFieldApi<string[]>;
+}) => {
   const classes = useStyles(styles);
+  const value = field.state.value ?? [];
+
   return <div className={classes.root}>
     <SortableList
       value={value}
       setValue={(newValue: string[]) => {
-        void updateCurrentValues({[path]: newValue});
+        field.handleChange(newValue);
       }}
     />
     <Components.SequencesSearchAutoComplete
       clickAction={(sequenceId: string) => {
-        void updateCurrentValues({ [path]: [...value, sequenceId] });
+        field.handleChange([...value, sequenceId]);
       }}
     />
   </div>
-}
-
-// TODO: Does not work in nested contexts because it doesn't use the
-// vulcan-forms APIs correctly.
-const SequencesListEditorComponent = registerComponent("SequencesListEditor", SequencesListEditor);
-
-declare global {
-  interface ComponentTypes {
-    SequencesListEditor: typeof SequencesListEditorComponent
-  }
-}
+};

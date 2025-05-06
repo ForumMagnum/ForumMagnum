@@ -1,8 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import type { EditablePost } from '@/lib/collections/posts/helpers';
 
 export const GlossaryEditFormWrapper = ({document}: {
-  document: PostsEditQueryFragment,
+  document: EditablePost,
 }) => {
   const { GlossaryEditFormNewPost, GlossaryEditForm } = Components;
 

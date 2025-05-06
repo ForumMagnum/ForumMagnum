@@ -4,10 +4,13 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { Components } from '../../lib/vulcan-lib/components';
 import debounce from 'lodash/debounce';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { EditablePost } from '@/lib/collections/posts/helpers';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PodcastEpisodeInput', (theme: ThemeType) => ({
   podcastEpisodeName: {
     fontSize: "15px",
     width: 350,
@@ -15,14 +18,16 @@ const styles = (theme: ThemeType) => ({
       width: "calc(100% - 30px)", // leaving 30px so that the "clear" button for select forms has room
     },
   }
-});
+}));
 
-const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<string> & {
-  document: PostsBase,
-  classes: ClassesType<typeof styles>,
+export const PodcastEpisodeInput = ({ field, document }: {
+  field: TypedFieldApi<string | null>;
+  document: EditablePost;
 }) => {
   const { Loading, MenuItem } = Components;
+  const classes = useStyles(styles);
 
+  const value = field.state.value ?? '';
   const { title: postTitle } = document;
 
   const { results: podcasts = [], loading } = useMulti({
@@ -52,14 +57,12 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
     fragmentName: 'PodcastEpisodesDefaultFragment'
   });
 
-  const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?._id ?? value);
+  const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?._id ?? value ?? undefined);
 
   const syncPodcastEpisodeId = useCallback((id: string) => {
     setPodcastEpisodeId(id);
-    void updateCurrentValues({
-      [path]: id
-    });
-  }, [path, updateCurrentValues]);
+    field.handleChange(id);
+  }, [field]);
 
   const debouncedRefetchPodcastEpisode = useMemo(
     () => debounce(async () => await refetchPodcastEpisode(), 300),
@@ -75,7 +78,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
 
   const [podcastId, setPodcastId] = useState(podcasts[0]?._id ?? '');
 
-  const [episodeTitle, setEpisodeTitle] = useState(postTitle);
+  const [episodeTitle, setEpisodeTitle] = useState(postTitle ?? undefined);
   const [episodeLink, setEpisodeLink] = useState(existingPodcastEpisode?.episodeLink ?? '');
 
   const [validEpisodeLink, setValidEpisodeLink] = useState(true);
@@ -208,13 +211,3 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
     )
   );
 };
-
-const PodcastEpisodeInputComponent = registerComponent('PodcastEpisodeInput', PodcastEpisodeInput, {
-  styles
-});
-
-declare global {
-  interface ComponentTypes {
-    PodcastEpisodeInput: typeof PodcastEpisodeInputComponent
-  }
-}

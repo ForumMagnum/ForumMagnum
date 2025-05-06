@@ -10,7 +10,6 @@ import '../client';
 import { CLIENT_ID_COOKIE } from '../lib/cookies/cookies';
 import { initAutoRefresh } from './autoRefresh';
 import { rememberScrollPositionOnPageReload } from './scrollRestoration';
-import { addClickHandlerToCheckboxLabels } from './clickableCheckboxLabels';
 import { initLegacyRoutes } from '@/lib/routes';
 import { hydrateClient } from './start';
 import { googleTagManagerInit } from './ga';
@@ -52,7 +51,6 @@ async function clientStartup() {
 
   initAutoRefresh();
   rememberScrollPositionOnPageReload();
-  addClickHandlerToCheckboxLabels();
   initLegacyRoutes();
   hydrateClient();
   

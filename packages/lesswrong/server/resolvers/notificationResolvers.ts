@@ -1,7 +1,7 @@
 import { Notifications } from '../../server/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import { getNotificationTypeByName, NotificationDisplay } from '../../lib/notificationTypes';
-import type { NotificationCountsResult } from '../../lib/collections/notifications/newSchema';
+import type { NotificationCountsResult } from '@/components/hooks/useUnreadNotifications';
 import { isDialogueParticipant } from '../../lib/collections/posts/helpers';
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 import { cheerioParse } from '../utils/htmlUtil';

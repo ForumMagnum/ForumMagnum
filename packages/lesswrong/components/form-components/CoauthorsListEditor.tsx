@@ -1,13 +1,15 @@
-import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import React, { useCallback } from 'react';
+import { Components } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { makeSortableListComponent } from './sortableList';
 import find from 'lodash/find';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import {isEAForum} from '../../lib/instanceSettings';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import type { EditablePost } from '../../lib/collections/posts/helpers';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', theme => ({
+const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     marginLeft: 8,
@@ -50,39 +52,39 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const CoauthorsListEditor = ({ value, path, document, label, updateCurrentValues }: FormComponentProps<CoauthorListItem> & {
-  value: CoauthorListItem[],
-  document: Partial<DbPost>,
-}) => {
+interface CoauthorsListEditorProps {
+  field: TypedFieldApi<CoauthorListItem[] | null>;
+  post: EditablePost;
+  label: string;
+}
+
+export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorProps) => {
   const classes = useStyles(coauthorsListEditorStyles);
-  const [initialValue] = useState(value);
-  const hasPermission = !!document.hasCoauthorPermission;
-  
+  const value = field.state.value ?? [];
+  const hasPermission = !!post.hasCoauthorPermission;
+
   const toggleHasPermission = () => {
     const newValue = value.map((author) => ({ ...author, confirmed: !hasPermission }));
-    void updateCurrentValues({
-      [path]: newValue,
-      hasCoauthorPermission: !hasPermission,
-    });
+    field.handleChange(newValue);
+    field.form.setFieldValue('hasCoauthorPermission', !hasPermission);
   }
 
-  // Note: currently broken. This component needs to somehow deal with lists of objects instead of strings
   const addUserId = (userId: string) => {
     const newValue = [...value, { userId, confirmed: hasPermission, requested: false }];
-    void updateCurrentValues({ [path]: newValue });
+    field.handleChange(newValue);
   }
 
-  const setValue = useCallback((newValue: any[]) => {
-    void updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
+  const setValue = useCallback((newValue: CoauthorListItem[]) => {
+    field.handleChange(newValue);
+  }, [field]);
 
   return (
     <>
       <div className={classes.root}>
         <Components.ErrorBoundary>
-          <Components.UsersSearchAutoComplete 
-            clickAction={addUserId} 
-            label={document.collabEditorDialogue ? "Add participant" : label} 
+          <Components.UsersSearchAutoComplete
+            clickAction={addUserId}
+            label={post.collabEditorDialogue ? "Add participant" : label}
             />
         </Components.ErrorBoundary>
         <SortableList
@@ -90,7 +92,7 @@ const CoauthorsListEditor = ({ value, path, document, label, updateCurrentValues
           value={value.map(v=>v.userId)}
           setValue={(newValue: string[]) => {
             setValue(newValue.map(userId => {
-              const userWithStatus = find(initialValue, u=>u.userId===userId);
+              const userWithStatus = find(value, u=>u.userId===userId);
               return {
                 userId,
                 confirmed: userWithStatus?.confirmed||false,
@@ -114,12 +116,4 @@ const CoauthorsListEditor = ({ value, path, document, label, updateCurrentValues
       </div>}
     </>
   );
-}
-
-const CoauthorsListEditorComponent = registerComponent('CoauthorsListEditor', CoauthorsListEditor);
-
-declare global {
-  interface ComponentTypes {
-    CoauthorsListEditor: typeof CoauthorsListEditorComponent
-  }
 }

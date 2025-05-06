@@ -3,7 +3,7 @@ import { join } from "path";
 import { readFile, writeFile } from "fs/promises";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
 import { getSchema } from "@/lib/schema/allSchemas";
-import { getEditableFieldNamesForCollection } from "@/lib/editor/make_editable";
+// import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { collectionNameToGraphQLType } from "@/lib/vulcan-lib/collections";
 import { allUserGroups } from "@/lib/permissions";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";

@@ -156,7 +156,7 @@ const SubscribeDialog = (props: {
   }
 
   const subscribeByEmail = () => {
-    let mutation: Partial<DbUser> = { emailSubscribedToCurated: true }
+    let mutation: UpdateUserDataInput = { emailSubscribedToCurated: true };
     if (!currentUser) return;
 
     if (!userEmailAddressIsVerified(currentUser)) {

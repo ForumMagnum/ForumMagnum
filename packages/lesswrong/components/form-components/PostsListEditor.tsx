@@ -1,9 +1,10 @@
 import React from 'react';
-import { makeSortableListComponent } from './sortableList';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { makeSortableListComponent } from '../form-components/sortableList';
+import { Components } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = defineStyles("PostsListEditor", (theme: ThemeType) => ({
+const styles = defineStyles('PostsListEditor', (theme: ThemeType) => ({
   editor: {
     "& .ais-InstantSearch__root": {
       margin: "20px 0",
@@ -26,29 +27,23 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const PostsListEditor = ({value, path, updateCurrentValues}: FormComponentProps<string[]>) => {
+export const PostsListEditor = ({ field }: {
+  field: TypedFieldApi<string[]>;
+}) => {
   const classes = useStyles(styles);
+  const value = field.state.value ?? [];
+
   return <div className={classes.editor}>
     <SortableList
       value={value}
       setValue={(newValue: string[]) => {
-        void updateCurrentValues({[path]: newValue});
+        field.handleChange(newValue);
       }}
     />
     <Components.PostsSearchAutoComplete
       clickAction={(postId: string) => {
-        void updateCurrentValues({ [path]: [...value, postId] });
+        field.handleChange([...value, postId]);
       }}
     />
   </div>
-}
-
-// TODO: Does not work in nested contexts because it doesn't use the
-// vulcan-forms APIs correctly.
-const PostsListEditorComponent = registerComponent("PostsListEditor", PostsListEditor);
-
-declare global {
-  interface ComponentTypes {
-    PostsListEditor: typeof PostsListEditorComponent
-  }
-}
+};

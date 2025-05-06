@@ -2,8 +2,9 @@ import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = defineStyles("UserMultiselect", (theme: ThemeType) => ({
+const styles = defineStyles('UserMultiselect', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -53,15 +54,17 @@ const UserMultiselect = ({value, setValue, label}: {
   )
 }
 
-const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
-  value: string[],
-  path: string,
-  label: string,
-  updateCurrentValues: UpdateCurrentValues,
-}) => {
+interface FormUserMultiselectProps {
+  field: TypedFieldApi<string[]>;
+  label: string;
+}
+
+export const FormUserMultiselect = ({ field, label }: FormUserMultiselectProps) => {
+  const value = field.state.value ?? [];
+
   const setValue = useCallback((newValue: string[]) => {
-    void updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
+    field.handleChange(newValue);
+  }, [field]);
 
   return <Components.UserMultiselect
     value={value}
@@ -71,11 +74,9 @@ const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
 };
 
 const UserMultiselectComponent = registerComponent("UserMultiselect", UserMultiselect);
-const FormUserMultiselectComponent = registerComponent("FormUserMultiselect", FormUserMultiselect);
 
 declare global {
   interface ComponentTypes {
     UserMultiselect: typeof UserMultiselectComponent
-    FormUserMultiselect: typeof FormUserMultiselectComponent
   }
 }

@@ -10,7 +10,8 @@ import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import _ from "underscore";
-import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH, ContentType } from "./revisionConstants";
+import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
+import { ContentType } from "./revisionSchemaTypes";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import gql from "graphql-tag";
@@ -40,8 +41,8 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
 export const graphqlTypeDefs = gql`
   scalar ContentTypeData
   type ContentType {
-    type: String
-    data: ContentTypeData
+    type: String!
+    data: ContentTypeData!
   }
 `
 

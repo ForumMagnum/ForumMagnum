@@ -38,7 +38,7 @@ const variantToDefaultComponent: Record<VariantString, string> = {
   body1: 'p',
 };
 
-export const Typography = ({children, variant, component, className, onClick, gutterBottom=false, id}: {
+export const Typography = ({children, variant, component, className, onClick, gutterBottom=false, id, htmlFor}: {
   children: React.ReactNode,
   variant: VariantString,
   component?: "div"|"span"|"label"|"aside"|"p",
@@ -46,6 +46,7 @@ export const Typography = ({children, variant, component, className, onClick, gu
   onClick?: any,
   gutterBottom?: boolean,
   id?: string,
+  htmlFor?: string,
 }) => {
   const classes = useStyles(styles);
   const Component: any = component || variantToDefaultComponent[variant] || "span";
@@ -53,6 +54,7 @@ export const Typography = ({children, variant, component, className, onClick, gu
   return (
     <Component
       id={id}
+      htmlFor={htmlFor}
       className={classNames(
         classes.root,
         classes[variant],

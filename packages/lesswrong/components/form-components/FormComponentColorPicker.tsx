@@ -1,7 +1,8 @@
-import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import React from "react";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormComponentColorPicker', (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
@@ -10,49 +11,43 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 4,
     fontSize: 10,
   },
-});
+}));
 
-type FormComponentColorPickerProps = Pick<
-  FormComponentProps<string|null>,
-  "value"|"label"|"updateCurrentValues"|"path"|"disabled"
-> & {
-  classes: ClassesType<typeof styles>,
-}
-
-export const FormComponentColorPicker = ({
-  value,
-  label,
-  updateCurrentValues,
-  path,
-  disabled,
-  classes,
-}: FormComponentColorPickerProps) => {
-  const onChange = useCallback(async (ev: React.ChangeEvent<HTMLInputElement>) => {
-    await updateCurrentValues({
-      [path]: ev.target.value,
-    });
-  }, [updateCurrentValues, path]);
+export const ColorPicker = ({ value, onChange, disabled, label }: {
+  value: string | null;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  label?: string;
+}) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       {label && <div className={classes.label}>{label}</div>}
       <input
         type="color"
-        value={value ?? "#ffffff"}
-        onChange={onChange}
+        value={value || "#ffffff"}
+        onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
       />
     </div>
   );
+};
+
+interface FormComponentColorPickerProps {
+  field: TypedFieldApi<string | null>;
+  label: string;
+  disabled?: boolean;
 }
 
-const FormComponentColorPickerComponent = registerComponent(
-  "FormComponentColorPicker",
-  FormComponentColorPicker,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentColorPicker: typeof FormComponentColorPickerComponent
-  }
+export const FormComponentColorPicker = ({
+  field,
+  label,
+  disabled,
+}: FormComponentColorPickerProps) => {
+  return <ColorPicker
+    value={field.state.value}
+    onChange={(value) => field.handleChange(value)}
+    disabled={disabled}
+    label={label}
+  />
 }

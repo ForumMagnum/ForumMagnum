@@ -1,7 +1,7 @@
 import React from "react";
 import { commentIsHidden } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
-import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/newSchema";
+import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";

@@ -10,9 +10,6 @@ const schema = {
       ...DEFAULT_CREATED_AT_FIELD.graphql,
       canUpdate: ["admins"],
     },
-    form: {
-      hidden: true,
-    },
   },
   legacyData: DEFAULT_LEGACY_DATA_FIELD,
   userId: {
@@ -29,9 +26,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   user: {
@@ -54,9 +48,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   reportedUser: {
     graphql: {
@@ -77,9 +68,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   comment: {
@@ -102,9 +90,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   post: {
     graphql: {
@@ -123,9 +108,6 @@ const schema = {
       canRead: ["guests"],
       canCreate: ["members"],
     },
-    form: {
-      hidden: true,
-    },
   },
   claimedUserId: {
     database: {
@@ -140,9 +122,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   claimedUser: {
@@ -165,10 +144,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Reason",
-      placeholder: "What are you reporting this comment for?",
-    },
   },
   closedAt: {
     database: {
@@ -183,7 +158,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   // Only set when report is closed. Indicates whether content is spam or not.
   markedAsSpam: {
@@ -198,7 +172,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {},
   },
   // Set when report is created, indicates whether content was reported as spam
   // (currently only used for Akismet integration)
@@ -214,9 +187,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Reports">>;

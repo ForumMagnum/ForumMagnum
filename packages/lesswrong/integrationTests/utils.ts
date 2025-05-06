@@ -333,7 +333,7 @@ export const createManyDummyVotes = async (count: number, user: DbUser, data?: P
   return votes;
 }
 
-export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
+export const createDummyTag = async (user: DbUser, data?: Partial<DbInsertion<DbTag>>) => {
   const defaultData = {
     _id: randomId(),
     name: "Test Tag",
