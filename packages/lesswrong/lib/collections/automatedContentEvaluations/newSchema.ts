@@ -11,8 +11,8 @@ const schema = {
       foreignKey: "Revisions",
     },
     graphql: {
-      outputType: "String",
-      canRead: ["admins"],
+      outputType: "String!",
+      canRead: ["guests"],
     }
   },
 
@@ -22,8 +22,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Float",
-      canRead: ["admins"], 
+      outputType: "Float!",
+      canRead: ["guests"], 
     }
   },
 
@@ -34,8 +34,8 @@ const schema = {
       typescriptType: "{ sentence: string; score: number; }[]",
     },
     graphql: {
-      outputType: "[SentenceScore]",
-      canRead: ["admins"],
+      outputType: "[SentenceScore]!",
+      canRead: ["guests"],
     },
   },
 
@@ -46,8 +46,8 @@ const schema = {
       typescriptType: '"accept" | "review"',
     },
     graphql: {
-      outputType: "String",
-      canRead: ["admins"],
+      outputType: "String!",
+      canRead: ["guests"],
     },
   },
 
@@ -57,8 +57,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      canRead: ["admins"],
+      outputType: "String!",
+      canRead: ["guests"],
     },
   },
 
@@ -68,8 +68,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      canRead: ["admins"],
+      outputType: "String!",
+      canRead: ["guests"],
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"AutomatedContentEvaluations">>;

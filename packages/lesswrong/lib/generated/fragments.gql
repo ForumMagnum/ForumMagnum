@@ -3330,6 +3330,9 @@ fragment SunshinePostsList on Post {
         sentence
         score
       }
+      aiChoice
+      aiReasoning
+      aiCoT
     }
   }
 

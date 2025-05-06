@@ -10,6 +10,11 @@ import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import _ from "underscore";
 
+const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!currentUser || !document) return false;
+  return currentUser.isAdmin
+};
+
 const banCheckAccess: CheckAccessFunction<'Bans'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
   return userCanDo(currentUser, 'bans.view')
@@ -351,6 +356,7 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
+  AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
   Bans: banCheckAccess,
   Chapters: chapterCheckAccess,
   ClientIds: clientIdCheckAccess,

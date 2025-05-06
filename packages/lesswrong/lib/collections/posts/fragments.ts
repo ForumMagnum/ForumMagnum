@@ -685,6 +685,9 @@ export const SunshinePostsList = () => frag`
           sentence
           score
         }
+        aiChoice
+        aiReasoning
+        aiCoT
       }
     }
 

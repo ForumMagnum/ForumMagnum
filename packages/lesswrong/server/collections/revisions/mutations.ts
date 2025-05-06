@@ -9,7 +9,7 @@ import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { saplingApiKey } from "@/lib/instanceSettings";
+import { isLW, saplingApiKey } from "@/lib/instanceSettings";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
@@ -59,7 +59,7 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
-  if (documentWithId.collectionName === "Posts" && documentWithId.fieldName === "contents") {
+  if (isLW && documentWithId.collectionName === "Posts" && documentWithId.fieldName === "contents") {
     void createAutomatedContentEvaluation(documentWithId, context);
   }
 
@@ -89,7 +89,7 @@ export async function updateRevision({ selector, data }: UpdateRevisionInput, co
 
   void logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData });
 
-  if (!updatedDocument.draft && updatedDocument.collectionName === "Posts" && updatedDocument.fieldName === "contents") {
+  if (!updatedDocument.draft && isLW && updatedDocument.collectionName === "Posts" && updatedDocument.fieldName === "contents") {
     void createAutomatedContentEvaluation(updatedDocument, context);
   }
 

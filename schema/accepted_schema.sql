@@ -85,6 +85,9 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "aiCoT" TEXT NOT NULL
 );
 
+-- Index "idx_AutomatedContentEvaluations_revisionId"
+CREATE INDEX IF NOT EXISTS "idx_AutomatedContentEvaluations_revisionId" ON "AutomatedContentEvaluations" USING btree ("revisionId");
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
