@@ -1023,6 +1023,7 @@ interface Bookmark {
   collectionName: string;
   userId: string;
   post: Post | null;
+  comment: Comment | null;
   lastUpdated: Date;
   active: boolean;
 }

@@ -2,29 +2,44 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import { FeedPostMetaInfo } from '../ultraFeed/ultraFeedTypes';
+import { FeedPostMetaInfo, FeedCommentMetaInfo, DisplayFeedCommentThread, FeedItemDisplayStatus } from '../ultraFeed/ultraFeedTypes';
 import { DEFAULT_SETTINGS, UltraFeedSettingsType } from '../ultraFeed/ultraFeedSettingsTypes';
 import { UltraFeedObserverProvider } from '../ultraFeed/UltraFeedObserver';
 import { OverflowNavObserverProvider } from '../ultraFeed/OverflowNavObserverContext';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const BookmarksFeed = () => {
-  const { MixedTypeFeed, SingleColumnSection, SectionTitle, Loading, FeedItemWrapper, UltraFeedPostItem, UltraFeedThreadItem } = Components;
+  const { SingleColumnSection, SectionTitle, Loading, FeedItemWrapper, UltraFeedPostItem, UltraFeedThreadItem } = Components;
   const currentUser = useCurrentUser();
+
+  const { results: bookmarks = [], loading, error } = useMulti({
+    collectionName: "Bookmarks",
+    fragmentName: "BookmarksFeedItemFragment",
+    terms: {
+      view: "myBookmarks",
+      userId: currentUser?._id,
+      limit: 20,
+    },
+    skip: !currentUser,
+  });
   
-  if (!currentUser) {
+  if (!currentUser || (loading && !bookmarks.length)) {
     return <SingleColumnSection>
       <Loading />
     </SingleColumnSection>;
   }
 
-  // we don't need most of these but the UltraFeed components expect all of them
+  if (error) {
+    return <SingleColumnSection><p>Error loading bookmarks: {error.message}</p></SingleColumnSection>;
+  }
+
   const settings: UltraFeedSettingsType = {
     ...DEFAULT_SETTINGS,
     postTruncationBreakpoints: [50, 2000],
     commentTruncationBreakpoints: [50, 500, 1000],
     postTitlesAreModals: true,
     incognitoMode: true, 
-  }
+  };
 
   return (
     <AnalyticsContext pageSectionContext="bookmarksFeed">
@@ -32,55 +47,57 @@ const BookmarksFeed = () => {
       <OverflowNavObserverProvider>
       <SingleColumnSection>
         <SectionTitle title="All Bookmarks" />
-        <MixedTypeFeed
-          resolverName="BookmarksFeed"
-          sortKeyType="Date"
-          firstPageSize={20}
-          pageSize={20}
-          loadMoreDistanceProp={500}
-          renderers={{
-            feedPost: {
-              fragmentName: 'FeedPostFragment',
-              render: (item: FeedPostFragment, index: number) => {
-                if (!item) return null;
-                
-                const { post } = item;
+        {bookmarks.map((bookmark: any, index) => {
+          const typedBookmark = bookmark;
 
-                const postMetaInfo: FeedPostMetaInfo = {
-                  sources: ["bookmarks"],
-                  displayStatus: "expanded"
-                }
-
-                return (
-                  <FeedItemWrapper>
-                    <UltraFeedPostItem
-                      post={post}
-                      postMetaInfo={postMetaInfo}
-                      index={index}
-                      settings={settings}
-                    />
-                  </FeedItemWrapper>
-                )
+          if (typedBookmark.collectionName === 'Posts' && typedBookmark.post) {
+            const postMetaInfo: FeedPostMetaInfo = {
+              sources: ["bookmarks"],
+              displayStatus: "expanded" as FeedItemDisplayStatus
+            };
+            return (
+              <FeedItemWrapper key={typedBookmark._id || `post-${index}`}>
+                <UltraFeedPostItem
+                  post={typedBookmark.post}
+                  postMetaInfo={postMetaInfo}
+                  index={index}
+                  settings={settings}
+                />
+              </FeedItemWrapper>
+            );
+          } else if (typedBookmark.collectionName === 'Comments' && typedBookmark.comment) {
+            const commentData = typedBookmark.comment;
+            const commentMetaInfos: Record<string, FeedCommentMetaInfo> = {
+              [commentData._id]: {
+                sources: ['bookmarks'] as const,
+                displayStatus: 'expanded' as FeedItemDisplayStatus,
+                lastServed: typedBookmark.lastUpdated, 
+                lastViewed: null, 
+                lastInteracted: null,
+                postedAt: commentData.postedAt,
+                directDescendentCount: commentData.directChildrenCount
               }
-            },
-            feedCommentThread: {
-              fragmentName: 'FeedCommentThreadFragment',
-              render: (item: FeedCommentThreadFragment, index: number) => {
-                if (!item) return null;
-
-                return (
-                  <FeedItemWrapper>
-                    <UltraFeedThreadItem
-                      thread={item}
-                      index={index}
-                      settings={settings}
-                    />
-                  </FeedItemWrapper>
-                )
-              }
-            }
-          }}
-        />
+            };
+            const threadData: DisplayFeedCommentThread = {
+              _id: `bookmark-comment-${commentData._id}`,
+              comments: [commentData], 
+              commentMetaInfos,
+            };
+            return (
+              <FeedItemWrapper key={typedBookmark._id || `comment-${index}`}>
+                <UltraFeedThreadItem
+                  thread={threadData}
+                  index={index}
+                  settings={settings}
+                />
+              </FeedItemWrapper>
+            );
+          }
+          return null;
+        })}
+        {bookmarks.length === 0 && !loading && (
+          <p>No bookmarks yet.</p>
+        )}
       </SingleColumnSection>
       </OverflowNavObserverProvider>
       </UltraFeedObserverProvider>

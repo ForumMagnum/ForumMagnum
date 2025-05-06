@@ -1,5 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { userOwns } from "@/lib/vulcan-users/permissions";
+import { accessFilterSingle } from "../../utils/schemaUtils";
 
 const ALLOWED_COLLECTION_NAMES = ["Posts", "Comments"];
 
@@ -55,11 +56,29 @@ const schema = {
       outputType: 'Post',
       canRead: ['guests'],
       resolver: async (bookmark: DbBookmark, args: any, context: ResolverContext) => {
+        const { currentUser } = context;
         const { documentId, collectionName } = bookmark;
         if (collectionName !== "Posts") {
             return null;
         }
-        return await context.loaders.Posts.load(documentId);
+        const post = await context.loaders.Posts.load(documentId);
+        return await accessFilterSingle(currentUser, "Posts", post, context);
+      }
+    }
+  },
+
+  comment: {
+    graphql: {
+      outputType: 'Comment',
+      canRead: ['guests'],
+      resolver: async (bookmark: DbBookmark, args: any, context: ResolverContext) => {
+        const { currentUser } = context;
+        const { documentId, collectionName } = bookmark;
+        if (collectionName !== "Comments") {
+            return null;
+        }
+        const comment = await context.loaders.Comments.load(documentId);
+        return await accessFilterSingle(currentUser, "Comments", comment, context);
       }
     }
   },

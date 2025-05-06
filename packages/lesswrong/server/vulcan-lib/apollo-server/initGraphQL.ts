@@ -74,7 +74,6 @@ import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGrap
 import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
-import { bookmarksFeedGraphQLQueries, bookmarksFeedGraphQLTypeDefs } from '@/server/resolvers/bookmarksFeedResolver';
 import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elicitQuestionPredictions/newSchema';
 
@@ -283,7 +282,6 @@ export const typeDefs = gql`
   ${spotlightGqlTypeDefs}
   ${typingIndicatorsGqlTypeDefs}
   ${acceptCoauthorRequestTypeDefs}
-  ${bookmarkGqlTypeDefs}
   ${hidePostGqlTypeDefs}
   ${markAsUnreadTypeDefs}
   ${cronGraphQLTypeDefs}
@@ -303,7 +301,6 @@ export const typeDefs = gql`
   ${ultraFeedGraphQLTypeDefs}
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
-  ${bookmarksFeedGraphQLTypeDefs}
   ${elicitQuestionPredictionsGraphQLTypeDefs}
   ## CRUD Query typedefs
   ${graphqlAdvisorRequestQueryTypeDefs}
@@ -484,7 +481,6 @@ export const resolvers = {
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
-    ...bookmarksFeedGraphQLQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,

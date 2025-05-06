@@ -8,3 +8,15 @@ export const BookmarksWithDocumentFragment = () => frag`
     }
   }
 `;
+
+export const BookmarksFeedItemFragment = () => frag`
+  fragment BookmarksFeedItemFragment on Bookmark {
+    ...BookmarksDefaultFragment
+    post {
+      ...PostsListWithVotes
+    }
+    comment {
+      ...UltraFeedComment
+    }
+  }
+`;

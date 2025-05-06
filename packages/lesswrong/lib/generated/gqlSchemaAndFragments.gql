@@ -1512,6 +1512,7 @@ type Bookmark {
   collectionName: String!
   userId: String!
   post: Post
+  comment: Comment
   lastUpdated: Date!
   active: Boolean!
 }
@@ -7574,6 +7575,16 @@ fragment BookmarksDefaultFragment on Bookmark {
   userId
   lastUpdated
   active
+}
+
+fragment BookmarksFeedItemFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  post {
+    ...PostsListWithVotes
+  }
+  comment {
+    ...UltraFeedComment
+  }
 }
 
 fragment BookmarksWithDocumentFragment on Bookmark {

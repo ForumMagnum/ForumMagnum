@@ -133,6 +133,11 @@ interface BookmarksDefaultFragment { // fragment on Bookmarks
   readonly active: boolean,
 }
 
+interface BookmarksFeedItemFragment extends BookmarksDefaultFragment { // fragment on Bookmarks
+  readonly post: PostsListWithVotes|null,
+  readonly comment: UltraFeedComment|null,
+}
+
 interface BookmarksWithDocumentFragment extends BookmarksDefaultFragment { // fragment on Bookmarks
   readonly post: PostsListWithVotes|null,
 }
@@ -5507,6 +5512,7 @@ interface FragmentTypes {
   BookEdit: BookEdit
   BookPageFragment: BookPageFragment
   BookmarksDefaultFragment: BookmarksDefaultFragment
+  BookmarksFeedItemFragment: BookmarksFeedItemFragment
   BookmarksWithDocumentFragment: BookmarksWithDocumentFragment
   BooksDefaultFragment: BooksDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
@@ -5845,7 +5851,7 @@ interface FragmentTypesByCollection {
   ArbitalTagContentRels: "ArbitalTagContentRelsDefaultFragment"
   AutomatedContentEvaluations: "AutomatedContentEvaluationsDefaultFragment"
   Bans: "BansAdminPageFragment"|"BansDefaultFragment"
-  Bookmarks: "BookmarksDefaultFragment"|"BookmarksWithDocumentFragment"
+  Bookmarks: "BookmarksDefaultFragment"|"BookmarksFeedItemFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"|"BooksDefaultFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersEdit"|"ChaptersFragment"
   CkEditorUserSessions: "CkEditorUserSessionInfo"|"CkEditorUserSessionsDefaultFragment"
@@ -5950,6 +5956,7 @@ interface CollectionNamesByFragmentName {
   BookEdit: "Books"
   BookPageFragment: "Books"
   BookmarksDefaultFragment: "Bookmarks"
+  BookmarksFeedItemFragment: "Bookmarks"
   BookmarksWithDocumentFragment: "Bookmarks"
   BooksDefaultFragment: "Books"
   ChaptersDefaultFragment: "Chapters"
