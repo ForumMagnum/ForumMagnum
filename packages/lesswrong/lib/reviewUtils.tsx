@@ -208,7 +208,7 @@ export type VoteIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 interface CostData {
   value: number | null;
   cost: number;
-  tooltip: JSX.Element | null;
+  tooltip: React.JSX.Element | null;
 }
 
 export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<number, CostData> => {

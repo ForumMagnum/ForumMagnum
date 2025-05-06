@@ -15,7 +15,7 @@ const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: str
 async function renderTestEmail({ user=null, subject="Unit test email", bodyComponent, boilerplateGenerator }: {
   user?: DbUser|null,
   subject?: string,
-  bodyComponent: JSX.Element,
+  bodyComponent: React.JSX.Element,
   boilerplateGenerator?: typeof unitTestBoilerplateGenerator
 }) {
   const destinationUser = user || await createDummyUser();

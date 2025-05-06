@@ -350,7 +350,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       </Typography>
   }
   
-  let tbdEventsList: JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+  let tbdEventsList: React.JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
   if (isEAForum) {
     tbdEventsList = tbdEvents?.length ? <>
       <Typography variant="headline" className={classes.eventsHeadline}>
@@ -368,7 +368,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     </> : null
   }
   
-  let pastEventsList: JSX.Element|null = <>
+  let pastEventsList: React.JSX.Element|null = <>
     <Typography variant="headline" className={classes.eventsHeadline}>
       Past Events
     </Typography>
