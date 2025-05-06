@@ -9,8 +9,8 @@ export type BookmarkPost = {
   toggleBookmark: (event?: MouseEvent) => void,
 }
 
-export const useBookmarkPost = (post: PostsMinimumInfo | null | undefined): BookmarkPost => {
-  const { icon, labelText, hoverText, toggleBookmark, loading } = useBookmark(post?._id, "Posts");
+export const useBookmarkPost = (post: PostsMinimumInfo): BookmarkPost => {
+  const { icon, labelText, hoverText, toggleBookmark, loading } = useBookmark(post._id, "Posts");
 
   return {
     icon,

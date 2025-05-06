@@ -33,21 +33,22 @@ interface FeedCommentsThreadResolverType extends UltraFeedCommentsThreadResolver
   post: Partial<DbPost> | null;
 }
 
-type InternalFeedItem = {
+type BookmarkFeedItem = {
+  _id: string;
   type: 'feedPost' | 'feedCommentThread';
   feedPost: FeedPostResolverType | null;
   feedCommentThread: FeedCommentsThreadResolverType | null;
   sortKey: Date;
 };
 
-interface BookmarksFeedQueryResult {
+interface BookmarksFeedResolverResult {
   cutoff: Date | null;
   endOffset: number;
-  results: BookmarksFeedEntryType[];
+  results: BookmarkFeedItem[];
 }
 
 export const bookmarksFeedGraphQLQueries = {
-  BookmarksFeed: async (_root: void, args: any, context: ResolverContext): Promise<BookmarksFeedQueryResult> => {
+  BookmarksFeed: async (_root: void, args: any, context: ResolverContext): Promise<BookmarksFeedResolverResult> => {
     const {limit = 20, cutoff, offset = 0} = args;
     const {currentUser} = context;
     
@@ -98,53 +99,51 @@ export const bookmarksFeedGraphQLQueries = {
 
     const postFeedItems = posts
       .filter((post) => post != null)
-      .map((post): InternalFeedItem | null => {
+      .map((post): BookmarkFeedItem | null => {
         const bookmark = bookmarkMap.get(post._id);
         if (!bookmark) {
           return null;
         }
-        const postMetaInfo: FeedPostMetaInfo = { sources: ["bookmarks"], displayStatus: "expanded" };
+        const postMetaInfo: FeedPostMetaInfo = { sources: ['bookmarks'] as const, displayStatus: 'expanded' };
         const feedPostData: FeedPostResolverType = { _id: post._id, post: post, postMetaInfo: postMetaInfo };
         return {
+          _id: post._id,
           type: "feedPost",
           feedPost: feedPostData,
           feedCommentThread: null,
           sortKey: bookmark.lastUpdated ?? new Date()
         };
       })
-      .filter((item): item is InternalFeedItem => item != null);
+      .filter((item): item is BookmarkFeedItem => item != null);
 
     const commentFeedItems = comments
       .filter((comment): comment is NonNullable<typeof comment> => comment != null)
-      .map((comment): InternalFeedItem | null => {
+      .map((comment): BookmarkFeedItem | null => {
         const bookmark = bookmarkMap.get(comment._id);
         if (!bookmark || !comment.postId) {
           return null;
         }
         const commentMetaInfos: Record<string, FeedCommentMetaInfo> = {
           [comment._id]: {
-            sources: ["bookmarks"],
-            displayStatus: "expanded",
-            directDescendentCount: 0,
-            lastServed: new Date(),
-            lastViewed: new Date(),
-            lastInteracted: new Date(),
-            postedAt: comment.postedAt
+            sources: ['bookmarks'] as const, displayStatus: 'expanded',
+            lastServed: null, lastViewed: null, lastInteracted: null, postedAt: comment.postedAt,
+            directDescendentCount: comment.directChildrenCount
           }
         };
         const threadId = `bookmark-comment-${comment._id}`;
         const parentPost = commentPostsById.get(comment.postId) || null;
         const feedCommentThreadData: FeedCommentsThreadResolverType = { _id: threadId, comments: [comment], commentMetaInfos: commentMetaInfos, post: parentPost };
         return {
+          _id: threadId,
           type: "feedCommentThread",
           feedPost: null,
           feedCommentThread: feedCommentThreadData,
           sortKey: bookmark.lastUpdated ?? new Date()
         };
       })
-      .filter((item): item is InternalFeedItem => item != null);
+      .filter((item) => item != null);
 
-    const feedItems = [...postFeedItems, ...commentFeedItems];
+    const feedItems: BookmarkFeedItem[] = [...postFeedItems, ...commentFeedItems];
 
     const sortedFeedItems = orderBy(feedItems, ['sortKey'], ['desc']);
 

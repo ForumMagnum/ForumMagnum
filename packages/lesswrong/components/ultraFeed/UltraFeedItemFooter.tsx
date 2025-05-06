@@ -11,7 +11,7 @@ import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "../../lib/crud/withCreate";
 import { useDialog } from "../common/withDialog";
-import { isBookmarkableCollectionName } from "../posts/BookmarkButton";
+import { bookmarkableCollectionNames } from "../posts/BookmarkButton";
 
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
@@ -267,7 +267,7 @@ const UltraFeedItemFooterCore = ({
         </div>
       )}
       
-      { bookmarkProps && isBookmarkableCollectionName(collectionName) && (
+      { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
         <div onClick={() => handleInteractionLog('bookmarkClicked')}>
           <BookmarkButton
             documentId={bookmarkProps.documentId}
