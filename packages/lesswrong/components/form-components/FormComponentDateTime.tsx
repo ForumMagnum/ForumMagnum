@@ -36,7 +36,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
     borderColor: datepicker__mutedColor,
     borderStyle: "solid",
     borderWidth: "3px 3px 0 0",
-    content: "",
+    content: '""',
     display: "block",
     height: 9,
     position: "absolute",
@@ -688,7 +688,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           textAlign: "center",
           display: "table-cell",
           verticalAlign: "middle",
-          content: "\u00d7",
+          content: '"\u00d7"',
         },
       
         "&--disabled": {
