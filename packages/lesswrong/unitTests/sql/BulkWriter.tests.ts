@@ -3,7 +3,26 @@ import BulkWriter from "@/server/sql/BulkWriter";
 import InsertQuery from "@/server/sql/InsertQuery";
 import UpdateQuery from "@/server/sql/UpdateQuery";
 import DeleteQuery from "@/server/sql/DeleteQuery";
-import { concat as mockSqlConcat } from "../../server/sqlConnection";
+import { concat, pgPromiseLib } from "../../server/sqlConnection";
+import Query from "@/server/sql/Query";
+
+jest.mock('../../server/sqlConnection', () => {
+  const originalModule = jest.requireActual('../../server/sqlConnection');
+
+  const mockConcat = jest.fn((queries: Query<any>[]): string => {
+    const compiled = queries.map((query) => {
+      const {sql, args} = query.compile();
+      return {query: sql, values: args};
+    });
+    return originalModule.pgPromiseLib.helpers.concat(compiled);
+  });
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    concat: mockConcat
+  };
+})
 
 describe("BulkWriter", () => {
   it("insertOne creates an InsertQuery", () => {
@@ -88,7 +107,7 @@ describe("BulkWriter", () => {
   it("can execute writer queries", async () => {
     const multi = jest.fn();
     const mockSql = "some-mock-sql";
-    (mockSqlConcat as jest.Mock).mockReturnValueOnce(mockSql);
+    (concat as jest.Mock).mockReturnValueOnce(mockSql);
 
     const client = {multi} as unknown as SqlClient;
     const writer = new BulkWriter(testTable, [
@@ -99,7 +118,7 @@ describe("BulkWriter", () => {
     const result = await writer.execute(client);
     expect(result).toStrictEqual({ok: 1});
 
-    expect(mockSqlConcat).toHaveBeenCalledTimes(1);
+    expect(concat).toHaveBeenCalledTimes(1);
     expect(client.multi).toHaveBeenCalledTimes(1);
     expect(client.multi).toHaveBeenCalledWith(mockSql);
   });
