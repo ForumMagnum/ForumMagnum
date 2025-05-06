@@ -202,8 +202,8 @@ export const styles = defineStyles("MuiInputBase", theme => {
   };
 }, {stylePriority: -10});
 
-export function formControlState({ props, states, muiFormControl }) {
-  return states.reduce((acc, state) => {
+export function formControlState({ props, states, muiFormControl }: AnyBecauseTodo) {
+  return states.reduce((acc: AnyBecauseTodo, state: AnyBecauseTodo) => {
     acc[state] = props[state];
 
     if (muiFormControl) {
@@ -237,7 +237,7 @@ class InputBase extends React.Component<InputBasePropsWithHoCs> {
       this.checkDirty(props);
     }
 
-    const componentWillReceiveProps = (nextProps: InputBasePropsWithHoCs, nextContext) => {
+    const componentWillReceiveProps = (nextProps: InputBasePropsWithHoCs, nextContext: AnyBecauseTodo) => {
       // The blur won't fire when the disabled state is set on a focused input.
       // We need to book keep the focused state manually.
       if (
@@ -327,6 +327,7 @@ class InputBase extends React.Component<InputBasePropsWithHoCs> {
 
     // Perform in the willUpdate
     if (this.props.onChange) {
+      // @ts-ignore
       this.props.onChange(...args);
     }
   };
@@ -451,7 +452,7 @@ class InputBase extends React.Component<InputBasePropsWithHoCs> {
     );
 
     let InputComponent: AnyBecauseTodo = inputComponent;
-    let inputProps = {
+    let inputProps: AnyBecauseHard = {
       ...inputPropsProp,
       ref: this.handleRefInput,
     };

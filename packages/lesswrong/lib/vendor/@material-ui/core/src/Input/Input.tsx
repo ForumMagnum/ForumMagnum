@@ -107,7 +107,15 @@ export const styles = defineStyles("MuiInput", theme => {
 }, {stylePriority: -10});
 
 function Input(props: InputProps) {
-  const { disableUnderline, classes: classesOverride, ...other } = props;
+  const {
+    disableUnderline,
+    classes: classesOverride,
+    fullWidth=false,
+    inputComponent='input',
+    multiline=false,
+    type='text',
+    ...other
+  } = props;
   const classes = useStylesNonProxy(styles, classesOverride);
 
   return (
@@ -119,17 +127,14 @@ function Input(props: InputProps) {
         }),
         underline: undefined,
       }}
+      fullWidth={fullWidth}
+      inputComponent={inputComponent}
+      multiline={multiline}
+      type={type}
       {...other}
     />
   );
 }
-
-InputBase.defaultProps = {
-  fullWidth: false,
-  inputComponent: 'input',
-  multiline: false,
-  type: 'text',
-};
 
 Input.muiName = 'Input';
 

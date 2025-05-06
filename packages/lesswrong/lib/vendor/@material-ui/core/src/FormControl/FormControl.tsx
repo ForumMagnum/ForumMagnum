@@ -86,11 +86,11 @@ class FormControl extends React.Component<FormControlProps & WithStylesProps<typ
           return;
         }
 
-        if (isFilled(child.props, true)) {
+        if (isFilled((child as AnyBecauseTodo).props, true)) {
           this.state = {...this.state, filled: true};
         }
 
-        const input = isMuiElement(child, ['Select']) ? child.props.input : child;
+        const input = isMuiElement(child, ['Select']) ? (child as AnyBecauseTodo).props.input : child;
 
         if (input && isAdornedStart(input.props)) {
           this.state = {...this.state, adornedStart: true};
@@ -123,7 +123,6 @@ class FormControl extends React.Component<FormControlProps & WithStylesProps<typ
     const {
       classes,
       className,
-      component: Component,
       disabled,
       error,
       fullWidth,
@@ -149,7 +148,7 @@ class FormControl extends React.Component<FormControlProps & WithStylesProps<typ
         required,
         variant,
       }}>
-        <Component
+        <div
           className={classNames(
             classes.root,
             {
@@ -166,8 +165,7 @@ class FormControl extends React.Component<FormControlProps & WithStylesProps<typ
   }
 }
 
-FormControl.defaultProps = {
-  component: 'div',
+(FormControl as any).defaultProps = {
   disabled: false,
   error: false,
   fullWidth: false,

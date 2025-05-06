@@ -28,7 +28,7 @@ export function isMuiElement(element: any, muiNames: string[]) {
  * @param ref a ref callback or ref object if anything falsy this is a no-op
  */
 export function setRef<T>(
-  ref: React.RefObject<T> | ((instance: T | null) => void) | null | undefined,
+  ref: React.RefObject<T|null> | ((instance: T | null) => void) | null | undefined,
   value: T | null,
 ): void {
   if (typeof ref === 'function') {
