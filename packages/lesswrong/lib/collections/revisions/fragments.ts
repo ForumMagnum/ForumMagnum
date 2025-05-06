@@ -24,22 +24,14 @@ export const RevisionHTML = () => frag`
 
 export const RevisionEdit = () => frag`
   fragment RevisionEdit on Revision {
-    _id
-    version
-    updateType
-    editedAt
-    userId
+    ${RevisionDisplay}
     originalContents {
       type
       data
     }
-    html
     markdown
     draftJS
     ckEditorMarkup
-    wordCount
-    htmlHighlight
-    plaintextDescription
   }
 `
 

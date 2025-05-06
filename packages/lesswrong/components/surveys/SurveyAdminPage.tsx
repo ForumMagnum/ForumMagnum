@@ -144,7 +144,7 @@ const SurveysEditor = ({classes}: {
                 to={`/surveySchedule/${_id}`}
                 className={classes.link}
               >
-                {name} ({survey.name}) (<FormatDate date={createdAt} includeAgo />)
+                {name} ({survey?.name}) (<FormatDate date={createdAt} includeAgo />)
               </Link>
             </div>
           )}

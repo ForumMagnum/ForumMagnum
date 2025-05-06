@@ -241,7 +241,7 @@ const bulkUpdateUsers = async (users: AnyBecauseObsolete, userMap: AnyBecauseObs
   console.log("userUpdateCursor: ", userUpdateCursor);
 }
 
-const insertUser = async (user: DbUser) => {
+const insertUser = async (user: DbInsertion<DbUser>) => {
   // console.log("insertUser", user);
   try {
     await createUser({ data: user }, createAnonymousContext());

@@ -33,7 +33,7 @@ const assertPostIsCrosspostable = (
   }
 }
 
-export async function performCrosspost<T extends CreatePostDataInput | UpdatePostDataInput>(post: T): Promise<T> {
+export async function performCrosspost<T extends Pick<CreatePostDataInput | UpdatePostDataInput, 'fmCrosspost' | 'userId' | 'draft' | 'title' | 'isEvent' | 'question'>>(post: T): Promise<T> {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
@@ -195,7 +195,7 @@ export async function handleCrosspostUpdate(
     if (newDocument.draft && !oldDocument.draft) {
       logger('hack: post is now a draft, unlinking crosspost')
       return {
-        ...newDocument,
+        ...data,
         fmCrosspost: {
           ...fmCrosspost,
           foreignPostId: null,
@@ -205,5 +205,9 @@ export async function handleCrosspostUpdate(
     return data;
   }
 
-  return performCrosspost({ ...newDocument, ...data });
+  const crosspostedPost = await performCrosspost({ ...newDocument, ...data });
+  return {
+    ...data,
+    fmCrosspost: crosspostedPost.fmCrosspost,
+  };
 }

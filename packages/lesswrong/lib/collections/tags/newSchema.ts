@@ -7,21 +7,19 @@ import {
 } from "../../utils/schemaUtils";
 import { getWithLoader } from "../../loaders";
 import moment from "moment";
-import { SORT_ORDER_OPTIONS, SettingsOption } from "../posts/dropdownOptions";
-import { formGroups } from "./formGroups";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { getArbitalLinkedPagesFieldResolver } from "../helpers/arbitalLinkedPagesField";
 import { getSummariesFieldResolver, getSummariesFieldSqlResolver } from "../helpers/summariesField";
 import { getTextLastUpdatedAtFieldResolver } from "../helpers/textLastUpdatedAtField";
 import uniqBy from "lodash/uniqBy";
-import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { userIsSubforumModerator } from "./helpers";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { getToCforTag } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
 import { captureException } from "@sentry/core";
-import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting } from "@/lib/instanceSettings";
+import { isLW } from "@/lib/instanceSettings";
 import { permissionGroups } from "@/lib/permissions";
 import gql from "graphql-tag";
 import type { TagCommentType } from "../comments/types";
@@ -35,7 +33,7 @@ export const graphqlTypeDefs = gql`
     voteCount: Int!
   }
   type TagContributorsList {
-    contributors: [TagContributor!]
+    contributors: [TagContributor!]!
     totalCount: Int!
   }
   type UserLikingTag {
@@ -43,21 +41,6 @@ export const graphqlTypeDefs = gql`
     displayName: String!
   }
 `
-
-export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption> = {
-  relevance: { label: preferredHeadingCase("Most Relevant") },
-  ...SORT_ORDER_OPTIONS,
-};
-
-
-const wikiGradeDefinitions: Partial<Record<number,string>> = {
-  0: "Uncategorized",
-  1: "Flagged",
-  2: "Stub",
-  3: "C-Class",
-  4: "B-Class",
-  5: "A-Class"
-};
 
 async function getTagMultiDocuments(context: ResolverContext, tagId: string) {
   const { MultiDocuments } = context;
@@ -91,6 +74,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -100,34 +84,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "description",
-        collectionName: "Tags",
-        commentEditor: false,
-        commentStyles: true,
-        hideControls: false,
-      },
-      order: 10,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: (tag, name) => {
-          if (tag._id) {
-            return {
-              id: `tag:${tag._id}`,
-              verify: true,
-            };
-          }
-          return {
-            id: `tag:create`,
-            verify: true,
-          };
-        },
-        revisionsHaveCommitMessages: true,
       },
     },
   },
@@ -154,6 +110,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userIsSubforumModerator, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -163,24 +120,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () => defaultEditorPlaceholder,
-        fieldName: "subforumWelcomeText",
-        collectionName: "Tags",
-        commentEditor: false,
-        commentStyles: false,
-        hideControls: false,
-      },
-      order: 0,
-      control: "EditorFormComponent",
-      hidden: false,
-      group: () => formGroups.subforumWelcomeMessage,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Tags"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -195,6 +134,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userIsSubforumModerator, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -204,20 +144,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      hidden: true,
-      control: "EditorFormComponent",
-      order: 50,
-      group: () => formGroups.subforumModerationGuidelines,
-      form: {
-        commentEditor: true,
-        commentStyles: true,    
-      },
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("Tags"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -243,9 +169,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.advancedOptions,
     },
   },
   oldSlugs: {
@@ -275,9 +198,6 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
     },
-    form: {
-      order: 1,
-    },
   },
   shortName: {
     database: {
@@ -293,9 +213,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.advancedOptions,
-    },
   },
   subtitle: {
     database: {
@@ -310,9 +227,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.advancedOptions,
     },
   },
   core: {
@@ -332,10 +246,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Core Tag (moderators check whether it applies when reviewing new posts)",
-      group: () => formGroups.advancedOptions,
-    },
   },
   isPostType: {
     database: {
@@ -353,11 +263,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Is post type",
-      hidden: !isEAForum,
-      group: () => formGroups.advancedOptions,
     },
   },
   suggestedAsFilter: {
@@ -377,10 +282,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Suggested Filter (appears as a default option in filter settings without having to use the search box)",
-      group: () => formGroups.advancedOptions,
-    },
   },
   defaultOrder: {
     database: {
@@ -398,10 +299,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      tooltip: `Rank this ${taggingNameSetting.get()} higher in lists of ${taggingNamePluralSetting.get()}?`,
-      group: () => formGroups.advancedOptions,
     },
   },
   // number of paragraphs to display above-the-fold
@@ -421,9 +318,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.advancedOptions,
     },
   },
   postCount: {
@@ -497,10 +391,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Admin Only",
-      group: () => formGroups.advancedOptions,
-    },
   },
   canEditUserIds: {
     database: {
@@ -515,12 +405,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Restrict to these authors",
-      tooltip: "Only these authors will be able to edit the topic",
-      control: "FormUserMultiselect",
-      group: () => formGroups.advancedOptions,
     },
   },
   charsAdded: {
@@ -562,9 +446,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.advancedOptions,
     },
   },
   lastCommentedAt: {
@@ -609,9 +490,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.advancedOptions,
-    },
   },
   reviewedByUserId: {
     database: {
@@ -626,9 +504,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
     },
   },
   reviewedByUser: {
@@ -655,15 +530,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      options: () =>
-        Object.entries(wikiGradeDefinitions).map(([grade, name]) => ({
-          value: parseInt(grade),
-          label: name,
-        })),
-      control: "select",
-      group: () => formGroups.advancedOptions,
     },
   },
   recentComments: {
@@ -712,9 +578,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.advancedOptions,
-    },
   },
   // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
@@ -730,13 +593,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Banner Image",
-      tooltip: "Minimum 200x600 px",
-      control: "ImageUpload",
-      hidden: !isEAForum,
-      group: () => formGroups.advancedOptions,
-    },
   },
   // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
   squareImageId: {
@@ -751,13 +607,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Square Image",
-      tooltip: "Minimum 200x200 px",
-      control: "ImageUpload",
-      hidden: !isEAForum,
-      group: () => formGroups.advancedOptions,
     },
   },
   tagFlagsIds: {
@@ -777,12 +626,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      hidden: true,
-      control: 'TagFlagToggleList',
-      label: "Flags: ",
-      order: 30,
     },
   },
   tagFlags: {
@@ -955,9 +798,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      group: () => formGroups.advancedOptions,
-    },
   },
   sequence: {
     graphql: {
@@ -979,15 +819,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      options: () =>
-        Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).map(([key, val]) => ({
-          value: key,
-          label: val.label,
-        })),
-      control: "select",
-      group: () => formGroups.advancedOptions,
-    },
   },
   canVoteOnRels: {
     database: {
@@ -1003,9 +834,6 @@ const schema = {
         optional: true,
         allowedValues: ["userOwns", "userOwnsOnlyUpvote", ...permissionGroups],
       },
-    },
-    form: {
-      group: () => formGroups.advancedOptions,
     },
   },
   isSubforum: {
@@ -1024,9 +852,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.advancedOptions,
     },
   },
   subforumUnreadMessagesCount: {
@@ -1090,11 +915,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Subforum Moderators",
-      control: "FormUserMultiselect",
-      group: () => formGroups.advancedOptions,
-    },
   },
   subforumModerators: {
     graphql: {
@@ -1116,11 +936,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Subforum intro post ID",
-      tooltip: "Dismissable intro post that will appear at the top of the subforum feed",
-      group: () => formGroups.advancedOptions,
     },
   },
   subforumIntroPost: {
@@ -1168,12 +983,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Parent Tag",
-      tooltip: "Parent tag which will also be applied whenever this tag is applied to a post for the first time",
-      control: "TagSelect",
-      group: () => formGroups.advancedOptions,
-    },
   },
   parentTag: {
     graphql: {
@@ -1202,9 +1011,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   subTags: {
     graphql: {
@@ -1227,10 +1033,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      label: "Auto-tag classifier model ID",
-      group: () => formGroups.advancedOptions,
-    },
   },
   autoTagPrompt: {
     database: {
@@ -1245,10 +1047,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Auto-tag classifier prompt string",
-      group: () => formGroups.advancedOptions,
     },
   },
   noindex: {
@@ -1266,11 +1064,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "No Index",
-      tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,
-      group: () => formGroups.advancedOptions,
     },
   },
   lenses: {
@@ -1465,9 +1258,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   summaries: {
     graphql: {
@@ -1476,10 +1266,6 @@ const schema = {
       canRead: ["guests"],
       resolver: getSummariesFieldResolver("Tags"),
       sqlResolver: getSummariesFieldSqlResolver("Tags"),
-    },
-    form: {
-      control: "SummariesEditForm",
-      group: () => formGroups.summaries,
     },
   },
   textLastUpdatedAt: {
@@ -1516,9 +1302,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      group: () => formGroups.advancedOptions,
     },
   },
   maxScore: {
@@ -1564,11 +1347,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      label: "Force Allow T3 Audio",
-      control: "checkbox",
-      group: () => formGroups.advancedOptions,
     },
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,

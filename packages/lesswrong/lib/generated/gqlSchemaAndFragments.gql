@@ -42,17 +42,51 @@ type ArbitalLinkedPages {
 }
 
 type SocialPreviewType {
-  _id: String
+  _id: String!
   imageId: String
-  imageUrl: String
+  imageUrl: String!
   text: String
+}
+
+input CoauthorStatusInput {
+  userId: String!
+  confirmed: Boolean!
+  requested: Boolean!
+}
+
+input SocialPreviewInput {
+  imageId: String!
+  text: String
+}
+
+input CrosspostInput {
+  isCrosspost: Boolean!
+  hostedHere: Boolean
+  foreignPostId: String
+}
+
+type CoauthorStatusOutput {
+  userId: String!
+  confirmed: Boolean!
+  requested: Boolean!
+}
+
+type SocialPreviewOutput {
+  imageId: String!
+  text: String
+}
+
+type CrosspostOutput {
+  isCrosspost: Boolean!
+  hostedHere: Boolean
+  foreignPostId: String
 }
 
 scalar ContentTypeData
 
 type ContentType {
-  type: String
-  data: ContentTypeData
+  type: String!
+  data: ContentTypeData!
 }
 
 type TagContributor {
@@ -64,7 +98,7 @@ type TagContributor {
 }
 
 type TagContributorsList {
-  contributors: [TagContributor!]
+  contributors: [TagContributor!]!
   totalCount: Int!
 }
 
@@ -76,6 +110,67 @@ type UserLikingTag {
 type LatLng {
   lat: Float!
   lng: Float!
+}
+
+input ExpandedFrontpageSectionsSettingsInput {
+  community: Boolean
+  recommendations: Boolean
+  quickTakes: Boolean
+  quickTakesCommunity: Boolean
+  popularComments: Boolean
+}
+
+type ExpandedFrontpageSectionsSettingsOutput {
+  community: Boolean
+  recommendations: Boolean
+  quickTakes: Boolean
+  quickTakesCommunity: Boolean
+  popularComments: Boolean
+}
+
+input PartiallyReadSequenceItemInput {
+  sequenceId: String
+  collectionId: String
+  lastReadPostId: String!
+  nextPostId: String!
+  numRead: Int!
+  numTotal: Int!
+  lastReadTime: Date
+}
+
+type PartiallyReadSequenceItemOutput {
+  sequenceId: String
+  collectionId: String
+  lastReadPostId: String
+  nextPostId: String
+  numRead: Int
+  numTotal: Int
+  lastReadTime: Date
+}
+
+input PostMetadataInput {
+  postId: String!
+}
+
+type PostMetadataOutput {
+  postId: String!
+}
+
+input RecommendationAlgorithmSettingsInput {
+  method: String!
+  count: Int!
+  scoreOffset: Float!
+  scoreExponent: Float!
+  personalBlogpostModifier: Float!
+  frontpageModifier: Float!
+  curatedModifier: Float!
+  onlyUnread: Boolean!
+}
+
+input RecommendationSettingsInput {
+  frontpage: RecommendationAlgorithmSettingsInput!
+  frontpageEA: RecommendationAlgorithmSettingsInput!
+  recommendationspage: RecommendationAlgorithmSettingsInput!
 }
 
 type RecommendResumeSequence {
@@ -252,18 +347,20 @@ extend type Query {
 }
 
 type PostKarmaChange {
-  _id: String
-  scoreChange: Int
-  postId: String
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
+  postId: String!
   title: String
-  slug: String
+  slug: String!
   addedReacts: [ReactionChange!]
   eaAddedReacts: JSON
 }
 
 type CommentKarmaChange {
-  _id: String
-  scoreChange: Int
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
   commentId: String
   description: String
   postId: String
@@ -272,13 +369,15 @@ type CommentKarmaChange {
   tagSlug: String
   tagName: String
   tagCommentType: String
+  tagId: String
   addedReacts: [ReactionChange!]
   eaAddedReacts: JSON
 }
 
 type RevisionsKarmaChange {
-  _id: String
-  scoreChange: Int
+  _id: String!
+  collectionName: String!
+  scoreChange: Int!
   tagId: String
   tagSlug: String
   tagName: String
@@ -292,20 +391,20 @@ type ReactionChange {
 }
 
 type KarmaChangesSimple {
-  posts: [PostKarmaChange]
-  comments: [CommentKarmaChange]
-  tagRevisions: [RevisionsKarmaChange]
+  posts: [PostKarmaChange!]!
+  comments: [CommentKarmaChange!]!
+  tagRevisions: [RevisionsKarmaChange!]!
 }
 
 type KarmaChanges {
-  totalChange: Int
+  totalChange: Int!
   startDate: Date
   endDate: Date
   nextBatchDate: Date
-  updateFrequency: String
-  posts: [PostKarmaChange]
-  comments: [CommentKarmaChange]
-  tagRevisions: [RevisionsKarmaChange]
+  updateFrequency: String!
+  posts: [PostKarmaChange!]!
+  comments: [CommentKarmaChange!]!
+  tagRevisions: [RevisionsKarmaChange!]!
   todaysKarmaChanges: KarmaChangesSimple
   thisWeeksKarmaChanges: KarmaChangesSimple
 }
@@ -1231,6 +1330,13 @@ extend type Mutation {
 
 extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
+}
+
+type ElicitQuestionPredictionCreator {
+  _id: String!
+  displayName: String!
+  isQuestionCreator: Boolean!
+  sourceUserId: String
 }
 
 type AdvisorRequest {
@@ -2159,7 +2265,7 @@ type ElicitQuestionPrediction {
   prediction: Float
   createdAt: Date!
   notes: String
-  creator: JSON!
+  creator: ElicitQuestionPredictionCreator!
   userId: String
   user: User
   sourceUrl: String
@@ -3213,14 +3319,14 @@ type Post {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusOutput!]
   coauthors: [User!]
   hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
+  socialPreview: SocialPreviewOutput
   socialPreviewData: SocialPreviewType
-  fmCrosspost: JSON
+  fmCrosspost: CrosspostOutput
   canonicalSequenceId: String
   canonicalSequence: Sequence
   canonicalCollectionSlug: String
@@ -3987,7 +4093,7 @@ type SurveySchedule {
   createdAt: Date!
   legacyData: JSON
   surveyId: String!
-  survey: Survey!
+  survey: Survey
   name: String
   impressionsLimit: Float
   maxVisitorPercentage: Float
@@ -4588,7 +4694,7 @@ type User {
   noCollapseCommentsPosts: Boolean!
   noCollapseCommentsFrontpage: Boolean!
   hideCommunitySection: Boolean!
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput
   showCommunityInRecentDiscussion: Boolean!
   hidePostsRecommendations: Boolean!
   petrovOptOut: Boolean!
@@ -4620,9 +4726,9 @@ type User {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [JSON!]
+  bookmarkedPostsMetadata: [PostMetadataOutput!]
   bookmarkedPosts: [Post!]
-  hiddenPostsMetadata: [JSON!]
+  hiddenPostsMetadata: [PostMetadataOutput!]
   hiddenPosts: [Post!]
   legacyId: String
   deleted: Boolean!
@@ -4728,7 +4834,7 @@ type User {
   shortformFeedId: String
   shortformFeed: Post
   viewUnreviewedComments: Boolean
-  partiallyReadSequences: [JSON!]
+  partiallyReadSequences: [PartiallyReadSequenceItemOutput!]
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -4924,7 +5030,7 @@ extend type Mutation {
 
 input CreateBookDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   tocTitle: String
@@ -4943,7 +5049,7 @@ input CreateBookInput {
 
 input UpdateBookDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   tocTitle: String
@@ -4972,7 +5078,7 @@ extend type Mutation {
 
 input CreateChapterDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   number: Float
@@ -4986,7 +5092,7 @@ input CreateChapterInput {
 
 input UpdateChapterDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   subtitle: String
   number: Float
@@ -5011,7 +5117,7 @@ extend type Mutation {
 input CreateCollectionDataInput {
   createdAt: Date!
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String!
   slug: String!
   gridImageId: String
@@ -5027,7 +5133,7 @@ input CreateCollectionInput {
 input UpdateCollectionDataInput {
   createdAt: Date
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   title: String
   slug: String
   gridImageId: String
@@ -5084,7 +5190,7 @@ extend type Mutation {
 
 input CreateCommentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   parentCommentId: String
   topLevelCommentId: String
   postId: String
@@ -5139,7 +5245,7 @@ input CreateCommentInput {
 
 input UpdateCommentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -5237,7 +5343,7 @@ extend type Mutation {
 
 input CreateCurationNoticeDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   userId: String!
   commentId: String
   postId: String!
@@ -5249,7 +5355,7 @@ input CreateCurationNoticeInput {
 
 input UpdateCurationNoticeDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   commentId: String
   deleted: Boolean
 }
@@ -5470,9 +5576,9 @@ extend type Mutation {
 
 input CreateForumEventDataInput {
   legacyData: JSON
-  frontpageDescription: JSON
-  frontpageDescriptionMobile: JSON
-  postPageDescription: JSON
+  frontpageDescription: CreateRevisionDataInput
+  frontpageDescriptionMobile: CreateRevisionDataInput
+  postPageDescription: CreateRevisionDataInput
   title: String!
   startDate: Date!
   endDate: Date
@@ -5486,7 +5592,7 @@ input CreateForumEventDataInput {
   includesPoll: Boolean
   isGlobal: Boolean!
   eventFormat: String
-  pollQuestion: JSON
+  pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
@@ -5501,9 +5607,9 @@ input CreateForumEventInput {
 
 input UpdateForumEventDataInput {
   legacyData: JSON
-  frontpageDescription: JSON
-  frontpageDescriptionMobile: JSON
-  postPageDescription: JSON
+  frontpageDescription: CreateRevisionDataInput
+  frontpageDescriptionMobile: CreateRevisionDataInput
+  postPageDescription: CreateRevisionDataInput
   title: String
   startDate: Date
   endDate: Date
@@ -5517,7 +5623,7 @@ input UpdateForumEventDataInput {
   includesPoll: Boolean
   isGlobal: Boolean
   eventFormat: String
-  pollQuestion: JSON
+  pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
@@ -5542,7 +5648,7 @@ extend type Mutation {
 
 input CreateJargonTermDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   postId: String!
   term: String!
   approved: Boolean
@@ -5556,7 +5662,7 @@ input CreateJargonTermInput {
 
 input UpdateJargonTermDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   term: String
   approved: Boolean
   deleted: Boolean
@@ -5623,7 +5729,7 @@ extend type Mutation {
 
 input CreateLocalgroupDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String!
   nameInAnotherLanguage: String
   organizerIds: [String!]!
@@ -5650,7 +5756,7 @@ input CreateLocalgroupInput {
 
 input UpdateLocalgroupDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String
   nameInAnotherLanguage: String
   organizerIds: [String!]
@@ -5687,7 +5793,7 @@ extend type Mutation {
 
 input CreateMessageDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   userId: String
   conversationId: String!
   noEmail: Boolean
@@ -5699,7 +5805,7 @@ input CreateMessageInput {
 
 input UpdateMessageDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
 }
 
 input UpdateMessageInput {
@@ -5718,7 +5824,7 @@ extend type Mutation {
 
 input CreateModerationTemplateDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String!
   collectionName: String!
   order: Float
@@ -5730,7 +5836,7 @@ input CreateModerationTemplateInput {
 
 input UpdateModerationTemplateDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   name: String
   collectionName: String
   order: Float
@@ -5785,7 +5891,7 @@ extend type Mutation {
 
 input CreateMultiDocumentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   title: String
   tabTitle: String!
@@ -5802,7 +5908,7 @@ input CreateMultiDocumentInput {
 
 input UpdateMultiDocumentDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   title: String
   tabTitle: String
@@ -5884,9 +5990,9 @@ extend type Mutation {
 
 input CreatePostDataInput {
   legacyData: JSON
-  contents: JSON
-  moderationGuidelines: JSON
-  customHighlight: JSON
+  contents: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
+  customHighlight: CreateRevisionDataInput
   slug: String
   postedAt: Date
   url: String
@@ -5925,12 +6031,12 @@ input CreatePostDataInput {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusInput!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
-  fmCrosspost: JSON
+  socialPreview: SocialPreviewInput
+  fmCrosspost: CrosspostInput
   canonicalSequenceId: String
   canonicalCollectionSlug: String
   canonicalBookId: String
@@ -5998,9 +6104,9 @@ input CreatePostInput {
 
 input UpdatePostDataInput {
   legacyData: JSON
-  contents: JSON
-  moderationGuidelines: JSON
-  customHighlight: JSON
+  contents: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
+  customHighlight: CreateRevisionDataInput
   slug: String
   postedAt: Date
   url: String
@@ -6040,12 +6146,12 @@ input UpdatePostDataInput {
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
-  coauthorStatuses: [JSON!]
+  coauthorStatuses: [CoauthorStatusInput!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
-  socialPreview: JSON
-  fmCrosspost: JSON
+  socialPreview: SocialPreviewInput
+  fmCrosspost: CrosspostInput
   canonicalSequenceId: String
   canonicalCollectionSlug: String
   canonicalBookId: String
@@ -6205,6 +6311,19 @@ extend type Mutation {
   updateReport(selector: SelectorInput!, data: UpdateReportDataInput!): ReportOutput
 }
 
+input ContentTypeInput {
+  type: String!
+  data: ContentTypeData!
+}
+
+input CreateRevisionDataInput {
+  originalContents: ContentTypeInput!
+  commitMessage: String
+  updateType: String
+  dataWithDiscardedSuggestions: JSON
+  googleDocMetadata: JSON
+}
+
 input UpdateRevisionDataInput {
   legacyData: JSON
   skipAttributions: Boolean
@@ -6225,7 +6344,7 @@ extend type Mutation {
 
 input CreateSequenceDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
   title: String!
@@ -6248,7 +6367,7 @@ input CreateSequenceInput {
 
 input UpdateSequenceDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
   title: String
@@ -6313,7 +6432,7 @@ extend type Mutation {
 
 input CreateSpotlightDataInput {
   legacyData: JSON
-  description: JSON
+  description: CreateRevisionDataInput
   documentId: String!
   documentType: String!
   position: Float
@@ -6340,7 +6459,7 @@ input CreateSpotlightInput {
 
 input UpdateSpotlightDataInput {
   legacyData: JSON
-  description: JSON
+  description: CreateRevisionDataInput
   documentId: String
   documentType: String
   position: Float
@@ -6478,7 +6597,7 @@ input CreateSurveyScheduleDataInput {
   startDate: Date
   endDate: Date
   deactivated: Boolean
-  clientIds: [String!]!
+  clientIds: [String!]
 }
 
 input CreateSurveyScheduleInput {
@@ -6544,7 +6663,7 @@ extend type Mutation {
 
 input CreateTagFlagDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   name: String!
   deleted: Boolean
@@ -6557,7 +6676,7 @@ input CreateTagFlagInput {
 
 input UpdateTagFlagDataInput {
   legacyData: JSON
-  contents: JSON
+  contents: CreateRevisionDataInput
   slug: String
   name: String
   deleted: Boolean
@@ -6580,9 +6699,9 @@ extend type Mutation {
 
 input CreateTagDataInput {
   legacyData: JSON
-  description: JSON
-  subforumWelcomeText: JSON
-  moderationGuidelines: JSON
+  description: CreateRevisionDataInput
+  subforumWelcomeText: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
   slug: String
   name: String!
   shortName: String
@@ -6620,9 +6739,9 @@ input CreateTagInput {
 
 input UpdateTagDataInput {
   legacyData: JSON
-  description: JSON
-  subforumWelcomeText: JSON
-  moderationGuidelines: JSON
+  description: CreateRevisionDataInput
+  subforumWelcomeText: CreateRevisionDataInput
+  moderationGuidelines: CreateRevisionDataInput
   slug: String
   name: String
   shortName: String
@@ -6867,11 +6986,11 @@ extend type Mutation {
 
 input CreateUserDataInput {
   legacyData: JSON
-  moderationGuidelines: JSON
-  howOthersCanHelpMe: JSON
-  howICanHelpOthers: JSON
+  moderationGuidelines: CreateRevisionDataInput
+  howOthersCanHelpMe: CreateRevisionDataInput
+  howICanHelpOthers: CreateRevisionDataInput
   slug: String
-  biography: JSON
+  biography: CreateRevisionDataInput
   username: String
   isAdmin: Boolean
   displayName: String!
@@ -6891,7 +7010,7 @@ input CreateUserDataInput {
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
   hideCommunitySection: Boolean
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
@@ -7028,11 +7147,11 @@ input CreateUserInput {
 
 input UpdateUserDataInput {
   legacyData: JSON
-  moderationGuidelines: JSON
-  howOthersCanHelpMe: JSON
-  howICanHelpOthers: JSON
+  moderationGuidelines: CreateRevisionDataInput
+  howOthersCanHelpMe: CreateRevisionDataInput
+  howICanHelpOthers: CreateRevisionDataInput
   slug: String
-  biography: JSON
+  biography: CreateRevisionDataInput
   username: String
   isAdmin: Boolean
   displayName: String
@@ -7058,7 +7177,7 @@ input UpdateUserDataInput {
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
   hideCommunitySection: Boolean
-  expandedFrontpageSections: JSON
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
@@ -7088,8 +7207,8 @@ input UpdateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [JSON!]
-  hiddenPostsMetadata: [JSON!]
+  bookmarkedPostsMetadata: [PostMetadataInput!]
+  hiddenPostsMetadata: [PostMetadataInput!]
   legacyId: String
   deleted: Boolean
   permanentDeletionRequestedAt: Date
@@ -7168,7 +7287,7 @@ input UpdateUserDataInput {
   fullName: String
   shortformFeedId: String
   viewUnreviewedComments: Boolean
-  partiallyReadSequences: [JSON!]
+  partiallyReadSequences: [PartiallyReadSequenceItemInput!]
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -7218,7 +7337,7 @@ input UpdateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
-  recommendationSettings: JSON
+  recommendationSettings: RecommendationSettingsInput
 }
 
 input UpdateUserInput {
@@ -7326,7 +7445,6 @@ fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluatio
   createdAt
   revisionId
   score
-  sentenceScores
   aiChoice
   aiReasoning
   aiCoT
@@ -8187,7 +8305,6 @@ fragment ElicitQuestionPredictionsDefaultFragment on ElicitQuestionPrediction {
   prediction
   createdAt
   notes
-  creator
   userId
   sourceUrl
   sourceId
@@ -9300,12 +9417,9 @@ fragment PostsDefaultFragment on Post {
   frontpageDate
   autoFrontpage
   collectionTitle
-  coauthorStatuses
   hasCoauthorPermission
   socialPreviewImageId
   socialPreviewImageAutoUrl
-  socialPreview
-  fmCrosspost
   canonicalSequenceId
   canonicalCollectionSlug
   canonicalBookId
@@ -9485,7 +9599,11 @@ fragment PostsDetails on Post {
   activateRSVPs
 
   # Crossposting
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
 
   # Jargon Terms
   glossary {
@@ -9498,9 +9616,17 @@ fragment PostsEdit on Post {
   ...PostSideComments
   myEditorAccess
   version
-  coauthorStatuses
+  coauthorStatuses {
+    userId
+    confirmed
+    requested
+  }
   readTimeMinutesOverride
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
   hideFromRecentDiscussions
   hideFromPopularComments
   moderationGuidelines {
@@ -9512,7 +9638,10 @@ fragment PostsEdit on Post {
   tableOfContents
   subforumTagId
   socialPreviewImageId
-  socialPreview
+  socialPreview {
+    imageId
+    text
+  }
   socialPreviewData {
     _id
     imageId
@@ -9520,6 +9649,9 @@ fragment PostsEdit on Post {
   }
   user {
     ...UsersMinimumInfo
+    moderationStyle
+    bannedUserIds
+    moderatorAssistance
   }
   usersSharedWith {
     ...UsersMinimumInfo
@@ -9584,7 +9716,11 @@ fragment PostsList on Post {
     wordCount
     version
   }
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
 }
 
 fragment PostsListBase on Post {
@@ -9662,7 +9798,11 @@ fragment PostsMinimumInfo on Post {
     quadraticScore
   }
   userId
-  coauthorStatuses
+  coauthorStatuses {
+    userId
+    confirmed
+    requested
+  }
   hasCoauthorPermission
   rejected
   debate
@@ -10055,22 +10195,14 @@ fragment RevisionDisplay on Revision {
 }
 
 fragment RevisionEdit on Revision {
-  _id
-  version
-  updateType
-  editedAt
-  userId
+  ...RevisionDisplay
   originalContents {
     type
     data
   }
-  html
   markdown
   draftJS
   ckEditorMarkup
-  wordCount
-  htmlHighlight
-  plaintextDescription
 }
 
 fragment RevisionHTML on Revision {
@@ -10154,7 +10286,6 @@ fragment RevisionsDefaultFragment on Revision {
   commitMessage
   userId
   draft
-  originalContents
   html
   wordCount
   changeMetrics
@@ -10548,7 +10679,11 @@ fragment SunshinePostsList on Post {
 
   currentUserVote
   currentUserExtendedVote
-  fmCrosspost
+  fmCrosspost {
+    isCrosspost
+    hostedHere
+    foreignPostId
+  }
   rejectedReason
   autoFrontpage
 
@@ -10844,6 +10979,7 @@ fragment TagEditFragment on Tag {
   tagFlagsIds
   postsDefaultSortOrder
   introSequenceId
+  canVoteOnRels
     
   autoTagModel
   autoTagPrompt
@@ -11784,7 +11920,13 @@ fragment UsersCurrent on User {
   hideIntercom
   hideNavigationSidebar
   hideCommunitySection
-  expandedFrontpageSections
+  expandedFrontpageSections {
+    community
+    recommendations
+    quickTakes
+    quickTakesCommunity
+    popularComments
+  }
   hidePostsRecommendations
   currentFrontpageFilter
   frontpageSelectedTab
@@ -11842,9 +11984,14 @@ fragment UsersCurrent on User {
   recommendationSettings
   theme
 
-  bookmarkedPostsMetadata
+  bookmarkedPostsMetadata {
+    postId
+  }
 
-  hiddenPostsMetadata
+  hiddenPostsMetadata {
+    postId
+  }
+
   auto_subscribe_to_my_posts
   auto_subscribe_to_my_comments
   autoSubscribeAsOrganizer
@@ -11947,7 +12094,6 @@ fragment UsersDefaultFragment on User {
   noCollapseCommentsPosts
   noCollapseCommentsFrontpage
   hideCommunitySection
-  expandedFrontpageSections
   showCommunityInRecentDiscussion
   hidePostsRecommendations
   petrovOptOut
@@ -11979,8 +12125,6 @@ fragment UsersDefaultFragment on User {
   collapseModerationGuidelines
   bannedUserIds
   bannedPersonalUserIds
-  bookmarkedPostsMetadata
-  hiddenPostsMetadata
   legacyId
   deleted
   permanentDeletionRequestedAt
@@ -12079,7 +12223,6 @@ fragment UsersDefaultFragment on User {
   fullName
   shortformFeedId
   viewUnreviewedComments
-  partiallyReadSequences
   beta
   reviewVotesQuadratic
   reviewVotesQuadratic2019
@@ -12242,6 +12385,8 @@ fragment UsersEdit on User {
   notificationNewMention
   notificationNewDialogueChecks
   notificationYourTurnMatchForm
+  notificationDialogueMessages
+  notificationPublishedDialogueMessages
 
   hideFrontpageMap
   hideTaggingProgressBar

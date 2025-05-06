@@ -2,16 +2,10 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, 
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users/permissions";
 
-export const DOWNVOTED_COMMENT_ALERT = "downvotedCommentAlert";
-
-export const COMMENT_MODERATOR_ACTION_TYPES = {
-  [DOWNVOTED_COMMENT_ALERT]: "Downvoted Comment",
-};
-
 /**
  * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.
  */
-export const isCommentActionActive = (moderatorAction: DbCommentModeratorAction) => {
+const isCommentActionActive = (moderatorAction: DbCommentModeratorAction) => {
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 };
 
@@ -58,14 +52,6 @@ const schema = {
         allowedValues: ["downvotedCommentAlert"],
       },
     },
-    form: {
-      options: () =>
-        Object.entries(COMMENT_MODERATOR_ACTION_TYPES).map(([value, label]) => ({
-          value,
-          label,
-        })),
-      control: "select",
-    },
   },
   endedAt: {
     database: {
@@ -80,9 +66,6 @@ const schema = {
       validation: {
         optional: true,
       },
-    },
-    form: {
-      control: "datetime",
     },
   },
   active: {

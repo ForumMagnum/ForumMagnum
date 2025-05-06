@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
 
 const FormGroupFriendlyUserProfile = ({label, children, classes}: {
   classes: ClassesType<typeof styles>,
-} & FormGroupLayoutProps) => {
+} & Pick<FormGroupLayoutProps, "label" | "children">) => {
   return (
     <div className={classes.root}>
       {label && label !== "default" &&

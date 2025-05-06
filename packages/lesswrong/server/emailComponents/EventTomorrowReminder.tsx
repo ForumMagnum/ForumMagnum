@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RSVPType } from '../../lib/collections/posts/newSchema';
+import type { RSVPType } from "@/lib/collections/posts/helpers";
 import { PostsEmail } from './PostsEmail';
 
 export const EventTomorrowReminder = ({postId, rsvp}: {

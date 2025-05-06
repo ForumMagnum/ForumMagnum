@@ -4,6 +4,7 @@
 // Helper imports
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { isAnyTest, isCodegen } from '../executionEnvironment';
+import '../utils/extendSimpleSchemaOptions';
 
 // Collection imports
 import { default as AdvisorRequests } from '../collections/advisorRequests/newSchema';
@@ -119,6 +120,10 @@ export const allSchemas = {
   Users, Votes, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
 
+export function getAllSchemas() {
+  return allSchemas;
+}
+
 export function getSchema<N extends CollectionNameString>(collectionName: N): Record<string, CollectionFieldSpecification<N>> {
   return allSchemas[collectionName] as Record<string, CollectionFieldSpecification<N>>;
 }
@@ -231,7 +236,7 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
 }
 
 function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionNameString>) {
-  return field.form || !!field.graphql?.canCreate?.length || !!field.graphql?.canUpdate?.length;
+  return /*field.form ||*/ !!field.graphql?.canCreate?.length || !!field.graphql?.canUpdate?.length;
 }
 
 function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
@@ -265,7 +270,7 @@ function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<s
 
     const fieldSchemaDefinition: SchemaDefinition = {
       ...originalTypeDef,
-      ...value.form,
+      // ...value.form,
       ...implicitOptionalProp,
       // This needs to be included even if false because it's used for type codegen in a way that relies on the difference between undefined and false
       // (i.e. the implicit default value of `nullable` in the context of database type codegen is `true`)

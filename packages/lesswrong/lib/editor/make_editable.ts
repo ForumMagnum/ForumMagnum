@@ -1,27 +1,10 @@
 import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { getOriginalContents } from '../collections/revisions/helpers';
 import { accessFilterMultiple } from '../utils/schemaUtils';
-import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import type { EditableFieldCallbackOptions, EditableFieldClientOptions, MakeEditableOptions } from './makeEditableOptions';
+import type { MakeEditableOptions } from './makeEditableOptions';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
-import { ContentType } from '../collections/revisions/revisionConstants';
-
-export const RevisionStorageType = new SimpleSchema({
-  originalContents: {type: ContentType, optional: true},
-  userId: {type: String, optional: true},
-  commitMessage: {type: String, optional: true},
-  html: {type: String, optional: true, denormalized: true},
-  updateType: {type: String, optional: true, allowedValues: ['initial', 'patch', 'minor', 'major']},
-  version: {type: String, optional: true},
-  editedAt: {type: Date, optional: true},
-  wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true},
-  // dataWithDiscardedSuggestions is not actually stored in the database, just passed 
-  // through the mutation so that we can provide html that doesn't include private
-  // information.
-  dataWithDiscardedSuggestions: {type: String, optional: true, nullable: true}
-})
 
 export const defaultEditorPlaceholder = isFriendlyUI ?
 `Highlight text to format it. Type @ to mention a user, post, or topic.` :
@@ -70,43 +53,6 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
   pingbacks: false,
   revisionsHaveCommitMessages: false,
 }
-
-interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
-  graphql: GraphQLFieldSpecification<N> & {
-    editableFieldOptions: EditableFieldCallbackOptions;
-  }
-  form: FormFieldSpecification<N> & {
-    editableFieldOptions: EditableFieldClientOptions;
-  }
-};
-
-export function isEditableField<N extends CollectionNameString>(field: [string, CollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
-  const { graphql, form } = field[1];
-  return !!graphql && 'editableFieldOptions' in graphql && !!graphql.editableFieldOptions && !!form?.editableFieldOptions;
-}
-
-export const getEditableFieldsByCollection = (() => {
-  let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
-  return () => {
-    const { allSchemas }: typeof import('../schema/allSchemas') = require('../schema/allSchemas');
-    if (!editableFieldsByCollection) {
-      editableFieldsByCollection = Object.entries(allSchemas).reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, [collectionName, schema]) => {
-        const editableFields = Object.entries(schema).filter(isEditableField);
-        if (editableFields.length > 0) {
-          acc[collectionName as CollectionNameString] = Object.fromEntries(editableFields);
-        }
-        return acc;
-      }, {});
-    }
-
-    return editableFieldsByCollection;
-  }
-})();
-
-export const getEditableCollectionNames = () => Object.keys(getEditableFieldsByCollection()) as CollectionNameString[];
-export const getEditableFieldNamesForCollection = (collectionName: CollectionNameString) => Object.keys(getEditableFieldsByCollection()[collectionName] ?? {});
-export const getEditableFieldInCollection = <N extends CollectionNameString>(collectionName: N, fieldName: string) => getEditableFieldsByCollection()[collectionName]?.[fieldName];
-export const editableFieldIsNormalized = (collectionName: CollectionNameString, fieldName: string) => !!getEditableFieldInCollection(collectionName, fieldName)?.graphql.editableFieldOptions.normalized;
 
 export function getNormalizedEditableResolver<N extends CollectionNameString>(fieldName: string) {
   return async function normalizedEditableResolver(

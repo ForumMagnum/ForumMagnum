@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import OpenInNew from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import moment from 'moment';
 import { Link } from '../../lib/reactRouterWrapper';
-import type { CareerStageValue } from '../../lib/collections/users/newSchema';
+import type { CareerStageValue } from "@/lib/collections/users/helpers";
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { TooltipSpan } from '../common/FMTooltip';
 

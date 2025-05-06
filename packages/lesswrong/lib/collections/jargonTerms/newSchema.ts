@@ -1,5 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { getDefaultLocalStorageIdGenerator, getDenormalizedEditableResolver, RevisionStorageType } from "@/lib/editor/make_editable";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
 
@@ -17,6 +18,7 @@ const schema = {
     },
     graphql: {
       outputType: "Revision",
+      inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -26,24 +28,6 @@ const schema = {
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
-      },
-    },
-    form: {
-      form: {
-        hintText: () =>
-          "If you want to add a custom term, use this form.  The description goes here.  The term, as well as any alt terms, must appear in your post.",
-        fieldName: "contents",
-        collectionName: "JargonTerms",
-        commentEditor: true,
-        commentStyles: true,
-        hideControls: true,
-      },
-      order: 10,
-      control: "EditorFormComponent",
-      hidden: false,
-      editableFieldOptions: {
-        getLocalStorageId: getDefaultLocalStorageIdGenerator("JargonTerms"),
-        revisionsHaveCommitMessages: false,
       },
     },
   },
@@ -58,9 +42,6 @@ const schema = {
       outputType: "String!",
       canRead: ["guests"],
       canCreate: ["members"],
-    },
-    form: {
-      hidden: true,
     },
   },
   post: {
@@ -80,9 +61,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-    },
-    form: {
-      order: 20,
     },
   },
   humansAndOrAIEdited: {
@@ -147,9 +125,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   deleted: {
     database: {
@@ -168,9 +143,6 @@ const schema = {
         optional: true,
       },
     },
-    form: {
-      hidden: true,
-    },
   },
   altTerms: {
     database: {
@@ -185,11 +157,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
-    },
-    form: {
-      order: 30,
-      label: "Alternative Terms",
-      tooltip: "Comma-separated, no spaces",
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"JargonTerms">>;

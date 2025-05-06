@@ -29,7 +29,9 @@ type TypesEqual<A,B, Equal,NotEqual> =
 type NonAnyFieldsOfType<Interface,Type> = {
   [K in keyof Interface]: IfAny<Interface[K],
     never,
-    TypesEqual<Interface[K],Type, K,never>
+    Interface[K] extends Type
+      ? (Type extends Interface[K] ? K : never)
+      : never
   >
 }[keyof Interface]
 
@@ -37,8 +39,14 @@ type NonAnyFieldsOfType<Interface,Type> = {
 type ReplaceFieldsOfType<Interface, FieldType,ReplacementType> = {
   [K in keyof Interface]: IfAny<Interface[K],
     any,
-    TypesEqual<Interface[K],FieldType, ReplacementType, Interface[K]>
+    Interface[K] extends FieldType
+      ? (FieldType extends Interface[K] ? ReplacementType : Interface[K])
+      : Interface[K]
   >
+}
+
+type OmitBySubtype<T, U> = {
+  [K in keyof T as IfAny<T[K], K, U extends T[K] ? never : K>]: T[K]
 }
 
 type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>

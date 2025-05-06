@@ -1,6 +1,6 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React, { useCallback, useEffect } from 'react';
-import type { RSVPType } from '../../../lib/collections/posts/newSchema';
+import type { RSVPType } from "@/lib/collections/posts/helpers";
 import { useLocation } from '../../../lib/routeUtil';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';

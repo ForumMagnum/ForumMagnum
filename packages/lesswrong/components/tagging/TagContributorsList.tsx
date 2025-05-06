@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 
 
 const styles = (theme: ThemeType) => ({
@@ -59,7 +60,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   
   // Filter out tag-contributor entries where the user is null (which happens
   // if the contribution is by a deleted account)
-  const nonMissingContributors = contributorsList.filter((c: { user?: UsersMinimumInfo }) => !!c.user);
+  const nonMissingContributors = filterWhereFieldsNotNull(contributorsList, 'user');
   
   const hasLoadMore = !expandLoadMore && tag.contributors.totalCount > tag.contributors.contributors.length;
   

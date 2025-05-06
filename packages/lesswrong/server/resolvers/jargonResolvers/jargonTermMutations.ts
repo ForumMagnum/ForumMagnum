@@ -352,7 +352,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
               term: jargonTerm.term,
               approved: jargonTerm.approved,
               deleted: jargonTerm.deleted,
-              contents: { originalContents: jargonTerm.contents!.originalContents },
+              contents: { originalContents: jargonTerm.contents!.originalContents! },
               altTerms: jargonTerm.altTerms,
             }
           }, botContext)

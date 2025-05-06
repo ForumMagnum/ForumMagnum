@@ -209,7 +209,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
-          {survey &&
+          {survey?.survey &&
             <SurveyPostsItem
               survey={survey.survey}
               surveyScheduleId={survey._id}

@@ -1,5 +1,6 @@
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/helpers";
+import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
+
+const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
 export function isMultiDocument(document: DbTag | DbMultiDocument): document is DbMultiDocument {
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;
@@ -40,25 +41,14 @@ export async function getRootDocument(
   return { document: parentDocument, parentCollectionName: 'Tags' as const };
 }
 
-/**
- * The logic for validating whether a user can either create or update a multi-document is basically the same.
- * In both cases, we defer to the `check` defined on the parent document's collection to see if the user would be allowed to mutate the parent document.
- */
-export async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | CreateMultiDocumentDataInput | null, mutation: 'create' | 'update', context: ResolverContext) {
-  if (!multiDocument) {
-    return false;
-  }
-
-  if (userIsAdmin(user)) {
+export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: Pick<DbMultiDocument, "userId" | "createdAt">) {
+  if (userIsAdminOrMod(user)) {
     return true;
   }
 
-  const rootDocumentInfo = await getRootDocument(multiDocument, context);
-  if (!rootDocumentInfo) {
-    return false;
-  }
+  const deletableUntil = new Date(document.createdAt).getTime() + MULTI_DOCUMENT_DELETION_WINDOW;
+  const withinDeletionWindow = deletableUntil > Date.now();
 
-  const { document: parentDocument } = rootDocumentInfo;
-  const check = mutation === 'create' ? newTagCheck : editTagCheck;
-  return check(user, parentDocument);
+  return userOwns(user, document) && withinDeletionWindow;
 }
+
