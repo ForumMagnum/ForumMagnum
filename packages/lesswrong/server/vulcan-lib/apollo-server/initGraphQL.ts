@@ -282,6 +282,7 @@ export const typeDefs = gql`
   ${spotlightGqlTypeDefs}
   ${typingIndicatorsGqlTypeDefs}
   ${acceptCoauthorRequestTypeDefs}
+  ${bookmarkGqlTypeDefs}
   ${hidePostGqlTypeDefs}
   ${markAsUnreadTypeDefs}
   ${cronGraphQLTypeDefs}
