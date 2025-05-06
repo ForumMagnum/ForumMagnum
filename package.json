@@ -177,6 +177,7 @@
     "auth0": "^2.42.0",
     "bcrypt": "^5.0.1",
     "bowser": "^1.9.4",
+    "change-case-all": "^2.1.0",
     "cheerio": "1.0.0-rc.9",
     "chokidar": "^3.5.0",
     "classnames": "^2.2.6",
