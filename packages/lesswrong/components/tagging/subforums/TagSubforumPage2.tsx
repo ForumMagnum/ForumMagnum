@@ -339,7 +339,7 @@ const TagSubforumPage2 = ({classes}: {
     ],
   };
   
-  const tabComponents: Record<SubforumTab, JSX.Element> = {
+  const tabComponents: Record<SubforumTab, React.JSX.Element> = {
     posts: (
       <SubforumSubforumTab
         tag={tag}

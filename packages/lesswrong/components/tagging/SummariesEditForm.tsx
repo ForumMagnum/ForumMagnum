@@ -337,7 +337,6 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
         });
         setReorderedSummaries(newValue);
       }}
-      classes={classes}
     />
   </span>;
 };
