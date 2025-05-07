@@ -86,6 +86,11 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
     label: "Your Bookmarks",
     description: "Items you've bookmarked will be included to remind you about them."
   },
+  {
+    key: 'subscriptions',
+    label: "Posts by Followed Users",
+    description: "Posts from users you've subscribed to or followed (for subscribed comments config, see Advanced Settings)."
+  },
 ];
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
@@ -94,6 +99,7 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recentComments': 60,
   'spotlights': 10,
   'bookmarks': 10,
+  'subscriptions': 10,
 };
 
 export const DEFAULT_SETTINGS: UltraFeedDefaultSettingsType = {

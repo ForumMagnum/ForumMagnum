@@ -1,4 +1,4 @@
-import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
+import { FeedFullPost, FeedItemSourceType, FeedPostStub } from "@/components/ultraFeed/ultraFeedTypes";
 import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
@@ -58,6 +58,37 @@ export async function getRecommendedPostsForUltraFeed(
   }).filter((p) => !!p);
 
   return displayPosts;
+}
+
+/**
+ * Fetches posts from subscribed users for UltraFeed.
+ */
+export async function getSubscribedPostsForUltraFeed(
+  context: ResolverContext,
+  limit: number,
+  settings: UltraFeedResolverSettings
+): Promise<FeedPostStub[]> {
+  const { currentUser, repos } = context;
+
+  if (!currentUser?._id) {
+    return [];
+  }
+
+  const maxAgeDays = 30; 
+
+  const postIdsFromRepo = await repos.posts.getPostsFromSubscribedUsersForUltraFeed(
+    context,
+    maxAgeDays,
+    limit
+  );
+
+  return postIdsFromRepo.map(({ postId }): FeedPostStub => ({
+    postId: postId,
+    postMetaInfo: {
+      sources: ['subscriptions' as const],
+      displayStatus: 'expanded',
+    },
+  }));
 }
 
 /**

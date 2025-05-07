@@ -1,6 +1,6 @@
 // Define source type arrays for runtime iteration
-export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks' ] as const;
-export const feedCommentSourceTypesArray = ['recentComments', 'bookmarks'] as const;
+export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptions' ] as const;
+export const feedCommentSourceTypesArray = ['recentComments', 'bookmarks', 'subscriptions'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 
 // Define types based on the arrays
