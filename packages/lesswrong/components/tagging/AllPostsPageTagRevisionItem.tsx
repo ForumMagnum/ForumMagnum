@@ -1,7 +1,18 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const RevisionHistoryEntryQuery = gql(`
+  query AllPostsPageTagRevisionItem($documentId: String) {
+    revision(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...RevisionHistoryEntry
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,12 +35,11 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {Loading, TagRevisionItem, LensRevisionItem} = Components;
-  const {document: revision, loading} = useSingle({
-    documentId: revisionId,
-    collectionName: "Revisions",
-    fragmentName: "RevisionHistoryEntry",
-    fetchPolicy: 'cache-then-network' as any, //TODO
+  const { loading, data } = useQuery(RevisionHistoryEntryQuery, {
+    variables: { documentId: revisionId },
+    fetchPolicy: 'cache-then-network' as any,
   });
+  const revision = data?.revision?.result;
   
   if (loading)
     return <Loading/>

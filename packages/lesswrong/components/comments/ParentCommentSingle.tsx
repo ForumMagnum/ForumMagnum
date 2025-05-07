@@ -1,8 +1,19 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListWithParentMetadataQuery = gql(`
+  query ParentCommentSingle($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentsListWithParentMetadata
+      }
+    }
+  }
+`);
 
 const ParentCommentSingle = ({
   documentId,
@@ -19,11 +30,10 @@ const ParentCommentSingle = ({
   truncated?: boolean,
   treeOptions?: CommentTreeOptions
 }) => {
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
+  const { loading, data } = useQuery(CommentsListWithParentMetadataQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.comment?.result;
   if (document && !loading) {
     return (
       <div className={classNames(

@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
-import { useSingle } from '../../lib/crud/withSingle';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
@@ -20,6 +19,18 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersCurrentCommentRateLimitQuery = gql(`
+  query CommentsNewForm($documentId: String, $postId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersCurrentCommentRateLimit
+      }
+    }
+  }
+`);
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -303,17 +314,14 @@ const CommentsNewForm = ({
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
   const commentSubmitStartTimeRef = useRef(Date.now());
   
-  const userWithRateLimit = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersCurrentCommentRateLimit",
-    extraVariables: { postId: 'String' },
-    extraVariablesValues: { postId: post?._id },
-    fetchPolicy: "cache-and-network",
+  const { refetch, data } = useQuery(UsersCurrentCommentRateLimitQuery, {
+    variables: { documentId: currentUser?._id, postId: post?._id },
     skip: !currentUser,
-    ssr: false
+    fetchPolicy: "cache-and-network",
+    ssr: false,
   });
-  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
+  const document = data?.user?.result;
+  const userNextAbleToComment = document?.rateLimitNextAbleToComment;
   const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
   const rateLimitMessage = userNextAbleToComment ? userNextAbleToComment.rateLimitMessage : null
   
@@ -379,7 +387,7 @@ const CommentsNewForm = ({
     setLoading(false)
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
     captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
-    userWithRateLimit.refetch();
+    refetch();
   };
 
   const wrappedCancelCallback = (...args: unknown[]) => {

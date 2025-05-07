@@ -2,7 +2,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
@@ -10,6 +9,18 @@ import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsExpandedHighlightQuery = gql(`
+  query PostsHighlight($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsExpandedHighlight
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   highlightContinue: {
@@ -133,12 +144,13 @@ const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, sm
 }) => {
   const [expanded, setExpanded] = useState(false);
   const apolloClient = useForeignApolloClient();
-  const {document: expandedDocument, loading: expandedLoading} = useSingle({
+  const { loading: expandedLoading, data } = useQuery(PostsExpandedHighlightQuery, {
+    variables: { documentId: post.fmCrosspost.foreignPostId },
     skip: !expanded && !!post.contents,
-    documentId: post.fmCrosspost.foreignPostId,
-    apolloClient,
-    ...expandedFetchProps,
+    fetchPolicy: "cache-first",
+    client: apolloClient,
   });
+  const expandedDocument = data?.post?.result;
 
   return loading
     ? <Components.Loading />
@@ -180,11 +192,12 @@ const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerF
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const {document: expandedDocument, loading: expandedLoading} = useSingle({
+  const { loading: expandedLoading, data } = useQuery(PostsExpandedHighlightQuery, {
+    variables: { documentId: post._id },
     skip: !expanded && !!post.contents,
-    documentId: post._id,
-    ...expandedFetchProps,
+    fetchPolicy: "cache-first",
   });
+  const expandedDocument = data?.post?.result;
 
   return <HighlightBody {...{
     post,

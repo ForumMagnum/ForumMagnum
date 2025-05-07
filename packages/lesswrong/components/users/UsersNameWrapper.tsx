@@ -1,7 +1,18 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersMinimumInfoQuery = gql(`
+  query UsersNameWrapper($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersMinimumInfo
+      }
+    }
+  }
+`);
 
 /**
  * UsersNameWrapper: You probably should be using UsersName instead.
@@ -18,11 +29,10 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=fals
   className?: string,
   tooltipPlacement?: PopperPlacementType,
 }) => {
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Users",
-    fragmentName: 'UsersMinimumInfo',
+  const { loading, data } = useQuery(UsersMinimumInfoQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.user?.result;
   if (!document && loading) {
     return <Components.Loading />
   } else if (document) {

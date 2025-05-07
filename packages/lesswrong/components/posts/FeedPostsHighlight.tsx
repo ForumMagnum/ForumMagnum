@@ -2,7 +2,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
@@ -11,6 +10,18 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsExpandedHighlightQuery = gql(`
+  query FeedPostsHighlight($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsExpandedHighlight
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -140,12 +151,13 @@ const FeedPostsHighlight = ({post, ...rest}: {
 
   const documentId = (isForeignCrosspost && !error) ? (availablePost.fmCrosspost.foreignPostId ?? undefined) : availablePost._id;
 
-  const { document: expandedDocument, loading: expandedLoading } = useSingle({
-    documentId,
-    apolloClient: isForeignCrosspost ? apolloClient : undefined,
+  const { loading: expandedLoading, data } = useQuery(PostsExpandedHighlightQuery, {
+    variables: { documentId: documentId },
     skip: !expanded && !!post.contents,
-    ...expandedFetchProps,
+    fetchPolicy: "cache-first",
+    client: isForeignCrosspost ? apolloClient : undefined,
   });
+  const expandedDocument = data?.post?.result;
 
   return loading
     ? <Components.Loading />

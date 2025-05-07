@@ -3,18 +3,28 @@ import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
-import { useSingle } from "../../lib/crud/withSingle";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import FormControlLabel from "@/lib/vendor/@material-ui/core/src/FormControlLabel";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import LoginIcon from "@/lib/vendor/@material-ui/icons/src/LockOpen"
 import UnlinkIcon from "@/lib/vendor/@material-ui/icons/src/RemoveCircle";
-import { gql, useMutation } from "@apollo/client";
+import { gql as graphql, useMutation, useQuery } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersCrosspostInfoQuery = gql(`
+  query FMCrosspostControl($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersCrosspostInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,12 +67,10 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const apolloClient = useForeignApolloClient();
-  const {document, loading} = useSingle({
-    documentId: fmCrosspostUserId,
-    collectionName: "Users",
-    fragmentName: "UsersCrosspostInfo",
-    apolloClient,
+  const { loading, data } = useQuery(UsersCrosspostInfoQuery, {
+    variables: { documentId: fmCrosspostUserId },
   });
+  const document = data?.user?.result;
 
   const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
 
@@ -135,17 +143,16 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path}: {
   const {isCrosspost} = value ?? {};
   if (!currentUser) throw new Error("FMCrosspostControl should only appear when logged in");
 
-  const [unlink, {loading: loadingUnlink}] = useMutation(gql`
+  const [unlink, {loading: loadingUnlink}] = useMutation(graphql`
     mutation unlinkCrossposter {
       unlinkCrossposter
     }
   `, {errorPolicy: "all"});
-  const {document, refetch, loading: loadingDocument} = useSingle({
-    documentId: currentUser._id,
-    collectionName: "Users",
-    fragmentName: "UsersCrosspostInfo",
+  const { refetch, loading: loadingDocument, data } = useQuery(UsersCrosspostInfoQuery, {
+    variables: { documentId: currentUser._id },
     notifyOnNetworkStatusChange: true,
   });
+  const document = data?.user?.result;
   const [error, setError] = useState<string | null>(null);
 
   const loading = loadingUnlink || loadingDocument;

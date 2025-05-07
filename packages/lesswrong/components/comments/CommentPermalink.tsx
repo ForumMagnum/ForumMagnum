@@ -1,13 +1,24 @@
 import React from 'react';
 import { commentIsHidden } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useSingle } from '../../lib/crud/withSingle';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { isBookUI } from '@/themes/forumTheme';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentWithRepliesFragmentQuery = gql(`
+  query CommentPermalink($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentWithRepliesFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,13 +69,12 @@ const CommentPermalink = ({
 }) => {
   const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
 
-  const { document: comment, data, loading, error } = useSingle({
-    documentId,
-    collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
-    skip: isNotRandomId(documentId)
+  const { data, loading, error, refetch } = useQuery(CommentWithRepliesFragmentQuery, {
+    variables: { documentId: documentId },
+    skip: isNotRandomId(documentId),
   });
-  const refetch = data?.refetch;
+  const comment = data?.comment?.result;
+  
   const { Loading, Divider, CommentOnPostWithReplies, HeadTags, CommentWithReplies } = Components;
 
   if (silentLoading && !comment) return null;

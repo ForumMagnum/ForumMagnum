@@ -1,11 +1,22 @@
 import React, { useEffect, useRef } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { useSingle } from "../../../lib/crud/withSingle";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
 import type { KarmaChanges } from "../../../server/collections/users/karmaChangesGraphQL";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserKarmaChangesQuery = gql(`
+  query NotificationsPage($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserKarmaChanges
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,14 +38,13 @@ export const NotificationsPage = ({classes}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {notificationsOpened} = useUnreadNotifications();
-  const {document: fetchedKarmaChanges} = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UserKarmaChanges",
+  const { data } = useQuery(UserKarmaChangesQuery, {
+    variables: { documentId: currentUser?._id },
     skip: !currentUser,
     fetchPolicy: "network-only",
     nextFetchPolicy: "cache-only",
   });
+  const fetchedKarmaChanges = data?.user?.result;
 
   // Save the initial karma changes to display, as they'll be marked as read
   // once the user visits the page and they'll dissapear

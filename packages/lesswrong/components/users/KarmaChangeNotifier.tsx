@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Paper from '@/lib/vendor/@material-ui/core/src/Paper';
@@ -19,6 +18,18 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserKarmaChangesQuery = gql(`
+  query KarmaChangeNotifier($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserKarmaChanges
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -212,11 +223,10 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
   const { captureEvent } = useTracking()
   const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
   
-  const { document } = useSingle({
-    documentId: currentUser._id,
-    collectionName: "Users",
-    fragmentName: "UserKarmaChanges",
+  const { data } = useQuery(UserKarmaChangesQuery, {
+    variables: { documentId: currentUser._id },
   });
+  const document = data?.user?.result;
   
   const [stateKarmaChanges,setStateKarmaChanges] = useState(document?.karmaChanges);
 

@@ -1,13 +1,23 @@
 import React, { useCallback, useState } from "react";
-import { gql, useMutation } from "@apollo/client";
+import { gql as graphql, useMutation, useQuery } from "@apollo/client";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "@/lib/routeUtil";
-import { useSingle } from "@/lib/crud/withSingle";
 import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/newSchema";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SurveyMinimumInfoQuery = gql(`
+  query SurveyEditPage($documentId: String) {
+    survey(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SurveyMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -152,7 +162,7 @@ const SurveyForm = ({survey, refetch, classes}: {
     }]);
   }, []);
 
-  const [updateSurvey] = useMutation(gql`
+  const [updateSurvey] = useMutation(graphql`
     mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
       editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
         ...SurveyMinimumInfo
@@ -261,11 +271,10 @@ const SurveyEditor = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params: {id}} = useLocation();
-  const {document: survey, loading, refetch} = useSingle({
-    collectionName: "Surveys",
-    fragmentName: "SurveyMinimumInfo",
-    documentId: id,
+  const { loading, refetch, data } = useQuery(SurveyMinimumInfoQuery, {
+    variables: { documentId: id },
   });
+  const survey = data?.survey?.result;
 
   const {SingleColumnSection, SectionTitle, Loading} = Components;
   return (

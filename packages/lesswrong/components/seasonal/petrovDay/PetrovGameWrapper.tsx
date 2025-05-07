@@ -4,7 +4,6 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import { DatabasePublicSetting } from '@/lib/publicSettings';
 import { DismissibleSpotlightItem } from '@/components/spotlights/DismissibleSpotlightItem';
-import { useSingle } from '@/lib/crud/withSingle';
 import { gql, useQuery } from '@apollo/client';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 

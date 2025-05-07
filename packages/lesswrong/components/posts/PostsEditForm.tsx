@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useDialog } from "../common/withDialog";
@@ -14,12 +13,32 @@ import { isEAForum, isLW } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
-import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { NewPostHowToGuides } from './NewPostHowToGuides';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersCurrentPostRateLimitQuery = gql(`
+  query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersCurrentPostRateLimit
+      }
+    }
+  }
+`);
+
+const PostsPageQuery = gql(`
+  query PostsEditFormPost($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsPage
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -142,20 +161,16 @@ const PostsEditForm = ({ documentId, version }: {
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
 
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Posts",
-    fragmentName: 'PostsPage',
+  const { loading, data: dataPost } = useQuery(PostsPageQuery, {
+    variables: { documentId: documentId },
   });
+  const document = dataPost?.post?.result;
 
-  const { document: userWithRateLimit } = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersCurrentPostRateLimit",
+  const { data: dataUser } = useQuery(UsersCurrentPostRateLimitQuery, {
+    variables: { documentId: currentUser?._id, eventForm: document?.isEvent },
     skip: !currentUser,
-    extraVariables: { eventForm: 'Boolean' },
-    extraVariablesValues: { eventForm: document?.isEvent }
   });
+  const userWithRateLimit = dataUser?.user?.result;
 
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",

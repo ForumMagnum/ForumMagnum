@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { gql } from '@apollo/client';
+import { gql as dynamicGql, useQuery } from '@apollo/client';
 import { capitalize } from '../../lib/vulcan-lib/utils';
 import { useCreate } from '../../lib/crud/withCreate';
-import { useSingle, SelectorInput } from '../../lib/crud/withSingle';
 import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
@@ -27,7 +26,7 @@ function convertFields(field: string) {
  * generate query fragment based on the fields that can be edited. Note: always add _id.
  */
 function generateQueryFragment(queryFragmentName: string, collectionTypeName: string, queryFields: string[]) {
-  return gql`
+  return graphql`
     fragment ${queryFragmentName} on ${collectionTypeName} {
       _id
       ${queryFields.map(convertFields).join('\n')}
@@ -39,7 +38,7 @@ function generateQueryFragment(queryFragmentName: string, collectionTypeName: st
  * generate mutation fragment based on the fields that can be edited and/or viewed. Note: always add _id.
  */
 function generateMutationFragment(mutationFragmentName: string, collectionTypeName: string, mutationFields: string[]) {
-  return gql`
+  return graphql`
     fragment ${mutationFragmentName} on ${collectionTypeName} {
       _id
       ${mutationFields.map(convertFields).join('\n')}
@@ -168,17 +167,27 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
 
   // if we're not e.g. being redirected after an autosave, we always want to load a fresh copy of the document
   const fetchPolicy = editFormFetchPolicy ?? 'network-only';
-  
-  const selector = { documentId: props.documentId };
 
-  const { document, loading } = useSingle<AnyBecauseHard>({
-    ...selector,
-    collectionName,
-    fragment: queryFragment,
-    extraVariables,
-    extraVariablesValues,
+  const extraVariablesString = Object.keys(extraVariables).map(key => `${key}: ${extraVariables[key]}`).join(', ');
+
+  const query = dynamicGql`
+    query FormWrapperEdit($documentId: String!, ${extraVariablesString}) {
+      ${collectionName}(input: { selector: { _id: $documentId } }) {
+        ${`...${queryFragment}`}
+      }
+    }
+  `;
+
+  const { data: fetchedResult, loading } = useQuery(query, {
     fetchPolicy,
+    variables: {
+      documentId: props.documentId,
+      ...extraVariablesValues,
+    }
   });
+
+  const document = fetchedResult?.[collectionName];
+
   const {mutate: updateMutation} = useUpdate({
     collectionName,
     fragment: mutationFragment,

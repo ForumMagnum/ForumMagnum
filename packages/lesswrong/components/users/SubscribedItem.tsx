@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useSingle } from "@/lib/crud/withSingle";
+import { gql as dynamicGql, useQuery } from '@apollo/client';
+import { getFragment } from "@/lib/vulcan-lib/fragments";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,10 +39,25 @@ const SubscribedItem = ({
   classes: ClassesType<typeof styles>
 }) => {
   const {Loading, NotifyMeButton} = Components;
-  const {document, loading} = useSingle({
-    documentId: subscription.documentId,
-    collectionName, fragmentName,
+
+  const fragment = getFragment(fragmentName);
+
+  const query = dynamicGql`
+    query SubscribedItem($documentId: String!) {
+      ${collectionName}(input: { selector: { _id: $documentId } }) {
+        ${`...${fragmentName}`}
+      }
+    }
+    ${fragment}
+  `;
+
+  const { data: fetchedResult, loading } = useQuery(query, {
+    variables: {
+      documentId: subscription.documentId,
+    },
   });
+
+  const document = fetchedResult?.[collectionName];
 
   if (!document && !loading) {
     return null;

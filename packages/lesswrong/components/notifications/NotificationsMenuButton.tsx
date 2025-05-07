@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -10,6 +9,18 @@ import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserKarmaChangesQuery = gql(`
+  query NotificationsMenuButton($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserKarmaChanges
+      }
+    }
+  }
+`);
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -164,12 +175,11 @@ const FriendlyNotificationsMenuButton = ({
   const {unreadNotifications, notificationsOpened} = useUnreadNotifications();
   const [open, setOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement>(null);
-  const {document: karmaChanges, refetch} = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UserKarmaChanges",
+  const { refetch, data } = useQuery(UserKarmaChangesQuery, {
+    variables: { documentId: currentUser?._id },
     skip: !currentUser,
   });
+  const karmaChanges = data?.user?.result;
 
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
   const hasBadge = unreadNotifications > 0;

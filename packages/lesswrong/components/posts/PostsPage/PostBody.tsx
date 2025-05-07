@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
@@ -11,6 +10,18 @@ import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostSideCommentsQuery = gql(`
+  query PostBody($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostSideComments
+      }
+    }
+  }
+`);
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -68,12 +79,11 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     sideCommentMode &&
     sideCommentMode !== "hidden";
 
-  const { document } = useSingle({
-    documentId: post._id,
-    collectionName: "Posts",
-    fragmentName: 'PostSideComments',
+  const { data } = useQuery(PostSideCommentsQuery, {
+    variables: { documentId: post._id },
     skip: !includeSideComments,
   });
+  const document = data?.post?.result;
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);

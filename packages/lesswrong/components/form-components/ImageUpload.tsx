@@ -8,9 +8,20 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
-import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CloudinaryPropsType } from '../common/CloudinaryImage2';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersMinimumInfoQuery = gql(`
+  query ImageUpload($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -128,12 +139,11 @@ const FormProfileImage: FC<{
   profileImageId: string,
   size: number,
 }> = ({document, profileImageId, size}) => {
-  const {document: user} = useSingle({
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
+  const { data } = useQuery(UsersMinimumInfoQuery, {
+    variables: { documentId: document._id },
     fetchPolicy: "cache-and-network",
-    documentId: document._id,
   });
+  const user = data?.user?.result;
   return (
     <Components.UsersProfileImage
       user={user ? {...user, profileImageId} : undefined}

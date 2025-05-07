@@ -1,7 +1,18 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import Chip from '@/lib/vendor/@material-ui/core/src/Chip';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersProfileQuery = gql(`
+  query SingleUsersItem($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersProfile
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   chip: {
@@ -21,11 +32,10 @@ const SingleUsersItem = ({userId, removeItem, classes }: {
   removeItem: (id: string) => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { document, loading } = useSingle({
-    documentId: userId,
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
+  const { loading, data } = useQuery(UsersProfileQuery, {
+    variables: { documentId: userId },
   });
+  const document = data?.user?.result;
 
   if (document && !loading) {
     return <span className="search-results-users-item users-item">

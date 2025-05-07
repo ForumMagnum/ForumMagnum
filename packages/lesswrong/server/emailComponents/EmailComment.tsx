@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import groupBy from 'lodash/groupBy';
 import filter from 'lodash/filter';
@@ -11,6 +10,38 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailUsername } from './EmailUsername';
 import { EmailContentItemBody } from './EmailContentItemBody';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListWithParentMetadataQuery = gql(`
+  query EmailComment2($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentsListWithParentMetadata
+      }
+    }
+  }
+`);
+
+const TagPreviewFragmentQuery = gql(`
+  query EmailComment1($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagPreviewFragment
+      }
+    }
+  }
+`);
+
+const PostsListQuery = gql(`
+  query EmailComment($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("EmailComment", (theme: ThemeType) => ({
   headingLink: {
@@ -90,11 +121,10 @@ const HeadingLink = ({ text, href }: { text: string; href: string; }) => {
 };
 
 const EmailCommentsOnPostHeader = ({postId, allShortform}: {postId: string, allShortform: boolean}) => {
-  const { document: post } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsList",
+  const { data } = useQuery(PostsListQuery, {
+    variables: { documentId: postId },
   });
+  const post = data?.post?.result;
   if (!post) return null;
 
   const title = allShortform ? post.title : `New comments on ${post.title}`
@@ -103,11 +133,10 @@ const EmailCommentsOnPostHeader = ({postId, allShortform}: {postId: string, allS
 }
 
 const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforum: boolean}) => {
-  const { document: tag } = useSingle({
-    documentId: tagId,
-    collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
+  const { data } = useQuery(TagPreviewFragmentQuery, {
+    variables: { documentId: tagId },
   });
+  const tag = data?.tag?.result;
   if (!tag)
     return null;
   
@@ -121,11 +150,10 @@ export const EmailComment = ({commentId, hideTitle}: {
   commentId: string,
   hideTitle?: boolean,
 }) => {
-  const { document: comment, loading, error } = useSingle({
-    documentId: commentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsListWithParentMetadata",
+  const { loading, error, data } = useQuery(CommentsListWithParentMetadataQuery, {
+    variables: { documentId: commentId },
   });
+  const comment = data?.comment?.result;
   
   if (loading) return null;
   if (error) {

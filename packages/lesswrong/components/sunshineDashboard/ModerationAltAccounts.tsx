@@ -2,11 +2,21 @@ import React, {useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql as graphql } from '@apollo/client';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserAltAccountsFragmentQuery = gql(`
+  query ModerationAltAccounts($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserAltAccountsFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   selectUser: {
@@ -155,11 +165,10 @@ const AltAccountsNodeUserByID = ({userId, classes}: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {document: user, loading} = useSingle({
-    documentId: userId,
-    collectionName: "Users",
-    fragmentName: "UserAltAccountsFragment",
+  const { loading, data } = useQuery(UserAltAccountsFragmentQuery, {
+    variables: { documentId: userId },
   });
+  const user = data?.user?.result;
   const { Loading } = Components;
   
   if (loading) return <Loading/>;
@@ -259,7 +268,7 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
 }) => {
   const { Loading } = Components;
   const [expanded,setExpanded] = useState(false);
-  const {data, loading} = useQuery(gql`
+  const {data, loading} = useQuery(graphql`
     query ModeratorIPAddressInfo($ipAddress: String!) {
       moderatorViewIPAddress(ipAddress: $ipAddress) {
         ip

@@ -1,8 +1,19 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ConversationsListQuery = gql(`
+  query ConversationPreview($documentId: String) {
+    conversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ConversationsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,12 +39,11 @@ const ConversationPreview = ({conversationId, currentUser, classes, showTitle=tr
 }) => {
   const { Loading, MessageItem } = Components
 
-  const { document: conversation, loading: conversationLoading } = useSingle({
-    collectionName: "Conversations",
-    fragmentName: 'ConversationsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
-    documentId: conversationId
+  const { loading: conversationLoading, data } = useQuery(ConversationsListQuery, {
+    variables: { documentId: conversationId },
+    fetchPolicy: 'cache-then-network' as any,
   });
+  const conversation = data?.conversation?.result;
 
   const { results: messages = [] } = useMulti({
     terms: {

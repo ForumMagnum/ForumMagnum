@@ -4,9 +4,20 @@ import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useSingle } from '../../lib/crud/withSingle';
 import KeyboardBackspaceIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardBackspace';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListQuery = gql(`
+  query ReviewVotingExpandedPost($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,12 +80,11 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
 }) => {
   const { PostPageReviewButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
 
-  const {document: postWithContents, loading} = useSingle({
-    documentId: post?._id,
-    collectionName: "Posts",
+  const { loading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: post?._id },
     fetchPolicy: "cache-first",
-    fragmentName: "PostsList",
   });
+  const postWithContents = data?.post?.result;
 
   const newPost = post || postWithContents
 

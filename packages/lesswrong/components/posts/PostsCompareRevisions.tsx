@@ -1,9 +1,20 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
-import { useSingle } from '../../lib/crud/withSingle';
 import { styles } from './PostsPage/PostsPage';
 import { useMulti } from '@/lib/crud/withMulti';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsWithNavigationQuery = gql(`
+  query PostsCompareRevisions($documentId: String, $sequenceId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsWithNavigation
+      }
+    }
+  }
+`);
 
 const PostsCompareRevisions = ({ classes }: {
   classes: ClassesType<typeof styles>
@@ -15,13 +26,10 @@ const PostsCompareRevisions = ({ classes }: {
   const versionAfter = query.after;
   
   // Load the post, just for the current title
-  const { document: post, loading: loadingPost, error: postError } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsWithNavigation",
-    extraVariables: { sequenceId: 'String' },
-    extraVariablesValues: { sequenceId: null },
+  const { loading: loadingPost, error: postError, data } = useQuery(PostsWithNavigationQuery, {
+    variables: { documentId: postId, sequenceId: null },
   });
+  const post = data?.post?.result;
   
   // Load the after- revision
   const { results: revisionResults, loading: loadingRevision, error: revisionError } = useMulti({

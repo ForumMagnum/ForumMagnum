@@ -1,8 +1,29 @@
 import React from 'react';
 import { getConfirmedCoauthorIds, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useSingle } from '../../lib/crud/withSingle';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { EmailContentItemBody } from './EmailContentItemBody';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersMinimumInfoQuery = gql(`
+  query NewDialogueMessagesEmail1($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersMinimumInfo
+      }
+    }
+  }
+`);
+
+const PostsRevisionQuery = gql(`
+  query NewDialogueMessagesEmail($documentId: String, $version: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsRevision
+      }
+    }
+  }
+`);
 
 export interface DialogueMessageEmailInfo {
   messageContents: string,
@@ -14,21 +35,16 @@ export const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEma
   userId: string,
   dialogueMessageEmailInfo?: DialogueMessageEmailInfo
 }) => {
-  const { document: post } = useSingle({
-    documentId,
-    collectionName: "Posts",
-    fragmentName: "PostsRevision",
-    extraVariables: {
-      version: 'String'
-    }
+  const { data: dataPost } = useQuery(PostsRevisionQuery, {
+    variables: { documentId: documentId },
   });
+  const post = dataPost?.post?.result;
       
-  const { document: author } = useSingle({
-    documentId: dialogueMessageEmailInfo?.messageAuthorId,
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
-    skip: !dialogueMessageEmailInfo
-  })
+  const { data: dataUser } = useQuery(UsersMinimumInfoQuery, {
+    variables: { documentId: dialogueMessageEmailInfo?.messageAuthorId },
+    skip: !dialogueMessageEmailInfo,
+  });
+  const author = dataUser?.user?.result;
 
   if (!post) return null;
   if (!post.collabEditorDialogue) return null;
