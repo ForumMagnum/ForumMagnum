@@ -44,6 +44,7 @@ export interface FeedCommentMetaInfo {
 
 export interface FeedCommentFromDb {
   commentId: string;
+  authorId: string;
   topLevelCommentId: string;
   postId: string;
   parentCommentId: string | null;

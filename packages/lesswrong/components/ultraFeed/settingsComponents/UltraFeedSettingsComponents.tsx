@@ -513,11 +513,17 @@ interface MultipliersSettingsProps {
     error?: string;
     onChange: (value: number | string) => void;
   };
+  commentSubscribedAuthorMultiplier: {
+    value: number | '';
+    error?: string;
+    onChange: (value: number | string) => void;
+  };
 }
 
 const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
   quickTakeBoost,
   seenPenalty,
+  commentSubscribedAuthorMultiplier,
 }) => {
   const classes = useStyles(styles);
   return (
@@ -550,6 +556,37 @@ const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
         <p className={classes.sourceWeightDescription}>Multiplier applied to the score of Quick Takes comments.</p>
         {quickTakeBoost.error && (
           <p className={classes.errorMessage}>{quickTakeBoost.error}</p>
+        )}
+      </div>
+
+      <div className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Subscribed Boost</label>
+          <Slider
+            className={classes.sourceWeightSlider}
+            value={typeof commentSubscribedAuthorMultiplier.value === 'number' ? commentSubscribedAuthorMultiplier.value : 1}
+            onChange={(_, val) => commentSubscribedAuthorMultiplier.onChange(val as number)}
+            min={1}
+            max={5}
+            step={0.1}
+          />
+          <input
+            type="number"
+            className={classNames(classes.sourceWeightInput, {
+              [classes.invalidInput]: !!commentSubscribedAuthorMultiplier.error
+            })}
+            value={commentSubscribedAuthorMultiplier.value}
+            onChange={(e) => commentSubscribedAuthorMultiplier.onChange(e.target.value)}
+            min={1}
+            max={5}
+            step={0.1}
+          />
+        </div>
+        <p className={classes.sourceWeightDescription}>
+          Multiplier for comments by authors you subscribe to or follow. Default: {DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier}
+        </p>
+        {commentSubscribedAuthorMultiplier.error && (
+          <p className={classes.errorMessage}>{commentSubscribedAuthorMultiplier.error}</p>
         )}
       </div>
 

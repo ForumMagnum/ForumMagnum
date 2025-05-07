@@ -155,6 +155,7 @@ const UltraFeedSettings = ({
     postLevel2: getPostBreakpointLevel(settings.postTruncationBreakpoints?.[2]),
     incognitoMode: settings.incognitoMode,
     quickTakeBoost: settings.quickTakeBoost ?? DEFAULT_SETTINGS.quickTakeBoost,
+    commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier ?? DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier,
 
     lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
     postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
@@ -206,6 +207,7 @@ const UltraFeedSettings = ({
       postLevel2: derivedPostLevel2,
       incognitoMode: settings.incognitoMode,
       quickTakeBoost: settings.quickTakeBoost ?? DEFAULT_SETTINGS.quickTakeBoost,
+      commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier ?? DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier,
       // Advanced
       lineClampNumberOfLines: settings.lineClampNumberOfLines ?? DEFAULT_SETTINGS.lineClampNumberOfLines,
       postBreakpoints: [...(settings.postTruncationBreakpoints || [])],
@@ -222,7 +224,8 @@ const UltraFeedSettings = ({
       settings.incognitoMode,
       settings.quickTakeBoost,
       settings.ultraFeedSeenPenalty,
-      settings.postTitlesAreModals
+      settings.postTitlesAreModals,
+      settings.commentSubscribedAuthorMultiplier
      ]);
 
   const updateForm = useCallback(<K extends keyof SettingsFormState>(
@@ -270,6 +273,16 @@ const UltraFeedSettings = ({
   const handleQuickTakeBoostChange = useCallback((value: number | string) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
     updateForm('quickTakeBoost', numValue);
+  }, [updateForm]);
+
+  const handleSubscribedAuthorMultiplierChange = useCallback((value: number | string) => {
+    const strValue = String(value).trim();
+    if (strValue === '') {
+      updateForm('commentSubscribedAuthorMultiplier', '');
+    } else {
+      const numValue = parseFloat(strValue);
+      updateForm('commentSubscribedAuthorMultiplier', numValue);
+    }
   }, [updateForm]);
 
   const handleSeenPenaltyChange = useCallback((value: number | string) => {
@@ -332,6 +345,10 @@ const UltraFeedSettings = ({
         ? DEFAULT_SETTINGS.quickTakeBoost 
         : formValues.quickTakeBoost;
         
+    settingsToUpdate.commentSubscribedAuthorMultiplier = formValues.commentSubscribedAuthorMultiplier === '' || isNaN(Number(formValues.commentSubscribedAuthorMultiplier))
+        ? DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier
+        : Number(formValues.commentSubscribedAuthorMultiplier);
+
     settingsToUpdate.ultraFeedSeenPenalty = formValues.ultraFeedSeenPenalty === '' || isNaN(Number(formValues.ultraFeedSeenPenalty))
         ? DEFAULT_SETTINGS.ultraFeedSeenPenalty
         : Number(formValues.ultraFeedSeenPenalty);
@@ -431,6 +448,11 @@ const UltraFeedSettings = ({
           value: formValues.ultraFeedSeenPenalty,
           error: getScalarError('ultraFeedSeenPenalty'),
           onChange: handleSeenPenaltyChange,
+        }}
+        commentSubscribedAuthorMultiplier={{
+          value: formValues.commentSubscribedAuthorMultiplier,
+          error: getScalarError('commentSubscribedAuthorMultiplier'),
+          onChange: handleSubscribedAuthorMultiplierChange,
         }}
       />
       <AdvancedTruncationSettings

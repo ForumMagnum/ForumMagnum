@@ -137,7 +137,8 @@ interface PreparedFeedCommentsThread extends FeedCommentsThread {
  */
 function calculateCommentScore(
   comment: FeedCommentFromDb,
-  settings: Pick<UltraFeedResolverSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
+  settings: Pick<UltraFeedResolverSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
+  subscribedToUserIds: Set<string>
 ): number {
   if (!comment.postedAt) {
     return 0; // Cannot score without a timestamp
@@ -155,7 +156,13 @@ function calculateCommentScore(
   }
 
   // Apply quick take boost if applicable
-  const boost = comment.shortform ? settings.quickTakeBoost : 1.0;
+  let boost = comment.shortform ? settings.quickTakeBoost : 1.0;
+  
+  // Apply boost for comments by subscribed authors
+  if (comment.authorId && subscribedToUserIds.has(comment.authorId)) {
+    boost *= settings.commentSubscribedAuthorMultiplier; 
+  }
+
   const boostedScore = decayedScore * boost;
 
   // Apply seen penalty
@@ -226,11 +233,12 @@ function calculateThreadScore(
  */
 function scoreComments(
   comments: FeedCommentFromDb[],
-  settings: Pick<UltraFeedResolverSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost'>
+  settings: Pick<UltraFeedResolverSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
+  subscribedToUserIds: Set<string>
 ): IntermediateScoredComment[] { 
   return comments.map(comment => ({
     ...comment,
-    score: calculateCommentScore(comment, settings),
+    score: calculateCommentScore(comment, settings, subscribedToUserIds),
   }));
 }
 
@@ -409,8 +417,13 @@ export async function getUltraFeedCommentThreads(
     return [];
   }
 
-  // --- Step 1: Fetch Data ---
+  const subscriptionsRepo = context.repos.subscriptions;
   const commentsRepo = context.repos.comments;
+
+  // Fetch subscribed to user IDs
+  const subscribedToUserIdsList = await subscriptionsRepo.getSubscribedToUserIds(userId);
+  const subscribedToUserIds = new Set(subscribedToUserIdsList);
+
   const rawCommentsData = await commentsRepo.getCommentsForFeed(userId, 1000);
 
   // --- Step 2: Score Individual Comments ---
@@ -418,9 +431,10 @@ export async function getUltraFeedCommentThreads(
     commentDecayFactor: settings.commentDecayFactor, 
     commentDecayBiasHours: settings.commentDecayBiasHours, 
     ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty,
-    quickTakeBoost: settings.quickTakeBoost 
+    quickTakeBoost: settings.quickTakeBoost,
+    commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier
   };
-  const scoredComments = scoreComments(rawCommentsData, relevantSettings); 
+  const scoredComments = scoreComments(rawCommentsData, relevantSettings, subscribedToUserIds); 
 
   // --- Steps 3 & 4a: Build and Score Threads --- 
   const threadScoringSettings = {

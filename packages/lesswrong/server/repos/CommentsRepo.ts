@@ -494,11 +494,13 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               c."postId",
               COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
               c."postedAt",
-              c.shortform
+              c.shortform,
+              c."userId" AS "authorId"
           FROM "Comments" c
           WHERE
               ${getUniversalCommentFilterClause('c')}
-              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '7 days'))
+              AND c."userId" != $(userId)
+              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '14 days'))
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
@@ -510,6 +512,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           SELECT
             c._id,
             c."postId",
+            c."userId" AS "authorId",
             c."baseScore",
             c."topLevelCommentId",
             c."parentCommentId",
@@ -570,6 +573,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       SELECT
           c._id AS "commentId",
           c."postId",
+          c."authorId",
           c."baseScore",
           COALESCE(c."topLevelCommentId", c._id) AS "topLevelCommentId", -- Ensure topLevelCommentId is always populated
           c."parentCommentId",
@@ -586,6 +590,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
 
     return feedCommentsData.map((comment): FeedCommentFromDb => ({
       commentId: comment.commentId,
+      authorId: comment.authorId,
       topLevelCommentId: comment.topLevelCommentId,
       parentCommentId: comment.parentCommentId ?? null,
       postId: comment.postId,

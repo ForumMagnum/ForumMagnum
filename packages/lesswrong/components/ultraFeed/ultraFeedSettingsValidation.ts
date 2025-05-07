@@ -35,6 +35,10 @@ export const ultraFeedSettingsSchema = z.object({
     .min(0.5, { message: "Value must be between 0.5 and 3.0" })
     .max(3.0, { message: "Value must be between 0.5 and 3.0" })
     .default(DEFAULT_SETTINGS.quickTakeBoost),
+  commentSubscribedAuthorMultiplier: z.number()
+    .min(1, { message: "Value must be between 1 and 5" })
+    .max(10.0, { message: "Value must be between 1 and 10" })
+    .default(DEFAULT_SETTINGS.commentSubscribedAuthorMultiplier),
   threadScoreAggregation: z.enum(['sum', 'max', 'logSum', 'avg'])
     .default(DEFAULT_SETTINGS.threadScoreAggregation),
   threadScoreFirstN: z.number().int().positive()

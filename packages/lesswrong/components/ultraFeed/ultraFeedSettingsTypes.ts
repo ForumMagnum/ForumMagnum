@@ -10,6 +10,7 @@ export interface UltraFeedResolverSettings {
   commentDecayBiasHours: number;
   ultraFeedSeenPenalty: number;
   quickTakeBoost: number;
+  commentSubscribedAuthorMultiplier: number;
   threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
   threadScoreFirstN: number;
   incognitoMode: boolean;
@@ -42,6 +43,7 @@ export const getResolverSettings = (settings: UltraFeedSettingsType): UltraFeedR
   commentDecayBiasHours: settings.commentDecayBiasHours,
   ultraFeedSeenPenalty: settings.ultraFeedSeenPenalty,
   quickTakeBoost: settings.quickTakeBoost,
+  commentSubscribedAuthorMultiplier: settings.commentSubscribedAuthorMultiplier,
   threadScoreAggregation: settings.threadScoreAggregation,
   threadScoreFirstN: settings.threadScoreFirstN,
   incognitoMode: settings.incognitoMode,
@@ -115,6 +117,7 @@ export const DEFAULT_SETTINGS: UltraFeedDefaultSettingsType = {
   commentDecayBiasHours: 2, 
   ultraFeedSeenPenalty: 0.1, 
   quickTakeBoost: 1.5, 
+  commentSubscribedAuthorMultiplier: 2,
   threadScoreAggregation: 'logSum', 
   threadScoreFirstN: 5, 
   incognitoMode: false, 
@@ -211,6 +214,7 @@ export interface SettingsFormState {
   commentLevel2: TruncationLevel;
   incognitoMode: boolean;
   quickTakeBoost: number;
+  commentSubscribedAuthorMultiplier: number | '';
   // Advanced truncation settings
   lineClampNumberOfLines: number | '';
   postBreakpoints: (number | null | '')[];
