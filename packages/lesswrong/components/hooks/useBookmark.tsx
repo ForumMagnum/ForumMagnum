@@ -54,8 +54,8 @@ export const useBookmark = (
   });
 
   useEffect(() => {
-    const bookmarkIsActive = bookmarkDocs && bookmarkDocs.length > 0 && bookmarkDocs[0].active;
-    setIsBookmarked(bookmarkIsActive ?? false);
+    const bookmarkIsActive = !!(bookmarkDocs && bookmarkDocs.length > 0 && bookmarkDocs[0].active);
+    setIsBookmarked(bookmarkIsActive);
   }, [bookmarkDocs]);
 
   const [toggleBookmarkMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
