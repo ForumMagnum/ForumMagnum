@@ -40,21 +40,22 @@ export const useBookmark = (
 
   const { results: bookmarkDocs, loading: multiLoading } = useMulti({
     collectionName: "Bookmarks",
+    fragmentName: "BookmarksDefaultFragment",
     terms: {
       view: "userDocumentBookmark",
       documentId,
       collectionName,
       userId: currentUser?._id,
     },
-    fragmentName: "BookmarksDefaultFragment",
     limit: 1,
     enableTotal: false,
-    fetchPolicy: "cache-first",
+    fetchPolicy: "cache-and-network",
     skip: !currentUser || !collectionName,
   });
 
   useEffect(() => {
-    setIsBookmarked(!!bookmarkDocs && bookmarkDocs.length > 0);
+    const bookmarkIsActive = bookmarkDocs && bookmarkDocs.length > 0 && bookmarkDocs[0].active;
+    setIsBookmarked(bookmarkIsActive ?? false);
   }, [bookmarkDocs]);
 
   const [toggleBookmarkMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
